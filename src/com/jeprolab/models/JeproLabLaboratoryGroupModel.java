@@ -1,7 +1,7 @@
 package com.jeprolab.models;
 
 
-import jeprolab.assets.tools.JeproLabDataBaseConnector;
+import com.jeprolab.assets.tools.db.JeproLabDataBaseConnector;
 
 import java.util.ArrayList;
 
@@ -23,7 +23,11 @@ public class JeproLabLaboratoryGroupModel extends JeproLabModel {
     }
 
     public static ArrayList<JeproLabLaboratoryGroupModel> getLabGroups(boolean activated){
-        staticDataBaseObject = JeproLabDataBaseConnector.getDataBaseObject();
+        try {
+            staticDataBaseObject = JeproLabDataBaseConnector.getInstance();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         return new ArrayList<>();
     }
 }

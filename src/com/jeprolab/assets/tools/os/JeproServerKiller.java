@@ -1,6 +1,6 @@
 package com.jeprolab.assets.tools.os;
 
-import jeprolab.JeproLab;
+import com.jeprolab.JeproLab;
 
 import java.io.*;
 import java.net.InetAddress;

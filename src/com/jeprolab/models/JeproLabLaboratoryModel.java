@@ -1,9 +1,9 @@
 package com.jeprolab.models;
 
 
-import jeprolab.JeproLab;
-import jeprolab.assets.tools.JeproLabCache;
-import jeprolab.assets.tools.JeproLabDataBaseConnector;
+import com.jeprolab.JeproLab;
+import com.jeprolab.assets.tools.JeproLabCache;
+import com.jeprolab.assets.tools.db.JeproLabDataBaseConnector;
 
 import java.sql.ResultSet;
 import java.util.ArrayList;
@@ -66,7 +66,11 @@ public class JeproLabLaboratoryModel  extends JeproLabModel{
         }
 
         if(laboratoryId > 0){
-            dataBaseObject = JeproLabDataBaseConnector.getDataBaseObject();
+            try {
+                dataBaseObject = JeproLabDataBaseConnector.getInstance();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
             /** Loading laboratory from database if id is supplied ** /
             String cache_id = "jeprolab_laboratory_model_" + laboratoryId + ((langId > 0) ? "_" + langId : "");
             if(!JeproLabCache.isStored(cache_id)){
@@ -182,7 +186,11 @@ public class JeproLabLaboratoryModel  extends JeproLabModel{
     }
 
     public static boolean isFeaturePublished(){
-        staticDataBaseObject = JeproLabDataBaseConnector.getDataBaseObject();
+        try {
+            staticDataBaseObject = JeproLabDataBaseConnector.getInstance();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         if(!feature_published){
             String query = "SELECT COUNT(*) FROM " + staticDataBaseObject.quoteName("#__jeprolab_lab");
             //staticDataBaseObject.setQuery(query);

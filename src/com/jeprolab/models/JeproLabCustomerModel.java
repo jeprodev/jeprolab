@@ -1,7 +1,7 @@
 package com.jeprolab.models;
 
-import jeprolab.assets.tools.JeproLabDataBaseConnector;
-import jeprolab.controllers.JeproLabCustomerController;
+import com.jeprolab.assets.tools.db.JeproLabDataBaseConnector;
+import com.jeprolab.controllers.JeproLabCustomerController;
 
 import java.sql.ResultSet;
 import java.util.Date;
@@ -62,7 +62,11 @@ public class JeproLabCustomerModel  extends JeproLabModel{
             String query = "";
             String cache_id = "jeprolab_customer_model_" + customerId + ((this.lab_id != 0) ? "_" + this.lab_id : "");
             if (!JeproLabCustomerController.isStored(cache_id)) {
-                dataBaseObject = JeproLabDataBaseConnector.getDataBaseObject();
+                try {
+                    dataBaseObject = JeproLabDataBaseConnector.getInstance();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
 
                 query += "SELECT * FROM " + dataBaseObject.quoteName("#__jeprolab_customer") + " AS customer ";
 

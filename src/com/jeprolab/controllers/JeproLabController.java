@@ -19,4 +19,6 @@ public class JeproLabController implements Initializable {
     public static boolean isStored(String cache_id){
         return false;
     }
+
+    public void updateToolBar(){}
 }

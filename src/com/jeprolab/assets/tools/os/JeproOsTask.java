@@ -1,7 +1,9 @@
 package com.jeprolab.assets.tools.os;
 
 
-import jeprolab.assets.extend.installer.JeproLabInstaller;
+
+
+import com.jeprolab.views.installer.JeproLabInstaller;
 
 import java.io.IOException;
 import java.util.ArrayList;

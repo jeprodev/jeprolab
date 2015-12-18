@@ -1,8 +1,10 @@
 package com.jeprolab.assets.tools.os;
 
 
-import jeprolab.JeproLab;
-import jeprolab.assets.extend.installer.JeproLabInstaller;
+
+
+import com.jeprolab.JeproLab;
+import com.jeprolab.views.installer.JeproLabInstaller;
 
 import java.io.File;
 import java.io.FileWriter;

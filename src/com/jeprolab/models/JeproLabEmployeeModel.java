@@ -1,8 +1,9 @@
 package com.jeprolab.models;
 
 
-import jeprolab.assets.db.JeproLabDataBaseManager;
-import jeprolab.assets.tools.JeproLabContext;
+import com.jeprolab.assets.tools.db.JeproLabDataBaseConnector;
+
+import com.jeprolab.assets.tools.JeproLabContext;
 
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -16,10 +17,10 @@ public class JeproLabEmployeeModel  extends JeproLabModel{
         Connection conn = JeproLabContext.getContext().connection;
         try {
             if(conn != null) {
-                JeproLabDataBaseManager dbManager = JeproLabDataBaseManager.getInstance();
+                JeproLabDataBaseConnector dbManager = JeproLabDataBaseConnector.getInstance();
                 Statement stmt = conn.createStatement();
-                String query = "SELECT * FROM users  WHERE username = " + JeproLabDataBaseManager.quote(userName) + " AND password = ";
-                query += dbManager.quote(password);
+                //String query = "SELECT * FROM users  WHERE username = " + JeproLabDataBaseConnector.quote(userName) + " AND password = ";
+                //query += dbManager.quote(password);
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -28,7 +29,7 @@ public class JeproLabEmployeeModel  extends JeproLabModel{
         if(conn != null){
 
 
-            return employee;
+            return null; //employee;
         }else{
             return null;
         }
