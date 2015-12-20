@@ -1,0 +1,9 @@
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.layout.AnchorPane?>
+<VBox xmlns:fx="http://javafx.com/fxml" fx:controller="com.jeprolab.controllers.JeproLabDisplayRequestController" spacing="25" >
+    <children>
+        <AnchorPane></AnchorPane>
+        <AnchorPane></AnchorPane>
+        <AnchorPane></AnchorPane>
+    </children>
+</VBox>

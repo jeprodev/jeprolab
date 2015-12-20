@@ -5,7 +5,7 @@ import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
-import jeprolab.assets.extend.controls.SwitchButton;
+import com.jeprolab.assets.extend.controls.JeproSwitchButton;
 
 import java.net.URL;
 import java.util.ResourceBundle;
@@ -15,7 +15,7 @@ public class JeproLabCurrencyAddController extends JeproLabController {
     public Label currencyNameLabel, isoCodeLabel, numericIsoCodeLabel, currencySymbolLabel, conversionRateLabel, currencyFormatLabel, hasDecimalsLabel, spacingLabel, publishedLabel, formTitleLabel;
     public TextField currencyName, isoCode, numericIsoCode, currencySymbol, conversionRate;
     public ComboBox currencyFormat;
-    public SwitchButton hasDecimals, hasSpacing, published;
+    public JeproSwitchButton hasDecimals, hasSpacing, published;
     public Button saveButton, cancelButton;
 
     @Override

@@ -1,0 +1,40 @@
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.control.Label?>
+<?import com.jeprolab.assets.extend.controls.JeproMultiLangTextField?>
+<?import javafx.scene.control.TextField?>
+<?import com.jeprolab.assets.extend.controls.JeproSwitchButton?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.TextArea?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.control.Button?>
+<GridPane xmlns:fx="http://javafx.com/fxml" fx:controller="com.jeprolab.controllers.JeproLabCountryAddController" alignment="CENTER" hgap="10" vgap="10" >
+    <Label GridPane.columnIndex="0" GridPane.rowIndex="0" GridPane.columnSpan="2" fx:id="formTitleLabel" />
+    <Label GridPane.columnIndex="0" GridPane.rowIndex="1" fx:id="countryNameLabel"/>
+    <JeproMultiLangTextField GridPane.columnIndex="1" GridPane.rowIndex="1" fx:id="countryName" />
+    <Label GridPane.columnIndex="0" GridPane.rowIndex="2"  fx:id="isoCodeLabel" />
+    <TextField GridPane.columnIndex="1" GridPane.rowIndex="2"  fx:id="isoCode"/>
+    <Label  GridPane.columnIndex="0" GridPane.rowIndex="3" fx:id="callPrefixLabel" />
+    <TextField GridPane.columnIndex="1" GridPane.rowIndex="3"  fx:id="callPrefix"/>
+    <Label  GridPane.columnIndex="0" GridPane.rowIndex="4" fx:id="needZipCodeLabel" />
+    <JeproSwitchButton GridPane.columnIndex="1" GridPane.rowIndex="4" fx:id="needZipCode" />
+    <Label GridPane.columnIndex="0" GridPane.rowIndex="5" fx:id="zipCodeFormatLabel" />
+    <TextField GridPane.columnIndex="1" GridPane.rowIndex="5" fx:id="zipCodeFormat" />
+    <Label GridPane.columnIndex="0" GridPane.rowIndex="6"  fx:id="addressLayoutFormatLabel" />
+    <TextArea GridPane.columnIndex="1" GridPane.rowIndex="6"  fx:id="addressLayoutFormat" />
+    <Label GridPane.columnIndex="0" GridPane.rowIndex="7"  fx:id="defaultCurrencyLabel" />
+    <ComboBox GridPane.columnIndex="1" GridPane.rowIndex="7"  fx:id="defaultCurrency" />
+    <Label GridPane.columnIndex="0" GridPane.rowIndex="8"  fx:id="countryZoneLabel" />
+    <ComboBox GridPane.columnIndex="1" GridPane.rowIndex="8"  fx:id="countryZone" />
+    <Label GridPane.columnIndex="0" GridPane.rowIndex="9"  fx:id="publishedLabel" />
+    <JeproSwitchButton GridPane.columnIndex="1" GridPane.rowIndex="9"  fx:id="published" />
+    <Label GridPane.columnIndex="0" GridPane.rowIndex="10"  fx:id="containsStatesLabel" />
+    <JeproSwitchButton GridPane.columnIndex="1" GridPane.rowIndex="10" fx:id="containsStates" />
+    <Label GridPane.columnIndex="0" GridPane.rowIndex="11" fx:id="needIdentificationNumberLabel" />
+    <JeproSwitchButton GridPane.columnIndex="1" GridPane.rowIndex="11" fx:id="needIdentificationNumber" />
+    <Label GridPane.columnIndex="0" GridPane.rowIndex="12"  fx:id="displayTaxLabelLabel" />
+    <JeproSwitchButton GridPane.columnIndex="1" GridPane.rowIndex="12"  fx:id="displayTaxLabel" />
+    <HBox  GridPane.columnIndex="0" GridPane.rowIndex="13" GridPane.columnSpan="2" alignment="CENTER" spacing="50">
+        <Button fx:id="saveButton" />
+        <Button fx:id="cancelButton" />
+    </HBox>
+</GridPane>

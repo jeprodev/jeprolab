@@ -1,0 +1,33 @@
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.layout.GridPane?>
+<VBox xmlns:fx="http://javafx.com/fxml" >
+    <children>
+        <HBox>
+            <GridPane fx:id="groupInformationWrapper">
+                <Label fx:id="groupInformationFormTitle" />
+            </GridPane>
+            <GridPane></GridPane>
+        </HBox>
+        <AnchorPane>
+            <Label />
+            <TableView>
+                <columns>
+                    <TableColumn resizable="false" editable="false" fx:id="groupMemberIndesColumn" />
+                    <TableColumn resizable="false" editable="false" fx:id="groupMemberCheckBoxColumn" />
+                    <TableColumn resizable="false" editable="false" fx:id="groupMemberFirstNameColumn" />
+                    <TableColumn resizable="false" editable="false" fx:id="groupMemberLastNameColumn" />
+                    <TableColumn resizable="false" editable="false" fx:id="groupMemberEmailColumn" />
+                    <TableColumn resizable="false" editable="false" fx:id="groupMemberBirthdayColumn" />
+                    <TableColumn resizable="false" editable="false" fx:id="groupMemberDateAddedColumn" />
+                    <TableColumn resizable="false" editable="false" fx:id="groupMemberPublishedColumn" />
+                    <TableColumn resizable="false" editable="false" fx:id="groupMemberActionColumn" />
+                </columns>
+            </TableView>
+        </AnchorPane>
+    </children>
+</VBox>

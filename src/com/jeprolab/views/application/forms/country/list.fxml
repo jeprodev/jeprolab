@@ -1,0 +1,24 @@
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.TableColumn?>
+<VBox xmlns:fx="http://javafx.com/fxml" fx:controller="com.jeprolab.controllers.JeproLabCountryController" >
+    <children>
+        <AnchorPane>
+            <children>
+                <TableView>
+                    <columns>
+                        <TableColumn resizable="false" editable="false" fx:id="countryIndexColumn" />
+                        <TableColumn resizable="false" editable="false" fx:id="countryCheckBoxColumn" />
+                        <TableColumn resizable="false" editable="false" fx:id="countryStatusColumn" />
+                        <TableColumn resizable="false" editable="false" fx:id="countryNameColumn" />
+                        <TableColumn resizable="false" editable="false" fx:id="countryIsoCodeColumn" />
+                        <TableColumn resizable="false" editable="false" fx:id="countryCallPrefixColumn" />
+                        <TableColumn resizable="false" editable="false" fx:id="countryZoneColumn" />
+                        <TableColumn resizable="false" editable="false" fx:id="countryActionsColumn" />
+                    </columns>
+                </TableView>
+            </children>
+        </AnchorPane>
+    </children>
+</VBox>

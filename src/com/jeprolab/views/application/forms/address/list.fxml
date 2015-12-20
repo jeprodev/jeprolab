@@ -1,0 +1,27 @@
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.TableColumn?>
+<VBox xmlns:fx="http://javafx.com/fxml" fx:controller="com.jeprolab.controllers.JeproLabAddressController" >
+    <children>
+        <AnchorPane>
+            <padding><Insets top="5.0" right="4.0" bottom="10.0" left="5.0" /></padding>
+            <children>
+                <TableView>
+                    <columns>
+                        <TableColumn resizable="false" editable="false" fx:id="addressIndexColumn" />
+                        <TableColumn resizable="false" editable="false" fx:id="addressCheckBoxColumn" />
+                        <TableColumn resizable="false" editable="false" fx:id="addressLastColumn" />
+                        <TableColumn resizable="false" editable="false" fx:id="addressFirstNameColumn" />
+                        <TableColumn resizable="false" editable="false" fx:id="addressDetailColumn" />
+                        <TableColumn resizable="false" editable="false" fx:id="addressZipCodeColumn" />
+                        <TableColumn resizable="false" editable="false" fx:id="addressCityColumn" />
+                        <TableColumn resizable="false" editable="false" fx:id="addressCountryColumn" />
+                        <TableColumn resizable="false" editable="false" fx:id="addressActionColumn" />
+                    </columns>
+                </TableView>
+            </children>
+        </AnchorPane>
+    </children>
+</VBox>

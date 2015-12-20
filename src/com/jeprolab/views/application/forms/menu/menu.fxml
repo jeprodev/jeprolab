@@ -1,0 +1,31 @@
+<?import javafx.scene.control.MenuBar?>
+
+<?import javafx.scene.control.Menu?>
+<?import javafx.scene.control.MenuItem?>
+<?import javafx.scene.layout.VBox?>
+<VBox xmlns:fx="http://javafx.com/fxml" fx:id="jeproLabMenuBarWrapper" fx:controller="com.jeprolab.controllers.JeproLabMenuController" >
+    <MenuBar fx:id="jeproLabMenuBar" >
+        <Menu fx:id="dashBoardMenu" />
+        <Menu fx:id="catalogMenu" >
+            <MenuItem fx:id="categoryMenuItem" onAction="#handleCategoriesMenuEvent" />
+            <MenuItem fx:id="analyzeMenuItem" onAction="#handleAnalyzesMenuEvent" />
+            <MenuItem fx:id="attachmentMenuItem" onAction="#handleAttachmentsMenuEvent" />
+        </Menu>
+        <Menu fx:id="customerMenu" >
+            <MenuItem fx:id="customersMenuItem" onAction="#handleCustomersMenuEvent" />
+            <MenuItem fx:id="addressesMenuItem" onAction="#handleAddressesMenuEvent" />
+            <MenuItem fx:id="groupsMenuItem" onAction="#handleGroupsMenuEvent" />
+            <MenuItem fx:id="currentRequestMenuItem" onAction="#handleRequestsMenuEvent" />
+            <MenuItem fx:id="threadsMenuItem" onAction="#handleCustomerThreadsMenuEvent" />
+            <MenuItem fx:id="contactsMenuItem" onAction="#handleContactsMenuEvents"/>
+        </Menu>
+        <Menu fx:id="feedsMenu" >
+            <MenuItem fx:id="feedsMenuItem" onAction="#handleFeedsMenuEvent" />
+            <MenuItem fx:id="feedBackMenuItem" onAction="#handleCustomerMenuEvent"/>
+        </Menu>
+        <Menu fx:id="settingMenu" />
+        <Menu fx:id="helpMenu" >
+            <MenuItem fx:id="aboutJeproLabMenuItem" onAction="#handleHelpMenuEvent"/>
+        </Menu>
+    </MenuBar>
+</VBox>

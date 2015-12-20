@@ -1,0 +1,5 @@
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.control.Label?>
+<GridPane >
+    <Label GridPane.columnIndex="0" fx:id=""/>
+</GridPane>

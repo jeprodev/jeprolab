@@ -8,8 +8,8 @@ import javafx.scene.control.*;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.GridPane;
 import javafx.util.Pair;
-import jeprolab.assets.extend.controls.EmailField;
-import jeprolab.assets.extend.controls.PhoneField;
+import com.jeprolab.assets.extend.controls.JeproEmailField;
+import com.jeprolab.assets.extend.controls.JeproPhoneField;
 
 import java.net.URL;
 import java.util.ResourceBundle;
@@ -24,11 +24,11 @@ public class JeproLabCustomerAddController extends JeproLabController {
     public Label customerAddressDetailLabel, customerAddressNumberLabel, customerAddressStreetNameLabel;
     public TextField customerAddressStreetName;
     public TextField customerFirstName, customerLastName, customerWebsite, customerState, customerCity, customerAddressNumber;
-    public PhoneField customerPhone, customerMobilePhone;
+    public JeproPhoneField customerPhone, customerMobilePhone;
     public ComboBox<Pair<String, String>> customerTitle;
     public ComboBox customerZone, customerCountry, customerStreetType;
     public CheckBox customerNewsLetter, customerAllowAds;
-    public EmailField customerEmail;
+    public JeproEmailField customerEmail;
     public Button saveButton, cancelButton;
     public ImageView customerImageView;
 

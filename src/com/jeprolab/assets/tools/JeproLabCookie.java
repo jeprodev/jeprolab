@@ -10,7 +10,18 @@ public class JeproLabCookie {
 
     public int customer_id;
 
+    public boolean secure = false;
+
+    public String path = "";
+
+    public String domain = "";
+
     public static JeproLabCookie getCookie(){
         return new JeproLabCookie();
+    }
+
+    //todo to be correct
+    public String get(String field){
+        return "";
     }
 }

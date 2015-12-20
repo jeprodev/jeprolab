@@ -2,6 +2,7 @@ package com.jeprolab.assets.config;
 
 import com.jeprolab.JeproLab;
 
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -26,7 +27,7 @@ public class JeproLabConfig {
 
         try{
             inputStream = new FileInputStream(new File(JeproLab.class.getResource("assets/config/config.properties").toURI()));
-            configProp.load(inputStream); System.out.print(configProp);
+            configProp.load(inputStream);
             dataBaseHost = configProp.getProperty("DATA_BASE_HOST");
             dataBaseName = configProp.getProperty("DATA_BASE_NAME");
             dataBaseManager = configProp.getProperty("DATA_BASE_MANAGER");
@@ -35,8 +36,8 @@ public class JeproLabConfig {
             dataBaseUserName = configProp.getProperty("DATA_BASE_USER_NAME");
             dataBasePassword = configProp.getProperty("DATA_BASE_PASSWORD");
             appInstallDirectory = configProp.getProperty("APPLICATION_INSTALL_DIRECTORY");
-        }catch (IOException | URISyntaxException excp){
-            excp.printStackTrace();
+        }catch (IOException | URISyntaxException excpt){
+            excpt.printStackTrace();
         } finally {
             if(inputStream != null){
                 try{
@@ -46,5 +47,30 @@ public class JeproLabConfig {
                 }
             }
         }
+    }
+
+    //todo edit us
+    public String getCookiePath(){
+        return "";
+    }
+
+    public String getCookieDomain(){
+        return "";
+    }
+
+    public static void setConfig(String configFilePath){
+
+    }
+
+    public static JeproLabConfig getConfiguration(){
+        return new JeproLabConfig();
+    }
+
+    public int getLifeTime(){
+        return 0;
+    }
+
+    public String getSessionHandler(){
+        return "";
     }
 }

@@ -3,8 +3,8 @@ package com.jeprolab.controllers;
 
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
-import jeprolab.assets.extend.controls.MultiLangTextField;
-import jeprolab.assets.extend.controls.SwitchButton;
+import com.jeprolab.assets.extend.controls.JeproMultiLangTextField;
+import com.jeprolab.assets.extend.controls.JeproSwitchButton;
 
 import java.net.URL;
 import java.util.ResourceBundle;
@@ -14,11 +14,11 @@ public class JeproLabCountryAddController extends JeproLabController{
     public Label formTitleLabel, countryZoneLabel, defaultCurrencyLabel, zipCodeFormatLabel, addressLayoutFormatLabel;
     public Label needZipCodeLabel, publishedLabel, displayTaxLabelLabel, needIdentificationNumberLabel, containsStatesLabel;
     public Label callPrefixLabel, isoCodeLabel, countryNameLabel;
-    public SwitchButton needZipCode, published, displayTaxLabel, needIdentificationNumber, containsStates;
+    public JeproSwitchButton needZipCode, published, displayTaxLabel, needIdentificationNumber, containsStates;
     public TextField isoCode, callPrefix, zipCodeFormat;
     public TextArea addressLayoutFormat;
     public ComboBox countryZone, defaultCurrency;
-    public MultiLangTextField countryName;
+    public JeproMultiLangTextField countryName;
     public Button saveButton, cancelButton;
 
     @Override

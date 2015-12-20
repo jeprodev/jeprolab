@@ -6,7 +6,7 @@ import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
-import jeprolab.assets.extend.controls.SwitchButton;
+import com.jeprolab.assets.extend.controls.JeproSwitchButton;
 
 import java.net.URL;
 import java.util.ResourceBundle;
@@ -16,7 +16,7 @@ public class JeproLabStateAddController extends JeproLabController{
     public Label stateNameLabel, isoCodeLabel, countryZoneLabel, countryLabel, publishedLabel, formTitleLabel;
     public TextField stateName, isoCode;
     public ComboBox countryZone, country;
-    public SwitchButton published;
+    public JeproSwitchButton published;
     public Button saveButton, cancelButton;
 
     @Override

@@ -1,0 +1,32 @@
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.control.ComboBox?>
+<?import com.jeprolab.assets.extend.controls.JeproSwitchButton?>
+<GridPane xmlns:fx="http://javafx.com/fxml" fx:controller="com.jeprolab.controllers.JeproLabCurrencyAddController" alignment="CENTER" >
+    <Label GridPane.columnSpan="2" GridPane.columnIndex="0" GridPane.rowIndex="0" fx:id="formTitleLabel" />
+    <Label GridPane.columnIndex="0" GridPane.rowIndex="1" fx:id="currencyNameLabel" />
+    <TextField GridPane.columnIndex="1" GridPane.rowIndex="1" fx:id="currencyName" />
+    <Label GridPane.columnIndex="0" GridPane.rowIndex="2" fx:id="isoCodeLabel" />
+    <TextField  GridPane.columnIndex="1" GridPane.rowIndex="2" fx:id="isoCode" />
+    <Label GridPane.columnIndex="0" GridPane.rowIndex="3" fx:id="numericIsoCodeLabel" />
+    <TextField  GridPane.columnIndex="1" GridPane.rowIndex="3" fx:id="numericIsoCode" />
+    <Label GridPane.columnIndex="0" GridPane.rowIndex="4" fx:id="currencySymbolLabel" />
+    <TextField  GridPane.columnIndex="1" GridPane.rowIndex="4" fx:id="currencySymbol" />
+    <Label GridPane.columnIndex="0" GridPane.rowIndex="5" fx:id="conversionRateLabel" />
+    <TextField  GridPane.columnIndex="1" GridPane.rowIndex="5" fx:id="conversionRate" />
+    <Label GridPane.columnIndex="0" GridPane.rowIndex="6" fx:id="currencyFormatLabel" />
+    <ComboBox  GridPane.columnIndex="1" GridPane.rowIndex="6" fx:id="currencyFormat" />
+    <Label GridPane.columnIndex="0" GridPane.rowIndex="7" fx:id="hasDecimalsLabel" />
+    <JeproSwitchButton  GridPane.columnIndex="1" GridPane.rowIndex="7"  fx:id="hasDecimals" />
+    <Label GridPane.columnIndex="0" GridPane.rowIndex="8" fx:id="spacingLabel" />
+    <JeproSwitchButton  GridPane.columnIndex="1" GridPane.rowIndex="8" fx:id="hasSpacing" />
+    <Label GridPane.columnIndex="0" GridPane.rowIndex="9" fx:id="publishedLabel" />
+    <JeproSwitchButton  GridPane.columnIndex="1" GridPane.rowIndex="9" fx:id="published" />
+    <HBox GridPane.columnIndex="0" GridPane.rowIndex="10" GridPane.columnSpan="2" >
+        <Button fx:id="saveButton" />
+        <Button fx:id="cancelButton" />
+    </HBox>
+</GridPane>

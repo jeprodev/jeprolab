@@ -1,0 +1,22 @@
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.geometry.Insets?>
+<VBox xmlns:fx="http://javafx.com/fxml" fx:controller="com.jeprolab.controllers.JeproLabCategoryController" >
+    <children>
+        <AnchorPane>
+            <padding><Insets left="4" bottom="10" right="4" top="5" /></padding>
+            <children>
+                <TableView>
+                    <columns>
+                        <TableColumn resizable="false" editable="false" fx:id="categoryIndexColumn" />
+                        <TableColumn resizable="false" editable="false" fx:id="categoryCheckBoxColumn" />
+                        <TableColumn resizable="false" editable="false" fx:id="categoryColumn" />
+                        <TableColumn resizable="false" editable="false" fx:id="categoryActionColumn" />
+                    </columns>
+                </TableView>
+            </children>
+        </AnchorPane>
+    </children>
+</VBox>

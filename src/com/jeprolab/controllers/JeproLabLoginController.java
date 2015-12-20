@@ -13,18 +13,18 @@ import javafx.scene.control.TextField;
 import javafx.scene.layout.GridPane;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextAlignment;
-import jeprolab.JeproLab;
-import jeprolab.assets.config.JeproLabConfig;
-import jeprolab.assets.db.JeproLabDataBaseManager;
-import jeprolab.assets.extend.controls.FormPanel;
-import jeprolab.assets.extend.controls.FormPanelContainer;
-import jeprolab.assets.extend.controls.FormPanelTitle;
-import jeprolab.assets.tools.JeproLabContext;
-import jeprolab.models.JeproLabEmployeeModel;
-import jeprolab.models.core.JeproLabApplication;
-import jeprolab.models.core.JeproLabAuthenticationOption;
-import jeprolab.models.core.JeproLabAuthenticationResponse;
-import jeprolab.models.core.JeproLabFactory;
+import com.jeprolab.JeproLab;
+import com.jeprolab.assets.config.JeproLabConfig;
+import com.jeprolab.assets.tools.db.JeproLabDataBaseConnector;
+import com.jeprolab.assets.extend.controls.JeproFormPanel;
+import com.jeprolab.assets.extend.controls.JeproFormPanelContainer;
+import com.jeprolab.assets.extend.controls.JeproFormPanelTitle;
+import com.jeprolab.assets.tools.JeproLabContext;
+import com.jeprolab.models.JeproLabEmployeeModel;
+import com.jeprolab.models.core.JeproLabApplication;
+import com.jeprolab.models.core.JeproLabAuthenticationOption;
+import com.jeprolab.models.core.JeproLabAuthenticationResponse;
+import com.jeprolab.models.core.JeproLabFactory;
 
 import java.io.IOException;
 import java.net.URL;
@@ -40,9 +40,9 @@ public class JeproLabLoginController implements Initializable{
     public TextField userName;
     public PasswordField password;
     public Button loginButton, cancelButton;
-    public FormPanel jeprolabLoginFormWrapper;
-    public FormPanelTitle jeprolabLoginFormTitleWrapper;
-    public FormPanelContainer jeprolabLoginFormContainerWrapper;
+    public JeproFormPanel jeprolabLoginFormWrapper;
+    public JeproFormPanelTitle jeprolabLoginFormTitleWrapper;
+    public JeproFormPanelContainer jeprolabLoginFormContainerWrapper;
 
     @Override
     public void initialize(URL location , ResourceBundle resource){

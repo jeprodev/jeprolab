@@ -1,0 +1,115 @@
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.HBox?>
+<?import com.jeprolab.assets.extend.controls.JeproFormPanel?>
+<?import com.jeprolab.assets.extend.controls.JeproFormPanelContainer?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.control.Label?>
+<?import com.jeprolab.assets.extend.controls.JeproFormPanelTitle?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TextArea?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.text.Text?>
+<VBox  xmlns:fx="http://javafx.com/fxml" fx:controller="com.jeprolab.controllers.JeproLabCustomerViewController" >
+    <AnchorPane>
+        <HBox>
+            <VBox spacing="20">
+                <JeproFormPanel>
+                    <JeproFormPanelTitle fx:id="customerInformationFormTitle" />
+                    <JeproFormPanelContainer>
+                        <GridPane>
+                            <Label GridPane.columnIndex="0" GridPane.rowIndex="0" fx:id="customerTitleLabel" />
+                            <Label GridPane.columnIndex="1" GridPane.rowIndex="0" fx:id="customerTitle" />
+                            <Label GridPane.columnIndex="0" GridPane.rowIndex="1" fx:id="customerAgeLabel" />
+                            <Label GridPane.columnIndex="1" GridPane.rowIndex="1" fx:id="customerAge" />
+                            <Label GridPane.columnIndex="0" GridPane.rowIndex="2" fx:id="customerRegistrationDateLabel" />
+                            <Label GridPane.columnIndex="1" GridPane.rowIndex="2" fx:id="customerRegistrationDate" />
+                            <Label GridPane.columnIndex="0" GridPane.rowIndex="3" fx:id="customerLastVisitLabel" />
+                            <Label GridPane.columnIndex="1" GridPane.rowIndex="3" fx:id="customerLastVisit" />
+                            <Label GridPane.columnIndex="0" GridPane.rowIndex="4" fx:id="customerLanguageLabel" />
+                            <Label GridPane.columnIndex="1" GridPane.rowIndex="4" fx:id="customerLanguage" />
+                            <Label GridPane.columnIndex="0" GridPane.rowIndex="5" fx:id="customerLaboratoryNameLabel" />
+                            <Label GridPane.columnIndex="1" GridPane.rowIndex="5" fx:id="customerLaboratoryName" />
+                            <Label GridPane.columnIndex="0" GridPane.rowIndex="6" fx:id="customerOptinLabel" />
+                            <Label GridPane.columnIndex="1" GridPane.rowIndex="6" fx:id="customerOptin" />
+                            <Label GridPane.columnIndex="0" GridPane.rowIndex="7" fx:id="customerIsActiveLabel" />
+                            <Label GridPane.columnIndex="1" GridPane.rowIndex="7" fx:id="customerIsActive" />
+                        </GridPane>
+                    </JeproFormPanelContainer>
+                </JeproFormPanel>
+                <JeproFormPanel>
+                    <JeproFormPanelTitle fx:id="customerOrdersPanelTitle" />
+                    <JeproFormPanelContainer>
+                        <VBox>
+                            <AnchorPane>
+                                <children>
+                                    <TableView>
+                                        <columns>
+                                            <TableColumn resizable="false" editable="false" fx:id="customerOrderReferenceColumn" />
+                                            <TableColumn resizable="false" editable="false" fx:id="customerOrderColumn" />
+                                            <TableColumn resizable="false" editable="false" fx:id="customerOrderPaymentColumn" />
+                                            <TableColumn resizable="false" editable="false" fx:id="customerOrderStatusColumn" />
+                                            <TableColumn resizable="false" editable="false" fx:id="customerOrderAnalysesColumn" />
+                                            <TableColumn resizable="false" editable="false" fx:id="customerOrderTotalSpentColumn" />
+                                        </columns>
+                                    </TableView>
+                                </children>
+                            </AnchorPane>
+                        </VBox>
+                    </JeproFormPanelContainer>
+                </JeproFormPanel>
+                <JeproFormPanel>
+                    <JeproFormPanelTitle fx:id="customerRequestPanelTitle" />
+                    <JeproFormPanelContainer></JeproFormPanelContainer>
+                </JeproFormPanel>
+            </VBox>
+            <VBox spacing="20" >
+                <JeproFormPanel>
+                    <JeproFormPanelTitle fx:id="customerPrivateNotePanelTitle" />
+                    <JeproFormPanelContainer>
+                        <VBox>
+                            <Text fx:id="customerPrivateNoteWarning" />
+                            <TextArea fx:id="customerPrivateNoteMessage" />
+                            <Button fx:id="savePrivateMessageButton" />
+                        </VBox>
+                    </JeproFormPanelContainer>
+                </JeproFormPanel>
+                <JeproFormPanel>
+                    <JeproFormPanelTitle fx:id="customerMessagesPanelTitle" />
+                    <JeproFormPanelContainer></JeproFormPanelContainer>
+                </JeproFormPanel>
+                <JeproFormPanel>
+                    <JeproFormPanelTitle fx:id="customerVouchersPanelTitle" />
+                    <JeproFormPanelContainer></JeproFormPanelContainer>
+                </JeproFormPanel>
+                <JeproFormPanel>
+                    <JeproFormPanelTitle fx:id="customerGroupsPanelTitle" />
+                    <JeproFormPanelContainer></JeproFormPanelContainer>
+                </JeproFormPanel>
+            </VBox>
+        </HBox>
+    </AnchorPane>
+    <AnchorPane>
+        <JeproFormPanel>
+            <JeproFormPanelTitle fx:id="customerAddressPanelTitle" />
+            <JeproFormPanelContainer>
+                <AnchorPane>
+                    <children>
+                        <TableView>
+                            <columns>
+                                <TableColumn resizable="false" editable="false" fx:id="customerAddressIndexColumn" />
+                                <TableColumn resizable="false" editable="false" fx:id="customerAddressCompanyColumn" />
+                                <TableColumn resizable="false" editable="false" fx:id="customerAddressNameColumn" />
+                                <TableColumn resizable="false" editable="false" fx:id="customerAddressAddressColumn" />
+                                <TableColumn resizable="false" editable="false" fx:id="customerAddressCountryColumn" />
+                                <TableColumn resizable="false" editable="false" fx:id="customerAddressPhoneNumberColumn" />
+                                <TableColumn resizable="false" editable="false" fx:id="customerAddressActionColumn" />
+                            </columns>
+                        </TableView>
+                    </children>
+                </AnchorPane>
+            </JeproFormPanelContainer>
+        </JeproFormPanel>
+    </AnchorPane>
+</VBox>

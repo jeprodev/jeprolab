@@ -6,7 +6,7 @@ import javafx.scene.control.Label;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TextArea;
 import javafx.scene.text.Text;
-import jeprolab.assets.extend.controls.FormPanelTitle;
+import com.jeprolab.assets.extend.controls.JeproFormPanelTitle;
 
 public class JeproLabCustomerViewController extends JeproLabController{
     @FXML
@@ -15,8 +15,8 @@ public class JeproLabCustomerViewController extends JeproLabController{
     public Label customerLaboratoryNameLabel, customerLaboratoryName, customerOptinLabel, customerOptin, customerIsActiveLabel;
     public Label customerIsActive;
 
-    public FormPanelTitle customerInformationFormTitle, customerOrdersPanelTitle, customerAddressPanelTitle, customerGroupsPanelTitle;
-    public FormPanelTitle customerVouchersPanelTitle, customerPrivateNotePanelTitle, customerMessagesPanelTitle, customerRequestPanelTitle;
+    public JeproFormPanelTitle customerInformationFormTitle, customerOrdersPanelTitle, customerAddressPanelTitle, customerGroupsPanelTitle;
+    public JeproFormPanelTitle customerVouchersPanelTitle, customerPrivateNotePanelTitle, customerMessagesPanelTitle, customerRequestPanelTitle;
 
     public TableColumn customerAddressIndexColumn, customerAddressCompanyColumn, customerAddressNameColumn, customerAddressAddressColumn;
     public TableColumn customerAddressCountryColumn, customerAddressPhoneNumberColumn, customerAddressActionColumn, customerOrderReferenceColumn;

@@ -67,12 +67,12 @@ public class JeproLab extends Application {
         }
 
         if (lang.equalsIgnoreCase("en")) {
-            bundle = ResourceBundle.getBundle("jeprolab.resources.i18n.messages");
+            bundle = ResourceBundle.getBundle("com.jeprolab.resources.i18n.messages");
         } else {
-            bundle = ResourceBundle.getBundle("jeprolab.resources.i18n.messages");
+            bundle = ResourceBundle.getBundle("com.jeprolab.resources.i18n.messages");
         }
 
-        appProps = ResourceBundle.getBundle("jeprolab.resources.props.installer");
+        appProps = ResourceBundle.getBundle("com.jeprolab.resources.props.installer");
 
 
         /**
@@ -80,7 +80,7 @@ public class JeproLab extends Application {
          */
         configurationFile = new File(JeproLab.class.getResource("assets/config/config.properties").toURI());
 
-        if(!(configurationFile.isFile())){ // && !configurationFile.isDirectory())) {
+        if(!(configurationFile.isFile())){
             Parent root = new JeproLabInstallerForms();
             scene = new Scene(root, APP_INSTALLER_WIDTH, APP_INSTALLER_HEIGHT);
             scene.getStylesheets().setAll(JeproLab.class.getResource("assets/css/jeprolab.css").toExternalForm());

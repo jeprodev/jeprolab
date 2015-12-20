@@ -1,0 +1,20 @@
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.control.Label?>
+<?import com.jeprolab.assets.extend.controls.JeproMultiLangTextField?>
+<?import javafx.scene.control.TextField?>
+<?import com.jeprolab.assets.extend.controls.JeproSwitchButton?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.control.Button?>
+<GridPane xmlns:fx="http://javafx.com/fxml" fx:controller="com.jeprolab.controllers.JeproLabTaxAddController" alignment="CENTER" >
+    <Label GridPane.columnIndex="0" GridPane.rowIndex="0" GridPane.columnSpan="2" fx:id="formTitleLabel" />
+    <Label GridPane.columnIndex="0" GridPane.rowIndex="1" fx:id="taxName" />
+    <JeproMultiLangTextField GridPane.columnIndex="1" GridPane.rowIndex="1" fx:id="taxNameLabel" />
+    <Label GridPane.columnIndex="0" GridPane.rowIndex="2" fx:id="taxRateLabel" />
+    <TextField GridPane.columnIndex="1" GridPane.rowIndex="2" fx:id="taxRate" />
+    <Label GridPane.columnIndex="0" GridPane.rowIndex="3" fx:id="PublishedLabel" />
+    <JeproSwitchButton GridPane.columnIndex="1" GridPane.rowIndex="3" fx:id="published" />
+    <HBox GridPane.columnIndex="0" GridPane.rowIndex="4" GridPane.columnSpan="2" alignment="CENTER" spacing="50">
+        <Button fx:id="saveButton" />
+        <Button fx:id="cancelButton" />
+    </HBox>
+</GridPane>

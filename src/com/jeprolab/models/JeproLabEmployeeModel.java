@@ -1,6 +1,7 @@
 package com.jeprolab.models;
 
 
+
 import com.jeprolab.assets.tools.db.JeproLabDataBaseConnector;
 
 import com.jeprolab.assets.tools.JeproLabContext;
@@ -11,6 +12,24 @@ import java.sql.Statement;
 
 public class JeproLabEmployeeModel  extends JeproLabModel{
     public boolean isLogged = false;
+
+    public int employee_id ;
+
+    public JeproLabEmployeeModel(){
+        this(0);
+    }
+
+    public JeproLabEmployeeModel(int customerId){
+        this(customerId, 0);
+    }
+
+    public JeproLabEmployeeModel(int customerId, int langId){
+        this(customerId, langId, 0);
+    }
+
+    public JeproLabEmployeeModel(int employeeId, int langId, int labId){
+
+    }
 
     public static JeproLabEmployeeModel getEmployeeFromLogin(String userName, String password){
 

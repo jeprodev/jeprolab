@@ -1,0 +1,6 @@
+<?import javafx.scene.layout.HBox?>
+<HBox xmlns:fx="http://javafx.com/fxml" fx:id="dashboardPageWrapper" fx:controller="com.jeprolab.controllers.JeproLabDashboardController">
+    <children>
+
+    </children>
+</HBox>
