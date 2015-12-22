@@ -122,7 +122,7 @@ public class JeproLab extends Application {
                 applicationToolBar.setVisible(true);
             }
             Parent root = formsContainer;
-            primaryStage.setTitle("Hello World");
+
             scene = new Scene(root, APP_WIDTH, APP_HEIGHT);
             scene.getStylesheets().setAll(JeproLab.class.getResource("assets/css/jeprolab.css").toExternalForm());
         }

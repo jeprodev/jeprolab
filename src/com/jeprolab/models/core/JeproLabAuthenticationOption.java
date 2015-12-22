@@ -8,6 +8,18 @@ import com.jeprolab.models.JeproLabEmployeeModel;
  */
 public class JeproLabAuthenticationOption {
     public JeproLabEmployeeModel employee = null;
+
     public boolean remember = false;
+
     public String responseType = null;
+
+    public boolean silent = false;
+
+    public boolean secure = false;
+
+    //public boolean silent = false;
+
+    public int lifeTime = 0;
+
+    public int length = 0;
 }

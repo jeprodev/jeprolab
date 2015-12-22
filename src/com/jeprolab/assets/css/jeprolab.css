@@ -5,7 +5,22 @@
 }
 
 .form-panel-title{
+    -fx-background-color: rgb(34, 106, 179);
+    -fx-border-radius: 15 15 0 0;
+    -fx-background-radius: 10 10 0 0;
+}
 
+.form-panel-container{
+    -fx-background-color: rgb(246, 246, 246);
+    -fx-border-radius: 0 0 15 15;
+    -fx-background-radius: 0 0 15 15;
+    -fx-border-color: #bbbbbb;
+    -fx-border-style:solid;
+    -fx-border-width: 0 2px 2px 2px;
+}
+
+.input-label{
+    -fx-font-weight: bold;
 }
 
 .radio-button{

@@ -15,6 +15,8 @@ public class JeproLabEmployeeModel  extends JeproLabModel{
 
     public int employee_id ;
 
+    public String password;
+
     public JeproLabEmployeeModel(){
         this(0);
     }
@@ -52,6 +54,10 @@ public class JeproLabEmployeeModel  extends JeproLabModel{
         }else{
             return null;
         }
+    }
+
+    public void save(){
+
     }
 
     //todo code me

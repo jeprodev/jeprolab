@@ -1,5 +1,4 @@
 <?import javafx.scene.layout.GridPane?>
-<?import javafx.scene.text.Text?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.layout.HBox?>
@@ -9,16 +8,14 @@
 <?import com.jeprolab.assets.extend.controls.JeproFormPanelTitle?>
 <?import com.jeprolab.assets.extend.controls.JeproFormPanelContainer?>
 <JeproFormPanel xmlns:fx="http://javafx.com/fxml" fx:controller="com.jeprolab.controllers.JeproLabLoginController" fx:id="jeprolabLoginFormWrapper">
-    <JeproFormPanelTitle fx:id="jeprolabLoginFormTitleWrapper">
-        <Text fx:id="loginTitleLabel"  />
-    </JeproFormPanelTitle>
+    <JeproFormPanelTitle fx:id="jeprolabLoginFormTitleWrapper" />
     <JeproFormPanelContainer fx:id="jeprolabLoginFormContainerWrapper" >
-        <GridPane alignment="center" hgap="10" vgap="10" >
+        <GridPane alignment="center" hgap="10" vgap="10" fx:id="jeproLabLoginGridPane" >
             <Label GridPane.columnIndex="0" GridPane.rowIndex="1" fx:id="userNameLabel" />
             <TextField GridPane.columnIndex="1" GridPane.rowIndex="1" fx:id="userName" />
             <Label GridPane.columnIndex="0" GridPane.rowIndex="2" fx:id="userPasswordLabel"/>
             <PasswordField GridPane.columnIndex="1" GridPane.rowIndex="2" fx:id="password" />
-            <HBox GridPane.columnIndex="0" GridPane.rowIndex="3" GridPane.columnSpan="2" spacing="50" alignment="BOTTOM_CENTER" >
+            <HBox GridPane.columnIndex="0" GridPane.rowIndex="3" GridPane.columnSpan="2" spacing="50" alignment="BASELINE_CENTER"  fx:id="jeproLabLoginCommandWrapper">
                 <Button fx:id="loginButton"  onAction="#handleSubmitButton" />
                 <Button fx:id="cancelButton" onAction="#handleCancelButton"/>
             </HBox>

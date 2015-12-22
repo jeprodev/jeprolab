@@ -30,4 +30,10 @@ public class JeproLabAuthenticationResponse {
     public String language = "";
 
     public String timeZone = "";
+
+    public int lifeTime = 0;
+
+    public int length  = 0;
+
+    public boolean secure = false;
 }
