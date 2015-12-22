@@ -70,7 +70,7 @@ public class JeproLabAuthentication {
         String query = "SELECT " + dbc.quoteName("id") + ", " + dbc.quoteName("password") + " FROM " + dbc.quoteName("#__users");
         query += " WHERE " + dbc.quoteName("username") + " = " + dbc.quote(userName);
 
-        //dbc.setQuery(query);
+        dbc.setQuery(query);
         //ResultSet result = dbc.loadObject();
 
         //if(result != null){
@@ -85,7 +85,7 @@ public class JeproLabAuthentication {
             }
         //}else{
             response.status = JeproLabAuthentication.FAILURE_STATUS;
-            response.errorMessage = JeproLab.getBundle().getString("JEPROLAB_AUTHENTICATION_NI_USER");
+            response.errorMessage = JeproLab.getBundle().getString("JEPROLAB_AUTHENTICATION_NO_USER");
         //}
 
         /** check the to factor

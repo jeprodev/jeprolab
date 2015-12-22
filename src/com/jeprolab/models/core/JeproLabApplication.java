@@ -27,7 +27,7 @@ public class JeproLabApplication {
     public static boolean login(String userName, String passWord, JeproLabAuthenticationOption loginOptions){
         JeproLabAuthentication authenticator = JeproLabAuthentication.getInstance();
         JeproLabAuthenticationResponse response = authenticator.authenticate(userName, passWord, loginOptions);
-
+System.out.println(response);
         if(response.status == JeproLabAuthentication.SUCCESS_STATUS){
             /**
              * Validate that the user should be able to login (different to being authenticated).

@@ -17,6 +17,8 @@ public class JeproLabDataBaseConnector {
     private String hostName;
     private String driverName;
 
+    private String queryRequest;
+
     public JeproLabDataBaseConnector(String server, String driver, String dataBase){
         hostName = server;
         dataBaseName = dataBase;
@@ -117,5 +119,14 @@ public class JeproLabDataBaseConnector {
             throw new Exception("you can't continue without connection");
         }
         return  instance;
+    }
+
+    public void setQuery(String query){
+        setQuery(query, 0, 0);
+    }
+
+    public void setQuery(String query, int offSet, int limit){
+        this.queryRequest = query;
+
     }
 }
