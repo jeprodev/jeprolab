@@ -36,8 +36,8 @@ public class JeproLab extends Application {
     private Pane formWrapper;
     private Node currentFormView;
     private boolean changingForm = false;
-    private Stack<JeproLabApplicationForm> history = new Stack<>();
-    private Stack<JeproLabApplicationForm> forwardHistory = new Stack<>();
+    private Stack<JeproLabApplicationForm> history = new Stack();
+    private Stack<JeproLabApplicationForm> forwardHistory = new Stack();
     private JeproLabContext context;
     private JeproLabApplicationForm menuBar;
     private ToolBar applicationToolBar, windowsBar;

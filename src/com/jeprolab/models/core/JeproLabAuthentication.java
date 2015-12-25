@@ -5,6 +5,7 @@ import com.jeprolab.assets.tools.db.JeproLabDataBaseConnector;
 import com.jeprolab.models.JeproLabEmployeeModel;
 
 import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -68,25 +69,34 @@ public class JeproLabAuthentication {
 
         JeproLabDataBaseConnector dbc = JeproLabFactory.getDataBaseConnector();
         String query = "SELECT " + dbc.quoteName("id") + ", " + dbc.quoteName("password") + " FROM " + dbc.quoteName("#__users");
-        query += " WHERE " + dbc.quoteName("username") + " = " + dbc.quote(userName);
+        query += " WHERE " + dbc.quoteName("username") + " = " + dbc.quote(userName) + ";";
 
         dbc.setQuery(query);
-        //ResultSet result = dbc.loadObject();
+        ResultSet result = dbc.loadObject();
 
-        //if(result != null){
-            boolean match = true; //this.verifyPassWord(passWord, result.getString("password"), result.getInt("id"));
+        if(result != null){
+            try{
+                String retrievedUserPassWord = result.getString("password");
+                int retrievedUserId = result.getInt("id");
 
-            if(match){
-                response.status = JeproLabAuthentication.SUCCESS_STATUS;
-                response.errorMessage = "";
-            }else{
-                response.status = JeproLabAuthentication.FAILURE_STATUS;
-                response.errorMessage = JeproLab.getBundle().getString("JEPROLAB_AUTHENTICATION_INVALID_PASSWORD");
+                boolean match = this.verifyPassWord(passWord, retrievedUserPassWord, retrievedUserId);
+
+                if(match){
+                    response.status = JeproLabAuthentication.SUCCESS_STATUS;
+                    response.errorMessage = "";
+                }else{
+                    response.status = JeproLabAuthentication.FAILURE_STATUS;
+                    response.errorMessage = JeproLab.getBundle().getString("JEPROLAB_AUTHENTICATION_INVALID_PASSWORD");
+                }
+            }catch(SQLException sqlExcept){
+                response.status = JeproLabAuthentication.UNKNOWN_STATUS;
+                response.errorMessage = JeproLab.getBundle().getString("JEPROLAB_AUTHENTICATION_UNKNOWN_ERROR");
             }
-        //}else{
+
+        }else{
             response.status = JeproLabAuthentication.FAILURE_STATUS;
             response.errorMessage = JeproLab.getBundle().getString("JEPROLAB_AUTHENTICATION_NO_USER");
-        //}
+        }
 
         /** check the to factor
         if(response.status == JeproLabAuthentication.SUCCESS_STATUS){
@@ -116,7 +126,7 @@ public class JeproLabAuthentication {
     }
 
     private boolean verifyPassWord(String passWrd, String cipherPassWord, int employeeId){
-        boolean rehash = false;
+        boolean rehash = false; System.out.println(cipherPassWord);
         boolean match = false;
 
         if(cipherPassWord.indexOf("$P$") == 0 ){
@@ -126,6 +136,10 @@ public class JeproLabAuthentication {
         }else if(cipherPassWord.substring(0,1).equals("$")){
 
         }else if(cipherPassWord.substring(0, 8).equals("{SHA256}")){
+            String encryption = cipherPassWord.substring(0, 8);
+            String cipherSalt = cipherPassWord.substring(9, cipherPassWord.length() - 1);
+            String encryptionTest = JeproLabAuthentication.getCipheredPassWord(cipherPassWord, cipherSalt, encryption, true);
+            //match = JeproLabAuthentication.timingSafeComparison(encryptionTest, cipherPassWord);
             rehash = true;
         }else{
             rehash = true;
@@ -133,10 +147,14 @@ public class JeproLabAuthentication {
 
         if((employeeId > 0) && match && rehash){
             JeproLabEmployeeModel employee = new JeproLabEmployeeModel(employeeId);
-            //employee.password = ;
+            employee.password = JeproLabAuthentication.hashPassWord(passWrd);
             employee.save();
         }
         return match;
+    }
+
+    private static String hashPassWord(String passWrd) {
+        return null;
     }
 
     public static String getCipheredPassWord(String plainText){
