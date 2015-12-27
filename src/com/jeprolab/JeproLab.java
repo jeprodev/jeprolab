@@ -36,8 +36,8 @@ public class JeproLab extends Application {
     private Pane formWrapper;
     private Node currentFormView;
     private boolean changingForm = false;
-    private Stack<JeproLabApplicationForm> history = new Stack<>();
-    private Stack<JeproLabApplicationForm> forwardHistory = new Stack<>();
+    private Stack<JeproLabApplicationForm> history = new Stack();
+    private Stack<JeproLabApplicationForm> forwardHistory = new Stack();
     private JeproLabContext context;
     private JeproLabApplicationForm menuBar;
     private ToolBar applicationToolBar, windowsBar;
@@ -115,7 +115,8 @@ public class JeproLab extends Application {
                 //redirect user to the login form
                 menuBar.setFormVisible(false);
                 applicationToolBar.setVisible(false);
-                goToForm(applicationForms.loginForm);
+                //TO DO reset to this and hide next goToForm(applicationForms.loginForm);
+                goToForm(applicationForms.addressesForm);
             }else{
                 //redirect user to the dashboard
                 menuBar.setFormVisible(true);

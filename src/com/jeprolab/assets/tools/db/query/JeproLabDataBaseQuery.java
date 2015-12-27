@@ -67,7 +67,7 @@ public abstract class JeproLabDataBaseQuery {
         if(this.sqlQuery != null && !this.sqlQuery.equals("")){
             return this.sqlQuery;
         }
-        String query = "";
+        String query = ""; /*
         switch (this.queryType){
             case "element":
                 query += this.element;
@@ -142,7 +142,7 @@ public abstract class JeproLabDataBaseQuery {
 
                     /*if(!elements[0] instanceof JeproLabDataBaseQuery){
                         query +=  " VALUES ";
-                    }*/
+                    }* /
                     query += this.valuesQuery;
                 }
                 break;
@@ -151,7 +151,7 @@ public abstract class JeproLabDataBaseQuery {
             case "exec":
                 query += this.execQuery;
                 break;
-        }
+        }*/
 
         if(this instanceof JeproLabDataBaseQueryLimitable){
             query = this.processLimit(query, this.queryLimit, this.queryOffset);
@@ -166,7 +166,7 @@ public abstract class JeproLabDataBaseQuery {
      */
     public JeproLabDataBaseQuery clear(String clause){
         this.sqlQuery = null;
-        switch(clause){
+        /*switch(clause){
             case "select" :
                 this.selectQuery = null;
                 this.queryType = null;
@@ -252,7 +252,7 @@ public abstract class JeproLabDataBaseQuery {
                 this.queryLimit = 0;
                 this.queryOffset = 0;
                 break;
-        }
+        } */
         return this;
     }
 
@@ -279,7 +279,7 @@ public abstract class JeproLabDataBaseQuery {
         private boolean containsData = false;
 
         public JeproLabDataBaseQueryElement(String eltName, ArrayList<String> elts, String eltGlue){
-            this.elements = new ArrayList<>();
+            this.elements = new ArrayList();
             this.name = eltName;
             this.elementGlue = eltGlue;
 
