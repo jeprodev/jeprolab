@@ -3,6 +3,14 @@
 <?import javafx.scene.control.TableView?>
 <?import javafx.scene.control.TableColumn?>
 <?import javafx.scene.layout.GridPane?>
-<GridPane xmlns:fx="http://javafx.com/fxml" fx:controller="com.jeprolab.controllers.JeproLabCountryAddZoneController" >
-
-</GridPane>
+<?import com.jeprolab.assets.extend.controls.JeproFormPanel?>
+<?import com.jeprolab.assets.extend.controls.JeproFormPanelTitle?>
+<?import com.jeprolab.assets.extend.controls.JeproFormPanelContainer?>
+<JeproFormPanel xmlns:fx="http://javafx.com/fxml" fx:controller="com.jeprolab.controllers.JeproLabCountryAddZoneController" >
+    <JeproFormPanelTitle />
+    <JeproFormPanelContainer>
+        <GridPane>
+            
+        </GridPane>
+    </JeproFormPanelContainer>
+</JeproFormPanel>
