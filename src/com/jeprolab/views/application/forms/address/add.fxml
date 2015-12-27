@@ -12,8 +12,8 @@
 <?import javafx.scene.control.ComboBox?>
 <VBox  xmlns:fx="http://javafx.com/fxml" fx:id="jeproLabMenuBar" fx:controller="com.jeprolab.controllers.JeproLabAddressAddController" >
     <JeproFormPanel>
-        <JeproFormPanelTitle />
-        <JeproFormPanelContainer >
+        <JeproFormPanelTitle fx:id="jeproLabAddAddressFormTitleWrapper" />
+        <JeproFormPanelContainer fx:id="jeproLabAddAddressFormContainerWrapper" >
             <GridPane alignment="CENTER" >
                 <Label GridPane.columnIndex="0" GridPane.rowIndex="0" />
                 <JeproMultiLangTextField  GridPane.columnIndex="1" GridPane.rowIndex="0" />

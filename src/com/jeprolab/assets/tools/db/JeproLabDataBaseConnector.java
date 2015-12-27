@@ -57,7 +57,7 @@ public class JeproLabDataBaseConnector {
         }
     }
 
-    public boolean createConnexion(String userName, String passWord){
+    /*public boolean createConnexion(String userName, String passWord){
         this.dataBaseUserName = userName;
         this.dataBasePassWord = passWord;
         try{
@@ -71,18 +71,10 @@ public class JeproLabDataBaseConnector {
             return false;
         }
         return true;
-    }
-
-    public Connection getConnexion(){
-        if((connection == null) && createConnexion(this.dataBaseUserName, this.dataBasePassWord)) {
-            return connection;
-        }else{
-            return null;
-        }
-    }
+    }*/
 
     public Connection getConnexion(String userName, String password){
-        if(connection == null) {
+        if(connection == null){ // && createConnexion(this.dataBaseUserName, this.dataBasePassWord)) {
             try {
                 Class.forName(driverName);
                 this.dataBaseUserName = userName;
@@ -104,9 +96,13 @@ public class JeproLabDataBaseConnector {
                     sqlEx.printStackTrace();
                 }
             }
-        }else {
+        }else{
             return connection;
         }
+    }
+
+    public Connection getConnexion(){
+        return getConnexion(JeproLabConfig.dataBaseUserName, JeproLabConfig.dataBasePassword);
     }
 
     public String quote(String msg){
@@ -181,6 +177,7 @@ public class JeproLabDataBaseConnector {
     }
 
     public ResultSet loadObject(){
+
         return new ResultSet() {
             @Override
             public boolean next() throws SQLException {
