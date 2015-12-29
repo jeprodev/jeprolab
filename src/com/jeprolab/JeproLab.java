@@ -113,10 +113,10 @@ public class JeproLab extends Application {
 
             if(context.employee == null || !context.employee.isLogged){
                 //redirect user to the login form
-                menuBar.setFormVisible(false);
-                applicationToolBar.setVisible(false);
-                //TO DO reset to this and hide next goToForm(applicationForms.loginForm);
-                goToForm(applicationForms.addressesForm);
+                //menuBar.setFormVisible(false);
+                //applicationToolBar.setVisible(false);
+                //goToForm(applicationForms.loginForm);
+                goToForm(applicationForms.addAddressForm);
             }else{
                 //redirect user to the dashboard
                 menuBar.setFormVisible(true);
@@ -212,9 +212,13 @@ public class JeproLab extends Application {
                 forwardHistory.clear();
             }
             //update info
-            //done
+            currentForm.updateFormCommand();
             changingForm = false;
         }
+    }
+
+    public ToolBar getApplicationToolBar(){
+        return applicationToolBar;
     }
 
     public static void main(String[] args) {

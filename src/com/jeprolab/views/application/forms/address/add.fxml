@@ -1,7 +1,6 @@
 <?import javafx.scene.layout.GridPane?>
 <?import javafx.scene.control.Label?>
 <?import com.jeprolab.assets.extend.controls.JeproMultiLangTextField?>
-<?import javafx.scene.layout.VBox?>
 <?import com.jeprolab.assets.extend.controls.JeproFormPanel?>
 <?import com.jeprolab.assets.extend.controls.JeproFormPanelContainer?>
 <?import com.jeprolab.assets.extend.controls.JeproFormPanelTitle?>
@@ -10,45 +9,43 @@
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.control.ComboBox?>
-<VBox  xmlns:fx="http://javafx.com/fxml" fx:id="jeproLabMenuBar" fx:controller="com.jeprolab.controllers.JeproLabAddressAddController" >
-    <JeproFormPanel>
-        <JeproFormPanelTitle fx:id="jeproLabAddAddressFormTitleWrapper" />
-        <JeproFormPanelContainer fx:id="jeproLabAddAddressFormContainerWrapper" >
-            <GridPane alignment="CENTER" >
-                <Label GridPane.columnIndex="0" GridPane.rowIndex="0" />
-                <JeproMultiLangTextField  GridPane.columnIndex="1" GridPane.rowIndex="0" />
-                <Label GridPane.columnIndex="0" GridPane.rowIndex="1" />
-                <TextField GridPane.columnIndex="1" GridPane.rowIndex="1" />
-                <Label GridPane.columnIndex="0" GridPane.rowIndex="2" />
-                <TextField GridPane.columnIndex="1" GridPane.rowIndex="2" />
-                <Label GridPane.columnIndex="0" GridPane.rowIndex="3" />
-                <TextField GridPane.columnIndex="1" GridPane.rowIndex="3" />
-                <Label GridPane.columnIndex="0" GridPane.rowIndex="4" />
-                <TextField GridPane.columnIndex="1" GridPane.rowIndex="4" />
-                <Label GridPane.columnIndex="0" GridPane.rowIndex="5" />
-                <TextField GridPane.columnIndex="1" GridPane.rowIndex="5" />
-                <Label GridPane.columnIndex="0" GridPane.rowIndex="6" />
-                <TextField GridPane.columnIndex="1" GridPane.rowIndex="6" />
-                <Label GridPane.columnIndex="0" GridPane.rowIndex="7" />
-                <TextField GridPane.columnIndex="1" GridPane.rowIndex="7" />
-                <Label GridPane.columnIndex="0" GridPane.rowIndex="8" />
-                <TextField GridPane.columnIndex="1" GridPane.rowIndex="8" />
-                <Label GridPane.columnIndex="0" GridPane.rowIndex="9" />
-                <TextField GridPane.columnIndex="1" GridPane.rowIndex="9" />
-                <Label GridPane.columnIndex="0" GridPane.rowIndex="10" />
-                <TextField GridPane.columnIndex="1" GridPane.rowIndex="10" />
-                <Label GridPane.columnIndex="0" GridPane.rowIndex="11" />
-                <HBox GridPane.columnIndex="1" GridPane.rowIndex="11" spacing="15">
-                    <ComboBox fx:id="customerCountryZone" />
-                    <ComboBox fx:id="customerCountry" />
-                </HBox>
-                <Label GridPane.columnIndex="0" GridPane.rowIndex="12" />
-                <JeproPhoneField GridPane.columnIndex="1" GridPane.rowIndex="12" />
-                <Label GridPane.columnIndex="0" GridPane.rowIndex="13" />
-                <JeproPhoneField GridPane.columnIndex="1" GridPane.rowIndex="13" />
-                <Label GridPane.columnIndex="0" GridPane.rowIndex="14" />
-                <TextArea GridPane.columnIndex="1" GridPane.rowIndex="14" />
-            </GridPane>
-        </JeproFormPanelContainer>
-    </JeproFormPanel>
-</VBox>
+<JeproFormPanel xmlns:fx="http://javafx.com/fxml" fx:id="jeproLabAddAddressFormWrapper" fx:controller="com.jeprolab.controllers.JeproLabAddressAddController" >
+    <JeproFormPanelTitle fx:id="jeproLabAddAddressFormTitleWrapper" />
+    <JeproFormPanelContainer fx:id="jeproLabAddAddressFormContainerWrapper" >
+        <GridPane alignment="CENTER" fx:id="jeproLabAddAddressFormLayout">
+            <Label GridPane.columnIndex="0" GridPane.rowIndex="0" fx:id="jeproLabAddressCustomerLabel" />
+            <JeproMultiLangTextField  GridPane.columnIndex="1" GridPane.rowIndex="0" fx:id="jeproLabAddressCustomer" />
+            <Label GridPane.columnIndex="0" GridPane.rowIndex="1" fx:id="jeproLabAddressCompanyLabel" />
+            <TextField GridPane.columnIndex="1" GridPane.rowIndex="1" fx:id="jeproLabAddressCompany" />
+            <Label GridPane.columnIndex="0" GridPane.rowIndex="2" fx:id="jeproLabAddressLastNameLabel" />
+            <TextField GridPane.columnIndex="1" GridPane.rowIndex="2" fx:id="jeproLabAddressLastName" />
+            <Label GridPane.columnIndex="0" GridPane.rowIndex="3" fx:id="jeproLabAddressFirstNameLabel" />
+            <TextField GridPane.columnIndex="1" GridPane.rowIndex="3" fx:id="jeproLabAddressFirstName" />
+            <Label GridPane.columnIndex="0" GridPane.rowIndex="4" fx:id="jeproLabAddressVatNumberLabel" />
+            <TextField GridPane.columnIndex="1" GridPane.rowIndex="4" fx:id="jeproLabAddressVatNumber" />
+            <Label GridPane.columnIndex="0" GridPane.rowIndex="5" fx:id="jeproLabAddressAddressLabel" />
+            <TextField GridPane.columnIndex="1" GridPane.rowIndex="5" fx:id="jeproLabAddressAddress" />
+            <Label GridPane.columnIndex="0" GridPane.rowIndex="6" fx:id="jeproLabAddressAddress1Label" />
+            <TextField GridPane.columnIndex="1" GridPane.rowIndex="6" fx:id="jeproLabAddressAddress1" />
+            <Label GridPane.columnIndex="0" GridPane.rowIndex="7" fx:id="jeproLabAddressPostCodeLabel" />
+            <TextField GridPane.columnIndex="1" GridPane.rowIndex="7" fx:id="jeproLabAddressPostCode" />
+            <Label GridPane.columnIndex="0" GridPane.rowIndex="8" fx:id="jeproLabAddressCityLabel" />
+            <!--TextField GridPane.columnIndex="1" GridPane.rowIndex="8" fx:id="jeproLabAddressCity" />
+            <Label GridPane.columnIndex="0" GridPane.rowIndex="9" fx:id="jeproLabAddress" />
+            <TextField GridPane.columnIndex="1" GridPane.rowIndex="9" fx:id="jeproLabAddress" />
+            <Label GridPane.columnIndex="0" GridPane.rowIndex="10" fx:id="jeproLabAddress" />
+            <TextField GridPane.columnIndex="1" GridPane.rowIndex="10" fx:id="jeproLabAddress" /-->
+            <Label GridPane.columnIndex="0" GridPane.rowIndex="11" fx:id="jeproLabAddressCountryLabel" />
+            <HBox GridPane.columnIndex="1" GridPane.rowIndex="11" spacing="15"  fx:id="jeproLabAddressCountryWrapper" >
+                <ComboBox fx:id="jeproLabAddressCountryZone" />
+                <ComboBox fx:id="jeproLabAddressCountry" />
+            </HBox>
+            <Label GridPane.columnIndex="0" GridPane.rowIndex="12" fx:id="jeproLabAddressPhoneLabel" />
+            <JeproPhoneField GridPane.columnIndex="1" GridPane.rowIndex="12" fx:id="jeproLabAddressPhone" />
+            <Label GridPane.columnIndex="0" GridPane.rowIndex="13" fx:id="jeproLabAddressMobilePhoneLabel" />
+            <JeproPhoneField GridPane.columnIndex="1" GridPane.rowIndex="13" fx:id="jeproLabAddressMobilePhone" />
+            <Label GridPane.columnIndex="0" GridPane.rowIndex="14" fx:id="jeproLabAddressOtherLabel" />
+            <TextArea GridPane.columnIndex="1" GridPane.rowIndex="14" fx:id="jeproLabAddressOther" />
+        </GridPane>
+    </JeproFormPanelContainer>
+</JeproFormPanel>

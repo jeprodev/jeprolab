@@ -73,4 +73,8 @@ public class JeproLabConfig {
     public String getSessionHandler(){
         return "";
     }
+
+    public static int getListLimit(){
+        return 20;
+    }
 }

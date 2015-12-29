@@ -27,7 +27,7 @@ public class JeproLabApplication {
     public static boolean login(String userName, String passWord, JeproLabAuthenticationOption loginOptions){
         JeproLabAuthentication authenticator = JeproLabAuthentication.getInstance();
         JeproLabAuthenticationResponse response = authenticator.authenticate(userName, passWord, loginOptions);
-System.out.print(response);
+
         if(response.status == JeproLabAuthentication.SUCCESS_STATUS){
             /**
              * Validate that the user should be able to login (different to being authenticated).
@@ -62,7 +62,7 @@ System.out.print(response);
             boolean result = JeproLabLoginController.onUserLogin(response, loginOptions);
 
             /**
-             * If any of the user plugn=ins did successfully complete the login routine then the whole method fails.
+             * If any of the user plugins did successfully complete the login routine then the whole method fails.
              *
              * Any errors raised should be done in the plugin as this provides the ability to provide much more
              * information about why the routine may have failed

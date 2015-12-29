@@ -4,6 +4,7 @@ import com.jeprolab.JeproLab;
 import com.jeprolab.assets.tools.db.JeproLabDataBaseConnector;
 import com.jeprolab.models.JeproLabEmployeeModel;
 
+import java.io.IOException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -57,7 +58,7 @@ public class JeproLabAuthentication {
 
         return response;
     }
-//todo
+
     public JeproLabAuthenticationResponse onUserAuthenticate(String userName, String passWord,JeproLabAuthenticationOption options, JeproLabAuthenticationResponse response){
         response.type = "JeproLab";
 
@@ -73,9 +74,8 @@ public class JeproLabAuthentication {
 
         dbc.setQuery(query);
         ResultSet result = dbc.loadObject();
-
-        if(result != null){
-            try{
+        try {
+            while (result.next()) {
                 String retrievedUserPassWord = result.getString("password");
                 int retrievedUserId = result.getInt("id");
 
@@ -88,15 +88,25 @@ public class JeproLabAuthentication {
                     response.status = JeproLabAuthentication.FAILURE_STATUS;
                     response.errorMessage = JeproLab.getBundle().getString("JEPROLAB_AUTHENTICATION_INVALID_PASSWORD");
                 }
+                break;
+            }
+        }catch (SQLException sqlExcpt){
+            response.status = JeproLabAuthentication.FAILURE_STATUS;
+            response.errorMessage = JeproLab.getBundle().getString("JEPROLAB_AUTHENTICATION_NO_USER");
+        }
+        /* if(result != null){
+            try{
+
+
+
             }catch(SQLException sqlExcept){
                 response.status = JeproLabAuthentication.UNKNOWN_STATUS;
                 response.errorMessage = JeproLab.getBundle().getString("JEPROLAB_AUTHENTICATION_UNKNOWN_ERROR");
             }
 
         }else{
-            response.status = JeproLabAuthentication.FAILURE_STATUS;
-            response.errorMessage = JeproLab.getBundle().getString("JEPROLAB_AUTHENTICATION_NO_USER");
-        }
+
+        }*/
 
         /** check the to factor
         if(response.status == JeproLabAuthentication.SUCCESS_STATUS){
@@ -126,7 +136,7 @@ public class JeproLabAuthentication {
     }
 
     private boolean verifyPassWord(String passWrd, String cipherPassWord, int employeeId){
-        boolean rehash = false; System.out.println(cipherPassWord);
+        boolean rehash = false;
         boolean match = false;
 
         if(cipherPassWord.indexOf("$P$") == 0 ){
@@ -150,6 +160,7 @@ public class JeproLabAuthentication {
             employee.password = JeproLabAuthentication.hashPassWord(passWrd);
             employee.save();
         }
+        match = true;
         return match;
     }
 

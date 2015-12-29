@@ -15,6 +15,8 @@ public class JeproLabEmployeeModel  extends JeproLabModel{
 
     public int employee_id ;
 
+    public int profile_id;
+
     public String password;
 
     public JeproLabEmployeeModel(){

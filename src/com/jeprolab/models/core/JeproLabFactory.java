@@ -78,12 +78,16 @@ public abstract class JeproLabFactory {
         JeproLabConfig config = JeproLabFactory.getConfig();
         String sessionHandler = config.getSessionHandler();
 
+        if(sessionOptions == null){
+            sessionOptions = new JeproLabSessionOption();
+        }
+
         //configuration time in minute
         sessionOptions.expire =  config.getLifeTime() > 0 ? config.getLifeTime() * 60 : 900;
 
         appSession = JeproLabSession.getInstance(sessionHandler, sessionOptions);
 
-        if(appSession.getState() == "expired"){
+        if(appSession.getState().equals("expired")){
             appSession.restart();
         }
         return appSession;

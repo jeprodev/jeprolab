@@ -3,18 +3,13 @@
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.TableView?>
 <?import javafx.scene.control.TableColumn?>
-<?import javafx.scene.layout.HBox?>
-<?import javafx.scene.control.Button?>
+
 <VBox xmlns:fx="http://javafx.com/fxml" fx:controller="com.jeprolab.controllers.JeproLabAddressController" >
     <children>
-        <HBox fx:id="jeproLabAddressListCommandWrapper" >
-            <Button fx:id="jeproLabAddAddressButton" />
-            <Button fx:id="jeproLabDeleteAddressesButton" />
-        </HBox>
-        <AnchorPane>
+        <AnchorPane fx:id="jeproLabAddressContainer" >
             <padding><Insets top="5.0" right="4.0" bottom="10.0" left="5.0" /></padding>
             <children>
-                <TableView>
+                <TableView fx:id="jeproLabAddressesList">
                     <columns>
                         <TableColumn resizable="false" editable="false" fx:id="addressIndexColumn" />
                         <TableColumn resizable="false" editable="false" fx:id="addressCheckBoxColumn" />

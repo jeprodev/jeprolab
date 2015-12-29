@@ -2,14 +2,14 @@ package com.jeprolab.controllers;
 
 
 import javafx.fxml.FXML;
-import javafx.scene.layout.HBox;
+import javafx.scene.layout.Pane;
 
 import java.net.URL;
 import java.util.ResourceBundle;
 
 public class JeproLabDashboardController extends JeproLabController{
     @FXML
-    HBox dashboardPageWrapper;
+    Pane dashboardPageWrapper;
 
     @Override
     public void initialize(URL location, ResourceBundle resource){

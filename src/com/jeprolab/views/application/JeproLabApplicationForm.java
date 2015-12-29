@@ -29,6 +29,7 @@ public class JeproLabApplicationForm {
             FXMLLoader formLoader = new FXMLLoader();
             formWrapper = formLoader.load(JeproLab.class.getResource(formLayoutPath), JeproLab.getBundle());
             controller = formLoader.getController();
+
             isCreated = true;
         }
         return formWrapper;
@@ -36,5 +37,9 @@ public class JeproLabApplicationForm {
 
     public void setFormVisible(boolean visible){
         formWrapper.setVisible(visible);
+    }
+
+    public void updateFormCommand(){
+        //controller.updateToolBar();
     }
 }

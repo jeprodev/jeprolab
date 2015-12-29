@@ -4,15 +4,18 @@ package com.jeprolab.models;
 import com.jeprolab.assets.tools.db.JeproLabDataBaseConnector;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class JeproLabLaboratoryGroupModel extends JeproLabModel {
     public String name;
 
-    public int lab_group_id = 0;
+    public int laboratory_group_id = 0;
 
-    public int share_customer, share_result, share_request;
+    public int share_customers, share_results, share_requests;
 
     public boolean published = true, deleted = false;
+
+    public List<JeproLabLaboratoryModel> laboratories;
 
     public JeproLabLaboratoryGroupModel(){
 
