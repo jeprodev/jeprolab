@@ -3,13 +3,21 @@
 
 <?import com.jeprolab.assets.extend.controls.JeproSwitchButton?>
 <?import com.jeprolab.assets.extend.controls.JeproMultiLangTextField?>
-<GridPane xmlns:fx="http://javafx.com/fxml"  fx:controller="com.jeprolab.controllers.JeproLabCategoryController">
-    <Label GridPane.columnIndex="0" GridPane.rowIndex="1"/>
-    <JeproMultiLangTextField />
-    <Label GridPane.columnIndex="0" GridPane.rowIndex="1" />
-    <JeproSwitchButton  GridPane.columnIndex="0" GridPane.rowIndex="1" />
-    <Label GridPane.columnIndex="0" GridPane.rowIndex="1" />
-    <Label GridPane.columnIndex="0" GridPane.rowIndex="1" />
-    <Label GridPane.columnIndex="0" GridPane.rowIndex="1" />
-    <Label GridPane.columnIndex="0" GridPane.rowIndex="1" />
-</GridPane>
+<?import com.jeprolab.assets.extend.controls.JeproFormPanel?>
+<?import com.jeprolab.assets.extend.controls.JeproFormPanelTitle?>
+<?import com.jeprolab.assets.extend.controls.JeproFormPanelContainer?>
+<JeproFormPanel xmlns:fx="http://javafx.com/fxml"  fx:controller="com.jeprolab.controllers.JeproLabCategoryController">
+    <JeproFormPanelTitle />
+    <JeproFormPanelContainer >
+        <GridPane>
+            <Label GridPane.columnIndex="0" GridPane.rowIndex="1" fx:id="jeproLabCategoryNameLabel" />
+            <JeproMultiLangTextField fx:id="jeproLabCategoryName"/>
+            <Label GridPane.columnIndex="0" GridPane.rowIndex="1" />
+            <JeproSwitchButton  GridPane.columnIndex="0" GridPane.rowIndex="1" />
+            <Label GridPane.columnIndex="0" GridPane.rowIndex="1" />
+            <Label GridPane.columnIndex="0" GridPane.rowIndex="1" />
+            <Label GridPane.columnIndex="0" GridPane.rowIndex="1" />
+            <Label GridPane.columnIndex="0" GridPane.rowIndex="1" />
+        </GridPane>
+    </JeproFormPanelContainer>
+</JeproFormPanel>

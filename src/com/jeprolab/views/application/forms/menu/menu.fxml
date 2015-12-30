@@ -7,7 +7,16 @@
     <MenuBar fx:id="jeproLabMenuBar">
         <Menu fx:id="dashBoardMenu" onAction="#handleDashBoardMenuEvent" />
         <Menu fx:id="catalogMenu" >
-            <MenuItem fx:id="categoryMenuItem" onAction="#handleCategoriesMenuEvent" />
+            <Menu fx:id="analyzeSubMenu" onAction="#handleAnalyzesMenuEvent" >
+                <items>
+                    <MenuItem fx:id="addAnalyseSubMenuItem" onAction="#handleAddAnalyseMenuEvent" />
+                </items>
+            </Menu>
+            <Menu fx:id="categorySubMenu" onAction="#handleCategoriesMenuEvent" >
+                <items>
+                    <MenuItem fx:id="addCategoryMenuItem" onAction="#handleAddCategoryMenuEvent" />
+                </items>
+            </Menu>
             <MenuItem fx:id="analyzeMenuItem" onAction="#handleAnalyzesMenuEvent" />
             <MenuItem fx:id="attachmentMenuItem" onAction="#handleAttachmentsMenuEvent" />
         </Menu>
@@ -27,9 +36,9 @@
                     <MenuItem fx:id="addGroupMenuItem" onAction="#handleAddGroupMenuEvent" />
                 </items>
             </Menu>
-            <Menu fx:id="currentSubRequestMenu" onAction="#handleRequestsMenuEvent" />
-            <Menu fx:id="threadsSubMenu" onAction="#handleCustomerThreadsMenuEvent" />
-            <Menu fx:id="contactsSubMenu" onAction="#handleContactsMenuEvents"/>
+            <Menu fx:id="currentSubRequestMenu" onAction="#handleRequestsMenuEvent" ></Menu>
+            <Menu fx:id="threadsSubMenu" onAction="#handleCustomerThreadsMenuEvent" ></Menu>
+            <Menu fx:id="contactsSubMenu" onAction="#handleContactsMenuEvents"></Menu>
         </Menu>
         <Menu fx:id="feedsMenu" >
             <MenuItem fx:id="feedsMenuItem" onAction="#handleFeedsMenuEvent" />

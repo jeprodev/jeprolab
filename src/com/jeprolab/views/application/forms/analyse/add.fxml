@@ -1,2 +1,9 @@
 <?import javafx.scene.layout.GridPane?>
-<GridPane></GridPane>
+<?import com.jeprolab.assets.extend.controls.JeproFormPanel?>
+
+<?import com.jeprolab.assets.extend.controls.JeproFormPanelTitle?>
+<?import com.jeprolab.assets.extend.controls.JeproFormPanelContainer?>
+<JeproFormPanel  xmlns:fx="http://javafx.com/fxml" fx:id="jeproLabAddAnalyseFormWrapper" fx:controller="com.jeprolab.controllers.JeproLabAnalyzeAddController">
+    <JeproFormPanelTitle fx:id="jeproLabAddAnalyseFormTitleWrapper" />
+    <JeproFormPanelContainer fx:id="jeproLabAddAnalyseFormContainerWrapper"  ></JeproFormPanelContainer>
+</JeproFormPanel>

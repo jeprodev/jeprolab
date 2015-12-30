@@ -18,9 +18,9 @@ public class JeproLabMenuController extends JeproLabController {
     public VBox jeproLabMenuBarWrapper;
     public MenuBar jeproLabMenuBar;
     public Menu dashBoardMenu, catalogMenu, customerMenu, helpMenu, feedsMenu, settingMenu;
-    public Menu customersSubMenu, addressesSubMenu, groupsSubMenu, currentSubRequestMenu, threadsSubMenu, contactsSubMenu;
+    public Menu categorySubMenu, customersSubMenu, addressesSubMenu, groupsSubMenu, currentSubRequestMenu, threadsSubMenu, contactsSubMenu;
     public MenuItem addCustomerMenuItem;
-    public MenuItem categoryMenuItem, aboutJeproLabMenuItem, feedsMenuItem, feedBackMenuItem, customersMenuItem;
+    public MenuItem addCategoryMenuItem, aboutJeproLabMenuItem, feedsMenuItem, feedBackMenuItem, customersMenuItem;
     public MenuItem analyzeMenuItem, attachmentMenuItem;
     public MenuItem addressesMenuItem, addAddressMenuItem;
     public MenuItem groupsMenuItem, addGroupMenuItem, currentRequestMenuItem;
@@ -79,8 +79,18 @@ public class JeproLabMenuController extends JeproLabController {
     }
 
 
+    public void handleAddCategoryMenuEvent(ActionEvent event) throws IOException {
+        JeproLab.getInstance().goToForm(JeproLab.getInstance().getApplicationForms().addCategoryForm);
+    }
+
+
     public void handleAnalyzesMenuEvent(ActionEvent event) throws IOException {
         JeproLab.getInstance().goToForm(JeproLab.getInstance().getApplicationForms().analyzeForm);
+    }
+
+
+    public void handleAddAnalyseMenuEvent(ActionEvent event) throws IOException {
+        JeproLab.getInstance().goToForm(JeproLab.getInstance().getApplicationForms().addAnalyzeForm);
     }
 
 
