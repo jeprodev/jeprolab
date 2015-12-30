@@ -1,6 +1,7 @@
 package com.jeprolab.controllers;
 
 
+import com.jeprolab.JeproLab;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.layout.Pane;
@@ -25,6 +26,8 @@ public class JeproLabDashboardController extends JeproLabController{
         previousDayButton = new Button(bundle.getString("JEPROLAB_PREVIOUS_DAY_LABEL"));
         previousYearButton = new Button(bundle.getString("JEPROLAB_PREVIOUS_YEAR_LABEL"));
         previousYearButton.getStyleClass().addAll("last", "capsule");
+
+        JeproLab.getInstance().getApplicationToolBarCommandWrapper().getChildren().setAll(dayButton, monthButton, yearButton, previousDayButton, previousMonthButton, previousYearButton);
     }
 
 
