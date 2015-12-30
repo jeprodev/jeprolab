@@ -4,20 +4,32 @@
 <?import javafx.scene.control.MenuItem?>
 <?import javafx.scene.layout.VBox?>
 <VBox xmlns:fx="http://javafx.com/fxml" fx:id="jeproLabMenuBarWrapper" fx:controller="com.jeprolab.controllers.JeproLabMenuController" >
-    <MenuBar fx:id="jeproLabMenuBar" >
-        <Menu fx:id="dashBoardMenu" />
+    <MenuBar fx:id="jeproLabMenuBar">
+        <Menu fx:id="dashBoardMenu" onAction="#handleDashBoardMenuEvent" />
         <Menu fx:id="catalogMenu" >
             <MenuItem fx:id="categoryMenuItem" onAction="#handleCategoriesMenuEvent" />
             <MenuItem fx:id="analyzeMenuItem" onAction="#handleAnalyzesMenuEvent" />
             <MenuItem fx:id="attachmentMenuItem" onAction="#handleAttachmentsMenuEvent" />
         </Menu>
         <Menu fx:id="customerMenu" >
-            <MenuItem fx:id="customersMenuItem" onAction="#handleCustomersMenuEvent" />
-            <MenuItem fx:id="addressesMenuItem" onAction="#handleAddressesMenuEvent" />
-            <MenuItem fx:id="groupsMenuItem" onAction="#handleGroupsMenuEvent" />
-            <MenuItem fx:id="currentRequestMenuItem" onAction="#handleRequestsMenuEvent" />
-            <MenuItem fx:id="threadsMenuItem" onAction="#handleCustomerThreadsMenuEvent" />
-            <MenuItem fx:id="contactsMenuItem" onAction="#handleContactsMenuEvents"/>
+            <Menu fx:id="customersSubMenu" onAction="#handleCustomersMenuEvent" >
+                <items>
+                    <MenuItem fx:id="addCustomerMenuItem" onAction="#handleAddNewCustomerMenuEvent"/>
+                </items>
+            </Menu>
+            <Menu fx:id="addressesSubMenu" onAction="#handleAddressesMenuEvent" >
+                <items>
+                    <MenuItem fx:id="addAddressMenuItem" onAction="#handleAddNewAddressMenuEvent" />
+                </items>
+            </Menu>
+            <Menu fx:id="groupsSubMenu" onAction="#handleGroupsMenuEvent" >
+                <items>
+                    <MenuItem fx:id="addGroupMenuItem" onAction="#handleAddGroupMenuEvent" />
+                </items>
+            </Menu>
+            <Menu fx:id="currentSubRequestMenu" onAction="#handleRequestsMenuEvent" />
+            <Menu fx:id="threadsSubMenu" onAction="#handleCustomerThreadsMenuEvent" />
+            <Menu fx:id="contactsSubMenu" onAction="#handleContactsMenuEvents"/>
         </Menu>
         <Menu fx:id="feedsMenu" >
             <MenuItem fx:id="feedsMenuItem" onAction="#handleFeedsMenuEvent" />

@@ -1,4 +1,31 @@
 <?import javafx.scene.layout.VBox?>
-<VBox xmlns:fx="http://javafx.com/fxml" fx:controller="com.jeprolab.controllers.JeproLabCustomerController" >
-
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.geometry.Insets?>
+<VBox xmlns:fx="http://javafx.com/fxml" fx:id="jeproLabCustomerListWrapper" fx:controller="com.jeprolab.controllers.JeproLabCustomerController" >
+    <children>
+        <AnchorPane fx:id="jeproLabCustomerContainer" >
+            <padding><Insets top="5.0" right="4.0" bottom="10.0" left="5.0" /></padding>
+            <children>
+                <TableView fx:id="customersTableView">
+                    <columns>
+                        <TableColumn resizable="false" editable="false" fx:id="customerListNumberColumn" />
+                        <TableColumn resizable="false" editable="false" fx:id="customerCheckBoxColumn" />
+                        <TableColumn resizable="false" editable="false" fx:id="customerTitleColumn" />
+                        <TableColumn resizable="false" editable="false" fx:id="customerNameColumn" />
+                        <TableColumn resizable="false" editable="false" fx:id="customerFistNameColumn" />
+                        <TableColumn resizable="false" editable="false" fx:id="customerLastVisitColumn" />
+                        <TableColumn resizable="false" editable="false" fx:id="customerDateAddColumn" />
+                        <TableColumn resizable="false" editable="false" fx:id="customerAllowAdsColumn" />
+                        <TableColumn resizable="false" editable="false" fx:id="customerActiveColumn" />
+                        <TableColumn resizable="false" editable="false" fx:id="customerCompanyColumn" />
+                        <TableColumn resizable="false" editable="false" fx:id="customerEmailAddressColumn" />
+                        <TableColumn resizable="false" editable="false" fx:id="customerReportColumn" />
+                        <TableColumn resizable="false" editable="false" fx:id="customerActionsColumn" />
+                    </columns>
+                </TableView>
+            </children>
+        </AnchorPane>
+    </children>
 </VBox>

@@ -8,6 +8,7 @@ import javafx.scene.control.Button;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
+import javafx.scene.layout.VBox;
 
 import java.net.URL;
 import java.util.ResourceBundle;
@@ -15,7 +16,9 @@ import java.util.ResourceBundle;
 public class JeproLabCustomerController extends JeproLabController{
     private ResourceBundle bundle;
 
+
     @FXML
+    public VBox jeproLabCustomerListWrapper;
     public Button addNewCustomerButton;
     public TextField customerSearchBox;
     public TableView customersTableView;
@@ -38,7 +41,9 @@ public class JeproLabCustomerController extends JeproLabController{
         customerEmailAddressColumn.setText(bundle.getString("JEPROLAB_EMAIL_LABEL"));
         customerReportColumn.setText(bundle.getString("JEPROLAB_REPORT_LABEL"));
         customerActionsColumn.setText(bundle.getString("JEPROLAB_ACTIONS_LABEL"));
-        addNewCustomerButton.setText(bundle.getString("JEPROLAB_ADD_NEW_CUSTOMER_LABEL"));
+
+        addNewCustomerButton = new Button();
+        addNewCustomerButton.setText(bundle.getString("JEPROLAB_ADD_NEW_LABEL"));
     }
 
     @Override
