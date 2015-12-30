@@ -2,7 +2,7 @@
 <?import com.jeprolab.assets.extend.controls.JeproFormPanelTitle?>
 <?import com.jeprolab.assets.extend.controls.JeproFormPanelContainer?>
 <?import javafx.scene.layout.GridPane?>
-<JeproFormPanel>
+<JeproFormPanel xmlns:fx="http://javafx.com/fxml" fx:id="jeproLabAddAttachmentWrapper" fx:controller="com.jeprolab.controllers.JeproLabAttachmentAddController">
     <JeproFormPanelTitle />
     <JeproFormPanelContainer >
         <GridPane>

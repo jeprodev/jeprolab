@@ -5,48 +5,44 @@
 <?import javafx.scene.layout.VBox?>
 <VBox xmlns:fx="http://javafx.com/fxml" fx:id="jeproLabMenuBarWrapper" fx:controller="com.jeprolab.controllers.JeproLabMenuController" >
     <MenuBar fx:id="jeproLabMenuBar">
-        <Menu fx:id="dashBoardMenu" onAction="#handleDashBoardMenuEvent" />
+        <Menu fx:id="dashBoardMenu" onAction="#handleDashBoardMenuEvent" >
+            <MenuItem fx:id="dashBoardMenuItem" onAction="#handleDashBoardMenuEvent" />
+        </Menu>
         <Menu fx:id="catalogMenu" >
             <Menu fx:id="categorySubMenu" onAction="#handleCategoriesMenuEvent" >
-                <items>
-                    <MenuItem fx:id="addCategoryMenuItem" onAction="#handleAddCategoryMenuEvent" />
-                </items>
+                <MenuItem fx:id="addCategoryMenuItem" onAction="#handleAddCategoryMenuEvent" />
             </Menu>
             <Menu fx:id="analyzeSubMenu" onAction="#handleAnalyzesMenuEvent" >
-                <items>
-                    <MenuItem fx:id="addAnalyseSubMenuItem" onAction="#handleAddAnalyseMenuEvent" />
-                </items>
+                <MenuItem fx:id="addAnalyseSubMenuItem" onAction="#handleAddAnalyseMenuEvent" />
             </Menu>
             <Menu fx:id="attachmentsSubMenu" onAction="#handleAttachmentsMenuEvent" >
-                <items>
-                    <MenuItem fx:id="addAttachmentSubMenuItem" onAction="#handleAddAttachmentMenuEvent" />
-                </items>
+                 <MenuItem fx:id="addAttachmentSubMenuItem" onAction="#handleAddAttachmentMenuEvent" />
             </Menu>
             <!--MenuItem fx:id="attachmentMenuItem" onAction="#handleAttachmentsMenuEvent" / -->
         </Menu>
         <Menu fx:id="customerMenu" >
             <Menu fx:id="customersSubMenu" onAction="#handleCustomersMenuEvent" >
-                <items>
-                    <MenuItem fx:id="addCustomerMenuItem" onAction="#handleAddNewCustomerMenuEvent"/>
-                </items>
+                <MenuItem fx:id="addCustomerMenuItem" onAction="#handleAddNewCustomerMenuEvent"/>
             </Menu>
             <Menu fx:id="addressesSubMenu" onAction="#handleAddressesMenuEvent" >
-                <items>
-                    <MenuItem fx:id="addAddressMenuItem" onAction="#handleAddNewAddressMenuEvent" />
-                </items>
+                <MenuItem fx:id="addAddressMenuItem" onAction="#handleAddNewAddressMenuEvent" />
             </Menu>
             <Menu fx:id="groupsSubMenu" onAction="#handleGroupsMenuEvent" >
-                <items>
-                    <MenuItem fx:id="addGroupMenuItem" onAction="#handleAddGroupMenuEvent" />
-                </items>
+                <MenuItem fx:id="addGroupMenuItem" onAction="#handleAddGroupMenuEvent" />
             </Menu>
             <Menu fx:id="currentSubRequestMenu" onAction="#handleRequestsMenuEvent" ></Menu>
             <Menu fx:id="threadsSubMenu" onAction="#handleCustomerThreadsMenuEvent" ></Menu>
             <Menu fx:id="contactsSubMenu" onAction="#handleContactsMenuEvents"></Menu>
         </Menu>
         <Menu fx:id="feedsMenu" >
-            <MenuItem fx:id="feedsMenuItem" onAction="#handleFeedsMenuEvent" />
-            <MenuItem fx:id="feedBackMenuItem" onAction="#handleCustomerMenuEvent"/>
+            <Menu fx:id="feedsSubMenu" onAction="#handleFeedsMenuEvent" >
+                <MenuItem fx:id="addFeedMenuItem"  onAction="#handleAddFeedMenuEvent" />
+            </Menu>
+            <MenuItem fx:id="feedBackMenuItem" onAction="#handleFeedBackMenuEvent">
+                <!--items>
+                    <MenuItem fx:id="" />
+                </items -->
+            </MenuItem>
         </Menu>
         <Menu fx:id="settingMenu" />
         <Menu fx:id="helpMenu" >
