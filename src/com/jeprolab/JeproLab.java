@@ -41,6 +41,7 @@ public class JeproLab extends Application {
     private JeproLabContext context;
     private JeproLabApplicationForm menuBar;
     private ToolBar applicationToolBar, windowsBar;
+    private HBox applicationToolBarCommandWrapper;
 
     private static ResourceBundle bundle, appProps;
     private String lang = "";
@@ -89,7 +90,13 @@ public class JeproLab extends Application {
             initialize();
             menuBar = new JeproLabApplicationForm("menu/menu.fxml");
 
+            Region toolBarSpacer = new Region();
+            applicationToolBarCommandWrapper = new HBox();
+            applicationToolBarCommandWrapper.getStyleClass().setAll("segmented-command-wrapper");
             applicationToolBar = new ToolBar();
+            applicationToolBar.getStyleClass().add("jeprolab-toolbar");
+            applicationToolBar.getItems().addAll(applicationToolBarCommandWrapper, toolBarSpacer);
+
             formWrapper = new Pane();
             primaryStage.initStyle(StageStyle.UNDECORATED);
             windowsBar = new ToolBar();
@@ -219,6 +226,10 @@ public class JeproLab extends Application {
 
     public ToolBar getApplicationToolBar(){
         return applicationToolBar;
+    }
+
+    public HBox getApplicationToolBarCommandWrapper(){
+        return applicationToolBarCommandWrapper;
     }
 
     public static void main(String[] args) {

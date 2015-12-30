@@ -19,6 +19,10 @@
     -fx-border-width: 0 2px 2px 2px;
 }
 
+.jeprolab-toolbar{
+
+}
+
 .input-label{
     -fx-font-weight: bold;
 }

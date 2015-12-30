@@ -16,12 +16,15 @@ public class JeproLabDashboardController extends JeproLabController{
     @Override
     public void initialize(URL location, ResourceBundle resource){
         bundle = resource;
-        monthButton = new Button(bundle.getString("JEPROLAB_MONTH_LABEL"));
         dayButton = new Button(bundle.getString("JEPROLAB_DAY_LABEL"));
+        dayButton.getStyleClass().addAll("first");
+        monthButton = new Button(bundle.getString("JEPROLAB_MONTH_LABEL"));
+
         yearButton = new Button(bundle.getString("JEPROLAB_YEAR_LABEL"));
         previousMonthButton = new Button(bundle.getString("JEPROLAB_PREVIOUS_MONTH_LABEL"));
         previousDayButton = new Button(bundle.getString("JEPROLAB_PREVIOUS_DAY_LABEL"));
         previousYearButton = new Button(bundle.getString("JEPROLAB_PREVIOUS_YEAR_LABEL"));
+        previousYearButton.getStyleClass().addAll("last", "capsule");
     }
 
 
