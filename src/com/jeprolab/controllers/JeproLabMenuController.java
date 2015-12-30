@@ -19,6 +19,8 @@ public class JeproLabMenuController extends JeproLabController {
     public MenuBar jeproLabMenuBar;
     public Menu dashBoardMenu, catalogMenu, customerMenu, helpMenu, feedsMenu, settingMenu;
     public Menu categorySubMenu, customersSubMenu, addressesSubMenu, groupsSubMenu, currentSubRequestMenu, threadsSubMenu, contactsSubMenu;
+    public Menu analyzeSubMenu;
+    public MenuItem addAnalyseSubMenuItem;
     public MenuItem addCustomerMenuItem;
     public MenuItem addCategoryMenuItem, aboutJeproLabMenuItem, feedsMenuItem, feedBackMenuItem, customersMenuItem;
     public MenuItem analyzeMenuItem, attachmentMenuItem;
@@ -31,7 +33,15 @@ public class JeproLabMenuController extends JeproLabController {
         bundle = resources;
         jeproLabMenuBar.setPrefWidth(JeproLab.APP_WIDTH);
         dashBoardMenu.setText(bundle.getString("JEPROLAB_DASHBOARD_LABEL"));
+
+        /**
+         *
+         */
         catalogMenu.setText(bundle.getString("JEPROLAB_CATALOGS_LABEL"));
+        categorySubMenu.setText(bundle.getString("JEPROLAB_CATEGORIES_LABEL"));
+        addCategoryMenuItem.setText(bundle.getString("JEPROLAB_ADD_NEW_LABEL") + " " + bundle.getString("JEPROLAB_CATEGORY_LABEL"));
+        analyzeSubMenu.setText(bundle.getString("JEPROLAB_ANALYSES_LABEL"));
+        addAnalyseSubMenuItem.setText(bundle.getString("JEPROLAB_ADD_NEW_LABEL") + " " + bundle.getString("JEPROLAB_ANALYSE_LABEL"));
         /**
          *
          */
@@ -96,6 +106,10 @@ public class JeproLabMenuController extends JeproLabController {
 
     public void handleAttachmentsMenuEvent(ActionEvent event) throws IOException {
         JeproLab.getInstance().goToForm(JeproLab.getInstance().getApplicationForms().attachmentForm);
+    }
+
+    public void handleAddAttachmentMenuEvent(ActionEvent event) throws IOException{
+        JeproLab.getInstance().goToForm(JeproLab.getInstance().getApplicationForms().addAttachmentForm);
     }
 
 

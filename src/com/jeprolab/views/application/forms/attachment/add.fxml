@@ -1,0 +1,12 @@
+<?import com.jeprolab.assets.extend.controls.JeproFormPanel?>
+<?import com.jeprolab.assets.extend.controls.JeproFormPanelTitle?>
+<?import com.jeprolab.assets.extend.controls.JeproFormPanelContainer?>
+<?import javafx.scene.layout.GridPane?>
+<JeproFormPanel>
+    <JeproFormPanelTitle />
+    <JeproFormPanelContainer >
+        <GridPane>
+
+        </GridPane>
+    </JeproFormPanelContainer>
+</JeproFormPanel>

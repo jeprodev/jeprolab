@@ -7,18 +7,22 @@
     <MenuBar fx:id="jeproLabMenuBar">
         <Menu fx:id="dashBoardMenu" onAction="#handleDashBoardMenuEvent" />
         <Menu fx:id="catalogMenu" >
-            <Menu fx:id="analyzeSubMenu" onAction="#handleAnalyzesMenuEvent" >
-                <items>
-                    <MenuItem fx:id="addAnalyseSubMenuItem" onAction="#handleAddAnalyseMenuEvent" />
-                </items>
-            </Menu>
             <Menu fx:id="categorySubMenu" onAction="#handleCategoriesMenuEvent" >
                 <items>
                     <MenuItem fx:id="addCategoryMenuItem" onAction="#handleAddCategoryMenuEvent" />
                 </items>
             </Menu>
-            <MenuItem fx:id="analyzeMenuItem" onAction="#handleAnalyzesMenuEvent" />
-            <MenuItem fx:id="attachmentMenuItem" onAction="#handleAttachmentsMenuEvent" />
+            <Menu fx:id="analyzeSubMenu" onAction="#handleAnalyzesMenuEvent" >
+                <items>
+                    <MenuItem fx:id="addAnalyseSubMenuItem" onAction="#handleAddAnalyseMenuEvent" />
+                </items>
+            </Menu>
+            <Menu fx:id="attachmentsSubMenu" onAction="#handleAttachmentsMenuEvent" >
+                <items>
+                    <MenuItem fx:id="addAttachmentSubMenuItem" onAction="#handleAddAttachmentMenuEvent" />
+                </items>
+            </Menu>
+            <!--MenuItem fx:id="attachmentMenuItem" onAction="#handleAttachmentsMenuEvent" / -->
         </Menu>
         <Menu fx:id="customerMenu" >
             <Menu fx:id="customersSubMenu" onAction="#handleCustomersMenuEvent" >
