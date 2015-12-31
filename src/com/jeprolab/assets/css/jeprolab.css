@@ -1,3 +1,10 @@
+.root{
+    -light-black : rgb(74, 75, 78);
+    -dark-highlight: rgb(87, 89, 92);
+    -dark-black : rgb(39, 40, 40);
+    -darkest-black : rgb(5,5, 5);
+}
+
 .form-title{
     -fx-text-fill: black;
     -fx-font-size: 16px;
@@ -21,13 +28,52 @@
 
 .jeprolab-toolbar{
     -fx-base: -dark-black;
-    -fx-font-size: 12pt;
-    /*-fx-background-color:
+    -fx-font-size: 10pt;
+    -fx-background-color:
     linear-gradient(to bottom, derive(-fx-base,-30%), derive(-fx-base,-60%)),
-    linear-gradient(to bottom, -light-black 2%, -dark-black 98%); */
+    linear-gradient(to bottom, -light-black 2%, -dark-black 98%);
     -fx-background-insets: 0, 0 0 1 0;
-    -fx-padding: .9em 0.416667em .9em 0.416667em;
+    -fx-padding: .4em 0.416667em .4em 0.416667em;
     -fx-effect: dropshadow(two-pass-box,black,5,.2,0,0);
+}
+
+.jeprolab-toolbar .spacer{
+    -fx-padding: 0 5.417em 0 0;
+}
+
+.segmented-command-wrapper{
+    -fx-padding: 0.1em 2em 0.1em 2em;
+}
+
+.segmented-command-wrapper .button{
+    -fx-background-color:
+    -darkest-black,
+    -dark-highlight,
+    linear-gradient(to bottom, -light-black 2%, -dark-black 98%);
+    -fx-background-insets: 0, 1 1 1 0, 2 1 1 1;
+    -fx-background-radius: 0;
+    -fx-padding: 0.2em 1.033333em 0.2em 1.033333em;
+}
+
+.segmented-command-wrapper .button.first{
+    -fx-background-insets: 0, 1, 2 1 1 1;
+    -fx-background-radius: 3 0 0 3, 4 0 0 4, 4 0 0 4;
+}
+
+.segmented-command-wrapper .button.last{
+    -fx-background-insets: 0, 1 1 1 0, 2 1 1 1;
+    -fx-background-radius: 0 3 3 0, 0 4 4 0, 0 4 4 0;
+}
+
+.segmented-command-wrapper .button:pressed{
+    -fx-background-color:
+    -darkest-black,
+    rgb(55, 57, 58),
+    linear-gradient(to top, -light-black 2%, -dark-black 98%);
+}
+
+.segmented-command-wrapper .button.logout{
+    -fx-padding: 0.2em 0.4em 0.2em 0.4em;
 }
 
 .input-label{

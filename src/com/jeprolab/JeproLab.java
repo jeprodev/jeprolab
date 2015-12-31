@@ -13,8 +13,11 @@ import javafx.application.Application;
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.ToolBar;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
@@ -41,7 +44,9 @@ public class JeproLab extends Application {
     private JeproLabContext context;
     private JeproLabApplicationForm menuBar;
     private ToolBar applicationToolBar, windowsBar;
-    private HBox applicationToolBarCommandWrapper;
+    private HBox applicationToolBarCommandWrapper, userInfoWrapper;
+    private Button userInfoBtn, userLogOutBtn;
+
 
     private static ResourceBundle bundle, appProps;
     private String lang = "";
@@ -87,15 +92,25 @@ public class JeproLab extends Application {
             scene.getStylesheets().setAll(JeproLab.class.getResource("assets/css/jeprolab.css").toExternalForm());
         }else{
             appStage = primaryStage;
+
             initialize();
             menuBar = new JeproLabApplicationForm("menu/menu.fxml");
 
             Region toolBarSpacer = new Region();
+            HBox.setHgrow(toolBarSpacer, Priority.ALWAYS);
             applicationToolBarCommandWrapper = new HBox();
             applicationToolBarCommandWrapper.getStyleClass().setAll("segmented-command-wrapper");
             applicationToolBar = new ToolBar();
             applicationToolBar.getStyleClass().add("jeprolab-toolbar");
-            applicationToolBar.getItems().addAll(applicationToolBarCommandWrapper, toolBarSpacer);
+            userInfoWrapper = new HBox();
+            userInfoWrapper.getStyleClass().setAll("segmented-command-wrapper");
+            userInfoBtn = new Button();
+            userInfoBtn.getStyleClass().addAll("first");
+            userLogOutBtn = new Button("", new ImageView(new Image(JeproLab.class.getResourceAsStream("resources/images/logout.png"))));
+            userLogOutBtn.getStyleClass().addAll("last", "capsule", "logout");
+            userInfoWrapper.getChildren().addAll(userInfoBtn, userLogOutBtn);
+            applicationToolBar.getItems().addAll(applicationToolBarCommandWrapper, toolBarSpacer, userInfoWrapper);
+
 
             formWrapper = new Pane();
             primaryStage.initStyle(StageStyle.UNDECORATED);
@@ -230,6 +245,10 @@ public class JeproLab extends Application {
 
     public HBox getApplicationToolBarCommandWrapper(){
         return applicationToolBarCommandWrapper;
+    }
+
+    public Button getUserInfoBtn(){
+        return userInfoBtn;
     }
 
     public static void main(String[] args) {
