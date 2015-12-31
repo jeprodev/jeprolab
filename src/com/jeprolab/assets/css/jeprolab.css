@@ -45,7 +45,7 @@
     -fx-padding: 0.1em 2em 0.1em 2em;
 }
 
-.segmented-command-wrapper .button{
+.segmented-command-wrapper .button, .segmented-command-wrapper .toggle-button{
     -fx-background-color:
     -darkest-black,
     -dark-highlight,
@@ -55,17 +55,17 @@
     -fx-padding: 0.2em 1.033333em 0.2em 1.033333em;
 }
 
-.segmented-command-wrapper .button.first{
+.segmented-command-wrapper .button.first, .segmented-command-wrapper .toggle-button.first{
     -fx-background-insets: 0, 1, 2 1 1 1;
     -fx-background-radius: 3 0 0 3, 4 0 0 4, 4 0 0 4;
 }
 
-.segmented-command-wrapper .button.last{
+.segmented-command-wrapper .button.last, .segmented-command-wrapper .toggle-button.last{
     -fx-background-insets: 0, 1 1 1 0, 2 1 1 1;
     -fx-background-radius: 0 3 3 0, 0 4 4 0, 0 4 4 0;
 }
 
-.segmented-command-wrapper .button:pressed{
+.segmented-command-wrapper .button:pressed, .segmented-command-wrapper .toggle-button:selected{
     -fx-background-color:
     -darkest-black,
     rgb(55, 57, 58),
