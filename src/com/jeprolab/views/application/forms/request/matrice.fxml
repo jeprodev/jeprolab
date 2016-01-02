@@ -4,12 +4,15 @@
 <?import com.jeprolab.assets.extend.controls.JeproMultiLangTextField?>
 <?import javafx.scene.layout.GridPane?>
 <?import javafx.scene.control.Label?>
+<?import com.jeprolab.assets.extend.controls.JeproSwitchButton?>
 <JeproFormPanel>
     <JeproFormPanelTitle />
     <JeproFormPanelContainer>
         <GridPane>
             <Label/>
             <JeproMultiLangTextField />
+            <Label />
+            <JeproSwitchButton />
         </GridPane>
     </JeproFormPanelContainer>
 </JeproFormPanel>
