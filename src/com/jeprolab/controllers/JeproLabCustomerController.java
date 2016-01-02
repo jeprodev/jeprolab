@@ -1,6 +1,7 @@
 package com.jeprolab.controllers;
 
 
+import com.jeprolab.JeproLab;
 import javafx.fxml.FXML;
 
 //import javafx.scene.control.Label;
@@ -28,12 +29,21 @@ public class JeproLabCustomerController extends JeproLabController{
 
     public void initialize(URL location , ResourceBundle resource){
         bundle = resource;
+        double tableWidth = .98 * JeproLab.APP_WIDTH;
+        customersTableView.setPrefWidth(.98 * JeproLab.APP_WIDTH);
+        customersTableView.setLayoutX(.01 * JeproLab.APP_WIDTH);
         customerListNumberColumn.setText("#");
+        customerListNumberColumn.setPrefWidth(30);
         customerCheckBoxColumn.setText("");
+        customerCheckBoxColumn.setPrefWidth(25);
         customerTitleColumn.setText(bundle.getString("JEPROLAB_TITLE_LABEL"));
+        customerTitleColumn.setPrefWidth(45);
         customerNameColumn.setText(bundle.getString("JEPROLAB_LAST_NAME_LABEL"));
+        customerNameColumn.setPrefWidth(.1 * (tableWidth - 100));
         customerFistNameColumn.setText(bundle.getString("JEPROLAB_FIRST_NAME_LABEL"));
+        customerFistNameColumn.setPrefWidth(.1*(tableWidth - 100));
         customerLastVisitColumn.setText(bundle.getString("JEPROLAB_LAST_VISIT_LABEL"));
+
         customerDateAddColumn.setText(bundle.getString("JEPROLAB_DATE_ADD_LABEL"));
         customerAllowAdsColumn.setText(bundle.getString("JEPROLAB_ALLOWS_ADS_LABEL"));
         customerActiveColumn.setText(bundle.getString("JEPROLAB_ACTIVE_LABEL"));

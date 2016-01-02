@@ -1,4 +1,26 @@
 <?import javafx.scene.layout.VBox?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.TableColumn?>
 <VBox xmlns:fx="http://javafx.com/fxml" fx:controller="com.jeprolab.controllers.JeproLabFeedBackController" >
-
+    <TableView>
+        <columns>
+            <TableColumn resizable="false" editable="false" fx:id="jeproLabFeedBackIndexLabel" />
+            <TableColumn resizable="false" editable="false" fx:id="jeproLabFeedBackCheckBoxLabel" />
+            <TableColumn resizable="false" editable="false" fx:id="jeproLabFeedBackCustomerLabel" />
+            <TableColumn resizable="false" editable="false" fx:id="jeproLabFeedBackEnjoyWorkingWithUsLabel" />
+            <TableColumn resizable="false" editable="false" fx:id="jeproLabFeedBackStaffCourtesyLabel" />
+            <TableColumn resizable="false" editable="false" fx:id="jeproLabFeedBackTeamAbilitiesLabel" />
+            <TableColumn resizable="false" editable="false" fx:id="jeproLabFeedBackProblemSupportLabel" />
+            <TableColumn resizable="false" editable="false" fx:id="jeproLabFeedBackTeamAvailabilitiesLabel" />
+            <TableColumn resizable="false" editable="false" fx:id="jeproLabFeedBackRecommendOurServicesLabel"/>
+            <TableColumn resizable="false" editable="false" fx:id="jeproLabFeedBackReuseOurServicesLabel"/>
+            <TableColumn resizable="false" editable="false" fx:id="jeproLabFeedBackServiceSpeedLabel"/>
+            <TableColumn resizable="false" editable="false" fx:id="jeproLabFeedBackSampleDeliveryLabel"/>
+            <TableColumn resizable="false" editable="false" fx:id="jeproLabFeedBackSubmissionLabel" />
+            <TableColumn resizable="false" editable="false" fx:id="jeproLabFeedBackReportsQualityLabel"/>
+            <TableColumn resizable="false" editable="false" fx:id="jeproLabFeedBackAnalyseSpeedLabel"/>
+            <TableColumn resizable="false" editable="false" fx:id="jeproLabFeedBackOnlineServicesLabel"/>
+            <TableColumn resizable="false" editable="false" fx:id="jeproLabFeedBackGlobalQualityLabel"/>
+        </columns>
+    </TableView>
 </VBox>
