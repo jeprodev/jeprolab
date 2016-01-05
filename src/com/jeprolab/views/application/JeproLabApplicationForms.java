@@ -8,7 +8,7 @@ package com.jeprolab.views.application;
  */
 public class JeproLabApplicationForms {
     public JeproLabApplicationForm loginForm, dashBoardForm, categoryForm;
-    public JeproLabApplicationForm addCategoryForm, aboutJeproLabForm;
+    public JeproLabApplicationForm addCategoryForm, aboutJeproLabForm, updaterForm;
     public JeproLabApplicationForm feedsForm, addFeedForm, feedBackForm;
     public JeproLabApplicationForm customersForm, addCustomerForm;
     public JeproLabApplicationForm analyzeForm,addAnalyzeForm;
@@ -23,6 +23,7 @@ public class JeproLabApplicationForms {
         categoryForm = new JeproLabApplicationForm("category/list.fxml");
         addCategoryForm = new JeproLabApplicationForm("category/add.fxml");
         aboutJeproLabForm = new JeproLabApplicationForm("help/jeprolab.fxml");
+        updaterForm = new JeproLabApplicationForm("help/updater.fxml");
         feedsForm = new JeproLabApplicationForm("feeds/feeds.fxml");
         addFeedForm = new JeproLabApplicationForm("feeds/feeds.fxml");
         feedBackForm = new JeproLabApplicationForm("feeds/feedBacks.fxml");

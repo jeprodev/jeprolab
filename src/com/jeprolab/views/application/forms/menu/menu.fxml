@@ -46,6 +46,7 @@
         </Menu>
         <Menu fx:id="settingMenu" />
         <Menu fx:id="helpMenu" >
+            <MenuItem fx:id="checkForJeproLabUpdate" onAction="#handleCheckForJeproLabUpdate" />
             <MenuItem fx:id="aboutJeproLabMenuItem" onAction="#handleHelpMenuEvent"/>
         </Menu>
     </MenuBar>

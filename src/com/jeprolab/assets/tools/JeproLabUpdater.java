@@ -8,11 +8,12 @@ import java.net.URL;
  * Created by jeprodev on 02/05/2014.
  */
 public class JeproLabUpdater {
-    private final static String versionUrl = "localhost/jeprodev/index.php?option=com_jeproshop&view=product&task=view&product_id=51";
-    private final static String historyUrl = "localhost/jeprodev/index.php?option=com_jeproshop&view=product&task=view&product_id=51";
+    private final static String versionUrl = "http://localhost/jeprodev/index.php?option=com_jeproshop&view=product&task=view&product_id=51";
+    private final static String historyUrl = "http://localhost/jeprodev/index.php?option=com_jeproshop&view=product&task=view&product_id=51";
 
-    public static String getLatestVesrion() throws Exception{
+    public static String getLatestVersion() throws Exception{
         String data = getData(versionUrl);
+
         return data.substring(data.indexOf("[version]") + 9, data.indexOf("[/version]"));
     }
 
