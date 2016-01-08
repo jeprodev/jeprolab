@@ -48,7 +48,9 @@
             <Menu fx:id="laboratorySubMenu" >
                 <MenuItem fx:id="addLaboratorySubMenuItem" />
             </Menu>
-            <Menu fx:id="laboratoryGroupSubMenu" ></Menu>
+            <Menu fx:id="laboratoryGroupSubMenu" >
+                <MenuItem fx:id="addLaboratoryGroupSubMenuItem" />
+            </Menu>
         </Menu>
         <Menu fx:id="helpMenu" >
             <MenuItem fx:id="checkForJeproLabUpdate" onAction="#handleCheckForJeproLabUpdate" />
