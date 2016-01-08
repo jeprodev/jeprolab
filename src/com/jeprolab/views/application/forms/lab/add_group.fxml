@@ -1,9 +1,15 @@
 <?import com.jeprolab.assets.extend.controls.JeproFormPanel?>
 <?import com.jeprolab.assets.extend.controls.JeproFormPanelTitle?>
 <?import com.jeprolab.assets.extend.controls.JeproFormPanelContainer?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TextField?>
 <JeproFormPanel>
     <JeproFormPanelTitle />
     <JeproFormPanelContainer>
-
+        <GridPane>
+            <Label />
+            <TextField />
+        </GridPane>
     </JeproFormPanelContainer>
 </JeproFormPanel>

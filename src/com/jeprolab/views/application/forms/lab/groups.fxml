@@ -3,7 +3,7 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.control.TableView?>
 <?import javafx.scene.control.TableColumn?>
-<JeproFormPanel fx:id="" fx:controller="com.jeprolab.controllers.JeproLabLaboratoryGroupController">
+<JeproFormPanel xmlns:fx="http://javafx.com/fxml" fx:id="" fx:controller="com.jeprolab.controllers.JeproLabLaboratoryGroupController">
     <JeproFormPanelContainer >
         <VBox>
             <children>
