@@ -19,12 +19,13 @@ public class JeproLabMenuController extends JeproLabController {
     public MenuBar jeproLabMenuBar;
     public Menu dashBoardMenu, catalogMenu, customerMenu, helpMenu, feedsMenu, settingMenu;
     public Menu categorySubMenu, customersSubMenu, addressesSubMenu, groupsSubMenu, currentSubRequestMenu, threadsSubMenu, contactsSubMenu;
-    public Menu analyzeSubMenu, attachmentsSubMenu, feedsSubMenu, feedBackSubMenu;
+    public Menu analyzeSubMenu, attachmentsSubMenu, feedsSubMenu, feedBackSubMenu, laboratorySubMenu, laboratoryGroupSubMenu;
     public MenuItem addAnalyseSubMenuItem, dashBoardMenuItem;
     public MenuItem addCustomerMenuItem;
     public MenuItem addAttachmentSubMenuItem;
     public MenuItem addCategoryMenuItem, addFeedMenuItem, feedBackMenuItem, customersMenuItem;
     public MenuItem aboutJeproLabMenuItem, checkForJeproLabUpdate;
+    public MenuItem addLaboratorySubMenuItem, addLaboratoryGroupSubMenuItem;
     public MenuItem analyzeMenuItem, attachmentMenuItem;
     public MenuItem addressesMenuItem, addAddressMenuItem;
     public MenuItem groupsMenuItem, addGroupMenuItem, currentRequestMenuItem;
@@ -84,6 +85,10 @@ public class JeproLabMenuController extends JeproLabController {
          *
          */
         settingMenu.setText(bundle.getString("JEPROLAB_SETTINGS_LABEL"));
+        laboratorySubMenu.setText(bundle.getString("JEPROLAB_LABORATORIES_LABEL"));
+        addLaboratorySubMenuItem.setText(bundle.getString("JEPROLAB_ADD_NEW_LABEL") + " " + bundle.getString("JEPROLAB_LABORATORY_LABEL"));
+        laboratoryGroupSubMenu.setText(bundle.getString("JEPROLAB_LABORATORIES_GROUPS_LABEL"));
+        addLaboratoryGroupSubMenuItem.setText(bundle.getString("JEPROLAB_ADD_NEW_LABEL") + " " + bundle.getString("JEPROLAB_LABORATORY_GROUP_LABEL"));
 
         /*categoryMenuItem.setText(bundle.getString("JEPROLAB_CATEGORIES_LABEL"));
         aboutJeproLabMenuItem.setText(bundle.getString("JEPROLAB_ABOUT_JEPROLAB_LABEL"));

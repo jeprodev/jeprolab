@@ -1,0 +1,30 @@
+<?import com.jeprolab.assets.extend.controls.JeproFormPanel?>
+<?import com.jeprolab.assets.extend.controls.JeproFormPanelTitle?>
+<?import com.jeprolab.assets.extend.controls.JeproFormPanelContainer?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.control.ComboBox?>
+<JeproFormPanel xmlns:fx="http://javafx.com/fxml" fx:controller="com.jeprolab.controllers.JeproLabLaboratoryAddController" >
+    <JeproFormPanelTitle />
+    <JeproFormPanelContainer >
+        <GridPane >
+            <Label fx:id="jeproLabLaboratoryNameLabel" />
+            <TextField fx:id="jeproLabLaboratoryName" />
+            <Label fx:id="jeproLabLaboratoryGroupLabel" />
+            <ComboBox fx:id="jeproLabLaboratoryGroup" />
+            <Label fx:id="jeproLabLaboratorygxgLabel" />
+            <TextField fx:id="jeproLabLaboratoryvjvLabel" />
+            <Label fx:id="jeproLabLaboratoryvLabel" />
+            <TextField fx:id="jeproLabLaboratorydcLabel" />
+            <Label fx:id="jeproLabLaboratoryvfLabel" />
+            <TextField fx:id="jeproLabLaboratoryxLabel" />
+            <Label fx:id="jeproLabLaboratoryLabel" />
+            <TextField fx:id="jeproLabLaboratorygheLabel" />
+            <Label fx:id="jeproLabLaboratorysfLabel" />
+            <TextField fx:id="jeproLabLaboratoryftsLabel" />
+            <Label fx:id="jeproLabLaboratoryhdLabel" />
+            <TextField fx:id="jeproLabLaboratorysgLabel" />
+        </GridPane>
+    </JeproFormPanelContainer>
+</JeproFormPanel>

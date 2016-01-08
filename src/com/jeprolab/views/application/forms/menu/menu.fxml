@@ -44,7 +44,12 @@
                 </items -->
             </MenuItem>
         </Menu>
-        <Menu fx:id="settingMenu" />
+        <Menu fx:id="settingMenu" >
+            <Menu fx:id="laboratorySubMenu" >
+                <MenuItem fx:id="addLaboratorySubMenuItem" />
+            </Menu>
+            <Menu fx:id="laboratoryGroupSubMenu" ></Menu>
+        </Menu>
         <Menu fx:id="helpMenu" >
             <MenuItem fx:id="checkForJeproLabUpdate" onAction="#handleCheckForJeproLabUpdate" />
             <MenuItem fx:id="aboutJeproLabMenuItem" onAction="#handleHelpMenuEvent"/>
