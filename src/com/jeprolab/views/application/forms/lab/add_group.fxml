@@ -1,0 +1,9 @@
+<?import com.jeprolab.assets.extend.controls.JeproFormPanel?>
+<?import com.jeprolab.assets.extend.controls.JeproFormPanelTitle?>
+<?import com.jeprolab.assets.extend.controls.JeproFormPanelContainer?>
+<JeproFormPanel>
+    <JeproFormPanelTitle />
+    <JeproFormPanelContainer>
+
+    </JeproFormPanelContainer>
+</JeproFormPanel>

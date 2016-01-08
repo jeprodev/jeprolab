@@ -1,0 +1,26 @@
+<?import com.jeprolab.assets.extend.controls.JeproFormPanel?>
+<?import com.jeprolab.assets.extend.controls.JeproFormPanelContainer?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.TableColumn?>
+<JeproFormPanel fx:id="" fx:controller="com.jeprolab.controllers.JeproLabLaboratoryGroupController">
+    <JeproFormPanelContainer >
+        <VBox>
+            <children>
+                <TableView>
+                    <columns>
+                        <TableColumn fx:id="" resizable="false" editable="false" />
+                        <TableColumn fx:id="" resizable="false" editable="false" />
+                        <TableColumn fx:id="" resizable="false" editable="false" />
+                        <TableColumn fx:id="" resizable="false" editable="false" />
+                        <TableColumn fx:id="" resizable="false" editable="false" />
+                        <TableColumn fx:id="" resizable="false" editable="false" />
+                        <TableColumn fx:id="" resizable="false" editable="false" />
+                        <TableColumn fx:id="" resizable="false" editable="false" />
+                        <TableColumn fx:id="" resizable="false" editable="false" />
+                    </columns>
+                </TableView>
+            </children>
+        </VBox>
+    </JeproFormPanelContainer>
+</JeproFormPanel>

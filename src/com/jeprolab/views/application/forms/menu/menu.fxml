@@ -46,10 +46,10 @@
         </Menu>
         <Menu fx:id="settingMenu" >
             <Menu fx:id="laboratorySubMenu" >
-                <MenuItem fx:id="addLaboratorySubMenuItem" />
+                <MenuItem fx:id="addLaboratorySubMenuItem" onAction="#handleAddNewLaboratoryMenuEvent" />
             </Menu>
             <Menu fx:id="laboratoryGroupSubMenu" >
-                <MenuItem fx:id="addLaboratoryGroupSubMenuItem" />
+                <MenuItem fx:id="addLaboratoryGroupSubMenuItem" onAction="#handleAddNewLaboratoryGroupMenuEvent" />
             </Menu>
         </Menu>
         <Menu fx:id="helpMenu" >

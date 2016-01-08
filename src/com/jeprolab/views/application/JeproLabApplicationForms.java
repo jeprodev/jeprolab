@@ -11,7 +11,7 @@ public class JeproLabApplicationForms {
     public JeproLabApplicationForm addCategoryForm, aboutJeproLabForm, updaterForm;
     public JeproLabApplicationForm feedsForm, addFeedForm, feedBackForm;
     public JeproLabApplicationForm customersForm, addCustomerForm;
-    public JeproLabApplicationForm laboratoriesForm, addLaboratoryForm;
+    public JeproLabApplicationForm laboratoriesForm, addLaboratoryForm, laboratoriesGroupsForm, addLaboratoriesGroupForm;
     public JeproLabApplicationForm analyzeForm,addAnalyzeForm;
     public JeproLabApplicationForm attachmentForm, addAttachmentForm;
     public JeproLabApplicationForm addressesForm, addAddressForm;
@@ -43,5 +43,7 @@ public class JeproLabApplicationForms {
         contactsForm = new JeproLabApplicationForm("contact/list.fxml");
         laboratoriesForm = new JeproLabApplicationForm("lab/list.fxml");
         addLaboratoryForm = new JeproLabApplicationForm("lab/add.fxml");
+        laboratoriesGroupsForm = new JeproLabApplicationForm("lab/groups.fxml");
+        addLaboratoriesGroupForm = new JeproLabApplicationForm("lab/add_group.fxml");
     }
 }
