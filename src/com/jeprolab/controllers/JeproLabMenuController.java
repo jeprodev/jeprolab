@@ -195,8 +195,16 @@ public class JeproLabMenuController extends JeproLabController {
     }
 
 
+    public void handleLaboratoriesMenuEvent(ActionEvent evt) throws IOException{
+        JeproLab.getInstance().goToForm(JeproLab.getInstance().getApplicationForms().addLaboratoryForm);
+    }
+
     public void handleAddNewLaboratoryMenuEvent(ActionEvent evt) throws IOException{
         JeproLab.getInstance().goToForm(JeproLab.getInstance().getApplicationForms().addLaboratoryForm);
+    }
+
+    public void handleLaboratoryGroupsMenuEvent(ActionEvent evt) throws IOException{
+        JeproLab.getInstance().goToForm(JeproLab.getInstance().getApplicationForms().addLaboratoriesGroupForm);
     }
 
     public void handleAddNewLaboratoryGroupMenuEvent(ActionEvent evt) throws IOException{
