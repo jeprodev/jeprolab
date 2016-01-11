@@ -200,9 +200,17 @@ public class JeproLabLaboratoryModel  extends JeproLabModel{
         }
         if(!feature_published){
             String query = "SELECT COUNT(*) FROM " + staticDataBaseObject.quoteName("#__jeprolab_lab");
-            //staticDataBaseObject.setQuery(query);
+            staticDataBaseObject.setQuery(query);
 
-            //feature_published = JeproLabSettingModel.getIntValue("multilab_feature_active") && (staticDataBaseObject.loadResult() > 1);
+            int nbObject = 0;
+            try {
+                ResultSet data = staticDataBaseObject.loadObject();
+                while (data.next()) {
+                    nbObject++;
+                }
+            }catch (SQLException sqlE){}
+
+            feature_published = (JeproLabSettingModel.getIntValue("multilab_feature_active") > 0) && (nbObject > 1);
         }
 
         return feature_published;

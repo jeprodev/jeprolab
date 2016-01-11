@@ -7,7 +7,6 @@ import javafx.scene.control.Pagination;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.List;
 
 /**
  *
@@ -52,7 +51,7 @@ public class JeproLabAddressModel extends JeproLabModel {
                 query += " AS address LEFT JOIN " + dbc.quoteName("#__jeprolab_country_lang") + " AS country_lang ON(country_lang." + dbc.quoteName("country_id");
                 query += " = address." + dbc.quoteName("country_id") + " AND country_lang." + dbc.quoteName("lang_id") + " = " + langId + ") LEFT JOIN ";
                 query += dbc.quoteName("#__jeprolab_customer") + " AS customer ON address." + dbc.quoteName("customer_id") + " = customer.";
-                query += dbc.quoteName("customer_id") + " WHERE address.customer_id != 0 "; //todo + JeproLabLaboratoryModel.addSqlRestriction(JeproLabLaboratoryModel.SHARE_CUSTOMER, "customer");
+                query += dbc.quoteName("customer_id") + " WHERE address.customer_id != 0 " + JeproLabLaboratoryModel.addSqlRestriction(JeproLabLaboratoryModel.SHARE_CUSTOMER, "customer");
                 query += " ORDER BY " + (orderByFilter.equals("address_id") ? "address." : "") + orderBy + " " + orderWay;
 
                 dbc.setQuery(query);

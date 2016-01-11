@@ -3,21 +3,21 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.control.TableView?>
 <?import javafx.scene.control.TableColumn?>
-<JeproFormPanel xmlns:fx="http://javafx.com/fxml" fx:id="" fx:controller="com.jeprolab.controllers.JeproLabLaboratoryGroupController">
+<JeproFormPanel xmlns:fx="http://javafx.com/fxml" fx:id="jeproLab" fx:controller="com.jeprolab.controllers.JeproLabLaboratoryGroupController">
     <JeproFormPanelContainer >
         <VBox>
             <children>
                 <TableView>
                     <columns>
-                        <TableColumn fx:id="" resizable="false" editable="false" />
-                        <TableColumn fx:id="" resizable="false" editable="false" />
-                        <TableColumn fx:id="" resizable="false" editable="false" />
-                        <TableColumn fx:id="" resizable="false" editable="false" />
-                        <TableColumn fx:id="" resizable="false" editable="false" />
-                        <TableColumn fx:id="" resizable="false" editable="false" />
-                        <TableColumn fx:id="" resizable="false" editable="false" />
-                        <TableColumn fx:id="" resizable="false" editable="false" />
-                        <TableColumn fx:id="" resizable="false" editable="false" />
+                        <TableColumn fx:id="jeproLabLaboratoryGroupIndexColumn" resizable="false" editable="false" />
+                        <TableColumn fx:id="jeproLabLaboratoryGroupCheckBoxColumn" resizable="false" editable="false" />
+                        <TableColumn fx:id="jeproLabLaboratoryGroupNameColumn" resizable="false" editable="false" />
+                        <TableColumn fx:id="jeproLabLaboratoryGroupShareCustomerColumn" resizable="false" editable="false" />
+                        <TableColumn fx:id="jeproLabLaboratoryGroupShareRequestColumn" resizable="false" editable="false" />
+                        <TableColumn fx:id="jeproLabLaboratoryGroupShareResultsColumn" resizable="false" editable="false" />
+                        <TableColumn fx:id="jeproLabLaboratoryGroupColumn" resizable="false" editable="false" />
+                        <TableColumn fx:id="jeproLabLaboratoryGroupColumn" resizable="false" editable="false" />
+                        <TableColumn fx:id="jeproLabLaboratoryGroupActionColumn" resizable="false" editable="false" />
                     </columns>
                 </TableView>
             </children>
