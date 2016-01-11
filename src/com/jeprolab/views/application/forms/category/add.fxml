@@ -8,7 +8,7 @@
 <?import com.jeprolab.assets.extend.controls.JeproFormPanelContainer?>
 <?import javafx.scene.control.TextArea?>
 <?import com.jeprolab.assets.extend.controls.JeproImageChooser?>
-<JeproFormPanel xmlns:fx="http://javafx.com/fxml"  fx:controller="com.jeprolab.controllers.JeproLabCategoryController">
+<JeproFormPanel xmlns:fx="http://javafx.com/fxml"  fx:controller="com.jeprolab.controllers.JeproLabCategoryAddController">
     <JeproFormPanelTitle />
     <JeproFormPanelContainer >
         <GridPane>
