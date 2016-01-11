@@ -8,11 +8,14 @@
         <AnchorPane>
             <padding><Insets left="4" bottom="10" right="4" top="5" /></padding>
             <children>
-                <TableView>
+                <TableView fx:id="categoryTableView" >
                     <columns>
                         <TableColumn resizable="false" editable="false" fx:id="categoryIndexColumn" />
                         <TableColumn resizable="false" editable="false" fx:id="categoryCheckBoxColumn" />
-                        <TableColumn resizable="false" editable="false" fx:id="categoryColumn" />
+                        <TableColumn resizable="false" editable="false" fx:id="categoryStatusColumn" />
+                        <TableColumn resizable="false" editable="false" fx:id="categoryNameColumn" />
+                        <TableColumn resizable="false" editable="false" fx:id="categoryDescriptionColumn" />
+                        <TableColumn resizable="false" editable="false" fx:id="categoryPositionColumn" />
                         <TableColumn resizable="false" editable="false" fx:id="categoryActionColumn" />
                     </columns>
                 </TableView>
