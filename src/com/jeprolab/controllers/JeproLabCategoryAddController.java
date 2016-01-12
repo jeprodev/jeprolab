@@ -35,6 +35,10 @@ public class JeproLabCategoryAddController extends JeproLabController{
         double formWidth = (labelColumnWidth + inputColumnWidth) + 30;
         double posX = (JeproLab.APP_WIDTH/2) - (formWidth)/2;
         double posY = 25;
+        jeproLabCategoryFormWrapper.setLayoutX(posX);
+        jeproLabCategoryFormWrapper.setLayoutY(posY);
+
+        jeproLabCategoryFormContainerWrapper.setLayoutY(40);
 
         jeproLabCategoryFormLayout.getColumnConstraints().addAll(new ColumnConstraints(labelColumnWidth -25), new ColumnConstraints(inputColumnWidth -25));
 
