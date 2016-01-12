@@ -6,6 +6,7 @@ import com.jeprolab.assets.extend.controls.JeproFormPanelContainer;
 import com.jeprolab.assets.extend.controls.JeproFormPanelTitle;
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
+import javafx.scene.control.Tab;
 
 import java.net.URL;
 import java.util.ResourceBundle;
@@ -22,6 +23,11 @@ public class JeproLabAnalyzeAddController extends JeproLabController{
     public JeproFormPanelTitle jeproLabAddAnalyseFormTitleWrapper;
     public JeproFormPanelContainer jeproLabAddAnalyseFormContainerWrapper;
 
+    public Tab jeproLabAnalyzeInformationTabForm, jeproLabAnalyzeAttachedFileTabForm;
+
+    public Label jeproLabAnalyzeNameLabel, jeproLabAnalyzePublishedLabel, jeproLabAnalyzeReferenceLabel, jeproLabAnalyzeImageChooserLabel;
+    public Label jeproLabAnalyzeShortDescriptionLabel, jeproLabAnalyzeDescriptionLabel, jeproLabAnalyzeImagesLabel, jeproLabAnalyzeTagLabel;
+
     public void initialize(URL location, ResourceBundle resource){
         bundle = resource;
 
@@ -33,8 +39,16 @@ public class JeproLabAnalyzeAddController extends JeproLabController{
         double posY = 25;
 
         jeproLabFormTitle = new Label(bundle.getString("JEPROLAB_ADD_NEW_ANALYSE_LABEL"));
-        //jeproLabAddAnalyseFormWrapper;
-        //jeproLabAddAnalyseFormTitleWrapper;
-        //jeproLabAddAnalyseFormContainerWrapper;
+        jeproLabFormTitle.getStyleClass().add("input-label");
+        jeproLabAddAnalyseFormWrapper.setPrefWidth(0.96 * JeproLab.APP_WIDTH);
+        jeproLabAddAnalyseFormWrapper.setLayoutX(.02 * JeproLab.APP_WIDTH);
+        jeproLabAddAnalyseFormWrapper.setLayoutY(20);
+        jeproLabAddAnalyseFormTitleWrapper.setPrefSize(0.96 * JeproLab.APP_WIDTH, 40);
+        jeproLabAddAnalyseFormTitleWrapper.getChildren().add(jeproLabFormTitle);
+        jeproLabAddAnalyseFormContainerWrapper.setPrefWidth(0.96 * JeproLab.APP_WIDTH);
+        jeproLabAddAnalyseFormContainerWrapper.setLayoutY(40);
+
+        jeproLabAnalyzeInformationTabForm.setText(bundle.getString("JEPROLAB_INFORMATION_LABEL"));
+        jeproLabAnalyzeAttachedFileTabForm.setText(bundle.getString("JEPROLAB_ATTACHED_FILES_LABEL"));
     }
 }

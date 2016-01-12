@@ -1,9 +1,48 @@
-<?import javafx.scene.layout.GridPane?>
 <?import com.jeprolab.assets.extend.controls.JeproFormPanel?>
 
 <?import com.jeprolab.assets.extend.controls.JeproFormPanelTitle?>
 <?import com.jeprolab.assets.extend.controls.JeproFormPanelContainer?>
+<?import javafx.scene.control.TabPane?>
+<?import javafx.scene.control.Tab?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.control.Label?>
+<?import com.jeprolab.assets.extend.controls.JeproMultiLangTextField?>
+<?import javafx.scene.control.TextField?>
+<?import com.jeprolab.assets.extend.controls.JeproSwitchButton?>
+<?import com.jeprolab.assets.extend.controls.JeproImageChooser?>
+<?import javafx.scene.control.TextArea?>
+<?import com.jeprolab.assets.extend.controls.JeproImageSlider?>
 <JeproFormPanel  xmlns:fx="http://javafx.com/fxml" fx:id="jeproLabAddAnalyseFormWrapper" fx:controller="com.jeprolab.controllers.JeproLabAnalyzeAddController">
     <JeproFormPanelTitle fx:id="jeproLabAddAnalyseFormTitleWrapper" />
-    <JeproFormPanelContainer fx:id="jeproLabAddAnalyseFormContainerWrapper"  ></JeproFormPanelContainer>
+    <JeproFormPanelContainer fx:id="jeproLabAddAnalyseFormContainerWrapper"  >
+        <TabPane>
+            <Tab fx:id="jeproLabAnalyzeInformationTabForm">
+                <GridPane fx:id="jeproLabAnalyzeInformationLayout">
+                    <Label GridPane.columnIndex="0" GridPane.rowIndex="0" fx:id="jeproLabAnalyzeNameLabel" />
+                    <JeproMultiLangTextField GridPane.columnIndex="1" GridPane.rowIndex="0" fx:id="jeproLabAnalyzeName"/>
+                    <Label GridPane.columnIndex="2" GridPane.rowIndex="0" fx:id="jeproLabAnalyzePublishedLabel" />
+                    <JeproSwitchButton GridPane.columnIndex="3" GridPane.rowIndex="0" fx:id="jeproLabAnalyzePublished" />
+                    <Label GridPane.columnIndex="0" GridPane.rowIndex="1" fx:id="jeproLabAnalyzeReferenceLabel" />
+                    <TextField GridPane.columnIndex="1" GridPane.rowIndex="1" fx:id="jeproLabAnalyzeReference" />
+                    <Label GridPane.columnIndex="0" GridPane.rowIndex="2" fx:id="jeproLabAnalyzeImageChooserLabel" />
+                    <JeproImageChooser GridPane.columnIndex="1" GridPane.rowIndex="2" fx:id="jeproLabAnalyzeImageChooser" />
+                    <!--Label GridPane.columnIndex="0" GridPane.rowIndex="0" fx:id="jeproLabAnalyze" />
+                    <Label GridPane.columnIndex="0" GridPane.rowIndex="0" fx:id="jeproLabAnalyze" /-->
+                    <Label GridPane.columnIndex="0" GridPane.rowIndex="3" fx:id="jeproLabAnalyzeShortDescriptionLabel" />
+                    <TextArea GridPane.columnIndex="1" GridPane.rowIndex="3" GridPane.columnSpan="3" fx:id="jeproLabAnalyzeShortDescription" />
+                    <Label GridPane.columnIndex="0" GridPane.rowIndex="4" fx:id="jeproLabAnalyzeDescriptionLabel" />
+                    <TextArea GridPane.columnIndex="1" GridPane.rowIndex="4" GridPane.columnSpan="3" fx:id="jeproLabAnalyzeDescription" />
+                    <Label GridPane.columnIndex="0" GridPane.rowIndex="5" fx:id="jeproLabAnalyzeImagesLabel" />
+                    <JeproImageSlider GridPane.columnIndex="1" GridPane.rowIndex="5" GridPane.columnSpan="3" fx:id="jeproLabAnalyzeSlider" />
+                    <Label GridPane.columnIndex="0" GridPane.rowIndex="6" fx:id="jeproLabAnalyzeTagLabel" />
+                    <JeproMultiLangTextField GridPane.columnIndex="1" GridPane.rowIndex="6" fx:id="jeproLabAnalyzeTags" />
+                </GridPane>
+            </Tab>
+            <Tab fx:id="jeproLabAnalyzeAttachedFileTabForm" >
+                <GridPane>
+                    <Label GridPane.columnIndex="0" />
+                </GridPane>
+            </Tab>
+        </TabPane>
+    </JeproFormPanelContainer>
 </JeproFormPanel>

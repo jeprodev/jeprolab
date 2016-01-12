@@ -8,6 +8,7 @@ import javafx.fxml.FXML;
 import javafx.geometry.Insets;
 import javafx.scene.control.*;
 import javafx.scene.image.ImageView;
+import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
 import javafx.scene.text.TextAlignment;
 import javafx.util.Pair;
@@ -42,8 +43,8 @@ public class JeproLabCustomerAddController extends JeproLabController {
 
     public void initialize(URL location , ResourceBundle resource){
         bundle = resource;
-        double labelColumnWidth = 150;
-        double inputColumnWidth = 300;
+        double labelColumnWidth = 180;
+        double inputColumnWidth = 250;
         double formWidth = 2 *(labelColumnWidth + inputColumnWidth) + 30;
         double centerGrid = (formWidth - (labelColumnWidth + inputColumnWidth))/2;
         double posX = (JeproLab.APP_WIDTH/2) - (formWidth)/2;
@@ -65,7 +66,11 @@ public class JeproLabCustomerAddController extends JeproLabController {
         jeproLabAddCustomerFormWrapper.setLayoutX(posX);
         jeproLabAddCustomerFormWrapper.setLayoutY(posY);
 
-        jeproLabAddCustomerFormLayout.setLayoutX(centerGrid);
+        jeproLabAddCustomerFormLayout.getColumnConstraints().addAll(
+                new ColumnConstraints(labelColumnWidth -25), new ColumnConstraints(inputColumnWidth -25),
+                new ColumnConstraints(labelColumnWidth -25), new ColumnConstraints(inputColumnWidth -25)
+        );
+        jeproLabAddCustomerFormLayout.setLayoutX(20);
 
 
         customerTitleLabel.setText(bundle.getString("JEPROLAB_TITLE_LABEL"));
@@ -117,13 +122,13 @@ public class JeproLabCustomerAddController extends JeproLabController {
         GridPane.setMargin(customerLastNameLabel, new Insets(10, 30, 10, 0));
         GridPane.setMargin(customerBusinessInternetLabel, new Insets(15, 0, 15, 0));
         GridPane.setMargin(customerBusinessPhoneLabel, new Insets(15, 0, 15, 0));
-        GridPane.setMargin(customerMobilePhoneLabel, new Insets(10, 30, 10, 0));
+        GridPane.setMargin(customerMobilePhoneLabel, new Insets(10, 30, 10, 30));
         GridPane.setMargin(customerPhoneLabel, new Insets(10, 30, 10, 0));
-        GridPane.setMargin(customerZoneLabel, new Insets(10, 30, 10, 0));
-        GridPane.setMargin(customerWebsiteLabel, new Insets(10, 30, 20, 0));
-        GridPane.setMargin(customerCountryLabel, new Insets(10, 30, 10, 0));
+        GridPane.setMargin(customerZoneLabel, new Insets(10, 30, 10, 10));
+        GridPane.setMargin(customerWebsiteLabel, new Insets(10, 30, 20, 30));
+        GridPane.setMargin(customerCountryLabel, new Insets(10, 30, 10, 30));
         GridPane.setMargin(customerStateLabel, new Insets(10, 30, 10, 0));
-        GridPane.setMargin(customerCityLabel, new Insets(10, 30, 10, 0));
+        GridPane.setMargin(customerCityLabel, new Insets(10, 30, 10, 30));
         GridPane.setMargin(customerAddressDetailLabel, new Insets(10, 30, 10, 0));
         GridPane.setMargin(customerAddressNumberLabel, new Insets(10, 30, 10, 0));
         GridPane.setMargin(customerAddressStreetNameLabel, new Insets(10, 30, 10, 0));
