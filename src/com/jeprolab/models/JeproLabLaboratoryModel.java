@@ -208,7 +208,7 @@ public class JeproLabLaboratoryModel  extends JeproLabModel{
                 while (data.next()) {
                     nbObject++;
                 }
-            }catch (SQLException sqlE){}
+            }catch (SQLException sqlE){sqlE.printStackTrace();}
 
             feature_published = (JeproLabSettingModel.getIntValue("multilab_feature_active") > 0) && (nbObject > 1);
         }
@@ -347,7 +347,7 @@ public class JeproLabLaboratoryModel  extends JeproLabModel{
 
         JeproLabLaboratoryModel.cacheLabs();
         for(JeproLabLaboratoryGroupModel laboratoryGroup : JeproLabLaboratoryModel.labGroups){
-            /* todoif (array_key_exists($lab_id, $group_data['labs']) && $group_data[$type]){
+            /* todo if (array_key_exists($lab_id, $group_data['labs']) && $group_data[$type]){
                 return array_keys($group_data['labs']);
             }*/
         }
