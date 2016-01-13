@@ -15,7 +15,7 @@
 <JeproFormPanel  xmlns:fx="http://javafx.com/fxml" fx:id="jeproLabAddAnalyseFormWrapper" fx:controller="com.jeprolab.controllers.JeproLabAnalyzeAddController">
     <JeproFormPanelTitle fx:id="jeproLabAddAnalyseFormTitleWrapper" />
     <JeproFormPanelContainer fx:id="jeproLabAddAnalyseFormContainerWrapper"  >
-        <TabPane>
+        <TabPane fx:id="jeproLabAnalyzeTabPane" >
             <Tab fx:id="jeproLabAnalyzeInformationTabForm">
                 <GridPane fx:id="jeproLabAnalyzeInformationLayout">
                     <Label GridPane.columnIndex="0" GridPane.rowIndex="0" fx:id="jeproLabAnalyzeNameLabel" />
