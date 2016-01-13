@@ -4,7 +4,7 @@ package com.jeprolab.controllers;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import com.jeprolab.assets.extend.controls.JeproMultiLangTextField;
-import com.jeprolab.assets.extend.controls.JeproSwitchButton;
+import com.jeprolab.assets.extend.controls.switchbutton.JeproSwitchButton;
 
 import java.net.URL;
 import java.util.ResourceBundle;

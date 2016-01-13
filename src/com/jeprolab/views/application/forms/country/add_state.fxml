@@ -2,7 +2,7 @@
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.control.ComboBox?>
-<?import com.jeprolab.assets.extend.controls.JeproSwitchButton?>
+<?import com.jeprolab.assets.extend.controls.switchbutton.JeproSwitchButton?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.control.Button?>
 <GridPane xmlns:fx="http://javafx.com/fxml" fx:controller="com.jeprolab.controllers.JeproLabStateAddController" alignment="CENTER" hgap="10" vgap="10" >

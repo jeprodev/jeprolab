@@ -8,7 +8,7 @@
 <?import javafx.scene.control.Label?>
 <?import com.jeprolab.assets.extend.controls.JeproMultiLangTextField?>
 <?import javafx.scene.control.TextField?>
-<?import com.jeprolab.assets.extend.controls.JeproSwitchButton?>
+<?import com.jeprolab.assets.extend.controls.switchbutton.JeproSwitchButton?>
 <?import com.jeprolab.assets.extend.controls.JeproImageChooser?>
 <?import javafx.scene.control.TextArea?>
 <?import com.jeprolab.assets.extend.controls.JeproImageSlider?>

@@ -4,7 +4,7 @@
 <?import com.jeprolab.assets.extend.controls.JeproMultiLangTextField?>
 <?import javafx.scene.layout.GridPane?>
 <?import javafx.scene.control.Label?>
-<?import com.jeprolab.assets.extend.controls.JeproSwitchButton?>
+<?import com.jeprolab.assets.extend.controls.switchbutton.JeproSwitchButton?>
 <JeproFormPanel>
     <JeproFormPanelTitle />
     <JeproFormPanelContainer>

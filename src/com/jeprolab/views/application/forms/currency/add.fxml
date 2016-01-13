@@ -4,7 +4,7 @@
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.control.ComboBox?>
-<?import com.jeprolab.assets.extend.controls.JeproSwitchButton?>
+<?import com.jeprolab.assets.extend.controls.switchbutton.JeproSwitchButton?>
 <GridPane xmlns:fx="http://javafx.com/fxml" fx:controller="com.jeprolab.controllers.JeproLabCurrencyAddController" alignment="CENTER" >
     <Label GridPane.columnSpan="2" GridPane.columnIndex="0" GridPane.rowIndex="0" fx:id="formTitleLabel" />
     <Label GridPane.columnIndex="0" GridPane.rowIndex="1" fx:id="currencyNameLabel" />

@@ -2,6 +2,7 @@ package com.jeprolab.controllers;
 
 import com.jeprolab.JeproLab;
 import com.jeprolab.assets.extend.controls.*;
+import com.jeprolab.assets.extend.controls.switchbutton.JeproSwitchButton;
 import javafx.fxml.FXML;
 import javafx.geometry.Insets;
 import javafx.scene.control.Label;
