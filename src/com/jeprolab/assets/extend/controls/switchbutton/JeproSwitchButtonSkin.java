@@ -42,16 +42,22 @@ public class JeproSwitchButtonSkin extends LabeledSkinBase<JeproSwitchButton, Je
         markBox.getStyleClass().setAll("mark");
         markBox.setNodeOrientation(NodeOrientation.LEFT_TO_RIGHT);
         markBox.setTranslateX(-(TRANS_DISTANCE + 3));
+        markBox.setPrefSize(THUMB_WIDTH, THUMB_HEIGHT);
+        markBox.setMinSize(THUMB_WIDTH, THUMB_HEIGHT);
+        markBox.setMaxSize(THUMB_WIDTH, THUMB_HEIGHT);
 
         crossBox = new Region();
         crossBox.getStyleClass().setAll("cross");
         crossBox.setNodeOrientation(NodeOrientation.RIGHT_TO_LEFT);
         crossBox.setTranslateX(TRANS_DISTANCE);
+        crossBox.setPrefSize(THUMB_WIDTH, THUMB_HEIGHT);
+        crossBox.setMinSize(THUMB_WIDTH, THUMB_HEIGHT);
+        crossBox.setMaxSize(THUMB_WIDTH, THUMB_HEIGHT);
 
         thumb = new Region();
-        thumb.setPrefSize(THUMB_WIDTH, THUMB_HEIGHT);
-        thumb.setMinSize(THUMB_WIDTH, THUMB_HEIGHT);
-        thumb.setMaxSize(THUMB_WIDTH, THUMB_HEIGHT);
+        thumb.setPrefSize(THUMB_WIDTH -5, THUMB_HEIGHT -5);
+        thumb.setMinSize(THUMB_WIDTH  -5, THUMB_HEIGHT -5);
+        thumb.setMaxSize(THUMB_WIDTH -5, THUMB_HEIGHT  -5);
 
         if(getSkinnable().isSelected()){
             crossBox.setOpacity(0);
