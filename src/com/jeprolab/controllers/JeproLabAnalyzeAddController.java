@@ -70,13 +70,13 @@ public class JeproLabAnalyzeAddController extends JeproLabController{
 
         /*** Tab Information **/
         jeproLabAnalyzeInformationTabForm.setText(bundle.getString("JEPROLAB_INFORMATION_LABEL"));
-        GridPane.setMargin(jeproLabAnalyzeNameLabel, new Insets(5, 10, 5, 15));
-        GridPane.setMargin(jeproLabAnalyzePublishedLabel, new Insets(5, 10, 5, 15));
-        GridPane.setMargin(jeproLabAnalyzeReferenceLabel, new Insets(5, 10, 5, 15));
-        GridPane.setMargin(jeproLabAnalyzeImageChooserLabel, new Insets(5, 10, 5, 15));
-        GridPane.setMargin(jeproLabAnalyzeShortDescriptionLabel, new Insets(5, 10, 5, 15));
-        GridPane.setMargin(jeproLabAnalyzeDescriptionLabel, new Insets(5, 10, 5, 15));
-        GridPane.setMargin(jeproLabAnalyzeImagesLabel, new Insets(5, 10, 5, 15));
+        GridPane.setMargin(jeproLabAnalyzeNameLabel, new Insets(5, 10, 15, 15));
+        GridPane.setMargin(jeproLabAnalyzePublishedLabel, new Insets(5, 10, 15, 15));
+        GridPane.setMargin(jeproLabAnalyzeReferenceLabel, new Insets(5, 10, 15, 15));
+        GridPane.setMargin(jeproLabAnalyzeImageChooserLabel, new Insets(5, 10, 15, 15));
+        GridPane.setMargin(jeproLabAnalyzeShortDescriptionLabel, new Insets(5, 10, 15, 15));
+        GridPane.setMargin(jeproLabAnalyzeDescriptionLabel, new Insets(5, 10, 15, 15));
+        GridPane.setMargin(jeproLabAnalyzeImagesLabel, new Insets(5, 10, 15, 15));
         GridPane.setMargin(jeproLabAnalyzeTagLabel, new Insets(5, 10, 30, 15));
 
         jeproLabAnalyzeNameLabel.setText(bundle.getString("JEPROLAB_ANALYSE_NAME_LABEL"));
