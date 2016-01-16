@@ -1,16 +1,12 @@
 package com.jeprolab.controllers;
 
 import com.jeprolab.JeproLab;
-import com.jeprolab.assets.extend.controls.JeproFormPanel;
-import com.jeprolab.assets.extend.controls.JeproFormPanelContainer;
-import com.jeprolab.assets.extend.controls.JeproFormPanelTitle;
+import com.jeprolab.assets.extend.controls.*;
+import com.jeprolab.assets.extend.controls.switchbutton.JeproSwitchButton;
 import javafx.fxml.FXML;
 import javafx.geometry.Insets;
 import javafx.geometry.VPos;
-import javafx.scene.control.Label;
-import javafx.scene.control.Tab;
-import javafx.scene.control.TabPane;
-import javafx.scene.control.TextArea;
+import javafx.scene.control.*;
 import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
 
@@ -28,6 +24,7 @@ public class JeproLabAnalyzeAddController extends JeproLabController{
     public JeproFormPanel jeproLabAddAnalyseFormWrapper;
     public JeproFormPanelTitle jeproLabAddAnalyseFormTitleWrapper;
     public JeproFormPanelContainer jeproLabAddAnalyseFormContainerWrapper;
+    public JeproImageSlider jeproLabAnalyzeSlider;
 
     public GridPane jeproLabAnalyzeInformationLayout;
 
@@ -36,18 +33,21 @@ public class JeproLabAnalyzeAddController extends JeproLabController{
 
     public Label jeproLabAnalyzeNameLabel, jeproLabAnalyzePublishedLabel, jeproLabAnalyzeReferenceLabel, jeproLabAnalyzeImageChooserLabel;
     public Label jeproLabAnalyzeShortDescriptionLabel, jeproLabAnalyzeDescriptionLabel, jeproLabAnalyzeImagesLabel, jeproLabAnalyzeTagLabel;
-
+    public TextField jeproLabAnalyzeReference;
     public TextArea jeproLabAnalyzeShortDescription, jeproLabAnalyzeDescription;
+    public JeproMultiLangTextField jeproLabAnalyzeName, jeproLabAnalyzeTags;
+    public JeproSwitchButton jeproLabAnalyzePublished;
+    public JeproImageChooser jeproLabAnalyzeImageChooser;
 
     public void initialize(URL location, ResourceBundle resource){
         bundle = resource;
 
         double labelColumnWidth = 150;
-        double inputColumnWidth = 300;
+        double inputColumnWidth = 370;
         double formWidth = 0.92 * JeproLab.APP_WIDTH;
         double centerGrid = (formWidth - (labelColumnWidth + inputColumnWidth))/2;
         double posX = (JeproLab.APP_WIDTH/2) - (formWidth)/2;
-        double posY = 25;
+        double posY = 15;
         double columnConstraintWidth = (formWidth / 4) - 10;
 
         jeproLabFormTitle = new Label(bundle.getString("JEPROLAB_ADD_NEW_ANALYSE_LABEL"));
@@ -66,7 +66,7 @@ public class JeproLabAnalyzeAddController extends JeproLabController{
                 new ColumnConstraints(columnConstraintWidth), new ColumnConstraints(columnConstraintWidth),
                 new ColumnConstraints(columnConstraintWidth), new ColumnConstraints(columnConstraintWidth)
         );
-        jeproLabAnalyzeInformationLayout.setLayoutX(10);
+        jeproLabAnalyzeInformationLayout.setLayoutX(posY);
 
         /*** Tab Information **/
         jeproLabAnalyzeInformationTabForm.setText(bundle.getString("JEPROLAB_INFORMATION_LABEL"));
