@@ -1,12 +1,13 @@
 package com.jeprolab.assets.tools;
 
-import org.apache.commons.collections
+
+import com.jeprolab.assets.tools.cache.JeproCacheMap;
 
 import java.util.ArrayList;
 
 public class JeproLabCache<K, D> {
     //protected static local
-    private LRUMap jeproCacheMap;
+    private JeproCacheMap jeproCacheMap;
 
     public void store(K key, D value){
         synchronized (jeproCacheMap){

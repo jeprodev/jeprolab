@@ -18,7 +18,7 @@ public class JeproServerKiller {
             try{
                 BufferedReader input = new BufferedReader(new FileReader(portFile));
                 String check = input.readLine();
-                if(!check.equals("b")){
+                if(!check.equals("JeproIterableMap")){
                     System.out.println(JeproLab.getBundle().getString("JEPROLAB_WRONG_PORT_FILE_FORMAT"));
                     return false;
                 }

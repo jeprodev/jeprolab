@@ -43,12 +43,12 @@ public class JeproLabAnalyzeAddController extends JeproLabController{
         bundle = resource;
 
         double labelColumnWidth = 150;
-        double inputColumnWidth = 370;
+        double inputColumnWidth = 280;
         double formWidth = 0.92 * JeproLab.APP_WIDTH;
-        double centerGrid = (formWidth - (labelColumnWidth + inputColumnWidth))/2;
+        //double centerGrid = (formWidth - (labelColumnWidth + inputColumnWidth))/2;
         double posX = (JeproLab.APP_WIDTH/2) - (formWidth)/2;
         double posY = 15;
-        double columnConstraintWidth = (formWidth / 4) - 10;
+
 
         jeproLabFormTitle = new Label(bundle.getString("JEPROLAB_ADD_NEW_ANALYSE_LABEL"));
         jeproLabFormTitle.getStyleClass().add("input-label");
@@ -62,14 +62,17 @@ public class JeproLabAnalyzeAddController extends JeproLabController{
 
         jeproLabAnalyzeTabPane.setPrefWidth(0.96 * JeproLab.APP_WIDTH);
 
+        /** Setting and laying out analyze information tab **/
         jeproLabAnalyzeInformationLayout.getColumnConstraints().addAll(
-                new ColumnConstraints(columnConstraintWidth), new ColumnConstraints(columnConstraintWidth),
-                new ColumnConstraints(columnConstraintWidth), new ColumnConstraints(columnConstraintWidth)
+                new ColumnConstraints(labelColumnWidth), new ColumnConstraints(inputColumnWidth),
+                new ColumnConstraints(labelColumnWidth), new ColumnConstraints(inputColumnWidth)
         );
-        jeproLabAnalyzeInformationLayout.setLayoutX(posY);
+        jeproLabAnalyzeInformationLayout.setLayoutX(posX);
+        jeproLabAnalyzeInformationLayout.setLayoutY(posY);
 
         /*** Tab Information **/
         jeproLabAnalyzeInformationTabForm.setText(bundle.getString("JEPROLAB_INFORMATION_LABEL"));
+        jeproLabAnalyzeInformationTabForm.setClosable(false);
         GridPane.setMargin(jeproLabAnalyzeNameLabel, new Insets(5, 10, 15, 15));
         GridPane.setMargin(jeproLabAnalyzePublishedLabel, new Insets(5, 10, 15, 15));
         GridPane.setMargin(jeproLabAnalyzeReferenceLabel, new Insets(5, 10, 15, 15));
@@ -93,6 +96,7 @@ public class JeproLabAnalyzeAddController extends JeproLabController{
         jeproLabAnalyzeDescriptionLabel.setText(bundle.getString("JEPROLAB_DESCRIPTION_LABEL"));
         GridPane.setValignment(jeproLabAnalyzeDescriptionLabel, VPos.TOP);
         jeproLabAnalyzeDescriptionLabel.getStyleClass().add("input-label");
+        GridPane.setValignment(jeproLabAnalyzeImagesLabel, VPos.TOP);
         jeproLabAnalyzeImagesLabel.setText(bundle.getString("JEPROLAB_IMAGES_LABEL"));
         jeproLabAnalyzeImagesLabel.getStyleClass().add("input-label");
         jeproLabAnalyzeTagLabel.setText(bundle.getString("JEPROLAB_TAG_LABEL"));
@@ -102,7 +106,14 @@ public class JeproLabAnalyzeAddController extends JeproLabController{
         jeproLabAnalyzeShortDescription.setPrefHeight(55);
         GridPane.setMargin(jeproLabAnalyzeDescription, new Insets(10, 0, 0, 0));
         jeproLabAnalyzeDescription.setPrefHeight(85);
-        jeproLabAnalyzeAttachedFileTabForm.setText(bundle.getString("JEPROLAB_ATTACHED_FILES_LABEL"));
 
+
+        GridPane.setMargin(jeproLabAnalyzeSlider, new Insets(15, 0, 10, 0));
+        jeproLabAnalyzeSlider.setSliderPrefHeight(100);
+        jeproLabAnalyzeSlider.setSliderPrefWidth(JeproLab.APP_WIDTH - 300);
+
+        /** Setting and laying out Attached file form **/
+        jeproLabAnalyzeAttachedFileTabForm.setText(bundle.getString("JEPROLAB_ATTACHED_FILES_LABEL"));
+        jeproLabAnalyzeAttachedFileTabForm.setClosable(false);
     }
 }
