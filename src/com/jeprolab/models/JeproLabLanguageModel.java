@@ -36,10 +36,10 @@ public class JeproLabLanguageModel extends JeproLabModel{
         if(labId == 0){
             labId = JeproLabContext.getContext().laboratory.laboratory_id;
         }
-        boolean isAssociated;
+        boolean isAssociated = false;
 
         String cacheId =  "jeprolab_model_lab_language_" + this.language_id + "_" + labId;
-        if(!JeproLabCache.isStored(cacheId)){
+        if(!JeproLabCache.getInstance().isStored(cacheId)){
             JeproLabDataBaseConnector dataBaseConnector = JeproLabFactory.getDataBaseConnector();
             String query = "SELECT lab_id FROM " + dataBaseConnector.quoteName("#__jeprolab_language_lab") + " WHERE ";
             query += dataBaseConnector.quoteName("lang_id") + " = " + this.language_id + " AND " + dataBaseConnector.quoteName("lab_id") + labId;
@@ -51,11 +51,11 @@ public class JeproLabLanguageModel extends JeproLabModel{
                     isAssociated = object.getInt("lab_id") > 0;
                 }
             }catch(SQLException exc){
-
+                isAssociated = false;
             }
-            JeproLabCache.store(cacheId, );
+            JeproLabCache.getInstance().store(cacheId, isAssociated);
         }else{
-            isAssociated = (boolean)JeproLabCache.retrtieve(cacheId);
+            isAssociated = (boolean)JeproLabCache.getInstance().retrieve(cacheId);
         }
         return isAssociated;
     }
