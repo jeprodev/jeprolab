@@ -1,6 +1,7 @@
 package com.jeprolab.models;
 
 
+import com.jeprolab.JeproLab;
 import com.jeprolab.assets.tools.JeproLabCache;
 import com.jeprolab.assets.tools.JeproLabContext;
 import com.jeprolab.assets.tools.db.JeproLabDataBaseConnector;
@@ -16,16 +17,102 @@ public class JeproLabLanguageModel extends JeproLabModel{
 
     public String name;
 
-    public JeproLabLanguageModel(int lang_id){
+    public String iso_code;
 
+    public String language_code;
+
+    public boolean is_default = false;
+
+    public boolean published;
+
+    public static List<JeproLabLanguageModel> LANGUAGES;
+
+    public JeproLabLanguageModel(){
+        this(0);
+    }
+
+    public JeproLabLanguageModel(int lang_id){
+        super();
+        if(lang_id > 0){
+            String cacheKey = "jeprolab_language_model_" + lang_id;
+            if(!JeproLabCache.getInstance().isStored(cacheKey)){
+                String query = "SELECT * FROM " + dataBaseObject.quoteName("#__languages") + " lang WHERE lang.lang_id = ";
+                query += lang_id ;
+
+                dataBaseObject.setQuery(query);
+                ResultSet language_data = dataBaseObject.loadObject();
+                try{
+                    JeproLabLanguageModel language = new JeproLabLanguageModel();
+                    while(language_data.next()){
+                        language.language_id = language_data.getInt("lang_id");
+                        language.language_code = language_data.getString("lang_code");
+                        language.name = language_data.getString("title");
+                        language.iso_code = language_data.getString("sef");
+
+                        language.published = (language_data.getInt("published") > 0) ;
+                    }
+
+                    JeproLabCache.getInstance().store(cacheKey, language);
+                }catch (SQLException ignored){
+
+                }
+            }else{
+
+            }
+        }
     }
 
     public static void loadLanguages() {
+        if(staticDataBaseObject == null){
+            staticDataBaseObject = JeproLabFactory.getDataBaseConnector();
+        }
+        JeproLabLanguageModel.LANGUAGES = new ArrayList();
 
+        String query = " SELECT * FROM " + staticDataBaseObject.quoteName("#__languages") ;
+
+        staticDataBaseObject.setQuery(query);
+        ResultSet languages = staticDataBaseObject.loadObject();
+
+        String default_language = JeproLabLanguageModel.getDefaultLanguage().language_code;
+        try{
+            while(languages.next()){
+                JeproLabLanguageModel lang = new JeproLabLanguageModel();
+                lang.language_id =  languages.getInt("lang_id");
+                lang.language_code = languages.getString("lang_code");
+                lang.name = languages.getString("title");
+                lang.iso_code = languages.getString("sef");
+
+                lang.published = (languages.getInt("published") > 0) ;
+                lang.is_default = lang.language_code.equals(default_language);
+
+                JeproLabLanguageModel.LANGUAGES.add(lang);
+            }
+        }catch (SQLException ignored){
+
+        }
+    }
+
+    private static JeproLabLanguageModel getDefaultLanguage(){
+        return new JeproLabLanguageModel(JeproLabSettingModel.getIntValue("default_lang"));
     }
 
     public static List getLanguages(){
-        return new ArrayList<>();
+        if(!LANGUAGES.isEmpty()){
+            JeproLabLanguageModel.loadLanguages();
+        }
+    /*
+        $default_language = JeproLabLanguageModel.getDefaultLanguage();
+
+        $languages = array();
+        foreach(self::$_LANGUAGES as $language){
+            if($published && !$language->published || ($shop_id && !isset($language->shops[(int)$shop_id]))){ continue; }
+
+            if($default_language->getTag() == $language->language_code ){$language->is_default = 1; }
+
+            $languages[] = $language;
+        }
+        return $languages;*/
+        return LANGUAGES;
     }
 
     public boolean isAssociatedToLab(){
