@@ -1,20 +1,25 @@
 package com.jeprolab.models;
 
 import com.jeprolab.assets.tools.JeproLabCache;
+import com.jeprolab.assets.tools.JeproLabContext;
 import com.jeprolab.models.core.JeproLabFactory;
 import javafx.scene.control.Pagination;
 
 import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
 
-public class JeproLabZonemodel extends JeproLabModel{
+public class JeproLabZoneModel extends JeproLabModel{
     public int zone_id = 0;
 
     public String name;
 
+    public boolean allow_delivery;
+
     private Pagination pagination = null;
 
-    public function saveZone(){
+    /*public function saveZone(){
         $db = JFactory::getDBO();
 
         $input_data = '';
@@ -22,10 +27,11 @@ public class JeproLabZonemodel extends JeproLabModel{
         $query = "INSERT INTO " . $db->quoteName("#__jeprolab_zone') . "(";
     }
 
-    public function getZoneList(JeprolabContext $context = NULL){
+    public List getZoneList(){
         if(dataBaseObject == null){
             dataBaseObject = JeproLabFactory.getDataBaseConnector();
         }
+        JeproLabContext context = JeproLabContext.getContext();
         $app = JFactory::getApplication();
         $option = $app->input->get('option');
         $view = $app->input->get('view');
@@ -71,38 +77,52 @@ public class JeproLabZonemodel extends JeproLabModel{
         return $this->pagination;
     }
 
-    public static List<JeproLabZonemodel> getZones(){
+    public static List<JeproLabZoneModel> getZones(){
         return getZones(false);
     }
 
     /**
      * Get all available geographical zones
      *
-     * @param bool|type $allow_delivery
+     * @param allow_delivery boolean
      * @return type
-     */
-    public static List<JeproLabZonemodel> getZones(boolean allow_delivery){
+     * /
+    public static List getZones(boolean allow_delivery){
         String cacheKey = "jeprolab_zone_model_get_zones_" +  (allow_delivery ? 1 : 0);
-        if(!JeprolabCache::isStored($cache_id)) {
+        List<JeproLabZoneModel> zones = new ArrayList<>();
+        if(!JeproLabCache.getInstance().isStored(cacheKey)) {
             if(staticDataBaseObject == null){
                 staticDataBaseObject = JeproLabFactory.getDataBaseConnector();
             }
-            String query = "SELECT * FROM " . $db->quoteName("#__jeprolab_zone") + (allow_delivery ? " WHERE allow_delivery = 1 " : "");
-            query += " ORDER BY " . $db->quoteName('name') + " ASC ";
+            String query = "SELECT * FROM " + staticDataBaseObject.quoteName("#__jeprolab_zone") + (allow_delivery ? " WHERE allow_delivery = 1 " : "");
+            query += " ORDER BY " + staticDataBaseObject.quoteName("name") + " ASC ";
 
-            $db->setQuery($query);
-            $result = $db->loadObjectList();
-            JeprolabCache::store($cache_id, $result);
+            staticDataBaseObject.setQuery(query);
+            ResultSet result = staticDataBaseObject.loadObject();
+
+            try{
+                JeproLabZoneModel zone;
+                while(result.next()){
+                    zone = new JeproLabZoneModel();
+                    zone.zone_id = result.getInt("zone_id");
+                    zone.name = result.getString("name");
+                    zone.allow_delivery = result.getInt("allow_delivery") > 0;
+                    zones.add(zone);
+                }
+            }catch (SQLException ignored){
+
+            }
+            JeproLabCache.getInstance().store(cacheKey, zones);
         }
-        return JeproLabCache.getInstance().retrieve(cacheKey);
+        return (List)JeproLabCache.getInstance().retrieve(cacheKey);
     }
 
     /**
      * Get a zone ID from its default language name
      *
-     * @param string $name
-     * @return integer id_zone
-     */
+     * @param name
+     * @return zone_id
+     * /
     public static int getIdByName(String name){
         if(staticDataBaseObject == null){
             staticDataBaseObject = JeproLabFactory.getDataBaseConnector();
@@ -119,7 +139,7 @@ public class JeproLabZonemodel extends JeproLabModel{
      * Delete a zone
      *
      * @return boolean Deletion result
-     */
+     * /
     public boolean delete() {
         if(dataBaseObject == null){
             dataBaseObject = JeproLabFactory.getDataBaseConnector();
@@ -149,5 +169,5 @@ public class JeproLabZonemodel extends JeproLabModel{
         }
 
         return false;
-    }
+    } */
 }

@@ -22,6 +22,10 @@ public class JeproLabContext implements Cloneable {
 
     public Connection connection = null;
 
+    public int listLimit = 20;
+
+    public int listLimitStart = 0;
+
     public static JeproLabContext getContext(){
         if(instance == null){
             instance = new JeproLabContext();

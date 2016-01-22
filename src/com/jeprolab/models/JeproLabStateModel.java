@@ -1,7 +1,11 @@
 package com.jeprolab.models;
 
 
+import com.jeprolab.models.core.JeproLabFactory;
 import javafx.scene.control.Pagination;
+
+import java.sql.ResultSet;
+import java.sql.SQLException;
 
 public class JeproLabStateModel extends JeproLabModel{
     public int state_id = 0;
@@ -29,9 +33,9 @@ public class JeproLabStateModel extends JeproLabModel{
     /**
      * Get a state name with its ID
      *
-     * @param integer $state_id Country ID
+     * @param state_id Country ID
      * @return string State name
-     */
+     * /
     public static function getNameById($state_id){
         if (!$state_id)
             return false;
@@ -74,9 +78,9 @@ public class JeproLabStateModel extends JeproLabModel{
     /**
      * Get a state id with its name
      *
-     * @param string $state_id Country ID
+     * @param state_id Country ID
      * @return integer state id
-     */
+     * /
     public static function getIdByName($state_id)
     {
         if (empty($state))
@@ -97,9 +101,9 @@ public class JeproLabStateModel extends JeproLabModel{
     /**
      * Get a state id with its iso code
      *
-     * @param string $iso_code Iso code
+     * @param iso_code Iso code
      * @return integer state id
-     */
+     * /
     public static function getIdByIso($iso_code, $id_country = null)
     {
         return Db::getInstance()->getValue('
@@ -113,7 +117,7 @@ public class JeproLabStateModel extends JeproLabModel{
      * Delete a state only if is not in use
      *
      * @return boolean
-     */
+     * /
     public function delete()
     {
         if (!$this->isUsed())
@@ -137,9 +141,9 @@ public class JeproLabStateModel extends JeproLabModel{
      *
      * @return boolean
      */
-    public function isUsed()
+    public boolean isUsed()
     {
-        return ($this->countUsed() > 0);
+        return (this.countUsed() > 0);
     }
 
     /**
@@ -147,16 +151,22 @@ public class JeproLabStateModel extends JeproLabModel{
      *
      * @return integer count for this state
      */
-    public function countUsed()
-    {
-        $result = Db::getInstance(_PS_USE_SQL_SLAVE_)->getValue('
-            SELECT COUNT(*)
-        FROM `'._DB_PREFIX_.'address`
-        WHERE `'.$this->def['primary'].'` = '.(int)$this->id
-        );
-        return $result;
-    }
+    public int countUsed() {
+        if(dataBaseObject == null){
+            dataBaseObject = JeproLabFactory.getDataBaseConnector();
+        }
 
+        String query = "SELECT COUNT(*) FROM " + dataBaseObject.quoteName("#__jeprolab_address") + " WHERE " + dataBaseObject.quoteName("state_id") + " = " + this.state_id;
+        int result = 0;
+
+        dataBaseObject.setQuery(query);
+        ResultSet resultSet = dataBaseObject.loadObject();
+        try{
+            while(resultSet.next()){ result += 1; }
+        }catch (SQLException ignored){}
+        return result;
+    }
+/*
     public static function getStatesByIdCountry($id_country)
     {
         if (empty($id_country))
@@ -190,7 +200,7 @@ public class JeproLabStateModel extends JeproLabModel{
      * @param $ids_states
      * @param $id_zone
      * @return bool
-     */
+     * /
     public function affectZoneToSelection($ids_states, $id_zone)
     {
         // cast every array values to int (security)
@@ -198,5 +208,5 @@ public class JeproLabStateModel extends JeproLabModel{
         return Db::getInstance()->execute('
             UPDATE `'._DB_PREFIX_.'state` SET `id_zone` = '.(int)$id_zone.' WHERE `id_state` IN ('.implode(',', $ids_states).')
         ');
-    }
+    } **/
 }
