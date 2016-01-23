@@ -175,7 +175,7 @@ public class JeproLab extends Application {
             language = new JeproLabLanguageModel(context.cookie.lang_id);
         }
 
-        if(language == null || !JeproLabTools.isLoadedObject(language, "lang_id")){
+        if(language == null || !JeproLabTools.isLoadedObject(language, "language_id")){
             language = new JeproLabLanguageModel(JeproLabSettingModel.getIntValue("default_lang"));
         }
 

@@ -1,7 +1,5 @@
 package com.jeprolab.models;
 
-
-import com.jeprolab.JeproLab;
 import com.jeprolab.assets.tools.JeproLabCache;
 import com.jeprolab.assets.tools.JeproLabContext;
 import com.jeprolab.assets.tools.db.JeproLabDataBaseConnector;
@@ -10,7 +8,9 @@ import com.jeprolab.models.core.JeproLabFactory;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class JeproLabLanguageModel extends JeproLabModel{
     public int language_id;
@@ -25,7 +25,7 @@ public class JeproLabLanguageModel extends JeproLabModel{
 
     public boolean published;
 
-    public static List<JeproLabLanguageModel> LANGUAGES;
+    public static Map<Integer, JeproLabLanguageModel> LANGUAGES;
 
     public JeproLabLanguageModel(){
         this(0);
@@ -41,23 +41,29 @@ public class JeproLabLanguageModel extends JeproLabModel{
 
                 dataBaseObject.setQuery(query);
                 ResultSet language_data = dataBaseObject.loadObject();
+                //String default_language = JeproLabLanguageModel.getDefaultLanguage().language_code;
                 try{
-                    JeproLabLanguageModel language = new JeproLabLanguageModel();
                     while(language_data.next()){
-                        language.language_id = language_data.getInt("lang_id");
-                        language.language_code = language_data.getString("lang_code");
-                        language.name = language_data.getString("title");
-                        language.iso_code = language_data.getString("sef");
-
-                        language.published = (language_data.getInt("published") > 0) ;
+                        this.language_id = language_data.getInt("lang_id");
+                        this.language_code = language_data.getString("lang_code");
+                        this.name = language_data.getString("title");
+                        this.iso_code = language_data.getString("sef");
+                        this.is_default = this.language_id == JeproLabSettingModel.getIntValue("default_lang");
+                        this.published = (language_data.getInt("published") > 0) ;
                     }
 
-                    JeproLabCache.getInstance().store(cacheKey, language);
+                    JeproLabCache.getInstance().store(cacheKey, this);
                 }catch (SQLException ignored){
 
                 }
             }else{
-
+                JeproLabLanguageModel language = (JeproLabLanguageModel)JeproLabCache.getInstance().retrieve(cacheKey);
+                this.language_id = language.language_id;
+                this.language_code = language.language_code;
+                this.name = language.name;
+                this.iso_code = language.iso_code;
+                this.is_default = language.is_default;
+                this.published = language.published;
             }
         }
     }
@@ -66,7 +72,7 @@ public class JeproLabLanguageModel extends JeproLabModel{
         if(staticDataBaseObject == null){
             staticDataBaseObject = JeproLabFactory.getDataBaseConnector();
         }
-        JeproLabLanguageModel.LANGUAGES = new ArrayList();
+        JeproLabLanguageModel.LANGUAGES = new HashMap<>();
 
         String query = " SELECT * FROM " + staticDataBaseObject.quoteName("#__languages") ;
 
@@ -85,7 +91,7 @@ public class JeproLabLanguageModel extends JeproLabModel{
                 lang.published = (languages.getInt("published") > 0) ;
                 lang.is_default = lang.language_code.equals(default_language);
 
-                JeproLabLanguageModel.LANGUAGES.add(lang);
+                JeproLabLanguageModel.LANGUAGES.put(lang.language_id, lang);
             }
         }catch (SQLException ignored){
 
@@ -96,7 +102,14 @@ public class JeproLabLanguageModel extends JeproLabModel{
         return new JeproLabLanguageModel(JeproLabSettingModel.getIntValue("default_lang"));
     }
 
-    public static List getLanguages(){
+    public static boolean checkLanguage(int lang_id){
+        if(JeproLabLanguageModel.LANGUAGES.containsKey(lang_id)){
+            return true;
+        }
+        return false;
+    }
+
+    public static Map<Integer, JeproLabLanguageModel> getLanguages(){
         if(!LANGUAGES.isEmpty()){
             JeproLabLanguageModel.loadLanguages();
         }
@@ -145,5 +158,36 @@ public class JeproLabLanguageModel extends JeproLabModel{
             isAssociated = (boolean)JeproLabCache.getInstance().retrieve(cacheId);
         }
         return isAssociated;
+    }
+
+
+    public static class JeproLabLanguage{
+        private int language_id;
+        private String language_name;
+
+        public JeproLabLanguage(JeproLabLanguageModel language){
+            this(language.language_id, language.name);
+        }
+
+        public JeproLabLanguage(int id, String name){
+            language_id = id;
+            language_name = name;
+        }
+
+        public String getName(){
+            return this.language_name;
+        }
+
+        /*public void setLanguageName(String name){
+            this.language_name = name;
+        }*/
+
+        public int getLanguageId(){
+            return this.language_id;
+        }
+
+        /*public void setLanguangeI(int lang_id){
+            this.language_id = lang_id;
+        }*/
     }
 }

@@ -6,6 +6,9 @@ import com.jeprolab.assets.extend.controls.JeproFormPanel;
 import com.jeprolab.assets.extend.controls.JeproFormPanelContainer;
 import com.jeprolab.assets.extend.controls.JeproFormPanelTitle;
 import com.jeprolab.assets.extend.controls.JeproPhoneField;
+import com.jeprolab.assets.tools.JeproLabContext;
+import com.jeprolab.models.JeproLabCountryModel;
+import com.jeprolab.models.JeproLabZoneModel;
 import javafx.fxml.FXML;
 import javafx.geometry.Insets;
 import javafx.geometry.VPos;
@@ -17,8 +20,10 @@ import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.text.TextAlignment;
+import jdk.internal.cmm.SystemResourcePressureImpl;
 
 import java.net.URL;
+import java.util.List;
 import java.util.ResourceBundle;
 
 public class JeproLabAddressAddController extends JeproLabController{
@@ -125,6 +130,22 @@ public class JeproLabAddressAddController extends JeproLabController{
         jeproLabAddressPhoneLabel.setText(bundle.getString("JEPROLAB_PHONE_LABEL"));
         jeproLabAddressPhoneLabel.getStyleClass().add("input-label");
         //jeproLabAddressCustomer);
+
+        JeproLabContext context = JeproLabContext.getContext();
+
+        List<JeproLabCountryModel> countries = JeproLabCountryModel.getCountries(context.language.language_id, true);
+        List<JeproLabZoneModel> zones = JeproLabZoneModel.getZones(true);
+        jeproLabAddressCountry.setPromptText(JeproLab.getBundle().getString("JEPROLAB_SELECT_LABEL"));
+        for(JeproLabCountryModel country : countries){
+            jeproLabAddressCountry.getItems().add(country.name.get("lang_1"));
+        }
+
+        jeproLabAddressCountryZone.setPrefWidth(120);
+        jeproLabAddressCountryZone.setPromptText(JeproLab.getBundle().getString("JEPROLAB_SELECT_LABEL"));
+        for(JeproLabZoneModel zone : zones) {
+            jeproLabAddressCountryZone.getItems().add(zone.name);
+        }
+
     }
 
     @Override
