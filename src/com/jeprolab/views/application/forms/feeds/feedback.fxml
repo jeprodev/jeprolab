@@ -1,5 +1,33 @@
 <?import javafx.scene.layout.GridPane?>
 
-<GridPane xmlns:fx="http://javafx.com/fxml" fx:controller="com.jeprolab.controllers.JeproLabFeedBackController" fx:id="customerEditForm" >
-
-</GridPane>
+<?import com.jeprolab.assets.extend.controls.JeproFormPanel?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.TableColumn?>
+<JeproFormPanel xmlns:fx="http://javafx.com/fxml" fx:controller="com.jeprolab.controllers.JeproLabFeedBackController" fx:id="jeproLabFeedBackListForm" >
+    <VBox>
+        <AnchorPane>
+            <TableView>
+                <columns>
+                    <TableColumn resizable="false" editable="false" fx:id="jeproLabFeedBackColumn" />
+                    <TableColumn resizable="false" editable="false" fx:id="jeproLabFeedBackColumn" />
+                    <TableColumn resizable="false" editable="false" fx:id="jeproLabFeedBackColumn" />
+                    <TableColumn resizable="false" editable="false" fx:id="jeproLabFeedBackColumn" />
+                    <TableColumn resizable="false" editable="false" fx:id="jeproLabFeedBackColumn" />
+                    <TableColumn resizable="false" editable="false" fx:id="jeproLabFeedBackColumn" />
+                    <TableColumn resizable="false" editable="false" fx:id="jeproLabFeedBackColumn" />
+                    <TableColumn resizable="false" editable="false" fx:id="jeproLabFeedBackColumn" />
+                    <TableColumn resizable="false" editable="false" fx:id="jeproLabFeedBackColumn" />
+                    <TableColumn resizable="false" editable="false" fx:id="jeproLabFeedBackColumn" />
+                    <TableColumn resizable="false" editable="false" fx:id="jeproLabFeedBackColumn" />
+                    <TableColumn resizable="false" editable="false" fx:id="jeproLabFeedBackColumn" />
+                    <TableColumn resizable="false" editable="false" fx:id="jeproLabFeedBackColumn" />
+                    <TableColumn resizable="false" editable="false" fx:id="jeproLabFeedBackColumn" />
+                    <TableColumn resizable="false" editable="false" fx:id="jeproLabFeedBackColumn" />
+                    <TableColumn resizable="false" editable="false" fx:id="jeproLabFeedBackColumn" />
+                </columns>
+            </TableView>
+        </AnchorPane>
+    </VBox>
+</JeproFormPanel>

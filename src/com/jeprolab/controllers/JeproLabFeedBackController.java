@@ -1,7 +1,11 @@
 package com.jeprolab.controllers;
 
+import com.jeprolab.JeproLab;
 import javafx.fxml.FXML;
+import javafx.scene.control.Label;
 import javafx.scene.control.TableColumn;
+import javafx.scene.control.TableView;
+import javafx.scene.text.Text;
 
 import java.net.URL;
 import java.util.ResourceBundle;
@@ -12,45 +16,56 @@ import java.util.ResourceBundle;
  */
 public class JeproLabFeedBackController extends JeproLabController{
     @FXML
-    public TableColumn jeproLabFeedBackIndexLabel, jeproLabFeedBackCheckBoxLabel, jeproLabFeedBackCustomerLabel;
-    public TableColumn jeproLabFeedBackEnjoyWorkingWithUsLabel, jeproLabFeedBackStaffCourtesyLabel, jeproLabFeedBackTeamAvailabilitiesLabel;
-    public TableColumn jeproLabFeedBackTeamAbilitiesLabel, jeproLabFeedBackProblemSupportLabel, jeproLabFeedBackRecommendOurServicesLabel;
-    public TableColumn jeproLabFeedBackReuseOurServicesLabel, jeproLabFeedBackServiceSpeedLabel, jeproLabFeedBackSampleDeliveryLabel;
-    public TableColumn jeproLabFeedBackSubmissionLabel, jeproLabFeedBackReportsQualityLabel, jeproLabFeedBackAnalyseSpeedLabel;
-    public TableColumn jeproLabFeedBackOnlineServicesLabel, jeproLabFeedBackGlobalQualityLabel;
+    public TableView jeproLabFeedBackTableView;
+    public TableColumn jeproLabFeedBackIndexColumn, jeproLabFeedBackCheckBoxColumn, jeproLabFeedBackCustomerColumn;
+    public TableColumn jeproLabFeedBackEnjoyWorkingWithUsColumn, jeproLabFeedBackStaffCourtesyColumn, jeproLabFeedBackTeamAvailabilitiesColumn;
+    public TableColumn jeproLabFeedBackTeamAbilitiesColumn, jeproLabFeedBackProblemSupportColumn, jeproLabFeedBackRecommendOurServicesColumn;
+    public TableColumn jeproLabFeedBackReuseOurServicesColumn, jeproLabFeedBackServiceSpeedColumn, jeproLabFeedBackSampleDeliveryColumn;
+    public TableColumn jeproLabFeedBackSubmissionColumn, jeproLabFeedBackReportsQualityColumn, jeproLabFeedBackAnalyseSpeedColumn;
+    public TableColumn jeproLabFeedBackOnlineServicesColumn, jeproLabFeedBackGlobalQualityColumn;
 
     public void initialize(URL location, ResourceBundle resource){
-        jeproLabFeedBackIndexLabel.setText(bundle.getString("JEPROLAB_LABEL"));
-        jeproLabFeedBackIndexLabel.getStyleClass().add("rotate-header");
-        jeproLabFeedBackCheckBoxLabel.setText(bundle.getString("JEPROLAB_LABEL"));
-        jeproLabFeedBackCustomerLabel.getStyleClass().add("rotate-header");
-        jeproLabFeedBackEnjoyWorkingWithUsLabel.setText(bundle.getString("JEPROLAB_LABEL"));
-        jeproLabFeedBackEnjoyWorkingWithUsLabel.getStyleClass().add("rotate-header");
-        jeproLabFeedBackStaffCourtesyLabel.setText(bundle.getString("JEPROLAB_LABEL"));
-        jeproLabFeedBackStaffCourtesyLabel.getStyleClass().add("rotate-header");
-        jeproLabFeedBackTeamAvailabilitiesLabel.setText(bundle.getString("JEPROLAB_LABEL"));
-        jeproLabFeedBackTeamAvailabilitiesLabel.getStyleClass().add("rotate-header");;
-        jeproLabFeedBackTeamAbilitiesLabel.setText(bundle.getString("JEPROLAB_LABEL"));
-        jeproLabFeedBackTeamAbilitiesLabel.getStyleClass().add("rotate-header");
-        jeproLabFeedBackProblemSupportLabel.setText(bundle.getString("JEPROLAB_LABEL"));
-        jeproLabFeedBackProblemSupportLabel.getStyleClass().add("rotate-header");
-        jeproLabFeedBackRecommendOurServicesLabel.setText(bundle.getString("JEPROLAB_LABEL"));
-        jeproLabFeedBackRecommendOurServicesLabel.getStyleClass().add("rotate-header");
-        jeproLabFeedBackReuseOurServicesLabel.setText(bundle.getString("JEPROLAB_LABEL"));
-        jeproLabFeedBackReuseOurServicesLabel.getStyleClass().add("rotate-header");
-        jeproLabFeedBackServiceSpeedLabel.setText(bundle.getString("JEPROLAB_LABEL"));
-        jeproLabFeedBackServiceSpeedLabel.getStyleClass().add("rotate-header");
-        jeproLabFeedBackSampleDeliveryLabel.setText(bundle.getString("JEPROLAB_LABEL"));
-        jeproLabFeedBackSampleDeliveryLabel.getStyleClass().add("rotate-header");
-        jeproLabFeedBackSubmissionLabel.setText(bundle.getString("JEPROLAB_LABEL"));
-        jeproLabFeedBackSubmissionLabel.getStyleClass().add("rotate-header");
-        jeproLabFeedBackReportsQualityLabel.setText(bundle.getString("JEPROLAB_LABEL"));
-        jeproLabFeedBackReportsQualityLabel.getStyleClass().add("rotate-header");
-        jeproLabFeedBackAnalyseSpeedLabel.setText(bundle.getString("JEPROLAB_LABEL"));
-        jeproLabFeedBackAnalyseSpeedLabel.getStyleClass().add("rotate-header");
-        jeproLabFeedBackOnlineServicesLabel.setText(bundle.getString("JEPROLAB_LABEL"));
-        jeproLabFeedBackOnlineServicesLabel.getStyleClass().add("rotate-header");
-        jeproLabFeedBackGlobalQualityLabel.setText(bundle.getString("JEPROLAB_LABEL"));
-        jeproLabFeedBackGlobalQualityLabel.getStyleClass().add("rotate-header");
+        bundle = resource;
+        double tableWidth = JeproLab.APP_WIDTH ;
+        double remainingWidth = tableWidth - 60;
+
+        jeproLabFeedBackTableView.setPrefWidth(tableWidth);
+        jeproLabFeedBackIndexColumn.setText("#");
+        jeproLabFeedBackIndexColumn.setPrefWidth(35);
+        jeproLabFeedBackIndexColumn.getStyleClass().add("rotate-header");
+        jeproLabFeedBackCheckBoxColumn.setText(bundle.getString("JEPROLAB_LABEL"));
+        jeproLabFeedBackCheckBoxColumn.setPrefWidth(25);
+        jeproLabFeedBackCustomerColumn.setText(bundle.getString("JEPROLAB_CUSTOMER_LABEL"));
+        jeproLabFeedBackEnjoyWorkingWithUsColumn.setText(bundle.getString("JEPROLAB_ENJOY_WORKING_WITH_US_LABEL"));
+        jeproLabFeedBackEnjoyWorkingWithUsColumn.getStyleClass().add("rotate-header");
+        jeproLabFeedBackStaffCourtesyColumn.setText(bundle.getString("JEPROLAB_STAFF_COURTESY_LABEL"));
+        jeproLabFeedBackStaffCourtesyColumn.getStyleClass().add("rotate-header");
+        jeproLabFeedBackTeamAvailabilitiesColumn.setText(bundle.getString("JEPROLAB_TEAM_AVAILABILITIES_LABEL"));
+        jeproLabFeedBackTeamAvailabilitiesColumn.getStyleClass().add("rotate-header");;
+        jeproLabFeedBackTeamAbilitiesColumn.setText(bundle.getString("JEPROLAB_TEAM_ABILITIES_LABEL"));
+        jeproLabFeedBackTeamAbilitiesColumn.getStyleClass().add("rotate-header");
+        jeproLabFeedBackProblemSupportColumn.setText(bundle.getString("JEPROLAB_PROBLEM_SUPPORT_LABEL"));
+        jeproLabFeedBackProblemSupportColumn.getStyleClass().add("rotate-header");
+        jeproLabFeedBackRecommendOurServicesColumn.setText(bundle.getString("JEPROLAB_RECOMMEND_OUR_SERVICE_LABEL"));
+        jeproLabFeedBackRecommendOurServicesColumn.getStyleClass().add("rotate-header");
+        jeproLabFeedBackReuseOurServicesColumn.setText(bundle.getString("JEPROLAB_REUSE_OUR_SERVICES_LABEL"));
+        jeproLabFeedBackReuseOurServicesColumn.getStyleClass().add("rotate-header");
+        jeproLabFeedBackServiceSpeedColumn.setText(bundle.getString("JEPROLAB_SERVICES_SPEED_LABEL"));
+        jeproLabFeedBackServiceSpeedColumn.getStyleClass().add("rotate-header");
+        jeproLabFeedBackSampleDeliveryColumn.setText(bundle.getString("JEPROLAB_SAMPLE_DELIVERY_LABEL"));
+        jeproLabFeedBackSampleDeliveryColumn.getStyleClass().add("rotate-header");
+        jeproLabFeedBackSubmissionColumn.setText(bundle.getString("JEPROLAB_SUBMISSION_LABEL"));
+        jeproLabFeedBackSubmissionColumn.getStyleClass().add("rotate-header");
+        jeproLabFeedBackReportsQualityColumn.setText(bundle.getString("JEPROLAB_REPORTS_QUALITY_LABEL"));
+        jeproLabFeedBackReportsQualityColumn.getStyleClass().add("rotate-header");
+        jeproLabFeedBackAnalyseSpeedColumn.setText(bundle.getString("JEPROLAB_ANALYSE_SPEED_LABEL"));
+        jeproLabFeedBackAnalyseSpeedColumn.getStyleClass().add("rotate-header");
+        jeproLabFeedBackOnlineServicesColumn.setText(bundle.getString("JEPROLAB_ONLINE_SERVICES_LABEL"));
+        jeproLabFeedBackOnlineServicesColumn.getStyleClass().add("rotate-header");
+        jeproLabFeedBackGlobalQualityColumn.setText(bundle.getString("JEPROLAB_GLOBAL_QUALITY_LABEL"));
+        jeproLabFeedBackGlobalQualityColumn.getStyleClass().add("rotate-header");
+        /*Label gc = new Label(bundle.getString("JEPROLAB_GLOBAL_QUALITY_LABEL"));
+        gc.setRotate(50);
+        jeproLabFeedBackGlobalQualityColumn.setGraphic(gc); */
     }
 }

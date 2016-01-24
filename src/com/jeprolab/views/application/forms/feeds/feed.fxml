@@ -1,5 +1,24 @@
 <?import javafx.scene.layout.GridPane?>
 
-<GridPane xmlns:fx="http://javafx.com/fxml" fx:controller="com.jeprolab.controllers.JeproLabFeedController" fx:id="customerEditForm" >
-
-</GridPane>
+<?import com.jeprolab.assets.extend.controls.JeproFormPanel?>
+<?import com.jeprolab.assets.extend.controls.JeproFormPanelTitle?>
+<?import com.jeprolab.assets.extend.controls.JeproFormPanelContainer?>
+<?import javafx.scene.control.Label?>
+<?import com.jeprolab.assets.extend.controls.JeproMultiLangTextField?>
+<?import javafx.scene.control.TextField?>
+<?import com.jeprolab.assets.extend.controls.JeproMultiLangTextArea?>
+<JeproFormPanel xmlns:fx="http://javafx.com/fxml" fx:controller="com.jeprolab.controllers.JeproLabFeedAddController" fx:id="jeproLabFeedEditForm" >
+    <JeproFormPanelTitle fx:id="jeproLabFeedPaneTitle" />
+    <JeproFormPanelContainer fx:id="jeproLabFeedPaneContainer" >
+        <GridPane fx:id="jeproLabFeedLayout" >
+            <Label GridPane.columnIndex="0" GridPane.rowIndex="0" fx:id="jeproLabFeedTitleLabel" />
+            <JeproMultiLangTextField  GridPane.columnIndex="1" GridPane.rowIndex="0" fx:id="jeproLabFeedTitle" />
+            <Label GridPane.columnIndex="0" GridPane.rowIndex="1" fx:id="jeproLabFeedLinkLabel" />
+            <TextField GridPane.columnIndex="1" GridPane.rowIndex="1" fx:id="jeproLabFeedLink"/>
+            <Label  GridPane.columnIndex="0" GridPane.rowIndex="2" fx:id="jeproLabFeedDescriptionLabel" />
+            <JeproMultiLangTextArea  GridPane.columnIndex="1" GridPane.rowIndex="3" fx:id="jeproLabFeedDescription" />
+            <Label  GridPane.columnIndex="0" GridPane.rowIndex="3" fx:id="jeproLabFeedAuthorLabel" />
+            <TextField  GridPane.columnIndex="1" GridPane.rowIndex="3" fx:id="jeproLabFeedAuthor" />
+        </GridPane>
+    </JeproFormPanelContainer>
+</JeproFormPanel>

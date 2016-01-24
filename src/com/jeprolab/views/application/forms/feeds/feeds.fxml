@@ -1,4 +1,18 @@
 <?import javafx.scene.layout.VBox?>
-<VBox xmlns:fx="http://javafx.com/fxml" fx:controller="com.jeprolab.controllers.JeproLabFeedController" >
-
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.TableColumn?>
+<VBox xmlns:fx="http://javafx.com/fxml" fx:controller="com.jeprolab.controllers.JeproLabFeedController" spacing="5">
+    <AnchorPane >
+        <TableView fx:id="jeproLabFeedTableView" >
+            <columns>
+                <TableColumn editable="false" resizable="false" fx:id="jeproLabFeedIndexColumn" />
+                <TableColumn editable="false" resizable="false" fx:id="jeproLabFeedCheckBoxColumn" />
+                <TableColumn editable="false" resizable="false" fx:id="jeproLabFeedAuthorColumn" />
+                <TableColumn editable="false" resizable="false" fx:id="jeproLabFeedTitleColumn" />
+                <TableColumn editable="false" resizable="false" fx:id="jeproLabFeedDescriptionColumn" />
+                <TableColumn editable="false" resizable="false" fx:id="jeproLabFeedActionColumn" />
+            </columns>
+        </TableView>
+    </AnchorPane>
 </VBox>

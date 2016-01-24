@@ -191,7 +191,11 @@ public class JeproLabMenuController extends JeproLabController {
     }
 
     public void handleFeedBackMenuEvent(ActionEvent event) throws IOException {
-        JeproLab.getInstance().goToForm(JeproLab.getInstance().getApplicationForms().addFeedForm);
+        JeproLab.getInstance().goToForm(JeproLab.getInstance().getApplicationForms().feedBackForm);
+    }
+
+    public void handleViewFeedBackMenuEvent(ActionEvent event) throws IOException {
+        JeproLab.getInstance().goToForm(JeproLab.getInstance().getApplicationForms().viewFeedBackForm);
     }
 
 

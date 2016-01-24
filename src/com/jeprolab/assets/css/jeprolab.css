@@ -44,6 +44,10 @@
     -fx-font-weight: bold;
 }
 
+.text-left{
+    -fx-alignment: baseline-left;
+}
+
 .radio-button{
 
 }
