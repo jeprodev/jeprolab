@@ -8,4 +8,8 @@ public class JeproLabTools {
     public static boolean isLoadedObject(JeproLabModel model, String key){
         return false;
     }
+
+    public static void displayError(int errorCode, String errorMessage){
+
+    }
 }

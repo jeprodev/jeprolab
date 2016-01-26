@@ -207,46 +207,37 @@ public class JeproLabCategoryModel extends JeproLabModel {
                 this.meta_keywords = category.meta_keywords;
                 this.meta_description = category.meta_description;
             }
-
-            /*if($category_data){
-                this.category_id = $category_id;
-                foreach($category_data as $key =>$value){
-                    if(array_key_exists($key, $this)){
-                        this.{$key} = $value;
-                    }
-                }
-            }*/
         }
 
         //this.image_id = (file_exists(JeproLabConfigurationSettings.JEPROLAB_CATEGORY_IMAGE_DIRRECTORY +  this.category_id + ".jpg")) ? this.category_id : 0;
         this.image_dir = JeproLabConfigurationSettings.JEPROLAB_CATEGORY_IMAGE_DIRRECTORY;
     }
-   /*
+
     public static ResultSet getCategories(){
         return getCategories(null);
     }
-/*
+
     public static ResultSet getCategories(String sqlSort){
         JeproLabContext context = JeproLabContext.getContext(); //NULL, $sql_sort = ""
         if(staticDataBaseObject == null){
             staticDataBaseObject = JeproLabFactory.getDataBaseConnector();
         }
-        $app = JFactory.getApplication();
+        //$app = JFactory.getApplication();
         if(staticDataBaseObject == null){
             staticDataBaseObject = JeproLabFactory.getDataBaseConnector();
         }
-        $option = $app->input->get("option");
+        /*$option = $app->input->get("option");
         $view = $app->input->get("view");
 
 
-        $limit = $app->getUserStateFromRequest("global.list.limit", "limit", $app->getCfg("list_limit"), "int");
-        $limit_start = $app->getUserStateFromRequest($option. $view. ".limitstart", "limitstart", 0, "int");
-        int langId = $app->getUserStateFromRequest($option. $view. ".lang_id", "lang_id", $context->language->lang_id, "int");
-        $published = $app->getUserStateFromRequest($option. $view. ".published", "published", 0, "string");
+        /*int limit = context.listLimit;
+        limit_start = context.listLimitStart; */
+        int langId = context.language.language_id;
+        boolean published = false; //$app->getUserStateFromRequest($option. $view. ".published", "published", 0, "string");
 
         String query = "SELECT * FROM " + staticDataBaseObject.quoteName("#__jeprolab_category") + " AS category " + JeproLabLaboratoryModel.addSqlAssociation("category");
         query += " LEFT JOIN " + staticDataBaseObject.quoteName("#__jeprolab_category_lang") + " AS category_lang ON (category." + staticDataBaseObject.quoteName("category_id");
-        query += " = category_lang." + staticDataBaseObject.quoteName("category_id")+  JeproLabLaboratoryModel.addSqlRestrictionOnLang("category_lang") + ") WHERE 1";
+        query += " = category_lang." + staticDataBaseObject.quoteName("category_id")+ JeproLabLaboratoryModel.addSqlRestrictionOnLang("category_lang") + ") WHERE 1";
         query += (langId > 0 ? " AND " + staticDataBaseObject.quoteName("lang_id") + " = " + langId : "") + (published ? " AND " + staticDataBaseObject.quoteName("published") + "= 1" : "" );
         query += (langId < 0 ? " GROUP BY category.category_id " : "") + ((sqlSort != null && !sqlSort.equals("")) ? sqlSort : " ORDER BY category." + staticDataBaseObject.quoteName("depth_level") + " ASC, category_lab." + staticDataBaseObject.quoteName("position") + " ASC");
 
@@ -254,7 +245,7 @@ public class JeproLabCategoryModel extends JeproLabModel {
         staticDataBaseObject.setQuery(query);
         return staticDataBaseObject.loadObject();
     }
-
+/*
     public static JeproLabCategoryModel getRootCategory(){
         return getRootCategory(0, null);
     }

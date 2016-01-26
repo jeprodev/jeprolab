@@ -11,7 +11,7 @@ public class JeproLabLaboratoryGroupModel extends JeproLabModel {
 
     public int laboratory_group_id = 0;
 
-    public int share_customers, share_results, share_requests;
+    public boolean share_customers, share_results, share_requests;
 
     public boolean published = true, deleted = false;
 
