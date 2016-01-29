@@ -3,16 +3,18 @@ package com.jeprolab.views.application;
 import com.jeprolab.JeproLab;
 import com.jeprolab.controllers.JeproLabController;
 import javafx.fxml.FXMLLoader;
+import javafx.fxml.JavaFXBuilderFactory;
 import javafx.scene.Node;
 import javafx.scene.layout.Pane;
 
 import java.io.IOException;
+import java.net.URL;
 
 /**
  *
  * Created by jeprodev on 18/06/2014.
  */
-public class JeproLabApplicationForm {
+public class JeproLabApplicationForm{
     private boolean isCreated = false;
     private Pane formWrapper = null;
     private String formLayoutPath;
@@ -26,10 +28,14 @@ public class JeproLabApplicationForm {
     public Node createView() throws IOException {
         if(!isCreated || formWrapper == null) {
             formWrapper = new Pane();
+            URL location = JeproLab.class.getResource(formLayoutPath);
             FXMLLoader formLoader = new FXMLLoader();
-            formWrapper = formLoader.load(JeproLab.class.getResource(formLayoutPath), JeproLab.getBundle());
+            formLoader.setLocation(location);
+            formLoader.setBuilderFactory(new JavaFXBuilderFactory());
+            formLoader.setResources(JeproLab.getBundle());
+            formWrapper = formLoader.load(location.openStream());
             controller = formLoader.getController();
-
+            controller.task = "add";
             isCreated = true;
         }
         return formWrapper;

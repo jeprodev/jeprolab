@@ -119,7 +119,6 @@ public class JeproLabLoginController implements Initializable{
 
     }
 
-
     public static void onUserLoginFailure(JeproLabAuthenticationResponse response){
 
     }

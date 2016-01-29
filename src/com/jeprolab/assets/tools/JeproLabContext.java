@@ -26,6 +26,10 @@ public class JeproLabContext implements Cloneable {
 
     public int listLimitStart = 0;
 
+    public int category_id = 0;
+
+    public String task = "";
+
     public static JeproLabContext getContext(){
         if(instance == null){
             instance = new JeproLabContext();

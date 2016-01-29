@@ -175,7 +175,7 @@ public class JeproLab extends Application {
             language = new JeproLabLanguageModel(context.cookie.lang_id);
         }
 
-        if(language == null || !JeproLabTools.isLoadedObject(language, "language_id")){
+        if(language == null || language.language_id <= 0){
             language = new JeproLabLanguageModel(JeproLabSettingModel.getIntValue("default_lang"));
         }
 
@@ -218,6 +218,7 @@ public class JeproLab extends Application {
         if(form != null && (force || form != currentForm)){
             changingForm = true;
             if(swapViews) {
+                //JeproLabContext.getContext().task = task;
                 Node view = form.createView();
                 if (view == null) {
                     view = new Region();
@@ -227,7 +228,7 @@ public class JeproLab extends Application {
                 formWrapper.getChildren().setAll(view);
                 currentFormView = view;
             }
-
+            //currentForm.controller.task = task;
             // add page to history
             if(addHistory && currentForm != null){
                 history.push(currentForm);

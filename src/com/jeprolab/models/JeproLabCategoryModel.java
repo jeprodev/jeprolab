@@ -473,7 +473,7 @@ public class JeproLabCategoryModel extends JeproLabModel {
                 categories.add(category);
             }
         }catch(SQLException ignored){
-
+            ignored.printStackTrace();
         }
         return categories;
     }
@@ -516,18 +516,18 @@ public class JeproLabCategoryModel extends JeproLabModel {
         }
         return JeproLabCache.retrieve(cacheKey);
     }
-    
-    public boolean isAssociatedToLab(){
-        return isAssociatedToLab(0);
+    */
+    public boolean isAssociatedToLaboratory(){
+        return isAssociatedToLaboratory(0);
     }
 
     /**
      * Check if current object is associated to a lab
      *
-     * @param int labId
+     * @param  labId
      * @return bool
-     * /
-    public boolean isAssociatedToLab(int labId){
+     */
+    public boolean isAssociatedToLaboratory(int labId){
         if (labId <= 0){
             labId = JeproLabContext.getContext().laboratory.laboratory_id;
         }
@@ -536,13 +536,23 @@ public class JeproLabCategoryModel extends JeproLabModel {
             if(dataBaseObject == null){
                 dataBaseObject = JeproLabFactory.getDataBaseConnector();
             }
-            String query = "SELECT lab_id FROM " . dataBaseObject->quoteName("#__jeprolab_category_lab") . " WHERE " . dataBaseObject->quoteName("category_id") . " = ";
-            query += (int)this.category_id . " AND lab_id = " + labId;
+            boolean isAssociated = false;
+            String query = "SELECT lab_id FROM " + dataBaseObject.quoteName("#__jeprolab_category_lab") + " WHERE ";
+            query +=  dataBaseObject.quoteName("category_id") + " = " + this.category_id + " AND lab_id = " + labId;
             dataBaseObject.setQuery(query);
-            JeproLabCache.store(cacheKey, (bool)dataBaseObject->loadResult());
+            ResultSet result = dataBaseObject.loadObject();
+            try{
+                while(result.next()){
+                    isAssociated = result.getInt("lab_id") > 0;
+                }
+            }catch(SQLException ignored){
+                ignored.printStackTrace();
+            }
+
+            JeproLabCache.getInstance().store(cacheKey, isAssociated);
         }
-        return JeproLabCache.retrieve(cacheKey);
-    } */
+        return (boolean)JeproLabCache.getInstance().retrieve(cacheKey);
+    }
 
     public static JeproLabCategoryModel getTopCategory(){
         return getTopCategory(0);
@@ -572,7 +582,7 @@ public class JeproLabCategoryModel extends JeproLabModel {
                     categoryId = categoryData.getInt("category_id");
                 }
             }catch (SQLException ignored){
-
+                ignored.printStackTrace();
             }
             JeproLabCache.getInstance().store(cacheKey, new JeproLabCategoryModel(categoryId, langId));
         }

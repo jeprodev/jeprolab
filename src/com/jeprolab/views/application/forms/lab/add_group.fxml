@@ -4,12 +4,21 @@
 <?import javafx.scene.layout.GridPane?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.TextField?>
-<JeproFormPanel>
+<?import com.jeprolab.assets.extend.controls.switchbutton.JeproSwitchButton?>
+<JeproFormPanel  xmlns:fx="http://javafx.com/fxml" fx:id="jeproLabAddLaboratoryGroup" fx:controller="com.jeprolab.controllers.JeproLabLaboratoryGroupAddController">
     <JeproFormPanelTitle />
     <JeproFormPanelContainer>
         <GridPane>
-            <Label />
-            <TextField />
+            <Label GridPane.columnIndex="0" GridPane.rowIndex="0" fx:id="jeproLabLaboratoryGroupNameLabel" />
+            <TextField GridPane.columnIndex="1" GridPane.rowIndex="1" fx:id="jeproLabLaboratoryGroupName"/>
+            <Label GridPane.columnIndex="0" GridPane.rowIndex="" fx:id="jeproLabAddLaboratoryGroupLabel" />
+            <JeproSwitchButton GridPane.columnIndex="1" GridPane.rowIndex="" fx:id="jeproLabAddLaboratoryGroup"/>
+            <Label GridPane.columnIndex="0" GridPane.rowIndex="" fx:id="jeproLabAddLaboratoryGroupLabel" />
+            <JeproSwitchButton GridPane.columnIndex="1" GridPane.rowIndex="" fx:id="jeproLabAddLaboratoryGroup"/>
+            <Label GridPane.columnIndex="0" GridPane.rowIndex="" fx:id="jeproLabAddLaboratoryGroupLabel" />
+            <JeproSwitchButton GridPane.columnIndex="1" GridPane.rowIndex="" fx:id="jeproLabAddLaboratoryGroup"/>
+            <Label GridPane.columnIndex="0" GridPane.rowIndex="" fx:id="jeproLabAddLaboratoryGroupLabel" />
+            <JeproSwitchButton GridPane.columnIndex="1" GridPane.rowIndex="" fx:id="jeproLabAddLaboratoryGroup"/>
         </GridPane>
     </JeproFormPanelContainer>
 </JeproFormPanel>

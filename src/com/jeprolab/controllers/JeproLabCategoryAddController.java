@@ -7,6 +7,8 @@ import com.jeprolab.assets.extend.controls.tree.JeproCategoryTree;
 import javafx.fxml.FXML;
 import javafx.geometry.Insets;
 import javafx.scene.control.Label;
+import javafx.scene.control.Tab;
+import javafx.scene.control.TabPane;
 import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
 
@@ -22,7 +24,7 @@ public class JeproLabCategoryAddController extends JeproLabController{
     public Label jeproLabCategoryNameLabel, jeproLabPublishedCategoryLabel, jeproLabCategoryParentLabel, jeproLabCategoryDescriptionLabel;
     public Label jeproLabCategoryImageChooserLabel, jeproLabCategoryMetaTileLabel, jeproLabCategoryMetaDescriptionLabel;
     public Label jeproLabCategoryMetaKeyWordLabel, jeproLabCategoryLinkRewriteLabel, jeproLabCategoryIsRootLabel, jeproLabCategoryAssociatedLabsLabel;
-    public Label jeproLabCategoryAllowedGroupLabel, jeproLabCategoryLabel, jeproLabAddCategoryFormTitle;
+    public Label jeproLabCategoryAllowedGroupLabel, jeproLabCategoryLabel, jeproLabAddCategoryFormTitle, jeproLabCategoryInformationLabel;
     public JeproMultiLangTextArea jeproLabCategoryDescription;
     public JeproCategoryTree jeproLabCategoryParent;
     public JeproFormPanel jeproLabCategoryFormWrapper;
@@ -31,7 +33,9 @@ public class JeproLabCategoryAddController extends JeproLabController{
     public JeproSwitchButton jeproLabPublishedCategory, jeproLabCategoryIsRoot;
     public JeproMultiLangTextField jeproLabCategoryName, jeproLabCategoryMetaTile,  jeproLabCategoryMetaKeyWord;
     public JeproMultiLangTextField jeproLabCategoryMetaDescription, jeproLabCategoryLinkRewrite;
-    public GridPane jeproLabCategoryFormLayout;
+    public GridPane jeproLabCategoryFormLayout, jeproLabCategoryAssociatedLaboratoriesLayout, jeproLabCategoryAssociatedGroupLayout;
+    public TabPane jeproLabCategoryTabPane;
+    public Tab jeproLabCategoryInformationTab, jeproLabCategoryAssociatedLaboratoriesTab, jeproLabCategoryAssociatedGroupTab;
 
     public JeproImageChooser jeproLabCategoryImageChooser;
 
@@ -53,8 +57,13 @@ public class JeproLabCategoryAddController extends JeproLabController{
                 new ColumnConstraints(labelColumnWidth -25), new ColumnConstraints(inputColumnWidth -25),
                 new ColumnConstraints(labelColumnWidth -25), new ColumnConstraints(inputColumnWidth -25)
         );
-        jeproLabCategoryFormLayout.setLayoutX(15);
+        jeproLabCategoryFormLayout.setLayoutY(15);
+        jeproLabCategoryTabPane.setPrefWidth(formWidth);
 
+        jeproLabCategoryInformationTab.setText(bundle.getString("JEPROLAB_INFORMATION_LABEL"));
+        jeproLabCategoryInformationLabel.setText(bundle.getString("JEPROLAB_INFORMATION_LABEL"));
+        jeproLabCategoryAssociatedLaboratoriesTab.setText(bundle.getString("JEPROLAB_ASSOCIATED_SHOPS_LABEL"));
+        jeproLabCategoryAssociatedGroupTab.setText(bundle.getString("JEPROLAB_ASSOCIATED_GROUPS_LABEL"));
         jeproLabAddCategoryFormTitle = new Label(bundle.getString("JEPROLAB_ADD_NEW_LABEL") + " " +  bundle.getString("JEPROLAB_CATEGORY_LABEL"));
         jeproLabCategoryNameLabel.setText(bundle.getString("JEPROLAB_CATEGORY_NAME_LABEL"));
         jeproLabCategoryNameLabel.getStyleClass().add("input-label");
@@ -83,18 +92,21 @@ public class JeproLabCategoryAddController extends JeproLabController{
         jeproLabCategoryLabel.setText(bundle.getString("JEPROLAB_LABEL"));
         jeproLabCategoryLabel.getStyleClass().add("input-label");
 
-        GridPane.setMargin(jeproLabCategoryNameLabel, new Insets(5, 0, 15, 0));
+        jeproLabCategoryDescription.setTextAreaPrefSize(760, 90);
+
+        GridPane.setMargin(jeproLabCategoryNameLabel, new Insets(5, 0, 15, 10));
         GridPane.setMargin(jeproLabPublishedCategoryLabel, new Insets(5, 0, 15, 20));
-        GridPane.setMargin(jeproLabCategoryParentLabel, new Insets(5, 0, 15, 0));
-        GridPane.setMargin(jeproLabCategoryDescriptionLabel, new Insets(5, 0, 15, 0));
-        GridPane.setMargin(jeproLabCategoryImageChooserLabel, new Insets(5, 0, 15, 0));
-        GridPane.setMargin(jeproLabCategoryMetaTileLabel, new Insets(5, 0, 15, 0));
+        GridPane.setMargin(jeproLabCategoryParentLabel, new Insets(5, 0, 15, 10));
+        GridPane.setMargin(jeproLabCategoryDescriptionLabel, new Insets(5, 0, 15, 10));
+        GridPane.setMargin(jeproLabCategoryImageChooserLabel, new Insets(5, 0, 15, 10));
+        GridPane.setMargin(jeproLabCategoryMetaTileLabel, new Insets(5, 0, 15, 10));
         GridPane.setMargin(jeproLabCategoryMetaDescriptionLabel, new Insets(5, 0, 15, 20));
-        GridPane.setMargin(jeproLabCategoryMetaKeyWordLabel, new Insets(5, 0, 15, 0));
+        GridPane.setMargin(jeproLabCategoryMetaKeyWordLabel, new Insets(5, 0, 15, 10));
         GridPane.setMargin(jeproLabCategoryLinkRewriteLabel, new Insets(5, 0, 15, 20));
         GridPane.setMargin(jeproLabCategoryIsRootLabel, new Insets(5, 0, 15, 20));
-        GridPane.setMargin(jeproLabCategoryAssociatedLabsLabel, new Insets(5, 0, 15, 0));
-        GridPane.setMargin(jeproLabCategoryAllowedGroupLabel, new Insets(5, 0, 15, 0));
+        GridPane.setMargin(jeproLabCategoryAssociatedLabsLabel, new Insets(5, 0, 15, 10));
+        GridPane.setMargin(jeproLabCategoryAllowedGroupLabel, new Insets(5, 0, 15, 10));
         GridPane.setMargin(jeproLabCategoryLabel, new Insets(5, 0, 15, 0));
+        GridPane.setMargin(jeproLabCategoryDescription, new Insets(10, 0, 15, 0));
     }
 }

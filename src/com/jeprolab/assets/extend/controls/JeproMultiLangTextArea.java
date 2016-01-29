@@ -53,4 +53,12 @@ public class JeproMultiLangTextArea extends Pane {
         this.getChildren().add(multiLangFieldWrapper);
     }
 
+
+    public void setTextAreaPrefSize(double width, double height){
+        width = width - 75;
+        for (TextArea field : fields) {
+            field.setPrefSize(width, height);
+        }
+    }
+
 }

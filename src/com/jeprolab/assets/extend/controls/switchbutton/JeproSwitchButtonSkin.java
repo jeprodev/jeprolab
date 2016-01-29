@@ -19,9 +19,9 @@ import javafx.util.Duration;
  */
 public class JeproSwitchButtonSkin extends LabeledSkinBase<JeproSwitchButton, JeproSwitchButtonBehavior<JeproSwitchButton>> {
     private static final double BOX_WIDTH = 90;
-    private static final double BOX_HEIGHT = 30;
+    private static final double BOX_HEIGHT = 26;
     private static final double THUMB_WIDTH = 30;
-    private static final double THUMB_HEIGHT = 26;
+    private static final double THUMB_HEIGHT = 24;
     private static final double TRANS_DISTANCE = 24;
     private final StackPane box = new StackPane();
     private Region markBox;
