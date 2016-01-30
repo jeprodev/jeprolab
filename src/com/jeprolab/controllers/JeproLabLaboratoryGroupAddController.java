@@ -27,7 +27,7 @@ public class JeproLabLaboratoryGroupAddController extends JeproLabController{
     public GridPane jeproLabAddLaboratoryGroupLayout;
 
     public Label jeproLabLaboratoryGroupNameLabel, jeproLabShareCustomerLabel, jeproLabShareRequestsLabel;
-    public Label jeproLabShareResultsLabel, jeproLabAddLaboratoryGroupLabel, jeproLabPublishedLabel;
+    public Label jeproLabShareResultsLabel, jeproLabPublishedLabel;
     public TextField jeproLabLaboratoryGroupName;
     public JeproSwitchButton jeproLabShareCustomer, jeproLabShareRequest, jeproLabShareResults, jeproLabPublished;
     public void initialize(URL location, ResourceBundle resource){
