@@ -9,14 +9,14 @@
 <?import javafx.scene.control.TabPane?>
 <?import javafx.scene.control.Tab?>
 <?import javafx.scene.control.TableView?>
-<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.Pane?>
 <?import javafx.scene.control.TableColumn?>
 <JeproFormPanel xmlns:fx="http://javafx.com/fxml" fx:id="jeproLabLaboratoryPanelWrapper" fx:controller="com.jeprolab.controllers.JeproLabLaboratoryAddController" >
     <JeproFormPanelTitle fx:id="jeproLabLaboratoryPanelTitleWrapper" />
     <JeproFormPanelContainer fx:id="jeproLabLaboratoryPanelContainerWrapper" >
         <TabPane fx:id="jeproLabLaboratoryTab" >
             <Tab closable="false" fx:id="jeproLabLaboratoryInformation">
-                <GridPane >
+                <GridPane fx:id="jeproLabLaboratoryInformationLayout">
                     <Label GridPane.columnIndex="0" GridPane.rowIndex="0" fx:id="jeproLabLaboratoryNameLabel" />
                     <TextField GridPane.columnIndex="1" GridPane.rowIndex="0" fx:id="jeproLabLaboratoryName" />
                     <Label GridPane.columnIndex="0" GridPane.rowIndex="1" fx:id="jeproLabLaboratoryGroupLabel" />
@@ -25,24 +25,23 @@
                     <ComboBox GridPane.columnIndex="1" GridPane.rowIndex="2" fx:id="jeproLabLaboratoryCategory" />
                     <Label GridPane.columnIndex="0" GridPane.rowIndex="3" fx:id="jeproLabLaboratoryThemeLabel" />
                     <ComboBox GridPane.columnIndex="1" GridPane.rowIndex="3" fx:id="jeproLabLaboratoryTheme" />
-                    <Label GridPane.columnIndex="0" GridPane.rowIndex="4" fx:id="jeproLabLaboratoryLabel" />
+                    <Label GridPane.columnIndex="0" GridPane.rowIndex="4" fx:id="jeproLabLaboratoryPublishedLabel" />
                     <JeproSwitchButton GridPane.columnIndex="1" GridPane.rowIndex="4" fx:id="jeproLabLaboratoryPublished" />
                 </GridPane>
             </Tab>
             <Tab closable="false" fx:id="jeproLabLaboratoryUrls" >
-                <GridPane>
+                <GridPane fx:id="jeproLabLaboratoryUrlsLayout" >
                     <Label GridPane.columnIndex="0" GridPane.rowIndex="0" fx:id="jeproLabLaboratoryDomainLabel" />
                     <TextField GridPane.columnIndex="1" GridPane.rowIndex="0" fx:id="jeproLabLaboratoryDomain" />
                     <Label GridPane.columnIndex="0" GridPane.rowIndex="1" fx:id="jeproLabLaboratorySslDomainLabel" />
                     <TextField GridPane.columnIndex="1" GridPane.rowIndex="1" fx:id="jeproLabLaboratorySslDomain" />
                     <Label GridPane.columnIndex="0" GridPane.rowIndex="2" fx:id="jeproLabLaboratoryPhysicalUriLabel" />
                     <TextField GridPane.columnIndex="1" GridPane.rowIndex="2" fx:id="jeproLabLaboratoryPhysicalUri" />
-
-                    <Label GridPane.columnIndex="0" GridPane.rowIndex="3" fx:id="jeproLabLaboratoryMainUrlLabel" />
-                    <JeproSwitchButton GridPane.columnIndex="1" GridPane.rowIndex="3" fx:id="jeproLabLaboratoryMainUrl" />
-                </GridPane>
-                <AnchorPane>
-                    <TableView fx:id="jeproLabLaboratoryUrlsTableView">
+                    <Label GridPane.columnIndex="0" GridPane.rowIndex="3" fx:id="jeproLabLaboratoryVirtualUriLabel" />
+                    <TextField GridPane.columnIndex="1" GridPane.rowIndex="3" fx:id="jeproLabLaboratoryVirtualUri" />
+                    <Label GridPane.columnIndex="0" GridPane.rowIndex="4" fx:id="jeproLabLaboratoryMainUrlLabel" />
+                    <JeproSwitchButton GridPane.columnIndex="1" GridPane.rowIndex="4" fx:id="jeproLabLaboratoryMainUrl" />
+                    <TableView GridPane.columnIndex="0" GridPane.rowIndex="6" GridPane.columnSpan="2" fx:id="jeproLabLaboratoryUrlsTableView">
                         <columns>
                             <TableColumn editable="false" resizable="false" fx:id="jeproLabUrlIndexColumn" />
                             <TableColumn editable="false" resizable="false" fx:id="jeproLabUrlCheckBoxColumn" />
@@ -54,7 +53,7 @@
                             <TableColumn editable="false" resizable="false" fx:id="jeproLabUrlActionColumn" />
                         </columns>
                     </TableView>
-                </AnchorPane>
+                </GridPane>
             </Tab>
         </TabPane>
     </JeproFormPanelContainer>

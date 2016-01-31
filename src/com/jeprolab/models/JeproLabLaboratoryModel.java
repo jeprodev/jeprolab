@@ -13,6 +13,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.ListIterator;
 
 public class JeproLabLaboratoryModel  extends JeproLabModel{
     public int laboratory_id = 0;
@@ -356,11 +357,20 @@ public class JeproLabLaboratoryModel  extends JeproLabModel{
         }
 
         JeproLabLaboratoryGroupModel labGroup = JeproLabLaboratoryModel.getLaboratoryGroupFromLaboratory(JeproLabLaboratoryModel.getContextLaboratoryId());
-        String restriction;
+        String restriction = "";
         if (share.equals(JeproLabLaboratoryModel.SHARE_CUSTOMER) && JeproLabLaboratoryModel.getLabContext() == JeproLabLaboratoryModel.LAB_CONTEXT && labGroup.share_customers){
-            restriction = " AND " + alias + "lab_group_id = " +  JeproLabLaboratoryModel.getContextLabGroupId();
+            restriction += " AND " + alias + "lab_group_id = " +  JeproLabLaboratoryModel.getContextLabGroupId();
         }else{
-            restriction = " AND " + alias + "lab_id IN (" +  JeproLabLaboratoryModel.getContextListLabIds(share) + ") ";
+            List<Integer> listRestriction = JeproLabLaboratoryModel.getContextListLabIds(share);
+            int listSize = listRestriction.size();
+            if(listSize > 0) {
+                String labIds = "";
+                for(int labId : listRestriction){
+                    labIds += labId + ", ";
+                }
+                labIds = labIds.substring(0, labIds.length() - 3);
+                restriction = " AND " + alias + "lab_id IN (" + labIds +") ";
+            }
         }
         return restriction;
     }
@@ -507,41 +517,60 @@ public class JeproLabLaboratoryModel  extends JeproLabModel{
     }
 
     public static void cacheLaboratories(boolean refresh){
-        if(!(!(JeproLabLaboratoryModel.labGroups == null) || !JeproLabLaboratoryModel.labGroups.isEmpty()) && !refresh) {
+        if(JeproLabLaboratoryModel.labGroups == null){
             JeproLabLaboratoryModel.labGroups = new ArrayList();
-            JeproLabDataBaseConnector dbc = JeproLabFactory.getDataBaseConnector();
+        }
+        if((JeproLabLaboratoryModel.labGroups.isEmpty())  || refresh) {
+
+            if(staticDataBaseObject == null) {
+                staticDataBaseObject = JeproLabFactory.getDataBaseConnector();
+            }
             String from = "";
             String where = "";
 
             JeproLabEmployeeModel employee = JeproLabContext.getContext().employee;
 
-            // If the profile isn't a superAdmin
-            if (JeproLabTools.isLoadedObject(employee, "employee_id")){ // && employee.profile_id != _PS_ADMIN_PROFILE_){
-                from += " LEFT JOIN " + dbc.quoteName("#__jeprolab_employee_lab") + " AS employee_lab ON employee_lab.lab_id = lab.lab_id";
+            //to do set back with login If the profile isn't a superAdmin
+            /*if (employee.employee_id > 0){ // && employee.profile_id != _PS_ADMIN_PROFILE_){
+                from += " LEFT JOIN " + staticDataBaseObject.quoteName("#__jeprolab_employee_lab") + " AS employee_lab ON employee_lab.lab_id = lab.lab_id";
                 where += " AND employee_lab.employee_id = " + employee.employee_id;
-            }
+            } */
 
             String query = "SELECT lab_group.*, lab.*, lab_group.lab_group_name AS group_name, lab.lab_name AS lab_name, lab.published, ";
-            query += "lab_url.domain, lab_url.ssl_domain, lab_url.physical_uri, lab_url.virtual_uri FROM " + dbc.quoteName("#__jeprolab_lab_group");
-            query += " AS lab_group LEFT JOIN " + dbc.quoteName("#__jeprolab_lab") + " AS lab ON lab.lab_group_id = lab_group.lab_group_id  LEFT JOIN ";
-            query += dbc.quoteName("#__jeprolab_lab_url") + " AS lab_url ON lab.lab_id = lab_url.lab_id AND lab_url.main = 1 " + from + " WHERE lab.deleted";
+            query += "lab_url.domain, lab_url.ssl_domain, lab_url.physical_uri, lab_url.virtual_uri FROM " + staticDataBaseObject.quoteName("#__jeprolab_lab_group");
+            query += " AS lab_group LEFT JOIN " + staticDataBaseObject.quoteName("#__jeprolab_lab") + " AS lab ON lab.lab_group_id = lab_group.lab_group_id  LEFT JOIN ";
+            query += staticDataBaseObject.quoteName("#__jeprolab_lab_url") + " AS lab_url ON lab.lab_id = lab_url.lab_id AND lab_url.main = 1 " + from + " WHERE lab.deleted";
             query += " = 0 AND lab_group.deleted = 0 " + where + " ORDER BY lab_group.lab_group_name, lab.lab_name";
 
-            dbc.setQuery(query);
-            ResultSet results = dbc.loadObject();
+            staticDataBaseObject.setQuery(query);
+            ResultSet results = staticDataBaseObject.loadObject();
 
             try {
                 JeproLabLaboratoryGroupModel labGroup;
-                while(results.next()){ System.out.print(results);
-                    /*if(!JeproLabLaboratoryModel.labGroups.contains(results)){
+                while(results.next()){
+                    int labGroupId = results.getInt("lab_group_id");
+                    if(!JeproLabLaboratoryModel.labGroups.contains(labGroupId)){
                         labGroup = new JeproLabLaboratoryGroupModel();
                         labGroup.laboratory_group_id = results.getInt("lab_group_id");
                         labGroup.name = results.getString("group_name");
-                        labGroup.share_customers = results.getInt("share_customer");
-                        labGroup.share_results = results.getInt("share_results");
-                        labGroup.share_requests = results.getInt("share_request");
+                        labGroup.share_customers = results.getInt("share_customer") > 0;
+                        labGroup.share_results = results.getInt("share_results") > 0;
+                        labGroup.share_requests = results.getInt("share_request") > 0;
                         labGroup.laboratories = new ArrayList<>();
+                        labGroups.add(labGroupId, labGroup);
                     }
+
+                    JeproLabLaboratoryGroupModel labGroupModel = labGroups.get(labGroupId);
+                    JeproLabLaboratoryModel lab = new JeproLabLaboratoryModel();
+                    lab.laboratory_id  = results.getInt("lab_id");
+                    /*lab = results.get("");
+                    lab = results.get("");
+                    lab = results.get("");
+                    lab = results.get("");
+                    lab = results.get("");
+                    lab = results.get("");
+                    lab.published = results.getInt("published") > 0; */
+                    labGroupModel.laboratories.add(lab);
                     /*foreach($results as $row) {
                         if (!isset(self::$labs[$row -> lab_group_id])){
                             self::$labs[$row -> lab_group_id]=array(
@@ -567,7 +596,7 @@ public class JeproLabLaboratoryModel  extends JeproLabModel{
                         }
                     }*/
                 }
-            }catch (SQLException sqlExc){}
+            }catch (SQLException ignored){}
         }
     }
 

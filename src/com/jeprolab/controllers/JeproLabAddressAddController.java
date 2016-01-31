@@ -2,10 +2,7 @@ package com.jeprolab.controllers;
 
 
 import com.jeprolab.JeproLab;
-import com.jeprolab.assets.extend.controls.JeproFormPanel;
-import com.jeprolab.assets.extend.controls.JeproFormPanelContainer;
-import com.jeprolab.assets.extend.controls.JeproFormPanelTitle;
-import com.jeprolab.assets.extend.controls.JeproPhoneField;
+import com.jeprolab.assets.extend.controls.*;
 import com.jeprolab.assets.tools.JeproLabContext;
 import com.jeprolab.models.JeproLabCountryModel;
 import com.jeprolab.models.JeproLabZoneModel;
@@ -31,6 +28,7 @@ public class JeproLabAddressAddController extends JeproLabController{
     public JeproFormPanelTitle jeproLabAddAddressFormTitleWrapper;
     public JeproFormPanelContainer jeproLabAddAddressFormContainerWrapper;
     public JeproFormPanel jeproLabAddAddressFormWrapper;
+    public JeproCustomerField jeproLabAddressCustomer;
     public GridPane jeproLabAddAddressFormLayout;
 
     public Label jeproLabAddressFormTitle, jeproLabAddressCustomerLabel, jeproLabAddressCompanyLabel, jeproLabAddressLastNameLabel;
@@ -76,8 +74,8 @@ public class JeproLabAddressAddController extends JeproLabController{
         /**
          * GridPane styling
          */
-        GridPane.setMargin(jeproLabAddressCustomerLabel, new Insets(5, 0, 15, 15));
-        //GridPane.setMargin(jeproLabAddressCustomer, new Insets(5, 0, 15, 0));
+        GridPane.setMargin(jeproLabAddressCustomerLabel, new Insets(15, 0, 15, 15));
+        GridPane.setMargin(jeproLabAddressCustomer, new Insets(15, 0, 15, 0));
         GridPane.setMargin(jeproLabAddressCompanyLabel, new Insets(5, 0, 15, 15));
         GridPane.setMargin(jeproLabAddressCompany, new Insets(5, 0, 15, 0));
         GridPane.setMargin(jeproLabAddressLastNameLabel, new Insets(5, 0, 15, 15));
@@ -131,6 +129,11 @@ public class JeproLabAddressAddController extends JeproLabController{
         jeproLabAddressPhoneLabel.getStyleClass().add("input-label");
         //jeproLabAddressCustomer);
 
+        initializeContent();
+    }
+
+    @Override
+    public void initializeContent(){
         JeproLabContext context = JeproLabContext.getContext();
 
         List<JeproLabCountryModel> countries = JeproLabCountryModel.getCountries(context.language.language_id, true);
@@ -145,7 +148,6 @@ public class JeproLabAddressAddController extends JeproLabController{
         for(JeproLabZoneModel zone : zones) {
             jeproLabAddressCountryZone.getItems().add(zone.name);
         }
-
     }
 
     @Override

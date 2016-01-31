@@ -6,7 +6,10 @@ import com.jeprolab.assets.extend.controls.JeproFormPanelContainer;
 import com.jeprolab.assets.extend.controls.JeproFormPanelTitle;
 import com.jeprolab.assets.extend.controls.switchbutton.JeproSwitchButton;
 import javafx.fxml.FXML;
+import javafx.geometry.Insets;
 import javafx.scene.control.*;
+import javafx.scene.layout.Pane;
+import javafx.scene.layout.GridPane;
 
 import java.net.URL;
 import java.util.ResourceBundle;
@@ -24,11 +27,14 @@ public class JeproLabLaboratoryAddController extends JeproLabController {
     public TabPane jeproLabLaboratoryTab;
     public Tab jeproLabLaboratoryInformation, jeproLabLaboratoryUrls;
     public Label jeproLabLaboratoryNameLabel, jeproLabLaboratoryGroupLabel, jeproLabLaboratoryCategoryLabel, jeproLabLaboratoryThemeLabel;
-    public Label jeproLabLaboratoryLabel, jeproLabLaboratoryDomainLabel, jeproLabLaboratorySslDomainLabel, jeproLabLaboratoryPhysicalUriLabel;
-    public Label jeproLabLaboratoryMainUrlLabel;
+    public Label jeproLabLaboratoryPublishedLabel, jeproLabLaboratoryDomainLabel, jeproLabLaboratorySslDomainLabel, jeproLabLaboratoryPhysicalUriLabel;
+    public Label jeproLabLaboratoryMainUrlLabel, jeproLabLaboratoryVirtualUriLabel;
 
     public TextField jeproLabLaboratoryName, jeproLabLaboratoryDomain, jeproLabLaboratorySslDomain, jeproLabLaboratoryPhysicalUri;
+    public TextField jeproLabLaboratoryVirtualUri;
     public ComboBox jeproLabLaboratoryGroup, jeproLabLaboratoryCategory, jeproLabLaboratoryTheme;
+
+    public GridPane jeproLabLaboratoryUrlsLayout, jeproLabLaboratoryInformationLayout;
 
     public JeproSwitchButton jeproLabLaboratoryPublished, jeproLabLaboratoryMainUrl;
     public TableView jeproLabLaboratoryUrlsTableView;
@@ -42,6 +48,7 @@ public class JeproLabLaboratoryAddController extends JeproLabController {
         double formWidth = 2 *(labelColumnWidth + inputColumnWidth) + 30;
         double posX = (JeproLab.APP_WIDTH/2) - (formWidth)/2;
         double posY = 25;
+        double remainingWidth = (0.98 * formWidth) - 55;
 
         jeproLabLaboratoryPanelWrapper.setPrefWidth(formWidth);
         jeproLabLaboratoryPanelWrapper.setLayoutX(posX);
@@ -53,7 +60,70 @@ public class JeproLabLaboratoryAddController extends JeproLabController {
 
         jeproLabLaboratoryTab.setPrefWidth(formWidth);
 
-        jeproLabLaboratoryUrlsTableView.setPrefWidth(0.98 * formWidth);
+        jeproLabLaboratoryUrlsTableView.setPrefSize(0.98 * formWidth, 240);
         jeproLabLaboratoryUrlsTableView.setLayoutX(0.01 * formWidth);
+
+        jeproLabLaboratoryNameLabel.setText(bundle.getString("JEPROLAB_LABORATORY_NAME_LABEL"));
+        jeproLabLaboratoryNameLabel.getStyleClass().add("input-label");
+        jeproLabLaboratoryGroupLabel.setText(bundle.getString("JEPROLAB_LABORATORY_GROUP_LABEL"));
+        jeproLabLaboratoryGroupLabel.getStyleClass().add("input-label");
+        jeproLabLaboratoryCategoryLabel.setText(bundle.getString("JEPROLAB_CATEGORY_LABEL"));
+        jeproLabLaboratoryCategoryLabel.getStyleClass().add("input-label");
+        jeproLabLaboratoryThemeLabel.setText(bundle.getString("JEPROLAB_THEME_LABEL"));
+        jeproLabLaboratoryThemeLabel.getStyleClass().add("input-label");
+        jeproLabLaboratoryPublishedLabel.setText(bundle.getString("JEPROLAB_PUBLISHED_LABEL"));
+        jeproLabLaboratoryPublishedLabel.getStyleClass().add("input-label");
+        jeproLabLaboratoryDomainLabel.setText(bundle.getString("JEPROLAB_DOMAIN_LABEL"));
+        jeproLabLaboratoryDomainLabel.getStyleClass().add("input-label");
+        jeproLabLaboratorySslDomainLabel.setText(bundle.getString("JEPROLAB_SSL_DOMAIN_LABEL"));
+        jeproLabLaboratorySslDomainLabel.getStyleClass().add("input-label");
+        jeproLabLaboratoryPhysicalUriLabel.setText(bundle.getString("JEPROLAB_PHYSICAL_URI_LABEL"));
+        jeproLabLaboratoryPhysicalUriLabel.getStyleClass().add("input-label");
+        jeproLabLaboratoryVirtualUriLabel.setText(bundle.getString("JEPROLAB_VIRTUAL_URI_LABEL"));
+        jeproLabLaboratoryVirtualUriLabel.getStyleClass().add("input-label");
+        jeproLabLaboratoryMainUrlLabel.setText(bundle.getString("JEPROLAB_IS_MAIN_URL_LABEL"));
+        jeproLabLaboratoryMainUrlLabel.getStyleClass().add("input-label");
+        jeproLabLaboratoryInformation.setText(bundle.getString("JEPROLAB_INFORMATION_LABEL"));
+        jeproLabLaboratoryUrls.setText(bundle.getString("JEPROLAB_LABORATORY_URLS_LABEL"));
+
+        jeproLabUrlIndexColumn.setText("#");
+        jeproLabUrlCheckBoxColumn.setText(bundle.getString("JEPROLAB_LABEL"));
+        jeproLabUrlDomainColumn.setText(bundle.getString("JEPROLAB_DOMAIN_LABEL"));
+        jeproLabUrlSslDomainColumn.setText(bundle.getString("JEPROLAB_SSL_DOMAIN_LABEL"));
+        jeproLabUrlPhysicalUriColumn.setText(bundle.getString("JEPROLAB_PHYSICAL_URI_LABEL"));
+        jeproLabUrlVirtualUriColumn.setText(bundle.getString("JEPROLAB_VIRTUAL_URI_LABEL"));
+        jeproLabUrlMainColumn.setText(bundle.getString("JEPROLAB_IS_MAIN_URL_LABEL"));
+        jeproLabUrlActionColumn.setText(bundle.getString("JEPROLAB_ACTIONS_LABEL"));
+
+        jeproLabUrlIndexColumn.setPrefWidth(30);
+        jeproLabUrlCheckBoxColumn.setPrefWidth(25);
+        jeproLabUrlDomainColumn.setPrefWidth(0.18 * remainingWidth);
+        jeproLabUrlSslDomainColumn.setPrefWidth(0.18 * remainingWidth);
+        jeproLabUrlPhysicalUriColumn.setPrefWidth(0.18 * remainingWidth);
+        jeproLabUrlVirtualUriColumn.setPrefWidth(0.18 * remainingWidth);
+        jeproLabUrlMainColumn.setPrefWidth(0.18 * remainingWidth);
+        jeproLabUrlActionColumn.setPrefWidth(0.1 * remainingWidth);
+
+        GridPane.setMargin(jeproLabLaboratoryNameLabel, new Insets(10, 10, 10, 10));
+        GridPane.setMargin(jeproLabLaboratoryName, new Insets(10, 10, 10, 10));
+        GridPane.setMargin(jeproLabLaboratoryGroupLabel, new Insets(10, 10, 10, 10));
+        GridPane.setMargin(jeproLabLaboratoryGroup, new Insets(10, 10, 10, 10));
+        GridPane.setMargin(jeproLabLaboratoryCategoryLabel, new Insets(10, 10, 10, 10));
+        GridPane.setMargin(jeproLabLaboratoryCategory, new Insets(10, 10, 10, 10));
+        GridPane.setMargin(jeproLabLaboratoryThemeLabel, new Insets(10, 10, 10, 10));
+        GridPane.setMargin(jeproLabLaboratoryTheme, new Insets(10, 10, 10, 10));
+        GridPane.setMargin(jeproLabLaboratoryPublishedLabel, new Insets(10, 10, 10, 10));
+        GridPane.setMargin(jeproLabLaboratoryPublished, new Insets(10, 10, 10, 10));
+        GridPane.setMargin(jeproLabLaboratoryDomainLabel, new Insets(10, 10, 10, 10));
+        GridPane.setMargin(jeproLabLaboratoryDomain, new Insets(10, 10, 10, 10));
+        GridPane.setMargin(jeproLabLaboratorySslDomainLabel, new Insets(10, 10, 10, 10));
+        GridPane.setMargin(jeproLabLaboratorySslDomain, new Insets(10, 10, 10, 10));
+        GridPane.setMargin(jeproLabLaboratoryPhysicalUriLabel, new Insets(10, 10, 10, 10));
+        GridPane.setMargin(jeproLabLaboratoryPhysicalUri, new Insets(10, 10, 10, 10));
+        GridPane.setMargin(jeproLabLaboratoryVirtualUriLabel, new Insets(10, 10, 10, 10));
+        GridPane.setMargin(jeproLabLaboratoryVirtualUri, new Insets(10, 10, 10, 10));
+        GridPane.setMargin(jeproLabLaboratoryMainUrlLabel, new Insets(10, 10, 10, 10));
+        GridPane.setMargin(jeproLabLaboratoryMainUrl, new Insets(10, 10, 10, 10));
+        GridPane.setMargin(jeproLabLaboratoryUrlsTableView, new Insets(10, 10, 10, 10));
     }
 }

@@ -37,7 +37,9 @@ public class JeproLabAddressModel extends JeproLabModel {
     }
 
     public static ResultSet getAddressList(int limit, int limitStart, int langId, String orderBy, String orderWay){
-        JeproLabDataBaseConnector dbc = JeproLabFactory.getDataBaseConnector();
+        if(staticDataBaseObject == null){
+            staticDataBaseObject = JeproLabFactory.getDataBaseConnector();
+        }
         int total = 0;
         ResultSet addresses = null;
         boolean useLimit = true;
@@ -45,17 +47,21 @@ public class JeproLabAddressModel extends JeproLabModel {
         String orderByFilter = orderBy.replace("`", "");
         try {
             do {
-                String query = "SELECT SQL_CALC_FOUND_ROWS address." + dbc.quoteName("address_id") + ", address." + dbc.quoteName("firstname");
-                query += ", address." + dbc.quoteName("lastname") + ", address." + dbc.quoteName("address1") + ", address." + dbc.quoteName("postcode");
-                query += ", address." + dbc.quoteName("city") + ", country_lang." + dbc.quoteName("name") + " AS country FROM " + dbc.quoteName("#__jeprolab_address");
-                query += " AS address LEFT JOIN " + dbc.quoteName("#__jeprolab_country_lang") + " AS country_lang ON(country_lang." + dbc.quoteName("country_id");
-                query += " = address." + dbc.quoteName("country_id") + " AND country_lang." + dbc.quoteName("lang_id") + " = " + langId + ") LEFT JOIN ";
-                query += dbc.quoteName("#__jeprolab_customer") + " AS customer ON address." + dbc.quoteName("customer_id") + " = customer.";
-                query += dbc.quoteName("customer_id") + " WHERE address.customer_id != 0 " + JeproLabLaboratoryModel.addSqlRestriction(JeproLabLaboratoryModel.SHARE_CUSTOMER, "customer");
+                String query = "SELECT SQL_CALC_FOUND_ROWS address." + staticDataBaseObject.quoteName("address_id");
+                query += ", address." + staticDataBaseObject.quoteName("firstname") + ", address." + staticDataBaseObject.quoteName("lastname");
+                query += ", address." + staticDataBaseObject.quoteName("address1") + ", address." + staticDataBaseObject.quoteName("postcode");
+                query += ", address." + staticDataBaseObject.quoteName("city") + ", country_lang." + staticDataBaseObject.quoteName("name");
+                query += " AS country FROM " + staticDataBaseObject.quoteName("#__jeprolab_address") + " AS address LEFT JOIN ";
+                query += staticDataBaseObject.quoteName("#__jeprolab_country_lang") + " AS country_lang ON(country_lang.";
+                query += staticDataBaseObject.quoteName("country_id") + " = address." + staticDataBaseObject.quoteName("country_id");
+                query += " AND country_lang." + staticDataBaseObject.quoteName("lang_id") + " = " + langId + ") LEFT JOIN ";
+                query += staticDataBaseObject.quoteName("#__jeprolab_customer") + " AS customer ON address." + staticDataBaseObject.quoteName("customer_id");
+                query += " = customer." + staticDataBaseObject.quoteName("customer_id") + " WHERE address.customer_id != 0 ";
+                query += JeproLabLaboratoryModel.addSqlRestriction(JeproLabLaboratoryModel.SHARE_CUSTOMER, "customer");
                 query += " ORDER BY " + (orderByFilter.equals("address_id") ? "address." : "") + orderBy + " " + orderWay;
 
-                dbc.setQuery(query);
-                addresses = dbc.loadObject();
+                staticDataBaseObject.setQuery(query);
+                addresses = staticDataBaseObject.loadObject();
 
                 while (addresses.next()) {
                     total++;
@@ -63,8 +69,8 @@ public class JeproLabAddressModel extends JeproLabModel {
 
                 query += (useLimit ? " LIMIT " + limitStart + ", " + limit : " ");
 
-                dbc.setQuery(query);
-                addresses = dbc.loadObject();
+                staticDataBaseObject.setQuery(query);
+                addresses = staticDataBaseObject.loadObject();
 
                 if(useLimit){
                     limitStart = limitStart - limit;
@@ -76,8 +82,8 @@ public class JeproLabAddressModel extends JeproLabModel {
 
             pagination = new Pagination();
 
-        }catch (SQLException io){
-
+        }catch (SQLException ignored){
+            ignored.printStackTrace();
         }
         return  addresses;
     }
