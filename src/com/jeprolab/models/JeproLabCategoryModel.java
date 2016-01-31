@@ -1,6 +1,7 @@
 package com.jeprolab.models;
 
 
+import com.jeprolab.JeproLab;
 import com.jeprolab.assets.tools.JeproLabCache;
 import com.jeprolab.assets.tools.JeproLabConfigurationSettings;
 import com.jeprolab.assets.tools.JeproLabContext;
@@ -598,11 +599,11 @@ public class JeproLabCategoryModel extends JeproLabModel {
                 staticataBaseObject = JeproLabFactory.getDataBaseConnector();
             }
 
-            query = "SELECT category_lang." . dataBaseObject->quoteName("link_rewrite") . " FROM " . dataBaseObject->quoteName("#__jeprolab_category_lang");
-            query += " AS category_lang WHERE " . dataBaseObject->quoteName("lang_id") . " = " . (int)$lang_id ;
+            query = "SELECT category_lang." . dataBaseObject.quoteName("link_rewrite") . " FROM " . dataBaseObject.quoteName("#__jeprolab_category_lang");
+            query += " AS category_lang WHERE " . dataBaseObject.quoteName("lang_id") . " = " . (int)$lang_id ;
             query += JeproLabLaboratoryModel.addSqlRestrictionOnLang("category_lang") . " AND category_lang.";
-            query += dataBaseObject->quoteName("category_id") . " = " .(int)$category_id;
-            self.$_links[$category_id . "_" . $lang_id] = dataBaseObject->loadResult();
+            query += dataBaseObject.quoteName("category_id") . " = " .(int)$category_id;
+            self.$_links[$category_id . "_" . $lang_id] = dataBaseObject.loadResult();
         }
         return self.$_links[$category_id . "_" . $lang_id];
     }
@@ -655,7 +656,7 @@ public class JeproLabCategoryModel extends JeproLabModel {
         if ($limit == false)
             $use_limit = false;
 
-        $join = " LEFT JOIN " . dataBaseObject->quoteName("#__jeprolab_category_lab") . " AS category_lab ON (category." . dataBaseObject->quoteName("category_id") . " = category_lab." . dataBaseObject->quoteName("category_id") . " AND ";
+        $join = " LEFT JOIN " . dataBaseObject.quoteName("#__jeprolab_category_lab") . " AS category_lab ON (category." . dataBaseObject.quoteName("category_id") . " = category_lab." . dataBaseObject.quoteName("category_id") . " AND ";
         if (JeproLabLaboratoryModel.getLabContext() == JeproLabLaboratoryModel.CONTEXT_LAB){
             $join += " category_lab.lab_id = " . (int)$context->lab->lab_id . ") ";
         }else{
@@ -664,7 +665,7 @@ public class JeproLabCategoryModel extends JeproLabModel {
 
         // we add restriction for lab
         if(JeproLabLaboratoryModel.getLabContext() == JeproLabLaboratoryModel.CONTEXT_LAB && JeproLabLaboratoryModel.isFeaturePublished()){
-            $where = " AND category_lab." . dataBaseObject->quoteName("lab_id") . " = " . (int)JeproLabContext.getContext()->lab->lab_id;
+            $where = " AND category_lab." . dataBaseObject.quoteName("lab_id") . " = " . (int)JeproLabContext.getContext()->lab->lab_id;
         }
         /* Check params validity * /
         if (!JeproLabTools.isOrderBy($order_by) || !JeproLabTools.isOrderWay($order_way)
@@ -677,7 +678,7 @@ public class JeproLabCategoryModel extends JeproLabModel {
             $order_by_split = preg_split("/[.!]/", $order_by);
             $order_by = bqSQL($order_by_split[0]).".`".bqSQL($order_by_split[1])."`";
         }elseif ($order_by){
-            $order_by = dataBaseObject->quoteName(dataBaseObject->escape($order_by));
+            $order_by = dataBaseObject.quoteName(dataBaseObject.escape($order_by));
         }
 
         // Add SQL lab restriction
@@ -695,7 +696,7 @@ public class JeproLabCategoryModel extends JeproLabModel {
                 $test_join = !preg_match("/`?".preg_quote("#__jeprolab_category_lab")."`? *category_lab/", $join);
                 if (JeproLabLaboratoryModel.isFeaturePublished() && $test_join && JeproLabLaboratoryModel.isTableAssociated("category")){
                     $where += " AND category.category_id IN ( SELECT category_lab.category_id FROM ";
-                    $where += dataBaseObject->quoteName("#__jeprolab_category__lab") . " AS category_lab WHERE category_lab.";
+                    $where += dataBaseObject.quoteName("#__jeprolab_category__lab") . " AS category_lab WHERE category_lab.";
                     $where += "lab_id IN (" . implode(", ", JeproLabLaboratoryModel.getContextListLabIds()). ") )";
                 }
             }
@@ -705,16 +706,16 @@ public class JeproLabCategoryModel extends JeproLabModel {
         $tmpTableFilter = "";
 
         /* Query in order to get results with all fields * /
-        String langJoin = " LEFT JOIN " . dataBaseObject->quoteName("#__jeprolab_category_lang") . " AS category_lang ON (";
-        $lang_join += "category_lang." . dataBaseObject->quoteName("category_id") . " = category." . dataBaseObject->quoteName("category_id");
-        $lang_join += " AND category_lang." . dataBaseObject->quoteName("lang_id") . " = " .(int)$lang_id;
+        String langJoin = " LEFT JOIN " . dataBaseObject.quoteName("#__jeprolab_category_lang") . " AS category_lang ON (";
+        $lang_join += "category_lang." . dataBaseObject.quoteName("category_id") . " = category." . dataBaseObject.quoteName("category_id");
+        $lang_join += " AND category_lang." . dataBaseObject.quoteName("lang_id") . " = " .(int)$lang_id;
         if ($context->lab->lab_id){
             if (!JeproLabLaboratoryModel.isFeaturePublished()){
-                $lang_join += " AND category_lang." . dataBaseObject->quoteName("lab_id") . " = 1";
+                $lang_join += " AND category_lang." . dataBaseObject.quoteName("lab_id") . " = 1";
             }elseif (JeproLabLaboratoryModel.getLabContext() == JeproLabLaboratoryModel.CONTEXT_LAB){
-                $lang_join +=  " AND category_lang." . dataBaseObject->quoteName("lab_id") . " = " .(int)$context->lab->lab_id;
+                $lang_join +=  " AND category_lang." . dataBaseObject.quoteName("lab_id") . " = " .(int)$context->lab->lab_id;
             }else{
-                $lang_join +=  " AND category_lang." . dataBaseObject->quoteName("lab_id") . " = category.default_lab_id";
+                $lang_join +=  " AND category_lang." . dataBaseObject.quoteName("lab_id") . " = category.default_lab_id";
             }
         }
         $lang_join += ") ";
@@ -735,22 +736,22 @@ public class JeproLabCategoryModel extends JeproLabModel {
         do{
             query = "SELECT SQL_CALC_FOUND_ROWS " .($tmpTableFilter ? " * FROM (SELECT " : "");
             if ($explicitSelect){
-                query += "category." + dataBaseObject->quoteName("category_id") . ", category_lang." . dataBaseObject->quoteName("name") . ", category_lang." . dataBaseObject->quoteName("description");
-                query += " , category." + dataBaseObject->quoteName("position") ." AS category_position, " . dataBaseObject->quoteName("published");
+                query += "category." + dataBaseObject.quoteName("category_id") . ", category_lang." . dataBaseObject.quoteName("name") . ", category_lang." . dataBaseObject.quoteName("description");
+                query += " , category." + dataBaseObject.quoteName("position") ." AS category_position, " . dataBaseObject.quoteName("published");
             }else{
                 query += ($lang_id ? " category_lang.*," : "") . " category.*";
             }
-            query += (isset($select) ? rtrim($select, ", ") : "") . $select_lab . " FROM " . dataBaseObject->quoteName("#__jeprolab_category") . " AS category " . $lang_join . (isset($join) ? $join . " " : "") ;
-            query += $join_lab . " WHERE 1 ". (isset($where) ? $where . " " : "") . (this.deleted_category ? " AND category." .dataBaseObject->quoteName("deleted") . " = 0 " : "") .  "AND " . dataBaseObject->quoteName("parent_id");
+            query += (isset($select) ? rtrim($select, ", ") : "") . $select_lab . " FROM " . dataBaseObject.quoteName("#__jeprolab_category") . " AS category " . $lang_join . (isset($join) ? $join . " " : "") ;
+            query += $join_lab . " WHERE 1 ". (isset($where) ? $where . " " : "") . (this.deleted_category ? " AND category." .dataBaseObject.quoteName("deleted") . " = 0 " : "") .  "AND " . dataBaseObject.quoteName("parent_id");
             query += "= " . (int)$parent_id . $where_lab .(isset($group) ? $group . " " : "") . $having_clause . " ORDER BY " . ((str_replace("`", "", $order_by) == "category_id") ? "category." : ""). " category.";
-            query += $order_by . " " . dataBaseObject->escape($order_way) . ($tmpTableFilter ? ") tmpTable WHERE 1" . $tmpTableFilter : "");
+            query += $order_by . " " . dataBaseObject.escape($order_way) . ($tmpTableFilter ? ") tmpTable WHERE 1" . $tmpTableFilter : "");
 
-            dataBaseObject->setQuery(query);
-            $total = count(dataBaseObject->loadObjectList());
+            dataBaseObject.setQuery(query);
+            $total = count(dataBaseObject.loadObjectList());
             query += (($use_limit === true) ? " LIMIT " . (int)$limitstart.", ".(int)$limit : "" );
 
-            dataBaseObject->setQuery(query);
-            $categories = dataBaseObject->loadObjectList();
+            dataBaseObject.setQuery(query);
+            $categories = dataBaseObject.loadObjectList();
 
             if ($use_limit === true){
                 $limitstart = (int)$limitstart - (int)$limit;
@@ -1014,24 +1015,24 @@ public class JeproLabCategoryModel extends JeproLabModel {
             dataBaseObject.setQuery(query);
             ResultSet resultSet &= dataBaseObject.loadObject();
             if($result){
-                this.category_id = dataBaseObject->insertid();
+                this.category_id = dataBaseObject.insertid();
                 foreach($lab_list_ids as labId){
-                    query = "INSERT INTO " .  dataBaseObject->quoteName("#__jeprolab_category_lab") . "(" . dataBaseObject->quoteName("category_id") . ", " . dataBaseObject->quoteName("lab_id");
-                    query += ", " . dataBaseObject->quoteName("position") . ") VALUES (" . (int)this.category_id . ", " . (int)labId . ", " . (int)$position . ")";
+                    query = "INSERT INTO " .  dataBaseObject.quoteName("#__jeprolab_category_lab") . "(" . dataBaseObject.quoteName("category_id") . ", " . dataBaseObject.quoteName("lab_id");
+                    query += ", " . dataBaseObject.quoteName("position") . ") VALUES (" . (int)this.category_id . ", " . (int)labId . ", " . (int)$position . ")";
 
-                    dataBaseObject->setQuery(query);
-                    $result &= dataBaseObject->query();
+                    dataBaseObject.setQuery(query);
+                    $result &= dataBaseObject.query();
                     foreach($languages as $language){
-                        query = "INSERT INTO " .  dataBaseObject->quoteName("#__jeprolab_category_lang") . "(" . dataBaseObject->quoteName("category_id") . ", " . dataBaseObject->quoteName("lab_id");
-                        query += ", " . dataBaseObject->quoteName("lang_id") . ", " . dataBaseObject->quoteName("name") . ", " . dataBaseObject->quoteName("description") . ", " . dataBaseObject->quoteName("link_rewrite");
-                        query += ", " . dataBaseObject->quoteName("meta_title") . ", " . dataBaseObject->quoteName("meta_keywords") . ", " . dataBaseObject->quoteName("meta_description") . ") VALUES (";
-                        query += (int)this.category_id . ", " . (int)labId . ", " . (int)$language->lang_id . ", " . dataBaseObject->quote($category_data["name_" . (int)$language->lang_id]);
-                        query += ", " . dataBaseObject->quote($category_data["description_" . $language->lang_id]) . ", " . dataBaseObject->quote($category_data["link_rewrite_" . $language->lang_id]) . ", ";
-                        query += dataBaseObject->quote($category_data["meta_title_" . $language->lang_id]) . ", " . dataBaseObject->quote($category_data["meta_keywords_" . $language->lang_id]) . ", ";
-                        query += dataBaseObject->quote($category_data["meta_description_" . $language->lang_id]) . ")";
+                        query = "INSERT INTO " .  dataBaseObject.quoteName("#__jeprolab_category_lang") . "(" . dataBaseObject.quoteName("category_id") . ", " . dataBaseObject.quoteName("lab_id");
+                        query += ", " . dataBaseObject.quoteName("lang_id") . ", " . dataBaseObject.quoteName("name") . ", " . dataBaseObject.quoteName("description") . ", " . dataBaseObject.quoteName("link_rewrite");
+                        query += ", " . dataBaseObject.quoteName("meta_title") . ", " . dataBaseObject.quoteName("meta_keywords") . ", " . dataBaseObject.quoteName("meta_description") . ") VALUES (";
+                        query += (int)this.category_id . ", " . (int)labId . ", " . (int)$language->lang_id . ", " . dataBaseObject.quote($category_data["name_" . (int)$language->lang_id]);
+                        query += ", " . dataBaseObject.quote($category_data["description_" . $language->lang_id]) . ", " . dataBaseObject.quote($category_data["link_rewrite_" . $language->lang_id]) . ", ";
+                        query += dataBaseObject.quote($category_data["meta_title_" . $language->lang_id]) . ", " . dataBaseObject.quote($category_data["meta_keywords_" . $language->lang_id]) . ", ";
+                        query += dataBaseObject.quote($category_data["meta_description_" . $language->lang_id]) . ")";
 
-                        dataBaseObject->setQuery(query);
-                        $result &= dataBaseObject->query();
+                        dataBaseObject.setQuery(query);
+                        $result &= dataBaseObject.query();
                     }
 
                 }
@@ -1123,71 +1124,82 @@ public class JeproLabCategoryModel extends JeproLabModel {
      *
      * @param categoryId parent category
      */
-    public function recalculateDepthLevel(int categoryId){
+    public void recalculateDepthLevel(int categoryId){
         if(dataBaseObject == null){
             dataBaseObject = JeproLabFactory.getDataBaseConnector();
         }
-        if (!is_numeric($category_id))
-            throw new JException("category_id is not numeric");
+        if (categoryId <= 0) {
+            //throw new JException("category_id is not numeric");
+        }
+        /* Gets all children */
+        String query = "SELECT " + dataBaseObject.quoteName("category_id") + ", "  + dataBaseObject.quoteName("parent_id") + ", " + dataBaseObject.quoteName("depth_level") + " FROM ";
+        query += dataBaseObject.quoteName("#__jeprolab_category") + " WHERE parent_id = " + categoryId ;
 
-        /* Gets all children * /
-        query = "SELECT " . dataBaseObject->quoteName("category_id") . ", "  . dataBaseObject->quoteName("parent_id") . ", " . dataBaseObject->quoteName("depth_level") . " FROM ";
-        query += dataBaseObject->quoteName("#__jeprolab_category") . " WHERE parent_id = " . (int)$category_id ;
+        dataBaseObject.setQuery(query);
+        ResultSet categories = dataBaseObject.loadObject();
 
-        dataBaseObject->setQuery(query);
-        $categories = dataBaseObject->loadObjectList();
+        /* Gets level_depth */
+        query = "SELECT depth_level FROM " + dataBaseObject.quoteName("#__jeprolab_category") + " WHERE category_id = " + categoryId;
+        dataBaseObject.setQuery(query);
+        int level = dataBaseObject.loadValue();
+        /* Updates level_depth for all children */
+        try {
+            int subCategoryId;
+            while(categories.next()) {
+                subCategoryId = categories.getInt("category_id");
+                query = "UPDATE " + dataBaseObject.quoteName("#__jeprolab_category") + " SET depth_level = " + (level + 1);
+                query += " WHERE category_id = " + subCategoryId;
 
-        /* Gets level_depth * /
-        query = "SELECT depth_level FROM " . dataBaseObject->quoteName("#__jeprolab_category") . " WHERE category_id = " .(int)$category_id;
-        dataBaseObject->setQuery(query);
-        $level = dataBaseObject->loadObject()->depth_level;
-        /* Updates level_depth for all children * /
-        foreach ($categories as $sub_category){
-            query = "UPDATE " . dataBaseObject->quoteName("#__jeprolab_category") . " SET depth_level = " . (int)($level + 1) . " WHERE category_id = " . (int)$sub_category->category_id;
+                dataBaseObject.setQuery(query);
+                dataBaseObject.query();
+            /* Recursive call */
+                this.recalculateDepthLevel(subCategoryId);
+            }
+        }catch (SQLException ignored){
 
-            dataBaseObject->setQuery(query);
-            dataBaseObject->query();
-            /* Recursive call * /
-            this.recalculateLevelDepth($sub_category->category_id);
         }
     }
 
-    public function addPosition($position, labId = null){
-        $return = true;
+    public boolean addPosition(int position){
+        return addPosition(position, 0);
+    }
+
+    public boolean addPosition(int position, int labId){
+        boolean  result = true;
         if(dataBaseObject == null){
             dataBaseObject = JeproLabFactory.getDataBaseConnector();
         }
-        if (is_null(labId)){
-            if (JeproLabLaboratoryModel.getLabContext() != JeproLabLaboratoryModel.CONTEXT_LAB) {
+        if (labId == 0){
+            if (JeproLabLaboratoryModel.getLabContext() != JeproLabLaboratoryModel.LAB_CONTEXT){
                 foreach (JeproLabLaboratoryModel.getContextListLabIds() as labId) {
-                    String query = "INSERT INTO " . dataBaseObject->quoteName("#__jeprolab_category_lab") . "(" . dataBaseObject->quoteName("category_id") . ", " . dataBaseObject->quoteName("lab_id");
-                    query += ", " . dataBaseObject->quoteName("position") . ") VALUES (" . (int)this.category_id . ", " . (int)labId . ", " . (int)$position . ") ";
-                    query += "	ON DUPLICATE KEY UPDATE " . dataBaseObject->quoteName("position") . " = "  . (int)$position;
+                    String query = "INSERT INTO " + dataBaseObject.quoteName("#__jeprolab_category_lab") + "(" . dataBaseObject.quoteName("category_id") . ", " . dataBaseObject.quoteName("lab_id");
+                    query += ", " + dataBaseObject.quoteName("position") + ") VALUES (" + this.category_id . ", " . (int)labId . ", " . (int)$position . ") ";
+                    query += " ON DUPLICATE KEY UPDATE " + dataBaseObject.quoteName("position") + " = "  + (int)$position;
 
-                    dataBaseObject->setQuery(query);
-                    $return &= dataBaseObject->query();
+                    dataBaseObject.setQuery(query);
+                    result &= dataBaseObject.query();
                 }
             }else {
-                labId = JeproLabContext.getContext()->lab->lab_id;
-                labId = labId ? labId : JeproLabSettingModelSetting.getValue("default_lab");
+                labId = JeproLabContext.getContext().laboratory.laboratory_id;
+                labId = labId > 0 ? labId : JeproLabSettingModel.getIntValue("default_lab");
 
-                query = "INSERT INTO " . dataBaseObject->quoteName("#__jeprolab_category_lab") . " ( " . dataBaseObject->quoteName("category_id") . ", " . dataBaseObject->quoteName("lab_id") . ", ";
-                query += dataBaseObject->quoteName("position") . " VALUES (" . (int)this.category_id . ", " . (int)labId . ", " . (int)$position . ") ON DUPLICATE KEY UPDATE ";
-                query += dataBaseObject->quoteName("position") . " = " . (int)$position;
+                String query = "INSERT INTO " + dataBaseObject.quoteName("#__jeprolab_category_lab") + " ( " + dataBaseObject.quoteName("category_id") . ", " . dataBaseObject.quoteName("lab_id") . ", ";
+                query += dataBaseObject.quoteName("position") + " VALUES (" + this.category_id + ", " + labId . ", " . (int)$position . ") ON DUPLICATE KEY UPDATE ";
+                query += dataBaseObject.quoteName("position") + " = " + position;
 
-                dataBaseObject->setQuery(query);
-                $return &= dataBaseObject->query();
+                dataBaseObject.setQuery(query);
+                result &= dataBaseObject.query();
             }
         }
         else{
-            query = "INSERT INTO " . dataBaseObject->quoteName("#__jeprolab_category_lab") . " (" . dataBaseObject->quoteName("category_id") . ", " . dataBaseObject->quoteName("lab_id");
-            query += ", " . dataBaseObject->quoteName("position") . ") VALUES (" .(int)this.category_id.", ".(int)labId . ", " .(int)$position. ") ON DUPLICATE ";
-            query += "KEY UPDATE " . dataBaseObject->quoteName("position") . " = " .(int)$position;
+            String query = "INSERT INTO " . dataBaseObject.quoteName("#__jeprolab_category_lab") . " (" . dataBaseObject.quoteName("category_id") . ", " . dataBaseObject.quoteName("lab_id");
+            query += ", " + dataBaseObject.quoteName("position") . ") VALUES (" .(int)this.category_id.", ".(int)labId . ", " .(int)$position. ") ON DUPLICATE ";
+            query += "KEY UPDATE " + dataBaseObject.quoteName("position") . " = " .(int)$position;
 
-            dataBaseObject->setQuery(query);
-            $return &= dataBaseObject->query();
+            dataBaseObject.setQuery(query);
+            result &= dataBaseObject.query();
         }
-        return $return;
+        return result;
     }
 
     /**
@@ -1208,11 +1220,11 @@ public class JeproLabCategoryModel extends JeproLabModel {
             dataBaseObject = JeproLabFactory.getDataBaseConnector();
         }
         foreach ($groups as $group_id) {
-            query = "INSERT INTO " . dataBaseObject->quoteName("#__jeprolab_category_group") . " (" . dataBaseObject->quoteName("category_id") .", ";
-            query += dataBaseObject->quoteName("group_id") . ") VALUES (" . (int)this.category_id . ", " . (int)$group_id . ")";
+            query = "INSERT INTO " . dataBaseObject.quoteName("#__jeprolab_category_group") . " (" . dataBaseObject.quoteName("category_id") .", ";
+            query += dataBaseObject.quoteName("group_id") . ") VALUES (" . (int)this.category_id . ", " . (int)$group_id . ")";
 
-            dataBaseObject->setQuery(query);
-            dataBaseObject->query();
+            dataBaseObject.setQuery(query);
+            dataBaseObject.query();
         }
     }
 
@@ -1220,9 +1232,9 @@ public class JeproLabCategoryModel extends JeproLabModel {
         if(dataBaseObject == null){
             dataBaseObject = JeproLabFactory.getDataBaseConnector();
         }
-        query = "DELETE FROM " . dataBaseObject->quoteName("#__jeprolab_category_group") . " WHERE " . dataBaseObject->quoteName("category_id") . " = " . (int)this.category_id;
-        dataBaseObject->setQuery(query);
-        dataBaseObject->query();
+        query = "DELETE FROM " . dataBaseObject.quoteName("#__jeprolab_category_group") . " WHERE " . dataBaseObject.quoteName("category_id") . " = " . (int)this.category_id;
+        dataBaseObject.setQuery(query);
+        dataBaseObject.query();
     }
 
     protected static void subTree(&$categories, int categoryId, &$n) {
@@ -1302,54 +1314,54 @@ public class JeproLabCategoryModel extends JeproLabModel {
                     }
                     $result = true;
 
-                    String query = "UPDATE " . dataBaseObject->quoteName("#__jeprolab_category") . " SET " . dataBaseObject->quoteName("n_left") . " = " . (int)this.n_left . ", " ;
-                    query += dataBaseObject->quoteName("n_right") . " = " . (int)this.n_right . ", " . dataBaseObject->quoteName("depth_level") . " = " . (int)this.depth_level;
-                    query += ", " . dataBaseObject->quoteName("published") . " = " . (int)$category_data["published"] . ", " . dataBaseObject->quoteName("default_lab_id") . " = " . (int)this.default_lab_id;
-                    query += ", " . dataBaseObject->quoteName("is_root_category") . " = " . (int)$category_data["is_root_category"] . ", " . dataBaseObject->quoteName("position") . " = ";
-                    query += (int)this.position . ", " . dataBaseObject->quoteName("date_upd") . " = " . dataBaseObject->quote(this.date_upd) . " WHERE " . dataBaseObject->quoteName("category_id");
+                    String query = "UPDATE " . dataBaseObject.quoteName("#__jeprolab_category") . " SET " . dataBaseObject.quoteName("n_left") . " = " . (int)this.n_left . ", " ;
+                    query += dataBaseObject.quoteName("n_right") . " = " . (int)this.n_right . ", " . dataBaseObject.quoteName("depth_level") . " = " . (int)this.depth_level;
+                    query += ", " . dataBaseObject.quoteName("published") . " = " . (int)$category_data["published"] . ", " . dataBaseObject.quoteName("default_lab_id") . " = " . (int)this.default_lab_id;
+                    query += ", " . dataBaseObject.quoteName("is_root_category") . " = " . (int)$category_data["is_root_category"] . ", " . dataBaseObject.quoteName("position") . " = ";
+                    query += (int)this.position . ", " . dataBaseObject.quoteName("date_upd") . " = " . dataBaseObject.quote(this.date_upd) . " WHERE " . dataBaseObject.quoteName("category_id");
                     query += " = " . (int)this.category_id;
 
                     dataBaseObject.setQuery(query);
-                    $result &= dataBaseObject->query();
+                    $result &= dataBaseObject.query();
 
                     foreach($lab_list_ids as labId){
-                        $where = " WHERE " . dataBaseObject->quoteName("category_id") . " = " . (int)this.category_id . " AND " . dataBaseObject->quoteName("lab_id") . " = " . (int)labId;
-                        $select = "SELECT " . dataBaseObject->quoteName("category_id") . " FROM " . dataBaseObject->quoteName("#__jeprolab_category_lab") . $where;
-                        dataBaseObject->setQuery($select);
-                        $lab_exist = (dataBaseObject->loadObject()->category_id > 0);
+                        $where = " WHERE " . dataBaseObject.quoteName("category_id") . " = " . (int)this.category_id . " AND " . dataBaseObject.quoteName("lab_id") . " = " . (int)labId;
+                        $select = "SELECT " . dataBaseObject.quoteName("category_id") . " FROM " . dataBaseObject.quoteName("#__jeprolab_category_lab") . $where;
+                        dataBaseObject.setQuery($select);
+                        $lab_exist = (dataBaseObject.loadObject()->category_id > 0);
                         if($lab_exist){
-                            query = "UPDATE " . dataBaseObject->quoteName("#__jeprolab_category_lab") . " SET " . dataBaseObject->quoteName("position") . " = " . (int)this.position . $where;
-                            dataBaseObject->setQuery(query);
-                            $result &= dataBaseObject->query();
+                            query = "UPDATE " . dataBaseObject.quoteName("#__jeprolab_category_lab") . " SET " . dataBaseObject.quoteName("position") . " = " . (int)this.position . $where;
+                            dataBaseObject.setQuery(query);
+                            $result &= dataBaseObject.query();
                         }elseif(JeproLabLaboratoryModel.getLabContext() == JeproLabLaboratoryModel.CONTEXT_LAB){
-                            query = "INSERT INTO " . dataBaseObject->quoteName("#__jeprolab_category_lab") . "(" . dataBaseObject->quoteName("category_id") . ", " . dataBaseObject->quoteName("lab_id") . ", " . dataBaseObject->quoteName("position") ;
+                            query = "INSERT INTO " . dataBaseObject.quoteName("#__jeprolab_category_lab") . "(" . dataBaseObject.quoteName("category_id") . ", " . dataBaseObject.quoteName("lab_id") . ", " . dataBaseObject.quoteName("position") ;
                             query += ") VALUES (" . (int)this.category_id . ", " . (int)labId . ", "  . (int)this.position . ")";
-                            dataBaseObject->setQuery(query);
-                            $result &= dataBaseObject->query();
+                            dataBaseObject.setQuery(query);
+                            $result &= dataBaseObject.query();
                         }
 
                         foreach($languages as $language) {
-                            $where = " WHERE " . dataBaseObject->quoteName("category_id") . " = " . (int)this.category_id . " AND " . dataBaseObject->quoteName("lab_id");
-                            $where += " = " . (int)labId . " AND " . dataBaseObject->quoteName("lang_id") . " = " . (int)$language->lang_id;
-                            $select = "SELECT COUNT(*) FROM " . dataBaseObject->quoteNAme("#__jeprolab_category_lang") . $where;
-                            dataBaseObject->setQuery($select);
-                            $lang_exist = dataBaseObject->loadResult();
+                            $where = " WHERE " . dataBaseObject.quoteName("category_id") . " = " . (int)this.category_id . " AND " . dataBaseObject.quoteName("lab_id");
+                            $where += " = " . (int)labId . " AND " . dataBaseObject.quoteName("lang_id") . " = " . (int)$language->lang_id;
+                            $select = "SELECT COUNT(*) FROM " . dataBaseObject.quoteNAme("#__jeprolab_category_lang") . $where;
+                            dataBaseObject.setQuery($select);
+                            $lang_exist = dataBaseObject.loadResult();
 
                             if($lang_exist) {
-                                query = "UPDATE " . dataBaseObject->quoteName("#__jeprolab_category_lang") . " SET " . dataBaseObject->quoteName("name") . " = " . dataBaseObject->quote($category_data["name_" . $language->lang_id]) . ", ";
-                                query += dataBaseObject->quoteName("description") . " = " . dataBaseObject->quote($category_data["description_" . $language->lang_id]) . ", " . dataBaseObject->quoteName("link_rewrite") . " = ";
-                                query += dataBaseObject->quote($category_data["link_rewrite_" . $language->lang_id]) . ", " . dataBaseObject->quoteName("meta_title") . " = " . dataBaseObject->quote($category_data["meta_title_" . $language->lang_id]);
-                                query += ", "  . dataBaseObject->quoteName("meta_keywords") . " = " . dataBaseObject->quote($category_data["meta_keywords_" . $language->lang_id]) . ", " . dataBaseObject->quoteName("meta_description");
-                                query += " = " . dataBaseObject->quote($category_data["meta_description_" . $language->lang_id]) . $where;
+                                query = "UPDATE " . dataBaseObject.quoteName("#__jeprolab_category_lang") . " SET " . dataBaseObject.quoteName("name") . " = " . dataBaseObject.quote($category_data["name_" . $language->lang_id]) . ", ";
+                                query += dataBaseObject.quoteName("description") . " = " . dataBaseObject.quote($category_data["description_" . $language->lang_id]) . ", " . dataBaseObject.quoteName("link_rewrite") . " = ";
+                                query += dataBaseObject.quote($category_data["link_rewrite_" . $language->lang_id]) . ", " . dataBaseObject.quoteName("meta_title") . " = " . dataBaseObject.quote($category_data["meta_title_" . $language->lang_id]);
+                                query += ", "  . dataBaseObject.quoteName("meta_keywords") . " = " . dataBaseObject.quote($category_data["meta_keywords_" . $language->lang_id]) . ", " . dataBaseObject.quoteName("meta_description");
+                                query += " = " . dataBaseObject.quote($category_data["meta_description_" . $language->lang_id]) . $where;
                             }else{
-                                query = "INSERT INTO " . dataBaseObject->quoteName("#__jeprolab_category_lang") . " (" . dataBaseObject->quoteName("name") . ", " . dataBaseObject->quoteName("description") . ", " . dataBaseObject->quoteName("link_rewrite");
-                                query += ", " . dataBaseObject->quoteName("meta_title") . ", "  . dataBaseObject->quoteName("meta_keywords") . ", " . dataBaseObject->quoteName("meta_description") . ") VALUES (" . dataBaseObject->quote($category_data["name_" . $language->lang_id]);
-                                query += ", " . dataBaseObject->quote($category_data["description_" . $language->lang_id]) . ", " . dataBaseObject->quote($category_data["link_rewrite_" . $language->lang_id]) . ", ";
-                                query += dataBaseObject->quote($category_data["meta_title_" . $language->lang_id]) . ", " . dataBaseObject->quote($category_data["meta_keywords_" . $language->lang_id]) . ", ";
-                                query += dataBaseObject->quote($category_data["meta_description_" . $language->lang_id]) . ") " . $where;
+                                query = "INSERT INTO " . dataBaseObject.quoteName("#__jeprolab_category_lang") . " (" . dataBaseObject.quoteName("name") . ", " . dataBaseObject.quoteName("description") . ", " . dataBaseObject.quoteName("link_rewrite");
+                                query += ", " . dataBaseObject.quoteName("meta_title") . ", "  . dataBaseObject.quoteName("meta_keywords") . ", " . dataBaseObject.quoteName("meta_description") . ") VALUES (" . dataBaseObject.quote($category_data["name_" . $language->lang_id]);
+                                query += ", " . dataBaseObject.quote($category_data["description_" . $language->lang_id]) . ", " . dataBaseObject.quote($category_data["link_rewrite_" . $language->lang_id]) . ", ";
+                                query += dataBaseObject.quote($category_data["meta_title_" . $language->lang_id]) . ", " . dataBaseObject.quote($category_data["meta_keywords_" . $language->lang_id]) . ", ";
+                                query += dataBaseObject.quote($category_data["meta_description_" . $language->lang_id]) . ") " . $where;
                             }
-                            dataBaseObject->setQuery(query);
-                            $result &= dataBaseObject->query();
+                            dataBaseObject.setQuery(query);
+                            $result &= dataBaseObject.query();
                         }
                     }
 
@@ -1378,13 +1390,13 @@ public class JeproLabCategoryModel extends JeproLabModel {
             dataBaseObject = JeproLabFactory.getDataBaseConnector();
         }
 
-        String query = "SELECT category." . dataBaseObject->quoteName("category_id") . " FROM " . dataBaseObject->quoteName("#__jeprolab_category") . " AS category ";
-        query += JeproLabLaboratoryModel.addSqlAssociation("category") . " WHERE category." . dataBaseObject->quoteName("parent_id") . " = ";
-        query += (int)this.parent_id . " AND category_lab." . dataBaseObject->quoteName("position") . " = " .(int)this.position . " AND category.";
-        query += dataBaseObject->quoteName("category_id") . " != " . (int)this.category_id;
+        String query = "SELECT category." . dataBaseObject.quoteName("category_id") . " FROM " . dataBaseObject.quoteName("#__jeprolab_category") . " AS category ";
+        query += JeproLabLaboratoryModel.addSqlAssociation("category") . " WHERE category." . dataBaseObject.quoteName("parent_id") . " = ";
+        query += (int)this.parent_id . " AND category_lab." . dataBaseObject.quoteName("position") . " = " .(int)this.position . " AND category.";
+        query += dataBaseObject.quoteName("category_id") . " != " . (int)this.category_id;
 
-        dataBaseObject->setQuery(query);
-        return dataBaseObject->loadObject()->category_id;
+        dataBaseObject.setQuery(query);
+        return dataBaseObject.loadObject()->category_id;
     }
 
     /**
@@ -1403,20 +1415,20 @@ public class JeproLabCategoryModel extends JeproLabModel {
             staticDataBaseObject = JeproLabFactory.getDataBaseConnector();
         }
 
-        query = "SELECT category." . dataBaseObject->quoteName("category_id") . " FROM " . dataBaseObject->quoteName("#__jeprolab_category") . " AS category ";
-        query += JeproLabLaboratoryModel.addSqlAssociation("category") . "	WHERE category." . dataBaseObject->quoteName("parent_id") . " = ";
-        query += (int)$category_parent_id . " ORDER BY category_lab." . dataBaseObject->quoteName("position");
+        query = "SELECT category." . dataBaseObject.quoteName("category_id") . " FROM " . dataBaseObject.quoteName("#__jeprolab_category") . " AS category ";
+        query += JeproLabLaboratoryModel.addSqlAssociation("category") . "	WHERE category." . dataBaseObject.quoteName("parent_id") . " = ";
+        query += (int)$category_parent_id . " ORDER BY category_lab." . dataBaseObject.quoteName("position");
 
-        dataBaseObject->setQuery(query);
-        $result = dataBaseObject->loadObjezctList();
+        dataBaseObject.setQuery(query);
+        $result = dataBaseObject.loadObjezctList();
         $count = count($result);
         for ($i = 0; $i < $count; $i++){
-            query = "UPDATE " . dataBaseObject->quoteName("#__jeprolab_category") . " AS category " .JeproLabLaboratoryModel.addSqlAssociation("category");
-            query += " SET category_lab." . dataBaseObject->quoteName("position") . " = " . (int)($i + 1) . " WHERE category." . dataBaseObject->quoteName("parent_id");
-            query += " = " . (int)$category_parent_id . " AND category." . dataBaseObject->quoteName("category_id") . " = " .(int)$result[$i]->category_id;
+            query = "UPDATE " . dataBaseObject.quoteName("#__jeprolab_category") . " AS category " .JeproLabLaboratoryModel.addSqlAssociation("category");
+            query += " SET category_lab." . dataBaseObject.quoteName("position") . " = " . (int)($i + 1) . " WHERE category." . dataBaseObject.quoteName("parent_id");
+            query += " = " . (int)$category_parent_id . " AND category." . dataBaseObject.quoteName("category_id") . " = " .(int)$result[$i]->category_id;
 
-            dataBaseObject->setQuery(query);
-            $return &= dataBaseObject->query();
+            dataBaseObject.setQuery(query);
+            $return &= dataBaseObject.query();
         }
         return $return;
     }
@@ -1458,9 +1470,9 @@ public class JeproLabCategoryModel extends JeproLabModel {
             dataBaseObject = JeproLabFactory.getDataBaseConnector();
         }
 
-        query = "DELETE FROM " . dataBaseObject->quoteName("#__jeprolab_category_lab") . " WHERE " . dataBaseObject->quoteName("lab_id") . " = " . (int)labId . " AND " . dataBaseObject->quoteName("category_id") . " = " . (int)this.category_id;
-        dataBaseObject->setQuery(query);
-        return dataBaseObject->query();
+        query = "DELETE FROM " . dataBaseObject.quoteName("#__jeprolab_category_lab") . " WHERE " . dataBaseObject.quoteName("lab_id") . " = " . (int)labId . " AND " . dataBaseObject.quoteName("category_id") . " = " . (int)this.category_id;
+        dataBaseObject.setQuery(query);
+        return dataBaseObject.query();
     }
 
     /**
@@ -1473,9 +1485,9 @@ public class JeproLabCategoryModel extends JeproLabModel {
             staticDataBaseObject = JeproLabFactory.getDataBaseConnector();
         }
 
-        query = "DELETE FROM " . dataBaseObject->quoteName("#__jeprolab_category_lab") . " WHERE " . dataBaseObject->quoteName("lab_id") . " = " .(int)labId;
-        dataBaseObject->setQuery(query);
-        return dataBaseObject->query();
+        query = "DELETE FROM " . dataBaseObject.quoteName("#__jeprolab_category_lab") . " WHERE " . dataBaseObject.quoteName("lab_id") . " = " .(int)labId;
+        dataBaseObject.setQuery(query);
+        return dataBaseObject.query();
     }
 
     /**
@@ -1489,7 +1501,7 @@ public class JeproLabCategoryModel extends JeproLabModel {
         if(staticDataBaseObject == null){
             staticDataBaseObject = JeproLabFactory.getDataBaseConnector();
         }
-        query = "INSERT INTO " . dataBaseObject->quoteName("#__jeprolab_category_lab") . " (" . dataBaseObject->quoteName("category_id") . ", " . dataBaseObject->quoteName("lab_id") . ") VALUES ";
+        query = "INSERT INTO " . dataBaseObject.quoteName("#__jeprolab_category_lab") . " (" . dataBaseObject.quoteName("category_id") . ", " . dataBaseObject.quoteName("lab_id") . ") VALUES ";
         $tab_categories = array();
         foreach ($categories as $category_id){
             $tab_categories[] = new JeproLabCategoryModelCategory($category_id);
@@ -1498,8 +1510,8 @@ public class JeproLabCategoryModel extends JeproLabModel {
         // removing last comma to avoid SQL error
         query = substr(query, 0, strlen(query) - 1);
 
-        dataBaseObject->setQuery(query);
-        $return = dataBaseObject->query();
+        dataBaseObject.setQuery(query);
+        $return = dataBaseObject.query();
         // we have to update position for every new entries
         foreach ($tab_categories as $category)
         $category->addPosition(JeproLabCategoryModelCategory.getLastPosition($category->parent_id, labId), labId);
@@ -1512,10 +1524,10 @@ public class JeproLabCategoryModel extends JeproLabModel {
             dataBaseObject = JeproLabFactory.getDataBaseConnector();
         }
 
-        query = "SELECT " . dataBaseObject->quoteName("category_id") . " FROM " . dataBaseObject->quoteName("#__jeprolab_category_lab") . " WHERE " . dataBaseObject->quoteName("category_id") . " = " . (int)this.category_id . " AND " . dataBaseObject->quoteName("lab_id") . " = " . (int)labId;
+        query = "SELECT " . dataBaseObject.quoteName("category_id") . " FROM " . dataBaseObject.quoteName("#__jeprolab_category_lab") . " WHERE " . dataBaseObject.quoteName("category_id") . " = " . (int)this.category_id . " AND " . dataBaseObject.quoteName("lab_id") . " = " . (int)labId;
 
-        dataBaseObject->setQuery(query);
-        return (bool)dataBaseObject->loadResult();
+        dataBaseObject.setQuery(query);
+        return (bool)dataBaseObject.loadResult();
     }
 
     public function isRootCategoryForALab(){
@@ -1840,22 +1852,22 @@ public class JeproLabCategoryModel extends JeproLabModel {
         if(staticDataBaseObject == null){
             staticDataBaseObject = JeproLabFactory.getDataBaseConnector();
         }
-        query = "SELECT " . dataBaseObject->quoteName("category_id") . " FROM " . dataBaseObject->quoteName("#__jeprolab_category_product") . " WHERE " . dataBaseObject->quoteName("product_id") . " = " .(int)$old_id;
-        dataBaseObject->setQuery(query);
-        $result = dataBaseObject->loadObjectList();
+        query = "SELECT " . dataBaseObject.quoteName("category_id") . " FROM " . dataBaseObject.quoteName("#__jeprolab_category_product") . " WHERE " . dataBaseObject.quoteName("product_id") . " = " .(int)$old_id;
+        dataBaseObject.setQuery(query);
+        $result = dataBaseObject.loadObjectList();
 
         $row = array();
         if ($result) {
             foreach ($result as $id) {
                 $row[] = "(" . implode(", ", array((int)$new_id, $id->category_id, "(SELECT tmp.max + 1 FROM (
-                        SELECT MAX(cp." . dataBaseObject->quoteName("position") . " AS max FROM " . dataBaseObject->quoteName("#__jeprolab_category_product"). " cp
-                WHERE cp." . dataBaseObject->quoteName("category_id") . " = " . (int)$id->category_id . ") AS tmp)"
+                        SELECT MAX(cp." . dataBaseObject.quoteName("position") . " AS max FROM " . dataBaseObject.quoteName("#__jeprolab_category_product"). " cp
+                WHERE cp." . dataBaseObject.quoteName("category_id") . " = " . (int)$id->category_id . ") AS tmp)"
                 )) . ")";
             }
         }
-        query = "INSERT IGNORE INTO " . dataBaseObject->quoteName("#__jeprolab_category_product") . " (" . dataBaseObject->quoteName("product_id") . ", " . dataBaseObject->quoteName("category_id") . ", " . dataBaseObject->quoteName("position") . ") VALUES ".implode(",", $row);
-        dataBaseObject->setQuery(query);
-        $flag = dataBaseObject->query();
+        query = "INSERT IGNORE INTO " . dataBaseObject.quoteName("#__jeprolab_category_product") . " (" . dataBaseObject.quoteName("product_id") . ", " . dataBaseObject.quoteName("category_id") . ", " . dataBaseObject.quoteName("position") . ") VALUES ".implode(",", $row);
+        dataBaseObject.setQuery(query);
+        $flag = dataBaseObject.query();
 
         return $flag;
     }
@@ -1877,9 +1889,9 @@ public class JeproLabCategoryModel extends JeproLabModel {
         }
 
         while (42) {
-            String query = "SELECT " . dataBaseObject->quoteName("parent_id") . " FROM " . dataBaseObject->quoteName("#__jeprolab_category") . " WHERE " . dataBaseObject->quoteName("category_id") . " = " .(int)$i;
-            dataBaseObject->setQuery(query);
-            $result = dataBaseObject->loadObject();
+            String query = "SELECT " . dataBaseObject.quoteName("parent_id") . " FROM " . dataBaseObject.quoteName("#__jeprolab_category") . " WHERE " . dataBaseObject.quoteName("category_id") . " = " .(int)$i;
+            dataBaseObject.setQuery(query);
+            $result = dataBaseObject.loadObject();
             if (!isset($result->parent_id)) return false;
             if ($result->parent_id == $category_id) return false;
             if ($result->parent_id == JeproLabSettingModelSetting.getValue("root_category")) return true;
@@ -2037,8 +2049,8 @@ public class JeproLabCategoryModel extends JeproLabModel {
         $sql += " ORDER BY ".(!empty($order_by_prefix) ? $order_by_prefix."." : "")."`".bqSQL($order_by)."` ".pSQL($order_way)."
         LIMIT ".(((int)$p - 1) * (int)$n).",".(int)$n;
 
-        dataBaseObject->setQuery(query);
-        $result = dataBaseObject->loadObjectList();
+        dataBaseObject.setQuery(query);
+        $result = dataBaseObject.loadObjectList();
         if ($order_by == "order_price")
             JeproLabTools.orderByPrice($result, $order_way);
 
@@ -2054,12 +2066,12 @@ public class JeproLabCategoryModel extends JeproLabModel {
         if(staticDataBaseObject == null){
             staticDataBaseObject = JeproLabFactory.getDataBaseConnector();
         }
-        String query = "SELECT category." . dataBaseObject->quoteName("category_id") . ", category_lang." . dataBaseObject->quoteName("name") . " FROM " . dataBaseObject->quoteName("#__jeprolab_category") . " AS category LEFT JOIN " .dataBaseObject->quoteName("#__jeprolab_category_lang");
-        query += " AS category_lang ON (category." . dataBaseObject->quoteName("category_id") . " = category_lang." . dataBaseObject->quoteName("category_id") . JeproLabLaboratoryModel.addSqlRestrictionOnLang("category_lang") . ") ";
-        query += JeproLabLaboratoryModel.addSqlAssociation("category") . " WHERE category_lang." . dataBaseObject->quoteName("lang_id") . " = " .(int)$lang_id . " AND category." . dataBaseObject->quoteName("category_id") . " != " . JeproLabSettingModelSetting.getValue("root_category");
-        query += "	GROUP BY category.category_id ORDER BY category." . dataBaseObject->quoteName("category_id") . ", category_lab." . dataBaseObject->quoteName("position");
-        dataBaseObject->setQuery(query);
-        return dataBaseObject->loadObjectList();
+        String query = "SELECT category." . dataBaseObject.quoteName("category_id") . ", category_lang." . dataBaseObject.quoteName("name") . " FROM " . dataBaseObject.quoteName("#__jeprolab_category") . " AS category LEFT JOIN " .dataBaseObject.quoteName("#__jeprolab_category_lang");
+        query += " AS category_lang ON (category." . dataBaseObject.quoteName("category_id") . " = category_lang." . dataBaseObject.quoteName("category_id") . JeproLabLaboratoryModel.addSqlRestrictionOnLang("category_lang") . ") ";
+        query += JeproLabLaboratoryModel.addSqlAssociation("category") . " WHERE category_lang." . dataBaseObject.quoteName("lang_id") . " = " .(int)$lang_id . " AND category." . dataBaseObject.quoteName("category_id") . " != " . JeproLabSettingModelSetting.getValue("root_category");
+        query += "	GROUP BY category.category_id ORDER BY category." . dataBaseObject.quoteName("category_id") . ", category_lab." . dataBaseObject.quoteName("position");
+        dataBaseObject.setQuery(query);
+        return dataBaseObject.loadObjectList();
     }
 
     public int getLaboratoryId(){
@@ -2079,9 +2091,9 @@ public class JeproLabCategoryModel extends JeproLabModel {
         if(dataBaseObject == null){
             dataBaseObject = JeproLabFactory.getDataBaseConnector();
         }
-        String query = "SELECT " . dataBaseObject->quoteName("category_id") . " FROM " . dataBaseObject->quoteName("#__jeprolab_category") . " WHERE " . dataBaseObject->quoteName("parent_id") . " = " .(int)$category_id;
-        dataBaseObject->setQuery(query);
-        $result = dataBaseObject->loadObjectList();
+        String query = "SELECT " . dataBaseObject.quoteName("category_id") . " FROM " . dataBaseObject.quoteName("#__jeprolab_category") . " WHERE " . dataBaseObject.quoteName("parent_id") . " = " .(int)$category_id;
+        dataBaseObject.setQuery(query);
+        $result = dataBaseObject.loadObjectList();
         foreach ($result as $row){
             $to_delete[] = (int)$row->category_id;
             this.recursiveDelete($to_delete, (int)$row->category_id);
@@ -2106,17 +2118,17 @@ public class JeproLabCategoryModel extends JeproLabModel {
                 $lab_list_ids = this.lab_list_ids;
             }
 
-            query = "DELETE FROM " . dataBaseObject->quoteName("#__jeprolab_category_lab") . " WHERE " . dataBaseObject->quoteName("category_id") . " = " . (int)this.category_id . " AND " . dataBaseObject->quoteName("lab_id") . " IN(" . implode(", ", $lab_list_ids) . ")";
-            dataBaseObject->setQuery(query);
-            $result &= dataBaseObject->query();
+            query = "DELETE FROM " . dataBaseObject.quoteName("#__jeprolab_category_lab") . " WHERE " . dataBaseObject.quoteName("category_id") . " = " . (int)this.category_id . " AND " . dataBaseObject.quoteName("lab_id") . " IN(" . implode(", ", $lab_list_ids) . ")";
+            dataBaseObject.setQuery(query);
+            $result &= dataBaseObject.query();
         }
 
         // Database deletion
         $has_multilab_entries = this.hasMultilabEntries();
         if ($result && !$has_multilab_entries) {
-            query = "DELETE FROM " . dataBaseObject->quoteName("#__jeprolab_category") . " WHERE " . dataBaseObject->quoteName("category_id") . " = " . (int)this.category_id;
-            dataBaseObject->setQuery(query);
-            $result &= dataBaseObject->query();
+            query = "DELETE FROM " . dataBaseObject.quoteName("#__jeprolab_category") . " WHERE " . dataBaseObject.quoteName("category_id") . " = " . (int)this.category_id;
+            dataBaseObject.setQuery(query);
+            $result &= dataBaseObject.query();
         }
 
         if (!$result)
@@ -2124,9 +2136,9 @@ public class JeproLabCategoryModel extends JeproLabModel {
 
         // Database deletion for multilingual fields related to the object
         if (!empty(this.def["multilang"]) && !$has_multilab_entries) {
-            query = "DELETE FROM " . dataBaseObject->quoteName("#__jeprolab_category_lang") . " WHERE " . dataBaseObject->quoteName("category_id") . " = " . (int)this.category_id;
-            dataBaseObject->setQuery(query);
-            $result &= dataBaseObject->query();
+            query = "DELETE FROM " . dataBaseObject.quoteName("#__jeprolab_category_lang") . " WHERE " . dataBaseObject.quoteName("category_id") . " = " . (int)this.category_id;
+            dataBaseObject.setQuery(query);
+            $result &= dataBaseObject.query();
         }
         // @hook actionObject*DeleteAfter
         Hook.exec("actionObjectDeleteAfter", array("object" => $this));
