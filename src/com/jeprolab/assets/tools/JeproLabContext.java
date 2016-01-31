@@ -1,6 +1,7 @@
 package com.jeprolab.assets.tools;
 
 
+import com.jeprolab.controllers.JeproLabController;
 import com.jeprolab.models.*;
 
 import java.sql.Connection;
@@ -19,6 +20,8 @@ public class JeproLabContext implements Cloneable {
     public JeproLabLanguageModel language;
 
     public JeproLabCurrencyModel currency;
+
+    public JeproLabController controller;
 
     public Connection connection = null;
 

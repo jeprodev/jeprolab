@@ -195,6 +195,14 @@ public class JeproLabDataBaseConnector {
         }
     }
 
+    public boolean query(){
+        return true;
+    }
+
+    public double loadValue(){
+        return  2;
+    }
+
     public void closeConnexion(){
         try {
             if (connection != null) {
