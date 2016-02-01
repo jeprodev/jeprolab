@@ -309,7 +309,7 @@ public class JeproLabCategoryModel extends JeproLabModel {
             $groups = (array)$groups;
         }
 
-        String cacheKey = "Category.getNestedCategories_".md5((int)$root_category.(int)$lang_id + "_" +(int)$published + "_" +(int)$published
+        String cacheKey = "Category.getNestedCategories_".md5((int)$root_category.(int)langId + "_" +(int)$published + "_" +(int)$published
             +(isset($groups) && JeproLabGroupModelGroup.isFeaturePublished() ? implode("", $groups) : ""));
 
         if (!JeproLabCache.getInstance().isStored(cacheKey)){
@@ -590,11 +590,11 @@ public class JeproLabCategoryModel extends JeproLabModel {
     }
 
     public static function getLinkRewrite(int categoryId, int langId){
-        if (!JeproLabTools.isUnsignedInt($category_id) || !JeproLabTools.isUnsignedInt($lang_id)){
+        if (!JeproLabTools.isUnsignedInt($category_id) || !JeproLabTools.isUnsignedInt(langId)){
             return false;
         }
 
-        if (!isset(self.$_links[$category_id + "_" + $lang_id])){
+        if (!isset(self.$_links[$category_id + "_" + langId])){
             if(staticDataBaseObject == null){
                 staticDataBaseObject = JeproLabFactory.getDataBaseConnector();
             }
@@ -605,9 +605,9 @@ public class JeproLabCategoryModel extends JeproLabModel {
             query += staticDataBaseObject.quoteName("category_id") + " = " + categoryId;
 
             staticDataBaseObject.setQuery(query);
-            self.$_links[$category_id + "_" + $lang_id] = dataBaseObject.loadResult();
+            self.$_links[$category_id + "_" + langId] = dataBaseObject.loadResult();
         }
-        return self.$_links[$category_id + "_" + $lang_id];
+        return self.$_links[$category_id + "_" + langId];
     }
 
     public function getCategoriesList(){
@@ -1697,25 +1697,25 @@ public class JeproLabCategoryModel extends JeproLabModel {
     }
 
     public function getName(int langId = null){
-        if (!$lang_id){
+        if (!langId){
             if (isset(this.name[JeproLabContext.getContext().language.language_id])) {
                 langId = JeproLabContext.getContext().language.language_id;
             }else {
-                $lang_id = (int)JeproLabSettingModelSetting.getValue("default_lang");
+                langId = (int)JeproLabSettingModelSetting.getValue("default_lang");
             }
         }
-        return isset(this.name[$lang_id]) ? this.name[$lang_id] : "";
+        return isset(this.name[langId]) ? this.name[langId] : "";
     }
 
     /**
      * Light back office search for categories
      *
-     * @param integer $lang_id Language ID
+     * @param integer langId Language ID
      * @param string query Searched string
      * @param boolean $unrestricted allows search without lang and includes first category and exact match
      * @return array Corresponding categories
      */
-    public static function searchByName($lang_id, query, $unrestricted = false){
+    public static function searchByName(langId, query, $unrestricted = false){
         if ($unrestricted === true)
             return Db.getInstance()->getRow("
                 SELECT c.*, cl.*
@@ -1726,7 +1726,7 @@ public class JeproLabCategoryModel extends JeproLabModel {
         return Db.getInstance()->executeS("
                 SELECT c.*, cl.*
                         FROM `"._DB_PREFIX_."category` c
-        LEFT JOIN `"._DB_PREFIX_."category_lang` cl ON (c.`id_category` = cl.`id_category` AND `id_lang` = ".(int)$lang_id +" ".Lab.addSqlRestrictionOnLang("cl").")
+        LEFT JOIN `"._DB_PREFIX_."category_lang` cl ON (c.`id_category` = cl.`id_category` AND `id_lang` = ".(int)langId +" ".Lab.addSqlRestrictionOnLang("cl").")
         WHERE `name` LIKE \"%".pSQL(query)."%\"
         AND c.`id_category` != ".(int)Configuration.get("PS_HOME_CATEGORY"));
     }
@@ -1754,33 +1754,31 @@ public class JeproLabCategoryModel extends JeproLabModel {
     /**
      * checkAccess return true if id_customer is in a group allowed to see this category.
      *
-     * @param mixed $id_customer
+     * @param employeeId
      * @access public
      * @return boolean true if access allowed for customer $id_customer
      */
-    public function checkAccess($id_customer)
-    {
-        cacheKey = "Category.checkAccess_".(int)this.id."-".$id_customer.(!$id_customer ? "-".(int)Group.getCurrent()->id : "");
-        if (!Cache.isStored(cacheKey))
-        {
-            if (!$id_customer)
+    public boolean checkAccess(int employeeId){
+        String cacheKey = "jeprolab_category_check_access_" + this.category_id + "_" + employeeId ; //+ (!$id_customer ? "-".(int)Group.getCurrent().group_id : "");
+        if (!JeproLabCache.getInstance().isStored(cacheKey)){
+            if (employeeId <= 0){
                 $result = (bool)Db.getInstance(_PS_USE_SQL_SLAVE_)->getValue("
                 SELECT ctg.`id_group`
                 FROM "._DB_PREFIX_."category_group ctg
             WHERE ctg.`id_category` = ".(int)this.id." AND ctg.`id_group` = ".(int)Group.getCurrent()->id);
-            else
+            }else{
             $result = (bool)Db.getInstance(_PS_USE_SQL_SLAVE_)->getValue("
                 SELECT ctg.`id_group`
                 FROM "._DB_PREFIX_."category_group ctg
             INNER JOIN "._DB_PREFIX_."customer_group cg on (cg.`id_group` = ctg.`id_group` AND cg.`id_customer` = ".(int)$id_customer.")
             WHERE ctg.`id_category` = ".(int)this.id);
-            Cache.store(cacheKey, $result);
+                JeproLabCache.getInstance().store(cacheKey, $result);
+            }
         }
-        return Cache.retrieve(cacheKey);
+        return (int)JeproLabCache.getInstance().retrieve(cacheKey) > 0;
     }
 
-    public static function setNewGroupForHome($id_group)
-    {
+    public static function setNewGroupForHome(int groupId){
         if (!(int)$id_group)
             return false;
 
@@ -1789,8 +1787,7 @@ public class JeproLabCategoryModel extends JeproLabModel {
         VALUES(".(int)Context.getContext()->lab->getCategory().", ".(int)$id_group.")");
     }
 
-    public function updatePosition($way, $position)
-    {
+    public function updatePosition($way, $position){
         if (!$res = Db.getInstance()->executeS("
             SELECT cp.`id_category`, category_lab.`position`, cp.`id_parent`
             FROM `"._DB_PREFIX_."category` cp
@@ -1831,10 +1828,10 @@ public class JeproLabCategoryModel extends JeproLabModel {
      *
      * @param int $parent_id
      * @param int $product_id
-     * @param int $lang_id
+     * @param int langId
      * @return array
      */
-    public static function getChildrenWithNumberOfSelectedSubCategories($parent_id, $selected_category, $lang_id, JeproLabLaboratoryModel $lab = null, $use_lab_context = true){
+    public static function getChildrenWithNumberOfSelectedSubCategories($parent_id, $selected_category, langId, JeproLabLaboratoryModel $lab = null, $use_lab_context = true){
         if (!$lab)
             $lab = Context.getContext()->lab;
 
@@ -1857,7 +1854,7 @@ public class JeproLabCategoryModel extends JeproLabModel {
         FROM `"._DB_PREFIX_."category` c
         LEFT JOIN `"._DB_PREFIX_."category_lang` cl ON (c.`id_category` = cl.`id_category` ".Lab.addSqlRestrictionOnLang("cl", $id_lab).")
         LEFT JOIN `"._DB_PREFIX_."category_lab` cs ON (c.`id_category` = cs.`id_category` AND cs.`id_lab` = ".(int)$id_lab.")
-        WHERE `id_lang` = ".(int)$lang_id."
+        WHERE `id_lang` = ".(int)langId."
         AND c.`id_parent` = ".(int)$parent_id;
         if (Lab.getContext() == Lab.CONTEXT_LAB && $use_lab_context)
         $sql += " AND cs.`id_lab` = ".(int)$lab->id;
@@ -1939,13 +1936,13 @@ public class JeproLabCategoryModel extends JeproLabModel {
     /**
      * Return main categories
      *
-     * @param integer $lang_id Language ID
+     * @param integer langId Language ID
      * @param boolean $active return only active categories
      * @param bool labId
      * @return array categories
      */
-    public static function getHomeCategories($lang_id, $active = true, labId = false){
-        return self.getChildren(JeproLabSettingModelSetting.getValue("root_category"), $lang_id, $active, labId);
+    public static function getHomeCategories(langId, $active = true, labId = false){
+        return self.getChildren(JeproLabSettingModelSetting.getValue("root_category"), langId, $active, labId);
     }
 
 
@@ -1956,7 +1953,7 @@ public class JeproLabCategoryModel extends JeproLabModel {
     /**
      * Return an array of all children of the current category
      *
-     * @param int $lang_id
+     * @param int langId
      * @return Collection of Category
      */
     public function getAllChildren(int langId){
@@ -2073,14 +2070,16 @@ public class JeproLabCategoryModel extends JeproLabModel {
             query += dataBaseObject.quoteName("#__jeprolab_analyze") + " AS analyze " + JeproLabLaboratoryModel.addSqlAssociation("analyze");
             query += " LEFT JOIN " + dataBaseObject.quoteName("#__jeprolab_category_analyze") + " AS category_analyze ON (";
             query += "analyze." + dataBaseObject.quoteName("analyze_id") + " = category_analyze." + dataBaseObject.quoteName("analyze_id");
-            WHERE cp.`id_category` = ".(int)this.id.
-            ($front ? " AND product_lab.`visibility` IN ("both", "catalog")" : "").
-            ($active ? " AND product_lab.`active` = 1" : "").
-            ($id_supplier ? "AND p.id_supplier = ".(int)$id_supplier : "");
+            query += " WHERE category_analyze." + dataBaseObject.quoteName("category_id") + " = " + this.category_id;
+            //($front ? " AND product_lab.`visibility` IN ("both", "catalog")" : "").
+            query += (published ? " AND analyze_lab." + dataBaseObject.quoteName("published") + " = 1" : "");
+            //($id_supplier ? "AND p.id_supplier = ".(int)$id_supplier : "");
+            dataBaseObject.setQuery(query);
+            int total = (int)dataBaseObject.loadValue();
             return (int)Db.getInstance(_PS_USE_SQL_SLAVE_)->getValue($sql);
         }
 
-        $sql = "SELECT p.*, product_lab.*, stock.out_of_stock, IFNULL(stock.quantity, 0) as quantity, MAX(product_attribute_lab.id_product_attribute) id_product_attribute, product_attribute_lab.minimal_quantity AS product_attribute_minimal_quantity, pl.`description`, pl.`description_short`, pl.`available_now`,
+        String query = "SELECT analyze.*, analyze_lab.*, stock.out_of_stock, IFNULL(stock.quantity, 0) as quantity, MAX(product_attribute_lab.id_product_attribute) id_product_attribute, product_attribute_lab.minimal_quantity AS product_attribute_minimal_quantity, pl.`description`, pl.`description_short`, pl.`available_now`,
         pl.`available_later`, pl.`link_rewrite`, pl.`meta_description`, pl.`meta_keywords`, pl.`meta_title`, pl.`name`, MAX(image_lab.`id_image`) id_image,
                 il.`legend`, m.`name` AS manufacturer_name, cl.`name` AS category_default,
         DATEDIFF(product_lab.`date_add`, DATE_SUB(NOW(),
@@ -2096,16 +2095,16 @@ public class JeproLabCategoryModel extends JeproLabModel {
         ".Product.sqlStock("p", "product_attribute_lab", false, $context->lab)."
         LEFT JOIN `"._DB_PREFIX_."category_lang` cl
         ON (product_lab.`id_category_default` = cl.`id_category`
-        AND cl.`id_lang` = ".(int)$lang_id.Lab.addSqlRestrictionOnLang("cl").")
+        AND cl.`id_lang` = ".(int)langId.Lab.addSqlRestrictionOnLang("cl").")
         LEFT JOIN `"._DB_PREFIX_."product_lang` pl
         ON (p.`id_product` = pl.`id_product`
-        AND pl.`id_lang` = ".(int)$lang_id.Lab.addSqlRestrictionOnLang("pl").")
+        AND pl.`id_lang` = ".(int)langId.Lab.addSqlRestrictionOnLang("pl").")
         LEFT JOIN `"._DB_PREFIX_."image` i
         ON (i.`id_product` = p.`id_product`)".
         Lab.addSqlAssociation("image", "i", false, "image_lab.cover=1")."
         LEFT JOIN `"._DB_PREFIX_."image_lang` il
         ON (image_lab.`id_image` = il.`id_image`
-        AND il.`id_lang` = ".(int)$lang_id.")
+        AND il.`id_lang` = ".(int)langId.")
         LEFT JOIN `"._DB_PREFIX_."manufacturer` m
         ON m.`id_manufacturer` = p.`id_manufacturer`
         WHERE product_lab.`id_lab` = ".(int)$context->lab->id."
@@ -2130,19 +2129,22 @@ public class JeproLabCategoryModel extends JeproLabModel {
             return array();
 
         /* Modify SQL result */
-        return JeproLabAnalyzeModel.getProductsProperties($lang_id, $result);
+        return JeproLabAnalyzeModel.getProductsProperties(langId, $result);
     }
 
 
-    public static function getSimpleCategories($lang_id){
+    public static function getSimpleCategories(int langId){
         if(staticDataBaseObject == null){
             staticDataBaseObject = JeproLabFactory.getDataBaseConnector();
         }
-        String query = "SELECT category." + dataBaseObject.quoteName("category_id") + ", category_lang." + dataBaseObject.quoteName("name") + " FROM " + dataBaseObject.quoteName("#__jeprolab_category") + " AS category LEFT JOIN " +dataBaseObject.quoteName("#__jeprolab_category_lang");
-        query += " AS category_lang ON (category." + dataBaseObject.quoteName("category_id") + " = category_lang." + dataBaseObject.quoteName("category_id") + JeproLabLaboratoryModel.addSqlRestrictionOnLang("category_lang") + ") ";
-        query += JeproLabLaboratoryModel.addSqlAssociation("category") + " WHERE category_lang." + dataBaseObject.quoteName("lang_id") + " = " +(int)$lang_id + " AND category." + dataBaseObject.quoteName("category_id") + " != " + JeproLabSettingModelSetting.getValue("root_category");
-        query += "	GROUP BY category.category_id ORDER BY category." + dataBaseObject.quoteName("category_id") + ", category_lab." + dataBaseObject.quoteName("position");
-        dataBaseObject.setQuery(query);
+        String query = "SELECT category." + staticDataBaseObject.quoteName("category_id") + ", category_lang." + staticDataBaseObject.quoteName("name");
+        query += " FROM " + staticDataBaseObject.quoteName("#__jeprolab_category") + " AS category LEFT JOIN " + staticDataBaseObject.quoteName("#__jeprolab_category_lang");
+        query += " AS category_lang ON (category." + staticDataBaseObject.quoteName("category_id") + " = category_lang." + staticDataBaseObject.quoteName("category_id");
+        query += JeproLabLaboratoryModel.addSqlRestrictionOnLang("category_lang") + ") " + JeproLabLaboratoryModel.addSqlAssociation("category");
+        query += " WHERE category_lang." + staticDataBaseObject.quoteName("lang_id") + " = " + langId + " AND category." + staticDataBaseObject.quoteName("category_id");
+        query += " != " + JeproLabSettingModel.getIntValue("root_category") + "	GROUP BY category.category_id ORDER BY category." + staticDataBaseObject.quoteName("category_id");
+        query += ", category_lab." + staticDataBaseObject.quoteName("position");
+        staticDataBaseObject.setQuery(query);
         return dataBaseObject.loadObjectList();
     }
 
@@ -2256,7 +2258,7 @@ public class JeproLabCategoryModel extends JeproLabModel {
      * Delete several categories from database
      *
      * return boolean Deletion result
-     * @param $categories
+     * @param categories
      * @return bool|int
      */
     public boolean deleteSelection(int categories[]){
@@ -2280,28 +2282,44 @@ public class JeproLabCategoryModel extends JeproLabModel {
         return $result;
     }
 
+    public function recurseLiteCategoryTree(){
+        return recurseLiteCategoryTree(3, 0, 0, null);
+    }
+
+    public function recurseLiteCategoryTree(int maxDepth){
+        return recurseLiteCategoryTree(maxDepth, 0, 0, null);
+    }
+
+    public function recurseLiteCategoryTree(int maxDepth, int currentDepth){
+        return recurseLiteCategoryTree(maxDepth, currentDepth, 0);
+    }
+
+    public function recurseLiteCategoryTree(int maxDepth, int currentDepth, int langId){
+        return recurseLiteCategoryTree(maxDepth, currentDepth, langId, null)
+    }
+
     /**
      * Recursive scan of subcategories
      *
-     * @param integer $max_depth Maximum depth of the tree (i.e. 2 => 3 levels depth)
-     * @param integer $current_depth specify the current depth in the tree (don"t use it, only for recursive!)
-     * @param integer $lang_id Specify the id of the language used
-     * @param array $excluded_ids_array specify a list of ids to exclude of results
+     * @param maxDepth Maximum depth of the tree (i.e. 2 => 3 levels depth)
+     * @param currentDepth specify the current depth in the tree (don"t use it, only for recursive!)
+     * @param langId Specify the id of the language used
+     * @param excludedIdsArray specify a list of ids to exclude of results
      *
      * @return array Subcategories lite tree
      */
-    public function recurseLiteCategoryTree($max_depth = 3, $current_depth = 0, $lang_id = null, $excluded_ids_array = null){
-        $lang_id = is_null($lang_id) ? JeproLabContext.getContext()->language->lang_id : (int)$lang_id;
+    public function recurseLiteCategoryTree(int maxDepth, int currentDepth, int langId, int excludedIdsArray[]){
+        langId = (langId) ? JeproLabContext.getContext().language.language_id : langId;
 
         $children = array();
-        $subCategories = this.getSubCategories($lang_id, true);
+        $subCategories = this.getSubCategories(langId, true);
         if (($max_depth == 0 || $current_depth < $max_depth) && $subCategories && count($subCategories)) {
             foreach ($subCategories as &$subCategory) {
                 if (!$subCategory->category_id)
                     break;
                 else if (!is_array($excluded_ids_array) || !in_array($subCategory->category_id, $excluded_ids_array)) {
-                    $category = new JeproLabCategoryModelCategory($subCategory->category_id, $lang_id);
-                    $children[] = $category->recurseLiteCategoryTree($max_depth, $current_depth + 1, $lang_id, $excluded_ids_array);
+                    $category = new JeproLabCategoryModelCategory($subCategory->category_id, langId);
+                    $children[] = $category->recurseLiteCategoryTree($max_depth, $current_depth + 1, langId, $excluded_ids_array);
                 }
             }
         }
