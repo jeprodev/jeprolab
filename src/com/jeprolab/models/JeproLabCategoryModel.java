@@ -2091,26 +2091,22 @@ public class JeproLabCategoryModel extends JeproLabModel {
         query += ", analyze_lang." + dataBaseObject.quoteName("name") + ", MAX(image_lab." + dataBaseObject.quoteName("image_id") + ") AS image_id,";
         query += " image_lang." + dataBaseObject.quoteName("legend") + ", technician." + dataBaseObject.quoteName("name") + " AS technician_name,";
         query += " category_lang." + dataBaseObject.quoteName("name") + " AS default_category, DATEDIFF(analyze_lab." + dataBaseObject.quoteName("date_add");
-        query += ", DATE_SUB(NOW(), INTERVAL " + (JeproLabTools.isUnsignedInt(JeproLabSettingModel.getIntValue("number_days_new_product")) ? JeproLabSettingModel.get("PS_NB_DAYS_NEW_PRODUCT") : 20);
-        query += " DAY)) > 0 AS new, analyze_lab.price AS order_price FROM " + dataBaseObject.quoteName("#__jeprolab_category_analyze")_DB_PREFIX_."category_product` cp
-        LEFT JOIN `"._DB_PREFIX_."product` p
-        ON p.`id_product` = cp.`id_product`
-        ".Lab.addSqlAssociation("product", "p")."
-        LEFT JOIN `"._DB_PREFIX_."product_attribute` pa
-        ON (p.`id_product` = pa.`id_product`)
-        ".Lab.addSqlAssociation("product_attribute", "pa", false, "product_attribute_lab.`default_on` = 1")."
-        ".Product.sqlStock("p", "product_attribute_lab", false, $context->lab)."
+        query += ", DATE_SUB(NOW(), INTERVAL " + (JeproLabTools.isUnsignedInt(JeproLabSettingModel.getIntValue("number_days_new_analyze")) ? JeproLabSettingModel.getIntValue("number_days_new_analyze") : 20);
+        query += " DAY)) > 0 AS new, analyze_lab.price AS order_price FROM " + dataBaseObject.quoteName("#__jeprolab_category_analyze");
+        query += " AS category_analyze LEFT JOIN " + dataBaseObject.quoteName("#__jeprolab_analyze") + " AS analyze ON analyze." ;
+        query += dataBaseObject.quoteName("analyze_id") + " = category_analyze." + dataBaseObject.quoteName("analyze_id") + JeproLabLaboratoryModel.addSqlAssociation("product");
+        query += " LEFT JOIN " + dataBaseObject.quoteName("#__jeprolab_analyze_attribute") + " AS analyze_attribute ON (analyze.";
+        query += dataBaseObject.quoteName("analyze_id") + " = analyze_attribute." + dataBaseObject.quoteName("analyze_id") + ") " + JeproLabLaboratoryModel.addSqlAssociation("product_attribute", "pa", false, "product_attribute_lab.`default_on` = 1")."
+        ".Product.sqlStock("p", "product_attribute_lab", false, context.laboratory)."
         LEFT JOIN `"._DB_PREFIX_."category_lang` cl
         ON (product_lab.`id_category_default` = cl.`id_category`
         AND cl.`id_lang` = ".(int)langId.Lab.addSqlRestrictionOnLang("cl").")
         LEFT JOIN `"._DB_PREFIX_."product_lang` pl
         ON (p.`id_product` = pl.`id_product`
         AND pl.`id_lang` = ".(int)langId.Lab.addSqlRestrictionOnLang("pl").")
-        LEFT JOIN `"._DB_PREFIX_."image` i
-        ON (i.`id_product` = p.`id_product`)".
-        Lab.addSqlAssociation("image", "i", false, "image_lab.cover=1")."
-        LEFT JOIN `"._DB_PREFIX_."image_lang` il
-        ON (image_lab.`id_image` = il.`id_image`
+        LEFT JOIN `" + dataBaseObject.quoteName("#__jeprolab_image") + " AS image
+        ON (i.`id_product` = p.`id_product` + ") " +
+        JeproLabLaboratoryModel.addSqlAssociation("image", "i", false, "image_lab.cover=1") + " LEFT JOIN " + dataBaseObject.quoteName("#__jeprolab_image_lang") + " AS image_lang ON (image_lab." + dataBaseObject.quoteName("image_id") + " = image_lang." + dataBaseObject.quoteName("image_id")`
         AND il.`id_lang` = ".(int)langId.")
         LEFT JOIN `"._DB_PREFIX_."manufacturer` m
         ON m.`id_manufacturer` = p.`id_manufacturer`
@@ -2120,14 +2116,15 @@ public class JeproLabCategoryModel extends JeproLabModel {
                 +($front ? " AND product_lab.`visibility` IN ("both", "catalog")" : "")
                 +($id_supplier ? " AND p.id_supplier = ".(int)$id_supplier : "")
         +" GROUP BY product_lab.id_product";
-        if ($random === true)
-            $sql += " ORDER BY RAND() LIMIT " + randomNumberAnalyzes;
-        else
-        $sql += " ORDER BY ".(!empty(orderBy_prefix) ? orderBy_prefix."." : "")."`".bqSQL(orderBy)."` ".pSQL(orderWay)."
-        LIMIT ".(((int)$p - 1) * (int)$n).",".(int)$n;
-
+        if (random) {
+            query += " ORDER BY RAND() LIMIT " + randomNumberAnalyzes;
+        } else {
+            query += " ORDER BY " + (!orderByPrefix.equals("") ? orderByPrefix + "." :"");
+            query += dataBaseObject.quoteName(bqSQL(orderBy));
+            query += pSQL(orderWay) + " LIMIT " + ((requestedPage - 1) * numberOfItems) + ", " + numberOfItems;
+        }
         dataBaseObject.setQuery(query);
-        $result = dataBaseObject.loadObjectList();
+        ResultSet result = dataBaseObject.loadObject();
         if (orderBy == "order_price")
             JeproLabTools.orderByPrice($result, orderWay);
 
@@ -2206,7 +2203,8 @@ public class JeproLabCategoryModel extends JeproLabModel {
                 $lab_list_ids = this.lab_list_ids;
             }
 
-            String query = "DELETE FROM " + dataBaseObject.quoteName("#__jeprolab_category_lab") + " WHERE " + dataBaseObject.quoteName("category_id") + " = " + (int)this.category_id + " AND " + dataBaseObject.quoteName("lab_id") + " IN(" + implode(", ", $lab_list_ids) + ")";
+            String query = "DELETE FROM " + dataBaseObject.quoteName("#__jeprolab_category_lab") + " WHERE " + dataBaseObject.quoteName("category_id");
+            query += " = " + (int)this.category_id + " AND " + dataBaseObject.quoteName("lab_id") + " IN(" + implode(", ", $lab_list_ids) + ")";
             dataBaseObject.setQuery(query);
             result &= dataBaseObject.query();
         }
