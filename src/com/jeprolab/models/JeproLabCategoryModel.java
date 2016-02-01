@@ -1594,35 +1594,33 @@ public class JeproLabCategoryModel extends JeproLabModel {
     public static boolean inStaticLaboratory(int categoryId, JeproLabLaboratoryModel laboratory) {
         if (laboratory == null || laboratory.laboratory_id <= 0)
             laboratory = JeproLabContext.getContext().laboratory;
-        $interval = JeproLabCategoryModel.getInterval(laboratory.getCategoryId())
+        $interval = JeproLabCategoryModel.getInterval(laboratory.getCategoryId());
         if (!$interval) {
             return false;
         }
-        $row = Db.getInstance(_PS_USE_SQL_SLAVE_)->getRow("SELECT nleft, nright FROM `"._DB_PREFIX_."category` WHERE id_category = ".(int)$id_category);
+        $row = Db.getInstance(_PS_USE_SQL_SLAVE_)->getRow("SELECT nleft, nright FROM `"._DB_PREFIX_."category` WHERE category = " + categoryId);
         return ($row["nleft"] >= $interval["nleft"] && $row["nright"] <= $interval["nright"]);
     }
 
-    public static function getUrlRewriteInformations($id_category)
-    {
-        return Db.getInstance()->executeS("
-            SELECT l.`id_lang`, c.`link_rewrite`
-            FROM `"._DB_PREFIX_." category_lang` AS c
-            LEFT JOIN  `"._DB_PREFIX_." lang` AS l ON c.`id_lang` = l.`id_lang`
-        WHERE c.`id_category` = ".(int)$id_category."
-        AND l.`active` = 1"
-        );
+    public static function getUrlRewriteInformations(int categoryId){
+        String query = "SELECT language." + staticDataBaseObject.quoteName("lang_id") + ", category_lang." + staticDataBaseObject.quoteName("link_rewrite");
+        query += " FROM " + staticDataBaseObject.quoteName("#__jeprolab_category_lang") + " AS category LEFT JOIN " + staticDataBaseObject.quoteName("#__language");
+        query += " AS language ON category." + staticDataBaseObject.quoteName("lang_id") + " = language." + staticDataBaseObject.quoteName("id");
+        query += " WHERE category." + staticDataBaseObject.quoteName("category_id") + " = " + categoryId + "  AND language.";
+        query += staticDataBaseObject.quoteName("published") + " = 1";
+        return Db.getInstance()->executeS("");
     }
 
     /**
-     * Return nleft and nright fields for a given category
+     * Return n_left and n_right fields for a given category
      *
      * @since 1.5.0
-     * @param int $id
+     * @param categoryId
      * @return array
      */
-    public static function getInterval($id){
-        cacheKey = "Category.getInterval_".(int)$id;
-        if (!Cache.isStored(cacheKey))
+    public static function getInterval(int categoryId){
+        String cacheKey = "jeprolab_category_get_interval_" + categoryId;
+        if (!JeproLabCache.getInstance().isStored(cacheKey))
         {
             $result = Db.getInstance()->getRow("
                 SELECT nleft, nright, level_depth
@@ -1630,49 +1628,59 @@ public class JeproLabCategoryModel extends JeproLabModel {
             WHERE id_category = ".(int)$id);
             Cache.store(cacheKey, $result);
         }
-        return Cache.retrieve(cacheKey);
+        return JeproLabCache.getInstance().retrieve(cacheKey);
     }
 
     public function cleanAssociatedProducts(){
-        Db.getInstance()->execute("DELETE FROM `"._DB_PREFIX_."category_product` WHERE `id_category` = ".(int)this.id);
+        Db.getInstance()->execute("DELETE FROM `"._DB_PREFIX_."category_product` WHERE `id_category` = " + this.category_id);
     }
 
-    public function addGroupsIfNoExist(int groupId) {
+    public boolean addGroupsIfNoExist(int groupId) {
         $groups = this.getGroups();
         if (!in_array((int)$id_group, $groups))
             return this.addGroups(array((int)$id_group));
         return false;
     }
 
+    public static function searchByPath(int langId, String path){
+        return searchByPath(langId, path, false, false);
+    }
+
+
+    public static function searchByPath(int langId, String path, boolean objectToCreate){
+        return searchByPath(langId, path, objectToCreate, false);
+    }
+
     /**
      * Search with Pathes for categories
      *
-     * @param integer $id_lang Language ID
-     * @param string $path of category
+     * @param langId Language ID
+     * @param path of category
      * @param boolean $object_to_create a category
      * 	  * @param boolean $method_to_create a category
      * @return array Corresponding categories
      */
-    public static function searchByPath($id_lang, $path, $object_to_create = false, $method_to_create = false)
-    {
+    public static function searchByPath(int langId, String path, boolean objectToCreate, boolean methodToCreate){
         $categories = explode("/", trim($path));
         $category = $id_parent_category = false;
 
         if (is_array($categories) && count($categories))
             foreach($categories as $category_name)
         {
-            if ($id_parent_category)
-                $category = JeproLabCatetoryModel.searchByNameAndParentCategoryId($id_lang, $category_name, $id_parent_category);
-            else
-            $category = JeproLabCategoryModelCategory.searchByName($id_lang, $category_name,true);
+            if (parentCategoryId > 0) {
+                $category = JeproLabCategoryModel.searchByNameAndParentCategoryId(langId, categoryName, parentCategoryId);
+            }else {
+                $category = JeproLabCategoryModel.searchByName(langId, categoryName, true);
+            }
 
-            if (!$category && $object_to_create && $method_to_create)
-            {
+            if (!$category && objectToCreate && methodToCreate){
                 call_user_func_array(array($object_to_create, $method_to_create), array($id_lang, $category_name , $id_parent_category));
                 $category = JeproLabCategoryModelCategory.searchByPath($id_lang, $category_name);
             }
-            if (isset($category["id_category"]) && $category["id_category"])
-                $id_parent_category = (int)$category["id_category"];
+
+            if (isset($category["id_category"]) && $category["id_category"]) {
+                parentCategoryId = (int) $category["id_category"];
+            }
         }
         return $category;
     }
@@ -1680,28 +1688,40 @@ public class JeproLabCategoryModel extends JeproLabModel {
     /**
      * Specify if a category already in base
      *
-     * @param int $id_category Category id
+     * @param categoryId Category id
      * @return boolean
      */
-    public static function categoryExists($id_category){
-        $row = Db.getInstance()->getRow("
-                SELECT `id_category`
-                FROM"._DB_PREFIX_." category c
-                WHERE c.`id_category` = ".(int)$id_category);
+    public static boolean categoryExists(int categoryId){
+        if(staticDataBaseObject == null){
+            staticDataBaseObject = JeproLabFactory.getDataBaseConnector();
+        }
+        String query = "SELECT " + staticDataBaseObject.quoteName("category_id") + " FROM " + staticDataBaseObject.quoteName("#__jeprolab_category");
+        query += " AS category WHERE category." + staticDataBaseObject.quoteName("category_id") + " = " + categoryId;
 
-        return isset($row["id_category"]);
+        staticDataBaseObject.setQuery(query);
+        ResultSet resultSet = staticDataBaseObject.loadObject();
+        int catId = 0;
+        try{
+            while(resultSet.next()){
+                catId = resultSet.getInt("category_id");
+            }
+        }catch (SQLException ignored){
+            catId = 0;
+        }
+
+        return catId > 0;
     }
 
-    public function getName(){
+    public String getName(){
         return getName(0);
     }
 
-    public function getName(int langId = null){
-        if (!langId){
+    public String getName(int langId = null){
+        if (langId <= 0){
             if (isset(this.name[JeproLabContext.getContext().language.language_id])) {
                 langId = JeproLabContext.getContext().language.language_id;
             }else {
-                langId = (int)JeproLabSettingModelSetting.getValue("default_lang");
+                langId = JeproLabSettingModel.getIntValue("default_lang");
             }
         }
         return isset(this.name[langId]) ? this.name[langId] : "";
