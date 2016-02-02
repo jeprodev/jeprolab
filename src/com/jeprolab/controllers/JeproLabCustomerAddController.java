@@ -4,10 +4,12 @@ package com.jeprolab.controllers;
 import com.jeprolab.JeproLab;
 import com.jeprolab.assets.extend.controls.*;
 import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.geometry.Insets;
 import javafx.scene.control.*;
 import javafx.scene.image.ImageView;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
 import javafx.scene.text.TextAlignment;
@@ -19,6 +21,7 @@ import java.util.ResourceBundle;
 public class JeproLabCustomerAddController extends JeproLabController {
     private ResourceBundle bundle;
     private Label jeproLabAddCustomerFormTitle;
+    private Button saveButton, cancelButton;
 
     @FXML
     public Label customerTitleLabel, customerFirstNameLabel, customerLastNameLabel, customerBusinessInternetLabel;
@@ -32,7 +35,7 @@ public class JeproLabCustomerAddController extends JeproLabController {
     public ComboBox customerZone, customerCountry, customerStreetType;
     public CheckBox customerNewsLetter, customerAllowAds;
     public JeproEmailField customerEmail;
-    public Button saveButton, cancelButton;
+    //public Button saveButton, cancelButton;
     public ImageView customerImageView;
     public GridPane jeproLabAddCustomerFormLayout;
 
@@ -136,6 +139,7 @@ public class JeproLabCustomerAddController extends JeproLabController {
         GridPane.setMargin(customerAllowAds, new Insets(10, 30, 10, 0));
         GridPane.setMargin(customerEmailLabel, new Insets(10, 30, 10, 0));
         GridPane.setMargin(customerAllowAds, new Insets(10, 30, 10, 0));
+        isInitialized = true;
     }
 
     public void handleSaveButton(ActionEvent actionEvent) {
@@ -145,5 +149,13 @@ public class JeproLabCustomerAddController extends JeproLabController {
     }
 
     @Override
-    public void updateToolBar(){}
+    public void updateToolBar(){
+        saveButton = new Button(JeproLab.getBundle().getString("JEPROLAB_SAVE_LABEL"));
+        cancelButton = new Button(JeproLab.getBundle().getString("JEPROLAB_CANCEL_LABEL"));
+
+        /*saveButton.setOnMouseClicked(EventHandler<;? MouseEvent>(){
+            @Override
+
+        });*/
+    }
 }

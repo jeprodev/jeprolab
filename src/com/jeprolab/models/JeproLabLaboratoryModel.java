@@ -450,7 +450,7 @@ public class JeproLabLaboratoryModel  extends JeproLabModel{
     }
 
     public static List getContextListLabIds(String share){
-        List list;
+        List<Integer> list;
         if(JeproLabLaboratoryModel.getLabContext() == JeproLabLaboratoryModel.LAB_CONTEXT){
             list = (share != null && !share.equals("")) ? JeproLabLaboratoryModel.getSharedLaboratories(JeproLabLaboratoryModel.getContextLabId(), share) : new ArrayList(JeproLabLaboratoryModel.getContextLabId());
         } else if(JeproLabLaboratoryModel.getLabContext() == JeproLabLaboratoryModel.GROUP_CONTEXT) {
@@ -483,7 +483,7 @@ public class JeproLabLaboratoryModel  extends JeproLabModel{
     public static List getLaboratories(boolean published, int labGroupId, boolean getAsListIds){
         JeproLabLaboratoryModel.cacheLaboratories();
 
-        ArrayList results = new ArrayList();
+        List results = new ArrayList();
         /*todo foreach (JeproLabLaboratoryModel.labs as $group_id => $group_data){
             foreach ($group_data['labs'] as $lab_id => $lab_data){
                 if((!$published || $lab_data->published) && (!$lab_group_id || $lab_group_id == $group_id)){

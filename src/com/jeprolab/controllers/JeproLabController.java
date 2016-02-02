@@ -19,6 +19,8 @@ public class JeproLabController implements Initializable {
 
     public String task = "";
 
+    public boolean has_errors = false;
+
     protected static boolean isInitialized = false;
 
     public void initialize(URL location , ResourceBundle resource){
