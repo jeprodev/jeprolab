@@ -386,7 +386,7 @@ public class JeproLabCategoryModel extends JeproLabModel {
         staticDataBaseObject.setQuery(query);
         return staticDataBaseObject.loadObject();
     }
-
+*/
     public static List getCategoriesWithoutParent(){
         String cacheKey = "jeprolab_category_get_Categories_Without_parent_" + JeproLabContext.getContext().language.language_id;
         if (!JeproLabCache.getInstance().isStored(cacheKey)){
@@ -427,7 +427,7 @@ public class JeproLabCategoryModel extends JeproLabModel {
         }
         return (List)JeproLabCache.getInstance().retrieve(cacheKey);
     }
-
+/*
     public static List<JeproLabCategoryModel> getCategoryInformation(int categoryIds[]){
         return getCategoryInformation(categoryIds, 0);
     }
@@ -516,7 +516,7 @@ public class JeproLabCategoryModel extends JeproLabModel {
         }
         return JeproLabCache.getInstance().retrieve(cacheKey);
     }
-
+*/
     public boolean isAssociatedToLaboratory(){
         return isAssociatedToLaboratory(0);
     }
@@ -526,7 +526,7 @@ public class JeproLabCategoryModel extends JeproLabModel {
      *
      * @param  labId
      * @return bool
-     * /
+     */
     public boolean isAssociatedToLaboratory(int labId){
         if (labId <= 0){
             labId = JeproLabContext.getContext().laboratory.laboratory_id;
@@ -562,7 +562,7 @@ public class JeproLabCategoryModel extends JeproLabModel {
      * @static
      * @param langId
      * @return JeproLabCategoryModel
-     * /
+     */
     public static JeproLabCategoryModel getTopCategory(int langId){
         if(langId < 0){
             langId = JeproLabContext.getContext().language.language_id;
@@ -588,7 +588,7 @@ public class JeproLabCategoryModel extends JeproLabModel {
         }
         return (JeproLabCategoryModel)JeproLabCache.getInstance().retrieve(cacheKey);
     }
-
+/*
     public static function getLinkRewrite(int categoryId, int langId){
         if (!JeproLabTools.isUnsignedInt($category_id) || !JeproLabTools.isUnsignedInt(langId)){
             return false;

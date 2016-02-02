@@ -15,9 +15,9 @@ public class JeproLabCountyModel extends JeproLabModel{
 
     public boolean published;
 
-    /**
+    /*
      * @see ObjectModel::$definition
-     */
+     * /
     public static $definition = array(
             'table' => 'county',
                     'primary' => 'id_county',
@@ -47,7 +47,7 @@ public class JeproLabCountyModel extends JeproLabModel{
 
     /**
      * @deprecated since 1.5
-     */
+     * /
     public static List<JeproLabLanguageModel.JeproLabLanguage> getCounties(int stateId)
     {
         Tools::displayAsDeprecated();
@@ -56,7 +56,7 @@ public class JeproLabCountyModel extends JeproLabModel{
 
     /**
      * @deprecated since 1.5
-     */
+     * /
     public function getZipCodes()
     {
         Tools::displayAsDeprecated();
@@ -65,7 +65,7 @@ public class JeproLabCountyModel extends JeproLabModel{
 
     /**
      * @deprecated since 1.5
-     */
+     * /
     public function addZipCodes($zip_codes)
     {
         Tools::displayAsDeprecated();
@@ -74,7 +74,7 @@ public class JeproLabCountyModel extends JeproLabModel{
 
     /**
      * @deprecated since 1.5
-     */
+     * /
     public function removeZipCodes($zip_codes)
     {
         Tools::displayAsDeprecated();
@@ -83,7 +83,7 @@ public class JeproLabCountyModel extends JeproLabModel{
 
     /**
      * @deprecated since 1.5
-     */
+     * /
     public function breakDownZipCode($zip_codes)
     {
         Tools::displayAsDeprecated();
@@ -92,7 +92,7 @@ public class JeproLabCountyModel extends JeproLabModel{
 
     /**
      * @deprecated since 1.5
-     */
+     * /
     public static function getIdCountyByZipCode($id_state, $zip_code)
     {
         Tools::displayAsDeprecated();
@@ -101,7 +101,7 @@ public class JeproLabCountyModel extends JeproLabModel{
 
     /**
      * @deprecated since 1.5
-     */
+     * /
     public function isZipCodeRangePresent($zip_codes)
     {
         Tools::displayAsDeprecated();
@@ -110,7 +110,7 @@ public class JeproLabCountyModel extends JeproLabModel{
 
     /**
      * @deprecated since 1.5
-     */
+     * /
     public function isZipCodePresent($zip_code) {
         Tools::displayAsDeprecated();
         return false;
@@ -118,7 +118,7 @@ public class JeproLabCountyModel extends JeproLabModel{
 
     /**
      * @deprecated since 1.5
-     */
+     * /
     public static boolean deleteZipCodeByCountyId(int countyId){
         Tools::displayAsDeprecated();
         return true;
@@ -126,10 +126,10 @@ public class JeproLabCountyModel extends JeproLabModel{
 
     /**
      * @deprecated since 1.5
-     */
+     * /
     public static function getIdCountyByNameAndIdState($name, $id_state)
     {
         Tools::displayAsDeprecated();
         return false;
-    }
+    } */
 }

@@ -40,7 +40,7 @@ public class JeproLabStateModel extends JeproLabModel{
      *
      * @param stateId Country ID
      * @return string State name
-     */
+     * /
     public static String getNameById(int stateId){
         if (stateId <= 0) {
             return "";
@@ -126,7 +126,7 @@ public class JeproLabStateModel extends JeproLabModel{
      *
      * @param stateName State name
      * @return integer state id
-     */
+     * /
     public static int getStateIdByName(String stateName){
         if (stateName == null || stateName.equals("")) {
             return 0;
@@ -158,7 +158,7 @@ public class JeproLabStateModel extends JeproLabModel{
      * @param isoCode Iso code
      * @param countryId
      * @return integer state id
-     */
+     * /
     public static int getStateIdByIsoCode(String isoCode, int countryId){
         if(staticDataBaseObject == null){
             staticDataBaseObject = JeproLabFactory.getDataBaseConnector();
@@ -175,7 +175,7 @@ public class JeproLabStateModel extends JeproLabModel{
      * Delete a state only if is not in use
      *
      * @return boolean
-     */
+     * /
     public boolean delete(){
         if (!this.isUsed()){
             if(dataBaseObject == null){
@@ -229,7 +229,7 @@ public class JeproLabStateModel extends JeproLabModel{
         }catch (SQLException ignored){}
         return result;
     }
-
+/*
     public static List<JeproLabStateModel> getStatesByCountryId(int countryId){
         if (countryId <= 0) {
             JeproLabTools.displayError();
@@ -262,8 +262,8 @@ public class JeproLabStateModel extends JeproLabModel{
      * @param statesIds
      * @param zoneId
      * @return bool
-     */
-    public boolean    affectZoneToSelection(int statesIds[], int zoneId){
+     * /
+    public boolean affectZoneToSelection(int statesIds[], int zoneId){
         // cast every array values to int (security)
         $ids_states = array_map('intval', $ids_states);
         String query = "UPDATE " + dataBaseObject.quoteName("#__jeprolab_state") + " SET " + dataBaseObject.quoteName("state_id");
@@ -272,7 +272,7 @@ public class JeproLabStateModel extends JeproLabModel{
         dataBaseObject.setQuery(query);
         /*return Db::getInstance()->execute('
            = '.(int)$id_zone.' WHERE `id_state` IN ('.implode(',', $ids_states).')
-        ');*/
+        '); * /
         return dataBaseObject.query();
-    }
+    } */
 }
