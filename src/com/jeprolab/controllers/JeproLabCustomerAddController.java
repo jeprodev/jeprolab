@@ -153,9 +153,9 @@ public class JeproLabCustomerAddController extends JeproLabController {
         saveButton = new Button(JeproLab.getBundle().getString("JEPROLAB_SAVE_LABEL"));
         cancelButton = new Button(JeproLab.getBundle().getString("JEPROLAB_CANCEL_LABEL"));
 
-        saveButton.setOnMouseClicked(EventHandler<? MouseEvent>(){
+        /*saveButton.setOnMouseClicked(EventHandler<;? MouseEvent>(){
             @Override
 
-        });
+        });*/
     }
 }
