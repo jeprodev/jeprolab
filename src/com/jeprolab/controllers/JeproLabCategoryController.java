@@ -2,31 +2,32 @@ package com.jeprolab.controllers;
 
 
 import com.jeprolab.JeproLab;
-import com.jeprolab.assets.extend.controls.*;
-import com.jeprolab.assets.extend.controls.switchbutton.JeproSwitchButton;
-import com.jeprolab.assets.extend.controls.tree.JeproCategoryTree;
-import com.jeprolab.assets.tools.JeproLabContext;
+
+import com.jeprolab.assets.tools.JeproLabTools;
 import com.jeprolab.models.JeproLabCategoryModel;
 import com.jeprolab.models.JeproLabLaboratoryModel;
 import com.jeprolab.models.JeproLabSettingModel;
 import javafx.fxml.FXML;
-import javafx.scene.control.Label;
+import javafx.scene.control.Pagination;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
-import javafx.scene.layout.GridPane;
+
 
 
 import java.io.IOException;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.ResourceBundle;
 
 public class JeproLabCategoryController extends JeproLabController {
     JeproLabCategoryModel category;
+    private Pagination pagination;
     @FXML
     public TableView categoryTableView;
     public TableColumn categoryIndexColumn, categoryCheckBoxColumn, categoryStatusColumn, categoryNameColumn;
     public TableColumn categoryDescriptionColumn, categoryPositionColumn, categoryActionColumn;
-
+/*
     public Label jeproLabCategoryNameLabel, jeproLabPublishedCategoryLabel, jeproLabCategoryParentLabel, jeproLabCategoryDescriptionLabel;
     public Label jeproLabCategoryImageChooserLabel, jeproLabCategoryMetaTileLabel, jeproLabCategoryMetaDescriptionLabel;
     public Label jeproLabCategoryMetaKeyWordLabel, jeproLabCategoryLinkRewriteLabel, jeproLabCategoryIsRootLabel, jeproLabCategoryAssociatedLabsLabel;
@@ -39,7 +40,7 @@ public class JeproLabCategoryController extends JeproLabController {
     public JeproSwitchButton jeproLabPublishedCategory, jeproLabCategoryIsRoot;
     public JeproMultiLangTextField jeproLabCategoryName, jeproLabCategoryMetaTile,  jeproLabCategoryMetaKeyWord;
     public JeproMultiLangTextField jeproLabCategoryMetaDescription, jeproLabCategoryLinkRewrite;
-    public GridPane jeproLabCategoryFormLayout;
+    public GridPane jeproLabCategoryFormLayout;*/
 
     public void initialize(URL location, ResourceBundle resource) {
         super.initialize(location, resource);
@@ -92,11 +93,40 @@ public class JeproLabCategoryController extends JeproLabController {
 
     @Override
     protected void initializeContent(){
-        /** getting and showing items list **/
+        int categoryId = 0;
 
-        if(!JeproLabLaboratoryModel.isFeaturePublished() || JeproLabCategoryModel.getCategoriesWithoutParent().size() > 1 && context.category_id > 0){
-            //categoryTree =
+        if(categoryId > 0){
+            this.category = new JeproLabCategoryModel(categoryId);
+        }else{
+            if(JeproLabLaboratoryModel.isFeaturePublished() && JeproLabLaboratoryModel.getLabContext() == JeproLabLaboratoryModel.LAB_CONTEXT){
+                this.category = new JeproLabCategoryModel(context.laboratory.category_id);
+            }else if((JeproLabCategoryModel.getCategoriesWithoutParent().size() > 1) && (JeproLabSettingModel.getIntValue("multilab_feature_active") > 0) && JeproLabLaboratoryModel.getLaboratories(true, 0, true).size() != 1){
+                this.category = JeproLabCategoryModel.getTopCategory();
+            }else{
+                this.category = new JeproLabCategoryModel(JeproLabSettingModel.getIntValue("root_category"));
+            }
         }
+
+        if(category.category_id > 0 && !category.isAssociatedToLaboratory() && JeproLabLaboratoryModel.getLabContext() == JeproLabLaboratoryModel.LAB_CONTEXT){
+            JeproLab.request.setRequest("view=category&task=edit&category_id=" + context.laboratory.getCategoryId() + "&" + JeproLabTools.getCategoryToken() + "=1");
+        }
+        /** getting and showing items list **/
+        List<JeproLabCategoryModel> categoryTree ;
+        if(!JeproLabLaboratoryModel.isFeaturePublished() || JeproLabCategoryModel.getCategoriesWithoutParent().size() > 1 && context.category_id > 0){
+            JeproLabCategoryModel categoryTr = this.category.getTopCategory();
+            categoryTree = new ArrayList<>();
+            categoryTree.add(categoryTr);
+        }else{
+            categoryTree = this.category.getParentsCategories();
+            JeproLabCategoryModel categoryTr = categoryTree.get(categoryTree.size() - 1);
+            if(categoryTree != null && !JeproLabLaboratoryModel.isFeaturePublished() && (categoryTr != null && categoryTr.parent_id != 0) ){
+
+            }
+        }
+
+        JeproLabCategoryModel categoryModel = new JeproLabCategoryModel();
+        List<JeproLabCategoryModel> categories = categoryModel.getCategoriesList();
+        pagination = categoryModel.getPagination();
     }
 
     @Override

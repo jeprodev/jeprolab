@@ -21,6 +21,8 @@ public class JeproLabController implements Initializable {
 
     public boolean has_errors = false;
 
+    public boolean multi_lab_context;
+
     protected static boolean isInitialized = false;
 
     public void initialize(URL location , ResourceBundle resource){

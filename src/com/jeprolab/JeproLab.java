@@ -6,6 +6,7 @@ import com.jeprolab.assets.tools.JeproLabCookie;
 import com.jeprolab.assets.tools.JeproLabTools;
 import com.jeprolab.assets.tools.JeproLabWindowsButtons;
 import com.jeprolab.models.*;
+import com.jeprolab.models.core.JeproLabRequest;
 import com.jeprolab.views.application.JeproLabApplicationForm;
 import com.jeprolab.views.application.JeproLabApplicationForms;
 import com.jeprolab.views.installer.JeproLabInstallerForms;
@@ -48,6 +49,7 @@ public class JeproLab extends Application {
     private Button userInfoBtn, userLogOutBtn;
 
 
+
     private static ResourceBundle bundle, appProps;
     private String lang = "";
 
@@ -58,6 +60,7 @@ public class JeproLab extends Application {
 
     private Scene scene;
     public static File configurationFile;
+    public static JeproLabRequest request;
 
     @Override
     public void start(Stage primaryStage) throws Exception {
@@ -92,7 +95,7 @@ public class JeproLab extends Application {
             scene.getStylesheets().setAll(JeproLab.class.getResource("assets/css/jeprolab.css").toExternalForm());
         }else{
             appStage = primaryStage;
-
+            request = new JeproLabRequest();
             initialize();
             menuBar = new JeproLabApplicationForm("menu/menu.fxml");
 
