@@ -58,8 +58,8 @@ public class JeproLabCurrencyModel extends JeproLabModel {
     public String suffix = null;
 
     /** @var array JeproLabCurrencyModel cache */
-    protected static Map<Integer, JeproLabCurrencyModel>currencies = new HashMap<>();
-    protected static Map<Integer, JeproLabCurrencyModel>activeCurrencies = new HashMap<>();
+    protected static Map<Integer, JeproLabCurrencyModel> currencies = new HashMap<>();
+    protected static Map<Integer, Integer> activeCurrencies = new HashMap<>();
 
     public JeproLabCurrencyModel(){
         this(0);
@@ -222,12 +222,20 @@ public class JeproLabCurrencyModel extends JeproLabModel {
         return currencySign;
     }
 
+    public static List<JeproLabCurrencyModel> getCurrencies(){
+        return getCurrencies(false, true, false);
+    }
+
+    public static List<JeproLabCurrencyModel> getCurrencies(boolean object, boolean published){
+        return getCurrencies(object, published, true);
+    }
+
     /**
      * Return available currencies
      *
      * @return array Currencies
      */
-    public static List<JeproLabCurrencyModel> getCurrencies($object = false, boolean published = true, $group_by = false){
+    public static List<JeproLabCurrencyModel> getCurrencies(boolean object, boolean published, boolean groupBy){
         if(staticDataBaseObject == null){
             staticDataBaseObject = JeproLabFactory.getDataBaseConnector();
         }
@@ -239,13 +247,25 @@ public class JeproLabCurrencyModel extends JeproLabModel {
 
         staticDataBaseObject.setQuery(query);
         ResultSet currencySet = staticDataBaseObject.loadObject();
-
-        if ($object) {
-            foreach ($tab as $key => $currency) {
-                $tab[$key] = JeproLabCurrencyModel.getCurrencyInstance($currency['id_currency']);
+        List<JeproLabCurrencyModel> currencies = new ArrayList<>();
+        try{
+            int currencyId;
+            JeproLabCurrencyModel currency;
+            while(currencySet.next()) {
+                currencyId = currencySet.getInt("currency_id");
+                if(object) {
+                    currency = JeproLabCurrencyModel.getCurrencyInstance(currencyId);
+                }else{
+                    currency = new JeproLabCurrencyModel();
+                    currency.currency_id = currencyId;
+                    //todo add remaining fields
+                }
+                currencies.add(currency);
             }
+        }catch (SQLException ignored){
+
         }
-        return $tab;
+        return currencies;
     }
 
     public static List<JeproLabCurrencyModel> getCurrenciesByLaboratoryId(){
@@ -278,7 +298,7 @@ public class JeproLabCurrencyModel extends JeproLabModel {
         return currencies;
     }
 
-
+/* todo
     public static function getPaymentCurrenciesSpecial($id_module, $id_shop = null)
     {
         if (is_null($id_shop)) {
@@ -324,7 +344,7 @@ public class JeproLabCurrencyModel extends JeproLabModel {
         WHERE `id_module` = '.(int)$id_module.'
         AND `id_shop` = '.(int)$id_shop;
         return Db::getInstance(_PS_USE_SQL_SLAVE_)->executeS($sql);
-    }
+    } */
 
     public static JeproLabCurrencyModel getCurrency(int currencyId){
         if(staticDataBaseObject == null){
@@ -339,7 +359,7 @@ public class JeproLabCurrencyModel extends JeproLabModel {
         try{
             while (currencySet.next()){
                 currency.currency_id = currencySet.getInt("currency_id");
-                /*currency. = currencySet
+                /*todo currency. = currencySet
                 currency.currency_id = currencySet
                 currency.currency_id = currencySet
                 currency.currency_id = currencySet*/
@@ -360,7 +380,7 @@ public class JeproLabCurrencyModel extends JeproLabModel {
      * @return int
      */
     public static int getIdByIsoCode(String isoCode, int labId){
-        String cacheKey = "jeproLab_currency_model_get_id_by_iso_code_" + .pSQL(isoCode) + "_" + labId;
+        String cacheKey = "jeproLab_currency_model_get_id_by_iso_code_" + pSQL(isoCode) + "_" + labId;
         if (!JeproLabCache.getInstance().isStored(cacheKey)) {
             String query = JeproLabCurrencyModel.getIdByQuery(labId);
             query += "where('iso_code = \''.pSQL($iso_code).'\'')";
@@ -479,7 +499,7 @@ public class JeproLabCurrencyModel extends JeproLabModel {
         for(JeproLabCurrencyModel currency : currencies) {
             /** @var Currency $currency */
             if (currency.currency_id != defaultCurrency.currency_id) {
-                currency.refreshCurrency($feed -> list, $isoCodeSource, $default_currency);
+                currency.refreshCurrency($feed -> list, $isoCodeSource, defaultCurrency);
             }
         }
     }
@@ -494,7 +514,7 @@ public class JeproLabCurrencyModel extends JeproLabModel {
     }
 
     public static JeproLabCurrencyModel getCurrencyInstance(int currencyId){
-        if (!JeproLabCurrencyModel.currencies.contains(currencyId)) {
+        if (!JeproLabCurrencyModel.currencies.containsKey(currencyId)) {
             JeproLabCurrencyModel.currencies.put(currencyId, new JeproLabCurrencyModel(currencyId));
         }
         return JeproLabCurrencyModel.currencies.get(currencyId);
@@ -513,7 +533,7 @@ public class JeproLabCurrencyModel extends JeproLabModel {
             labId = JeproLabContext.getContext().laboratory.laboratory_id;
         }
 
-        if (!JeproLabCurrencyModel.activeCurrencies.contains(labId)){
+        if (!JeproLabCurrencyModel.activeCurrencies.containsKey(labId)){
             if(staticDataBaseObject == null){
                 staticDataBaseObject = JeproLabFactory.getDataBaseConnector();
             }
@@ -526,7 +546,7 @@ public class JeproLabCurrencyModel extends JeproLabModel {
             int val = (int)staticDataBaseObject.loadValue("ids");
             JeproLabCurrencyModel.activeCurrencies.put(labId, val);
         }
-        return JeproLabCategoryModel.activeCurrencies.get(labId);
+        return (int)JeproLabCurrencyModel.activeCurrencies.get(labId);
     }
 
     public static boolean isMultiCurrencyActivated(){

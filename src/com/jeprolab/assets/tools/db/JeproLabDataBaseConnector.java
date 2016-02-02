@@ -199,8 +199,12 @@ public class JeproLabDataBaseConnector {
         return true;
     }
 
-    public double loadValue(){
+    public double loadValue(String key){ //todo
         return  2;
+    }
+
+    public String secureData(String data){ //todo
+        return data;
     }
 
     public void closeConnexion(){

@@ -1,33 +1,46 @@
 package com.jeprolab.models;
 
+import com.jeprolab.assets.tools.JeproLabCache;
 import com.jeprolab.models.core.JeproLabFactory;
+
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.*;
 
 public class JeproLabGroupModel extends JeproLabModel {
     public int group_id;
 
+    public int language_id;
+
+    public int laboratory_id;
+
     /** @var string Lastname */
-    public $name;
+    public Map<String, String> name = new HashMap<>();
 
     /** @var string Reduction */
-    public $reduction;
+    public String reduction;
 
     /** @var int Price display method (tax inc/tax exc) */
-    public $price_display_method;
+    public int price_display_method;
 
     /** @var bool Show prices */
-    public $show_prices = 1;
+    public boolean show_prices = true;
 
     /** @var string Object creation date */
-    public $date_add;
+    public Date date_add;
 
     /** @var string Object last modification date */
-    public $date_upd;
+    public Date date_upd;
 
     protected static boolean group_feature_active = false;
 
-    /**
+    protected static Map<Integer, JeproLabGroupModel> groups = new HashMap<>();
+    protected static int unidentified_group = 0;
+    protected static int customer_group = 0;
+
+    /*
      * @see ObjectModel::$definition
-     */
+     * /
     public static $definition = array(
             'table' => 'group',
                     'primary' => 'id_group',
@@ -39,15 +52,15 @@ public class JeproLabGroupModel extends JeproLabModel {
     'date_add' =>                array('type' => self::TYPE_DATE, 'validate' => 'isDate'),
     'date_upd' =>                array('type' => self::TYPE_DATE, 'validate' => 'isDate'),
 
-            /* Lang fields */
+            /* Lang fields * /
     'name' =>                    array('type' => self::TYPE_STRING, 'lang' => true, 'validate' => 'isGenericName', 'required' => true, 'size' => 32),
     ),
             );
+*/
+    //protected static $cache_reduction = array();
+    protected static Map<Integer, Integer>group_price_display_method = new HashMap<>();
 
-    protected static $cache_reduction = array();
-    protected static $group_price_display_method = array();
-
-    protected $webserviceParameters = array();
+    //protected $webserviceParameters = array();
 
     public JeproLabGroupModel(){ this(0, 0, 0); }
     
@@ -56,14 +69,26 @@ public class JeproLabGroupModel extends JeproLabModel {
     public JeproLabGroupModel(int groupId, int langId){ this(groupId, langId, 0); }
     
     public JeproLabGroupModel(int groupId, int langId, int labId){
-        parent::__construct($id, $id_lang, $id_shop);
-        if (this.group_id > 0 && !isset(Group::$group_price_display_method[this.id])) {
-        self::$group_price_display_method[this.id] = this.price_display_method;
-    }
-    }
+        if(langId > 0){
+            this.language_id = (JeproLabLanguageModel.checkLanguage(langId) ? langId : JeproLabSettingModel.getIntValue("default_lang"));
+        }
 
-    public static function getGroups($id_lang, $id_shop = false)
-    {
+        if(groupId > 0){
+            String cacheKey = "jeprolab_group_model_" + groupId + "_" + langId + "_" + labId;
+            if(!JeproLabCache.getInstance().isStored(cacheKey)){
+                if(dataBaseObject == null){
+                    dataBaseObject = JeproLabFactory.getDataBaseConnector();
+                }
+                String query = "SELECT * FROM " + dataBaseObject.quoteName("#__jeprolab_group") + " AS grp ";
+            }
+        }
+        //parent::__construct($id, $id_lang, $id_shop);
+        if (this.group_id > 0 && !group_price_display_method.containsKey(this.group_id)){
+            group_price_display_method.put(this.group_id, this.price_display_method);
+        }
+    }
+/*
+    public static function getGroups($id_lang, $id_shop = false){
         $shop_criteria = '';
         if ($id_shop) {
             $shop_criteria = Shop::addSqlAssociation('group', 'g');
@@ -203,26 +228,25 @@ public class JeproLabGroupModel extends JeproLabModel {
 
     /**
      * This method is allow to know if there are other groups than the default ones
-     * @param table
-     * @param $has_active_column
+        *
      * @return bool
      */
     public static boolean isCurrentlyUsed(){ //String table = null, $has_active_column = false
         if(staticDataBaseObject == null){
             staticDataBaseObject = JeproLabFactory.getDataBaseConnector();
         }
-        String query = "SELECT COUNT(*) FROM " + staticDataBaseObject.quoteName("#__jeprolab_group");
+        String query = "SELECT COUNT(*) AS num FROM " + staticDataBaseObject.quoteName("#__jeprolab_group");
         staticDataBaseObject.setQuery(query);
-        int val = staticDataBaseObject.loadValue();
+        int val = (int)staticDataBaseObject.loadValue("num");
         return val > 3;
     }
 
-    /**
+    /*
      * Truncate all modules restrictions for the group
      *
      * @param groupId
      * @return bool
-     */
+     * /
     public static function truncateModulesRestrictions(int groupId)
     {
         return Db::getInstance()->execute('
@@ -230,12 +254,12 @@ public class JeproLabGroupModel extends JeproLabModel {
         WHERE `id_group` = '.(int)$id_group);
     }
 
-    /**
+    /*
      * Truncate all restrictions by module
      *
      * @param int $id_module
      * @return bool
-     */
+     * /
     public static function truncateRestrictionsByModule($id_module)
     {
         return Db::getInstance()->execute('
@@ -243,13 +267,13 @@ public class JeproLabGroupModel extends JeproLabModel {
         WHERE `id_module` = '.(int)$id_module);
     }
 
-    /**
+    /*
      * Adding restrictions modules to the group with id $id_group
      * @param $id_group
      * @param $modules
      * @param array $shops
      * @return bool
-     */
+     * /
     public static function addModulesRestrictions($id_group, $modules, $shops = array(1))
     {
         if (!is_array($modules) || !count($modules) || !is_array($shops) || !count($shops)) {
@@ -270,14 +294,14 @@ public class JeproLabGroupModel extends JeproLabModel {
         return (bool)Db::getInstance()->execute($sql);
     }
 
-    /**
+    /*
      * Add restrictions for a new module.
      * We authorize every groups to the new module
      *
      * @param int $id_module
      * @param array $shops
      * @return bool
-     */
+     * /
     public static function addRestrictionsForModule($id_module, $shops = array(1))
     {
         if (!is_array($shops) || !count($shops)) {
@@ -293,24 +317,19 @@ public class JeproLabGroupModel extends JeproLabModel {
         return $res;
     }
 
-    /**
+    /*
      * Return current group object
      * Use context
      *
      * @return Group Group object
-     */
-    public static function getCurrent()
-    {
-        static $groups = array();
-        static $ps_unidentified_group = null;
-        static $ps_customer_group = null;
-
-        if ($ps_unidentified_group === null) {
-            $ps_unidentified_group = Configuration::get('PS_UNIDENTIFIED_GROUP');
+     * /
+    public static JeproLabGroupModel getCurrent(){
+        if (unidentified_group == 0) {
+            unidentified_group = Configuration::get('PS_UNIDENTIFIED_GROUP');
         }
 
-        if ($ps_customer_group === null) {
-            $ps_customer_group = Configuration::get('PS_CUSTOMER_GROUP');
+        if (customer_group == 0) {
+            customer_group = Configuration::get('PS_CUSTOMER_GROUP');
         }
 
         $customer = Context::getContext()->customer;
@@ -337,17 +356,30 @@ public class JeproLabGroupModel extends JeproLabModel {
     /**
      * Light back office search for Group
      *
-     * @param string $query Searched string
+     * @param request Searched string
      * @return array Corresponding groups
      */
-    public static function searchByName($query)
-    {
-        return Db::getInstance()->getRow('
-            SELECT g.*, gl.*
-                    FROM `'._DB_PREFIX_.'group` g
-        LEFT JOIN `'._DB_PREFIX_.'group_lang` gl
-        ON (g.`id_group` = gl.`id_group`)
-        WHERE `name` = \''.pSQL($query).'\'
-        ');
+    public static List<JeproLabGroupModel> searchByName(String request){
+        if(staticDataBaseObject == null){
+            staticDataBaseObject = JeproLabFactory.getDataBaseConnector();
+        }
+        String query = "SELECT grp.*, grp_lang.* FROM " + staticDataBaseObject.quoteName("#__jeprolab_group") +  " AS grp LEFT JOIN ";
+        query += staticDataBaseObject.quoteName("#__jeprolab_group_lang") + " AS grp_lang ON (grp."  + staticDataBaseObject.quoteName("group_id");
+        query += " = grp_lang." + staticDataBaseObject.quoteName("group_id") + ") WHERE " + staticDataBaseObject.quoteName("name");
+        query += " = " + staticDataBaseObject.quote(request, true);
+        staticDataBaseObject.setQuery(query);
+        ResultSet result = staticDataBaseObject.loadObject();
+        List<JeproLabGroupModel> groups = new ArrayList<>();
+        try{
+            JeproLabGroupModel group;
+            while(result.next()){
+                group = new JeproLabGroupModel();
+                group.group_id = result.getInt("group_id");
+                groups.add(group);
+            }
+        }catch (SQLException ignored){
+
+        }
+        return groups;
     }
 }
