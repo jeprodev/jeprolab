@@ -1,10 +1,11 @@
 package com.jeprolab.models;
 
 
-import com.jeprolab.JeproLab;
 import com.jeprolab.assets.tools.JeproLabContext;
 import com.jeprolab.models.core.JeproLabFactory;
 
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.List;
 import java.util.Map;
 
@@ -33,7 +34,7 @@ public class JeproLabCurrencyModel extends JeproLabModel {
     public boolean deleted = false;
 
     /** @var int ID used for displaying prices */
-    public $format;
+    public int format;
 
     /** @var int bool Display decimals on prices */
     public boolean decimals;
@@ -41,13 +42,27 @@ public class JeproLabCurrencyModel extends JeproLabModel {
     /** @var int bool active */
     public boolean published;
 
+    /**
+     * contains the sign to display before price, according to its format
+     * @var string
+     */
+    public String prefix = null;
+    /**
+     * contains the sign to display after price, according to its format
+     * @var string
+     */
+    public String suffix = null;
 
     public JeproLabCurrencyModel(){
-
+        this(0);
     }
 
     public JeproLabCurrencyModel(int currencyId){
-
+        this.prefix =  this.format % 2 != 0 ? this.sign + " " : "";
+        this.suffix = this.format % 2 == 0 ? " " + this.sign : "";
+        if (this.conversion_rate <= 0) {
+            this.conversion_rate = 1;
+        }
     }
 
     /**
@@ -56,8 +71,7 @@ public class JeproLabCurrencyModel extends JeproLabModel {
      *
      * @see ObjectModelCore::add()
      */
-    public boolean addCurrency($autodate = true, $nullValues = false)
-    {
+    public boolean addCurrency($autodate = true, $nullValues = false){
         if ((float)this.conversion_rate <= 0) {
             return false;
         }
@@ -78,26 +92,35 @@ public class JeproLabCurrencyModel extends JeproLabModel {
         return parent::update($autodate, $nullValues);
     }
 
+    public static boolean exists(String isoCode){
+        return exists(isoCode, 0);
+    }
+
     /**
-     * Check if a curency already exists.
+     * Check if a currency already exists.
      *
-     * @param int|string $iso_code int for iso code number string for iso code
+     * @param isoCode String for iso code
      * @return bool
      */
-    public static boolean exists($iso_code, $iso_code_num, int labId = 0)
-    {
-        if (is_int($iso_code)) {
-            $id_currency_exists = JeproLabCurrencyModel.getIdByIsoCodeNum((int)$iso_code_num, (int)$id_shop);
-        } else {
-            $id_currency_exists = JeproLabCurrencyModel.getIdByIsoCode($iso_code, (int)$id_shop);
-        }
-
-        if ($id_currency_exists) {
-            return true;
-        } else {
-            return false;
-        }
+    public static boolean exists(String isoCode, int labId){
+        return JeproLabCurrencyModel.getIdByIsoCode(isoCode, labId) > 0;
     }
+
+    public static boolean exists(int isoCodeNum){
+        return exists(isoCodeNum, 0);
+    }
+
+    /**
+     * Check if a currency already exists.
+     *
+     * @param isoCodeNum int for iso code number
+     * @return bool
+     */
+    public static boolean exists(int isoCodeNum, int labId){
+        int currencyId = JeproLabCurrencyModel.getIdByIsoCodeNum(isoCodeNum, labId);
+        return currencyId > 0;
+    }
+
 
     public function deleteSelection($selection)
     {
@@ -119,46 +142,76 @@ public class JeproLabCurrencyModel extends JeproLabModel {
         return true;
     }
 
-    public function delete()
-    {
-        if (this.id == Configuration::get('PS_CURRENCY_DEFAULT')) {
-        $result = Db::getInstance()->getRow('SELECT `id_currency` FROM '._DB_PREFIX_.'currency WHERE `id_currency` != '.(int)(this.id).' AND `deleted` = 0');
-        if (!$result['id_currency']) {
-            return false;
+    public boolean delete() {
+        if (this.currency_id == JeproLabSettingModel.getIntValue("default_currency")) {
+            if(dataBaseObject == null){
+                dataBaseObject = JeproLabFactory.getDataBaseConnector();
+            }
+            String query = "SELECT " + dataBaseObject.quoteName("currency_id") + " FROM " + dataBaseObject.quoteName("#__jeprolab_currency");
+            query += " WHERE " + dataBaseObject.quoteName("currency_id") + " != " + (this.currency_id) + " AND " + dataBaseObject.quoteName("deleted");
+            query += " = 0";
+
+            dataBaseObject.setQuery(query);
+            ResultSet currencySet = dataBaseObject.loadObject();
+            int currencyId = 0;
+            try{
+                while(currencySet.next()){
+                    currencyId = currencySet.getInt("currency_id");
+                }
+            }catch (SQLException ignored){
+                currencyId = 0;
+            }
+
+            if (currencyId <= 0) {
+                return false;
+            }
+            JeproLabSettingModel.updateValue("default_currency", currencyId);
         }
-        Configuration::updateValue('PS_CURRENCY_DEFAULT', $result['id_currency']);
-    }
         this.deleted = true;
         return this.update();
     }
 
+    public String getCurrencySign(){
+        return getCurrencySign(null);
+    }
     /**
      * Return formated sign
      *
-     * @param string $side left or right
-     * @return string formated sign
+     * @param side String left or right
+     * @return string formatted sign
      */
-    public function getCurrencySign($side = null)
-    {
-        if (!$side) {
+    public String getCurrencySign(String side) {
+        if (side == null){
             return this.sign;
         }
-        $formated_strings = array(
-                'left' => this.sign.' ',
-            'right' => ' '.this.sign
-        );
 
-        $formats = array(
-                1 => array('left' => &$formated_strings['left'], 'right' => ''),
-        2 => array('left' => '', 'right' => &$formated_strings['right']),
-        3 => array('left' => &$formated_strings['left'], 'right' => ''),
-        4 => array('left' => '', 'right' => &$formated_strings['right']),
-        5 => array('left' => '', 'right' => &$formated_strings['right'])
-        );
-        if (isset($formats[this.format][$side])) {
-            return ($formats[this.format][$side]);
+        String currencySign;
+        switch (side) {
+            case "left" :
+                if(this.format == 1){
+                    currencySign = this.sign + " ";
+                }else if(this.format == 2){
+                    currencySign = "";
+                }else if(this.format == 3){
+                    currencySign = this.sign + " ";
+                }else if(this.format == 4){
+                    currencySign = "";
+                }else if(this.format == 5){
+                    currencySign = "";
+                }
+                break;
+            case "right" :
+                if(this.format == 1 || this.format == 3){
+                    currencySign = "";
+                }else{
+                    currencySign = " " + this.sign;
+                }
+                break;
+            default:
+                currencySign = this.sign;
+                break;
         }
-        return this.sign;
+        return currencySign;
     }
 
     /**
@@ -242,22 +295,41 @@ public class JeproLabCurrencyModel extends JeproLabModel {
         return Db::getInstance(_PS_USE_SQL_SLAVE_)->executeS($sql);
     }
 
-    public static function getCurrency($id_currency)
-    {
-        return Db::getInstance(_PS_USE_SQL_SLAVE_)->getRow('
-            SELECT *
-                    FROM `'._DB_PREFIX_.'currency`
-        WHERE `deleted` = 0
-        AND `id_currency` = '.(int)($id_currency));
+    public static JeproLabCurrencyModel getCurrency(int currencyId){
+        if(staticDataBaseObject == null){
+            staticDataBaseObject = JeproLabFactory.getDataBaseConnector();
+        }
+        String query = "SELECT * FROM " + staticDataBaseObject.quoteName("#__jeprolab_currency") + " AS currency WHERE ";
+        query += staticDataBaseObject.quoteName("deleted") + " = 0 AND " + staticDataBaseObject.quoteName("currency_id") ;
+        query += " = " + currencyId;
+        staticDataBaseObject.setQuery(query);
+        ResultSet currencySet = staticDataBaseObject.loadObject();
+        JeproLabCurrencyModel currency = new JeproLabCurrencyModel();
+        try{
+            while (currencySet.next()){
+                currency.currency_id = currencySet.getInt("currency_id");
+                /*currency. = currencySet
+                currency.currency_id = currencySet
+                currency.currency_id = currencySet
+                currency.currency_id = currencySet*/
+            }
+        }catch (SQLException ignored){
+            ignored.printStackTrace();
+        }
+        return currency;
+    }
+
+    public static int getIdByIsoCode(String isoCode){
+        return getIdByIsoCode(isoCode, 0);
     }
 
     /**
-     * @param $iso_code
-     * @param int $id_shop
+     * @param isoCode
+     * @param labId
      * @return int
      */
-    public static function getIdByIsoCode($iso_code, $id_shop = 0){
-        $cache_id = 'JeproLabCurrencyModel.getIdByIsoCode_'.pSQL($iso_code).'-'.(int)$id_shop;
+    public static int getIdByIsoCode(String isoCode, int labId){
+        String cacheKey = "jeproLab_currency_model_get_id_by_iso_code_" + .pSQL(isoCode).'-'.(int)$id_shop;
         if (!Cache::isStored($cache_id)) {
         $query = JeproLabCurrencyModel.getIdByQuery($id_shop);
         $query->where('iso_code = \''.pSQL($iso_code).'\'');
