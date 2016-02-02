@@ -1,11 +1,15 @@
 package com.jeprolab.models;
 
 
+import com.jeprolab.JeproLab;
+import com.jeprolab.assets.tools.JeproLabCache;
 import com.jeprolab.assets.tools.JeproLabContext;
 import com.jeprolab.models.core.JeproLabFactory;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -52,6 +56,10 @@ public class JeproLabCurrencyModel extends JeproLabModel {
      * @var string
      */
     public String suffix = null;
+
+    /** @var array JeproLabCurrencyModel cache */
+    protected static Map<Integer, JeproLabCurrencyModel>currencies = new HashMap<>();
+    protected static Map<Integer, JeproLabCurrencyModel>activeCurrencies = new HashMap<>();
 
     public JeproLabCurrencyModel(){
         this(0);
@@ -185,7 +193,7 @@ public class JeproLabCurrencyModel extends JeproLabModel {
             return this.sign;
         }
 
-        String currencySign;
+        String currencySign = this.sign;
         switch (side) {
             case "left" :
                 if(this.format == 1){
@@ -219,16 +227,19 @@ public class JeproLabCurrencyModel extends JeproLabModel {
      *
      * @return array Currencies
      */
-    public static function getCurrencies($object = false, $active = true, $group_by = false)
-    {
-        $tab = Db::getInstance()->executeS('
-            SELECT *
-                    FROM `'._DB_PREFIX_.'currency` c
-        '.Shop::addSqlAssociation('currency', 'c').
-        ' WHERE `deleted` = 0'.
-        ($active ? ' AND c.`active` = 1' : '').
-        ($group_by ? ' GROUP BY c.`id_currency`' : '').
-        ' ORDER BY `name` ASC');
+    public static List<JeproLabCurrencyModel> getCurrencies($object = false, boolean published = true, $group_by = false){
+        if(staticDataBaseObject == null){
+            staticDataBaseObject = JeproLabFactory.getDataBaseConnector();
+        }
+        String query = "SELECT * FROM " + staticDataBaseObject.quoteName("#__jeprolab_currency") + " AS currency ";
+        query += JeproLabLaboratoryModel.addSqlAssociation("currency") + " WHERE " + staticDataBaseObject.quoteName("deleted");
+        query += " = 0 " + (published ? " AND currency." + staticDataBaseObject.quoteName("published") + " = 1" : "");
+        query += (groupBy ? " GROUP BY currency." + staticDataBaseObject.quoteName("currency_id") : "") + " ORDER BY ";
+        query += staticDataBaseObject.quoteName("name" ) + " ASC ";
+
+        staticDataBaseObject.setQuery(query);
+        ResultSet currencySet = staticDataBaseObject.loadObject();
+
         if ($object) {
             foreach ($tab as $key => $currency) {
                 $tab[$key] = JeproLabCurrencyModel.getCurrencyInstance($currency['id_currency']);
@@ -237,14 +248,34 @@ public class JeproLabCurrencyModel extends JeproLabModel {
         return $tab;
     }
 
-    public static function getCurrenciesByIdShop($id_shop = 0)
-    {
-        return Db::getInstance()->executeS('
-            SELECT *
-                    FROM `'._DB_PREFIX_.'currency` c
-        LEFT JOIN `'._DB_PREFIX_.'currency_shop` cs ON (cs.`id_currency` = c.`id_currency`)
-        '.($id_shop ? ' WHERE cs.`id_shop` = '.(int)$id_shop : '').'
-        ORDER BY `name` ASC');
+    public static List<JeproLabCurrencyModel> getCurrenciesByLaboratoryId(){
+        return getCurrenciesByLaboratoryId(0);
+    }
+
+    public static List<JeproLabCurrencyModel> getCurrenciesByLaboratoryId(int labId){
+        if(staticDataBaseObject == null){
+            staticDataBaseObject = JeproLabFactory.getDataBaseConnector();
+        }
+        String query = "SELECT * FROM " + staticDataBaseObject.quoteName("#__jeprolab_currency") + " AS currency LEFT JOIN ";
+        query += staticDataBaseObject.quoteName("#__jeprolab_currency_lab") + " AS currency_lab ON (currency_lab.";
+        query += staticDataBaseObject.quoteName("currency_id") + " = currency." + staticDataBaseObject.quoteName("currency_id");
+        query += ") " + (labId > 0 ? " WHERE currency_lab." + staticDataBaseObject.quoteName("lab_id") + " = " + labId : "");
+        query += " ORDER BY " + staticDataBaseObject.quoteName("name") + " ASC";
+
+        staticDataBaseObject.setQuery(query);
+        ResultSet currencySet = staticDataBaseObject.loadObject();
+        JeproLabCurrencyModel currency;
+        List<JeproLabCurrencyModel> currencies = new ArrayList<>();
+        try{
+            while (currencySet.next()){
+                currency = new JeproLabCurrencyModel();
+                currency.currency_id = currencySet.getInt("currency_id");
+                currencies.add(currency);
+            }
+        }catch (SQLException ignored){
+
+        }
+        return currencies;
     }
 
 
@@ -329,16 +360,16 @@ public class JeproLabCurrencyModel extends JeproLabModel {
      * @return int
      */
     public static int getIdByIsoCode(String isoCode, int labId){
-        String cacheKey = "jeproLab_currency_model_get_id_by_iso_code_" + .pSQL(isoCode).'-'.(int)$id_shop;
-        if (!Cache::isStored($cache_id)) {
-        $query = JeproLabCurrencyModel.getIdByQuery($id_shop);
-        $query->where('iso_code = \''.pSQL($iso_code).'\'');
+        String cacheKey = "jeproLab_currency_model_get_id_by_iso_code_" + .pSQL(isoCode) + "_" + labId;
+        if (!JeproLabCache.getInstance().isStored(cacheKey)) {
+            String query = JeproLabCurrencyModel.getIdByQuery(labId);
+            query += "where('iso_code = \''.pSQL($iso_code).'\'')";
 
-        $result = (int)Db::getInstance(_PS_USE_SQL_SLAVE_) -> getValue($query->build());
-        Cache::store($cache_id, $result);
-        return $result;
-    }
-        return Cache::retrieve($cache_id);
+            int result = (int)staticDataBaseObject.loadValue();
+            JeproLabCache.getInstance().store(cacheKey, result);
+            return result;
+        }
+        return (int)JeproLabCache.getInstance().retrieve(cacheKey);
     }
 
     public static int getIdByIsoCodeNum(int isoCodeNum){
@@ -355,7 +386,7 @@ public class JeproLabCurrencyModel extends JeproLabModel {
         query += " AND " + staticDataBaseObject.quoteName("iso_code_num") + " = " + staticDataBaseObject.secureData(isoCodeNum);
 
         staticDataBaseObject.setQuery(query);
-        return (int)Db::getInstance(_PS_USE_SQL_SLAVE_)->getValue($query->build());
+        return (int)staticDataBaseObject.loadValue("currency_id");
     }
 
     public static String getIdByQuery(){
@@ -382,48 +413,48 @@ public class JeproLabCurrencyModel extends JeproLabModel {
      * The XML file define exchange rate for each from a default currency ($isoCodeSource).
      *
      * @param SimpleXMLElement $data XML content which contains all the exchange rates
-     * @param string $isoCodeSource The default currency used in the XML file
+     * @param isoCodeSource The default currency used in the XML file
      * @param Currency $defaultCurrency The default currency object
      */
-    public function refreshCurrency($data, $isoCodeSource, JeproLabCurrencyModel defaultCurrency){
+    public function refreshCurrency($data, String isoCodeSource, JeproLabCurrencyModel defaultCurrency){
         // fetch the exchange rate of the default currency
-        $exchange_rate = 1;
-        $tmp = this.conversion_rate;
-        if ($defaultCurrency->iso_code != $isoCodeSource) {
+        double exchangeRate = 1;
+        double tmp = this.conversion_rate;
+        if (!defaultCurrency.iso_code.equals(isoCodeSource)){
             foreach ($data->currency as $currency) {
-                if ($currency['iso_code'] == $defaultCurrency->iso_code) {
-                    $exchange_rate = round((float)$currency['rate'], 6);
+                if (currency['iso_code'] == defaultCurrency.iso_code) {
+                    exchangeRate = Math.round((float)$currency['rate'], 6);
                     break;
                 }
             }
         }
-
+        double rate = 0;
         if (defaultCurrency.iso_code.equals(this.iso_code)) {
             this.conversion_rate = 1;
         } else {
-            if (this.iso_code == $isoCodeSource) {
-                $rate = 1;
+            if (this.iso_code.equals(isoCodeSource)){
+                rate = 1;
             } else {
                 foreach ($data->currency as $obj) {
                     if (this.iso_code == strval($obj['iso_code'])) {
-                        $rate = (float)$obj['rate'];
+                        rate = (float)$obj['rate'];
                         break;
                     }
                 }
             }
 
-            if (isset($rate)) {
-                this.conversion_rate = round($rate / $exchange_rate, 6);
+            if (rate > 0) {
+                this.conversion_rate = Math.round(rate / exchangeRate);
             }
         }
 
-        if ($tmp != this.conversion_rate) {
+        if (tmp != this.conversion_rate) {
             this.updateCurrency();
         }
     }
 
     public static JeproLabCurrencyModel getDefaultCurrency(){
-        int currencyId = (int)JeproLabSettingModel.getIntValue("default_currency");
+        int currencyId = JeproLabSettingModel.getIntValue("default_currency");
         if (currencyId == 0) {
             return null;
         }
@@ -486,13 +517,13 @@ public class JeproLabCurrencyModel extends JeproLabModel {
             if(staticDataBaseObject == null){
                 staticDataBaseObject = JeproLabFactory.getDataBaseConnector();
             }
-            String query = "SELECT COUNT(DISTINCT currency.currency_id) FROM " + staticDataBaseObject.quoteName("#__jeprolab_currency");
+            String query = "SELECT COUNT(DISTINCT currency.currency_id) AS ids FROM " + staticDataBaseObject.quoteName("#__jeprolab_currency");
             query += " AS currency LEFT JOIN " + staticDataBaseObject.quoteName("#__jeprolab_currency_lab") + " AS currency_lab ON (";
             query += "currency_lab.currency_id = currency.currency_id AND currency_lab.lab_id = " + labId + ") WHERE currency.";
             query += staticDataBaseObject.quoteName("published") + " = 1";
 
             staticDataBaseObject.setQuery(query);
-            int val = staticDataBaseObject.loadValue();
+            int val = (int)staticDataBaseObject.loadValue("ids");
             JeproLabCurrencyModel.activeCurrencies.put(labId, val);
         }
         return JeproLabCategoryModel.activeCurrencies.get(labId);
