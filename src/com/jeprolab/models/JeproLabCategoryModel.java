@@ -213,7 +213,7 @@ public class JeproLabCategoryModel extends JeproLabModel {
         //this.image_id = (file_exists(JeproLabConfigurationSettings.JEPROLAB_CATEGORY_IMAGE_DIRRECTORY +  this.category_id + ".jpg")) ? this.category_id : 0;
         this.image_dir = JeproLabConfigurationSettings.JEPROLAB_CATEGORY_IMAGE_DIRRECTORY;
     }
-
+/*
     public static ResultSet getCategories(){
         return getCategories(null);
     }
@@ -232,7 +232,7 @@ public class JeproLabCategoryModel extends JeproLabModel {
 
 
         /*int limit = context.listLimit;
-        limit_start = context.listLimitStart; */
+        limit_start = context.listLimitStart; * /
         int langId = context.language.language_id;
         boolean published = false; //$app->getUserStateFromRequest($option. $view. ".published", "published", 0, "string");
 
@@ -437,7 +437,7 @@ public class JeproLabCategoryModel extends JeproLabModel {
      * @param categoryIds
      * @param langId
      * @return Array
-     */
+     * /
     public static List<JeproLabCategoryModel> getCategoryInformation(int categoryIds[], int langId){
         if (langId <= 0){
             langId = JeproLabContext.getContext().language.language_id;
@@ -481,7 +481,7 @@ public class JeproLabCategoryModel extends JeproLabModel {
     /* *
      * @param labId
      * @return bool
-     */
+     * /
     public boolean isParentCategoryAvailable(int labId){
         if(labId <= 0) {
             labId = JeproLabContext.getContext().laboratory.laboratory_id;
@@ -526,7 +526,7 @@ public class JeproLabCategoryModel extends JeproLabModel {
      *
      * @param  labId
      * @return bool
-     */
+     * /
     public boolean isAssociatedToLaboratory(int labId){
         if (labId <= 0){
             labId = JeproLabContext.getContext().laboratory.laboratory_id;
@@ -562,7 +562,7 @@ public class JeproLabCategoryModel extends JeproLabModel {
      * @static
      * @param langId
      * @return JeproLabCategoryModel
-     */
+     * /
     public static JeproLabCategoryModel getTopCategory(int langId){
         if(langId < 0){
             langId = JeproLabContext.getContext().language.language_id;
@@ -651,7 +651,7 @@ public class JeproLabCategoryModel extends JeproLabModel {
 
         boolean explicitSelect = true;
 
-        /* Manage default params values */
+        /* Manage default params values * /
         boolean useLimit = true;
         if (limit <= 0) {
             useLimit = false;
@@ -669,12 +669,12 @@ public class JeproLabCategoryModel extends JeproLabModel {
         if(JeproLabLaboratoryModel.getLabContext() == JeproLabLaboratoryModel.LAB_CONTEXT && JeproLabLaboratoryModel.isFeaturePublished()){
             where = " AND category_lab." + dataBaseObject.quoteName("lab_id") + " = " + JeproLabContext.getContext().laboratory.laboratory_id;
         }
-        /* Check params validity */
+        /* Check params validity * /
         if (!JeproLabTools.isOrderBy(orderBy) || !JeproLabTools.isOrderWay(orderWay) || !(limitStart < 0) || !(limit < 0) || !(langId < 0)){
             JeproLabTools.displayError(500, JeproLab.getBundle().getString("JEPROLAB_GET_LIST_PARAMS_IS_NOT_VALID_MESSAGE"));
         }
 
-        /* Cache */
+        /* Cache * /
         if (preg_match("/[.!]/", orderBy)){
             orderBySplit = preg_split("/[.!]/", orderBy);
             orderBy = bqSQL(orderBySplit[0]) + ".`" + bqSQL(orderBySplit[1]) + "`";
@@ -692,7 +692,7 @@ public class JeproLabCategoryModel extends JeproLabModel {
             $join_lab = " LEFT JOIN " +_DB_PREFIX_.this.labLinkType." lab
                             ON a.id_".this.labLinkType." = lab.id_".this.labLinkType;
             $where_lab = JeproLabLaboratoryModel.addSqlRestriction("1", "category");
-        }*/
+        }* /
 
         if (context.controller.multilab_context && JeproLabLaboratoryModel.isTableAssociated("category")){
             if (JeproLabLaboratoryModel.getLabContext() != JeproLabLaboratoryModel.ALL_CONTEXT || !context.employee.isSuperAdmin()){
@@ -708,7 +708,7 @@ public class JeproLabCategoryModel extends JeproLabModel {
         String select = ", category_lab.position AS position ";
         String tmpTableFilter = "";
 
-        /* Query in order to get results with all fields */
+        /* Query in order to get results with all fields * /
         String langJoin = " LEFT JOIN " + dataBaseObject.quoteName("#__jeprolab_category_lang") + " AS category_lang ON (";
         langJoin += "category_lang." + dataBaseObject.quoteName("category_id") + " = category." + dataBaseObject.quoteName("category_id");
         langJoin += " AND category_lang." + dataBaseObject.quoteName("lang_id") + " = " + langId;
@@ -749,9 +749,10 @@ public class JeproLabCategoryModel extends JeproLabModel {
             query += (!select.equals("") ? rtrim($select, ", ") : "") + selectLab + " FROM " + dataBaseObject.quoteName("#__jeprolab_category") + " AS category " + langJoin + (!join.equals("") ? join + " " : "") ;
             query += joinLab + " WHERE 1 " + (!where.equals("") ? where + " " : "") + (this.deleted_category ? " AND category." +dataBaseObject.quoteName("deleted") + " = 0 " : "") +  "AND ";
             query += dataBaseObject.quoteName("parent_id") +" = " + parentId + whereLab +(isset($group) ? $group + " " : "") + havingClause + " ORDER BY " + ((str_replace("`", "", orderBy) == "category_id") ? "category." : "") + " category.";
-            query += orderBy + " " + dataBaseObject.escape(orderWay) + (!tmpTableFilter.equals("") ? ") tmpTable WHERE 1" + tmpTableFilter : "");
+            query += orderBy + " " + dataBaseObject.quote(orderWay, true) + (!tmpTableFilter.equals("") ? ") tmpTable WHERE 1" + tmpTableFilter : "");
 
             dataBaseObject.setQuery(query);
+            List<JeproLabCategoryModel> categories = new ArrayList<>();
             try{
                 categoryResult = dataBaseObject.loadObject();
                 while (categoryResult.next()) {
@@ -768,7 +769,7 @@ public class JeproLabCategoryModel extends JeproLabModel {
                     category = categoryResult;
                     category = categoryResult;
                     category = categoryResult;
-                    category = categoryResult; */
+                    category = categoryResult; * /
                     categories.add(category);
                 }
             }catch (SQLException ignored){
@@ -791,7 +792,7 @@ public class JeproLabCategoryModel extends JeproLabModel {
         this.pagination = new Pagination(); //$total, $limitstart, $limit);
         return $categories;
     }
-
+*/
     public boolean isMultiLab(){
         return JeproLabLaboratoryModel.isTableAssociated("category") || JeproLabCategoryModel.multiLangLab;
     }
@@ -803,17 +804,17 @@ public class JeproLabCategoryModel extends JeproLabModel {
     public Pagination getPagination(){
         return this.pagination;
     }
-
+/*
     public List<JeproLabCategoryModel> getParentsCategories(){
         return getParentsCategories(0);
     }
 
-    /**
+    /*
      * Get Each parent category of this category until the root category
      *
      * @param langId Language ID
      * @return array Corresponding categories
-     */
+     * /
     public List<JeproLabCategoryModel> getParentsCategories(int langId) {
         JeproLabContext context = JeproLabContext.getContext().clone();
         context.laboratory = clone(context.laboratory);
@@ -881,7 +882,7 @@ public class JeproLabCategoryModel extends JeproLabModel {
      * @param langId
      * @param published
      * @return array
-     */
+     * /
     public static List getChildren(int parentId, int langId, boolean published, int labId){
            String cacheKey = "jeprolab_category_get_children_" + parentId + "_" + langId + "_"+ (published ? 1 : 0) + "_" + labId;
         if (!JeproLabCache.getInstance().isStored(cacheKey)){
@@ -925,7 +926,7 @@ public class JeproLabCategoryModel extends JeproLabModel {
      *
      *
      * @return bool
-     */
+     * /
     public boolean hasMultiLabEntries() {
         if (!JeproLabLaboratoryModel.isTableAssociated("category") || !JeproLabLaboratoryModel.isFeaturePublished()) {
             return false;
@@ -944,9 +945,9 @@ public class JeproLabCategoryModel extends JeproLabModel {
     /**
      * Get the depth level for the category
      * @return int Depth level
-     */
+     * /
     public int calculateDepthLevel(){
-        /* Root category */
+        /* Root category * /
         if (this.parent_id < 0) {
             return 0;
         }
@@ -1091,7 +1092,7 @@ public class JeproLabCategoryModel extends JeproLabModel {
 
     /**
      * Re-calculate the values of all branches of the nested tree
-     */
+     * /
     public static void regenerateEntireNestedTree(){
         if(staticDataBaseObject == null){
             staticDataBaseObject = JeproLabFactory.getDataBaseConnector();
@@ -1125,27 +1126,27 @@ public class JeproLabCategoryModel extends JeproLabModel {
      * @param categoryParentId the parent category
      * @param labId
      * @return int
-     */
+     * /
     public static int getLastPosition(int categoryParentId, int labId){
         if(staticDataBaseObject == null){
             staticDataBaseObject = JeproLabFactory.getDataBaseConnector();
         }
 
-        String query = "SELECT MAX(category_lab." + staticDataBaseObject.quoteName("position") + ") FROM " + staticDataBaseObject.quoteName("#__jeprolab_category") + " AS category LEFT JOIN ";
+        String query = "SELECT MAX(category_lab." + staticDataBaseObject.quoteName("position") + ") AS max_pos FROM " + staticDataBaseObject.quoteName("#__jeprolab_category") + " AS category LEFT JOIN ";
         query += staticDataBaseObject.quoteName("#__jeprolab_category_lab") + " AS category_lab ON (category." + staticDataBaseObject.quoteName("category_id") + " = category_lab.";
         query += staticDataBaseObject.quoteName("category_id") + " AND category_lab." + staticDataBaseObject.quoteName("lab_id") + " = " + labId + ") WHERE category.";
         query += staticDataBaseObject.quoteName("parent_id") + " = " + categoryParentId;
 
         staticDataBaseObject.setQuery(query);
-        return (1 + (int)staticDataBaseObject.loadValue());
+        return (1 + (int)staticDataBaseObject.loadValue("max_pos"));
     }
 
 
-    /**
+    /*
      * Updates level_depth for all children of the given id_category
      *
      * @param categoryId parent category
-     */
+     * /
     public void recalculateDepthLevel(int categoryId){
         if(dataBaseObject == null){
             dataBaseObject = JeproLabFactory.getDataBaseConnector();
@@ -1153,18 +1154,18 @@ public class JeproLabCategoryModel extends JeproLabModel {
         if (categoryId <= 0) {
             //throw new JException("category_id is not numeric");
         }
-        /* Gets all children */
+        /* Gets all children * /
         String query = "SELECT " + dataBaseObject.quoteName("category_id") + ", "  + dataBaseObject.quoteName("parent_id") + ", " + dataBaseObject.quoteName("depth_level") + " FROM ";
         query += dataBaseObject.quoteName("#__jeprolab_category") + " WHERE parent_id = " + categoryId ;
 
         dataBaseObject.setQuery(query);
         ResultSet categories = dataBaseObject.loadObject();
 
-        /* Gets level_depth */
+        /* Gets level_depth * /
         query = "SELECT depth_level FROM " + dataBaseObject.quoteName("#__jeprolab_category") + " WHERE category_id = " + categoryId;
         dataBaseObject.setQuery(query);
-        int level = (int)dataBaseObject.loadValue();
-        /* Updates level_depth for all children */
+        int level = (int)dataBaseObject.loadValue("depth_level");
+        /* Updates level_depth for all children * /
         try {
             int subCategoryId;
             while(categories.next()) {
@@ -1174,7 +1175,7 @@ public class JeproLabCategoryModel extends JeproLabModel {
 
                 dataBaseObject.setQuery(query);
                 dataBaseObject.query();
-            /* Recursive call */
+            /* Recursive call * /
                 this.recalculateDepthLevel(subCategoryId);
             }
         }catch (SQLException ignored){
@@ -1223,11 +1224,11 @@ public class JeproLabCategoryModel extends JeproLabModel {
         return result;
     }
 
-    /**
+    /*
      * Update customer groups associated to the object
      *
      * @param list groups
-     */
+     * /
     public void updateGroup(int list[]) {
         this.cleanGroups();
         if (list.length == 0) {
@@ -1258,7 +1259,7 @@ public class JeproLabCategoryModel extends JeproLabModel {
         dataBaseObject.setQuery(query);
         dataBaseObject.query();
     }
-
+/*
     protected static void subTree(&$categories, int categoryId, &$n) {
         int left = $n++;
         if(staticDataBaseObject == null){
@@ -1266,7 +1267,7 @@ public class JeproLabCategoryModel extends JeproLabModel {
         }
         if (isset($categories[(int)$category_id]["subcategories"])) {
             foreach ($categories[(int)$category_id]["subcategories"] as $subcategory_id) {
-                JeproLabCategoryModelCategory.subTree($categories, (int)$subcategory_id, $n);
+                JeproLabCategoryModel.subTree($categories, (int)$subcategory_id, $n);
             }
         }
         int right = (int)$n++;
@@ -1292,7 +1293,7 @@ public class JeproLabCategoryModel extends JeproLabModel {
         if(!context.controller.has_errors){
             int categoryId = (int)$app->input->get("category_id");
 
-            /** update category  */
+            /** update category  * /
             if(categoryId > 0){
                 //$category = new JeproLabCategoryModelCategory($category_id);
                 if(this.category_id <= 0){
@@ -1406,7 +1407,7 @@ public class JeproLabCategoryModel extends JeproLabModel {
      * Search for another category with the same parent and the same position
      *
      * @return array first category found
-     */
+     * /
     public int getDuplicatedPosition(){
         if(dataBaseObject == null){
             dataBaseObject = JeproLabFactory.getDataBaseConnector();
@@ -1429,7 +1430,7 @@ public class JeproLabCategoryModel extends JeproLabModel {
      *
      * @param mixed $category_parent_id
      * @return boolean true if succeed
-     */
+     * /
     public static function cleanPositions($category_parent_id = null){
         if ($category_parent_id === null){  return true; }
 
@@ -1469,7 +1470,7 @@ public class JeproLabCategoryModel extends JeproLabModel {
      * @param string $categories Categories list to associate a lab
      * @param string labId Categories list to associate a lab
      * @return array Update/insertion result
-     */
+     * /
     public static function updateFromLababoratory($categories, int labId){
         $lab = new JeproLabLaboratoryModel(labId);
         // if array is empty or if the default category is not selected, return false
@@ -1487,7 +1488,7 @@ public class JeproLabCategoryModel extends JeproLabModel {
      * Delete category from lab $id_lab
      * @param int labId
      * @return bool
-     */
+     * /
     public function deleteFromLaboratory(int labId){
         if(dataBaseObject == null){
             dataBaseObject = JeproLabFactory.getDataBaseConnector();
@@ -1502,7 +1503,7 @@ public class JeproLabCategoryModel extends JeproLabModel {
      * Delete every categories
      * @param labId
      * @return bool
-     */
+     * /
     public static function deleteCategoriesFromLaboratory(int labId){
         if(staticDataBaseObject == null){
             staticDataBaseObject = JeproLabFactory.getDataBaseConnector();
@@ -1518,7 +1519,7 @@ public class JeproLabCategoryModel extends JeproLabModel {
      * @param array $categories
      * @param labId
      * @return bool
-     */
+     * /
     public static function addToLaboratory(array $categories, labId){
         if (!is_array($categories)){ return false; }
         if(staticDataBaseObject == null){
@@ -1572,7 +1573,7 @@ public class JeproLabCategoryModel extends JeproLabModel {
      * Add association between lab and categories
      * @param labId
      * @return bool
-     */
+     * /
     public function addLaboratory(int labId){
         $data = array();
         if (!$id_lab)
@@ -1623,7 +1624,7 @@ public class JeproLabCategoryModel extends JeproLabModel {
      * @since 1.5.0
      * @param categoryId
      * @return array
-     */
+     * /
     public static function getInterval(int categoryId){
         String cacheKey = "jeprolab_category_get_interval_" + categoryId;
         if (!JeproLabCache.getInstance().isStored(cacheKey))
@@ -1652,7 +1653,6 @@ public class JeproLabCategoryModel extends JeproLabModel {
         return searchByPath(langId, path, false, false);
     }
 
-
     public static function searchByPath(int langId, String path, boolean objectToCreate){
         return searchByPath(langId, path, objectToCreate, false);
     }
@@ -1665,7 +1665,7 @@ public class JeproLabCategoryModel extends JeproLabModel {
      * @param boolean $object_to_create a category
      * 	  * @param boolean $method_to_create a category
      * @return array Corresponding categories
-     */
+     * /
     public static function searchByPath(int langId, String path, boolean objectToCreate, boolean methodToCreate){
         $categories = explode("/", trim($path));
         $category = $id_parent_category = false;
@@ -1696,7 +1696,7 @@ public class JeproLabCategoryModel extends JeproLabModel {
      *
      * @param categoryId Category id
      * @return boolean
-     */
+     * /
     public static boolean categoryExists(int categoryId){
         if(staticDataBaseObject == null){
             staticDataBaseObject = JeproLabFactory.getDataBaseConnector();
@@ -1740,7 +1740,7 @@ public class JeproLabCategoryModel extends JeproLabModel {
      * @param string query Searched string
      * @param boolean $unrestricted allows search without lang and includes first category and exact match
      * @return array Corresponding categories
-     */
+     * /
     public static function searchByName(langId, query, $unrestricted = false){
         if ($unrestricted === true)
             return Db.getInstance()->getRow("
@@ -1764,7 +1764,7 @@ public class JeproLabCategoryModel extends JeproLabModel {
      * @param string  $category_name Searched category name
      * @param integer $id_parent_category parent category ID
      * @return array Corresponding category
-     */
+     * /
     public static function searchByNameAndParentCategoryId($id_lang, $category_name, $id_parent_category){
         return Db.getInstance()->getRow("
                 SELECT c. *, cl. *
@@ -1783,7 +1783,7 @@ public class JeproLabCategoryModel extends JeproLabModel {
      * @param employeeId
      * @access public
      * @return boolean true if access allowed for customer $id_customer
-     */
+     * /
     public boolean checkAccess(int employeeId){
         String cacheKey = "jeprolab_category_check_access_" + this.category_id + "_" + employeeId ; //+ (!$id_customer ? "-".(int)Group.getCurrent().group_id : "");
         if (!JeproLabCache.getInstance().isStored(cacheKey)){
@@ -1856,7 +1856,7 @@ public class JeproLabCategoryModel extends JeproLabModel {
      * @param int $product_id
      * @param int langId
      * @return array
-     */
+     * /
     public static function getChildrenWithNumberOfSelectedSubCategories(int parentId, $selected_category, langId, JeproLabLaboratoryModel $lab = null, $use_lab_context = true){
         if (!$lab)
             $lab = Context.getContext()->lab;
@@ -1896,7 +1896,7 @@ public class JeproLabCategoryModel extends JeproLabModel {
      * @param oldId Source category ID
      * @param newId Destination category ID
      * @return boolean Duplication result
-     */
+     * /
     public static boolean duplicateAnalyzeCategories(int oldId, int newId){
         if(staticDataBaseObject == null){
             staticDataBaseObject = JeproLabFactory.getDataBaseConnector();
@@ -1930,7 +1930,7 @@ public class JeproLabCategoryModel extends JeproLabModel {
      * @param categoryId current category
      * @param parentId Parent candidate
      * @return boolean Parent validity
-     */
+     * /
     public static boolean checkBeforeMove(int categoryId, int parentId){
         if (categoryId == parentId) return false;
         if (parentId == JeproLabSettingModel.getIntValue("root_category")) return true;
@@ -1969,7 +1969,7 @@ public class JeproLabCategoryModel extends JeproLabModel {
      * @param boolean $active return only active categories
      * @param bool labId
      * @return array categories
-     */
+     * /
     public static function getHomeCategories(langId, $active = true, labId = false){
         return self.getChildren(JeproLabSettingModelSetting.getValue("root_category"), langId, $active, labId);
     }
@@ -1984,7 +1984,7 @@ public class JeproLabCategoryModel extends JeproLabModel {
      *
      * @param int langId
      * @return Collection of Category
-     */
+     * /
     public function getAllChildren(int langId){
         if (langId <= 0) {
             langId = JeproLabContext.getContext().language.language_id;
@@ -2043,7 +2043,7 @@ public class JeproLabCategoryModel extends JeproLabModel {
      * @param checkAccess
      * @param context
      * @return mixed Products or number of products
-     */
+     * /
     public List<JeproLabAnalyzeModel> getAnalyzes(int langId, boolean checkAccess, JeproLabContext context, int requestedPage, int numberOfItems, String orderBy, String orderWay, boolean getTotal, boolean published, boolean random, boolean randomNumberAnalyzes){
         if(context == null) {
             context = JeproLabContext.getContext();
@@ -2054,13 +2054,13 @@ public class JeproLabCategoryModel extends JeproLabModel {
         /*$front = true;
         if (!in_array($context->controller->controller_type, array("front", "modulefront")))
             $front = false;
-*/
+* /
         if (requestedPage < 1){ requestedPage = 1; }
 
         if(orderBy == null || orderBy.equals("")) {
             orderBy = "position";
         }else {
-            /* Fix for all modules which are now using lowercase values for "orderBy" parameter */
+            /* Fix for all modules which are now using lowercase values for "orderBy" parameter * /
             orderBy = orderBy.toLowerCase();
         }
 
@@ -2093,7 +2093,7 @@ public class JeproLabCategoryModel extends JeproLabModel {
             dataBaseObject = JeproLabFactory.getDataBaseConnector();
         }
 
-        /* Return only the number of analyzes */
+        /* Return only the number of analyzes * /
         if (getTotal){
             String query = "SELECT COUNT(category_analyze." + dataBaseObject.quoteName("analyze_id") + ") AS total  FROM ";
             query += dataBaseObject.quoteName("#__jeprolab_analyze") + " AS analyze " + JeproLabLaboratoryModel.addSqlAssociation("analyze");
@@ -2157,7 +2157,7 @@ public class JeproLabCategoryModel extends JeproLabModel {
         if (!$result)
             return array();
 
-        /* Modify SQL result */
+        /* Modify SQL result * /
         return JeproLabAnalyzeModel.getAnalyzesProperties(langId, $result);
     }
 
@@ -2186,7 +2186,7 @@ public class JeproLabCategoryModel extends JeproLabModel {
      *
      * @param array &$to_delete Array reference where categories ID will be saved
      * @param categoryId Parent category ID
-     */
+     * /
     protected void recursiveDelete(&$to_delete, int categoryId){
         if (!is_array($to_delete) || categoryId <= 0)
             JeproLabTools.displayError(500, JeproLab.getBundle().getString("JEPROLAB_LABEL"));
@@ -2277,14 +2277,14 @@ public class JeproLabCategoryModel extends JeproLabModel {
                 // Delete associated restrictions on cart rules
                 JeproLabCartRuleModel.cleanProductRuleIntegrity("categories", array($category->category_id));
                 JeproLabCategoryModel.cleanPositions(category.parent_id);
-                /* Delete Categories in GroupReduction */
+                /* Delete Categories in GroupReduction * /
                 if (JeproLabGroupReductionModel.getGroupsReductionByCategoryId(category.category_id)) {
                     JeproLabGroupReductionModel.deleteCategory(category.category_id);
                 }
             }
         }
 
-        /* Rebuild the nested tree */
+        /* Rebuild the nested tree * /
         if (!this.hasMultiLabEntries() && (!isset(this.doNotRegenerateNestedTree) || !this.doNotRegenerateNestedTree))
             JeproLabCategoryModel.regenerateEntireNestedTree();
 
@@ -2299,7 +2299,7 @@ public class JeproLabCategoryModel extends JeproLabModel {
      * return boolean Deletion result
      * @param categories
      * @return bool|int
-     */
+     * /
     public boolean deleteSelection(int categories[]){
         boolean result = true;
         for (int categoryId :categories){
@@ -2312,9 +2312,9 @@ public class JeproLabCategoryModel extends JeproLabModel {
         return result;
     }
 
-    /**
+    /*
      * @see ObjectModel.toggleStatus()
-     */
+     * /
     public function toggleStatus(){
         $result = parent.toggleStatus();
         Hook.exec("actionCategoryUpdate");
@@ -2346,7 +2346,7 @@ public class JeproLabCategoryModel extends JeproLabModel {
      * @param excludedIdsArray specify a list of ids to exclude of results
      *
      * @return array Subcategories lite tree
-     */
+     * /
     public function recurseLiteCategoryTree(int maxDepth, int currentDepth, int langId, int excludedIdsArray[]){
         langId = (langId > 0) ? JeproLabContext.getContext().language.language_id : langId;
 

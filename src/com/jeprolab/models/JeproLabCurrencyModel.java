@@ -73,12 +73,12 @@ public class JeproLabCurrencyModel extends JeproLabModel {
         }
     }
 
-    /**
+    /*
      * Overriding check if currency rate is not empty and if currency with the same iso code already exists.
      * If it's true, currency is not added.
      *
      * @see ObjectModelCore::add()
-     */
+     * /
     public boolean addCurrency($autodate = true, $nullValues = false){
         if ((float)this.conversion_rate <= 0) {
             return false;
@@ -109,7 +109,7 @@ public class JeproLabCurrencyModel extends JeproLabModel {
      *
      * @param isoCode String for iso code
      * @return bool
-     */
+     * /
     public static boolean exists(String isoCode, int labId){
         return JeproLabCurrencyModel.getIdByIsoCode(isoCode, labId) > 0;
     }
@@ -123,12 +123,12 @@ public class JeproLabCurrencyModel extends JeproLabModel {
      *
      * @param isoCodeNum int for iso code number
      * @return bool
-     */
+     * /
     public static boolean exists(int isoCodeNum, int labId){
         int currencyId = JeproLabCurrencyModel.getIdByIsoCodeNum(isoCodeNum, labId);
         return currencyId > 0;
     }
-
+/*
 
     public function deleteSelection($selection)
     {
@@ -148,7 +148,7 @@ public class JeproLabCurrencyModel extends JeproLabModel {
         }
     }
         return true;
-    }
+    } * /
 
     public boolean delete() {
         if (this.currency_id == JeproLabSettingModel.getIntValue("default_currency")) {
@@ -183,11 +183,11 @@ public class JeproLabCurrencyModel extends JeproLabModel {
         return getCurrencySign(null);
     }
     /**
-     * Return formated sign
+     * Return formatted sign
      *
      * @param side String left or right
      * @return string formatted sign
-     */
+     * /
     public String getCurrencySign(String side) {
         if (side == null){
             return this.sign;
@@ -234,7 +234,7 @@ public class JeproLabCurrencyModel extends JeproLabModel {
      * Return available currencies
      *
      * @return array Currencies
-     */
+     * /
     public static List<JeproLabCurrencyModel> getCurrencies(boolean object, boolean published, boolean groupBy){
         if(staticDataBaseObject == null){
             staticDataBaseObject = JeproLabFactory.getDataBaseConnector();
@@ -344,7 +344,7 @@ public class JeproLabCurrencyModel extends JeproLabModel {
         WHERE `id_module` = '.(int)$id_module.'
         AND `id_shop` = '.(int)$id_shop;
         return Db::getInstance(_PS_USE_SQL_SLAVE_)->executeS($sql);
-    } */
+    } * /
 
     public static JeproLabCurrencyModel getCurrency(int currencyId){
         if(staticDataBaseObject == null){
@@ -362,7 +362,7 @@ public class JeproLabCurrencyModel extends JeproLabModel {
                 /*todo currency. = currencySet
                 currency.currency_id = currencySet
                 currency.currency_id = currencySet
-                currency.currency_id = currencySet*/
+                currency.currency_id = currencySet* /
             }
         }catch (SQLException ignored){
             ignored.printStackTrace();
@@ -378,7 +378,7 @@ public class JeproLabCurrencyModel extends JeproLabModel {
      * @param isoCode
      * @param labId
      * @return int
-     */
+     * /
     public static int getIdByIsoCode(String isoCode, int labId){
         String cacheKey = "jeproLab_currency_model_get_id_by_iso_code_" + pSQL(isoCode) + "_" + labId;
         if (!JeproLabCache.getInstance().isStored(cacheKey)) {
@@ -400,7 +400,7 @@ public class JeproLabCurrencyModel extends JeproLabModel {
      * @param isoCodeNum
      * @param labId
      * @return int
-     */
+     * /
     public static int getIdByIsoCodeNum(int isoCodeNum, int labId){
         String query = JeproLabCurrencyModel.getIdByQuery(labId);
         query += " AND " + staticDataBaseObject.quoteName("iso_code_num") + " = " + staticDataBaseObject.secureData(isoCodeNum);
@@ -416,7 +416,7 @@ public class JeproLabCurrencyModel extends JeproLabModel {
     /**
      * @param labId
      * @return DbQuery
-     */
+     * /
     public static String getIdByQuery(int labId){
         String query = "SELECT currency.currency_id FROM " + staticDataBaseObject.quoteName("#__jeprolab_currency") + " AS currency ";
         String where = " WHERE currency.deleted = 0 ";
@@ -435,7 +435,7 @@ public class JeproLabCurrencyModel extends JeproLabModel {
      * @param SimpleXMLElement $data XML content which contains all the exchange rates
      * @param isoCodeSource The default currency used in the XML file
      * @param Currency $defaultCurrency The default currency object
-     */
+     * /
     public function refreshCurrency($data, String isoCodeSource, JeproLabCurrencyModel defaultCurrency){
         // fetch the exchange rate of the default currency
         double exchangeRate = 1;
@@ -497,7 +497,7 @@ public class JeproLabCurrencyModel extends JeproLabModel {
 
         List currencies = JeproLabCurrencyModel.getCurrencies(true, false, true);
         for(JeproLabCurrencyModel currency : currencies) {
-            /** @var Currency $currency */
+            /** @var Currency $currency * /
             if (currency.currency_id != defaultCurrency.currency_id) {
                 currency.refreshCurrency($feed -> list, $isoCodeSource, defaultCurrency);
             }
@@ -508,7 +508,7 @@ public class JeproLabCurrencyModel extends JeproLabModel {
      * Get current currency
      *
      * @return JeproLabCurrencyModel
-     */
+     * /
     public static JeproLabCurrencyModel getCurrentCurrency(){
         return JeproLabContext.getContext().currency;
     }
@@ -555,5 +555,5 @@ public class JeproLabCurrencyModel extends JeproLabModel {
 
     public static boolean isMultiCurrencyActivated(int labId){
         return (JeproLabCurrencyModel.countActiveCurrencies(labId) > 1);
-    }
+    } */
 }
