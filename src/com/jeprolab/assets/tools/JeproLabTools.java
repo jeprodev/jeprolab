@@ -15,7 +15,7 @@ public class JeproLabTools {
 
     public static boolean isOrderBy(String order){
         String pattern = "/^[a-zA-Z0-9._-]+$/";
-        return order.matches(pattern);
+        return true; //order.matches(pattern);
     }
 
     public static boolean isOrderWay(String way){

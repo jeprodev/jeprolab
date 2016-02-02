@@ -28,6 +28,7 @@ public class JeproLabController implements Initializable {
     public void initialize(URL location , ResourceBundle resource){
         bundle = resource;
         context = JeproLabContext.getContext();
+        context.controller = this;
 
         if(!isInitialized){
 

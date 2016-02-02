@@ -666,7 +666,7 @@ public class JeproLabCategoryModel extends JeproLabModel {
             where = " AND category_lab." + dataBaseObject.quoteName("lab_id") + " = " + JeproLabContext.getContext().laboratory.laboratory_id;
         }
         /* Check params validity */
-        if (!JeproLabTools.isOrderBy(orderBy) || !JeproLabTools.isOrderWay(orderWay) || !(limitStart < 0) || !(limit < 0) || !(langId < 0)){
+        if (!JeproLabTools.isOrderBy(orderBy) || !JeproLabTools.isOrderWay(orderWay) || !(limitStart < 0) || !(limit < 0) || !(langId < 0)){ System.out.println(orderBy + " " + orderWay + " " + limit + " " + limitStart + langId);
             JeproLabTools.displayError(500, JeproLab.getBundle().getString("JEPROLAB_GET_LIST_PARAMS_IS_NOT_VALID_MESSAGE"));
         }
 
@@ -745,9 +745,9 @@ public class JeproLabCategoryModel extends JeproLabModel {
             }
             //select
             query += (!select.equals("") ? select : "") + selectLab + " FROM " + dataBaseObject.quoteName("#__jeprolab_category") + " AS category " + langJoin + (!join.equals("") ? join + " " : "") ;
-            query += joinLab + " WHERE 1 " + (!where.equals("") ? where + " " : "") + (this.deleted_category ? " AND category." +dataBaseObject.quoteName("deleted") + " = 0 " : "") +  "AND ";
-            query += dataBaseObject.quoteName("parent_id") +" = " + parentId + whereLab  + havingClause + " ORDER BY " + ((orderBy.replace("`", "") == "category_id") ? "category." : "") + " category.";
-            query += orderBy + " " + dataBaseObject.quote(orderWay, true) + (!tmpTableFilter.equals("") ? ") tmpTable WHERE 1" + tmpTableFilter : "");
+            query += joinLab + " WHERE 1 " + (!where.equals("") ? where + " " : "") +  "AND category.";
+            query += dataBaseObject.quoteName("parent_id") +" = " + parentId + whereLab  + havingClause + " ORDER BY " + ((orderBy.replace("`", "").equals("category_id")) ? "category." : "") + " category.";
+            query += orderBy + " " + orderWay + (!tmpTableFilter.equals("") ? ") tmpTable WHERE 1" + tmpTableFilter : "");
 
             dataBaseObject.setQuery(query);
 
@@ -755,7 +755,7 @@ public class JeproLabCategoryModel extends JeproLabModel {
                 categoryResult = dataBaseObject.loadObject();
                 while (categoryResult.next()) {
                     total = total + 1;
-                }
+                }System.out.println(total);
                 query += (useLimit ? " LIMIT " + limitStart + ", " + limit : "" );
                 dataBaseObject.setQuery(query);
                 categoryResult = dataBaseObject.loadObject();

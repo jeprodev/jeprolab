@@ -136,4 +136,17 @@ public class JeproLabCategoryController extends JeproLabController {
 
     @Override
     public void updateToolBar(){}
+
+    private static class JeproLabCategory {
+        /*private categoryIndex;
+        private categoryCheckBox;
+        private categoryStatus;
+        private categoryName;
+        private categoryDescription;
+        private categoryPosition;
+        private categoryActions; */
+        public JeproLabCategory(JeproLabCategoryModel categoryModel){
+
+        }
+    }
 }
