@@ -1,7 +1,11 @@
 package com.jeprolab.models;
 
+import com.jeprolab.JeproLab;
+import com.jeprolab.assets.tools.JeproLabCache;
 import com.jeprolab.assets.tools.JeproLabContext;
 
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.Date;
 import java.util.Map;
 
@@ -489,6 +493,51 @@ public class JeproLabAnalyzeModel extends JeproLabModel {
         }
 
         if (analyzeId > 0) {
+            String cacheKey = "jeprolab_analyze_model_" + analyzeId + "_" + (full ? "true" : "false") + "_" + langId + "_" + labId;
+            if(!JeproLabCache.getInstance().isStored(cacheKey)){
+                String query = "SELECT analyze.* FROM " + dataBaseObject.quoteName("#__jeprolab_analyze") + " AS analyze ";
+                query += " WHERE analyze.analyze_id = " + analyzeId;
+
+                dataBaseObject.setQuery(query);
+                ResultSet analyzeResult = dataBaseObject.loadObject();
+                try{
+                    while(analyzeResult.next()){
+                        this.analyze_id = analyzeResult.getInt("analyze_id");
+                        //this = analyzeResult.get("");
+                        //this = analyzeResult.get("");
+                        //this = analyzeResult.get("");
+                        //this = analyzeResult.get("");
+                        //this = analyzeResult.get("");
+                        //this = analyzeResult.get("");
+                        //this = analyzeResult.get("");
+                        //this = analyzeResult.get("");
+                        //this = analyzeResult.get("");
+                        //this = analyzeResult.get("");
+                        //this = analyzeResult.get("");
+                        //this = analyzeResult.get("");
+                        //this = analyzeResult.get("");
+                        //this = analyzeResult.get("");
+                        //this = analyzeResult.get("");
+                        //this = analyzeResult.get("");
+                        //this = analyzeResult.get("");
+                        //this = analyzeResult.get("");
+                    }
+                }catch(SQLException ignored){
+
+                }
+            }else{
+                JeproLabAnalyzeModel analyzeModel = (JeproLabAnalyzeModel)JeproLabCache.getInstance().retrieve(cacheKey);
+                this.analyze_id = analyzeModel.analyze_id;
+                /*this = analyzeModel;
+                this = analyzeModel;
+                this = analyzeModel;
+                this = analyzeModel;
+                this = analyzeModel;
+                this = analyzeModel;
+                this = analyzeModel;
+                this = analyzeModel;
+                this = analyzeModel;*/
+            }
             /*$entity_mapper = Adapter_ServiceLocator::get("Adapter_EntityMapper");
             $entity_mapper->load($id, $id_lang, $this, $this->def, $this->id_shop, self::$cache_objects);*/
         }
