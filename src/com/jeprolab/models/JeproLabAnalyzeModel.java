@@ -503,24 +503,32 @@ public class JeproLabAnalyzeModel extends JeproLabModel {
                 try{
                     while(analyzeResult.next()){
                         this.analyze_id = analyzeResult.getInt("analyze_id");
-                        //this = analyzeResult.get("");
-                        //this = analyzeResult.get("");
-                        //this = analyzeResult.get("");
-                        //this = analyzeResult.get("");
-                        //this = analyzeResult.get("");
-                        //this = analyzeResult.get("");
-                        //this = analyzeResult.get("");
-                        //this = analyzeResult.get("");
-                        //this = analyzeResult.get("");
-                        //this = analyzeResult.get("");
-                        //this = analyzeResult.get("");
-                        //this = analyzeResult.get("");
-                        //this = analyzeResult.get("");
-                        //this = analyzeResult.get("");
-                        //this = analyzeResult.get("");
-                        //this = analyzeResult.get("");
-                        //this = analyzeResult.get("");
-                        //this = analyzeResult.get("");
+                        this.supplier_id = analyzeResult.getInt("supplier_id");
+                        this.technician_id = analyzeResult.getInt("technician_id");
+                        this.manufacturer_id = analyzeResult.getInt("manufacturer_id");
+                        this.default_category_id = analyzeResult.getInt("default_category_id");
+                        this.default_laboratory_id = analyzeResult.getInt("default_laboratory_id");
+                        this.tax_rules_group_id = analyzeResult.getInt("tax_rules_group_id");
+                        this.on_sale = analyzeResult.getInt("on_sale") > 0;
+                        this.online_only = analyzeResult.getInt("online_only") > 0;
+                        this.ean13 = analyzeResult.getString("ean13");
+                        this.upc = analyzeResult.getString("upc");
+                        this.unity = analyzeResult.getString("unity");
+                        this.unit_price = analyzeResult.getFloat("unit_price");
+                        this.unit_price_ratio = analyzeResult.getFloat("unit_price_ratio");
+                        this.additional_shipping_cost = analyzeResult.getFloat("additional_shipping_cost");
+                        this.reference = analyzeResult.getString("reference");
+                        this.supplier_reference = analyzeResult.getString("supplier_reference");
+                        this.location = analyzeResult.getString("location");
+                        this.width = analyzeResult.getFloat("width");
+                        this.height = analyzeResult.getFloat("height");
+                        this.weight = analyzeResult.getFloat("weight");
+                        this.out_of_stock = analyzeResult.getInt("out_of_stock") > 0;
+                        this.quantity_discount = analyzeResult.getInt("quantity_discount");
+                        this.customizable = analyzeResult.getInt("customizable") > 0;
+                        this.uploadable_file = analyzeResult.getInt("uploadable_file") > 0;
+                        this.text_fields = analyzeResult.getString("text_fields");
+                        this.published = analyzeResult.getInt("published") > 0;
                     }
                 }catch(SQLException ignored){
 
@@ -528,11 +536,11 @@ public class JeproLabAnalyzeModel extends JeproLabModel {
             }else{
                 JeproLabAnalyzeModel analyzeModel = (JeproLabAnalyzeModel)JeproLabCache.getInstance().retrieve(cacheKey);
                 this.analyze_id = analyzeModel.analyze_id;
-                /*this = analyzeModel;
-                this = analyzeModel;
-                this = analyzeModel;
-                this = analyzeModel;
-                this = analyzeModel;
+                this.supplier_id = analyzeModel.supplier_id;
+                this.technician_id = analyzeModel.technician_id;
+                this.manufacturer_id = analyzeModel.manufacturer_id;
+                this.default_category_id = analyzeModel.default_category_id;
+                this.default_laboratory_id = analyzeModel.default_laboratory_id;
                 this = analyzeModel;
                 this = analyzeModel;
                 this = analyzeModel;
