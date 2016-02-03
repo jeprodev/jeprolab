@@ -138,13 +138,13 @@ public class JeproLabCategoryController extends JeproLabController {
     public void updateToolBar(){}
 
     private static class JeproLabCategory {
-        private categoryIndex;
+        /*private categoryIndex;
         private categoryCheckBox;
         private categoryStatus;
         private categoryName;
         private categoryDescription;
         private categoryPosition;
-        private categoryActions;
+        private categoryActions; */
         public JeproLabCategory(JeproLabCategoryModel categoryModel){
 
         }

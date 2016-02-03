@@ -203,6 +203,10 @@ public class JeproLabDataBaseConnector {
         return  2;
     }
 
+    public String loadStringValue(String key){
+        return key;
+    }
+
     public String secureData(String data){ //todo
         return data;
     }

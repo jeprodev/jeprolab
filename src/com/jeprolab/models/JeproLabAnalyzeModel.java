@@ -3,6 +3,7 @@ package com.jeprolab.models;
 import com.jeprolab.JeproLab;
 import com.jeprolab.assets.tools.JeproLabCache;
 import com.jeprolab.assets.tools.JeproLabContext;
+import com.jeprolab.models.core.JeproLabFactory;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -31,6 +32,8 @@ public class JeproLabAnalyzeModel extends JeproLabModel {
 
     /** @var int Supplier id */
     public int supplier_id;
+
+    public int technician_id;
 
     /** @var int default Category id */
     public int default_category_id;
@@ -70,19 +73,19 @@ public class JeproLabAnalyzeModel extends JeproLabModel {
 
     public float specificPrice = 0;
 
-    /** @var float Additional shipping cost * /
-    public $additional_shipping_cost = 0;
+    /** @var float Additional shipping cost */
+    public float additional_shipping_cost = 0;
 
     /** @var float Wholesale Price in euros * /
     public $wholesale_price = 0;
 
-    /** @var bool on_sale * /
-    public $on_sale = false;
+    /** @var bool on_sale */
+    public boolean on_sale = false;
 
-    /** @var bool online_only * /
-    public $online_only = false;
+    /** @var bool online_only */
+    public boolean online_only = false;
 
-    /** @var string unity * /
+    /** @var string unity */
     public String unity = null;
 
     /** @var float price for product's unity */
@@ -97,11 +100,11 @@ public class JeproLabAnalyzeModel extends JeproLabModel {
     /** @var string Reference */
     public String reference;
 
-    /** @var string Supplier Reference * /
-    public $supplier_reference;
+    /** @var string Supplier Reference */
+    public String supplier_reference;
 
-    /** @var string Location * /
-    public $location;
+    /** @var string Location */
+    public String location;
 
     /** @var string Width in default width unit */
     public double width = 0;
@@ -133,20 +136,20 @@ public class JeproLabAnalyzeModel extends JeproLabModel {
     /** @var string Meta tag title */
     public Map<String, String> meta_title;
 
-    /** @var bool Product statuts * /
-    public $quantity_discount = 0;
+    /** @var bool Product status */
+    public int quantity_discount = 0;
 
-    /** @var bool Product customization * /
-    public $customizable;
+    /** @var bool Product customization */
+    public boolean customizable;
 
     /** @var bool Product is new */
     public boolean newAnalyze = false;
 
-    /** @var int Number of uploadable files (concerning customizable products) * /
-    public $uploadable_files;
+    /** @var int Number of uploadable files (concerning customizable products) */
+    public int uploadable_files;
 
-    /** @var int Number of text fields * /
-    public $text_fields;
+    /** @var int Number of text fields */
+    public int text_fields;
 
     /** @var bool Product status */
     public boolean published = true;
@@ -155,14 +158,14 @@ public class JeproLabAnalyzeModel extends JeproLabModel {
 
     public String redirect_type = "";
 
-    /** @var bool Product statuts * /
-    public $id_product_redirected = 0;
+    /** @var bool Product statuts */
+    public int product_redirected_id = 0;
 
-    /** @var bool Product available for order * /
-    public $available_for_order = true;
+    /** @var bool Product available for order */
+    public boolean available_for_order = true;
 
-    /** @var string Object available order date * /
-    public $available_date = '0000-00-00';
+    /** @var string Object available order date */
+    public Date available_date; //= '0000-00-00';
 
     /** @var string Enumerated (enum) product condition (new, used, refurbished) * /
     public $condition;
@@ -182,16 +185,16 @@ public class JeproLabAnalyzeModel extends JeproLabModel {
     /** @var string Object last modification date */
     public Date date_upd;
 
-    /*** @var array Tags * /
-    public $tags;
+    /*** @var array Tags */
+    public Map<String, String> tags;
 
     /**
      * @var float Base price of the product
      * @deprecated 1.6.0.13
-     * /
-    public $base_price;
+     */
+    public float base_price;
 
-    public $id_tax_rules_group = 1;
+    public int tax_rules_group_id = 1;
 
     /**
      * We keep this variable for retrocompatibility for themes
@@ -217,8 +220,8 @@ public class JeproLabAnalyzeModel extends JeproLabModel {
 
     /**
      * @var string If product is populated, this property contain the rewrite link of the default category
-     * /
-    public $category;
+     */
+    public JeproLabCategoryModel category;
 
     /**
      * @var int tell the type of stock management to apply on the pack
@@ -240,7 +243,8 @@ public class JeproLabAnalyzeModel extends JeproLabModel {
     protected static $_cacheFeatures = array();
     protected static $_frontFeaturesCache = array();
     protected static $producPropertiesCache = array();
-
+*/
+    protected static boolean multi_lang_lab = true;
     /** @var array cache stock data in getStock() method * /
     protected static $cacheStock = array();
 
@@ -495,8 +499,24 @@ public class JeproLabAnalyzeModel extends JeproLabModel {
         if (analyzeId > 0) {
             String cacheKey = "jeprolab_analyze_model_" + analyzeId + "_" + (full ? "true" : "false") + "_" + langId + "_" + labId;
             if(!JeproLabCache.getInstance().isStored(cacheKey)){
+                if(dataBaseObject == null){
+                    dataBaseObject = JeproLabFactory.getDataBaseConnector();
+                }
                 String query = "SELECT analyze.* FROM " + dataBaseObject.quoteName("#__jeprolab_analyze") + " AS analyze ";
-                query += " WHERE analyze.analyze_id = " + analyzeId;
+                String where = "";
+                if(langId > 0){
+                    query += "LEFT JOIN " + dataBaseObject.quoteName("#__jeprolab_analyze_lang") + " AS analyze_lang ON (";
+                    query += "analyze.analyze_id = analyze_lang.analyze_id AND analyze_lang.lang_id = " + langId + ")";
+                    if(this.laboratory_id > 0 && JeproLabAnalyzeModel.multi_lang_lab){
+                        where = " AND analyze_lang.lab_id = " + this.laboratory_id;
+                    }
+                }
+
+                if(JeproLabLaboratoryModel.isTableAssociated("analyze")){
+                    query += " LEFT JOIN " + dataBaseObject.quoteName("#__jeprolab_analyze_lab") + " AS analyze_lab ON (analyze.analyze_id = ";
+                    query += " analyze_lab.analyze_id AND analyze_lab.lab_id = " + this.laboratory_id +  ")";
+                }
+                query += " WHERE analyze.analyze_id = " + analyzeId + where;
 
                 dataBaseObject.setQuery(query);
                 ResultSet analyzeResult = dataBaseObject.loadObject();
@@ -526,8 +546,8 @@ public class JeproLabAnalyzeModel extends JeproLabModel {
                         this.out_of_stock = analyzeResult.getInt("out_of_stock") > 0;
                         this.quantity_discount = analyzeResult.getInt("quantity_discount");
                         this.customizable = analyzeResult.getInt("customizable") > 0;
-                        this.uploadable_file = analyzeResult.getInt("uploadable_file") > 0;
-                        this.text_fields = analyzeResult.getString("text_fields");
+                        this.uploadable_files = analyzeResult.getInt("uploadable_files");
+                        this.text_fields = analyzeResult.getInt("text_fields");
                         this.published = analyzeResult.getInt("published") > 0;
                     }
                 }catch(SQLException ignored){
@@ -541,14 +561,30 @@ public class JeproLabAnalyzeModel extends JeproLabModel {
                 this.manufacturer_id = analyzeModel.manufacturer_id;
                 this.default_category_id = analyzeModel.default_category_id;
                 this.default_laboratory_id = analyzeModel.default_laboratory_id;
-                this = analyzeModel;
-                this = analyzeModel;
-                this = analyzeModel;
-                this = analyzeModel;*/
+                this.tax_rules_group_id = analyzeModel.tax_rules_group_id;
+                this.on_sale = analyzeModel.on_sale;
+                this.online_only = analyzeModel.online_only;
+                this.ean13 = analyzeModel.ean13;
+                this.upc = analyzeModel.upc;
+                this.unity = analyzeModel.unity;
+                this.unit_price = analyzeModel.unit_price;
+                this.unit_price_ratio = analyzeModel.unit_price_ratio;
+                this.additional_shipping_cost = analyzeModel.additional_shipping_cost;
+                this.reference = analyzeModel.reference;
+                this.supplier_reference = analyzeModel.supplier_reference;
+                this.location = analyzeModel.location;
+                this.width = analyzeModel.width;
+                this.height = analyzeModel.height;
+                this.weight = analyzeModel.weight;
+                this.out_of_stock = analyzeModel.out_of_stock;
+                this.quantity_discount = analyzeModel.quantity_discount;
+                this.customizable = analyzeModel.customizable;
+                this.uploadable_files = analyzeModel.uploadable_files;
+                this.text_fields = analyzeModel.text_fields;
+                this.published = analyzeModel.published;
             }
-            /*$entity_mapper = Adapter_ServiceLocator::get("Adapter_EntityMapper");
-            $entity_mapper->load($id, $id_lang, $this, $this->def, $this->id_shop, self::$cache_objects);*/
         }
+
         if (full && this.analyze_id > 0) {
             if (context == null) {
                 context = JeproLabContext.getContext();
@@ -558,12 +594,12 @@ public class JeproLabAnalyzeModel extends JeproLabModel {
             //this.tax_name = 'deprecated'; // The applicable tax may be BOTH the product one AND the state one (moreover this variable is some deadcode)
             this.manufacturer_name = JeproLabManufacturerModel.getNameById(this.manufacturer_id);
             this.supplier_name = JeproLabSupplierModel.getNameById((int) this.supplier_id);
-            //$address = null;
+            int addressId = 0;
             /*if (is_object(context.cart) && context.cart.{Configuration::get('PS_TAX_ADDRESS_TYPE')} != null) {
                 $address = context.cart->{Configuration::get('PS_TAX_ADDRESS_TYPE')};
-            } * /
+            } */
 
-            this.tax_rate = this.getTaxesRate(new JeproLabAddressModel($address));
+            this.tax_rate = this.getTaxesRate(new JeproLabAddressModel(addressId));
 
             this.newAnalyze = this.isNew();
 
@@ -572,15 +608,15 @@ public class JeproLabAnalyzeModel extends JeproLabModel {
 
             this.price = JeproLabAnalyzeModel.getStaticPrice(this.analyze_id, false, null, 6, null, false, true, 1, false, null, null, null, this.specificPrice);
             this.unit_price = (this.unit_price_ratio != 0  ? this.price / this.unit_price_ratio : 0);
-            if (this.id) {
-                this.tags = JeproLabTagModel.getProductTags(this.id);
+            if (this.analyze_id > 0) {
+                this.tags = JeproLabTagModel.getProductTags(this.analyze_id);
             }
 
-            this.loadStockData(); */
+            this.loadStockData();
         }
 
         if (this.default_category_id > 0) {
-            //this.category = JeproLabCategoryModel.getLinkRewrite((this.default_category_id, langId);
+            this.category = JeproLabCategoryModel.getLinkRewrite(this.default_category_id, langId);
         }
     }
 
