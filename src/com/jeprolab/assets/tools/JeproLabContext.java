@@ -13,6 +13,8 @@ public class JeproLabContext implements Cloneable {
 
     public JeproLabEmployeeModel employee;
 
+    public JeproLabCustomerModel customer;
+
     public JeproLabCookie cookie;
 
     public JeproLabLaboratoryModel laboratory;

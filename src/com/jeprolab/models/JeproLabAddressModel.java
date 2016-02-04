@@ -1,8 +1,10 @@
 package com.jeprolab.models;
 
+import com.jeprolab.JeproLab;
 import com.jeprolab.assets.config.JeproLabConfig;
 import com.jeprolab.assets.tools.JeproLabCache;
 import com.jeprolab.assets.tools.JeproLabContext;
+import com.jeprolab.assets.tools.JeproLabTools;
 import com.jeprolab.assets.tools.db.JeproLabDataBaseConnector;
 import com.jeprolab.models.core.JeproLabFactory;
 import javafx.scene.control.Pagination;
@@ -513,58 +515,64 @@ public class JeproLabAddressModel extends JeproLabModel {
     }
         return Cache::retrieve($cache_id);
     }
+    */
+
+    public static JeproLabAddressModel initialize() {
+        return initialize(0, false);
+    }
+
+    public static JeproLabAddressModel initialize(int addressId) {
+        return initialize(addressId, false);
+    }
 
     /**
      * Initialize an address corresponding to the specified id address or if empty to the
      * default shop configuration
      *
-     * @param int $id_address
-     * @param bool $with_geoloc
-     * @return Address address
+     * @param addressId
+     * @param withGeolocation
+     * @return JeproLabAddressModel address
      *
-     * @throws PrestaShopException
-     * /
-    public static function initialize($id_address = null, $with_geoloc = false)
-    {
-        $context = Context::getContext();
-
-        if ($id_address) {
-            $context_hash = (int)$id_address;
-        } elseif ($with_geoloc && isset($context->customer->geoloc_id_country)) {
-        $context_hash = md5((int)$context->customer->geoloc_id_country.'-'.(int)$context->customer->id_state.'-'.
-                $context->customer->postcode);
-    } else {
-        $context_hash = md5((int)$context->country->id);
-    }
-
-
-        $cache_id = 'Address::initialize_'.$context_hash;
-
-        if (!Cache::isStored($cache_id)) {
-        // if an id_address has been specified retrieve the address
-        if ($id_address) {
-            $address = new Address((int)$id_address);
-
-            if (!Validate::isLoadedObject($address)) {
-                throw new PrestaShopException('Invalid address #'.(int)$id_address);
-            }
-        } elseif ($with_geoloc && isset($context->customer->geoloc_id_country)) {
-            $address             = new Address();
-            $address->id_country = (int)$context->customer->geoloc_id_country;
-            $address->id_state   = (int)$context->customer->id_state;
-            $address->postcode   = $context->customer->postcode;
+     */
+    public static JeproLabAddressModel initialize(int addressId, boolean withGeolocation) {
+        JeproLabContext context = JeproLabContext.getContext();
+        String contextHash;
+        if (addressId > 0) {
+            contextHash = addressId + "";
+        } else if (withGeolocation && (context.customer.geolocation_country_id > 0)) {
+            contextHash = JeproLabTools.md5(context.customer.geolocation_country_id + "_" + context.customer.state_id + "_" + context.customer.postcode);
         } else {
-            // set the default address
-            $address             = new Address();
-            $address->id_country = (int)$context->country->id;
-            $address->id_state   = 0;
-            $address->postcode   = 0;
+            contextHash = JeproLabTools.md5(context.country.country_id + "");
         }
-        Cache::store($cache_id, $address);
-        return $address;
-    }
 
-        return Cache::retrieve($cache_id);
+        String cacheKey = "jeprolab_address_initialize_" + contextHash;
+        JeproLabAddressModel address;
+
+        if (!JeproLabCache.getInstance().isStored(cacheKey)) {
+            // if an id_address has been specified retrieve the address
+            if (addressId >= 0) {
+                address = new JeproLabAddressModel(addressId);
+
+                /*if (!Validate::isLoadedObject($address)) {
+                    throw new PrestaShopException('Invalid address #'.(int)$id_address);
+                }*/
+            } else if (withGeolocation && (context.customer.geolocation_country_id > 0)) {
+                address = new JeproLabAddressModel();
+                address.country_id = context.customer.geolocation_country_id;
+                address.state_id   = context.customer.state_id;
+                address.postcode   = context.customer.postcode;
+            } else {
+                // set the default address
+                address = new JeproLabAddressModel();
+                address.country_id = context.country.country_id;
+                address.state_id   = 0;
+                address.postcode   = "";
+            }
+            JeproLabCache.getInstance().store(cacheKey, address);
+            return address;
+        }
+
+        return (JeproLabAddressModel)JeproLabCache.getInstance().retrieve(cacheKey);
     }
 
     /**

@@ -9,6 +9,10 @@ public class JeproLabTools {
         return false;
     }
 
+    public static String md5(String text){
+        return text;
+    }
+
     public static void displayError(int errorCode, String errorMessage){
 
     }

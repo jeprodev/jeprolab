@@ -20,7 +20,7 @@ public class JeproLabGroupModel extends JeproLabModel {
     /** @var string Reduction */
     public String reduction;
 
-    /** @var int Price display method (tax inc/tax exc) */
+    /** @var int Price display method (JeproLabTaxManagerFactory inc/JeproLabTaxManagerFactory exc) */
     public int price_display_method;
 
     /** @var bool Show prices */

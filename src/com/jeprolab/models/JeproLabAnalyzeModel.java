@@ -4,6 +4,7 @@ import com.jeprolab.JeproLab;
 import com.jeprolab.assets.tools.JeproLabCache;
 import com.jeprolab.assets.tools.JeproLabContext;
 import com.jeprolab.models.core.JeproLabFactory;
+import com.jeprolab.models.tax.JeproLabTaxManagerFactory;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -591,7 +592,7 @@ public class JeproLabAnalyzeModel extends JeproLabModel {
             }
 
             this.isFullyLoaded = full;
-            //this.tax_name = 'deprecated'; // The applicable tax may be BOTH the product one AND the state one (moreover this variable is some deadcode)
+            //this.tax_name = 'deprecated'; // The applicable JeproLabTaxManagerFactory may be BOTH the product one AND the state one (moreover this variable is some deadcode)
             this.manufacturer_name = JeproLabManufacturerModel.getNameById(this.manufacturer_id);
             this.supplier_name = JeproLabSupplierModel.getNameById((int) this.supplier_id);
             int addressId = 0;
@@ -2878,12 +2879,12 @@ public class JeproLabAnalyzeModel extends JeproLabModel {
      * @param bool     $only_reduc            Returns only the reduction amount
      * @param bool     $usereduc              Set if the returned amount will include reduction
      * @param int      $quantity              Required for quantity discount application (default value: 1)
-     * @param bool     $force_associated_tax  DEPRECATED - NOT USED Force to apply the associated tax.
+     * @param bool     $force_associated_tax  DEPRECATED - NOT USED Force to apply the associated JeproLabTaxManagerFactory.
      *                                        Only works when the parameter $usetax is true
      * @param int|null $id_customer           Customer ID (for customer group reduction)
      * @param int|null $id_cart               Cart ID. Required when the cookie is not accessible
      *                                        (e.g., inside a payment module, a cron task...)
-     * @param int|null $id_address            Customer address ID. Required for price (tax included)
+     * @param int|null $id_address            Customer address ID. Required for price (JeproLabTaxManagerFactory included)
      *                                        calculation regarding the guest localization
      * @param null     $specific_price_output If a specific price applies regarding the previous parameters,
      *                                        this variable is filled with the corresponding SpecificPrice object
@@ -3030,7 +3031,7 @@ public class JeproLabAnalyzeModel extends JeproLabModel {
      * @param int    $id_currency Currency id
      * @param int    $id_group Group id
      * @param int    $quantity Quantity Required for Specific prices : quantity discount application
-     * @param bool   $use_tax with (1) or without (0) tax
+     * @param bool   $use_tax with (1) or without (0) JeproLabTaxManagerFactory
      * @param int    $decimals Number of decimals returned
      * @param bool   $only_reduc Returns only the reduction amount
      * @param bool   $use_reduc Set if the returned amount will include reduction
@@ -3183,7 +3184,7 @@ public class JeproLabAnalyzeModel extends JeproLabModel {
                 $ecotax = Tools::convertPrice($ecotax, $id_currency);
             }
             if ($use_tax) {
-                // reinit the tax manager for ecotax handling
+                // reinit the JeproLabTaxManagerFactory manager for ecotax handling
                 $tax_manager = TaxManagerFactory::getManager(
                         $address,
                         (int)Configuration::get('PS_ECOTAX_TAX_RULES_GROUP_ID')
@@ -3285,23 +3286,23 @@ public class JeproLabAnalyzeModel extends JeproLabModel {
      * Get product price
      * Same as static function getPriceStatic, no need to specify product id
      *
-     * @param bool $tax With taxes or not (optional)
+     * @param bool $JeproLabTaxManagerFactory With taxes or not (optional)
      * @param int $id_product_attribute Product attribute id (optional)
      * @param int $decimals Number of decimals (optional)
      * @param int $divisor Util when paying many time without fees (optional)
      * @return float Product price in euros
      * /
-    public function getPrice($tax = true, $id_product_attribute = null, $decimals = 6,
+    public function getPrice($JeproLabTaxManagerFactory = true, $id_product_attribute = null, $decimals = 6,
                              $divisor = null, $only_reduc = false, $usereduc = true, $quantity = 1)
     {
-        return Product::getPriceStatic((int)this.id, $tax, $id_product_attribute, $decimals, $divisor, $only_reduc, $usereduc, $quantity);
+        return Product::getPriceStatic((int)this.id, $JeproLabTaxManagerFactory, $id_product_attribute, $decimals, $divisor, $only_reduc, $usereduc, $quantity);
     }
 
-    public function getPublicPrice($tax = true, $id_product_attribute = null, $decimals = 6,
+    public function getPublicPrice($JeproLabTaxManagerFactory = true, $id_product_attribute = null, $decimals = 6,
                                    $divisor = null, $only_reduc = false, $usereduc = true, $quantity = 1)
     {
         $specific_price_output = null;
-        return Product::getPriceStatic((int)this.id, $tax, $id_product_attribute, $decimals, $divisor, $only_reduc, $usereduc, $quantity,
+        return Product::getPriceStatic((int)this.id, $JeproLabTaxManagerFactory, $id_product_attribute, $decimals, $divisor, $only_reduc, $usereduc, $quantity,
             false, null, null, null, $specific_price_output, true, true, null, false);
     }
 
@@ -5153,26 +5154,28 @@ public static function getIdTaxRulesGroupByIdProduct($id_product, Context $conte
         }
         return Cache::retrieve($key);
         }
-
-/**
- * Returns tax rate.
- *
- * @param Address|null $address
- * @return float The total taxes rate applied to the product
- * /
-public function getTaxesRate(Address $address = null)
-        {
-        if (!$address || !$address->id_country) {
-        $address = Address::initialize();
+*/
+    public float getTaxesRate(){
+        return getTaxesRate(null);
+    }
+    /**
+     * Returns JeproLabTaxManagerFactory rate.
+     *
+     * @param address
+     * @return float The total taxes rate applied to the product
+     */
+    public float getTaxesRate(JeproLabAddressModel address) {
+        if (address != null && address.country_id <= 0) {
+            address = JeproLabAddressModel.initialize();
         }
 
-        $tax_manager = TaxManagerFactory::getManager($address, this.id_tax_rules_group);
-        $tax_calculator = $tax_manager->getTaxCalculator();
+        taxManager = JeproLabTaxManagerFactory.getManager(address, this.tax_rules_group_id);
+        taxCalculator = taxManager.getTaxCalculator();
 
-        return $tax_calculator->getTotalRate();
-        }
+        return taxCalculator.getTotalRate();
+    }
 
-/**
+/*
  * Webservice getter : get product features association
  *
  * @return array
