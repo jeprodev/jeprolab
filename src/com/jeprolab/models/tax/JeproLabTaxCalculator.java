@@ -25,7 +25,7 @@ public class JeproLabTaxCalculator {
     /**
      * @var array $taxes
      */
-    public List taxes;
+    public List<JeproLabTaxModel> taxes;
 
     /**
      * @var int $computation_method (COMBINE_METHOD | ONE_AFTER_ANOTHER_METHOD)
@@ -80,28 +80,27 @@ public class JeproLabTaxCalculator {
     }
 
     /**
-     * @return float total taxes rate
-     * /
-    public function getTotalRate()
-    {
-        $taxes = 0;
-        if ($this->computation_method == TaxCalculator::ONE_AFTER_ANOTHER_METHOD) {
-            $taxes = 1;
-            foreach ($this->taxes as $tax) {
-                $taxes *= (1 + (abs($tax->rate) / 100));
+     * @return taxes total taxes rate
+     */
+    public float getTotalRate(){
+        float taxes = 0;
+        if (this.computation_method == JeproLabTaxCalculator.ONE_AFTER_ANOTHER_METHOD) {
+            taxes = 1;
+            for(JeproLabTaxModel tax : this.taxes) {
+                taxes *= (1 + (Math.abs(tax.rate) / 100));
             }
 
-            $taxes = $taxes - 1;
-            $taxes = $taxes * 100;
+            taxes = taxes - 1;
+            taxes = taxes * 100;
         } else {
-            foreach ($this->taxes as $tax) {
-                $taxes += abs($tax->rate);
+            for(JeproLabTaxModel tax : this.taxes) {
+                taxes += Math.abs(tax.rate);
             }
         }
 
-        return (float)$taxes;
+        return taxes;
     }
-
+/*
     public function getTaxesName()
     {
         $name = '';

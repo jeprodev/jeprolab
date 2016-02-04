@@ -12,6 +12,10 @@ import java.util.Map;
 public class JeproLabTaxManagerFactory {
     protected static Map<String, JeproLabTaxRulesManager> cache_tax_manager = new HashMap<>();
 
+    public static JeproLabTaxRulesManager getManager(JeproLabAddressModel address, int type){
+        return getManager(address, type + "");
+    }
+
     /**
      * Returns a tax manager able to handle this address
      *
@@ -25,8 +29,8 @@ public class JeproLabTaxManagerFactory {
         JeproLabTaxRulesManager taxManager;
         if (!JeproLabTaxManagerFactory.cache_tax_manager.containsKey(cacheKey)){
             taxManager = JeproLabTaxManagerFactory.execHookTaxManagerFactory(address, type);
-            if (!(taxManager instanceof JeproLabTaxManagerInterface)) {
-                taxManager = new JeproLabTaxRulesTaxManager(address, type);
+            if (taxManager == null) {
+                taxManager = new JeproLabTaxRulesManager(address, type);
             }
 
             JeproLabTaxManagerFactory.cache_tax_manager.put(cacheKey, taxManager);
@@ -43,9 +47,9 @@ public class JeproLabTaxManagerFactory {
      * @return TaxManagerInterface|false
      */
     public static JeproLabTaxRulesManager execHookTaxManagerFactory(JeproLabAddressModel address, String type){
-        $modules_infos = Hook::getModulesFromHook(Hook::getIdByName('taxManager'));
+        //$modules_infos = Hook::getModulesFromHook(Hook::getIdByName('taxManager'));
         JeproLabTaxRulesManager taxManager = null;
-
+        /*
         foreach ($modules_infos as $module_infos) {
             $module_instance = Module::getInstanceByName($module_infos['name']);
             if (is_callable(array($module_instance, 'hookTaxManager'))) {
@@ -58,7 +62,7 @@ public class JeproLabTaxManagerFactory {
             if(taxManager != null) {
                 break;
             }
-        }
+        } */
         return taxManager;
     }
 

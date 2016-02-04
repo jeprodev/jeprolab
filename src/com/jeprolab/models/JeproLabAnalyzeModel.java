@@ -4,7 +4,9 @@ import com.jeprolab.JeproLab;
 import com.jeprolab.assets.tools.JeproLabCache;
 import com.jeprolab.assets.tools.JeproLabContext;
 import com.jeprolab.models.core.JeproLabFactory;
+import com.jeprolab.models.tax.JeproLabTaxCalculator;
 import com.jeprolab.models.tax.JeproLabTaxManagerFactory;
+import com.jeprolab.models.tax.JeproLabTaxRulesManager;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -26,7 +28,7 @@ public class JeproLabAnalyzeModel extends JeproLabModel {
     public String tax_name;
 
     /** @var string Tax rate */
-    public String tax_rate;
+    public float tax_rate;
 
     /** @var int Manufacturer id */
     public int manufacturer_id;
@@ -246,7 +248,7 @@ public class JeproLabAnalyzeModel extends JeproLabModel {
     protected static $producPropertiesCache = array();
 */
     protected static boolean multi_lang_lab = true;
-    /** @var array cache stock data in getStock() method * /
+    /* @var array cache stock data in getStock() method * /
     protected static $cacheStock = array();
 
     public static $definition = array(
@@ -596,7 +598,7 @@ public class JeproLabAnalyzeModel extends JeproLabModel {
             this.manufacturer_name = JeproLabManufacturerModel.getNameById(this.manufacturer_id);
             this.supplier_name = JeproLabSupplierModel.getNameById((int) this.supplier_id);
             int addressId = 0;
-            /*if (is_object(context.cart) && context.cart.{Configuration::get('PS_TAX_ADDRESS_TYPE')} != null) {
+            /*if (s_object(context.cart) && context.cart.{Configuration::get('PS_TAX_ADDRESS_TYPE')} != null) {
                 $address = context.cart->{Configuration::get('PS_TAX_ADDRESS_TYPE')};
             } */
 
@@ -629,7 +631,7 @@ public class JeproLabAnalyzeModel extends JeproLabModel {
         return JeproLabCategoryModel.multiLang && JeproLabCategoryModel.multiLangLab;
     }
 
-    /**
+    /*
      * @see ObjectModel::getFieldsShop()
      * @return array
      * /
@@ -1379,25 +1381,31 @@ public class JeproLabAnalyzeModel extends JeproLabModel {
         ORDER BY pl.`name`';
         return Db::getInstance(_PS_USE_SQL_SLAVE_)->executeS($sql);
     }
+*/
+    public boolean isNew(){
+        if(dataBaseObject == null){
+            dataBaseObject = JeproLabFactory.getDataBaseConnector();
+        }
 
-    public function isNew()
-    {
-        $result = Db::getInstance()->executeS('
-            SELECT p.id_product
-            FROM `'._DB_PREFIX_.'product` p
-        '.Shop::addSqlAssociation('product', 'p').'
-        WHERE p.id_product = '.(int)this.id.'
-        AND DATEDIFF(
-            product_shop.`date_add`,
-        DATE_SUB(
-                "'.date('Y-m-d').' 00:00:00",
-                INTERVAL '.(Validate::isUnsignedInt(Configuration::get('PS_NB_DAYS_NEW_PRODUCT')) ? Configuration::get('PS_NB_DAYS_NEW_PRODUCT') : 20).' DAY
-        )
-        ) > 0
-        ', true, false);
-        return count($result) > 0;
+        String query = "SELECT analyze.analyze_id FROM " + dataBaseObject.quoteName("#__jeprolab_analyze") + " AS analyze ";
+        query += JeproLabLaboratoryModel.addSqlAssociation("product") + " WHERE analyze.analyze_id = " + this.analyze_id ;
+        query += " AND DATEDIFF( analyze_lab." + dataBaseObject.quoteName("date_add") + ", DATE_SUB('" + date('Y-m-d');
+        query += " 00:00:00' , INTERVAL " + (JeproLabSettingModel.getIntValue("number") > 0 ? JeproLabSettingModel.getIntValue("") : 20);
+        query += " DAY ) ) > 0 ";
+
+        dataBaseObject.setQuery(query);
+        ResultSet analyzes = dataBaseObject.loadObject();
+        int total = 0;
+        try{
+            while (analyzes.next()){
+                total += 1;
+            }
+        }catch (SQLException ignored){
+
+        }
+        return total > 0;
     }
-
+/*
     public function productAttributeExists($attributes_list, $current_product_attribute = false, Context $context = null, $all_shops = false, $return_id = false)
     {
         if (!Combination::isFeatureActive()) {
@@ -2864,16 +2872,64 @@ public class JeproLabAnalyzeModel extends JeproLabModel {
         return $result;
     }
         return Cache::retrieve($cache_id);
+    } */
+
+    public static float getStaticPrice(int analyzeId, &$specific_price_output = null,){
+        return getStaticPrice(analyzeId, true, 0, 6, 0, false,  1, false, 0, 0, 0, &$specific_price_output = null, true, true, null, true);
+    }
+
+    public static float getStaticPrice(int analyzeId, boolean useTax = true, int analyzeAttributeId = null, int decimals = 6, $divisor = null, boolean onlyReduction = false,  boolean useReduction = true, int quantity = 1, boolean forceAssociateTax = false, int customerId = null, int cartId = null, int addressId = null, &$specific_price_output = null, boolean withEcotax = true, boolean useGroupReduction = true, JeproLabContext context = null, boolean useCustomerPrice = true){
+        return getStaticPrice(int analyzeId, boolean useTax = true, int analyzeAttributeId = null, int decimals = 6, $divisor = null, boolean onlyReduction = false,  boolean useReduction = true, int quantity = 1, boolean forceAssociateTax = false, int customerId = null, int cartId = null, int addressId = null, &$specific_price_output = null, boolean withEcotax = true, boolean useGroupReduction = true, JeproLabContext context = null, boolean useCustomerPrice = true);
+    }
+
+    public static float getStaticPrice(int analyzeId, boolean useTax = true, int analyzeAttributeId = null, int decimals = 6, $divisor = null, boolean onlyReduction = false,  boolean useReduction = true, int quantity = 1, boolean forceAssociateTax = false, int customerId = null, int cartId = null, int addressId = null, &$specific_price_output = null, boolean withEcotax = true, boolean useGroupReduction = true, JeproLabContext context = null, boolean useCustomerPrice = true){
+        return getStaticPrice(int analyzeId, boolean useTax = true, int analyzeAttributeId = null, int decimals = 6, $divisor = null, boolean onlyReduction = false,  boolean useReduction = true, int quantity = 1, boolean forceAssociateTax = false, int customerId = null, int cartId = null, int addressId = null, &$specific_price_output = null, boolean withEcotax = true, boolean useGroupReduction = true, JeproLabContext context = null, boolean useCustomerPrice = true);
+    }
+
+    public static float getStaticPrice(int analyzeId, boolean useTax = true, int analyzeAttributeId = null, int decimals = 6, $divisor = null, boolean onlyReduction = false,  boolean useReduction = true, int quantity = 1, boolean forceAssociateTax = false, int customerId = null, int cartId = null, int addressId = null, &$specific_price_output = null, boolean withEcotax = true, boolean useGroupReduction = true, JeproLabContext context = null, boolean useCustomerPrice = true){
+        return getStaticPrice(int analyzeId, boolean useTax = true, int analyzeAttributeId = null, int decimals = 6, $divisor = null, boolean onlyReduction = false,  boolean useReduction = true, int quantity = 1, boolean forceAssociateTax = false, int customerId = null, int cartId = null, int addressId = null, &$specific_price_output = null, boolean withEcotax = true, boolean useGroupReduction = true, JeproLabContext context = null, boolean useCustomerPrice = true);
+    }
+
+    public static float getStaticPrice(int analyzeId, boolean useTax = true, int analyzeAttributeId = null, int decimals = 6, $divisor = null, boolean onlyReduction = false,  boolean useReduction = true, int quantity = 1, boolean forceAssociateTax = false, int customerId = null, int cartId = null, int addressId = null, &$specific_price_output = null, boolean withEcotax = true, boolean useGroupReduction = true, JeproLabContext context = null, boolean useCustomerPrice = true){
+        return getStaticPrice(int analyzeId, boolean useTax = true, int analyzeAttributeId = null, int decimals = 6, $divisor = null, boolean onlyReduction = false,  boolean useReduction = true, int quantity = 1, boolean forceAssociateTax = false, int customerId = null, int cartId = null, int addressId = null, &$specific_price_output = null, boolean withEcotax = true, boolean useGroupReduction = true, JeproLabContext context = null, boolean useCustomerPrice = true);
+    }
+
+    public static float getStaticPrice(int analyzeId, boolean useTax = true, int analyzeAttributeId = null, int decimals = 6, $divisor = null, boolean onlyReduction = false,  boolean useReduction = true, int quantity = 1, boolean forceAssociateTax = false, int customerId = null, int cartId = null, int addressId = null, &$specific_price_output = null, boolean withEcotax = true, boolean useGroupReduction = true, JeproLabContext context = null, boolean useCustomerPrice = true){
+        return getStaticPrice(int analyzeId, boolean useTax = true, int analyzeAttributeId = null, int decimals = 6, $divisor = null, boolean onlyReduction = false,  boolean useReduction = true, int quantity = 1, boolean forceAssociateTax = false, int customerId = null, int cartId = null, int addressId = null, &$specific_price_output = null, boolean withEcotax = true, boolean useGroupReduction = true, JeproLabContext context = null, boolean useCustomerPrice = true);
+    }
+
+    public static float getStaticPrice(int analyzeId, boolean useTax = true, int analyzeAttributeId = null, int decimals = 6, $divisor = null, boolean onlyReduction = false,  boolean useReduction = true, int quantity = 1, boolean forceAssociateTax = false, int customerId = null, int cartId = null, int addressId = null, &$specific_price_output = null, boolean withEcotax = true, boolean useGroupReduction = true, JeproLabContext context = null, boolean useCustomerPrice = true){
+        return getStaticPrice(int analyzeId, boolean useTax = true, int analyzeAttributeId = null, int decimals = 6, $divisor = null, boolean onlyReduction = false,  boolean useReduction = true, int quantity = 1, boolean forceAssociateTax = false, int customerId = null, int cartId = null, int addressId = null, &$specific_price_output = null, boolean withEcotax = true, boolean useGroupReduction = true, JeproLabContext context = null, boolean useCustomerPrice = true);
+    }
+
+    public static float getStaticPrice(int analyzeId, boolean useTax = true, int analyzeAttributeId = null, int decimals = 6, $divisor = null, boolean onlyReduction = false,  boolean useReduction = true, int quantity = 1, boolean forceAssociateTax = false, int customerId = null, int cartId = null, int addressId = null, &$specific_price_output = null, boolean withEcotax = true, boolean useGroupReduction = true, JeproLabContext context = null, boolean useCustomerPrice = true){
+        return getStaticPrice(int analyzeId, boolean useTax = true, int analyzeAttributeId = null, int decimals = 6, $divisor = null, boolean onlyReduction = false,  boolean useReduction = true, int quantity = 1, boolean forceAssociateTax = false, int customerId = null, int cartId = null, int addressId = null, &$specific_price_output = null, boolean withEcotax = true, boolean useGroupReduction = true, JeproLabContext context = null, boolean useCustomerPrice = true);
+    }
+
+    public static float getStaticPrice(int analyzeId, boolean useTax = true, int analyzeAttributeId = null, int decimals = 6, $divisor = null, boolean onlyReduction = false,  boolean useReduction = true, int quantity = 1, boolean forceAssociateTax = false, int customerId = null, int cartId = null, int addressId = null, &$specific_price_output = null, boolean withEcotax = true, boolean useGroupReduction = true, JeproLabContext context = null, boolean useCustomerPrice = true){
+        return getStaticPrice(int analyzeId, boolean useTax = true, int analyzeAttributeId = null, int decimals = 6, $divisor = null, boolean onlyReduction = false,  boolean useReduction = true, int quantity = 1, boolean forceAssociateTax = false, int customerId = null, int cartId = null, int addressId = null, &$specific_price_output = null, boolean withEcotax = true, boolean useGroupReduction = true, JeproLabContext context = null, boolean useCustomerPrice = true);
+    }
+
+    public static float getStaticPrice(int analyzeId, boolean useTax = true, int analyzeAttributeId = null, int decimals = 6, $divisor = null, boolean onlyReduction = false,  boolean useReduction = true, int quantity = 1, boolean forceAssociateTax = false, int customerId = null, int cartId = null, int addressId = null, &$specific_price_output = null, boolean withEcotax = true, boolean useGroupReduction = true, JeproLabContext context = null, boolean useCustomerPrice = true){
+        return getStaticPrice(int analyzeId, boolean useTax = true, int analyzeAttributeId = null, int decimals = 6, $divisor = null, boolean onlyReduction = false,  boolean useReduction = true, int quantity = 1, boolean forceAssociateTax = false, int customerId = null, int cartId = null, int addressId = null, &$specific_price_output = null, boolean withEcotax = true, boolean useGroupReduction = true, JeproLabContext context = null, boolean useCustomerPrice = true);
+    }
+
+    public static float getStaticPrice(int analyzeId, boolean useTax = true, int analyzeAttributeId = null, int decimals = 6, $divisor = null, boolean onlyReduction = false,  boolean useReduction = true, int quantity = 1, boolean forceAssociateTax = false, int customerId = null, int cartId = null, int addressId = null, &$specific_price_output = null, boolean withEcotax = true, boolean useGroupReduction = true, JeproLabContext context = null, boolean useCustomerPrice = true){
+        return getStaticPrice(int analyzeId, boolean useTax = true, int analyzeAttributeId = null, int decimals = 6, $divisor = null, boolean onlyReduction = false,  boolean useReduction = true, int quantity = 1, boolean forceAssociateTax = false, int customerId = null, int cartId = null, int addressId = null, &$specific_price_output = null, boolean withEcotax = true, boolean useGroupReduction = true, JeproLabContext context = null, boolean useCustomerPrice = true);
+    }
+
+    public static float getStaticPrice(int analyzeId, boolean useTax = true, int analyzeAttributeId = null, int decimals = 6, $divisor = null, boolean onlyReduction = false,  boolean useReduction = true, int quantity = 1, boolean forceAssociateTax = false, int customerId = null, int cartId = null, int addressId = null, &$specific_price_output = null, boolean withEcotax = true, boolean useGroupReduction = true, JeproLabContext context = null, boolean useCustomerPrice = true){
+        return getStaticPrice(int analyzeId, boolean useTax = true, int analyzeAttributeId = null, int decimals = 6, $divisor = null, boolean onlyReduction = false,  boolean useReduction = true, int quantity = 1, boolean forceAssociateTax = false, int customerId = null, int cartId = null, int addressId = null, &$specific_price_output = null, boolean withEcotax = true, boolean useGroupReduction = true, JeproLabContext context = null, boolean useCustomerPrice = true);
     }
 
     /**
      * Returns product price
      *
-     * @param int      $id_product            Product id
-     * @param bool     $usetax                With taxes or not (optional)
-     * @param int|null $id_product_attribute  Product attribute id (optional).
-     *                                        If set to false, do not apply the combination price impact.
-     *                                        NULL does apply the default combination price impact.
+     * @param analyzeId  Analyze id
+     * @param useTax     With taxes or not (optional)
+     * @param analyzeAttributeId  Analyze attribute id (optional).
+     *                            If set to false, do not apply the combination price impact.
+     *                            NULL does apply the default combination price impact.
      * @param int      $decimals              Number of decimals (optional)
      * @param int|null $divisor               Useful when paying many time without fees (optional)
      * @param bool     $only_reduc            Returns only the reduction amount
@@ -2893,33 +2949,29 @@ public class JeproLabAnalyzeModel extends JeproLabModel {
      * @param Context  $context
      * @param bool     $use_customer_price
      * @return float                          Product price
-     * /
-    public static function getPriceStatic($id_product, $usetax = true, $id_product_attribute = null, $decimals = 6, $divisor = null,
-                                          $only_reduc = false, $usereduc = true, $quantity = 1, $force_associated_tax = false, $id_customer = null, $id_cart = null,
-                                          $id_address = null, &$specific_price_output = null, $with_ecotax = true, $use_group_reduction = true, Context $context = null,
-                                          $use_customer_price = true)
-    {
-        if (!$context) {
-            $context = Context::getContext();
+     */
+    public static float getStaticPrice(int analyzeId, boolean useTax, int analyzeAttributeId, int decimals, $divisor, boolean onlyReduction,  boolean useReduction, int quantity, boolean forceAssociateTax, int customerId, int cartId, int addressId, &$specific_price_output, boolean withEcotax, boolean useGroupReduction, JeproLabContext context, boolean useCustomerPrice){
+        if (context == null){
+            context = JeproLabContext.getContext();
         }
 
-        $cur_cart = $context->cart;
+        JeproLabCartModel currentCart = context.cart;
 
         if ($divisor !== null) {
             Tools::displayParameterAsDeprecated('divisor');
         }
 
-        if (!Validate::isBool($usetax) || !Validate::isUnsignedId($id_product)) {
-        die(Tools::displayError());
-    }
+        if (analyzeId <= 0){
+            die(Tools::displayError());
+        }
 
         // Initializations
-        $id_group = null;
-        if ($id_customer) {
-            $id_group = Customer::getDefaultGroupId((int)$id_customer);
+        int groupId = 0;
+        if (customerId > 0) {
+            groupId = JeproLabCustomerModel.getDefaultGroupId(customerId);
         }
-        if (!$id_group) {
-            $id_group = (int)Group::getCurrent()->id;
+        if (groupId <= 0) {
+            groupId = JeproLabGroupModel.getCurrent().group_id;
         }
 
         // If there is cart in context or if the specified id_cart is different from the context cart id
@@ -2928,42 +2980,48 @@ public class JeproLabAnalyzeModel extends JeproLabModel {
             * When a user (e.g., guest, customer, Google...) is on PrestaShop, he has already its cart as the global (see /init.php)
             * When a non-user calls directly this method (e.g., payment module...) is on PrestaShop, he does not have already it BUT knows the cart ID
             * When called from the back office, cart ID can be inexistant
-            * /
-        if (!$id_cart && !isset($context->employee)) {
-            die(Tools::displayError());
-        }
-        $cur_cart = new Cart($id_cart);
-        // Store cart in context to avoid multiple instantiations in BO
-        if (!Validate::isLoadedObject($context->cart)) {
-            $context->cart = $cur_cart;
-        }
-    }
-
-        $cart_quantity = 0;
-        if ((int)$id_cart) {
-            $cache_id = 'Product::getPriceStatic_'.(int)$id_product.'-'.(int)$id_cart;
-            if (!Cache::isStored($cache_id) || ($cart_quantity = Cache::retrieve($cache_id) != (int)$quantity)) {
-                $sql = 'SELECT SUM(`quantity`)
-                FROM `'._DB_PREFIX_.'cart_product`
-                WHERE `id_product` = '.(int)$id_product.'
-                AND `id_cart` = '.(int)$id_cart;
-                $cart_quantity = (int)Db::getInstance(_PS_USE_SQL_SLAVE_)->getValue($sql);
-                Cache::store($cache_id, $cart_quantity);
-            } else {
-                $cart_quantity = Cache::retrieve($cache_id);
+            */
+            if (cartId > 0 && context.employee != null) {
+                die(Tools::displayError());
+            }
+            currentCart = new JeproLabCartModel(cartId);
+            // Store cart in context to avoid multiple instantiations in BO
+            if (context.cart.cart_id <= 0)) {
+                context.cart = currentCart;
             }
         }
 
-        $id_currency = Validate::isLoadedObject($context->currency) ? (int)$context->currency->id : (int)Configuration::get('PS_CURRENCY_DEFAULT');
+        int cartQuantity = 0;
+        if (cartId > 0) {
+            String cacheKey = "jeprolab_analyze_get_static_price_" + analyzeId + "_" + cartId;
+            cartQuantity = (int)JeproLabCache.getInstance().retrieve(cacheKey);
+            if (!JeproLabCache.getInstance().isStored(cacheKey) || (cartQuantity != quantity)) {
+                if(staticDataBaseObject == null){
+                    staticDataBaseObject = JeproLabFactory.getDataBaseConnector();
+                }
+                String query = "SELECT SUM(" + staticDataBaseObject.quoteName("quantity") + ") AS quantity FROM " + staticDataBaseObject.quoteName("#__jeprolab_cart_analyze");
+                query += " AS cart_analyze WHERE "  + staticDataBaseObject.quoteName("analyze_id") + " = " + analyzeId + " AND ";
+                query += staticDataBaseObject.quoteName("cart_id") + " = " + cartId;
 
-        // retrieve address informations
-        $id_country = (int)$context->country->id;
-        $id_state = 0;
-        $zipcode = 0;
+                staticDataBaseObject.setQuery(query);
 
-        if (!$id_address && Validate::isLoadedObject($cur_cart)) {
-        $id_address = $cur_cart->{Configuration::get('PS_TAX_ADDRESS_TYPE')};
-    }
+                cartQuantity = (int)staticDataBaseObject.loadValue("quantity");
+                JeproLabCache.getInstance().store(cacheKey, cartQuantity);
+            } else {
+                cartQuantity = (int)JeproLabCache.getInstance().retrieve(cacheKey);
+            }
+        }
+
+        int currencyId = (context.currency.currency_id > 0 ) ? context.currency.currency_id : JeproLabSettingModel.getIntValue("default_currency");
+
+        // retrieve address information
+        int countryId = context.country.country_id;
+        int stateId = 0;
+        String zipcode = "";
+
+        if (addressId <= 0 && (currentCart != null) && currentCart.cart_id > 0) {
+            addressId = $cur_cart->{Configuration::get('PS_TAX_ADDRESS_TYPE')};
+        }
 
         if ($id_address) {
             $address_infos = Address::getCountryAndState($id_address);
@@ -2993,27 +3051,10 @@ public class JeproLabAnalyzeModel extends JeproLabModel {
         $id_customer = $context->customer->id;
     }
 
-        $return = Product::priceCalculation(
-            $context->shop->id,
-            $id_product,
-            $id_product_attribute,
-            $id_country,
-            $id_state,
-            $zipcode,
-            $id_currency,
-            $id_group,
-            $quantity,
-            $usetax,
-            $decimals,
-            $only_reduc,
-            $usereduc,
-            $with_ecotax,
-            $specific_price_output,
-            $use_group_reduction,
-            $id_customer,
-            $use_customer_price,
-            $id_cart,
-            $cart_quantity
+        return JeproLabAnalyzeModel.priceCalculation(
+            context.laboratory.laboratory_id, analyzeId, analyzeAttributeId, countryId, stateId, zipcode, currencyId,
+            groupId, quantity, useTax, decimals, onlyReduction, useReduction, withEcotax, $specific_price_output,
+                useGroupReduction, customerId, useCustomerPrice, cartId, cartQuantity
         );
 
         return $return;
@@ -5169,8 +5210,8 @@ public static function getIdTaxRulesGroupByIdProduct($id_product, Context $conte
             address = JeproLabAddressModel.initialize();
         }
 
-        taxManager = JeproLabTaxManagerFactory.getManager(address, this.tax_rules_group_id);
-        taxCalculator = taxManager.getTaxCalculator();
+        JeproLabTaxRulesManager taxManager = JeproLabTaxManagerFactory.getManager(address, this.tax_rules_group_id);
+        JeproLabTaxCalculator taxCalculator = taxManager.getTaxCalculator();
 
         return taxCalculator.getTotalRate();
     }
