@@ -1,6 +1,7 @@
 package com.jeprolab.models;
 
 import com.jeprolab.assets.tools.JeproLabCache;
+import com.jeprolab.assets.tools.JeproLabContext;
 import com.jeprolab.models.core.JeproLabFactory;
 
 import java.sql.ResultSet;
@@ -143,18 +144,23 @@ public class JeproLabGroupModel extends JeproLabModel {
     }
         return self::$cache_reduction['group'][$id_group];
     }
+*/
+    public static int getPriceDisplayMethod(int groupId){
+        if (!JeproLabGroupModel.group_price_display_method.containsKey(groupId)){
+            if(staticDataBaseObject == null){
+                staticDataBaseObject = JeproLabFactory.getDataBaseConnector();
+            }
 
-    public static function getPriceDisplayMethod($id_group)
-    {
-        if (!isset(Group::$group_price_display_method[$id_group])) {
-        self::$group_price_display_method[$id_group] = Db::getInstance(_PS_USE_SQL_SLAVE_)->getValue('
-                SELECT `price_display_method`
-                FROM `'._DB_PREFIX_.'group`
-        WHERE `id_group` = '.(int)$id_group);
-    }
-        return self::$group_price_display_method[$id_group];
-    }
+            String query = "SELECT " + staticDataBaseObject.quoteName("price_display_method") + " FROM " + staticDataBaseObject.quoteName("#__jeprolab_group");
+            query += " WHERE " + staticDataBaseObject.quoteName("group_id") + " = " + groupId;
 
+            staticDataBaseObject.setQuery(query);
+
+            JeproLabGroupModel.group_price_display_method.put(groupId, (int)staticDataBaseObject.loadValue("price_display_method"));
+        }
+        return JeproLabGroupModel.group_price_display_method.get(groupId);
+    }
+/*
     public static function getDefaultPriceDisplayMethod()
     {
         return Group::getPriceDisplayMethod((int)Configuration::get('PS_CUSTOMER_GROUP'));
@@ -317,43 +323,44 @@ public class JeproLabGroupModel extends JeproLabModel {
         return $res;
     }
 
-    /*
+    /**
      * Return current group object
      * Use context
      *
-     * @return Group Group object
-     * /
+     * @return group Group object
+     */
     public static JeproLabGroupModel getCurrent(){
         if (unidentified_group == 0) {
-            unidentified_group = Configuration::get('PS_UNIDENTIFIED_GROUP');
+            unidentified_group = JeproLabSettingModel.getIntValue("unidentified_group");
         }
 
         if (customer_group == 0) {
-            customer_group = Configuration::get('PS_CUSTOMER_GROUP');
+            customer_group = JeproLabSettingModel.getIntValue("customer_group");
         }
 
-        $customer = Context::getContext()->customer;
-        if (Validate::isLoadedObject($customer)) {
-        $id_group = (int)$customer->id_default_group;
-    } else {
-        $id_group = (int)$ps_unidentified_group;
-    }
-
-        if (!isset($groups[$id_group])) {
-            $groups[$id_group] = new Group($id_group);
+        JeproLabCustomerModel customer = JeproLabContext.getContext().customer;
+        int groupId;
+        if (customer != null && customer.customer_id > 0){
+            groupId = customer.default_group_id;
+        } else {
+            groupId = unidentified_group;
         }
 
-        if (!$groups[$id_group]->isAssociatedToShop(Context::getContext()->shop->id)) {
-        $id_group = (int)$ps_customer_group;
-        if (!isset($groups[$id_group])) {
-            $groups[$id_group] = new Group($id_group);
+        if (!groups.containsKey(groupId)) {
+            groups.put(groupId, new JeproLabGroupModel(groupId));
         }
+
+        if (!groups.get(groupId).isAssociatedToLaboratory(JeproLabContext.getContext().laboratory.laboratory_id)) {
+            groupId = customer_group;
+            if (!groups.containsKey(groupId)){
+                groups.put(groupId, new JeproLabGroupModel(groupId));
+            }
+        }
+
+        return groups.get(groupId);
     }
 
-        return $groups[$id_group];
-    }
-
-    /**
+    /*
      * Light back office search for Group
      *
      * @param request Searched string
@@ -382,4 +389,39 @@ public class JeproLabGroupModel extends JeproLabModel {
         }
         return groups;
     }
+
+    public boolean isAssociatedToLaboratory(){
+        return isAssociatedToLaboratory(0);
+    }
+
+    /**
+     * Checks if current object is associated to a shop.
+     *
+     * @param labId
+     * @return bool
+     */
+    public boolean isAssociatedToLaboratory(int labId){
+        if (labId <= 0) {
+            labId = JeproLabContext.getContext().laboratory.laboratory_id;
+        }
+
+        String cacheKey = "jeprolab_model_laboratory_group_" + this.group_id + "_" + labId;
+        if (!JeproLabCache.getInstance().isStored(cacheKey)) {
+            if(dataBaseObject == null){
+                dataBaseObject = JeproLabFactory.getDataBaseConnector();
+            }
+            String query = "SELECT " + dataBaseObject.quoteName("lab_id") + " FROM " + dataBaseObject.quoteName("#__jeprolab_group_lab");
+            query += " WHERE " + dataBaseObject.quoteName("group_id") + " = " + this.group_id + " AND lab_id = " + labId;
+
+            dataBaseObject.setQuery(query);
+
+            boolean isAssociated = ((int)dataBaseObject.loadValue("lab_id")) > 0;
+
+            JeproLabCache.getInstance().store(cacheKey, isAssociated);
+            return isAssociated;
+        }
+
+        return (boolean)JeproLabCache.getInstance().retrieve(cacheKey);
+    }
+
 }
