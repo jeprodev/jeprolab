@@ -3301,7 +3301,7 @@ public class JeproLabAnalyzeModel extends JeproLabModel {
             return Tools::ps_round($specific_price_reduction, $decimals);
         }
 
-        $price = Tools::ps_round($price, $decimals);
+        $price = JeproLabTools.roundPrice($price, decimals);
 
         if ($price < 0) {
             $price = 0;
