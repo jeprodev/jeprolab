@@ -3,6 +3,7 @@ package com.jeprolab.models;
 import com.jeprolab.JeproLab;
 import com.jeprolab.assets.tools.JeproLabCache;
 import com.jeprolab.assets.tools.JeproLabContext;
+import com.jeprolab.assets.tools.JeproLabTools;
 import com.jeprolab.models.core.JeproLabFactory;
 import com.jeprolab.models.tax.JeproLabTaxCalculator;
 import com.jeprolab.models.tax.JeproLabTaxManagerFactory;
@@ -11,6 +12,7 @@ import com.jeprolab.models.tax.JeproLabTaxRulesManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -231,11 +233,12 @@ public class JeproLabAnalyzeModel extends JeproLabModel {
      * /
     public $pack_stock_type = 3;
 
-    public static $_taxCalculationMethod = null;
-    protected static $_prices = array();
+    public static $_taxCalculationMethod = null; */
+    protected static Map<String, Float> _prices = new HashMap<>();
     protected static $_pricesLevel2 = array();
     protected static $_incat = array();
 
+    private static float static_specific_price;
     /**
      * @since 1.5.6.1
      * @var array $_cart_quantity is deprecated since 1.5.6.1
@@ -248,6 +251,8 @@ public class JeproLabAnalyzeModel extends JeproLabModel {
     protected static $producPropertiesCache = array();
 */
     protected static boolean multi_lang_lab = true;
+    protected static JeproLabAddressModel address = null;
+    protected static JeproLabContext static_context = null;
     /* @var array cache stock data in getStock() method * /
     protected static $cacheStock = array();
 
@@ -258,59 +263,59 @@ public class JeproLabAnalyzeModel extends JeproLabModel {
                     'multilang_shop' => true,
                     'fields' => array(
             /* Classic fields * /
-                    'id_shop_default' =>            array('type' => self::TYPE_INT, 'validate' => 'isUnsignedId'),
-    'id_manufacturer' =>            array('type' => self::TYPE_INT, 'validate' => 'isUnsignedId'),
-    'id_supplier' =>                array('type' => self::TYPE_INT, 'validate' => 'isUnsignedId'),
-    'reference' =>                    array('type' => self::TYPE_STRING, 'validate' => 'isReference', 'size' => 32),
-    'supplier_reference' =>        array('type' => self::TYPE_STRING, 'validate' => 'isReference', 'size' => 32),
-    'location' =>                    array('type' => self::TYPE_STRING, 'validate' => 'isReference', 'size' => 64),
-    'width' =>                        array('type' => self::TYPE_FLOAT, 'validate' => 'isUnsignedFloat'),
-    'height' =>                    array('type' => self::TYPE_FLOAT, 'validate' => 'isUnsignedFloat'),
-    'depth' =>                        array('type' => self::TYPE_FLOAT, 'validate' => 'isUnsignedFloat'),
-    'weight' =>                    array('type' => self::TYPE_FLOAT, 'validate' => 'isUnsignedFloat'),
-    'quantity_discount' =>            array('type' => self::TYPE_BOOL, 'validate' => 'isBool'),
-    'ean13' =>                        array('type' => self::TYPE_STRING, 'validate' => 'isEan13', 'size' => 13),
-    'upc' =>                        array('type' => self::TYPE_STRING, 'validate' => 'isUpc', 'size' => 12),
-    'cache_is_pack' =>                array('type' => self::TYPE_BOOL, 'validate' => 'isBool'),
-    'cache_has_attachments' =>        array('type' => self::TYPE_BOOL, 'validate' => 'isBool'),
-    'is_virtual' =>                array('type' => self::TYPE_BOOL, 'validate' => 'isBool'),
+                    'id_shop_default' =>            array('type' => JeproLabAnalyzeModel.TYPE_INT, 'validate' => 'isUnsignedId'),
+    'id_manufacturer' =>            array('type' => JeproLabAnalyzeModel.TYPE_INT, 'validate' => 'isUnsignedId'),
+    'id_supplier' =>                array('type' => JeproLabAnalyzeModel.TYPE_INT, 'validate' => 'isUnsignedId'),
+    'reference' =>                    array('type' => JeproLabAnalyzeModel.TYPE_STRING, 'validate' => 'isReference', 'size' => 32),
+    'supplier_reference' =>        array('type' => JeproLabAnalyzeModel.TYPE_STRING, 'validate' => 'isReference', 'size' => 32),
+    'location' =>                    array('type' => JeproLabAnalyzeModel.TYPE_STRING, 'validate' => 'isReference', 'size' => 64),
+    'width' =>                        array('type' => JeproLabAnalyzeModel.TYPE_FLOAT, 'validate' => 'isUnsignedFloat'),
+    'height' =>                    array('type' => JeproLabAnalyzeModel.TYPE_FLOAT, 'validate' => 'isUnsignedFloat'),
+    'depth' =>                        array('type' => JeproLabAnalyzeModel.TYPE_FLOAT, 'validate' => 'isUnsignedFloat'),
+    'weight' =>                    array('type' => JeproLabAnalyzeModel.TYPE_FLOAT, 'validate' => 'isUnsignedFloat'),
+    'quantity_discount' =>            array('type' => JeproLabAnalyzeModel.TYPE_BOOL, 'validate' => 'isBool'),
+    'ean13' =>                        array('type' => JeproLabAnalyzeModel.TYPE_STRING, 'validate' => 'isEan13', 'size' => 13),
+    'upc' =>                        array('type' => JeproLabAnalyzeModel.TYPE_STRING, 'validate' => 'isUpc', 'size' => 12),
+    'cache_is_pack' =>                array('type' => JeproLabAnalyzeModel.TYPE_BOOL, 'validate' => 'isBool'),
+    'cache_has_attachments' =>        array('type' => JeproLabAnalyzeModel.TYPE_BOOL, 'validate' => 'isBool'),
+    'is_virtual' =>                array('type' => JeproLabAnalyzeModel.TYPE_BOOL, 'validate' => 'isBool'),
 
             /* Shop fields * /
-    'id_category_default' =>        array('type' => self::TYPE_INT, 'shop' => true, 'validate' => 'isUnsignedId'),
-    'id_tax_rules_group' =>        array('type' => self::TYPE_INT, 'shop' => true, 'validate' => 'isUnsignedId'),
-    'on_sale' =>                    array('type' => self::TYPE_BOOL, 'shop' => true, 'validate' => 'isBool'),
-    'online_only' =>                array('type' => self::TYPE_BOOL, 'shop' => true, 'validate' => 'isBool'),
-    'ecotax' =>                    array('type' => self::TYPE_FLOAT, 'shop' => true, 'validate' => 'isPrice'),
-    'minimal_quantity' =>            array('type' => self::TYPE_INT, 'shop' => true, 'validate' => 'isUnsignedInt'),
-    'price' =>                        array('type' => self::TYPE_FLOAT, 'shop' => true, 'validate' => 'isPrice', 'required' => true),
-    'wholesale_price' =>            array('type' => self::TYPE_FLOAT, 'shop' => true, 'validate' => 'isPrice'),
-    'unity' =>                        array('type' => self::TYPE_STRING, 'shop' => true, 'validate' => 'isString'),
-    'unit_price_ratio' =>            array('type' => self::TYPE_FLOAT, 'shop' => true),
-    'additional_shipping_cost' =>    array('type' => self::TYPE_FLOAT, 'shop' => true, 'validate' => 'isPrice'),
-    'customizable' =>                array('type' => self::TYPE_INT, 'shop' => true, 'validate' => 'isUnsignedInt'),
-    'text_fields' =>                array('type' => self::TYPE_INT, 'shop' => true, 'validate' => 'isUnsignedInt'),
-    'uploadable_files' =>            array('type' => self::TYPE_INT, 'shop' => true, 'validate' => 'isUnsignedInt'),
-    'active' =>                    array('type' => self::TYPE_BOOL, 'shop' => true, 'validate' => 'isBool'),
-    'redirect_type' =>                array('type' => self::TYPE_STRING, 'shop' => true, 'validate' => 'isString'),
-    'id_product_redirected' =>        array('type' => self::TYPE_INT, 'shop' => true, 'validate' => 'isUnsignedId'),
-    'available_for_order' =>        array('type' => self::TYPE_BOOL, 'shop' => true, 'validate' => 'isBool'),
-    'available_date' =>            array('type' => self::TYPE_DATE, 'shop' => true, 'validate' => 'isDateFormat'),
-    'condition' =>                    array('type' => self::TYPE_STRING, 'shop' => true, 'validate' => 'isGenericName', 'values' => array('new', 'used', 'refurbished'), 'default' => 'new'),
-            'show_price' =>                array('type' => self::TYPE_BOOL, 'shop' => true, 'validate' => 'isBool'),
-    'indexed' =>                    array('type' => self::TYPE_BOOL, 'shop' => true, 'validate' => 'isBool'),
-    'visibility' =>                array('type' => self::TYPE_STRING, 'shop' => true, 'validate' => 'isProductVisibility', 'values' => array('both', 'catalog', 'search', 'none'), 'default' => 'both'),
-            'cache_default_attribute' =>    array('type' => self::TYPE_INT, 'shop' => true),
-    'advanced_stock_management' =>    array('type' => self::TYPE_BOOL, 'shop' => true, 'validate' => 'isBool'),
-    'date_add' =>                    array('type' => self::TYPE_DATE, 'shop' => true, 'validate' => 'isDate'),
-    'date_upd' =>                    array('type' => self::TYPE_DATE, 'shop' => true, 'validate' => 'isDate'),
-    'pack_stock_type' =>            array('type' => self::TYPE_INT, 'shop' => true, 'validate' => 'isUnsignedInt'),
+    'id_category_default' =>        array('type' => JeproLabAnalyzeModel.TYPE_INT, 'shop' => true, 'validate' => 'isUnsignedId'),
+    'id_tax_rules_group' =>        array('type' => JeproLabAnalyzeModel.TYPE_INT, 'shop' => true, 'validate' => 'isUnsignedId'),
+    'on_sale' =>                    array('type' => JeproLabAnalyzeModel.TYPE_BOOL, 'shop' => true, 'validate' => 'isBool'),
+    'online_only' =>                array('type' => JeproLabAnalyzeModel.TYPE_BOOL, 'shop' => true, 'validate' => 'isBool'),
+    'ecotax' =>                    array('type' => JeproLabAnalyzeModel.TYPE_FLOAT, 'shop' => true, 'validate' => 'isPrice'),
+    'minimal_quantity' =>            array('type' => JeproLabAnalyzeModel.TYPE_INT, 'shop' => true, 'validate' => 'isUnsignedInt'),
+    'price' =>                        array('type' => JeproLabAnalyzeModel.TYPE_FLOAT, 'shop' => true, 'validate' => 'isPrice', 'required' => true),
+    'wholesale_price' =>            array('type' => JeproLabAnalyzeModel.TYPE_FLOAT, 'shop' => true, 'validate' => 'isPrice'),
+    'unity' =>                        array('type' => JeproLabAnalyzeModel.TYPE_STRING, 'shop' => true, 'validate' => 'isString'),
+    'unit_price_ratio' =>            array('type' => JeproLabAnalyzeModel.TYPE_FLOAT, 'shop' => true),
+    'additional_shipping_cost' =>    array('type' => JeproLabAnalyzeModel.TYPE_FLOAT, 'shop' => true, 'validate' => 'isPrice'),
+    'customizable' =>                array('type' => JeproLabAnalyzeModel.TYPE_INT, 'shop' => true, 'validate' => 'isUnsignedInt'),
+    'text_fields' =>                array('type' => JeproLabAnalyzeModel.TYPE_INT, 'shop' => true, 'validate' => 'isUnsignedInt'),
+    'uploadable_files' =>            array('type' => JeproLabAnalyzeModel.TYPE_INT, 'shop' => true, 'validate' => 'isUnsignedInt'),
+    'active' =>                    array('type' => JeproLabAnalyzeModel.TYPE_BOOL, 'shop' => true, 'validate' => 'isBool'),
+    'redirect_type' =>                array('type' => JeproLabAnalyzeModel.TYPE_STRING, 'shop' => true, 'validate' => 'isString'),
+    'id_product_redirected' =>        array('type' => JeproLabAnalyzeModel.TYPE_INT, 'shop' => true, 'validate' => 'isUnsignedId'),
+    'available_for_order' =>        array('type' => JeproLabAnalyzeModel.TYPE_BOOL, 'shop' => true, 'validate' => 'isBool'),
+    'available_date' =>            array('type' => JeproLabAnalyzeModel.TYPE_DATE, 'shop' => true, 'validate' => 'isDateFormat'),
+    'condition' =>                    array('type' => JeproLabAnalyzeModel.TYPE_STRING, 'shop' => true, 'validate' => 'isGenericName', 'values' => array('new', 'used', 'refurbished'), 'default' => 'new'),
+            'show_price' =>                array('type' => JeproLabAnalyzeModel.TYPE_BOOL, 'shop' => true, 'validate' => 'isBool'),
+    'indexed' =>                    array('type' => JeproLabAnalyzeModel.TYPE_BOOL, 'shop' => true, 'validate' => 'isBool'),
+    'visibility' =>                array('type' => JeproLabAnalyzeModel.TYPE_STRING, 'shop' => true, 'validate' => 'isProductVisibility', 'values' => array('both', 'catalog', 'search', 'none'), 'default' => 'both'),
+            'cache_default_attribute' =>    array('type' => JeproLabAnalyzeModel.TYPE_INT, 'shop' => true),
+    'advanced_stock_management' =>    array('type' => JeproLabAnalyzeModel.TYPE_BOOL, 'shop' => true, 'validate' => 'isBool'),
+    'date_add' =>                    array('type' => JeproLabAnalyzeModel.TYPE_DATE, 'shop' => true, 'validate' => 'isDate'),
+    'date_upd' =>                    array('type' => JeproLabAnalyzeModel.TYPE_DATE, 'shop' => true, 'validate' => 'isDate'),
+    'pack_stock_type' =>            array('type' => JeproLabAnalyzeModel.TYPE_INT, 'shop' => true, 'validate' => 'isUnsignedInt'),
 
             /* Lang fields * /
-    'meta_description' =>            array('type' => self::TYPE_STRING, 'lang' => true, 'validate' => 'isGenericName', 'size' => 255),
-    'meta_keywords' =>                array('type' => self::TYPE_STRING, 'lang' => true, 'validate' => 'isGenericName', 'size' => 255),
-    'meta_title' =>                array('type' => self::TYPE_STRING, 'lang' => true, 'validate' => 'isGenericName', 'size' => 128),
+    'meta_description' =>            array('type' => JeproLabAnalyzeModel.TYPE_STRING, 'lang' => true, 'validate' => 'isGenericName', 'size' => 255),
+    'meta_keywords' =>                array('type' => JeproLabAnalyzeModel.TYPE_STRING, 'lang' => true, 'validate' => 'isGenericName', 'size' => 255),
+    'meta_title' =>                array('type' => JeproLabAnalyzeModel.TYPE_STRING, 'lang' => true, 'validate' => 'isGenericName', 'size' => 128),
     'link_rewrite' =>    array(
-            'type' => self::TYPE_STRING,
+            'type' => JeproLabAnalyzeModel.TYPE_STRING,
             'lang' => true,
                     'validate' => 'isLinkRewrite',
                     'required' => true,
@@ -320,19 +325,19 @@ public class JeproLabAnalyzeModel extends JeproLabModel {
             'modifier' => 'modifierWsLinkRewrite'
     )
     ),
-            'name' =>                        array('type' => self::TYPE_STRING, 'lang' => true, 'validate' => 'isCatalogName', 'required' => true, 'size' => 128),
-    'description' =>                array('type' => self::TYPE_HTML, 'lang' => true, 'validate' => 'isCleanHtml'),
-    'description_short' =>            array('type' => self::TYPE_HTML, 'lang' => true, 'validate' => 'isCleanHtml'),
-    'available_now' =>                array('type' => self::TYPE_STRING, 'lang' => true, 'validate' => 'isGenericName', 'size' => 255),
-    'available_later' =>            array('type' => self::TYPE_STRING, 'lang' => true, 'validate' => 'IsGenericName', 'size' => 255),
+            'name' =>                        array('type' => JeproLabAnalyzeModel.TYPE_STRING, 'lang' => true, 'validate' => 'isCatalogName', 'required' => true, 'size' => 128),
+    'description' =>                array('type' => JeproLabAnalyzeModel.TYPE_HTML, 'lang' => true, 'validate' => 'isCleanHtml'),
+    'description_short' =>            array('type' => JeproLabAnalyzeModel.TYPE_HTML, 'lang' => true, 'validate' => 'isCleanHtml'),
+    'available_now' =>                array('type' => JeproLabAnalyzeModel.TYPE_STRING, 'lang' => true, 'validate' => 'isGenericName', 'size' => 255),
+    'available_later' =>            array('type' => JeproLabAnalyzeModel.TYPE_STRING, 'lang' => true, 'validate' => 'IsGenericName', 'size' => 255),
     ),
             'associations' => array(
-            'manufacturer' =>                array('type' => self::HAS_ONE),
-    'supplier' =>                    array('type' => self::HAS_ONE),
-    'default_category' =>            array('type' => self::HAS_ONE, 'field' => 'id_category_default', 'object' => 'Category'),
-    'tax_rules_group' =>            array('type' => self::HAS_ONE),
-    'categories' =>                    array('type' => self::HAS_MANY, 'field' => 'id_category', 'object' => 'Category', 'association' => 'category_product'),
-    'stock_availables' =>            array('type' => self::HAS_MANY, 'field' => 'id_stock_available', 'object' => 'StockAvailable', 'association' => 'stock_availables'),
+            'manufacturer' =>                array('type' => JeproLabAnalyzeModel.HAS_ONE),
+    'supplier' =>                    array('type' => JeproLabAnalyzeModel.HAS_ONE),
+    'default_category' =>            array('type' => JeproLabAnalyzeModel.HAS_ONE, 'field' => 'id_category_default', 'object' => 'Category'),
+    'tax_rules_group' =>            array('type' => JeproLabAnalyzeModel.HAS_ONE),
+    'categories' =>                    array('type' => JeproLabAnalyzeModel.HAS_MANY, 'field' => 'id_category', 'object' => 'Category', 'association' => 'category_product'),
+    'stock_availables' =>            array('type' => JeproLabAnalyzeModel.HAS_MANY, 'field' => 'id_stock_available', 'object' => 'StockAvailable', 'association' => 'stock_availables'),
     ),
             );
 
@@ -609,7 +614,8 @@ public class JeproLabAnalyzeModel extends JeproLabModel {
             // Keep base price
             this.base_price = this.price;
 
-            this.price = JeproLabAnalyzeModel.getStaticPrice(this.analyze_id, false, null, 6, null, false, true, 1, false, null, null, null, this.specificPrice);
+            this.price = JeproLabAnalyzeModel.getStaticPrice(this.analyze_id, false, null, 6, null, false, true, 1, false, null, null, null);
+            specificPrice = JeproLabAnalyzeModel.static_specific_price;
             this.unit_price = (this.unit_price_ratio != 0  ? this.price / this.unit_price_ratio : 0);
             if (this.analyze_id > 0) {
                 this.tags = JeproLabTagModel.getProductTags(this.analyze_id);
@@ -702,7 +708,7 @@ public class JeproLabAnalyzeModel extends JeproLabModel {
             if (!Validate::isLoadedObject($customer)) {
                 die(Tools::displayError());
             }
-            self::$_taxCalculationMethod = Group::getPriceDisplayMethod((int)$customer->id_default_group);
+            JeproLabAnalyzeModel.$_taxCalculationMethod = Group::getPriceDisplayMethod((int)$customer->id_default_group);
             $cur_cart = Context::getContext()->cart;
             $id_address = 0;
             if (Validate::isLoadedObject($cur_cart)) {
@@ -710,24 +716,24 @@ public class JeproLabAnalyzeModel extends JeproLabModel {
             }
             $address_infos = Address::getCountryAndState($id_address);
 
-            if (self::$_taxCalculationMethod != PS_TAX_EXC
+            if (JeproLabAnalyzeModel.$_taxCalculationMethod != PS_TAX_EXC
                     && !empty($address_infos['vat_number'])
                     && $address_infos['id_country'] != Configuration::get('VATNUMBER_COUNTRY')
                     && Configuration::get('VATNUMBER_MANAGEMENT')) {
-                self::$_taxCalculationMethod = PS_TAX_EXC;
+                JeproLabAnalyzeModel.$_taxCalculationMethod = PS_TAX_EXC;
             }
         } else {
-            self::$_taxCalculationMethod = Group::getPriceDisplayMethod(Group::getCurrent()->id);
+            JeproLabAnalyzeModel.$_taxCalculationMethod = Group::getPriceDisplayMethod(Group::getCurrent()->id);
         }
     }
 
     public static function getTaxCalculationMethod($id_customer = null)
     {
-        if (self::$_taxCalculationMethod === null || $id_customer !== null) {
+        if (JeproLabAnalyzeModel.$_taxCalculationMethod === null || $id_customer !== null) {
             Product::initPricesComputation($id_customer);
         }
 
-        return (int)self::$_taxCalculationMethod;
+        return (int)JeproLabAnalyzeModel.$_taxCalculationMethod;
     }
 
     /**
@@ -1465,13 +1471,13 @@ public class JeproLabAnalyzeModel extends JeproLabModel {
      *
      * @deprecated since 1.5.0
      * /
-    public function addProductAttribute($price, $weight, $unit_impact, $ecotax, $quantity, $id_images, $reference,
+    public function addProductAttribute($price, $weight, $unit_impact, ecoTax, $quantity, $id_images, $reference,
                                         $id_supplier = null, $ean13, $default, $location = null, $upc = null, $minimal_quantity = 1)
     {
         Tools::displayAsDeprecated();
 
         $id_product_attribute = this.addAttribute(
-                $price, $weight, $unit_impact, $ecotax, $id_images,
+                $price, $weight, $unit_impact, ecoTax, $id_images,
                 $reference, $ean13, $default, $location, $upc, $minimal_quantity
         );
 
@@ -1527,11 +1533,11 @@ public class JeproLabAnalyzeModel extends JeproLabModel {
      * @param int $quantity DEPRECATED
      * @param string $supplier_reference DEPRECATED
      * /
-    public function addCombinationEntity($wholesale_price, $price, $weight, $unit_impact, $ecotax, $quantity,
+    public function addCombinationEntity($wholesale_price, $price, $weight, $unit_impact, ecoTax, $quantity,
                                          $id_images, $reference, $id_supplier, $ean13, $default, $location = null, $upc = null, $minimal_quantity = 1, array $id_shop_list = array(), $available_date = null)
     {
         $id_product_attribute = this.addAttribute(
-                $price, $weight, $unit_impact, $ecotax, $id_images,
+                $price, $weight, $unit_impact, ecoTax, $id_images,
                 $reference, $ean13, $default, $location, $upc, $minimal_quantity, $id_shop_list, $available_date);
         this.addSupplierReference($id_supplier, $id_product_attribute);
         $result = ObjectModel::updateMultishopTable('Combination', array(
@@ -1633,13 +1639,13 @@ public class JeproLabAnalyzeModel extends JeproLabModel {
      * @see ProductSupplier for manage supplier reference(s)
      *
      * /
-    public function updateProductAttribute($id_product_attribute, $wholesale_price, $price, $weight, $unit, $ecotax,
+    public function updateProductAttribute($id_product_attribute, $wholesale_price, $price, $weight, $unit, ecoTax,
                                            $id_images, $reference, $id_supplier = null, $ean13, $default, $location = null, $upc = null, $minimal_quantity, $available_date)
     {
         Tools::displayAsDeprecated();
 
         $return = this.updateAttribute(
-                $id_product_attribute, $wholesale_price, $price, $weight, $unit, $ecotax,
+                $id_product_attribute, $wholesale_price, $price, $weight, $unit, ecoTax,
                 $id_images, $reference, $ean13, $default, $location = null, $upc = null, $minimal_quantity, $available_date
         );
         this.addSupplierReference($id_supplier, $id_product_attribute);
@@ -1690,7 +1696,7 @@ public class JeproLabAnalyzeModel extends JeproLabModel {
      * @param float $price Additional price
      * @param float $weight Additional weight
      * @param float $unit
-     * @param float $ecotax Additional ecotax
+     * @param float ecoTax Additional ecotax
      * @param int $id_image Image id
      * @param string $reference Reference
      * @param string $ean13 Ean-13 barcode
@@ -1699,7 +1705,7 @@ public class JeproLabAnalyzeModel extends JeproLabModel {
      * @param string $minimal_quantity Minimal quantity
      * @return array Update result
      * /
-    public function updateAttribute($id_product_attribute, $wholesale_price, $price, $weight, $unit, $ecotax,
+    public function updateAttribute($id_product_attribute, $wholesale_price, $price, $weight, $unit, ecoTax,
                                     $id_images, $reference, $ean13, $default, $location = null, $upc = null, $minimal_quantity = null, $available_date = null, $update_all_fields = true, array $id_shop_list = array())
     {
         $combination = new Combination($id_product_attribute);
@@ -1708,7 +1714,7 @@ public class JeproLabAnalyzeModel extends JeproLabModel {
             $combination->setFieldsToUpdate(array(
                             'price' => !is_null($price),
                     'wholesale_price' => !is_null($wholesale_price),
-                    'ecotax' => !is_null($ecotax),
+                    'ecotax' => !is_null(ecoTax),
                     'weight' => !is_null($weight),
                     'unit_price_impact' => !is_null($unit),
                     'default_on' => !is_null($default),
@@ -1722,7 +1728,7 @@ public class JeproLabAnalyzeModel extends JeproLabModel {
 
         $combination->price = (float)$price;
         $combination->wholesale_price = (float)$wholesale_price;
-        $combination->ecotax = (float)$ecotax;
+        $combination->ecotax = (float)ecoTax;
         $combination->weight = (float)$weight;
         $combination->unit_price_impact = (float)$unit;
         $combination->reference = pSQL($reference);
@@ -1769,7 +1775,7 @@ public class JeproLabAnalyzeModel extends JeproLabModel {
      *
      * @param float $price Additional price
      * @param float $weight Additional weight
-     * @param float $ecotax Additional ecotax
+     * @param float ecoTax Additional ecotax
      * @param int $id_images Image ids
      * @param string $reference Reference
      * @param string $location Location
@@ -1778,7 +1784,7 @@ public class JeproLabAnalyzeModel extends JeproLabModel {
      * @param int $minimal_quantity Minimal quantity to add to cart
      * @return mixed $id_product_attribute or false
      * /
-    public function addAttribute($price, $weight, $unit_impact, $ecotax, $id_images, $reference, $ean13,
+    public function addAttribute($price, $weight, $unit_impact, ecoTax, $id_images, $reference, $ean13,
                                  $default, $location = null, $upc = null, $minimal_quantity = 1, array $id_shop_list = array(), $available_date = null)
     {
         if (!this.id) {
@@ -1791,7 +1797,7 @@ public class JeproLabAnalyzeModel extends JeproLabModel {
         $combination = new Combination();
         $combination->id_product = (int)this.id;
         $combination->price = (float)$price;
-        $combination->ecotax = (float)$ecotax;
+        $combination->ecotax = (float)ecoTax;
         $combination->quantity = 0;
         $combination->weight = (float)$weight;
         $combination->unit_price_impact = (float)$unit_impact;
@@ -2423,7 +2429,7 @@ public class JeproLabAnalyzeModel extends JeproLabModel {
             FROM `'._DB_PREFIX_.'product` p
             '.Shop::addSqlAssociation('product', 'p').'
             WHERE product_shop.`active` = 1
-            AND product_shop.`date_add` > "'.date('Y-m-d', strtotime('-'.(Configuration::get('PS_NB_DAYS_NEW_PRODUCT') ? (int)Configuration::get('PS_NB_DAYS_NEW_PRODUCT') : 20).' DAY')).'"
+            AND product_shop.`date_add` > "'.date('Y-m-d', strtotime("_".(Configuration::get('PS_NB_DAYS_NEW_PRODUCT') ? (int)Configuration::get('PS_NB_DAYS_NEW_PRODUCT') : 20).' DAY')).'"
             '.($front ? ' AND product_shop.`visibility` IN ("both", "catalog")' : '').'
             '.$sql_groups;
             return (int)Db::getInstance(_PS_USE_SQL_SLAVE_)->getValue($sql);
@@ -2433,7 +2439,7 @@ public class JeproLabAnalyzeModel extends JeproLabModel {
         $sql->select(
                 'p.*, product_shop.*, stock.out_of_stock, IFNULL(stock.quantity, 0) as quantity, pl.`description`, pl.`description_short`, pl.`link_rewrite`, pl.`meta_description`,
                 pl.`meta_keywords`, pl.`meta_title`, pl.`name`, pl.`available_now`, pl.`available_later`, image_shop.`id_image` id_image, il.`legend`, m.`name` AS manufacturer_name,
-                product_shop.`date_add` > "'.date('Y-m-d', strtotime('-'.(Configuration::get('PS_NB_DAYS_NEW_PRODUCT') ? (int)Configuration::get('PS_NB_DAYS_NEW_PRODUCT') : 20).' DAY')).'" as new'
+                product_shop.`date_add` > "'.date('Y-m-d', strtotime("_".(Configuration::get('PS_NB_DAYS_NEW_PRODUCT') ? (int)Configuration::get('PS_NB_DAYS_NEW_PRODUCT') : 20).' DAY')).'" as new'
         );
 
         $sql->from('product', 'p');
@@ -2450,7 +2456,7 @@ public class JeproLabAnalyzeModel extends JeproLabModel {
         if ($front) {
             $sql->where('product_shop.`visibility` IN ("both", "catalog")');
         }
-        $sql->where('product_shop.`date_add` > "'.date('Y-m-d', strtotime('-'.(Configuration::get('PS_NB_DAYS_NEW_PRODUCT') ? (int)Configuration::get('PS_NB_DAYS_NEW_PRODUCT') : 20).' DAY')).'"');
+        $sql->where('product_shop.`date_add` > "'.date('Y-m-d', strtotime("_".(Configuration::get('PS_NB_DAYS_NEW_PRODUCT') ? (int)Configuration::get('PS_NB_DAYS_NEW_PRODUCT') : 20).' DAY')).'"');
         if (Group::isFeatureActive()) {
         $groups = FrontController::getCurrentCustomerGroups();
         $sql->where('EXISTS(SELECT 1 FROM `'._DB_PREFIX_.'category_product` cp
@@ -2733,8 +2739,8 @@ public class JeproLabAnalyzeModel extends JeproLabModel {
      * /
     public static function getProductCategories($id_product = '')
     {
-        $cache_id = 'Product::getProductCategories_'.(int)$id_product;
-        if (!Cache::isStored($cache_id)) {
+        $cacheKey = 'Product::getProductCategories_'.(int)$id_product;
+        if (!Cache::isStored($cacheKey)) {
         $ret = array();
 
         $row = Db::getInstance(_PS_USE_SQL_SLAVE_)->executeS('
@@ -2747,10 +2753,10 @@ public class JeproLabAnalyzeModel extends JeproLabModel {
                 $ret[] = $val['id_category'];
             }
         }
-        Cache::store($cache_id, $ret);
+        Cache::store($cacheKey, $ret);
         return $ret;
     }
-        return Cache::retrieve($cache_id);
+        return Cache::retrieve($cacheKey);
     }
 
     public static function getProductCategoriesFull($id_product = '', $id_lang = null)
@@ -2860,22 +2866,22 @@ public class JeproLabAnalyzeModel extends JeproLabModel {
         if (!context) {
             context = Context::getContext();
         }
-        $cache_id = 'Product::getCover_'.(int)$id_product.'-'.(int)context.shop->id;
-        if (!Cache::isStored($cache_id)) {
+        $cacheKey = 'Product::getCover_'.(int)$id_product."_".(int)context.shop->id;
+        if (!Cache::isStored($cacheKey)) {
         $sql = 'SELECT image_shop.`id_image`
         FROM `'._DB_PREFIX_.'image` i
         '.Shop::addSqlAssociation('image', 'i').'
         WHERE i.`id_product` = '.(int)$id_product.'
         AND image_shop.`cover` = 1';
         $result = Db::getInstance()->getRow($sql);
-        Cache::store($cache_id, $result);
+        Cache::store($cacheKey, $result);
         return $result;
     }
-        return Cache::retrieve($cache_id);
+        return Cache::retrieve($cacheKey);
     } */
 
     public static float getStaticPrice(int analyzeId){
-        return getStaticPrice(analyzeId, true, 0, 6, false, 1, false, 0, 0, 0, true, true, null, true);
+        return getStaticPrice(analyzeId, true, 0, 6, false, true, 1, false, 0, 0, 0, true, true, null, true);
     }
 
     public static float getStaticPrice(int analyzeId, boolean useTax){
@@ -2922,12 +2928,12 @@ public class JeproLabAnalyzeModel extends JeproLabModel {
         return getStaticPrice(analyzeId, useTax, analyzeAttributeId, decimals, onlyReduction, useReduction , quantity, forceAssociateTax, customerId, cartId, addressId, withEcoTax, true, null, true);
     }
 
-    public static float getStaticPrice(int analyzeId, boolean useTax, int analyzeAttributeId, int decimals, boolean onlyReduction,  boolean useReduction, int quantity, boolean forceAssociateTax, int customerId, int cartId, int addressId, boolean withEcoTax, boolean useGroupReduction){
-        return getStaticPrice(analyzeId, useTax, analyzeAttributeId, decimals, onlyReduction, useReduction , quantity, forceAssociateTax, customerId, cartId, addressId, withEcoTax, useGroupReduction, null, true);
+    public static float getStaticPrice(int analyzeId, boolean useTax, int analyzeAttributeId, int decimals, boolean onlyReduction,  boolean useReduction, int quantity, boolean forceAssociatedTax, int customerId, int cartId, int addressId, boolean withEcoTax, boolean useGroupReduction){
+        return getStaticPrice(analyzeId, useTax, analyzeAttributeId, decimals, onlyReduction, useReduction , quantity, forceAssociatedTax, customerId, cartId, addressId, withEcoTax, useGroupReduction, null, true);
     }
 
-    public static float getStaticPrice(int analyzeId, boolean useTax, int analyzeAttributeId, int decimals, boolean onlyReduction,  boolean useReduction, int quantity, boolean forceAssociateTax, int customerId, int cartId, int addressId, boolean withEcoTax, boolean useGroupReduction, JeproLabContext context){
-        return getStaticPrice(analyzeId, useTax, analyzeAttributeId, decimals, onlyReduction, useReduction , quantity, forceAssociateTax, customerId, cartId, addressId, withEcoTax, useGroupReduction, context, true);
+    public static float getStaticPrice(int analyzeId, boolean useTax, int analyzeAttributeId, int decimals, boolean onlyReduction,  boolean useReduction, int quantity, boolean forceAssociatedTax, int customerId, int cartId, int addressId, boolean withEcoTax, boolean useGroupReduction, JeproLabContext context){
+        return getStaticPrice(analyzeId, useTax, analyzeAttributeId, decimals, onlyReduction, useReduction , quantity, forceAssociatedTax, customerId, cartId, addressId, withEcoTax, useGroupReduction, context, true);
     }
 
     /**
@@ -2938,27 +2944,25 @@ public class JeproLabAnalyzeModel extends JeproLabModel {
      * @param analyzeAttributeId  Analyze attribute id (optional).
      *                            If set to false, do not apply the combination price impact.
      *                            NULL does apply the default combination price impact.
-     * @param int      $decimals              Number of decimals (optional)
-     * @param int|null $divisor               Useful when paying many time without fees (optional)
-     * @param bool     $only_reduc            Returns only the reduction amount
-     * @param bool     $usereduc              Set if the returned amount will include reduction
-     * @param int      $quantity              Required for quantity discount application (default value: 1)
-     * @param bool     $force_associated_tax  DEPRECATED - NOT USED Force to apply the associated JeproLabTaxManagerFactory.
+     * @param decimals            Number of decimals (optional)
+     * @param onlyReduction       Returns only the reduction amount
+     * @param useReduction        Set if the returned amount will include reduction
+     * @param quantity            Required for quantity discount application (default value: 1)
+     * @param forceAssociatedTax  DEPRECATED - NOT USED Force to apply the associated JeproLabTaxManagerFactory.
      *                                        Only works when the parameter $usetax is true
-     * @param int|null $id_customer           Customer ID (for customer group reduction)
-     * @param int|null $id_cart               Cart ID. Required when the cookie is not accessible
+     * @param customerId           Customer ID (for customer group reduction)
+     * @param cartId               Cart ID. Required when the cookie is not accessible
      *                                        (e.g., inside a payment module, a cron task...)
-     * @param int|null $id_address            Customer address ID. Required for price (JeproLabTaxManagerFactory included)
+     * @param addressId            Customer address ID. Required for price (JeproLabTaxManagerFactory included)
      *                                        calculation regarding the guest localization
-     * @param null     $specific_price_output If a specific price applies regarding the previous parameters,
-     *                                        this variable is filled with the corresponding SpecificPrice object
-     * @param bool     $with_ecotax           Insert ecotax in price output.
-     * @param bool     $use_group_reduction
-     * @param Context  context
-     * @param bool     $use_customer_price
-     * @return float                          Product price
+     * 
+     * @param withEcoTax           Insert ecotax in price output.
+     * @param useGroupReduction
+     * @param context
+     * @param useCustomerPrice
+     * @return float             Analyze price
      */
-    public static float getStaticPrice(int analyzeId, boolean useTax, int analyzeAttributeId, int decimals, boolean onlyReduction, boolean useReduction, int quantity, boolean forceAssociateTax, int customerId, int cartId, int addressId, boolean withEcoTax, boolean useGroupReduction, JeproLabContext context, boolean useCustomerPrice){
+    public static float getStaticPrice(int analyzeId, boolean useTax, int analyzeAttributeId, int decimals, boolean onlyReduction, boolean useReduction, int quantity, boolean forceAssociatedTax, int customerId, int cartId, int addressId, boolean withEcoTax, boolean useGroupReduction, JeproLabContext context, boolean useCustomerPrice){
         if (context == null){
             context = JeproLabContext.getContext();
         }
@@ -2983,7 +2987,7 @@ public class JeproLabAnalyzeModel extends JeproLabModel {
             /*
             * When a user (e.g., guest, customer, Google...) is on PrestaShop, he has already its cart as the global (see /init.php)
             * When a non-user calls directly this method (e.g., payment module...) is on PrestaShop, he does not have already it BUT knows the cart ID
-            * When called from the back office, cart ID can be inexistent
+            * When called from the back office, cart ID can be in-existent
             */
             if (cartId > 0 && context.employee != null) {
                 die(Tools::displayError());
@@ -3079,135 +3083,153 @@ public class JeproLabAnalyzeModel extends JeproLabModel {
         );
     }
 
+    public static float priceCalculation(int labId, int analyzeId, int analyzeAttributeId, int countryId, int stateId, String zipCode, int currencyId, int groupId, int quantity, boolean useTax, int decimals, boolean onlyReduction, boolean useReduction, boolean withEcoTax,  boolean useGroupReduction){
+        return priceCalculation(labId, analyzeId, analyzeAttributeId, countryId, stateId, zipCode, currencyId, groupId, quantity, useTax, decimals, onlyReduction, useReduction, withEcoTax, useGroupReduction, 0, true, 0, 0);
+    }
+
+    public static float priceCalculation(int labId, int analyzeId, int analyzeAttributeId, int countryId, int stateId, String zipCode, int currencyId, int groupId, int quantity, boolean useTax, int decimals, boolean onlyReduction, boolean useReduction, boolean withEcoTax,  boolean useGroupReduction,  int customerId){
+        return priceCalculation(labId, analyzeId, analyzeAttributeId, countryId, stateId, zipCode, currencyId, groupId, quantity, useTax, decimals, onlyReduction, useReduction, withEcoTax, useGroupReduction, customerId, true, 0, 0);
+    }
+
+    public static float priceCalculation(int labId, int analyzeId, int analyzeAttributeId, int countryId, int stateId, String zipCode, int currencyId, int groupId, int quantity, boolean useTax, int decimals, boolean onlyReduction, boolean useReduction, boolean withEcoTax,  boolean useGroupReduction,  int customerId, boolean useCustomerPrice){
+        return priceCalculation(labId, analyzeId, analyzeAttributeId, countryId, stateId, zipCode, currencyId, groupId, quantity, useTax, decimals, onlyReduction, useReduction, withEcoTax, useGroupReduction, customerId, useCustomerPrice, 0, 0);
+    }
+
+    public static float priceCalculation(int labId, int analyzeId, int analyzeAttributeId, int countryId, int stateId, String zipCode, int currencyId, int groupId, int quantity, boolean useTax, int decimals, boolean onlyReduction, boolean useReduction, boolean withEcoTax,  boolean useGroupReduction,  int customerId, boolean useCustomerPrice, int cartId){
+        return priceCalculation(labId, analyzeId, analyzeAttributeId, countryId, stateId, zipCode, currencyId, groupId, quantity, useTax, decimals, onlyReduction, useReduction, withEcoTax, useGroupReduction, customerId, useCustomerPrice, cartId, 0);
+    }
+
     /**
      * Price calculation / Get product price
      *
-     * @param int    $id_shop Shop id
-     * @param int    $id_product Product id
-     * @param int    $id_product_attribute Product attribute id
-     * @param int    $id_country Country id
-     * @param int    $id_state State id
-     * @param string $zipcode
-     * @param int    $id_currency Currency id
-     * @param int    $id_group Group id
-     * @param int    $quantity Quantity Required for Specific prices : quantity discount application
-     * @param bool   $use_tax with (1) or without (0) JeproLabTaxManagerFactory
-     * @param int    $decimals Number of decimals returned
-     * @param bool   $only_reduc Returns only the reduction amount
-     * @param bool   $use_reduc Set if the returned amount will include reduction
-     * @param bool   $with_ecotax insert ecotax in price output.
-     * @param null   $specific_price If a specific price applies regarding the previous parameters,
-     *                               this variable is filled with the corresponding SpecificPrice object
-     * @param bool   $use_group_reduction
-     * @param int    $id_customer
-     * @param bool   $use_customer_price
-     * @param int    $id_cart
-     * @param int    $real_quantity
+     * @param labId  Laboratory id
+     * @param analyzeId Analyze id
+     * @param analyzeAttributeId
+     * @param countryId Country id
+     * @param stateId State id
+     * @param zipCode
+     * @param currencyId Currency id
+     * @param groupId Group id
+     * @param quantity Quantity Required for Specific prices : quantity discount application
+     * @param useTax with (1) or without (0) JeproLabTaxManagerFactory
+     * @param decimals Number of decimals returned
+     * @param onlyReduction Returns only the reduction amount
+     * @param useReduction Set if the returned amount will include reduction
+     * @param withEcoTax insert ecoTax in price output.
+     * @param useGroupReduction
+     * @param customerId
+     * @param useCustomerPrice
+     * @param cartId
+     * @param realQuantity
      * @return float Product price
      **/
-    public static function priceCalculation($id_shop, $id_product, $id_product_attribute, $id_country, $id_state, $zipcode, $id_currency,
-                                            $id_group, $quantity, $use_tax, $decimals, $only_reduc, $use_reduc, $with_ecotax, &$specific_price, $use_group_reduction,
-                                            $id_customer = 0, $use_customer_price = true, $id_cart = 0, $real_quantity = 0)
-    {
-        static $address = null;
-        static context = null;
-
-        if ($address === null) {
-            $address = new Address();
+    public static float priceCalculation(int labId, int analyzeId, int analyzeAttributeId, int countryId, int stateId, String zipCode, int currencyId, int groupId, int quantity, boolean useTax, int decimals, boolean onlyReduction, boolean useReduction, boolean withEcoTax,  boolean useGroupReduction,  int customerId, boolean useCustomerPrice, int cartId, int realQuantity){
+        if (address == null) {
+            address = new JeproLabAddressModel();
         }
 
-        if (context == null) {
-            context = Context::getContext()->cloneContext();
+        if (static_context == null) {
+            static_context = JeproLabContext.getContext().clone();
         }
 
-        if ($id_shop !== null && context.shop->id != (int)$id_shop) {
-            context.shop = new Shop((int)$id_shop);
+        if (labId > 0 && static_context.laboratory.laboratory_id != labId) {
+            static_context.laboratory = new JeproLabLaboratoryModel(labId);
         }
 
-        if (!$use_customer_price) {
-            $id_customer = 0;
+        if (!useCustomerPrice) {
+            customerId = 0;
         }
 
-        if ($id_product_attribute === null) {
-            $id_product_attribute = Product::getDefaultAttribute($id_product);
+        if (analyzeAttributeId <= 0) {
+            analyzeAttributeId = JeproLabAnalyzeModel.getDefaultAttribute(analyzeId);
         }
 
-        $cache_id = (int)$id_product.'-'.(int)$id_shop.'-'.(int)$id_currency.'-'.(int)$id_country.'-'.$id_state.'-'.$zipcode.'-'.(int)$id_group.
-        '-'.(int)$quantity.'-'.(int)$id_product_attribute.
-        '-'.(int)$with_ecotax.'-'.(int)$id_customer.'-'.(int)$use_group_reduction.'-'.(int)$id_cart.'-'.(int)$real_quantity.
-        '-'.($only_reduc?'1':'0').'-'.($use_reduc?'1':'0').'-'.($use_tax?'1':'0').'-'.(int)$decimals;
+        String cacheKey = analyzeId + "_" + labId +"_" + currencyId + "_" + countryId + "_" + stateId + "_" + zipCode + "_" + groupId;
+        cacheKey += "_" + quantity + "_" + analyzeAttributeId + "_" + (withEcoTax ? 1 : 0 ) + "_" + customerId + "_";
+        cacheKey += (useGroupReduction ? 1 : 0) + "_" + cartId + "_" + realQuantity +  "_" + (onlyReduction ? "1" :"0") + "_" + (useReduction ? 1 :0);
+        cacheKey += "_" + (useTax ? 1 : 0) + "_" + decimals;
 
         // reference parameter is filled before any returns
-        $specific_price = SpecificPrice::getSpecificPrice(
-            (int)$id_product,
-            $id_shop,
-            $id_currency,
-            $id_country,
-            $id_group,
-            $quantity,
-            $id_product_attribute,
-            $id_customer,
-            $id_cart,
-            $real_quantity
-        );
+        stattic_specific_price = JeproLabSpecificPriceModel.getSpecificPrice(analyzeId, labId, currencyId, countryId, groupId, quantity, analyzeAttributeId, customerId, cartId, realQuantity);
 
-        if (isset(self::$_prices[$cache_id])) {
+        if (JeproLabAnalyzeModel._prices.containsKey(cacheKey)){
             /* Affect reference before returning cache */
-        if (isset($specific_price['price']) && $specific_price['price'] > 0) {
-            $specific_price['price'] = self::$_prices[$cache_id];
+            if (isset($specific_price['price']) && $specific_price['price'] > 0) {
+                $specific_price['price'] = JeproLabAnalyzeModel.$_prices[$cacheKey];
+            }
+            return JeproLabAnalyzeModel.$_prices[$cacheKey];
         }
-        return self::$_prices[$cache_id];
-    }
 
         // fetch price & attribute price
-        $cache_id_2 = $id_product.'-'.$id_shop;
-        if (!isset(self::$_pricesLevel2[$cache_id_2])) {
-        $sql = new DbQuery();
-        $sql->select('product_shop.`price`, product_shop.`ecotax`');
-        $sql->from('product', 'p');
-        $sql->innerJoin('product_shop', 'product_shop', '(product_shop.id_product=p.id_product AND product_shop.id_shop = '.(int)$id_shop.')');
-        $sql->where('p.`id_product` = '.(int)$id_product);
-        if (Combination::isFeatureActive()) {
-            $sql->select('IFNULL(product_attribute_shop.id_product_attribute,0) id_product_attribute, product_attribute_shop.`price` AS attribute_price, product_attribute_shop.default_on');
-            $sql->leftJoin('product_attribute_shop', 'product_attribute_shop', '(product_attribute_shop.id_product = p.id_product AND product_attribute_shop.id_shop = '.(int)$id_shop.')');
-        } else {
-            $sql->select('0 as id_product_attribute');
-        }
+        String cacheKey_2 = analyzeId + "_" + labId;
+        if (!isset(JeproLabAnalyzeModel.$_pricesLevel2[$cacheKey_2])) {
+            if(staticDataBaseObject == null){
+                staticDataBaseObject = JeproLabFactory.getDataBaseConnector();
+            }
 
-        $res = Db::getInstance(_PS_USE_SQL_SLAVE_)->executeS($sql);
+            String select = "SELECT analyze_lab." + staticDataBaseObject.quoteName("price") + ", analyze_lab." + staticDataBaseObject.quoteName("ecotax");
+            String from = " FROM " + staticDataBaseObject.quoteName("#__jeprolab_analyze") + " AS analyze";
+            String innerJoin = " INNER JOIN " + staticDataBaseObject.quoteName("#__jeprolab_analyze_lab") + " AS analyze_lab ON (analyze.analyze_id = ";
+            innerJoin += " analyze_lab.analyze_id AND analyze_lab.lab_id = " + labId + ") ";
+            String where = " WHERE analyze." + staticDataBaseObject.quoteName("analyze_id") + " = " + analyzeId;
+            String leftJoin = "";
+            if (JeproLabCombination.isFeaturePublished()) {
+                select += "IFNULL(analyze_attribute_lab.analyze_attribute_id, 0) AS analyze_attribute_id, analyze_attribute_lab.";
+                select += staticDataBaseObject.quoteName("price") + " AS attribute_price, analyze_attribute_lab.default_on ";
+                leftJoin += " LEFT JOIN " + staticDataBaseObject.quoteName("#__jeprolab_analyze_attribute_lab") + " AS product_attribute_lab ON (";
+                leftJoin += "analyze_attribute_lab.analyze_id = analyze.analyze_id AND analyze_attribute_lab.lab_id = " + labId + ")";
+            } else {
+                select += " 0 as analyze_attribute_id ";
+            }
+            String query = select + from + leftJoin + innerJoin + where;
+            staticDataBaseObject.setQuery(query);
+            ResultSet results = staticDataBaseObject.loadObject();
 
-        if (is_array($res) && count($res)) {
-            foreach ($res as $row) {
-                $array_tmp = array(
-                        'price' => $row['price'],
-                        'ecotax' => $row['ecotax'],
-                        'attribute_price' => (isset($row['attribute_price']) ? $row['attribute_price'] : null)
-                );
-                self::$_pricesLevel2[$cache_id_2][(int)$row['id_product_attribute']] = $array_tmp;
+            try {
+                float resultPrice;
+                float resultAttributePrice;
+                float resultEcoTax;
+                while(results.next()){
+                    resultPrice = results.getFloat("price");
+                    resultEcoTax = results.getFloat("ecotax");
+                    resultAttributePrice = results.getFloat("attribute_price");
+                }
+            }catch(SQLException ignored){
 
-                if (isset($row['default_on']) && $row['default_on'] == 1) {
-                    self::$_pricesLevel2[$cache_id_2][0] = $array_tmp;
+            }
+
+            if (is_array($res) && count($res)) {
+                foreach ($res as $row) {
+                    $array_tmp = array(
+                            'price' => $row['price'],
+                            'ecotax' => $row['ecotax'],
+                            'attribute_price' => (isset($row['attribute_price']) ? $row['attribute_price'] : null)
+                    );
+                    JeproLabAnalyzeModel.$_pricesLevel2[$cacheKey_2][(int)$row['id_product_attribute']] = $array_tmp;
+
+                    if (isset($row['default_on']) && $row['default_on'] == 1) {
+                        JeproLabAnalyzeModel.$_pricesLevel2[$cacheKey_2][0] = $array_tmp;
+                    }
                 }
             }
         }
-    }
 
-        if (!isset(self::$_pricesLevel2[$cache_id_2][(int)$id_product_attribute])) {
-        return;
-    }
+        if (!isset(JeproLabAnalyzeModel.$_pricesLevel2[$cacheKey_2][(int)$id_product_attribute])) {
+            return;
+        }
 
-        $result = self::$_pricesLevel2[$cache_id_2][(int)$id_product_attribute];
-
+        $result = JeproLabAnalyzeModel.$_pricesLevel2[$cacheKey_2][(int)$id_product_attribute];
+        float price;
         if (!$specific_price || $specific_price['price'] < 0) {
-            $price = (float)$result['price'];
+            price = (float)$result['price'];
         } else {
-            $price = (float)$specific_price['price'];
+            price = (float)$specific_price['price'];
         }
         // convert only if the specific price is in the default currency (id_currency = 0)
         if (!$specific_price || !($specific_price['price'] >= 0 && $specific_price['id_currency'])) {
-            $price = Tools::convertPrice($price, $id_currency);
+            price = JeproLabTools.convertPrice(price, currencyId);
             if (isset($specific_price['price'])) {
-                $specific_price['price'] = $price;
+                $specific_price['price'] = price;
             }
         }
 
@@ -3215,103 +3237,101 @@ public class JeproLabAnalyzeModel extends JeproLabModel {
         if (is_array($result) && (!$specific_price || !$specific_price['id_product_attribute'] || $specific_price['price'] < 0)) {
             $attribute_price = Tools::convertPrice($result['attribute_price'] !== null ? (float)$result['attribute_price'] : 0, $id_currency);
             // If you want the default combination, please use NULL value instead
-            if ($id_product_attribute !== false) {
-                $price += $attribute_price;
+            if (analyzeAttributeId > 0) {
+                price += $attribute_price;
             }
         }
 
         // Tax
-        $address->id_country = $id_country;
-        $address->id_state = $id_state;
-        $address->postcode = $zipcode;
+        address.country_id = countryId;
+        address.state_id = stateId;
+        address.postcode = zipCode;
 
-        $tax_manager = TaxManagerFactory::getManager($address, Product::getIdTaxRulesGroupByIdProduct((int)$id_product, context));
-        $product_tax_calculator = $tax_manager->getTaxCalculator();
+        JeproLabTaxRulesManager taxManager = JeproLabTaxManagerFactory.getManager(address, JeproLabAnalyzeModel.getTaxRulesGroupIdByAnalyzeId((int) $id_product, context));
+        JeproLabTaxCalculator analyzeTaxCalculator = taxManager.getTaxCalculator();
 
         // Add Tax
-        if ($use_tax) {
-            $price = $product_tax_calculator->addTaxes($price);
+        if (useTax) {
+            price = analyzeTaxCalculator.addTaxes(price);
         }
 
         // Eco Tax
-        if (($result['ecotax'] || isset($result['attribute_ecotax'])) && $with_ecotax) {
-            $ecotax = $result['ecotax'];
+        float ecoTax;
+        if (($result['ecotax'] || isset($result['attribute_ecotax'])) && withEcoTax) {
+            ecoTax = $result['ecotax'];
             if (isset($result['attribute_ecotax']) && $result['attribute_ecotax'] > 0) {
-                $ecotax = $result['attribute_ecotax'];
+                ecoTax = $result['attribute_ecotax'];
             }
 
-            if ($id_currency) {
-                $ecotax = Tools::convertPrice($ecotax, $id_currency);
+            if (currencyId > 0) {
+                ecoTax = JeproLabTools.convertPrice(ecoTax, currencyId);
             }
-            if ($use_tax) {
-                // reinit the JeproLabTaxManagerFactory manager for ecotax handling
-                $tax_manager = TaxManagerFactory::getManager(
-                        $address,
-                        (int)Configuration::get('PS_ECOTAX_TAX_RULES_GROUP_ID')
-                );
-                $ecotax_tax_calculator = $tax_manager->getTaxCalculator();
-                $price += $ecotax_tax_calculator->addTaxes($ecotax);
+            if (useTax) {
+                // re-init the JeproLabTaxManagerFactory manager for ecotax handling
+                taxManager = JeproLabTaxManagerFactory.getManager( address, JeproLabSettingModel.getIntValue("ecotax_tax_rules_group_id"));
+                JeproLabTaxCalculator ecotaxTaxCalculator = taxManager.getTaxCalculator();
+                price += ecotaxTaxCalculator.addTaxes(ecoTax);
             } else {
-                $price += $ecotax;
+                price += ecoTax;
             }
         }
 
         // Reduction
-        $specific_price_reduction = 0;
-        if (($only_reduc || $use_reduc) && $specific_price) {
+        float specificPriceReduction = 0;
+        if ((onlyReduction || useReduction) && $specific_price) {
             if ($specific_price['reduction_type'] == 'amount') {
-                $reduction_amount = $specific_price['reduction'];
+                reductionAmount = $specific_price['reduction'];
 
                 if (!$specific_price['id_currency']) {
-                    $reduction_amount = Tools::convertPrice($reduction_amount, $id_currency);
+                    reductionAmount = JeproLabTools.convertPrice(reductionAmount, currencyId);
                 }
 
-                $specific_price_reduction = $reduction_amount;
+                specificPriceReduction = reductionAmount;
 
                 // Adjust taxes if required
 
-                if (!$use_tax && $specific_price['reduction_tax']) {
+                if (!useTax && $specific_price['reduction_tax']) {
                     $specific_price_reduction = $product_tax_calculator->removeTaxes($specific_price_reduction);
                 }
                 if ($use_tax && !$specific_price['reduction_tax']) {
                     $specific_price_reduction = $product_tax_calculator->addTaxes($specific_price_reduction);
                 }
             } else {
-                $specific_price_reduction = $price * $specific_price['reduction'];
+                $specific_price_reduction = price * $specific_price['reduction'];
             }
         }
 
-        if ($use_reduc) {
-            $price -= $specific_price_reduction;
+        if (useReduction) {
+            price -= specificPriceReduction;
         }
 
         // Group reduction
-        if ($use_group_reduction) {
-            $reduction_from_category = GroupReduction::getValueForProduct($id_product, $id_group);
+        if (useGroupReduction) {
+            $reduction_from_category = JeproLabGroupReductionModel.getValueForAnalyze(analyzeId, groupId);
             if ($reduction_from_category !== false) {
-                $group_reduction = $price * (float)$reduction_from_category;
+                $group_reduction = price * (float)$reduction_from_category;
             } else { // apply group reduction if there is no group reduction for this category
-                $group_reduction = (($reduc = Group::getReductionByIdGroup($id_group)) != 0) ? ($price * $reduc / 100) : 0;
+                $group_reduction = (($reduc = JeproLabGroupModel.getReductionByGroupId(groupId)) != 0) ? (price * $reduc / 100) : 0;
             }
 
-            $price -= $group_reduction;
+            price -= $group_reduction;
         }
 
-        if ($only_reduc) {
-            return Tools::ps_round($specific_price_reduction, $decimals);
+        if (onlyReduction) {
+            return JeproLabTools.roundPrice(specificPriceReduction, decimals);
         }
 
-        $price = JeproLabTools.roundPrice($price, decimals);
+        price = JeproLabTools.roundPrice(price, decimals);
 
-        if ($price < 0) {
-            $price = 0;
+        if (price < 0) {
+            price = 0;
         }
 
-        self::$_prices[$cache_id] = $price;
-        return self::$_prices[$cache_id];
+        JeproLabAnalyzeModel._prices.put(cacheKey, price);
+        return JeproLabAnalyzeModel._prices.get(cacheKey);
     }
 /*
-    public static function convertAndFormatPrice($price, $currency = false, Context context = null)
+    public static function convertAndFormatPrice(price, $currency = false, Context context = null)
     {
         if (!context) {
             context = Context::getContext();
@@ -3853,15 +3873,15 @@ public class JeproLabAnalyzeModel extends JeproLabModel {
         if (!Feature::isFeatureActive()) {
         return array();
     }
-        if (!array_key_exists($id_product, self::$_cacheFeatures)) {
-            self::$_cacheFeatures[$id_product] = Db::getInstance(_PS_USE_SQL_SLAVE_)->executeS('
+        if (!array_key_exists($id_product, JeproLabAnalyzeModel.$_cacheFeatures)) {
+            JeproLabAnalyzeModel.$_cacheFeatures[$id_product] = Db::getInstance(_PS_USE_SQL_SLAVE_)->executeS('
                     SELECT fp.id_feature, fp.id_product, fp.id_feature_value, custom
                     FROM `'._DB_PREFIX_.'feature_product` fp
             LEFT JOIN `'._DB_PREFIX_.'feature_value` fv ON (fp.id_feature_value = fv.id_feature_value)
             WHERE `id_product` = '.(int)$id_product
             );
         }
-        return self::$_cacheFeatures[$id_product];
+        return JeproLabAnalyzeModel.$_cacheFeatures[$id_product];
     }
 
     public static function cacheProductsFeatures($product_ids)
@@ -3872,7 +3892,7 @@ public class JeproLabAnalyzeModel extends JeproLabModel {
 
         $product_implode = array();
         foreach ($product_ids as $id_product) {
-        if ((int)$id_product && !array_key_exists($id_product, self::$_cacheFeatures)) {
+        if ((int)$id_product && !array_key_exists($id_product, JeproLabAnalyzeModel.$_cacheFeatures)) {
             $product_implode[] = (int)$id_product;
         }
     }
@@ -3885,10 +3905,10 @@ public class JeproLabAnalyzeModel extends JeproLabModel {
             FROM `'._DB_PREFIX_.'feature_product`
         WHERE `id_product` IN ('.implode($product_implode, ',').')');
         foreach ($result as $row) {
-        if (!array_key_exists($row['id_product'], self::$_cacheFeatures)) {
-            self::$_cacheFeatures[$row['id_product']] = array();
+        if (!array_key_exists($row['id_product'], JeproLabAnalyzeModel.$_cacheFeatures)) {
+            JeproLabAnalyzeModel.$_cacheFeatures[$row['id_product']] = array();
         }
-        self::$_cacheFeatures[$row['id_product']][] = $row;
+        JeproLabAnalyzeModel.$_cacheFeatures[$row['id_product']][] = $row;
     }
     }
 
@@ -3900,7 +3920,7 @@ public class JeproLabAnalyzeModel extends JeproLabModel {
 
         $product_implode = array();
         foreach ($product_ids as $id_product) {
-        if ((int)$id_product && !array_key_exists($id_product.'-'.$id_lang, self::$_cacheFeatures)) {
+        if ((int)$id_product && !array_key_exists($id_product."_".$id_lang, JeproLabAnalyzeModel.$_cacheFeatures)) {
             $product_implode[] = (int)$id_product;
         }
     }
@@ -3919,11 +3939,11 @@ public class JeproLabAnalyzeModel extends JeproLabModel {
         ORDER BY f.position ASC');
 
         foreach ($result as $row) {
-        if (!array_key_exists($row['id_product'].'-'.$id_lang, self::$_frontFeaturesCache)) {
-            self::$_frontFeaturesCache[$row['id_product'].'-'.$id_lang] = array();
+        if (!array_key_exists($row['id_product']."_".$id_lang, JeproLabAnalyzeModel.$_frontFeaturesCache)) {
+            JeproLabAnalyzeModel.$_frontFeaturesCache[$row['id_product']."_".$id_lang] = array();
         }
-        if (!isset(self::$_frontFeaturesCache[$row['id_product'].'-'.$id_lang][$row['id_feature']])) {
-            self::$_frontFeaturesCache[$row['id_product'].'-'.$id_lang][$row['id_feature']] = $row;
+        if (!isset(JeproLabAnalyzeModel.$_frontFeaturesCache[$row['id_product']."_".$id_lang][$row['id_feature']])) {
+            JeproLabAnalyzeModel.$_frontFeaturesCache[$row['id_product']."_".$id_lang][$row['id_feature']] = $row;
         }
     }
     }
@@ -4062,7 +4082,7 @@ public class JeproLabAnalyzeModel extends JeproLabModel {
         }
     }
 
-        $impacts = self::getAttributesImpacts($id_product_old);
+        $impacts = JeproLabAnalyzeModel.getAttributesImpacts($id_product_old);
 
         if (is_array($impacts) && count($impacts)) {
             $impact_sql = 'INSERT INTO `'._DB_PREFIX_.'attribute_impact` (`id_product`, `id_attribute`, `weight`, `price`) VALUES ';
@@ -4411,7 +4431,7 @@ public function getTags($id_lang)
 public static function defineProductImage($row, $id_lang)
         {
         if (isset($row['id_image']) && $row['id_image']) {
-        return $row['id_product'].'-'.$row['id_image'];
+        return $row['id_product']."_".$row['id_image'];
         }
 
         return Language::getIsoById((int)$id_lang).'-default';
@@ -4444,13 +4464,13 @@ public static function getProductProperties($id_lang, $row, Context context = nu
         // Tax
         $usetax = Tax::excludeTaxeOption();
 
-        $cache_key = $row['id_product'].'-'.$id_product_attribute.'-'.$id_lang.'-'.(int)$usetax;
+        $cache_key = $row['id_product']."_".$id_product_attribute."_".$id_lang."_".(int)$usetax;
         if (isset($row['id_product_pack'])) {
         $cache_key .= '-pack'.$row['id_product_pack'];
         }
 
-        if (isset(self::$producPropertiesCache[$cache_key])) {
-        return array_merge($row, self::$producPropertiesCache[$cache_key]);
+        if (isset(JeproLabAnalyzeModel.$producPropertiesCache[$cache_key])) {
+        return array_merge($row, JeproLabAnalyzeModel.$producPropertiesCache[$cache_key]);
         }
 
         // Datas
@@ -4466,10 +4486,10 @@ public static function getProductProperties($id_lang, $row, Context context = nu
         (int)$row['id_product'],
         false,
         $id_product_attribute,
-        (self::$_taxCalculationMethod == PS_TAX_EXC ? 2 : 6)
+        (JeproLabAnalyzeModel.$_taxCalculationMethod == PS_TAX_EXC ? 2 : 6)
         );
 
-        if (self::$_taxCalculationMethod == PS_TAX_EXC) {
+        if (JeproLabAnalyzeModel.$_taxCalculationMethod == PS_TAX_EXC) {
         $row['price_tax_exc'] = Tools::ps_round($row['price_tax_exc'], 2);
         $row['price'] = Product::getPriceStatic(
         (int)$row['id_product'],
@@ -4567,8 +4587,8 @@ public static function getProductProperties($id_lang, $row, Context context = nu
         }
 
         $row = Product::getTaxesInformations($row, context);
-        self::$producPropertiesCache[$cache_key] = $row;
-        return self::$producPropertiesCache[$cache_key];
+        JeproLabAnalyzeModel.$producPropertiesCache[$cache_key] = $row;
+        return JeproLabAnalyzeModel.$producPropertiesCache[$cache_key];
         }
 
 public static function getTaxesInformations($row, Context context = null)
@@ -4619,8 +4639,8 @@ public static function getFrontFeaturesStatic($id_lang, $id_product)
         if (!Feature::isFeatureActive()) {
         return array();
         }
-        if (!array_key_exists($id_product.'-'.$id_lang, self::$_frontFeaturesCache)) {
-        self::$_frontFeaturesCache[$id_product.'-'.$id_lang] = Db::getInstance(_PS_USE_SQL_SLAVE_)->executeS('
+        if (!array_key_exists($id_product."_".$id_lang, JeproLabAnalyzeModel.$_frontFeaturesCache)) {
+        JeproLabAnalyzeModel.$_frontFeaturesCache[$id_product."_".$id_lang] = Db::getInstance(_PS_USE_SQL_SLAVE_)->executeS('
         SELECT name, value, pf.id_feature
         FROM '._DB_PREFIX_.'feature_product pf
         LEFT JOIN '._DB_PREFIX_.'feature_lang fl ON (fl.id_feature = pf.id_feature AND fl.id_lang = '.(int)$id_lang.')
@@ -4631,7 +4651,7 @@ public static function getFrontFeaturesStatic($id_lang, $id_product)
         ORDER BY f.position ASC'
         );
         }
-        return self::$_frontFeaturesCache[$id_product.'-'.$id_lang];
+        return JeproLabAnalyzeModel.$_frontFeaturesCache[$id_product."_".$id_lang];
         }
 
 public function getFrontFeatures($id_lang)
@@ -5060,13 +5080,13 @@ public static function idIsOnCategoryId($id_product, $categories)
         $sql = rtrim($sql, ',').')';
 
         $hash = md5($sql);
-        if (!isset(self::$_incat[$hash])) {
+        if (!isset(JeproLabAnalyzeModel.$_incat[$hash])) {
         if (!Db::getInstance(_PS_USE_SQL_SLAVE_)->getValue($sql)) {
         return false;
         }
-        self::$_incat[$hash] = (Db::getInstance(_PS_USE_SQL_SLAVE_)->NumRows() > 0 ? true : false);
+        JeproLabAnalyzeModel.$_incat[$hash] = (Db::getInstance(_PS_USE_SQL_SLAVE_)->NumRows() > 0 ? true : false);
         }
-        return self::$_incat[$hash];
+        return JeproLabAnalyzeModel.$_incat[$hash];
         }
 
 public function getNoPackPrice()
@@ -5085,8 +5105,8 @@ public static function checkAccessStatic($id_product, $id_customer)
         return true;
         }
 
-        $cache_id = 'Product::checkAccess_'.(int)$id_product.'-'.(int)$id_customer.(!$id_customer ? '-'.(int)Group::getCurrent()->id : '');
-        if (!Cache::isStored($cache_id)) {
+        $cacheKey = 'Product::checkAccess_'.(int)$id_product."_".(int)$id_customer.(!$id_customer ? "_".(int)Group::getCurrent()->id : '');
+        if (!Cache::isStored($cacheKey)) {
         if (!$id_customer) {
         $result = (bool)Db::getInstance(_PS_USE_SQL_SLAVE_)->getValue('
         SELECT ctg.`id_group`
@@ -5102,10 +5122,10 @@ public static function checkAccessStatic($id_product, $id_customer)
         WHERE cp.`id_product` = '.(int)$id_product.' AND cg.`id_customer` = '.(int)$id_customer);
         }
 
-        Cache::store($cache_id, $result);
+        Cache::store($cacheKey, $result);
         return $result;
         }
-        return Cache::retrieve($cache_id);
+        return Cache::retrieve($cacheKey);
         }
 
 /**
@@ -5693,7 +5713,7 @@ public static function getAttributesParams($id_product, $id_product_attribute)
         {
         $id_lang = (int)Context::getContext()->language->id;
         $id_shop = (int)Context::getContext()->shop->id;
-        $cache_id = 'Product::getAttributesParams_'.(int)$id_product.'-'.(int)$id_product_attribute.'-'.(int)$id_lang.'-'.(int)$id_shop;
+        $cacheKey = 'Product::getAttributesParams_'.(int)$id_product."_".(int)$id_product_attribute."_".(int)$id_lang."_".(int)$id_shop;
 
         // if blocklayered module is installed we check if user has set custom attribute name
         if (Module::isInstalled('blocklayered') && Module::isEnabled('blocklayered')) {
@@ -5755,7 +5775,7 @@ public static function getAttributesParams($id_product, $id_product_attribute)
         }
         }
 
-        if (!Cache::isStored($cache_id)) {
+        if (!Cache::isStored($cacheKey)) {
         $result = Db::getInstance()->executeS('
         SELECT a.`id_attribute`, a.`id_attribute_group`, al.`name`, agl.`name` as `group`
         FROM `'._DB_PREFIX_.'attribute` a
@@ -5771,9 +5791,9 @@ public static function getAttributesParams($id_product, $id_product_attribute)
         WHERE pa.`id_product` = '.(int)$id_product.'
         AND pac.`id_product_attribute` = '.(int)$id_product_attribute.'
         AND agl.`id_lang` = '.(int)$id_lang);
-        Cache::store($cache_id, $result);
+        Cache::store($cacheKey, $result);
         } else {
-        $result = Cache::retrieve($cache_id);
+        $result = Cache::retrieve($cacheKey);
         }
         return $result;
         }
@@ -6012,8 +6032,8 @@ public static function usesAdvancedStockManagement($id_product)
  * /
 public static function flushPriceCache()
         {
-        self::$_prices = array();
-        self::$_pricesLevel2 = array();
+        JeproLabAnalyzeModel.$_prices = array();
+        JeproLabAnalyzeModel.$_pricesLevel2 = array();
         }
 
 /*
@@ -6308,16 +6328,16 @@ public function isColorUnavailable($id_attribute, $id_shop)
 
 public static function getColorsListCacheId($id_product, $full = true)
         {
-        $cache_id = 'productlist_colors';
+        $cacheKey = 'productlist_colors';
         if ($id_product) {
-        $cache_id .= '|'.(int)$id_product;
+        $cacheKey .= '|'.(int)$id_product;
         }
 
         if ($full) {
-        $cache_id .= '|'.(int)Context::getContext()->shop->id.'|'.(int)Context::getContext()->cookie->id_lang;
+        $cacheKey .= '|'.(int)Context::getContext()->shop->id.'|'.(int)Context::getContext()->cookie->id_lang;
         }
 
-        return $cache_id;
+        return $cacheKey;
         }
 
 public static function setPackStockType($id_product, $pack_stock_type)
