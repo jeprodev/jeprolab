@@ -614,7 +614,7 @@ public class JeproLabAnalyzeModel extends JeproLabModel {
             // Keep base price
             this.base_price = this.price;
 
-            this.price = JeproLabAnalyzeModel.getStaticPrice(this.analyze_id, false, null, 6, null, false, true, 1, false, null, null, null);
+            this.price = JeproLabAnalyzeModel.getStaticPrice(this.analyze_id, false, 0, 6, false, true, 1, false, 0, 0, 0);
             specificPrice = JeproLabAnalyzeModel.static_specific_price;
             this.unit_price = (this.unit_price_ratio != 0  ? this.price / this.unit_price_ratio : 0);
             if (this.analyze_id > 0) {
@@ -2970,7 +2970,7 @@ public class JeproLabAnalyzeModel extends JeproLabModel {
         JeproLabCartModel currentCart = context.cart;
 
         if (analyzeId <= 0){
-            die(Tools::displayError());
+            JeproLabTools.displayError(500, JeproLab.getBundle().getString("JEPROLAB_LABEL"));
         }
 
         // Initializations
@@ -2990,7 +2990,7 @@ public class JeproLabAnalyzeModel extends JeproLabModel {
             * When called from the back office, cart ID can be in-existent
             */
             if (cartId > 0 && context.employee != null) {
-                die(Tools::displayError());
+                JeproLabTools.displayError(500, JeproLab.getBundle().getString("JEPROLAB_LABEL"));
             }
             currentCart = new JeproLabCartModel(cartId);
             // Store cart in context to avoid multiple instantiations in BO
@@ -3064,7 +3064,7 @@ public class JeproLabAnalyzeModel extends JeproLabModel {
             zipCode = context.customer.postcode;
         }
 
-        if (JeproLabTaxModel.excludeTaxeOption()){
+        if (JeproLabTaxModel.excludeTaxOption()){
             useTax = false;
         }
 
@@ -3193,25 +3193,26 @@ public class JeproLabAnalyzeModel extends JeproLabModel {
                     resultPrice = results.getFloat("price");
                     resultEcoTax = results.getFloat("ecotax");
                     resultAttributePrice = results.getFloat("attribute_price");
+                    if (is_array($res) && count($res)) {
+                        foreach ($res as $row) {
+                            $array_tmp = array(
+                                    'price' => $row['price'],
+                                    'ecotax' => $row['ecotax'],
+                                    'attribute_price' => (isset($row['attribute_price']) ? $row['attribute_price'] : null)
+                            );
+                            JeproLabAnalyzeModel.$_pricesLevel2[$cacheKey_2][(int)$row['id_product_attribute']] = $array_tmp;
+
+                            if (isset($row['default_on']) && $row['default_on'] == 1) {
+                                JeproLabAnalyzeModel.$_pricesLevel2[$cacheKey_2][0] = $array_tmp;
+                            }
+                        }
+                    }
                 }
             }catch(SQLException ignored){
 
             }
 
-            if (is_array($res) && count($res)) {
-                foreach ($res as $row) {
-                    $array_tmp = array(
-                            'price' => $row['price'],
-                            'ecotax' => $row['ecotax'],
-                            'attribute_price' => (isset($row['attribute_price']) ? $row['attribute_price'] : null)
-                    );
-                    JeproLabAnalyzeModel.$_pricesLevel2[$cacheKey_2][(int)$row['id_product_attribute']] = $array_tmp;
 
-                    if (isset($row['default_on']) && $row['default_on'] == 1) {
-                        JeproLabAnalyzeModel.$_pricesLevel2[$cacheKey_2][0] = $array_tmp;
-                    }
-                }
-            }
         }
 
         if (!isset(JeproLabAnalyzeModel.$_pricesLevel2[$cacheKey_2][(int)$id_product_attribute])) {
@@ -6058,32 +6059,33 @@ public function getParentCategories($id_lang = null)
 
         return Db::getInstance(_PS_USE_SQL_SLAVE_)->executeS($sql);
         }
+*/
+    /**
+     * Fill the variables used for stock management
+     */
+    public void loadStockData() {
+        if (this.analyze_id > 0){
+            // By default, the product quantity correspond to the available quantity to sell in the current shop
+            this.quantity = JeproLabStockAvailableModel.getQuantityAvailableByAnalyzeId(this.analyze_id, 0);
+            this.out_of_stock = JeproLabStockAvailableModel.outOfStock(this.analyze_id);
+            this.depends_on_stock = JeproLabStockAvailableModel.dependsOnStock(this.analyze_id);
 
+            if (JeproLabContext.getContext().laboratory.getLabContext() == JeproLabLaboratoryModel.GROUP_CONTEXT && JeproLabContext.getContext().laboratory.getLabGroupContext().share_stock == 1){
+                this.advanced_stock_management = this.useAdvancedStockManagement();
+            }
+        }
+    }
+
+    public boolean useAdvancedStockManagement() {
+        if (dataBaseObject == null) {
+            dataBaseObject = JeproLabFactory.getDataBaseConnector();
+        }
+        String query = "SELECT " + dataBaseObject.quoteName("advanced_stock_management") + " FROM " + dataBaseObject.quoteName("#__jeprolab_analyze_lab");
+        query += " WHERE analyze_id = " + this.analyze_id + JeproLabLaboratoryModel.addSqlRestriction();
+        dataBaseObject.setQuery(query);
+        return ((int)dataBaseObject.loadValue("advanced_stock_management") > 0);
+    }
 /*
- * Fill the variables used for stock management
- * /
-public function loadStockData()
-        {
-        if (Validate::isLoadedObject($this)) {
-        // By default, the product quantity correspond to the available quantity to sell in the current shop
-        this.quantity = StockAvailable::getQuantityAvailableByProduct(this.id, 0);
-        this.out_of_stock = StockAvailable::outOfStock(this.id);
-        this.depends_on_stock = StockAvailable::dependsOnStock(this.id);
-        if (Context::getContext()->shop->getContext() == Shop::CONTEXT_GROUP && Context::getContext()->shop->getContextShopGroup()->share_stock == 1) {
-        this.advanced_stock_management = this.useAdvancedStockManagement();
-        }
-        }
-        }
-
-public function useAdvancedStockManagement()
-        {
-        return Db::getInstance()->getValue('
-        SELECT `advanced_stock_management`
-        FROM '._DB_PREFIX_.'product_shop
-        WHERE id_product='.(int)this.id.Shop::addSqlRestriction()
-        );
-        }
-
 public function setAdvancedStockManagement($value)
         {
         this.advanced_stock_management = (int)$value;

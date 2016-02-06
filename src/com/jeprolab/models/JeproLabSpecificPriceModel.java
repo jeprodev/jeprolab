@@ -1,12 +1,21 @@
 package com.jeprolab.models;
 
+import com.jeprolab.JeproLab;
+import com.jeprolab.models.core.JeproLabFactory;
+import com.jeprolab.models.core.JeproLabSession;
+
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  *
  * Created by jeprodev on 05/02/14.
  */
-public class JeproLabSpecificPriceModel {
+public class JeproLabSpecificPriceModel extends JeproLabModel{
     public int analyze_id;
     public int specific_price_rule_id = 0;
     public int cart_id = 0;
@@ -68,11 +77,14 @@ public class JeproLabSpecificPriceModel {
     ),
             );
 
-
-    protected static $_specificPriceCache = array();
+*/
+    protected static Map<String> _specificPriceCache = new HashMap<>();
     protected static $_filterOutCache = array();
     protected static $_cache_priorities = array();
     protected static $_no_specific_values = array();
+    */
+    private static boolean feature_active = false;
+
 
     /*
      * Flush local cache
@@ -149,47 +161,52 @@ public class JeproLabSpecificPriceModel {
 
     /**
      * score generation for quantity discount
-     * /
-    protected static function _getScoreQuery($id_product, $id_shop, $id_currency, $id_country, $id_group, $id_customer)
-    {
-        $select = '(';
+     */
+    protected static String getScoreQuery(int analyzeId, int labId, int currencyId, int countryId, int groupId, int customerId){
+        String select = "(";
 
-        $priority = SpecificPrice::getPriority($id_product);
+        $priority = JeproLabSpecificPriceModel.getPriority(analyzeId);
         foreach (array_reverse($priority) as $k => $field) {
-        if (!empty($field)) {
-            $select .= ' IF (`'.bqSQL($field).'` = '.(int)$$field.', '.pow(2, $k + 1).', 0) + ';
+            if (!empty($field)) {
+                $select .= ' IF (`'.bqSQL($field).'` = '.(int)$$field.', '.pow(2, $k + 1).', 0) + ';
+            }
         }
+
+        return rtrim($select, ' +') + ") AS " + staticDataBaseObject.quoteName("score");
     }
 
-        return rtrim($select, ' +').') AS `score`';
-    }
+    public static List getPriority(int analyzeId){
+        if (!JeproLabSpecificPriceModel.isFeaturePublished()) {
+            return JeproLabSettingModel.getStringValue("specific_price_priorities").split(";"); //'PS_SPECIFIC_PRICE_PRIORITIES'));
+        }
 
-    public static function getPriority($id_product)
-    {
-        if (!SpecificPrice::isFeatureActive()) {
-        return explode(';', Configuration::get('PS_SPECIFIC_PRICE_PRIORITIES'));
-    }
+        if (!JeproLabSpecificPriceModel._cache_priorities.containsKey(analyzeId)){
+            if(staticDataBaseObject == null){
+                staticDataBaseObject = JeproLabFactory.getDataBaseConnector();
+            }
 
-        if (!isset(SpecificPrice::$_cache_priorities[(int)$id_product])) {
-        SpecificPrice::$_cache_priorities[(int)$id_product] = Db::getInstance(_PS_USE_SQL_SLAVE_)->getValue('
-                SELECT `priority`, `id_specific_price_priority`
-                FROM `'._DB_PREFIX_.'specific_price_priority`
-        WHERE `id_product` = '.(int)$id_product.'
-        ORDER BY `id_specific_price_priority` DESC
+            String query = "SELECT " + staticDataBaseObject.quoteName("priority") + ", " + staticDataBaseObject.quoteName("specific_price_priority_id");
+            query += " FROM " + staticDataBaseObject.quoteName("#__jeprolab_specific_price_priority") + " WHERE " + staticDataBaseObject.quoteName("analyze_id");
+            query += " = " + analyzeId + " ORDER BY " + staticDataBaseObject.quoteName("specific_price_priority_id") + " DESC ";
+
+            staticDataBaseObject.setQuery(query);
+
+            JeproLabSpecificPriceModel._cache_priorities.put(analyzeId] = Db::getInstance(_PS_USE_SQL_SLAVE_)->getValue('
+
         ');
-    }
-
-        $priority = SpecificPrice::$_cache_priorities[(int)$id_product];
-
-        if (!$priority) {
-            $priority = Configuration::get('PS_SPECIFIC_PRICE_PRIORITIES');
         }
-        $priority = 'id_customer;'.$priority;
 
-        return preg_split('/;/', $priority);
+        priority = JeproLabSpecificPriceModel._cache_priorities.get(analyzeId);
+
+        if (!priority) {
+            priority = JeproLabSettingModel.getStringValue("specific_price_priorities");
+        }
+        priority = 'id_customer;'.$priority;
+
+        return preg_split('/;/', priority);
     }
 
-    /**
+    /*
      * Remove or add a field value to a query if values are present in the database (cache friendly)
      *
      * @param string $field_name
@@ -302,48 +319,71 @@ public class JeproLabSpecificPriceModel {
 
         return $query_extra;
     }
-
-    private static function formatIntInQuery($first_value, $second_value) {
-        $first_value = (int)$first_value;
-        $second_value = (int)$second_value;
-        if ($first_value != $second_value) {
-            return 'IN ('.$first_value.', '.$second_value.')';
+*/
+    private static String formatIntInQuery(int firstValue, int secondValue) {
+        if (firstValue != secondValue) {
+            return " IN (" + firstValue + ", " + secondValue + ")";
         } else {
-            return ' = '.$first_value;
+            return " = " + firstValue;
         }
     }
 
-    public static function getSpecificPrice($id_product, $id_shop, $id_currency, $id_country, $id_group, $quantity, $id_product_attribute = null, $id_customer = 0, $id_cart = 0, $real_quantity = 0)
-    {
-        if (!SpecificPrice::isFeatureActive()) {
-        return array();
+    public static JeproLabSpecificPriceModel getSpecificPrice(int analyzeId, int labId, int currencyId, int countryId, int groupId, int quantity){
+        return getSpecificPrice(analyzeId, labId, currencyId, countryId, groupId, quantity, 0, 0, 0, 0);
     }
+
+    public static JeproLabSpecificPriceModel getSpecificPrice(int analyzeId, int labId, int currencyId, int countryId, int groupId, int quantity, int analyzeAttributeId){
+        return getSpecificPrice(analyzeId, labId, currencyId, countryId, groupId, quantity, analyzeAttributeId, 0, 0, 0);
+    }
+
+    public static JeproLabSpecificPriceModel getSpecificPrice(int analyzeId, int labId, int currencyId, int countryId, int groupId, int quantity, int analyzeAttributeId, int customerId){
+        return getSpecificPrice(analyzeId, labId, currencyId, countryId, groupId, quantity, analyzeAttributeId, customerId, 0, 0);
+    }
+
+    public static JeproLabSpecificPriceModel getSpecificPrice(int analyzeId, int labId, int currencyId, int countryId, int groupId, int quantity, int analyzeAttributeId, int customerId, int cartId){
+        return getSpecificPrice(analyzeId, labId, currencyId, countryId, groupId, quantity, analyzeAttributeId, customerId, cartId, 0);
+    }
+
+    public static JeproLabSpecificPriceModel getSpecificPrice(int analyzeId, int labId, int currencyId, int countryId, int groupId, int quantity, int analyzeAttributeId, int customerId, int cartId, int realQuantity){
+        if (!JeproLabSpecificPriceModel.isFeaturePublished()) {
+            return array();
+        }
         /*
         ** The date is not taken into account for the cache, but this is for the better because it keeps the consistency for the whole script.
         ** The price must not change between the top and the bottom of the page
-        * /
+        */
 
-        $key = ((int)$id_product.'-'.(int)$id_shop.'-'.(int)$id_currency.'-'.(int)$id_country.'-'.(int)$id_group.'-'.(int)$quantity.'-'.(int)$id_product_attribute.'-'.(int)$id_cart.'-'.(int)$id_customer.'-'.(int)$real_quantity);
+        String cacheKey = analyzeId + "_" + labId + "_" + currencyId + "_" + countryId + "_" + groupId + "_" + quantity + "_" + analyzeAttributeId + "_" + cartId + "_" + customerId + "_" + realQuantity;
         if (!array_key_exists($key, SpecificPrice::$_specificPriceCache)) {
-            $query_extra = self::computeExtraConditions($id_product, $id_product_attribute, $id_customer, $id_cart);
-            $query = '
-            SELECT *, '.SpecificPrice::_getScoreQuery($id_product, $id_shop, $id_currency, $id_country, $id_group, $id_customer).'
-            FROM `'._DB_PREFIX_.'specific_price`
-            WHERE
-            `id_shop` '.self::formatIntInQuery(0, $id_shop).' AND
-            `id_currency` '.self::formatIntInQuery(0, $id_currency).' AND
-            `id_country` '.self::formatIntInQuery(0, $id_country).' AND
-            `id_group` '.self::formatIntInQuery(0, $id_group).' '.$query_extra.'
-            AND IF(`from_quantity` > 1, `from_quantity`, 0) <= ';
+            String extraQuery = JeproLabSpecificPriceModel.computeExtraConditions(analyzeId, analyzeAttributeId, customerId, cartId);
+            String query = "SELECT *, " + JeproLabSpecificPriceModel.getScoreQuery(analyzeId, labId, currencyId, countryId, groupId, customerId);
+            query += " FROM " + staticDataBaseObject.quoteName("specific_price") + " WHERE " + staticDataBaseObject.quoteName("lab_id");
+            query += JeproLabSpecificPriceModel.formatIntInQuery(0, labId) + " AND " + staticDataBaseObject.quoteName("currency_id");
+            query += JeproLabSpecificPriceModel.formatIntInQuery(0, currencyId) + " AND " + staticDataBaseObject.quoteName("country_id");
+            query += JeproLabSpecificPriceModel.formatIntInQuery(0, countryId) + " " + staticDataBaseObject.quoteName("group_id");
+            query += JeproLabSpecificPriceModel.formatIntInQuery(0, groupId) + extraQuery + " AND IF(" + staticDataBaseObject.quoteName("from_quantity");
+            query += " > 1, " + staticDataBaseObject.quoteName("from_quantity") + ", 0) <= ";
+            query += (JeproLabSettingModel.getIntValue("quantity_discount_on_combination") > 0 || (cartId < 0) || (realQuantity <= 0)) ? quantity : Math.max(1, realQuantity);
+            query += " ORDER BY " + staticDataBaseObject.quoteName("analyze_attribute_id") + " DESC, " + staticDataBaseObject.quoteName("from_quantity") + " DESC, ";
+            query += staticDataBaseObject.quoteName("specific_price_rule_id") + " ASC, " + staticDataBaseObject.quoteName("score") + " DESC, ";
+            query += staticDataBaseObject.quoteName("to") + " DESC, " + staticDataBaseObject.quoteName("from") + " DESC";
 
-            $query .= (Configuration::get('PS_QTY_DISCOUNT_ON_COMBINATION') || !$id_cart || !$real_quantity) ? (int)$quantity : max(1, (int)$real_quantity);
-            $query .= ' ORDER BY `id_product_attribute` DESC, `from_quantity` DESC, `id_specific_price_rule` ASC, `score` DESC, `to` DESC, `from` DESC';
+            staticDataBaseObject.setQuery(query);
+            ResultSet resultSet = staticDataBaseObject.loadObject();
+            JeproLabSpecificPriceModel specificPrice = new JeproLabSpecificPriceModel();
+            try {
+                if(resultSet.next()){
 
-            SpecificPrice::$_specificPriceCache[$key] = Db::getInstance(_PS_USE_SQL_SLAVE_)->getRow($query);
+                }
+            }catch (SQLException ignored){
+
+            }
+
+            JeproLabSpecificPriceModel._specificPriceCache.put(cacheKey, specificPrice);
         }
-        return SpecificPrice::$_specificPriceCache[$key];
+        return (JeproLabSpecificPriceModel)JeproLabSpecificPriceModel._specificPriceCache.get(cacheKey);
     }
-
+/*
     public static function setPriorities($priorities)
     {
         $value = '';
@@ -488,17 +528,14 @@ public class JeproLabSpecificPriceModel {
      * This method is allow to know if a feature is used or active
      * @since 1.5.0.1
      * @return bool
-     * /
-    public static function isFeaturePublished()
-    {
-        static $feature_active = null;
-
-        if ($feature_active === null) {
-            $feature_active = Configuration::get('PS_SPECIFIC_PRICE_FEATURE_ACTIVE');
+     */
+    public static boolean isFeaturePublished(){
+        if (!feature_active) {
+            feature_active = JeproLabSettingModel.getIntValue("specific_price_feature_active"); //'PS_SPECIFIC_PRICE_FEATURE_ACTIVE');
         }
-        return $feature_active;
+        return feature_active;
     }
-
+/*
     public static function exists($id_product, $id_product_attribute, $id_shop, $id_group, $id_country, $id_currency, $id_customer, $from_quantity, $from, $to, $rule = false)
     {
         $rule = ' AND `id_specific_price_rule`'.(!$rule ? '=0' : '!=0');

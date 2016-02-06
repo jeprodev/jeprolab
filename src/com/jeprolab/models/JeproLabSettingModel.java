@@ -83,7 +83,7 @@ public class JeproLabSettingModel extends JeproLabModel{
         if(SETTINGS.containsKey(key)){
             return Integer.parseInt(SETTINGS.get(key).toString());
         }else{
-            int value = 20;
+            int value = 0;
             try{
                 ResultSet valueSet = getValue(key);
                 while(valueSet.next()){
@@ -95,6 +95,28 @@ public class JeproLabSettingModel extends JeproLabModel{
                 return 0;
             }
 
+        }
+    }
+
+    public static String getStringValue(String key){
+        if(SETTINGS == null || SETTINGS.isEmpty()){
+            JeproLabSettingModel.loadSettings();
+        }
+
+        if(SETTINGS.containsKey(key)){
+            return SETTINGS.get(key).toString();
+        }else{
+            try{
+                ResultSet valueSet = getValue(key);
+                if(valueSet.next()){
+                    String value = valueSet.getString("value");
+                    SETTINGS.put(key, value);
+                    return value;
+                }
+            }catch (SQLException ignored){
+                return "";
+            }
+            return "";
         }
     }
 }

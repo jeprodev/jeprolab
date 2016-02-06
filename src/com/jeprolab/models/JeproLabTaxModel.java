@@ -157,10 +157,9 @@ public class JeproLabTaxModel extends JeproLabModel {
 
         return Db::getInstance(_PS_USE_SQL_SLAVE_)->executeS($sql);
     }
-
-    public static function excludeTaxeOption()
-    {
-        return !Configuration::get('PS_TAX');
+*/
+    public static boolean excludeTaxOption(){
+        return (JeproLabSettingModel.getIntValue("use_tax") > 0);
     }
 
     /**
