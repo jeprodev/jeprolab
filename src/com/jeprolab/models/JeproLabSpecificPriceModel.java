@@ -6,10 +6,7 @@ import com.jeprolab.models.core.JeproLabSession;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  *
@@ -41,23 +38,23 @@ public class JeproLabSpecificPriceModel extends JeproLabModel{
             'table' => 'specific_price',
                     'primary' => 'id_specific_price',
                     'fields' => array(
-                    'id_shop_group' =>            array('type' => self::TYPE_INT, 'validate' => 'isUnsignedId'),
-    'id_shop' =>                array('type' => self::TYPE_INT, 'validate' => 'isUnsignedId', 'required' => true),
-    'id_cart' =>            array('type' => self::TYPE_INT, 'validate' => 'isUnsignedId', 'required' => true),
-    'id_product' =>            array('type' => self::TYPE_INT, 'validate' => 'isUnsignedId', 'required' => true),
-    'id_product_attribute' =>    array('type' => self::TYPE_INT, 'validate' => 'isUnsignedId'),
-    'id_currency' =>            array('type' => self::TYPE_INT, 'validate' => 'isUnsignedId', 'required' => true),
-    'id_specific_price_rule' =>    array('type' => self::TYPE_INT, 'validate' => 'isUnsignedId'),
-    'id_country' =>            array('type' => self::TYPE_INT, 'validate' => 'isUnsignedId', 'required' => true),
-    'id_group' =>                array('type' => self::TYPE_INT, 'validate' => 'isUnsignedId', 'required' => true),
-    'id_customer' =>            array('type' => self::TYPE_INT, 'validate' => 'isUnsignedId', 'required' => true),
-    'price' =>                    array('type' => self::TYPE_FLOAT, 'validate' => 'isNegativePrice', 'required' => true),
-    'from_quantity' =>            array('type' => self::TYPE_INT, 'validate' => 'isUnsignedInt', 'required' => true),
-    'reduction' =>                array('type' => self::TYPE_FLOAT, 'validate' => 'isPrice', 'required' => true),
-    'reduction_tax' =>            array('type' => self::TYPE_INT, 'validate' => 'isBool', 'required' => true),
-    'reduction_type' =>        array('type' => self::TYPE_STRING, 'validate' => 'isReductionType', 'required' => true),
-    'from' =>                    array('type' => self::TYPE_DATE, 'validate' => 'isDateFormat', 'required' => true),
-    'to' =>                    array('type' => self::TYPE_DATE, 'validate' => 'isDateFormat', 'required' => true),
+                    'id_shop_group' =>            array('type' => JeproLabSpecificPriceModel.TYPE_INT, 'validate' => 'isUnsignedId'),
+    'id_shop' =>                array('type' => JeproLabSpecificPriceModel.TYPE_INT, 'validate' => 'isUnsignedId', 'required' => true),
+    'id_cart' =>            array('type' => JeproLabSpecificPriceModel.TYPE_INT, 'validate' => 'isUnsignedId', 'required' => true),
+    'id_product' =>            array('type' => JeproLabSpecificPriceModel.TYPE_INT, 'validate' => 'isUnsignedId', 'required' => true),
+    'id_product_attribute' =>    array('type' => JeproLabSpecificPriceModel.TYPE_INT, 'validate' => 'isUnsignedId'),
+    'id_currency' =>            array('type' => JeproLabSpecificPriceModel.TYPE_INT, 'validate' => 'isUnsignedId', 'required' => true),
+    'id_specific_price_rule' =>    array('type' => JeproLabSpecificPriceModel.TYPE_INT, 'validate' => 'isUnsignedId'),
+    'id_country' =>            array('type' => JeproLabSpecificPriceModel.TYPE_INT, 'validate' => 'isUnsignedId', 'required' => true),
+    'id_group' =>                array('type' => JeproLabSpecificPriceModel.TYPE_INT, 'validate' => 'isUnsignedId', 'required' => true),
+    'id_customer' =>            array('type' => JeproLabSpecificPriceModel.TYPE_INT, 'validate' => 'isUnsignedId', 'required' => true),
+    'price' =>                    array('type' => JeproLabSpecificPriceModel.TYPE_FLOAT, 'validate' => 'isNegativePrice', 'required' => true),
+    'from_quantity' =>            array('type' => JeproLabSpecificPriceModel.TYPE_INT, 'validate' => 'isUnsignedInt', 'required' => true),
+    'reduction' =>                array('type' => JeproLabSpecificPriceModel.TYPE_FLOAT, 'validate' => 'isPrice', 'required' => true),
+    'reduction_tax' =>            array('type' => JeproLabSpecificPriceModel.TYPE_INT, 'validate' => 'isBool', 'required' => true),
+    'reduction_type' =>        array('type' => JeproLabSpecificPriceModel.TYPE_STRING, 'validate' => 'isReductionType', 'required' => true),
+    'from' =>                    array('type' => JeproLabSpecificPriceModel.TYPE_DATE, 'validate' => 'isDateFormat', 'required' => true),
+    'to' =>                    array('type' => JeproLabSpecificPriceModel.TYPE_DATE, 'validate' => 'isDateFormat', 'required' => true),
     ),
             );
 
@@ -79,10 +76,10 @@ public class JeproLabSpecificPriceModel extends JeproLabModel{
 
 */
     protected static Map<String> _specificPriceCache = new HashMap<>();
-    protected static $_filterOutCache = array();
-    protected static $_cache_priorities = array();
-    protected static $_no_specific_values = array();
-    */
+    protected static Map<String, List<Integer>> _filterOutCache = new HashMap<>();
+    protected static Map<Integer, > _cache_priorities = new HashMap<>();
+    protected static Map<String, Boolean> _no_specific_values = new HashMap<>();
+
     private static boolean feature_active = false;
 
 
@@ -172,7 +169,7 @@ public class JeproLabSpecificPriceModel extends JeproLabModel{
             }
         }
 
-        return rtrim($select, ' +') + ") AS " + staticDataBaseObject.quoteName("score");
+        return rtrim(select, ' +') + ") AS " + staticDataBaseObject.quoteName("score");
     }
 
     public static List getPriority(int analyzeId){
@@ -206,120 +203,154 @@ public class JeproLabSpecificPriceModel extends JeproLabModel{
         return preg_split('/;/', priority);
     }
 
-    /*
+    protected static String filterOutField(String fieldName, int fieldValue){
+        return filterOutField(fieldName, fieldValue, 1000);
+    }
+
+    /**
      * Remove or add a field value to a query if values are present in the database (cache friendly)
      *
-     * @param string $field_name
-     * @param int $field_value
-     * @param int $threshold
+     * @param fieldName
+     * @param fieldValue
+     * @param threshold
      * @return string
-     * @throws PrestaShopDatabaseException
-     * /
-    protected static function filterOutField($field_name, $field_value, $threshold = 1000)
-    {
-        $query_extra = 'AND `'.$field_name.'` = 0 ';
-        if ($field_value == 0 || array_key_exists($field_name, self::$_no_specific_values)) {
-            return $query_extra;
+     */
+    protected static String filterOutField(String fieldName, int fieldValue, int threshold){
+        if(staticDataBaseObject == null){
+            staticDataBaseObject = JeproLabFactory.getDataBaseConnector();
         }
-        $key_cache     = __FUNCTION__.'-'.$field_name.'-'.$threshold;
-        $specific_list = array();
-        if (!array_key_exists($key_cache, SpecificPrice::$_filterOutCache)) {
-            $query_count    = 'SELECT COUNT(DISTINCT `'.$field_name.'`) FROM `'._DB_PREFIX_.'specific_price` WHERE `'.$field_name.'` != 0';
-            $specific_count = Db::getInstance(_PS_USE_SQL_SLAVE_)->getValue($query_count);
-            if ($specific_count == 0) {
-                self::$_no_specific_values[$field_name] = true;
+        String extraQuery = " AND " + staticDataBaseObject.quoteName(fieldName) + " = 0 ";
+        if (fieldValue == 0 || JeproLabSpecificPriceModel._no_specific_values.containsKey(fieldName)){
+            return extraQuery;
+        }
+        String cacheKey  = "jeprolab_specific_price_filter_out_field_" + fieldName + "_" + threshold;
+        List<Integer> specificList = new ArrayList<>();
+        if (!JeproLabSpecificPriceModel._filterOutCache.containsKey(cacheKey)) {
+            String queryCount = "SELECT COUNT(DISTINCT " + staticDataBaseObject.quoteName(fieldName) + ") AS filter_out FROM ";
+            queryCount += staticDataBaseObject.quoteName("#__jeprolab_specific_price") + " WHERE " + staticDataBaseObject.quoteName(fieldName) + " != 0";
+            staticDataBaseObject.setQuery(queryCount);
 
-                return $query_extra;
+            int specificCount = (int)staticDataBaseObject.loadValue("filter_out");
+            if (specificCount == 0) {
+                JeproLabSpecificPriceModel._no_specific_values.put(fieldName, true);
+
+                return extraQuery;
             }
-            if ($specific_count < $threshold) {
-                $query             = 'SELECT DISTINCT `'.$field_name.'` FROM `'._DB_PREFIX_.'specific_price` WHERE `'.$field_name.'` != 0';
-                $tmp_specific_list = Db::getInstance(_PS_USE_SQL_SLAVE_)->executeS($query);
-                foreach ($tmp_specific_list as $key => $value) {
-                    $specific_list[] = $value[$field_name];
+            if (specificCount < threshold) {
+                String query  = "SELECT DISTINCT " + staticDataBaseObject.quoteName(fieldName) + " FROM " + staticDataBaseObject.quoteName("#__jeprolab_specific_price");
+                query += " WHERE " + staticDataBaseObject.quoteName(fieldName) + " != 0";
+                staticDataBaseObject.setQuery(query);
+                ResultSet tmpSpecificSet = staticDataBaseObject.loadObject();
+
+                try{
+                    while (tmpSpecificSet.next()){
+                        specificList.add(tmpSpecificSet.getInt(fieldName));
+                    }
+                }catch (SQLException ignored){
+
                 }
             }
-            SpecificPrice::$_filterOutCache[$key_cache] = $specific_list;
+            JeproLabSpecificPriceModel._filterOutCache.put(cacheKey, specificList);
         } else {
-            $specific_list = SpecificPrice::$_filterOutCache[$key_cache];
+            specificList = (List)JeproLabSpecificPriceModel._filterOutCache.get(cacheKey);
         }
 
         // $specific_list is empty if the threshold is reached
-        if (empty($specific_list) || in_array($field_value, $specific_list)) {
-            $query_extra = 'AND `'.$field_name.'` '.self::formatIntInQuery(0, $field_value).' ';
+        if (specificList.isEmpty() || specificList.contains(fieldValue)) {
+            extraQuery = " AND " + staticDataBaseObject.quoteName(fieldName) + " " + JeproLabSpecificPriceModel.formatIntInQuery(0, fieldValue) +" ";
         }
 
-        return $query_extra;
+        return extraQuery;
+    }
+
+
+    protected static String  computeExtraConditions(int analyzeId, int analyzeAttributeId, int customerId, int cartId){
+        return computeExtraConditions(analyzeId, analyzeAttributeId, customerId, cartId, null, null);
+    }
+
+    protected static String  computeExtraConditions(int analyzeId, int analyzeAttributeId, int customerId, int cartId, Date beginning){
+        return computeExtraConditions(analyzeId, analyzeAttributeId, customerId, cartId, beginning, null);
     }
 
     /**
      * Remove or add useless fields value depending on the values in the database (cache friendly)
      *
-     * @param int|null $id_product
-     * @param int|null $id_product_attribute
-     * @param int|null $id_cart
-     * @param string|null $beginning
-     * @param string|null $ending
+     * @param analyzeId
+     * @param analyzeAttributeId
+     * @param cartId
+     * @param beginning
+     * @param ending
      * @return string
-     * /
-    protected static function computeExtraConditions($id_product, $id_product_attribute, $id_customer, $id_cart, $beginning = null, $ending = null)
-    {
-        $first_date = date('Y-m-d 00:00:00');
-        $last_date = date('Y-m-d 23:59:59');
-        $now = date('Y-m-d H:i:00');
-        if ($beginning === null) {
-            $beginning = $now;
+     */
+    protected static String  computeExtraConditions(int analyzeId, int analyzeAttributeId, int customerId, int cartId, Date beginning, Date ending){
+        Date firstDate = new Date("Y-m-d 00:00:00");
+        Date lastDate = new  Date("Y-m-d 23:59:59");
+        Date now = new Date("Y-m-d H:i:00");
+        if (beginning == null) {
+            beginning = now;
         }
-        if ($ending === null) {
-            $ending = $now;
-        }
-        $id_customer = (int)$id_customer;
-
-        $query_extra = '';
-
-        if ($id_product !== null) {
-            $query_extra .= self::filterOutField('id_product', $id_product);
+        if (ending == null) {
+            ending = now;
         }
 
-        if ($id_customer !== null) {
-            $query_extra .= self::filterOutField('id_customer', $id_customer);
+        String extraQuery = "";
+
+        if (analyzeId > 0) {
+            extraQuery += JeproLabSpecificPriceModel.filterOutField("analyze_id", analyzeId);
         }
 
-        if ($id_product_attribute !== null) {
-            $query_extra .= self::filterOutField('id_product_attribute', $id_product_attribute);
+        if (customerId > 0) {
+            extraQuery += JeproLabSpecificPriceModel.filterOutField("customer_id", customerId);
         }
 
-        if ($id_cart !== null) {
-            $query_extra .= self::filterOutField('id_cart', $id_cart);
+        if (analyzeAttributeId > 0) {
+            extraQuery += JeproLabSpecificPriceModel.filterOutField("analyze_attribute_id", analyzeAttributeId);
         }
 
-        if ($ending == $now && $beginning == $now) {
-            $key = __FUNCTION__.'-'.$first_date.'-'.$last_date;
-            if (!array_key_exists($key, SpecificPrice::$_filterOutCache)) {
-                $query_from_count    = 'SELECT 1 FROM `'._DB_PREFIX_.'specific_price` WHERE `from` BETWEEN \''.$first_date.'\' AND \''.$last_date.'\'';
-                $from_specific_count = Db::getInstance(_PS_USE_SQL_SLAVE_)->getValue($query_from_count);
+        if (cartId > 0) {
+            extraQuery += JeproLabSpecificPriceModel.filterOutField("cart_id", cartId);
+        }
 
-                $query_to_count                       = 'SELECT 1 FROM `'._DB_PREFIX_.'specific_price` WHERE `to` BETWEEN \''.$first_date.'\' AND \''.$last_date.'\'';
+        int fromSpecificCount, toSpecificCount;
+        if (ending == now && beginning == now) {
+            String cacheKey = "jeprolab_specific_price_compute_extra_conditions" + firstDate.toString() + "_" + lastDate.toString();
 
-                $to_specific_count                    = Db::getInstance(_PS_USE_SQL_SLAVE_)->getValue($query_to_count);
-                SpecificPrice::$_filterOutCache[$key] = array($from_specific_count, $to_specific_count);
+            if (!JeproLabSpecificPriceModel._filterOutCache.containsKey(cacheKey)) {
+                String queryFromCount = "SELECT 1 FROM " + staticDataBaseObject.quoteName("#__jeprolab_specific_price");
+                queryFromCount += " WHERE " + staticDataBaseObject.quoteName("from") + " BETWEEN '" + firstDate.toString() + "' AND '" + lastDate.toString() + "'";
+                staticDataBaseObject.setQuery(queryFromCount);
+                fromSpecificCount = (int)staticDataBaseObject.loadValue("1"); //Db::getInstance(_PS_USE_SQL_SLAVE_)->getValue($query_from_count);
+
+                String queryToCount = "SELECT 1 FROM " + staticDataBaseObject.quoteName("#__jeprolab_specific_price") + " WHERE ";
+                queryToCount += staticDataBaseObject.quoteName("to") + " BETWEEN '" + firstDate.toString() + "' AND '" + lastDate.toString() + "'";
+                staticDataBaseObject.quoteName(queryToCount);
+
+                toSpecificCount  = (int)staticDataBaseObject.loadValue("1");
+                List<Integer> specificCount = new ArrayList<>();
+                specificCount.add(fromSpecificCount);
+                specificCount.add(toSpecificCount);
+                JeproLabSpecificPriceModel._filterOutCache.put(cacheKey, specificCount);
             } else {
-                list($from_specific_count, $to_specific_count) = SpecificPrice::$_filterOutCache[$key];
+                List specificCount = JeproLabSpecificPriceModel._filterOutCache.get(cacheKey);
+                fromSpecificCount = (int)specificCount.get(0);
+                toSpecificCount = (int)specificCount.get(1);
             }
         } else {
-            $from_specific_count = $to_specific_count = 1;
+            fromSpecificCount = toSpecificCount = 1;
         }
 
         // if the from and to is not reached during the current day, just change $ending & $beginning to any date of the day to improve the cache
-        if (!$from_specific_count && !$to_specific_count) {
-            $ending = $beginning = $first_date;
+        if (fromSpecificCount < 0 && toSpecificCount < 0){
+            ending = beginning = firstDate;
         }
 
-        $query_extra .= ' AND (`from` = \'0000-00-00 00:00:00\' OR \''.$beginning.'\' >= `from`)'
-            .' AND (`to` = \'0000-00-00 00:00:00\' OR \''.$ending.'\' <= `to`)';
+        extraQuery += " AND (" + staticDataBaseObject.quoteName("from") + " = '0000-00-00 00:00:00' OR '" + beginning + "' >= ";
+        extraQuery += staticDataBaseObject.quoteName("from") + ") AND (" + staticDataBaseObject.quoteName("to") + " = '0000-00-00 00:00:00' OR ' ";
+        extraQuery += ending + "' <= " + staticDataBaseObject.quoteName("to") + ")";
 
-        return $query_extra;
+        return extraQuery;
     }
-*/
+
     private static String formatIntInQuery(int firstValue, int secondValue) {
         if (firstValue != secondValue) {
             return " IN (" + firstValue + ", " + secondValue + ")";
@@ -354,7 +385,7 @@ public class JeproLabSpecificPriceModel extends JeproLabModel{
         */
 
         String cacheKey = analyzeId + "_" + labId + "_" + currencyId + "_" + countryId + "_" + groupId + "_" + quantity + "_" + analyzeAttributeId + "_" + cartId + "_" + customerId + "_" + realQuantity;
-        if (!array_key_exists($key, SpecificPrice::$_specificPriceCache)) {
+        if (!JeproLabSpecificPriceModel._specificPriceCache.containsKey(cacheKey))) {
             String extraQuery = JeproLabSpecificPriceModel.computeExtraConditions(analyzeId, analyzeAttributeId, customerId, cartId);
             String query = "SELECT *, " + JeproLabSpecificPriceModel.getScoreQuery(analyzeId, labId, currencyId, countryId, groupId, customerId);
             query += " FROM " + staticDataBaseObject.quoteName("specific_price") + " WHERE " + staticDataBaseObject.quoteName("lab_id");
@@ -425,16 +456,16 @@ public class JeproLabSpecificPriceModel extends JeproLabModel{
         return array();
     }
 
-        $query_extra = self::computeExtraConditions($id_product, ((!$all_combinations)?$id_product_attribute:null), $id_customer, null);
+        $query_extra = JeproLabSpecificPriceModel.computeExtraConditions($id_product, ((!$all_combinations)?$id_product_attribute:null), $id_customer, null);
         $result = Db::getInstance(_PS_USE_SQL_SLAVE_)->executeS('
             SELECT *,
             '.SpecificPrice::_getScoreQuery($id_product, $id_shop, $id_currency, $id_country, $id_group, $id_customer).'
             FROM `'._DB_PREFIX_.'specific_price`
         WHERE
-        `id_shop` '.self::formatIntInQuery(0, $id_shop).' AND
-        `id_currency` '.self::formatIntInQuery(0, $id_currency).' AND
-        `id_country` '.self::formatIntInQuery(0, $id_country).' AND
-        `id_group` '.self::formatIntInQuery(0, $id_group).' '.$query_extra.'
+        `id_shop` '.JeproLabSpecificPriceModel.formatIntInQuery(0, $id_shop).' AND
+        `id_currency` '.JeproLabSpecificPriceModel.formatIntInQuery(0, $id_currency).' AND
+        `id_country` '.JeproLabSpecificPriceModel.formatIntInQuery(0, $id_country).' AND
+        `id_group` '.JeproLabSpecificPriceModel.formatIntInQuery(0, $id_group).' '.$query_extra.'
         ORDER BY `from_quantity` ASC, `id_specific_price_rule` ASC, `score` DESC, `to` DESC, `from` DESC
         ', false, false);
 
@@ -465,16 +496,16 @@ public class JeproLabSpecificPriceModel extends JeproLabModel{
 
 
 
-        $query_extra = self::computeExtraConditions($id_product, $id_product_attribute, $id_customer, null);
+        $query_extra = JeproLabSpecificPriceModel.computeExtraConditions($id_product, $id_product_attribute, $id_customer, null);
         return Db::getInstance(_PS_USE_SQL_SLAVE_)->getRow('
             SELECT *,
             '.SpecificPrice::_getScoreQuery($id_product, $id_shop, $id_currency, $id_country, $id_group, $id_customer).'
             FROM `'._DB_PREFIX_.'specific_price`
         WHERE
-        `id_shop` '.self::formatIntInQuery(0, $id_shop).' AND
-        `id_currency` '.self::formatIntInQuery(0, $id_currency).' AND
-        `id_country` '.self::formatIntInQuery(0, $id_country).' AND
-        `id_group` '.self::formatIntInQuery(0, $id_group).' AND
+        `id_shop` '.JeproLabSpecificPriceModel.formatIntInQuery(0, $id_shop).' AND
+        `id_currency` '.JeproLabSpecificPriceModel.formatIntInQuery(0, $id_currency).' AND
+        `id_country` '.JeproLabSpecificPriceModel.formatIntInQuery(0, $id_country).' AND
+        `id_group` '.JeproLabSpecificPriceModel.formatIntInQuery(0, $id_group).' AND
         `from_quantity` >= '.(int)$quantity.' '.$query_extra.'
         ORDER BY `from_quantity` DESC, `score` DESC, `to` DESC, `from` DESC
         ');
@@ -486,14 +517,14 @@ public class JeproLabSpecificPriceModel extends JeproLabModel{
         return array();
     }
 
-        $query_extra = self::computeExtraConditions(null, null, $id_customer, null, $beginning, $ending);
+        $query_extra = JeproLabSpecificPriceModel.computeExtraConditions(null, null, $id_customer, null, $beginning, $ending);
         $results = Db::getInstance(_PS_USE_SQL_SLAVE_)->executeS('
             SELECT `id_product`, `id_product_attribute`
             FROM `'._DB_PREFIX_.'specific_price`
-        WHERE	`id_shop` '.self::formatIntInQuery(0, $id_shop).' AND
-        `id_currency` '.self::formatIntInQuery(0, $id_currency).' AND
-        `id_country` '.self::formatIntInQuery(0, $id_country).' AND
-        `id_group` '.self::formatIntInQuery(0, $id_group).' AND
+        WHERE	`id_shop` '.JeproLabSpecificPriceModel.formatIntInQuery(0, $id_shop).' AND
+        `id_currency` '.JeproLabSpecificPriceModel.formatIntInQuery(0, $id_currency).' AND
+        `id_country` '.JeproLabSpecificPriceModel.formatIntInQuery(0, $id_country).' AND
+        `id_group` '.JeproLabSpecificPriceModel.formatIntInQuery(0, $id_group).' AND
         `from_quantity` = 1 AND
         `reduction` > 0
         '.$query_extra);
@@ -531,7 +562,7 @@ public class JeproLabSpecificPriceModel extends JeproLabModel{
      */
     public static boolean isFeaturePublished(){
         if (!feature_active) {
-            feature_active = JeproLabSettingModel.getIntValue("specific_price_feature_active"); //'PS_SPECIFIC_PRICE_FEATURE_ACTIVE');
+            feature_active = JeproLabSettingModel.getIntValue("specific_price_feature_active") > 0;
         }
         return feature_active;
     }
