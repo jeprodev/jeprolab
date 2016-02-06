@@ -77,7 +77,7 @@ public class JeproLabSpecificPriceModel extends JeproLabModel{
 */
     protected static Map<String> _specificPriceCache = new HashMap<>();
     protected static Map<String, List<Integer>> _filterOutCache = new HashMap<>();
-    protected static Map<Integer, > _cache_priorities = new HashMap<>();
+    protected static Map<Integer, String> _cache_priorities = new HashMap<>();
     protected static Map<String, Boolean> _no_specific_values = new HashMap<>();
 
     private static boolean feature_active = false;
@@ -172,9 +172,9 @@ public class JeproLabSpecificPriceModel extends JeproLabModel{
         return rtrim(select, ' +') + ") AS " + staticDataBaseObject.quoteName("score");
     }
 
-    public static List getPriority(int analyzeId){
+    public static String getPriority(int analyzeId){
         if (!JeproLabSpecificPriceModel.isFeaturePublished()) {
-            return JeproLabSettingModel.getStringValue("specific_price_priorities").split(";"); //'PS_SPECIFIC_PRICE_PRIORITIES'));
+            return JeproLabSettingModel.getStringValue("specific_price_priorities"); //'PS_SPECIFIC_PRICE_PRIORITIES'));
         }
 
         if (!JeproLabSpecificPriceModel._cache_priorities.containsKey(analyzeId)){
@@ -188,17 +188,15 @@ public class JeproLabSpecificPriceModel extends JeproLabModel{
 
             staticDataBaseObject.setQuery(query);
 
-            JeproLabSpecificPriceModel._cache_priorities.put(analyzeId] = Db::getInstance(_PS_USE_SQL_SLAVE_)->getValue('
-
-        ');
+            JeproLabSpecificPriceModel._cache_priorities.put(analyzeId, staticDataBaseObject.loadStringValue("priority"));
         }
 
-        priority = JeproLabSpecificPriceModel._cache_priorities.get(analyzeId);
+        String priority = JeproLabSpecificPriceModel._cache_priorities.get(analyzeId);
 
-        if (!priority) {
+        if (priority.equals("")) {
             priority = JeproLabSettingModel.getStringValue("specific_price_priorities");
         }
-        priority = 'id_customer;'.$priority;
+        priority = "customer_id;" + priority;
 
         return preg_split('/;/', priority);
     }
