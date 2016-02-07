@@ -59,24 +59,22 @@ public class JeproLabTaxCalculator {
     /**
      * Compute and add the taxes to the specified price
      *
-     * @param float $price_te price tax excluded
+     * @param priceTaxExcluded price tax excluded
      * @return float price with taxes
-     * /
-    public function addTaxes($price_te)
-    {
-        return $price_te * (1 + ($this->getTotalRate() / 100));
+     */
+    public float addTaxes(float priceTaxExcluded){
+        return priceTaxExcluded * (1 + (this.getTotalRate() / 100));
     }
 
 
     /**
      * Compute and remove the taxes to the specified price
      *
-     * @param float $price_ti price tax inclusive
+     * @param priceTaxIncluded price tax inclusive
      * @return float price without taxes
-     * /
-    public function removeTaxes($price_ti)
-    {
-        return $price_ti / (1 + $this->getTotalRate() / 100);
+     */
+    public float removeTaxes(float priceTaxIncluded){
+        return priceTaxIncluded / (1 + this.getTotalRate() / 100);
     }
 
     /**

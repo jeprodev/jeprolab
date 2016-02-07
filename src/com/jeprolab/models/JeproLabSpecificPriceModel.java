@@ -75,7 +75,7 @@ public class JeproLabSpecificPriceModel extends JeproLabModel{
             );
 
 */
-    protected static Map<String> _specificPriceCache = new HashMap<>();
+    protected static Map<String, JeproLabSpecificPriceModel> _specificPriceCache = new HashMap<>();
     protected static Map<String, List<Integer>> _filterOutCache = new HashMap<>();
     protected static Map<Integer, String> _cache_priorities = new HashMap<>();
     protected static Map<String, Boolean> _no_specific_values = new HashMap<>();
@@ -162,14 +162,36 @@ public class JeproLabSpecificPriceModel extends JeproLabModel{
     protected static String getScoreQuery(int analyzeId, int labId, int currencyId, int countryId, int groupId, int customerId){
         String select = "(";
 
-        $priority = JeproLabSpecificPriceModel.getPriority(analyzeId);
-        foreach (array_reverse($priority) as $k => $field) {
-            if (!empty($field)) {
-                $select .= ' IF (`'.bqSQL($field).'` = '.(int)$$field.', '.pow(2, $k + 1).', 0) + ';
-            }
-        }
+        String priority = JeproLabSpecificPriceModel.getPriority(analyzeId);
+        String[] priorityArr = priority.split(";");
+        int index = 0;
+        for(String field : priorityArr) {
+            if (!field.equals("")) {
+                select += " IF (" + staticDataBaseObject.quoteName(field) + " = ";
+                switch (field) {
+                    case "customer_id":
+                        select += customerId;
+                        break;
+                    case "group_id":
+                        select += groupId;
+                        break;
+                    case "country_id":
+                        select += countryId;
+                        break;
+                    case "currency_id":
+                        select += currencyId;
+                        break;
+                    case "lab_id":
+                        select += labId;
+                        break;
+                }
 
-        return rtrim(select, ' +') + ") AS " + staticDataBaseObject.quoteName("score");
+                select += ", " + Math.pow(2, index + 1) + ", 0) + ";
+            }
+            index++;
+        }
+        select = select.substring(0, select.length() - 2);
+        return select + ") AS " + staticDataBaseObject.quoteName("score");
     }
 
     public static String getPriority(int analyzeId){
@@ -198,7 +220,7 @@ public class JeproLabSpecificPriceModel extends JeproLabModel{
         }
         priority = "customer_id;" + priority;
 
-        return preg_split('/;/', priority);
+        return priority;
     }
 
     protected static String filterOutField(String fieldName, int fieldValue){
@@ -375,7 +397,7 @@ public class JeproLabSpecificPriceModel extends JeproLabModel{
 
     public static JeproLabSpecificPriceModel getSpecificPrice(int analyzeId, int labId, int currencyId, int countryId, int groupId, int quantity, int analyzeAttributeId, int customerId, int cartId, int realQuantity){
         if (!JeproLabSpecificPriceModel.isFeaturePublished()) {
-            return array();
+            return new JeproLabSpecificPriceModel();
         }
         /*
         ** The date is not taken into account for the cache, but this is for the better because it keeps the consistency for the whole script.
@@ -383,7 +405,7 @@ public class JeproLabSpecificPriceModel extends JeproLabModel{
         */
 
         String cacheKey = analyzeId + "_" + labId + "_" + currencyId + "_" + countryId + "_" + groupId + "_" + quantity + "_" + analyzeAttributeId + "_" + cartId + "_" + customerId + "_" + realQuantity;
-        if (!JeproLabSpecificPriceModel._specificPriceCache.containsKey(cacheKey))) {
+        if (!JeproLabSpecificPriceModel._specificPriceCache.containsKey(cacheKey)){
             String extraQuery = JeproLabSpecificPriceModel.computeExtraConditions(analyzeId, analyzeAttributeId, customerId, cartId);
             String query = "SELECT *, " + JeproLabSpecificPriceModel.getScoreQuery(analyzeId, labId, currencyId, countryId, groupId, customerId);
             query += " FROM " + staticDataBaseObject.quoteName("specific_price") + " WHERE " + staticDataBaseObject.quoteName("lab_id");
@@ -396,13 +418,13 @@ public class JeproLabSpecificPriceModel extends JeproLabModel{
             query += " ORDER BY " + staticDataBaseObject.quoteName("analyze_attribute_id") + " DESC, " + staticDataBaseObject.quoteName("from_quantity") + " DESC, ";
             query += staticDataBaseObject.quoteName("specific_price_rule_id") + " ASC, " + staticDataBaseObject.quoteName("score") + " DESC, ";
             query += staticDataBaseObject.quoteName("to") + " DESC, " + staticDataBaseObject.quoteName("from") + " DESC";
-
+            System.out.println(query);
             staticDataBaseObject.setQuery(query);
             ResultSet resultSet = staticDataBaseObject.loadObject();
             JeproLabSpecificPriceModel specificPrice = new JeproLabSpecificPriceModel();
             try {
                 if(resultSet.next()){
-
+                    //todo set fields
                 }
             }catch (SQLException ignored){
 

@@ -13,6 +13,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -76,7 +77,7 @@ public class JeproLabAnalyzeModel extends JeproLabModel {
     /** @var float Price in euros */
     public float price = 0;
 
-    public float specificPrice = 0;
+    public JeproLabSpecificPriceModel specificPrice = null;
 
     /** @var float Additional shipping cost */
     public float additional_shipping_cost = 0;
@@ -235,10 +236,10 @@ public class JeproLabAnalyzeModel extends JeproLabModel {
 
     public static $_taxCalculationMethod = null; */
     protected static Map<String, Float> _prices = new HashMap<>();
-    protected static $_pricesLevel2 = array();
+    protected static Map<String, Map<Integer, Map<String,Float>>> _pricesLevel2 = new HashMap<>();
     protected static $_incat = array();
 
-    private static float static_specific_price;
+    private static JeproLabSpecificPriceModel static_specific_price;
     /**
      * @since 1.5.6.1
      * @var array $_cart_quantity is deprecated since 1.5.6.1
@@ -3150,19 +3151,19 @@ public class JeproLabAnalyzeModel extends JeproLabModel {
         cacheKey += "_" + (useTax ? 1 : 0) + "_" + decimals;
 
         // reference parameter is filled before any returns
-        stattic_specific_price = JeproLabSpecificPriceModel.getSpecificPrice(analyzeId, labId, currencyId, countryId, groupId, quantity, analyzeAttributeId, customerId, cartId, realQuantity);
+        static_specific_price = JeproLabSpecificPriceModel.getSpecificPrice(analyzeId, labId, currencyId, countryId, groupId, quantity, analyzeAttributeId, customerId, cartId, realQuantity);
 
         if (JeproLabAnalyzeModel._prices.containsKey(cacheKey)){
             /* Affect reference before returning cache */
-            if (isset($specific_price['price']) && $specific_price['price'] > 0) {
-                $specific_price['price'] = JeproLabAnalyzeModel.$_prices[$cacheKey];
+            if (isset(static_specific_price.price) && static_specific_price.price > 0){
+                static_specific_price.price = JeproLabAnalyzeModel._prices.get(cacheKey);
             }
-            return JeproLabAnalyzeModel.$_prices[$cacheKey];
+            return JeproLabAnalyzeModel._prices.get(cacheKey);
         }
 
         // fetch price & attribute price
         String cacheKey_2 = analyzeId + "_" + labId;
-        if (!isset(JeproLabAnalyzeModel.$_pricesLevel2[$cacheKey_2])) {
+        if (!JeproLabAnalyzeModel._pricesLevel2.containsKey(cacheKey_2)){
             if(staticDataBaseObject == null){
                 staticDataBaseObject = JeproLabFactory.getDataBaseConnector();
             }
@@ -3186,60 +3187,53 @@ public class JeproLabAnalyzeModel extends JeproLabModel {
             ResultSet results = staticDataBaseObject.loadObject();
 
             try {
-                float resultPrice;
+                int resultAnalyzeAttributeId;
                 float resultAttributePrice;
                 float resultEcoTax;
+                Map<String, Float> result;
+                Map<Integer, Map<String, Float>> resultList = new HashMap<>();
                 while(results.next()){
-                    resultPrice = results.getFloat("price");
-                    resultEcoTax = results.getFloat("ecotax");
-                    resultAttributePrice = results.getFloat("attribute_price");
-                    if (is_array($res) && count($res)) {
-                        foreach ($res as $row) {
-                            $array_tmp = array(
-                                    'price' => $row['price'],
-                                    'ecotax' => $row['ecotax'],
-                                    'attribute_price' => (isset($row['attribute_price']) ? $row['attribute_price'] : null)
-                            );
-                            JeproLabAnalyzeModel.$_pricesLevel2[$cacheKey_2][(int)$row['id_product_attribute']] = $array_tmp;
+                    result = new HashMap<>();
+                    resultAnalyzeAttributeId = results.getInt("analyze_attribute_id");
+                    result.put("price", results.getFloat("price"));
+                    result.put("ecotax", results.getFloat("ecotax"));
+                    result.put("attribute_price", results.getFloat("attribute_price"));
+                    result.put("default_on", (results.getInt("default_on") > 0 ) ? (float)1.0 : (float)0.0);
+                    resultList.put(resultAnalyzeAttributeId, result);
 
-                            if (isset($row['default_on']) && $row['default_on'] == 1) {
-                                JeproLabAnalyzeModel.$_pricesLevel2[$cacheKey_2][0] = $array_tmp;
-                            }
-                        }
-                    }
                 }
+                JeproLabAnalyzeModel._pricesLevel2.put(cacheKey_2, resultList);
             }catch(SQLException ignored){
 
             }
-
-
         }
 
-        if (!isset(JeproLabAnalyzeModel.$_pricesLevel2[$cacheKey_2][(int)$id_product_attribute])) {
-            return;
+        if (!JeproLabAnalyzeModel._pricesLevel2.get(cacheKey_2).containsKey(analyzeAttributeId)) {
+            return 0;
         }
 
-        $result = JeproLabAnalyzeModel.$_pricesLevel2[$cacheKey_2][(int)$id_product_attribute];
+        Map<String, Float> result = JeproLabAnalyzeModel._pricesLevel2.get(cacheKey_2).get(analyzeAttributeId);
         float price;
-        if (!$specific_price || $specific_price['price'] < 0) {
-            price = (float)$result['price'];
+        if (static_specific_price == null || static_specific_price.price < 0) {
+            price = result.get("price");
         } else {
-            price = (float)$specific_price['price'];
+            price = static_specific_price.price;
         }
         // convert only if the specific price is in the default currency (id_currency = 0)
-        if (!$specific_price || !($specific_price['price'] >= 0 && $specific_price['id_currency'])) {
+        if (static_specific_price == null || !(static_specific_price.price >= 0 && static_specific_price.currency_id > 0)) {
             price = JeproLabTools.convertPrice(price, currencyId);
-            if (isset($specific_price['price'])) {
-                $specific_price['price'] = price;
+            if (static_specific_price.price > 0) {
+                static_specific_price.price = price;
             }
         }
 
         // Attribute price
-        if (is_array($result) && (!$specific_price || !$specific_price['id_product_attribute'] || $specific_price['price'] < 0)) {
-            $attribute_price = Tools::convertPrice($result['attribute_price'] !== null ? (float)$result['attribute_price'] : 0, $id_currency);
+        if (result != null && (static_specific_price == null || static_specific_price.analyze_attribute_id <= 0 || static_specific_price.price < 0)) {
+            float resultAttributePrice = result.get("attribute_price") > 0 ? result.get("attribute_price") : 0;
+            float attributePrice = JeproLabTools.convertPrice( resultAttributePrice, currencyId);
             // If you want the default combination, please use NULL value instead
             if (analyzeAttributeId > 0) {
-                price += $attribute_price;
+                price += attributePrice;
             }
         }
 
@@ -3248,7 +3242,7 @@ public class JeproLabAnalyzeModel extends JeproLabModel {
         address.state_id = stateId;
         address.postcode = zipCode;
 
-        JeproLabTaxRulesManager taxManager = JeproLabTaxManagerFactory.getManager(address, JeproLabAnalyzeModel.getTaxRulesGroupIdByAnalyzeId((int) $id_product, context));
+        JeproLabTaxRulesManager taxManager = JeproLabTaxManagerFactory.getManager(address, JeproLabAnalyzeModel.getTaxRulesGroupIdByAnalyzeId(analyzeId, context));
         JeproLabTaxCalculator analyzeTaxCalculator = taxManager.getTaxCalculator();
 
         // Add Tax
@@ -3258,10 +3252,10 @@ public class JeproLabAnalyzeModel extends JeproLabModel {
 
         // Eco Tax
         float ecoTax;
-        if (($result['ecotax'] || isset($result['attribute_ecotax'])) && withEcoTax) {
-            ecoTax = $result['ecotax'];
-            if (isset($result['attribute_ecotax']) && $result['attribute_ecotax'] > 0) {
-                ecoTax = $result['attribute_ecotax'];
+        if (((result.get("ecotax") != null && result.get("ecotax") > 0) || result.get("attribute_ecotax") != null) && withEcoTax) {
+            ecoTax = result.get("ecotax");
+            if (result.get("attribute_ecotax") != null && result.get("attribute_ecotax") > 0) {
+                ecoTax = result.get("attribute_ecotax");
             }
 
             if (currencyId > 0) {
@@ -3279,11 +3273,11 @@ public class JeproLabAnalyzeModel extends JeproLabModel {
 
         // Reduction
         float specificPriceReduction = 0;
-        if ((onlyReduction || useReduction) && $specific_price) {
-            if ($specific_price['reduction_type'] == 'amount') {
-                reductionAmount = $specific_price['reduction'];
+        if ((onlyReduction || useReduction) && static_specific_price != null){
+            if (static_specific_price.reduction_type.equals("amount")){
+                float reductionAmount = static_specific_price.reduction;
 
-                if (!$specific_price['id_currency']) {
+                if (static_specific_price.currency_id <= 0) {
                     reductionAmount = JeproLabTools.convertPrice(reductionAmount, currencyId);
                 }
 
@@ -3291,14 +3285,14 @@ public class JeproLabAnalyzeModel extends JeproLabModel {
 
                 // Adjust taxes if required
 
-                if (!useTax && $specific_price['reduction_tax']) {
-                    $specific_price_reduction = $product_tax_calculator->removeTaxes($specific_price_reduction);
+                if (!useTax && static_specific_price.reduction_tax > 0) {
+                    specificPriceReduction= analyzeTaxCalculator.removeTaxes(specificPriceReduction);
                 }
-                if ($use_tax && !$specific_price['reduction_tax']) {
-                    $specific_price_reduction = $product_tax_calculator->addTaxes($specific_price_reduction);
+                if (useTax && static_specific_price.reduction_tax <= 0) {
+                    specificPriceReduction = analyzeTaxCalculator.addTaxes(specificPriceReduction);
                 }
             } else {
-                $specific_price_reduction = price * $specific_price['reduction'];
+                specificPriceReduction = price * static_specific_price.reduction;
             }
         }
 
@@ -3308,14 +3302,16 @@ public class JeproLabAnalyzeModel extends JeproLabModel {
 
         // Group reduction
         if (useGroupReduction) {
-            $reduction_from_category = JeproLabGroupReductionModel.getValueForAnalyze(analyzeId, groupId);
-            if ($reduction_from_category !== false) {
-                $group_reduction = price * (float)$reduction_from_category;
+            float reductionFromCategory = JeproLabGroupReductionModel.getValueForAnalyze(analyzeId, groupId);
+            float groupReduction = 0;
+            if (reductionFromCategory > 0) {
+                groupReduction = price * reductionFromCategory;
             } else { // apply group reduction if there is no group reduction for this category
-                $group_reduction = (($reduc = JeproLabGroupModel.getReductionByGroupId(groupId)) != 0) ? (price * $reduc / 100) : 0;
+                float reduction = JeproLabGroupModel.getReductionByGroupId(groupId);
+                groupReduction = ( reduction != 0) ? (price * reduction / 100) : 0;
             }
 
-            price -= $group_reduction;
+            price -= groupReduction;
         }
 
         if (onlyReduction) {

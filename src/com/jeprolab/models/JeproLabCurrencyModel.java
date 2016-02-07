@@ -32,7 +32,7 @@ public class JeproLabCurrencyModel extends JeproLabModel {
     public boolean blank;
 
     /** @var string exchange rate from euros */
-    public double conversion_rate;
+    public float conversion_rate;
 
     /** @var bool True if currency has been deleted (staying in database as deleted) */
     public boolean deleted = false;
@@ -508,7 +508,7 @@ public class JeproLabCurrencyModel extends JeproLabModel {
      * Get current currency
      *
      * @return JeproLabCurrencyModel
-     * /
+     */
     public static JeproLabCurrencyModel getCurrentCurrency(){
         return JeproLabContext.getContext().currency;
     }
@@ -519,7 +519,7 @@ public class JeproLabCurrencyModel extends JeproLabModel {
         }
         return JeproLabCurrencyModel.currencies.get(currencyId);
     }
-
+/*
     public double getConversationRate(){
         return (this.currency_id != JeproLabSettingModel.getIntValue("default_currency") )? this.conversion_rate : 1;
     }
