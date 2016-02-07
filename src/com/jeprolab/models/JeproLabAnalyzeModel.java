@@ -239,6 +239,8 @@ public class JeproLabAnalyzeModel extends JeproLabModel {
     protected static Map<String, Map<Integer, Map<String,Float>>> _pricesLevel2 = new HashMap<>();
     protected static $_incat = array();
 
+    protected static Map<Integer, Map<Integer, Integer>> combinations = new HashMap<>();
+
     private static JeproLabSpecificPriceModel static_specific_price;
     /**
      * @since 1.5.6.1
@@ -846,81 +848,84 @@ public class JeproLabAnalyzeModel extends JeproLabModel {
         }
         return $return;
     }
+*/
+    public static int getDefaultAttribute(int analyzeId){
+        return getDefaultAttribute(analyzeId, 0, false);
+    }
 
-    /*
+    public static int getDefaultAttribute(int analyzeId, int minimumQuantity){
+        return getDefaultAttribute(analyzeId, minimumQuantity, false);
+    }
+    /**
      * Get the default attribute for a product
      *
      * @return int Attributes list
-     * /
-    public static function getDefaultAttribute($id_product, $minimum_quantity = 0, $reset = false)
-    {
-        static $combinations = array();
-
-        if (!Combination::isFeatureActive()) {
-        return 0;
-    }
-
-        if ($reset && isset($combinations[$id_product])) {
-            unset($combinations[$id_product]);
-        }
-
-        if (!isset($combinations[$id_product])) {
-            $combinations[$id_product] = array();
-        }
-        if (isset($combinations[$id_product][$minimum_quantity])) {
-            return $combinations[$id_product][$minimum_quantity];
-        }
-
-
-        $sql = 'SELECT product_attribute_shop.id_product_attribute
-        FROM '._DB_PREFIX_.'product_attribute pa
-        '.Shop::addSqlAssociation('product_attribute', 'pa').'
-        WHERE pa.id_product = '.(int)$id_product;
-
-        $result_no_filter = Db::getInstance()->getValue($sql);
-        if (!$result_no_filter) {
-            $combinations[$id_product][$minimum_quantity] = 0;
+     */
+    public static int getDefaultAttribute(int analyzeId, int minimumQuantity, boolean reset){
+        if (!JeproLabCombinationModel.isFeaturePublished()) {
             return 0;
         }
 
-        $sql = 'SELECT product_attribute_shop.id_product_attribute
-        FROM '._DB_PREFIX_.'product_attribute pa
-        '.Shop::addSqlAssociation('product_attribute', 'pa').'
-        '.($minimum_quantity > 0 ? Product::sqlStock('pa', 'pa') : '').
-        ' WHERE product_attribute_shop.default_on = 1 '
-                .($minimum_quantity > 0 ? ' AND IFNULL(stock.quantity, 0) >= '.(int)$minimum_quantity : '').
-        ' AND pa.id_product = '.(int)$id_product;
-        $result = Db::getInstance()->getValue($sql);
-
-        if (!$result) {
-            $sql = 'SELECT product_attribute_shop.id_product_attribute
-            FROM '._DB_PREFIX_.'product_attribute pa
-            '.Shop::addSqlAssociation('product_attribute', 'pa').'
-            '.($minimum_quantity > 0 ? Product::sqlStock('pa', 'pa') : '').
-            ' WHERE pa.id_product = '.(int)$id_product
-                    .($minimum_quantity > 0 ? ' AND IFNULL(stock.quantity, 0) >= '.(int)$minimum_quantity : '');
-
-            $result = Db::getInstance()->getValue($sql);
+        if (reset && combinations.containsKey(analyzeId)){
+            combinations.remove(analyzeId);
         }
 
-        if (!$result) {
-            $sql = 'SELECT product_attribute_shop.id_product_attribute
-            FROM '._DB_PREFIX_.'product_attribute pa
-            '.Shop::addSqlAssociation('product_attribute', 'pa').'
-            WHERE product_attribute_shop.`default_on` = 1
-            AND pa.id_product = '.(int)$id_product;
-
-            $result = Db::getInstance()->getValue($sql);
+        if (!combinations.containsKey(analyzeId)) {
+            combinations.put(analyzeId, new HashMap<>());
+        }
+        if (combinations.get(analyzeId).containsKey(minimumQuantity)) {
+            return combinations.get(analyzeId).get(minimumQuantity);
         }
 
-        if (!$result) {
-            $result = $result_no_filter;
+        if(staticDataBaseObject == null){
+            staticDataBaseObject = JeproLabFactory.getDataBaseConnector();
         }
 
-        $combinations[$id_product][$minimum_quantity] = $result;
-        return $result;
+        String query = "SELECT analyze_attribute_lab.analyze_attribute_id FROM " + staticDataBaseObject.quoteName("#__jeprolab_analyze_attribute");
+        query += " AS analyze_attribute " + JeproLabLaboratoryModel.addSqlAssociation("analyze_attribute") + " WHERE analyze_attribute.analyze_id = " + analyzeId;
+
+        staticDataBaseObject.setQuery(query);
+        int resultNoFilter = (int)staticDataBaseObject.loadValue("analyze_attribute_id");
+        if (resultNoFilter <= 0) {
+            combinations.get(analyzeId).put(minimumQuantity, 0);
+            return 0;
+        }
+
+        query = "SELECT analyze_attribute_lab.analyze_attribute_id FROM " + staticDataBaseObject.quoteName("#__jeprolab_analyze_attribute");
+        query += " AS analyze_attribute " + JeproLabLaboratoryModel.addSqlAssociation("analyze_attribute");
+        query += (minimumQuantity > 0 ? JeproLabAnalyzeModel.queryStock("analyze_attribute") : "") + " WHERE analyze_attribute_lab.default_on = 1";
+        query += (minimumQuantity > 0 ? " AND IFNULL (stock.quantity, 0) >= " + minimumQuantity : "") + " AND analyze_attribute.analyze_id = " + analyzeId;
+
+        staticDataBaseObject.setQuery(query);
+        int result = (int)staticDataBaseObject.loadValue("analyze_attribute_id");
+
+        if (result <= 0) {
+            query = "SELECT analyze_attribute_lab.analyze_attribute_id FROM " + staticDataBaseObject.quoteName("#__jeprolab_analyze_attribute");
+            query += " AS analyze_attribute " + JeproLabLaboratoryModel.addSqlAssociation("analyze_attribute");
+            query += (minimumQuantity > 0 ? JeproLabAnalyzeModel.queryStock("analyze_attribute") : "") + " WHERE  analyze_attribute.analyze_id =" + analyzeId;
+            query += (minimumQuantity > 0 ? " AND IFNULL (stock.quantity, 0) >= " + minimumQuantity : "");
+            staticDataBaseObject.setQuery(query);
+            result = (int)staticDataBaseObject.loadValue("analyze_attribute_id");
+        }
+
+        if (result <= 0) {
+            query = "SELECT analyze_attribute_lab.analyze_attribute_id FROM " + staticDataBaseObject.quoteName("#__jeprolab_analyze_attribute");
+            query += " AS analyze_attribute " + JeproLabLaboratoryModel.addSqlAssociation("analyze_attribute");
+            query += (minimumQuantity > 0 ? JeproLabAnalyzeModel.queryStock("analyze_attribute") : "") + " WHERE analyze_attribute_lab.default_on = 1";
+            query += " AND analyze_attribute.analyze_id = " + analyzeId;
+
+            staticDataBaseObject.setQuery(query);
+            result = (int)staticDataBaseObject.loadValue("analyze_attribute_id");
+        }
+
+        if (result <= 0) {
+            result = resultNoFilter;
+        }
+
+        combinations.get(analyzeId).put(minimumQuantity, result);
+        return result;
     }
-
+/*
     public function setAvailableDate($available_date = '0000-00-00')
     {
         if (Validate::isDateFormat($available_date) && this.available_date != $available_date) {
@@ -2890,11 +2895,11 @@ public class JeproLabAnalyzeModel extends JeproLabModel {
     }
 
     public static float getStaticPrice(int analyzeId, boolean useTax, int analyzeAttributeId){
-        return getStaticPrice(analyzeId, useTax, analyzeAttributeId, 6, false, true, int quantity = 1, boolean forceAssociateTax = false, int customerId = null, int cartId = null, int addressId = null, boolean withEcotax = true, boolean useGroupReduction = true, JeproLabContext context = null, boolean useCustomerPrice = true);
+        return getStaticPrice(analyzeId, useTax, analyzeAttributeId, 6, false, true, 1, false, 0, 0, 0, true, true, null, true);
     }
 
     public static float getStaticPrice(int analyzeId, boolean useTax, int analyzeAttributeId, int decimals){
-        return getStaticPrice(analyzeId, useTax, analyzeAttributeId, decimals = 6, boolean onlyReduction = false, boolean useReduction = true, int quantity = 1, boolean forceAssociateTax = false, int customerId = null, int cartId = null, int addressId = null, boolean withEcotax = true, boolean useGroupReduction = true, JeproLabContext context = null, boolean useCustomerPrice = true);
+        return getStaticPrice(analyzeId, useTax, analyzeAttributeId, decimals = 6, false, true, 1, false, 0, 0, 0, true, true, null, true);
     }
 
     public static float getStaticPrice(int analyzeId, boolean useTax, int analyzeAttributeId, int decimals, boolean onlyReduction){
@@ -3145,6 +3150,8 @@ public class JeproLabAnalyzeModel extends JeproLabModel {
             analyzeAttributeId = JeproLabAnalyzeModel.getDefaultAttribute(analyzeId);
         }
 
+        JeproLabContext context = JeproLabContext.getContext();
+
         String cacheKey = analyzeId + "_" + labId +"_" + currencyId + "_" + countryId + "_" + stateId + "_" + zipCode + "_" + groupId;
         cacheKey += "_" + quantity + "_" + analyzeAttributeId + "_" + (withEcoTax ? 1 : 0 ) + "_" + customerId + "_";
         cacheKey += (useGroupReduction ? 1 : 0) + "_" + cartId + "_" + realQuantity +  "_" + (onlyReduction ? "1" :"0") + "_" + (useReduction ? 1 :0);
@@ -3155,7 +3162,7 @@ public class JeproLabAnalyzeModel extends JeproLabModel {
 
         if (JeproLabAnalyzeModel._prices.containsKey(cacheKey)){
             /* Affect reference before returning cache */
-            if (isset(static_specific_price.price) && static_specific_price.price > 0){
+            if (static_specific_price.price > 0){
                 static_specific_price.price = JeproLabAnalyzeModel._prices.get(cacheKey);
             }
             return JeproLabAnalyzeModel._prices.get(cacheKey);
@@ -3174,7 +3181,7 @@ public class JeproLabAnalyzeModel extends JeproLabModel {
             innerJoin += " analyze_lab.analyze_id AND analyze_lab.lab_id = " + labId + ") ";
             String where = " WHERE analyze." + staticDataBaseObject.quoteName("analyze_id") + " = " + analyzeId;
             String leftJoin = "";
-            if (JeproLabCombination.isFeaturePublished()) {
+            if (JeproLabCombinationModel.isFeaturePublished()) {
                 select += "IFNULL(analyze_attribute_lab.analyze_attribute_id, 0) AS analyze_attribute_id, analyze_attribute_lab.";
                 select += staticDataBaseObject.quoteName("price") + " AS attribute_price, analyze_attribute_lab.default_on ";
                 leftJoin += " LEFT JOIN " + staticDataBaseObject.quoteName("#__jeprolab_analyze_attribute_lab") + " AS product_attribute_lab ON (";
@@ -3188,8 +3195,6 @@ public class JeproLabAnalyzeModel extends JeproLabModel {
 
             try {
                 int resultAnalyzeAttributeId;
-                float resultAttributePrice;
-                float resultEcoTax;
                 Map<String, Float> result;
                 Map<Integer, Map<String, Float>> resultList = new HashMap<>();
                 while(results.next()){
@@ -3475,40 +3480,49 @@ public class JeproLabAnalyzeModel extends JeproLabModel {
 
         // @since 1.5.0
         return (StockAvailable::getQuantityAvailableByProduct($id_product, $id_product_attribute));
+    } */
+
+    public static String queryStock(String analyzeAlias){
+        return queryStock(analyzeAlias, null, false, null);
+    }
+
+    public static String queryStock(String analyzeAlias, Object analyzeAttribute){
+        return queryStock(analyzeAlias, analyzeAttribute, false, null);
+    }
+
+    public static String queryStock(String analyzeAlias, Object analyzeAttribute, boolean innerJoin){
+        return queryStock(analyzeAlias,analyzeAttribute, innerJoin, null);
     }
 
     /**
      * Create JOIN query with 'stock_available' table
      *
-     * @param string $productAlias Alias of product table
-     * @param string|int $productAttribute If string : alias of PA table ; if int : value of PA ; if null : nothing about PA
-     * @param bool $innerJoin LEFT JOIN or INNER JOIN
-     * @param Shop $shop
+     * @param analyzeAlias Alias of product table
+     * @param analyzeAttribute If string : alias of PA table ; if int : value of PA ; if null : nothing about PA
+     * @param innerJoin LEFT JOIN or INNER JOIN
+     * @param lab
      * @return string
-     * /
-    public static function sqlStock($product_alias, $product_attribute = null, $inner_join = false, Shop $shop = null)
-    {
-        $id_shop = ($shop !== null ? (int)$shop->id : null);
-        $sql = (($inner_join) ? ' INNER ' : ' LEFT ')
-                .'JOIN '._DB_PREFIX_.'stock_available stock
-        ON (stock.id_product = '.pSQL($product_alias).'.id_product';
+     */
+    public static String queryStock(String analyzeAlias, Object analyzeAttribute, boolean innerJoin, JeproLabLaboratoryModel lab){
+        String query = ((innerJoin) ? " INNER " : " LEFT ") + "JOIN " + staticDataBaseObject.quoteName("#__jeprolab_stock_available") + " AS stock ";
+        query += " ON (stock.analyze_id = " + analyzeAlias + ".analyze_id";
 
-        if (!is_null($product_attribute)) {
-            if (!Combination::isFeatureActive()) {
-                $sql .= ' AND stock.id_product_attribute = 0';
-            } elseif (is_numeric($product_attribute)) {
-                $sql .= ' AND stock.id_product_attribute = '.$product_attribute;
-            } elseif (is_string($product_attribute)) {
-                $sql .= ' AND stock.id_product_attribute = IFNULL(`'.bqSQL($product_attribute).'`.id_product_attribute, 0)';
+        if (analyzeAttribute != null){
+            if (!JeproLabCombinationModel.isFeaturePublished()) {
+                query += " AND stock.analyze_attribute_id = 0";
+            } else if (analyzeAttribute instanceof Integer) {
+                query += " AND stock.analyze_attribute_id = " + analyzeAttribute;
+            } else if (analyzeAttribute instanceof String) {
+                query += " AND stock.analyze_attribute_id = IFNULL(`'.bqSQL($product_attribute).'`.analyze_attribute_id, 0)";
             }
         }
 
-        $sql .= StockAvailable::addSqlShopRestriction(null, $id_shop, 'stock').' )';
+        query += JeproLabStockAvailableModel.addSqlLaboratoryRestriction(lab, "stock") + ") ";
 
-        return $sql;
+        return query;
     }
 
-    /**
+    /*
      * @deprecated since 1.5.0
      *
      * It's not possible to use this method with new stockManager and stockAvailable features
@@ -5209,29 +5223,33 @@ public static function getUrlRewriteInformations($id_product)
         AND l.`active` = 1
         ');
         }
-
-public function getIdTaxRulesGroup()
-        {
-        return this.id_tax_rules_group;
-        }
-
-public static function getIdTaxRulesGroupByIdProduct($id_product, Context context = null)
-        {
-        if (!context) {
-        context = Context::getContext();
-        }
-        $key = 'product_id_tax_rules_group_'.(int)$id_product.'_'.(int)context.shop->id;
-        if (!Cache::isStored($key)) {
-        $result = Db::getInstance(_PS_USE_SQL_SLAVE_)->getValue('
-        SELECT `id_tax_rules_group`
-        FROM `'._DB_PREFIX_.'product_shop`
-        WHERE `id_product` = '.(int)$id_product.' AND id_shop='.(int)context.shop->id);
-        Cache::store($key, (int)$result);
-        return (int)$result;
-        }
-        return Cache::retrieve($key);
-        }
 */
+    public int getTaxRulesGroupId(){
+        return this.tax_rules_group_id;
+    }
+
+    public static int getTaxRulesGroupIdByAnalyzeId(int analyzeId){
+        return getTaxRulesGroupIdByAnalyzeId(analyzeId, null);
+    }
+    public static int getTaxRulesGroupIdByAnalyzeId(int analyzeId, JeproLabContext context){
+        if (context == null) {
+            context = JeproLabContext.getContext();
+        }
+        String cacheKey = "jeprolab_analyze_tax_rules_group_id_" + analyzeId + "_" + context.laboratory.laboratory_id;
+        if (!JeproLabCache.getInstance().isStored(cacheKey)) {
+            if(staticDataBaseObject == null){
+                staticDataBaseObject = JeproLabFactory.getDataBaseConnector();
+            }
+            String query = "SELECT " + staticDataBaseObject.quoteName("tax_rules_group_id") + " FROM " + staticDataBaseObject.quoteName("#__jeprolab_analyze_lab");
+            query +=" WHERE " + staticDataBaseObject.quoteName("analyze_id") + " = " + analyzeId + " AND lab_id = " + context.laboratory.laboratory_id;
+            staticDataBaseObject.setQuery(query);
+            int result = (int)staticDataBaseObject.loadValue("tax_rules_group_id");
+            JeproLabCache.getInstance().store(cacheKey, result);
+            return result;
+        }
+        return (int)JeproLabCache.getInstance().retrieve(cacheKey);
+    }
+
     public float getTaxesRate(){
         return getTaxesRate(null);
     }

@@ -74,7 +74,9 @@ public class JeproLabCombinationModel {
     'images' => array('resource' => 'image', 'api' => 'images/products'),
     ),
             );
-
+*/
+    private static boolean feature_active = false;
+    /*
     public function delete()
     {
         if (!parent::delete()) {
@@ -249,17 +251,14 @@ public class JeproLabCombinationModel {
 
     /**
      * This method is allow to know if a feature is active
-     * @since 1.5.0.1
+     *
      * @return bool
-     * /
-    public static function isFeatureActive()
-    {
-        static $feature_active = null;
-
-        if ($feature_active === null) {
-            $feature_active = Configuration::get('PS_COMBINATION_FEATURE_ACTIVE');
+     */
+    public static boolean isFeaturePublished(){
+        if (!feature_active ) {
+            feature_active = JeproLabSettingModel.getIntValue("combination_feature_active") > 0;
         }
-        return $feature_active;
+        return feature_active;
     }
 
     /**

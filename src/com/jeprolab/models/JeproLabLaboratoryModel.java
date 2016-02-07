@@ -24,11 +24,14 @@ public class JeproLabLaboratoryModel  extends JeproLabModel{
 
     public int category_id = 0;
 
+    public JeproLabLaboratoryGroupModel laboratory_group;
+
     public String name;
 
     public int theme_id = 0;
 
     public String theme_name;
+
     public String theme_directory = "default";
 
     public String physical_uri;
@@ -60,6 +63,8 @@ public class JeproLabLaboratoryModel  extends JeproLabModel{
 
     private static int contextLabId;
     private static int contextLabGroupId;
+
+    private static JeproLabLaboratoryGroupModel context_laboratory_group;
 
     private static boolean feature_published = false;
 
@@ -623,5 +628,24 @@ public class JeproLabLaboratoryModel  extends JeproLabModel{
             return 0;
         }
         return JeproLabLaboratoryModel.contextLabId;
+    }
+
+    /**
+     * Get group of current shop
+     *
+     * @return JeproLabLaboratoryGroupModel
+     */
+    public JeproLabLaboratoryGroupModel getLaboratoryGroup(){
+        if (this.laboratory_group == null) {
+            this.laboratory_group = new JeproLabLaboratoryGroupModel(this.laboratory_group_id);
+        }
+        return this.laboratory_group;
+    }
+
+    public static JeproLabLaboratoryGroupModel getContextLaboratoryGroup(){
+        if (context_laboratory_group == null) {
+            context_laboratory_group = new JeproLabLaboratoryGroupModel(contextLabGroupId);
+        }
+        return context_laboratory_group;
     }
 }

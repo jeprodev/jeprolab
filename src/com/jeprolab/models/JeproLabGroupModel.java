@@ -58,7 +58,7 @@ public class JeproLabGroupModel extends JeproLabModel {
     ),
             );
 */
-    //protected static $cache_reduction = array();
+    protected static Map<String, Float> cache_reduction = new HashMap<>();
     protected static Map<Integer, Integer>group_price_display_method = new HashMap<>();
 
     //protected $webserviceParameters = array();
@@ -133,18 +133,23 @@ public class JeproLabGroupModel extends JeproLabModel {
     }
         return self::$cache_reduction['customer'][(int)$id_customer];
     }
-
-    public static function getReductionByIdGroup($id_group)
-    {
-        if (!isset(self::$cache_reduction['group'][$id_group])) {
-        self::$cache_reduction['group'][$id_group] = Db::getInstance(_PS_USE_SQL_SLAVE_)->getValue('
-                SELECT `reduction`
-                FROM `'._DB_PREFIX_.'group`
-        WHERE `id_group` = '.(int)$id_group);
-    }
-        return self::$cache_reduction['group'][$id_group];
-    }
 */
+    public static float getReductionByGroupId(int groupId){
+        String cacheKey = "jeprolab_group_get_reduction_group_" + groupId;
+        if (!JeproLabGroupModel.cache_reduction.containsKey(cacheKey)) {
+            if(staticDataBaseObject == null){
+                staticDataBaseObject = JeproLabFactory.getDataBaseConnector();
+            }
+            String query = "SELECT " + staticDataBaseObject.quoteName("reduction") + " FROM " + staticDataBaseObject.quoteName("#__jeprolab_group");
+            query += " WHERE " + staticDataBaseObject.quoteName("group_id") + " = " + groupId;
+
+            staticDataBaseObject.setQuery(query);
+            float reduction = (float)staticDataBaseObject.loadValue("reduction");
+            JeproLabGroupModel.cache_reduction.put(cacheKey, reduction);
+    }
+        return (float)JeproLabGroupModel.cache_reduction.get(cacheKey);
+    }
+
     public static int getPriceDisplayMethod(int groupId){
         if (!JeproLabGroupModel.group_price_display_method.containsKey(groupId)){
             if(staticDataBaseObject == null){
