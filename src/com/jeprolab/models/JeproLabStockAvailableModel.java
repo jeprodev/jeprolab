@@ -1,6 +1,8 @@
 package com.jeprolab.models;
 
+import com.jeprolab.assets.tools.JeproLabCache;
 import com.jeprolab.assets.tools.JeproLabContext;
+import com.jeprolab.models.core.JeproLabFactory;
 
 /**
  *
@@ -320,44 +322,56 @@ public class JeproLabStockAvailableModel extends  JeproLabModel{
             Db::getInstance()->insert('stock_available', $params, false, true, Db::ON_DUPLICATE_KEY);
         }
     }
+    */
+
+    public static int getQuantityAvailableByAnalyzeId(){
+        return getQuantityAvailableByAnalyzeId(0, 0, 0);
+    }
+
+    public static int getQuantityAvailableByAnalyzeId(int analyzeId){
+        return getQuantityAvailableByAnalyzeId(analyzeId, 0, 0);
+    }
+
+    public static int getQuantityAvailableByAnalyzeId(int analyzeId, int analyzeAttributeId){
+        return getQuantityAvailableByAnalyzeId(analyzeId, analyzeAttributeId, 0);
+    }
 
     /**
      * For a given id_product and id_product_attribute, gets its stock available
      *
-     * @param int $id_product
-     * @param int $id_product_attribute Optional
-     * @param int $id_shop Optional : gets context by default
+     * @param analyzeId
+     * @param analyzeAttributeId Optional
+     * @param labId Optional : gets context by default
      * @return int Quantity
-     * /
-    public static function getQuantityAvailableByProduct($id_product = null, $id_product_attribute = null, $id_shop = null)
-    {
+     */
+    public static int getQuantityAvailableByAnalyzeId(int analyzeId, int analyzeAttributeId, int labId){
         // if null, it's a product without attributes
-        if ($id_product_attribute === null) {
-            $id_product_attribute = 0;
+        if (analyzeAttributeId < 0) {
+            analyzeAttributeId = 0;
         }
 
-        $key = 'StockAvailable::getQuantityAvailableByProduct_'.(int)$id_product.'-'.(int)$id_product_attribute.'-'.(int)$id_shop;
-        if (!Cache::isStored($key)) {
-        $query = new DbQuery();
-        $query->select('SUM(quantity)');
-        $query->from('stock_available');
+        String cacheKey = "jeprolab_stock_available_get_quantity_available_by_analyze_" + analyzeId + "_" + analyzeAttributeId + "_" + labId;
+        if (!JeproLabCache.getInstance().isStored(cacheKey)) {
+            $query = new DbQuery();
+            $query->select('SUM(quantity)');
+            $query->from('stock_available');
 
-        // if null, it's a product without attributes
-        if ($id_product !== null) {
-            $query->where('id_product = '.(int)$id_product);
+            // if null, it's a product without attributes
+            if ($id_product !== null) {
+                $query->where('id_product = '.(int)$id_product);
+            }
+
+            $query->where('id_product_attribute = '.(int)$id_product_attribute);
+            $query = StockAvailable::addSqlShopRestriction($query, $id_shop);
+            $result = (int)Db::getInstance(_PS_USE_SQL_SLAVE_)->getValue($query);
+            JeproLabCache.getInstance().store($key, $result);
+            return $result;
         }
 
-        $query->where('id_product_attribute = '.(int)$id_product_attribute);
-        $query = StockAvailable::addSqlShopRestriction($query, $id_shop);
-        $result = (int)Db::getInstance(_PS_USE_SQL_SLAVE_)->getValue($query);
-        Cache::store($key, $result);
-        return $result;
+        return (int)JeproLabCache.getInstance().retrieve(cacheKey);
     }
 
-        return Cache::retrieve($key);
-    }
-
-    /**
+    /*
      * Upgrades total_quantity_available after having saved
      * @see ObjectModel::add()
      * /
@@ -594,56 +608,72 @@ public class JeproLabStockAvailableModel extends  JeproLabModel{
         } else {
             return Db::getInstance()->update('stock_available', array('quantity' => 0), 'id_shop_group = '.$shop_group->id);
         }
+    } */
+
+    public static boolean dependsOnStock(int analyzeId){
+        return dependsOnStock(analyzeId, 0);
     }
 
     /**
      * For a given product, tells if it depends on the physical (usable) stock
      *
-     * @param int $id_product
-     * @param int $id_shop Optional : gets context if null @see Context::getContext()
+     * @param analyzeId
+     * @param labId Optional : gets context if null @see Context::getContext()
      * @return bool : depends on stock @see $depends_on_stock
-     * /
-    public static function dependsOnStock($id_product, $id_shop = null)
-    {
-        if (!Validate::isUnsignedId($id_product)) {
-        return false;
-    }
+     */
+    public static boolean dependsOnStock(int analyzeId, int labId){
+        if (analyzeId <= 0) {
+            return false;
+        }
 
-        $query = new DbQuery();
+        String query = "SELECT depends_on_stock FROM " + staticDataBaseObject.quoteName("#__jeprolab_stock_available")+ " WHERE analyze_id =";
+        query += analyzeId + " AND analyze_attribute_id = 0 " + JeproLabStockAvailableModel.addSqlLaboratoryRestriction(new JeproLabLaboratoryModel(labId));
+        staticDataBaseObject.setQuery(query);
+        /*$query = new DbQuery();
         $query->select('depends_on_stock');
         $query->from('stock_available');
         $query->where('id_product = '.(int)$id_product);
         $query->where('id_product_attribute = 0');
 
-        $query = StockAvailable::addSqlShopRestriction($query, $id_shop);
+        $query = StockAvailable::addSqlShopRestriction($query, $id_shop); */
 
-        return (bool)Db::getInstance(_PS_USE_SQL_SLAVE_)->getValue($query);
+        return (int)staticDataBaseObject.loadValue("depends_on_stock") > 0;
+    }
+
+    public static boolean outOfStock(int analyzeId){
+        return outOfStock(analyzeId, 0);
     }
 
     /**
      * For a given product, get its "out of stock" flag
      *
-     * @param int $id_product
-     * @param int $id_shop Optional : gets context if null @see Context::getContext()
+     * @param analyzeId
+     * @param labId Optional : gets context if null @see Context::getContext()
      * @return bool : depends on stock @see $depends_on_stock
-     * /
-    public static function outOfStock($id_product, $id_shop = null)
-    {
-        if (!Validate::isUnsignedId($id_product)) {
-        return false;
-    }
+     */
+    public static boolean outOfStock(int analyzeId, int labId){
+        if (analyzeId <= 0) {
+            return false;
+        }
 
-        $query = new DbQuery();
-        $query->select('out_of_stock');
+        if(staticDataBaseObject == null){
+            staticDataBaseObject = JeproLabFactory.getDataBaseConnector();
+        }
+
+        String query = "SELECT out_of_stock FROM " + staticDataBaseObject.quoteName("#__jeprolab_stock_available") + " WHERE analyze_id =";
+        query += analyzeId + " AND analyze_attribute_id = 0 " + JeproLabStockAvailableModel.addSqlLaboratoryRestriction(new JeproLabLaboratoryModel(labId));
+
+        staticDataBaseObject.setQuery(query);
+        /*$query->select('out_of_stock');
         $query->from('stock_available');
         $query->where('id_product = '.(int)$id_product);
         $query->where('id_product_attribute = 0');
 
-        $query = StockAvailable::addSqlShopRestriction($query, $id_shop);
+        $query = StockAvailable::addSqlShopRestriction($query, $id_shop); */
 
-        return (int)Db::getInstance(_PS_USE_SQL_SLAVE_)->getValue($query);
+        return ((int)staticDataBaseObject.loadValue("out_of_stock") > 0);
     }
-*/
+
     public static String addSqlLaboratoryRestriction(){
         return addSqlLaboratoryRestriction(null, "");
     }

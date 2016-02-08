@@ -237,7 +237,7 @@ public class JeproLabAnalyzeModel extends JeproLabModel {
     public static $_taxCalculationMethod = null; */
     protected static Map<String, Float> _prices = new HashMap<>();
     protected static Map<String, Map<Integer, Map<String,Float>>> _pricesLevel2 = new HashMap<>();
-    protected static $_incat = array();
+    //protected static $_incat = array();
 
     protected static Map<Integer, Map<Integer, Integer>> combinations = new HashMap<>();
 
@@ -2963,9 +2963,9 @@ public class JeproLabAnalyzeModel extends JeproLabModel {
      *                                        calculation regarding the guest localization
      * 
      * @param withEcoTax           Insert ecotax in price output.
-     * @param useGroupReduction
-     * @param context
-     * @param useCustomerPrice
+     * @param useGroupReduction  use reduction based on customer group
+     * @param context             Current context
+     * @param useCustomerPrice  use customer price
      * @return float             Analyze price
      */
     public static float getStaticPrice(int analyzeId, boolean useTax, int analyzeAttributeId, int decimals, boolean onlyReduction, boolean useReduction, int quantity, boolean forceAssociatedTax, int customerId, int cartId, int addressId, boolean withEcoTax, boolean useGroupReduction, JeproLabContext context, boolean useCustomerPrice){
@@ -3000,7 +3000,7 @@ public class JeproLabAnalyzeModel extends JeproLabModel {
             }
             currentCart = new JeproLabCartModel(cartId);
             // Store cart in context to avoid multiple instantiations in BO
-            if (context.cart.cart_id <= 0)) {
+            if (context.cart.cart_id <= 0) {
                 context.cart = currentCart;
             }
         }
@@ -3043,7 +3043,7 @@ public class JeproLabAnalyzeModel extends JeproLabModel {
 
         int addressInfoCountryId = 0;
         int addressInfoStateId = 0;
-        String addressInfoZipCode;
+        String addressInfoZipCode = "";
         int addressInfoVatNumber = 0;
 
         if (addressId > 0) {

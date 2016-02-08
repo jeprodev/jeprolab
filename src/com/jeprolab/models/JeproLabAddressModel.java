@@ -12,6 +12,8 @@ import javafx.scene.control.Pagination;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  *
@@ -96,7 +98,7 @@ public class JeproLabAddressModel extends JeproLabModel {
     public boolean published = false;
 
     //protected static $_idZones = array();
-    //protected static $_idCountries = array();
+    protected static Map<Integer, ResultSet> _idCountries = new HashMap<>();
 
     private static Pagination pagination;
 
@@ -464,24 +466,31 @@ public class JeproLabAddressModel extends JeproLabModel {
 
         return $result > 0 ? (int)$result : false;
     }
-
-    public static function getCountryAndState($id_address)
-    {
-        if (isset(self::$_idCountries[$id_address])) {
-        return self::$_idCountries[$id_address];
-    }
-        if ($id_address) {
-            $result = Db::getInstance(_PS_USE_SQL_SLAVE_)->getRow('
-                    SELECT `id_country`, `id_state`, `vat_number`, `postcode` FROM `'._DB_PREFIX_.'address`
-            WHERE `id_address` = '.(int)$id_address);
-        } else {
-            $result = false;
+*/
+    public static ResultSet getCountryAndState(int addressId){
+        if (JeproLabAddressModel._idCountries.containsKey(addressId)){
+            return JeproLabAddressModel._idCountries.get(addressId);
         }
-        self::$_idCountries[$id_address] = $result;
-        return $result;
+        ResultSet  result;
+        if (addressId > 0) {
+            if(staticDataBaseObject == null){
+                staticDataBaseObject = JeproLabFactory.getDataBaseConnector();
+            }
+            String query = "SELECT " + staticDataBaseObject.quoteName("country_id") + ", " + staticDataBaseObject.quoteName("state_id");
+            query += ", " + staticDataBaseObject.quoteName("vat_number") + ", " + staticDataBaseObject.quoteName("postcode") + " FROM ";
+            query += staticDataBaseObject.quoteName("#__jeproLab_address") + " WHERE " + staticDataBaseObject.quoteName("address_id") + " = " + addressId;
+
+            staticDataBaseObject.setQuery(query);
+            result = staticDataBaseObject.loadObject();
+            JeproLabAddressModel._idCountries.put(addressId, result);
+        } else {
+            result = null;
+        }
+
+        return result;
     }
 
-    /**
+    /*
      * Specify if an address is already in base
      *
      * @param int $id_address Address id
