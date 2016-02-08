@@ -5,6 +5,9 @@ import com.jeprolab.models.JeproLabCurrencyModel;
 import com.jeprolab.models.JeproLabModel;
 import com.jeprolab.models.JeproLabSettingModel;
 
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+
 public class JeproLabTools {
     private static int default_currency_id = 0;
     private static int price_round_method = -1;
@@ -29,8 +32,14 @@ public class JeproLabTools {
     public static boolean isOrderWay(String way){
         return (way.toLowerCase().equals("asc") | way.toLowerCase().equals("desc"));
     }
+    public static String date(String format){
+        Calendar calendar = Calendar.getInstance();
+        calendar.add(Calendar.DATE, 1);
+        SimpleDateFormat format1 = new SimpleDateFormat(format);
+        return format1.format(calendar.getTime());
+    }
+
     /*public static boolean (){}
-    public static boolean (){}
     public static boolean (){}*/
 
     public static float convertPrice(float price){

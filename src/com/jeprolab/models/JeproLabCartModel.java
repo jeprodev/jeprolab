@@ -1,6 +1,7 @@
 package com.jeprolab.models;
 
 import com.jeprolab.assets.tools.JeproLabCache;
+import com.jeprolab.assets.tools.JeproLabConfigurationSettings;
 import com.jeprolab.assets.tools.JeproLabContext;
 
 import java.util.Date;
@@ -31,7 +32,7 @@ public class JeproLabCartModel {
     public int customer_id;
 
     /** @var int Guest ID */
-    public $id_guest;
+    public int guest_id ;
 
     /** @var int Language ID */
     public int language_id;
@@ -74,7 +75,7 @@ public class JeproLabCartModel {
 
     protected $_products = null;
     protected static $_totalWeight = array(); */
-    protected int tax_calculation_method = JEPROLAB_TAX_EXCLUDED;
+    protected int tax_calculation_method = JeproLabConfigurationSettings.JEPROLAB_TAX_EXCLUDED;
     /*protected static $_carriers = null;
     protected static $_taxes_rate = null;
     protected static $_attributesLists = array();
@@ -148,7 +149,7 @@ public class JeproLabCartModel {
     }
 
     public JeproLabCartModel(int cartId , int langId){
-        parent::__construct($id);
+        //parent::__construct($id);
 
         if (langId > 0) {
             this.language_id = (JeproLabLanguageModel.checkLanguage(langId) ? langId : JeproLabSettingModel.getIntValue("default_lang"));
@@ -197,23 +198,22 @@ public class JeproLabCartModel {
         return (this.cart_id > 0 ? this.updateCart() : this.addCart());
     }
 
-    public boolean addCart()
-    {
-        if (!this.id_lang) {
-            this.id_lang = Configuration::get('PS_LANG_DEFAULT');
+    public boolean addCart(){
+        if (this.language_id <= 0) {
+            this.language_id = JeproLabSettingModel.getIntValue("default_lang");
         }
-        if (!this.id_shop) {
-            this.id_shop = JeproLabContext.getContext()->shop->id;
+        if (this.laboratory_id <= 0) {
+            this.laboratory_id = JeproLabContext.getContext().laboratory.laboratory_id;
         }
 
-        $return = parent::add($autodate, $null_values);
-        Hook::exec('actionCartSave');
-
-        return $return;
+        /*$return = parent::add($autodate, $null_values);
+        Hook::exec('actionCartSave'); */
+//todo edit edit adding
+        return true;
     }
 
     public boolean updateCart(){
-        if (isset(self::$_nbProducts[this.id])) {
+        /*if (isset(self::$_nbProducts[this.id])) {
         unset(self::$_nbProducts[this.id]);
     }
 
@@ -223,9 +223,9 @@ public class JeproLabCartModel {
 
         this._products = null;
         $return = parent::update($null_values);
-        Hook::exec('actionCartSave');
-
-        return $return;
+        Hook::exec('actionCartSave');*/
+    //todo
+        return true;
     }
 
     /*

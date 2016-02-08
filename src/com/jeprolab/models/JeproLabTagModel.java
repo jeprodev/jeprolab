@@ -1,5 +1,12 @@
 package com.jeprolab.models;
 
+import com.jeprolab.models.core.JeproLabFactory;
+
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.HashMap;
+import java.util.Map;
+
 /**
  *
  * Created by jeprodev on 01/02/2014.
@@ -174,23 +181,37 @@ public class JeproLabTagModel extends JeproLabModel{
         LIMIT '.(int)$nb);
     }
     }
+*/
+    public static Map<String, String> getAnalyzeTags(int analyzeId) {
+        if (staticDataBaseObject == null) {
+            staticDataBaseObject = JeproLabFactory.getDataBaseConnector();
+        }
+        String query = "SELECT tag." + staticDataBaseObject.quoteName("lang_id") + ", tag." + staticDataBaseObject.quoteName("name") + " FROM ";
+        query += staticDataBaseObject.quoteName("#__jeprolab_tag") + " AS tag LEFT JOIN " + staticDataBaseObject.quoteName("#__jeprolab_analyze_tag");
+        query += " AS analyze_tag ON (analyze_tag.tag_id = tag.tag_id) WHERE analyze_tag." + staticDataBaseObject.quoteName("analyze_id") + "= ";
+        query += analyzeId;
 
-    public static function getProductTags($id_product)
-    {
-        if (!$tmp = Db::getInstance(_PS_USE_SQL_SLAVE_)->executeS('
-            SELECT t.`id_lang`, t.`name`
-            FROM '._DB_PREFIX_.'tag t
-        LEFT JOIN '._DB_PREFIX_.'product_tag pt ON (pt.id_tag = t.id_tag)
-        WHERE pt.`id_product`='.(int)$id_product)) {
-        return false;
-    }
-    $result = array();
-    foreach ($tmp as $tag) {
-        $result[$tag['id_lang']][] = $tag['name'];
-    }
-    return $result;
-}
+        staticDataBaseObject.setQuery(query);
+        ResultSet tagSet = staticDataBaseObject.loadObject();
+        Map<String, String> result = new HashMap<>();
+        try {
+            while(tagSet.next()) {
 
+            }
+        } catch (SQLException ignored) {
+
+        }
+        /*if (!$tmp = Db::getInstance (_PS_USE_SQL_SLAVE_) -> executeS(''))
+        {
+            return false;
+        }
+        $result = array();
+        foreach($tmp as $tag) {
+            $result[$tag['id_lang']][]=$tag['name'];
+        }*/
+        return result;
+    }
+/*
     public function getProducts($associated = true, Context $context = null)
     {
         if (!$context) {

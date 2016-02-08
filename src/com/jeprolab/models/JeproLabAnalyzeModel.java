@@ -227,7 +227,7 @@ public class JeproLabAnalyzeModel extends JeproLabModel {
     /**
      * @var string If product is populated, this property contain the rewrite link of the default category
      */
-    public JeproLabCategoryModel category;
+    public String category;
 
     /**
      * @var int tell the type of stock management to apply on the pack
@@ -621,7 +621,7 @@ public class JeproLabAnalyzeModel extends JeproLabModel {
             specificPrice = JeproLabAnalyzeModel.static_specific_price;
             this.unit_price = (this.unit_price_ratio != 0  ? this.price / this.unit_price_ratio : 0);
             if (this.analyze_id > 0) {
-                this.tags = JeproLabTagModel.getProductTags(this.analyze_id);
+                this.tags = JeproLabTagModel.getAnalyzeTags(this.analyze_id);
             }
 
             this.loadStockData();
@@ -1401,7 +1401,7 @@ public class JeproLabAnalyzeModel extends JeproLabModel {
 
         String query = "SELECT analyze.analyze_id FROM " + dataBaseObject.quoteName("#__jeprolab_analyze") + " AS analyze ";
         query += JeproLabLaboratoryModel.addSqlAssociation("product") + " WHERE analyze.analyze_id = " + this.analyze_id ;
-        query += " AND DATEDIFF( analyze_lab." + dataBaseObject.quoteName("date_add") + ", DATE_SUB('" + date('Y-m-d');
+        query += " AND DATEDIFF( analyze_lab." + dataBaseObject.quoteName("date_add") + ", DATE_SUB('" + JeproLabTools.date("Y-m-d");
         query += " 00:00:00' , INTERVAL " + (JeproLabSettingModel.getIntValue("number") > 0 ? JeproLabSettingModel.getIntValue("") : 20);
         query += " DAY ) ) > 0 ";
 
@@ -6084,7 +6084,7 @@ public function getParentCategories($id_lang = null)
             this.out_of_stock = JeproLabStockAvailableModel.outOfStock(this.analyze_id);
             this.depends_on_stock = JeproLabStockAvailableModel.dependsOnStock(this.analyze_id);
 
-            if (JeproLabContext.getContext().laboratory.getLabContext() == JeproLabLaboratoryModel.GROUP_CONTEXT && JeproLabContext.getContext().laboratory.getLabGroupContext().share_stock == 1){
+            if (JeproLabContext.getContext().laboratory.getLabContext() == JeproLabLaboratoryModel.GROUP_CONTEXT && JeproLabContext.getContext().laboratory.getContextLaboratoryGroup().share_stock){
                 this.advanced_stock_management = this.useAdvancedStockManagement();
             }
         }

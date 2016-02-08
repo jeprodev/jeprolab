@@ -16,7 +16,7 @@ import java.util.List;
  *
  * Created by jeprodev on 04/02/14.
  */
-public class JeproLabTaxRulesManager implements JeproLabTaxManagerInterface {
+public class JeproLabTaxRulesManager {
     public JeproLabAddressModel address;
     public String type;
     public JeproLabTaxCalculator tax_calculator;

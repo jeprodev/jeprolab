@@ -352,20 +352,22 @@ public class JeproLabStockAvailableModel extends  JeproLabModel{
 
         String cacheKey = "jeprolab_stock_available_get_quantity_available_by_analyze_" + analyzeId + "_" + analyzeAttributeId + "_" + labId;
         if (!JeproLabCache.getInstance().isStored(cacheKey)) {
-            $query = new DbQuery();
-            $query->select('SUM(quantity)');
-            $query->from('stock_available');
+
+            String query = "SELECT SUM(quantity) AS qty FROM " + staticDataBaseObject.quoteName("#__jeprolab_stock_available");
+            String where = "";
 
             // if null, it's a product without attributes
-            if ($id_product !== null) {
-                $query->where('id_product = '.(int)$id_product);
+            if (analyzeId > 0) {
+                where = " AND analyze_id  = " + analyzeId;
             }
 
-            $query->where('id_product_attribute = '.(int)$id_product_attribute);
-            $query = StockAvailable::addSqlShopRestriction($query, $id_shop);
-            $result = (int)Db::getInstance(_PS_USE_SQL_SLAVE_)->getValue($query);
-            JeproLabCache.getInstance().store($key, $result);
-            return $result;
+            query += " WHERE analyze_attribute_id = " + analyzeAttributeId + where;
+            query += JeproLabStockAvailableModel.addSqlLaboratoryRestriction(new JeproLabLaboratoryModel(labId));
+
+            staticDataBaseObject.setQuery(query);
+            int result = (int) staticDataBaseObject.loadValue("qty");
+            JeproLabCache.getInstance().store(cacheKey, result);
+            return result;
         }
 
         return (int)JeproLabCache.getInstance().retrieve(cacheKey);

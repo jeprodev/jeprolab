@@ -65,7 +65,7 @@ public class JeproLabCategoryModel extends JeproLabModel {
 
     protected boolean deleted_category = true;
 
-    //protected static $_links = array();
+    protected static Map<String, String> _links =new HashMap<>();
 
     public JeproLabCategoryModel() {
         this(0, 0, 0);
@@ -211,7 +211,7 @@ public class JeproLabCategoryModel extends JeproLabModel {
         }
 
         //this.image_id = (file_exists(JeproLabConfigurationSettings.JEPROLAB_CATEGORY_IMAGE_DIRRECTORY +  this.category_id + ".jpg")) ? this.category_id : 0;
-        this.image_dir = JeproLabConfigurationSettings.JEPROLAB_CATEGORY_IMAGE_DIRRECTORY;
+        this.image_dir = JeproLabConfigurationSettings.JEPROLAB_CATEGORY_IMAGE_DIRECTORY;
     }
 /*
     public static ResultSet getCategories(){
@@ -588,13 +588,13 @@ public class JeproLabCategoryModel extends JeproLabModel {
         }
         return (JeproLabCategoryModel)JeproLabCache.getInstance().retrieve(cacheKey);
     }
-/*
-    public static function getLinkRewrite(int categoryId, int langId){
-        if (!JeproLabTools.isUnsignedInt($category_id) || !JeproLabTools.isUnsignedInt(langId)){
-            return false;
-        }
 
-        if (!isset(self.$_links[$category_id + "_" + langId])){
+    public static String getLinkRewrite(int categoryId, int langId){
+        if (categoryId <= 0 || langId <= 0){
+            return "";
+        }
+        String cacheKey = categoryId + "_" + langId;
+        if (!JeproLabCategoryModel._links.containsKey(cacheKey)){
             if(staticDataBaseObject == null){
                 staticDataBaseObject = JeproLabFactory.getDataBaseConnector();
             }
@@ -605,11 +605,11 @@ public class JeproLabCategoryModel extends JeproLabModel {
             query += staticDataBaseObject.quoteName("category_id") + " = " + categoryId;
 
             staticDataBaseObject.setQuery(query);
-            self.$_links[$category_id + "_" + langId] = dataBaseObject.loadResult();
+            JeproLabCategoryModel._links.put(cacheKey, staticDataBaseObject.loadStringValue("link_rewrite"));
         }
-        return self.$_links[$category_id + "_" + langId];
+        return JeproLabCategoryModel._links.get(cacheKey);
     }
-*/
+
     public List<JeproLabCategoryModel> getCategoriesList(){
         if(dataBaseObject == null) {
             dataBaseObject = JeproLabFactory.getDataBaseConnector();
