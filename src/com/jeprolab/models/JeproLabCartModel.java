@@ -3,7 +3,10 @@ package com.jeprolab.models;
 import com.jeprolab.assets.tools.JeproLabCache;
 import com.jeprolab.assets.tools.JeproLabConfigurationSettings;
 import com.jeprolab.assets.tools.JeproLabContext;
+import com.jeprolab.models.core.JeproLabFactory;
 
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -12,7 +15,7 @@ import java.util.Map;
  *
  * Created by jeprodev on 04/02/16.
  */
-public class JeproLabCartModel {
+public class JeproLabCartModel extends JeproLabModel{
     public int cart_id;
 
     public int laboratory_group_id;
@@ -58,14 +61,16 @@ public class JeproLabCartModel {
     /** @var int Carrier ID */
     public int carrier_id = 0;
 
-    /* @var string Object last modification date * /
+    /* @var string Object last modification date */
     public Date date_upd;
 
-    public boolean checkedTos = false;
-    public $pictures;
-    public $textFields;
+    public boolean allow_separated_package = false;
 
-    public $delivery_option;
+    public boolean checkedTos = false;
+   /* public $pictures;
+    public $textFields;
+*/
+    public String delivery_option;
 
     /** @var bool Allow to seperate order in multiple package in order to recieve as soon as possible the available products * /
     public boolean allow_seperated_package = false;
@@ -135,9 +140,9 @@ public class JeproLabCartModel {
     public final static int ONLY_DISCOUNTS = 2;
     public final static int BOTH = 3;
     public final static int BOTH_WITHOUT_SHIPPING = 4;
-    public final static int  ONLY_SHIPPING = 5;
+    public final static int ONLY_SHIPPING = 5;
     public final static int ONLY_WRAPPING = 6;
-    public final static int  ONLY_PRODUCTS_WITHOUT_SHIPPING = 7;
+    public final static int ONLY_PRODUCTS_WITHOUT_SHIPPING = 7;
     public final static int ONLY_PHYSICAL_PRODUCTS_WITHOUT_SHIPPING = 8;
 
     public JeproLabCartModel(){
@@ -149,8 +154,6 @@ public class JeproLabCartModel {
     }
 
     public JeproLabCartModel(int cartId , int langId){
-        //parent::__construct($id);
-
         if (langId > 0) {
             this.language_id = (JeproLabLanguageModel.checkLanguage(langId) ? langId : JeproLabSettingModel.getIntValue("default_lang"));
         }
@@ -159,9 +162,59 @@ public class JeproLabCartModel {
             String cacheKey = "jeprolab_cart_model_" + cartId + "_" + langId;
 
             if(!JeproLabCache.getInstance().isStored(cacheKey)){
+                if(dataBaseObject == null){
+                    dataBaseObject = JeproLabFactory.getDataBaseConnector();
+                }
+                String query = "SELECT * FROm " + dataBaseObject.quoteName("#__jeprolab_cart") + " AS cart WHERE cart_id = " + cartId;
+                dataBaseObject.setQuery(query);
 
+                ResultSet cartSet = dataBaseObject.loadObject();
+                try{
+                    if(cartSet.next()){
+                        this.cart_id = cartSet.getInt("cart_id");
+                        this.laboratory_group_id = cartSet.getInt("lab_group_id");
+                        this.laboratory_id = cartSet.getInt("lab_id");
+                        this.delivery_option = cartSet.getString("delivery_option");
+                        this.language_id = cartSet.getInt("lang_id");
+                        this.delivery_address_id = cartSet.getInt("delivery_address_id");
+                        this.invoice_address_id = cartSet.getInt("invoice_address_id");
+                        this.currency_id = cartSet.getInt("currency_id");
+                        this.customer_id = cartSet.getInt("customer_id");
+                        this.guest_id = cartSet.getInt("guest_id");
+                        this.secure_key = cartSet.getString("secure_key");
+                        this.recyclable = cartSet.getInt("recyclable") > 0;
+                        this.gift = cartSet.getBoolean("gift");
+                        this.gift_message = cartSet.getString("gift_message");
+                        this.mobile_theme = cartSet.getInt("mobile_theme") > 0;
+                        this.allow_separated_package = cartSet.getInt("allow_separated_package") > 0;
+                        this.date_add = cartSet.getDate("date_add");
+                        this.date_upd = cartSet.getDate("date_upd");
+
+                        JeproLabCache.getInstance().store(cacheKey, this);
+                    }
+                }catch(SQLException ignored){
+
+                }
             }else{
-
+                JeproLabCartModel cart = (JeproLabCartModel)JeproLabCache.getInstance().retrieve(cacheKey);
+                this.cart_id = cart.cart_id;
+                this.laboratory_group_id = cart.laboratory_group_id;
+                this.laboratory_id = cart.laboratory_id;
+                this.delivery_option = cart.delivery_option;
+                this.language_id = cart.language_id;
+                this.delivery_address_id = cart.delivery_address_id;
+                this.invoice_address_id = cart.invoice_address_id;
+                this.currency_id = cart.currency_id;
+                this.customer_id = cart.customer_id;
+                this.guest_id = cart.guest_id;
+                this.secure_key = cart.secure_key;
+                this.recyclable = cart.recyclable;
+                this.gift = cart.gift;
+                this.gift_message = cart.gift_message;
+                this.mobile_theme = cart.mobile_theme;
+                this.allow_separated_package = cart.allow_separated_package;
+                this.date_add = cart.date_add;
+                this.date_upd = cart.date_upd;
             }
         }
 

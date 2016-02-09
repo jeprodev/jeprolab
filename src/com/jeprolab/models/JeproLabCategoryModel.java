@@ -666,7 +666,7 @@ public class JeproLabCategoryModel extends JeproLabModel {
             where = " AND category_lab." + dataBaseObject.quoteName("lab_id") + " = " + JeproLabContext.getContext().laboratory.laboratory_id;
         }
         /* Check params validity */
-        if (!JeproLabTools.isOrderBy(orderBy) || !JeproLabTools.isOrderWay(orderWay) || !(limitStart < 0) || !(limit < 0) || !(langId < 0)){ System.out.println(orderBy + " " + orderWay + " " + limit + " " + limitStart + langId);
+        if (!JeproLabTools.isOrderBy(orderBy) || !JeproLabTools.isOrderWay(orderWay) || !(limitStart < 0) || !(limit < 0) || !(langId < 0)){
             JeproLabTools.displayError(500, JeproLab.getBundle().getString("JEPROLAB_GET_LIST_PARAMS_IS_NOT_VALID_MESSAGE"));
         }
 
@@ -755,7 +755,7 @@ public class JeproLabCategoryModel extends JeproLabModel {
                 categoryResult = dataBaseObject.loadObject();
                 while (categoryResult.next()) {
                     total = total + 1;
-                }System.out.println(total);
+                }
                 query += (useLimit ? " LIMIT " + limitStart + ", " + limit : "" );
                 dataBaseObject.setQuery(query);
                 categoryResult = dataBaseObject.loadObject();
