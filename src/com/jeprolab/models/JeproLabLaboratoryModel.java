@@ -366,7 +366,7 @@ public class JeproLabLaboratoryModel  extends JeproLabModel{
         if (share.equals(JeproLabLaboratoryModel.SHARE_CUSTOMER) && JeproLabLaboratoryModel.getLabContext() == JeproLabLaboratoryModel.LAB_CONTEXT && labGroup.share_customers){
             restriction += " AND " + alias + "lab_group_id = " +  JeproLabLaboratoryModel.getContextLabGroupId();
         }else{
-            List<Integer> listRestriction = JeproLabLaboratoryModel.getContextListLabIds(share);
+            List<Integer> listRestriction = JeproLabLaboratoryModel.getContextListLaboratoryIds(share);
             int listSize = listRestriction.size();
             if(listSize > 0) {
                 String labIds = "";
@@ -450,11 +450,11 @@ public class JeproLabLaboratoryModel  extends JeproLabModel{
         return JeproLabLaboratoryModel.associatedTables.contains(table);
     }
 
-    public static List getContextListLabIds(){
-        return getContextListLabIds("");
+    public static List<Integer> getContextListLaboratoryIds(){
+        return getContextListLaboratoryIds("");
     }
 
-    public static List getContextListLabIds(String share){
+    public static List getContextListLaboratoryIds(String share){
         List<Integer> list;
         if(JeproLabLaboratoryModel.getLabContext() == JeproLabLaboratoryModel.LAB_CONTEXT){
             list = (share != null && !share.equals("")) ? JeproLabLaboratoryModel.getSharedLaboratories(JeproLabLaboratoryModel.getContextLabId(), share) : new ArrayList(JeproLabLaboratoryModel.getContextLabId());
@@ -471,6 +471,29 @@ public class JeproLabLaboratoryModel  extends JeproLabModel{
             JeproLabLaboratoryModel.init();
         }
         return JeproLabLaboratoryModel.defaultLabTablesId.contains(table);
+    }
+
+    public static List<Integer> getLaboratoryIds(){
+        return getLaboratoryIds(true);
+    }
+
+    public static List<Integer> getLaboratoryIds(boolean published){
+        return getLaboratoryIds(published, 0);
+    }
+
+    public static List<Integer> getLaboratoryIds(boolean published, int labGroupId){
+        JeproLabLaboratoryModel.cacheLaboratories();
+
+        List results = new ArrayList();
+        for(JeproLabLaboratoryGroupModel labGroup : JeproLabLaboratoryGroupModel.getLaboratoryGroups()){
+            for(JeproLabLaboratoryModel lab : labGroup.laboratories){
+                if ((!published || lab.published) && (labGroup.laboratory_group_id < 0 || labGroup.laboratory_group_id == labGroupId)) {
+                    results.add(lab.laboratory_id);
+
+                }
+            }
+        }
+        return results;
     }
 
     public static List getLaboratories(){

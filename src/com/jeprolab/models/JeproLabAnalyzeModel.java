@@ -11,10 +11,7 @@ import com.jeprolab.models.tax.JeproLabTaxRulesManager;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  *
@@ -4623,30 +4620,27 @@ static $address = null;
 
         return $row;
         }
+* /
+    public static List getAnalyzesProperties(int langId, List queryResult) {
+        List resultsArray = new ArrayList<>();
 
-public static function getProductsProperties($id_lang, $query_result)
-        {
-        $results_array = array();
+        if (queryResult.size() > 0) {
+            foreach($query_result as $row) {
+                if ($row2 = JeproLabAnalyzeModel.getProductProperties(langId, $row)){
+                    $results_array[]=$row2;
+                }
+            }
+        }
+        return resultsArray;
+    }
 
-        if (is_array($query_result)) {
-        foreach ($query_result as $row) {
-        if ($row2 = Product::getProductProperties($id_lang, $row)) {
-        $results_array[] = $row2;
-        }
-        }
-        }
-
-        return $results_array;
-        }
-
-    /*
+   /**
     * Select all features for a given language
     *
-    * @param $id_lang Language id
+    * @param langId Language id
     * @return array Array with feature's data
     * /
-public static function getFrontFeaturesStatic($id_lang, $id_product)
-        {
+    public static function getFrontFeaturesStatic(int langId, int productId){
         if (!Feature::isFeatureActive()) {
         return array();
         }
@@ -4664,7 +4658,7 @@ public static function getFrontFeaturesStatic($id_lang, $id_product)
         }
         return JeproLabAnalyzeModel.$_frontFeaturesCache[$id_product."_".$id_lang];
         }
-
+/*
 public function getFrontFeatures($id_lang)
         {
         return Product::getFrontFeaturesStatic($id_lang, this.id);
