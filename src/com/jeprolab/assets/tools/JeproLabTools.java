@@ -7,6 +7,7 @@ import com.jeprolab.models.JeproLabSettingModel;
 
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.List;
 
 public class JeproLabTools {
     private static int default_currency_id = 0;
@@ -55,7 +56,7 @@ public class JeproLabTools {
 
     /**
      * return converted price
-     * @param price
+     * @param price The price to be converted
      * @param currencyId
      * @param toCurrency
      * @param context
@@ -67,7 +68,7 @@ public class JeproLabTools {
         }
         if(context == null){ context = JeproLabContext.getContext(); }
 
-        if(currencyId == 0){
+        if(currencyId <= 0){
             currencyId = context.currency.currency_id;
         }
         JeproLabCurrencyModel currency = JeproLabCurrencyModel.getCurrencyInstance(currencyId);
@@ -131,6 +132,25 @@ public class JeproLabTools {
         } */
         return (float)(Math.floor(tmp) / precisionFactor);
     }
+
+    /*public static List orderbyPrice(List items, String orderWay) {
+        /*foreach($array as & $row) {
+            $row['price_tmp'] = Product::getPriceStatic
+            ($row['id_product'], true, ((isset($row['id_product_attribute']) && !empty($row['id_product_attribute'])) ? (int) $row['id_product_attribute'] : null), 2)
+            ;
+        }
+
+        unset($row);
+
+        if (Tools::strtolower ($order_way) == 'desc'){
+            uasort($array, 'cmpPriceDesc');
+        }else{
+            uasort($array, 'cmpPriceAsc');
+        }
+        foreach($array as & $row) {
+            unset($row['price_tmp']);
+        }* /
+    } */
 
     public static String getOrderFormToken(){
         return "a";

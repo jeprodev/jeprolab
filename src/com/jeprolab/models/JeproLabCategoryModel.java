@@ -36,6 +36,8 @@ public class JeproLabCategoryModel extends JeproLabModel {
 
     public int n_right;
 
+    private int totalAnalyzes;
+
     public Map<String, String> link_rewrite;
 
     public Map<String, String> meta_title;
@@ -1774,7 +1776,7 @@ public class JeproLabCategoryModel extends JeproLabModel {
         return this.name.containsKey("lang_" + langId) ? this.name.get("lang_" + langId) : "";
     }
 
-    /**
+    /*
      * Light back office search for categories
      *
      * @param integer langId Language ID
@@ -1830,21 +1832,19 @@ public class JeproLabCategoryModel extends JeproLabModel {
 
         if (!JeproLabCache.getInstance().isStored(cacheKey)){
             String query = "SELECT category_group." + dataBaseObject.quoteName("category_id") + " FROM " + dataBaseObject.quoteName("#__jeprolab_category_group") + " AS category_group ";
-            boolean result = false;
+
             if (employeeId <= 0){
                 query += " WHERE category_group." + dataBaseObject.quoteName("category_id") + " = " + this.category_id + " AND category_group." + dataBaseObject.quoteName("group_id") ;
                 query += " = " + JeproLabGroupModel.getCurrent().group_id;
-                dataBaseObject.setQuery(query);
 
-                result = dataBaseObject.loadValue("category_id") > 0;
             }else{
-            $result = (bool)Db.getInstance(_PS_USE_SQL_SLAVE_)->getValue("
-                SELECT ctg.`id_group`
-                FROM "._DB_PREFIX_."category_group ctg
-            INNER JOIN "._DB_PREFIX_."customer_group cg on (cg.`id_group` = ctg.`id_group` AND cg.`id_customer` = ".(int)$id_customer.")
-            WHERE ctg.`id_category` = ".(int)this.id);
-                JeproLabCache.getInstance().store(cacheKey, $result);
+                query += " INNER JOIN " + dataBaseObject.quote("#__users_group") + " AS user_group ON (user_group." + dataBaseObject.quoteName("group_id");
+                query += " = category_group." + dataBaseObject.quoteName("group_id") + "user_group."  + dataBaseObject.quoteName("employee_id") + " = ";
+                query += employeeId + ") WHERE category_group." + dataBaseObject.quoteName("category_id") +  " = " + this.category_id;
             }
+            dataBaseObject.setQuery(query);
+
+            JeproLabCache.getInstance().store(cacheKey, dataBaseObject.loadValue("category_id"));
         }
         return (int)JeproLabCache.getInstance().retrieve(cacheKey) > 0;
     }
@@ -2114,15 +2114,22 @@ public class JeproLabCategoryModel extends JeproLabModel {
         }
 
         String orderByPrefix = "";
-        if (orderBy.equals("analyze_id") || orderBy.equals("date_add") || orderBy.equals("date_upd")){
-            orderByPrefix = "analyze";
-        }else if(orderBy.equals("name")) {
-            orderByPrefix = "analyze_lang";
-        }else if (orderBy.equals("manufacturer")){
-            orderByPrefix = "manufacturer";
-            orderBy = "name";
-        }else if (orderBy.equals("position")) {
-            orderByPrefix = "category_analyze";
+        switch (orderBy) {
+            case "analyze_id":
+            case "date_add":
+            case "date_upd":
+                orderByPrefix = "analyze";
+                break;
+            case "name":
+                orderByPrefix = "analyze_lang";
+                break;
+            case "manufacturer":
+                orderByPrefix = "manufacturer";
+                orderBy = "name";
+                break;
+            case "position":
+                orderByPrefix = "category_analyze";
+                break;
         }
         if (orderBy.equals("price")) {
             orderBy = "order_price";
@@ -2149,8 +2156,8 @@ public class JeproLabCategoryModel extends JeproLabModel {
             query += (published ? " AND analyze_lab." + dataBaseObject.quoteName("published") + " = 1" : "");
             //($id_supplier ? "AND p.id_supplier = ".(int)$id_supplier : "");
             dataBaseObject.setQuery(query);
-            int total = (int)dataBaseObject.loadValue("total");
-            return total;
+            totalAnalyzes = (int)dataBaseObject.loadValue("total");
+
         }
 
         String query = "SELECT analyze.*, analyze_lab.*, stock.out_of_stock, IFNULL(stock.quantity, 0) as quantity, MAX(analyze_attribute_lab.";
@@ -2205,7 +2212,7 @@ public class JeproLabCategoryModel extends JeproLabModel {
             return analyzes;
         }
         if (orderBy.equals("order_price")) {
-            JeproLabTools.orderByPrice(analyzes, orderWay);
+            //JeproLabTools.orderByPrice(analyzes, orderWay);
         }
         if (analyzes.size() <= 0)
             return new ArrayList<>();
@@ -2214,6 +2221,7 @@ public class JeproLabCategoryModel extends JeproLabModel {
         //return JeproLabAnalyzeModel.getAnalyzesProperties(langId, analyzes);
         return analyzes;
     }
+
 
 /*
     public static function getSimpleCategories(int langId){
