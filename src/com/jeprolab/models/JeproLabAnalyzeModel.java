@@ -664,7 +664,7 @@ public class JeproLabAnalyzeModel extends JeproLabModel {
                 StockAvailable::setProductOutOfStock((int)this.id, 1, $value);
             }
 
-            if (this.active && !Configuration::get('PS_VIRTUAL_PROD_FEATURE_ACTIVE')) {
+            if (this.active && !Conf        iguration::get('PS_VIRTUAL_PROD_FEATURE_ACTIVE')) {
                 Configuration::updateGlobalValue('PS_VIRTUAL_PROD_FEATURE_ACTIVE', '1');
             }
         } else {
@@ -3107,10 +3107,10 @@ public class JeproLabAnalyzeModel extends JeproLabModel {
      *
      * @param labId  Laboratory id
      * @param analyzeId Analyze id
-     * @param analyzeAttributeId
+     * @param analyzeAttributeId analyze attribute id
      * @param countryId Country id
      * @param stateId State id
-     * @param zipCode
+     * @param zipCode the address zip code
      * @param currencyId Currency id
      * @param groupId Group id
      * @param quantity Quantity Required for Specific prices : quantity discount application
@@ -3119,11 +3119,11 @@ public class JeproLabAnalyzeModel extends JeproLabModel {
      * @param onlyReduction Returns only the reduction amount
      * @param useReduction Set if the returned amount will include reduction
      * @param withEcoTax insert ecoTax in price output.
-     * @param useGroupReduction
-     * @param customerId
-     * @param useCustomerPrice
-     * @param cartId
-     * @param realQuantity
+     * @param useGroupReduction group reduction
+     * @param customerId customer id
+     * @param useCustomerPrice customer price
+     * @param cartId cart id
+     * @param realQuantity real quantity
      * @return float Product price
      **/
     public static float priceCalculation(int labId, int analyzeId, int analyzeAttributeId, int countryId, int stateId, String zipCode, int currencyId, int groupId, int quantity, boolean useTax, int decimals, boolean onlyReduction, boolean useReduction, boolean withEcoTax,  boolean useGroupReduction,  int customerId, boolean useCustomerPrice, int cartId, int realQuantity){
