@@ -1,5 +1,6 @@
 package com.jeprolab.models;
 
+import com.jeprolab.JeproLab;
 import com.jeprolab.assets.tools.JeproLabCache;
 import com.jeprolab.assets.tools.JeproLabConfigurationSettings;
 import com.jeprolab.assets.tools.JeproLabContext;
@@ -11,7 +12,7 @@ import java.sql.SQLException;
 import java.util.*;
 
 public class JeproLabImageModel extends JeproLabModel {
- /** @var int Image ID */
+    /** @var int Image ID */
     public int image_id;
 
     /** @var int analyze ID */
@@ -31,7 +32,7 @@ public class JeproLabImageModel extends JeproLabModel {
     /** @var string image extension */
     public String image_format = "jpg";
 
-    /** @var string path to index.php file to be copied to new image folders */
+    /** @var string path to index.php file to be copied to new image folders * /
     public String source_index;
 
     /** @var string image folder */
@@ -100,7 +101,7 @@ public class JeproLabImageModel extends JeproLabModel {
                         this.position = imageSet.getInt("position");
                         this.cover = imageSet.getInt("cover") > 0;
                         if (langId <= 0 ){
-                            query = "SELECT * FROM " + dataBaseObject.quoteName("#__jeproshop_image_lang") + " WHERE image_id = " + imageId;
+                            query = "SELECT * FROM " + dataBaseObject.quoteName("#__jeprolab_image_lang") + " WHERE image_id = " + imageId;
 
                             dataBaseObject.setQuery(query);
                             ResultSet imageLangSet = dataBaseObject.loadObject();
@@ -136,9 +137,9 @@ public class JeproLabImageModel extends JeproLabModel {
         }
 
         this.image_dir = JeproLabConfigurationSettings.JEPROLAB_ANALYZE_IMAGE_DIRECTORY;
-        //this.source_index = _PS_PROD_IMG_DIR_.'index.php';
+        //this.source_index = JeproLabConfigurationSettings.JEPROLAB_ANALYZE_IMAGE_DIRECTORY.'index.php';
     }
-
+/*
     public boolean add($autodate = true, $null_values = false) {
         if (this.position <= 0) {
             this.position = JeproLabImageModel.getHighestPosition(this.analyze_id) + 1;
@@ -181,7 +182,7 @@ public class JeproLabImageModel extends JeproLabModel {
      * @param analyzeId Analyze ID
      * @param analyzeAttributeId Analyze Attribute ID
      * @return array
-     */
+     * /
     public static function getBestImageAttribute(int labId, int langId, int analyzeId, int analyzeAttributeId){
         String cacheKey = "jeprolab_image_get_best_image_attribute_" + analyzeId + "_" + analyzeAttributeId + "_" + langId + "_" + labId;
 
@@ -227,7 +228,7 @@ public class JeproLabImageModel extends JeproLabModel {
      * @param analyzeId Analyze ID
      * @param analyzeAttributeId Analyze Attribute ID
      * @return array Images
-     */
+     * /
     public static List<JeproLabImageModel> getImages(int langId, int analyzeId, int analyzeAttributeId){
         String attributeFilter = (analyzeAttributeId > 0 ? " AND attribute_image." + staticDataBaseObject.quoteName("analyze_attribute_id") + " = " + analyzeAttributeId : "");
         String query = "SELECT * FROM " + staticDataBaseObject.quoteName("#__jeprolab_image") +  " AS image LEFT JOIN " ;
@@ -272,7 +273,7 @@ public class JeproLabImageModel extends JeproLabModel {
      * @param analyzeId Analyze ID
      * @param analyzeAttributeId Analyze Attribute ID
      * @return bool
-     */
+     * /
     public static boolean hasImages(int langId, int analyzeId, int analyzeAttributeId){
         String attributeFilter = (analyzeAttributeId > 0 ? " AND attribute_image." + staticDataBaseObject.quoteName("analyze_attribute_id") + " = " + analyzeAttributeId : "");
         String query = "SELECT 1 FROM " + staticDataBaseObject.quoteName("#__jeprolab_image") + " AS image LEFT JOIN " + staticDataBaseObject.quoteName("#__jeprolab_image_lang");
@@ -293,7 +294,7 @@ public class JeproLabImageModel extends JeproLabModel {
      * Return Images
      *
      * @return array Images
-     */
+     * /
     public static List getAllImages(){
         if(staticDataBaseObject == null){
             staticDataBaseObject = JeproLabFactory.getDataBaseConnector();
@@ -323,7 +324,7 @@ public class JeproLabImageModel extends JeproLabModel {
      *
      * @param analyzeId ID
      * @return int number of images
-     */
+     * /
     public static int getImagesTotal(int analyzeId){
         if(staticDataBaseObject == null){
             staticDataBaseObject = JeproLabFactory.getDataBaseConnector();
@@ -340,7 +341,7 @@ public class JeproLabImageModel extends JeproLabModel {
      *
      * @param analyzeId ID
      * @return int highest position of images
-     */
+     * /
     public static int getHighestPosition(int analyzeId){
         if(staticDataBaseObject == null){
             staticDataBaseObject = JeproLabFactory.getDataBaseConnector();
@@ -356,34 +357,40 @@ public class JeproLabImageModel extends JeproLabModel {
      *
      * @param analyzeId ID
      * @return bool result
-     */
+     * /
     public static boolean deleteCover(int analyzeId){
-        if (!Validate::isUnsignedId($id_product)) {
-            die(Tools::displayError());
+        if (analyzeId <= 0) {
+            JeproLabTools.displayError(500, "");
         }
 
         if (file_exists(_PS_TMP_IMG_DIR_.'product_'.$id_product.'.jpg')) {
         unlink(_PS_TMP_IMG_DIR_.'product_'.$id_product.'.jpg');
+        }
+
+        if(staticDataBaseObject == null){
+            staticDataBaseObject = JeproLabFactory.getDataBaseConnector();
+        }
+
+        String query = "UPDATE " + staticDataBaseObject.quoteName("#__jeprolab_image") + " SET " + staticDataBaseObject.quoteName("cover");
+        query += " = NULL WHERE " + staticDataBaseObject.quoteName("analyze_id") + " = " + analyzeId;
+        staticDataBaseObject.setQuery(query);
+        boolean result = staticDataBaseObject.query();
+
+        query = "UPDATE " + staticDataBaseObject.quoteName("#__jeprolab_image_lab") + " AS image_lab SET image_lab." + staticDataBaseObject.quoteName("cover");
+        query += "= NULL WHERE image_lab.lab_id IN (" .implode(',', array_map('intval', Shop::getContextListShopID()));
+        query += ") AND image_lab." + staticDataBaseObject.quoteName("analyze_id") + " = " + analyzeId;
+        staticDataBaseObject.setQuery(query);
+
+        result &= staticDataBaseObject.query();
+        return result;
     }
 
-        return (Db::getInstance()->execute('
-            UPDATE `'._DB_PREFIX_.'image`
-        SET `cover` = NULL
-        WHERE `id_product` = '.(int)$id_product
-        ) &&
-        Db::getInstance()->execute('
-            UPDATE `'._DB_PREFIX_.'image_shop` image_shop
-        SET image_shop.`cover` = NULL
-        WHERE image_shop.id_shop IN ('.implode(',', array_map('intval', Shop::getContextListShopID())).') AND image_shop.`id_product` = '.(int)$id_product
-        ));
-    }
-
-    /**
+    /*
      *Get product cover
      *
      * @param int $id_product Product ID
      * @return bool result
-     */
+     * /
     public static boolean getCover(int analyzeId){
         return Db::getInstance()->getRow('
             SELECT * FROM `'._DB_PREFIX_.'image_shop` image_shop
@@ -396,7 +403,7 @@ public class JeproLabImageModel extends JeproLabModel {
      *
      * @param int $id_product Product ID
      * @return bool result
-     */
+     * /
     public static function getGlobalCover(int analyzeId){
         if(staticDataBaseObject == null){
             staticDataBaseObject = JeproLabFactory.getDataBaseConnector();
@@ -413,48 +420,57 @@ public class JeproLabImageModel extends JeproLabModel {
      *
      * @param int $id_product_old Source product ID
      * @param bool $id_product_new Destination product ID
-     */
+     * /
     public static function duplicateAnalyzeImages(int oldAnalyzeId, int newAnalyzeId, $combination_images){
-        $images_types = ImageType::getImagesTypes('products');
-        $result = Db::getInstance()->executeS('
-            SELECT `id_image`
-            FROM `'._DB_PREFIX_.'image`
-        WHERE `id_product` = '.(int)$id_product_old);
-        foreach ($result as $row) {
-        $image_old = new Image($row['id_image']);
-        $image_new = clone $image_old;
-        unset($image_new->id);
-        $image_new->id_product = (int)$id_product_new;
+        List imagesTypes = JeproLabImageTypeModel.getImagesTypes("products");
+        String query = "SELECT " + staticDataBaseObject.quoteName("image_id") + " FROM " + staticDataBaseObject.quoteName("#__jeprolab_image");
+        query += " WHERE " + staticDataBaseObject.quoteName("analyze_id") + " = " + oldAnalyzeId;
 
-        // A new id is generated for the cloned image when calling add()
-        if ($image_new->add()) {
-            $new_path = $image_new->getPathForCreation();
-            foreach ($images_types as $image_type) {
-                if (file_exists(_PS_PROD_IMG_DIR_.$image_old->getExistingImagePath().'-'.$image_type['name'].'.jpg')) {
-                    if (!Configuration::get('PS_LEGACY_IMAGES')) {
-                        $image_new->createImgFolder();
+        staticDataBaseObject.setQuery(query);
+
+        ResultSet resultSet = staticDataBaseObject.loadObject();
+        try {
+            while(resultSet.next()) {
+                JeproLabImageModel oldImage = new JeproLabImageModel(resultSet.getInt("image_id"));
+                JeproLabImageModel newImage = clone oldImage;
+                newImage.image_id = 0;
+                newImage.analyze_id = newAnalyzeId;
+
+                // A new id is generated for the cloned image when calling add()
+                if (newImage.add()){
+                    String newPath = newImage.getPathForCreation();
+                    String waterMarkHash = JeproLabSettingModel.getStringValue("water_mark_hash");
+                    int legacyImage = JeproLabSettingModel.getIntValue("legacy_image");
+
+                    for(JeproLabImageTypeModel imageType  : imagesTypes) {
+                        if (file_exists(JeproLabConfigurationSettings.JEPROLAB_ANALYZE_IMAGE_DIRECTORY + oldImage.getExistingImagePath() + "_" + imageType.name + ".jpg")){
+                            if (legacyImage <= 0){
+                                newImage.createImageFolder();
+                            }
+                            JeproLabTools.copy(JeproLabConfigurationSettings.JEPROLAB_ANALYZE_IMAGE_DIRECTORY + oldImage.getExistingImagePath()+ "_" + imageType.name + ".jpg", newPath + "_" + imageType.name + ".jpg");
+                            if (!waterMarkHash.equals("")){
+                                JeproLabTools.copy(
+                                        JeproLabConfigurationSettings.JEPROLAB_ANALYZE_IMAGE_DIRECTORY + oldImage.getExistingImagePath() + " _" +imageType.name + "_" + waterMarkHash + ".jpg",
+                                        newPath + "_" + imageType.name + "_" + waterMarkHash + ".jpg");
+                            }
+                        }
                     }
-                    copy(_PS_PROD_IMG_DIR_.$image_old->getExistingImagePath().'-'.$image_type['name'].'.jpg',
-                            $new_path.'-'.$image_type['name'].'.jpg');
-                    if (Configuration::get('WATERMARK_HASH')) {
-                        copy(_PS_PROD_IMG_DIR_.$image_old->getExistingImagePath().'-'.$image_type['name'].'-'.Configuration::get('WATERMARK_HASH').'.jpg',
-                                $new_path.'-'.$image_type['name'].'-'.Configuration::get('WATERMARK_HASH').'.jpg');
+
+                    if (file_exists(JeproLabConfigurationSettings.JEPROLAB_ANALYZE_IMAGE_DIRECTORY + oldImage.getExistingImagePath() + ".jpg")){
+                        JeproLabTools.copy(JeproLabConfigurationSettings.JEPROLAB_ANALYZE_IMAGE_DIRECTORY + oldImage.getExistingImagePath() + ".jpg", newPath + ".jpg");
                     }
+
+                    JeproLabImageModel.replaceAttributeImageAssociationId($combination_images, oldImage.image_id, newImage.image_id);
+
+                    // Duplicate shop associations for images
+                    newImage.duplicateLaboratories(oldAnalyzeId);
+                } else {
+                    return false;
                 }
             }
+        }catch (SQLException ignored){
 
-            if (file_exists(_PS_PROD_IMG_DIR_.$image_old->getExistingImagePath().'.jpg')) {
-                copy(_PS_PROD_IMG_DIR_.$image_old->getExistingImagePath(). '.jpg', $new_path. '.jpg');
-            }
-
-            JeproLabImageModel.replaceAttributeImageAssociationId($combination_images, (int)$image_old->id, (int)$image_new->id);
-
-            // Duplicate shop associations for images
-            imageNew.duplicateShops($id_product_old);
-        } else {
-            return false;
         }
-    }
         return JeproLabImageModel.duplicateAttributeImageAssociations($combination_images);
     }
 
@@ -471,11 +487,11 @@ public class JeproLabImageModel extends JeproLabModel {
     }
     }
 
-    /**
+    /*
      * Duplicate product attribute image associations
      * @param int analyzeAttributeId_old
      * @return bool
-     */
+     * /
     public static function duplicateAttributeImageAssociations($combination_images)
     {
         if (!isset($combination_images['new']) || !is_array($combination_images['new'])) {
@@ -491,47 +507,13 @@ public class JeproLabImageModel extends JeproLabModel {
         return DB::getInstance()->execute($query);
     }
 
-    /*
-     * Reposition image
-     *
-     * @param int $position Position
-     * @param bool $direction Direction
-     * @deprecated since version 1.5.0.1 use Image::updatePosition() instead
-     * /
-    public function positionImage($position, $direction){
-        Tools::displayAsDeprecated();
-
-        $position = (int)$position;
-        $direction = (int)$direction;
-
-        // temporary position
-        $high_position = Image::getHighestPosition(this.id_product) + 1;
-
-        Db::getInstance()->execute('
-            UPDATE `'._DB_PREFIX_.'image`
-        SET `position` = '.(int)$high_position.'
-        WHERE `id_product` = '.(int)this.id_product.'
-        AND `position` = '.($direction ? $position - 1 : $position + 1));
-
-        Db::getInstance()->execute('
-            UPDATE `'._DB_PREFIX_.'image`
-        SET `position` = `position`'.($direction ? '-1' : '+1').'
-        WHERE `id_image` = '.(int)this.id);
-
-        Db::getInstance()->execute('
-            UPDATE `'._DB_PREFIX_.'image`
-        SET `position` = '.this.position.'
-        WHERE `id_product` = '.(int)this.id_product.'
-        AND `position` = '.(int)$high_position);
-    }*/
-
     /**
      * Change an image position and update relative positions
      *
      * @param way position is moved up if 0, moved down if 1
      * @param position new position of the moved image
      * @return boolean success
-     */
+     * /
     public boolean updatePosition(int way, int position){
         if (this.image_id <= 0 || position <= 0) {
             return false;
@@ -592,7 +574,7 @@ public class JeproLabImageModel extends JeproLabModel {
 
     /**
      * Clear all images in tmp dir
-     */
+     * /
     public static function clearTmpDir() {
         foreach(scandir(_PS_TMP_IMG_DIR_)as $d) {
             if (preg_match('/(.*)\.jpg$/', $d)) {
@@ -603,7 +585,7 @@ public class JeproLabImageModel extends JeproLabModel {
 
     /**
      * Delete Image - Product attribute associations for this image
-     */
+     * /
     public boolean deleteAnalyzeAttributeImage(){
         if(dataBaseObject == null){
             dataBaseObject = JeproLabFactory.getDataBaseConnector();
@@ -621,7 +603,7 @@ public class JeproLabImageModel extends JeproLabModel {
     /**
      * Delete the product image from disk and remove the containing folder if empty
      * Handles both legacy and new image filesystems
-     */
+     * /
     public boolean deleteImage(boolean forceDelete){
         if (this.image_id <= 0) {
             return false;
@@ -670,10 +652,14 @@ public class JeproLabImageModel extends JeproLabModel {
         }
     }
         if (isset($delete_folder) && $delete_folder) {
-            @rmdir(this.image_dir.this.getImgFolder());
+            @rmdir(this.image_dir + this.getImageFolder());
         }
 
         return true;
+    }
+
+    public static function deleteAllImages(String path){
+        deleteAllImages(path, "jpg");
     }
 
     /**
@@ -682,19 +668,18 @@ public class JeproLabImageModel extends JeproLabModel {
      * @param path folder containing the product images to delete
      * @param format image format
      * @return bool success
-     */
-    public static function deleteAllImages(String path, String format = 'jpg')
-    {
+     * /
+    public static boolean deleteAllImages(String path, String format){
         if (!$path || !$format || !is_dir($path)) {
             return false;
         }
         foreach (scandir($path) as $file) {
-        if (preg_match('/^[0-9]+(\-(.*))?\.'.$format.'$/', $file)) {
-            unlink($path.$file);
-        } elseif (is_dir($path.$file) && (preg_match('/^[0-9]$/', $file))) {
-            JeproLabImageModel.deleteAllImages($path.$file.'/', $format);
+            if (preg_match('/^[0-9]+(\-(.*))?\.'.$format.'$/', $file)) {
+                unlink($path.$file);
+            } elseif (is_dir($path.$file) && (preg_match('/^[0-9]$/', $file))) {
+                JeproLabImageModel.deleteAllImages($path.$file.'/', format);
+            }
         }
-    }
 
         // Can we remove the image folder?
         if (is_numeric(basename($path))) {
@@ -722,14 +707,14 @@ public class JeproLabImageModel extends JeproLabModel {
      * Returns image path in the old or in the new filesystem
      *
      * @return string image path
-     */
+     * /
     public String getExistingImagePath(){
         if (this.image_id <= 0) {
             return "";
         }
 
         if (this.existing_path == null || this.existing_path.equals("")) {
-            if (Configuration::get('PS_LEGACY_IMAGES') && file_exists(_PS_PROD_IMG_DIR_.this.id_product.'-'.this.id.'.'.this.image_format)) {
+            if (Configuration::get('PS_LEGACY_IMAGES') && file_exists(JeproLabConfigurationSettings.JEPROLAB_ANALYZE_IMAGE_DIRECTORY.this.id_product.'-'.this.id.'.'.this.image_format)) {
                 this.existing_path = this.analyze_id + "_" + this.image_id;
             } else {
                 this.existing_path = this.getImagePath();
@@ -743,7 +728,7 @@ public class JeproLabImageModel extends JeproLabModel {
      * Returns the path to the folder containing the image in the new filesystem
      *
      * @return string path to folder
-     */
+     * /
     public String getImageFolder(){
         if (this.image_id <= 0) {
             return null;
@@ -760,22 +745,22 @@ public class JeproLabImageModel extends JeproLabModel {
      * Create parent folders for the image in the new filesystem
      *
      * @return bool success
-     */
+     * /
     public boolean createImageFolder(){
         if (this.image_id <= 0) {
             return false;
         }
 
-        if (!file_exists(_PS_PROD_IMG_DIR_.this.getImgFolder())) {
+        if (!file_exists(JeproLabConfigurationSettings.JEPROLAB_ANALYZE_IMAGE_DIRECTORY.this.getImgFolder())) {
         // Apparently sometimes mkdir cannot set the rights, and sometimes chmod can't. Trying both.
-        $success = @mkdir(_PS_PROD_IMG_DIR_.this.getImgFolder(), self::$access_rights, true);
-        $chmod = @chmod(_PS_PROD_IMG_DIR_.this.getImgFolder(), self::$access_rights);
+        $success = @mkdir(JeproLabConfigurationSettings.JEPROLAB_ANALYZE_IMAGE_DIRECTORY.this.getImgFolder(), self::$access_rights, true);
+        $chmod = @chmod(JeproLabConfigurationSettings.JEPROLAB_ANALYZE_IMAGE_DIRECTORY.this.getImgFolder(), self::$access_rights);
 
         // Create an index.php file in the new folder
         if (($success || $chmod)
-                && !file_exists(_PS_PROD_IMG_DIR_.this.getImgFolder().'index.php')
+                && !file_exists(JeproLabConfigurationSettings.JEPROLAB_ANALYZE_IMAGE_DIRECTORY.this.getImgFolder().'index.php')
         && file_exists(this.source_index)) {
-            return @copy(this.source_index, _PS_PROD_IMG_DIR_.this.getImgFolder().'index.php');
+            return @copy(this.source_index, JeproLabConfigurationSettings.JEPROLAB_ANALYZE_IMAGE_DIRECTORY.this.getImgFolder().'index.php');
         }
     }
         return true;
@@ -785,7 +770,7 @@ public class JeproLabImageModel extends JeproLabModel {
      * Returns the path to the image without file extension
      *
      * @return string path
-     */
+     * /
     public String getImagePath(){
         if (this.image_id <= 0){
             return null;
@@ -797,9 +782,9 @@ public class JeproLabImageModel extends JeproLabModel {
     /**
      * Returns the path to the folder containing the image in the new filesystem
      *
-     * @param mixed $id_image
+     * @param imageId image id
      * @return string path to folder
-     */
+     * /
     public static String getStaticImageFolder(int imageId){
         if (imageId <= 0){
             return "";
@@ -815,13 +800,13 @@ public class JeproLabImageModel extends JeproLabModel {
      *
      * @param int $max_execution_time
      * @return mixed success or timeout
-     */
+     * /
     public static function moveToNewFileSystem($max_execution_time = 0)
     {
         $start_time = time();
         $image = null;
         $tmp_folder = 'duplicates/';
-        foreach (scandir(_PS_PROD_IMG_DIR_) as $file) {
+        foreach (scandir(JeproLabConfigurationSettings.JEPROLAB_ANALYZE_IMAGE_DIRECTORY) as $file) {
         // matches the base product image or the thumbnails
         if (preg_match('/^([0-9]+\-)([0-9]+)(\-(.*))?\.jpg$/', $file, $matches)) {
             // don't recreate an image object for each image type
@@ -837,19 +822,19 @@ public class JeproLabImageModel extends JeproLabModel {
 
                 // if there's already a file at the new image path, move it to a dump folder
                 // most likely the preexisting image is a demo image not linked to a product and it's ok to replace it
-                $new_path = _PS_PROD_IMG_DIR_.$image->getImgPath().(isset($matches[3]) ? $matches[3] : '').'.jpg';
+                $new_path = JeproLabConfigurationSettings.JEPROLAB_ANALYZE_IMAGE_DIRECTORY.$image->getImgPath().(isset($matches[3]) ? $matches[3] : '').'.jpg';
                 if (file_exists($new_path)) {
-                    if (!file_exists(_PS_PROD_IMG_DIR_.$tmp_folder)) {
-                        @mkdir(_PS_PROD_IMG_DIR_.$tmp_folder, self::$access_rights);
-                        @chmod(_PS_PROD_IMG_DIR_.$tmp_folder, self::$access_rights);
+                    if (!file_exists(JeproLabConfigurationSettings.JEPROLAB_ANALYZE_IMAGE_DIRECTORY.$tmp_folder)) {
+                        @mkdir(JeproLabConfigurationSettings.JEPROLAB_ANALYZE_IMAGE_DIRECTORY.$tmp_folder, self::$access_rights);
+                        @chmod(JeproLabConfigurationSettings.JEPROLAB_ANALYZE_IMAGE_DIRECTORY.$tmp_folder, self::$access_rights);
                     }
-                    $tmp_path = _PS_PROD_IMG_DIR_.$tmp_folder.basename($file);
+                    $tmp_path = JeproLabConfigurationSettings.JEPROLAB_ANALYZE_IMAGE_DIRECTORY.$tmp_folder.basename($file);
                     if (!@rename($new_path, $tmp_path) || !file_exists($tmp_path)) {
                         return false;
                     }
                 }
                 // move the image
-                if (!@rename(_PS_PROD_IMG_DIR_.$file, $new_path) || !file_exists($new_path)) {
+                if (!@rename(JeproLabConfigurationSettings.JEPROLAB_ANALYZE_IMAGE_DIRECTORY.$file, $new_path) || !file_exists($new_path)) {
                     return false;
                 }
             }
@@ -865,14 +850,14 @@ public class JeproLabImageModel extends JeproLabModel {
      * Try to create and delete some folders to check if moving images to new file system will be possible
      *
      * @return bool success
-     */
+     * /
     public static function testFileSystem()
     {
         $safe_mode = Tools::getSafeModeStatus();
         if ($safe_mode) {
             return false;
         }
-        $folder1 = _PS_PROD_IMG_DIR_.'testfilesystem/';
+        $folder1 = JeproLabConfigurationSettings.JEPROLAB_ANALYZE_IMAGE_DIRECTORY.'testfilesystem/';
         $test_folder = $folder1.'testsubfolder/';
         // check if folders are already existing from previous failed test
         if (file_exists($test_folder)) {
@@ -900,13 +885,13 @@ public class JeproLabImageModel extends JeproLabModel {
      * Returns the path where a product image should be created (without file format)
      *
      * @return string path
-     */
+     * /
     public String getPathForCreation() {
         if (this.image_id <= 0) {
             return "";
         }
         String path;
-        if (Configuration::get ('PS_LEGACY_IMAGES')){
+        if (JeproLabSettingModel.getIntValue("legacy_images") > 0){
             if (this.analyze_id <= 0) {
                 return "";
             }
@@ -918,41 +903,43 @@ public class JeproLabImageModel extends JeproLabModel {
         return JeproLabConfigurationSettings.JEPROLAB_ANALYZE_IMAGE_DIRECTORY + path;
     }
 
+
+
     public static class JeproLabImageTypeModel extends JeproLabModel{
         public int image_type_id;
 
-        /** @var string Name */
+        /** @var string Name * /
         public String name;
 
-        /** @var int Width */
+        /** @var int Width * /
         public int width;
 
-        /** @var int Height */
+        /** @var int Height * /
         public int height;
 
-        /** @var bool Apply to products */
+        /** @var bool Apply to products * /
         public boolean analyzes;
 
-        /** @var int Apply to categories */
+        /** @var int Apply to categories * /
         public boolean categories;
 
-        /** @var int Apply to manufacturers */
+        /** @var int Apply to manufacturers * /
         public boolean manufacturers;
 
-        /** @var int Apply to suppliers */
+        /** @var int Apply to suppliers * /
         public boolean suppliers;
 
-        /** @var int Apply to scenes */
+        /** @var int Apply to scenes * /
         public boolean scenes;
 
-        /** @var boolean Apply to laboratories */
+        /** @var boolean Apply to laboratories * /
         public boolean laboratories;
 
         public boolean technicians;
 
-        /**
+        /*
          * @see ObjectModel::$definition
-         */
+         * /
         public static $definition = array(
                 'table' => 'image_type',
                         'primary' => 'id_image_type',
@@ -971,12 +958,12 @@ public class JeproLabImageModel extends JeproLabModel {
 
         /**
          * @var array Image types cache
-         */
+         * /
         protected static Map<String, List<JeproLabImageTypeModel>>images_types_cache = new HashMap<>();
 
         protected  static boolean is_passed = false;
 
-        //protected static $images_types_name_cache = array();
+        protected static Map<String> images_types_name_cache = new HashMap<>();
 
         //protected $webserviceParameters = array();
 
@@ -998,7 +985,7 @@ public class JeproLabImageModel extends JeproLabModel {
          * @param type Image type
          * @param orderBySize order by size
          * @return array Image type definitions
-         */
+         * /
         public static List<JeproLabImageTypeModel> getImagesTypes(String type, boolean orderBySize){
             if (!JeproLabImageTypeModel.images_types_cache.containsKey(type)){
                 String where = " WHERE 1";
@@ -1046,7 +1033,7 @@ public class JeproLabImageModel extends JeproLabModel {
          *
          * @param typeName Name
          * @return int Number of results found
-         */
+         * /
         public static int typeAlreadyExists(String typeName){
             if (!JeproLabTools.isImageTypeName(typeName)){
                 JeproLabTools.displayError(500, "");
@@ -1079,7 +1066,7 @@ public class JeproLabImageModel extends JeproLabModel {
          * Finds image type definition by name and type
          * @param name
          * @param type
-         */
+         * /
         public static function getByNameAndType(String name, String type, int order){
             String cacheKey = name + "_" + type + "_" + order;
             if (!JeproLabImageTypeModel.images_types_name_cache.containsKey(cacheKey) && !is_passed) {
@@ -1087,14 +1074,20 @@ public class JeproLabImageModel extends JeproLabModel {
                 staticDataBaseObject.setQuery(query);
                 ResultSet resultSet = staticDataBaseObject.loadObject();
 
+                int total = 7;
+                String types[] = new String[total];
+                types[0] = "products";
+                types[1] = "categories";
+                types[2] = "manufacturers";
+                types[3] = "suppliers";
+                types[4] = "scenes";
+                types[5] = "stores";
 
-                $types = array('products', 'categories', 'manufacturers', 'suppliers', 'scenes', 'stores');
-                $total = count($types);
                 try {
                     while(resultSet.next()) {
                         foreach($result as $value) {
-                            for ($i = 0; $i < $total; ++$i) {
-                                self::$images_types_name_cache[$result['name']. '_'.$types[$i]. '_'.$value]=$result;
+                            for (int i = 0; i < total; i++) {
+                                JeproLabImageTypeModel.images_types_name_cache.put($result['name'] + "_" + types[i]. '_'.$value]=$result;
                             }
                         }
                     }
@@ -1126,5 +1119,5 @@ public class JeproLabImageModel extends JeproLabModel {
                 return nameWithoutThemeName + "_default";
             }
         }
-    }
+    } */
 }

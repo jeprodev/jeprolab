@@ -5,6 +5,7 @@ import com.jeprolab.models.JeproLabCurrencyModel;
 import com.jeprolab.models.JeproLabModel;
 import com.jeprolab.models.JeproLabSettingModel;
 
+import java.io.*;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.List;
@@ -19,6 +20,29 @@ public class JeproLabTools {
 
     public static String md5(String text){
         return text;
+    }
+
+    public static void copy(String originalPath, String destinationPath){
+        InputStream inStream = null;
+        OutputStream outputStream = null;
+        try {
+            File fileIn = new File(originalPath);
+            File fileOut = new File(destinationPath);
+
+            inStream = new FileInputStream(fileIn);
+            outputStream = new FileOutputStream(fileOut);
+
+            byte[] buffer = new byte[1024];
+            int length;
+            while((length = inStream.read(buffer)) > 0){
+                outputStream.write(buffer, 0, length);
+            }
+
+            inStream.close();
+            outputStream.close();
+        }catch (IOException ignored){
+
+        }
     }
 
     public static void displayError(int errorCode, String errorMessage){
@@ -93,7 +117,7 @@ public class JeproLabTools {
         }
         if(price_round_method == JeproLabConfigurationSettings.JEPROLAB_ROUND_UP_PRICE){
             return JeproLabTools.priceCeil(value, precision);
-        }else if(price_round_method == JeproLabConfigurationSettings.JEPROSHOP_ROUND_DOWN_PRICE){
+        }else if(price_round_method == JeproLabConfigurationSettings.JEPROLAB_ROUND_DOWN_PRICE){
             return JeproLabTools.priceFloor(value, precision);
         }
         return Math.round(value); //, precision);
