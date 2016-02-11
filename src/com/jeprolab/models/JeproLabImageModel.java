@@ -2,6 +2,8 @@ package com.jeprolab.models;
 
 import com.jeprolab.assets.tools.JeproLabCache;
 import com.jeprolab.assets.tools.JeproLabConfigurationSettings;
+import com.jeprolab.assets.tools.JeproLabContext;
+import com.jeprolab.assets.tools.JeproLabTools;
 import com.jeprolab.models.core.JeproLabFactory;
 
 import java.sql.ResultSet;
@@ -34,6 +36,8 @@ public class JeproLabImageModel extends JeproLabModel {
 
     /** @var string image folder */
     protected String folder;
+    
+    protected String image_dir;
 
     /** @var string image path without extension */
     protected String existing_path;
@@ -55,9 +59,9 @@ public class JeproLabImageModel extends JeproLabModel {
     'legend' =>    array('type' => self::TYPE_STRING, 'lang' => true, 'validate' => 'isGenericName', 'size' => 128),
     ),
             );
-
-    protected static $_cacheGetSize = array();
 */
+    protected static Map<String, Map<String, Integer>> _cacheGetSize = new HashMap<>();
+
     public JeproLabImageModel(){
         this(0, 0);
     }
@@ -91,11 +95,13 @@ public class JeproLabImageModel extends JeproLabModel {
 
                 try {
                     if (imageSet.next()){
+                        this.image_id = imageSet.getInt("image_id");
+                        this.analyze_id = imageSet.getInt("analyze_id");
+                        this.position = imageSet.getInt("position");
+                        this.cover = imageSet.getInt("cover") > 0;
                         if (langId <= 0 ){
                             query = "SELECT * FROM " + dataBaseObject.quoteName("#__jeproshop_image_lang") + " WHERE image_id = " + imageId;
 
-                            this.image_id = imageSet.getInt("image_id");
-                            this.language_id = imageSet.getInt("lang_id");
                             dataBaseObject.setQuery(query);
                             ResultSet imageLangSet = dataBaseObject.loadObject();
                             String legend;
@@ -112,6 +118,7 @@ public class JeproLabImageModel extends JeproLabModel {
                                 }
                             }
                         }else{
+                            this.language_id = imageSet.getInt("lang_id");
                             this.legend.put("lang_" + langId, imageSet.getString("legend"));
                         }
 
@@ -136,24 +143,11 @@ public class JeproLabImageModel extends JeproLabModel {
         if (this.position <= 0) {
             this.position = JeproLabImageModel.getHighestPosition(this.analyze_id) + 1;
         }
-/*
-        if ($this->cover) {
-            $this->cover = 1;
-        } else {
-            $this->cover = null;
-        }
-*/
+
         return parent::add($autodate, $null_values);
     }
 
-    public function update($null_values = false)
-    {
-  /*      if ($this->cover) {
-            $this->cover = 1;
-        } else {
-            $this->cover = null;
-        }
-*/
+    public function update($null_values = false){
 
         return parent::update($null_values);
     }
@@ -161,56 +155,67 @@ public class JeproLabImageModel extends JeproLabModel {
     public boolean delete(){
         if (!parent::delete()) {
         return false;
-    }
+        }
 
-        if (this.hasMultishopEntries()) {
+        if (this.hasMultiLaboratoryEntries()) {
             return true;
         }
 
-        if (!$this->deleteProductAttributeImage() || !$this->deleteImage()) {
+        if (!this.deleteAnalyzeAttributeImage() || !this.deleteImage()) {
             return false;
         }
 
         // update positions
         Db::getInstance()->execute('SET @position:=0', false);
         Db::getInstance()->execute('UPDATE `'._DB_PREFIX_.'image` SET position=(@position:=@position+1)
-        WHERE `id_product` = '.(int)$this->id_product.' ORDER BY position ASC');
+        WHERE `id_product` = '.(int)this.id_product.' ORDER BY position ASC');
 
         return true;
     }
 
-    /*
+    /**
      * Return first image (by position) associated with a product attribute
      *
-     * @param int $id_shop Shop ID
-     * @param int $id_lang Language ID
-     * @param int $id_product Product ID
-     * @param int analyzeAttributeId Product Attribute ID
+     * @param labId ID
+     * @param langId Language ID
+     * @param analyzeId Analyze ID
+     * @param analyzeAttributeId Analyze Attribute ID
      * @return array
-     * /
-    public static function getBestImageAttribute($id_shop, $id_lang, $id_product, analyzeAttributeId)
-    {
-        $cache_id = 'Image::getBestImageAttribute'.'-'.(int)$id_product.'-'.(int)analyzeAttributeId.'-'.(int)$id_lang.'-'.(int)$id_shop;
+     */
+    public static function getBestImageAttribute(int labId, int langId, int analyzeId, int analyzeAttributeId){
+        String cacheKey = "jeprolab_image_get_best_image_attribute_" + analyzeId + "_" + analyzeAttributeId + "_" + langId + "_" + labId;
 
-        if (!Cache::isStored($cache_id)) {
-        $row = Db::getInstance()->getRow('
-                SELECT image_shop.`id_image` id_image, il.`legend`
-                FROM `'._DB_PREFIX_.'image` i
-        INNER JOIN `'._DB_PREFIX_.'image_shop` image_shop
-        ON (i.id_image = image_shop.id_image AND image_shop.id_shop = '.(int)$id_shop.')
-        INNER JOIN `'._DB_PREFIX_.'product_attribute_image` pai
-        ON (pai.`id_image` = i.`id_image` AND pai.`id_product_attribute` = '.(int)analyzeAttributeId.')
-        LEFT JOIN `'._DB_PREFIX_.'image_lang` il
-        ON (image_shop.`id_image` = il.`id_image` AND il.`id_lang` = '.(int)$id_lang.')
-        WHERE i.`id_product` = '.(int)$id_product.' ORDER BY i.`position` ASC');
+        if (!JeproLabCache.getInstance().isStored(cacheKey)) {
+            if(staticDataBaseObject == null){
+                staticDataBaseObject = JeproLabFactory.getDataBaseConnector();
+            }
+            String query = "SELECT image_shop." + staticDataBaseObject.quoteName("image_id") + " AS image_id, image_lang." + staticDataBaseObject.quoteName("legend");
+            query += " FROM " + staticDataBaseObject.quoteName("#__jeprolab_image") + " AS image INNER JOIN " + staticDataBaseObject.quoteName("#__jeprolab_image_lab");
+            query += " AS image_shop ON (image.image_id = image_lab.image_id AND image_lab.lab_id = " + labId  + ") INNER JOIN ";
+            query += staticDataBaseObject.quoteName("#__jeprolab_analyze_attribute_image") + " AS analyze_attribute_image ON (analyze_attribute_image.";
+            query += staticDataBaseObject.quoteName("image_id") + " = image." + staticDataBaseObject.quoteName("image_id") + " AND analyze_attribute_image.";
+            query += staticDataBaseObject.quoteName("analyze_attribute_id") + " = " + analyzeAttributeId + ") LEFT JOIN " + staticDataBaseObject.quoteName("#__jeprolab_image_lang");
+            query += " AS image_lang ON (image_lab." + staticDataBaseObject.quoteName("image_id") + " = image_lang." + staticDataBaseObject.quoteName("image_id") + " AND image_lang.";
+            query += staticDataBaseObject.quoteName("lang_id") + " = " + langId + ") WHERE image." + staticDataBaseObject.quoteName("analyze_id") + " = " + analyzeId ;
+            query += " ORDER BY image." + staticDataBaseObject.quoteName("position") + " ASC";
 
-        Cache::store($cache_id, $row);
-    } else {
-        $row = Cache::retrieve($cache_id);
-    }
+            staticDataBaseObject.setQuery(query);
+            ResultSet resultSet = staticDataBaseObject.loadObject();
+            try{
+                if(resultSet.next()){
+                    //todo retrieve fie
+                }
+            }catch(SQLException ignored){
+
+            }
+
+            JeproLabCache.getInstance().store(cacheKey, $row);
+        } else {
+            $row = JeproLabCache.getInstance().retrieve(cacheKey);
+        }
         return $row;
     }
-    */
+
     public static List<JeproLabImageModel> getImages(int langId, int analyzeId){
         return getImages(langId, analyzeId, 0);
     }
@@ -219,8 +224,8 @@ public class JeproLabImageModel extends JeproLabModel {
      * Return available images for a product
      *
      * @param langId Language ID
-     * @param analyzeId Product ID
-     * @param analyzeAttributeId Product Attribute ID
+     * @param analyzeId Analyze ID
+     * @param analyzeAttributeId Analyze Attribute ID
      * @return array Images
      */
     public static List<JeproLabImageModel> getImages(int langId, int analyzeId, int analyzeAttributeId){
@@ -264,8 +269,8 @@ public class JeproLabImageModel extends JeproLabModel {
      * Check if a product has an image available
      *
      * @param langId Language ID
-     * @param analyzeId Product ID
-     * @param analyzeAttributeId Product Attribute ID
+     * @param analyzeId Analyze ID
+     * @param analyzeAttributeId Analyze Attribute ID
      * @return bool
      */
     public static boolean hasImages(int langId, int analyzeId, int analyzeAttributeId){
@@ -289,7 +294,7 @@ public class JeproLabImageModel extends JeproLabModel {
      *
      * @return array Images
      */
-    public static List getAllImages() {
+    public static List getAllImages(){
         if(staticDataBaseObject == null){
             staticDataBaseObject = JeproLabFactory.getDataBaseConnector();
         }
@@ -318,44 +323,44 @@ public class JeproLabImageModel extends JeproLabModel {
      *
      * @param analyzeId ID
      * @return int number of images
-     * /
+     */
     public static int getImagesTotal(int analyzeId){
         if(staticDataBaseObject == null){
             staticDataBaseObject = JeproLabFactory.getDataBaseConnector();
         }
-        $result = Db::getInstance()->getRow('
-            SELECT COUNT(`id_image`) AS total
-            FROM `'._DB_PREFIX_.'image`
-        WHERE `id_product` = '.(int)$id_product);
-        return $result['total'];
+        String query = "SELECT COUNT(" + staticDataBaseObject.quoteName("image_id") + ") AS total FROM "  + staticDataBaseObject.quoteName("#__jeprolab_image");
+        query += " WHERE " + staticDataBaseObject.quoteName("analyze_id") + " = " + analyzeId;
+        staticDataBaseObject.setQuery(query);
+
+        return (int)staticDataBaseObject.loadValue("total");
     }
 
     /**
      * Return highest position of images for a product
      *
-     * @param int $id_product Product ID
+     * @param analyzeId ID
      * @return int highest position of images
-     * /
-    public static function getHighestPosition($id_product)
-    {
-        $result = Db::getInstance()->getRow('
-            SELECT MAX(`position`) AS max
-            FROM `'._DB_PREFIX_.'image`
-        WHERE `id_product` = '.(int)$id_product);
-        return $result['max'];
+     */
+    public static int getHighestPosition(int analyzeId){
+        if(staticDataBaseObject == null){
+            staticDataBaseObject = JeproLabFactory.getDataBaseConnector();
+        }
+        String query = "SELECT MAX(" + staticDataBaseObject.quoteName("position") + ") AS max FROM " + staticDataBaseObject.quoteName("#__jeprolab_image");
+        query += " WHERE " + staticDataBaseObject.quoteName("analyze_id") + " = " + analyzeId;
+        staticDataBaseObject.setQuery(query);
+        return (int)staticDataBaseObject.loadValue("max");
     }
 
     /**
      * Delete product cover
      *
-     * @param int $id_product Product ID
+     * @param analyzeId ID
      * @return bool result
-     * /
-    public static function deleteCover($id_product)
-    {
+     */
+    public static boolean deleteCover(int analyzeId){
         if (!Validate::isUnsignedId($id_product)) {
-        die(Tools::displayError());
-    }
+            die(Tools::displayError());
+        }
 
         if (file_exists(_PS_TMP_IMG_DIR_.'product_'.$id_product.'.jpg')) {
         unlink(_PS_TMP_IMG_DIR_.'product_'.$id_product.'.jpg');
@@ -378,9 +383,8 @@ public class JeproLabImageModel extends JeproLabModel {
      *
      * @param int $id_product Product ID
      * @return bool result
-     * /
-    public static function getCover($id_product)
-    {
+     */
+    public static boolean getCover(int analyzeId){
         return Db::getInstance()->getRow('
             SELECT * FROM `'._DB_PREFIX_.'image_shop` image_shop
         WHERE image_shop.`id_product` = '.(int)$id_product.'
@@ -392,13 +396,16 @@ public class JeproLabImageModel extends JeproLabModel {
      *
      * @param int $id_product Product ID
      * @return bool result
-     * /
-    public static function getGlobalCover($id_product)
-    {
+     */
+    public static function getGlobalCover(int analyzeId){
+        if(staticDataBaseObject == null){
+            staticDataBaseObject = JeproLabFactory.getDataBaseConnector();
+        }
+        String query = "SELECT * FROM " + staticDataBaseObject.quoteName("#__jeprolab_image") + " AS image WHERE image.";
+        query += staticDataBaseObject.quote("analyze_id") + " = " + analyzeId + " AND image." + staticDataBaseObject.quoteName("cover") + " = 1 ";
+        staticDataBaseObject.setQuery(query);
         return Db::getInstance()->getRow('
-            SELECT * FROM `'._DB_PREFIX_.'image` i
-        WHERE i.`id_product` = '.(int)$id_product.'
-        AND i.`cover`= 1');
+            );
     }
 
     /**
@@ -406,9 +413,8 @@ public class JeproLabImageModel extends JeproLabModel {
      *
      * @param int $id_product_old Source product ID
      * @param bool $id_product_new Destination product ID
-     * /
-    public static function duplicateProductImages($id_product_old, $id_product_new, $combination_images)
-    {
+     */
+    public static function duplicateAnalyzeImages(int oldAnalyzeId, int newAnalyzeId, $combination_images){
         $images_types = ImageType::getImagesTypes('products');
         $result = Db::getInstance()->executeS('
             SELECT `id_image`
@@ -424,36 +430,35 @@ public class JeproLabImageModel extends JeproLabModel {
         if ($image_new->add()) {
             $new_path = $image_new->getPathForCreation();
             foreach ($images_types as $image_type) {
-                if (file_exists(_PS_PROD_IMG_DIR_.$image_old->getExistingImgPath().'-'.$image_type['name'].'.jpg')) {
+                if (file_exists(_PS_PROD_IMG_DIR_.$image_old->getExistingImagePath().'-'.$image_type['name'].'.jpg')) {
                     if (!Configuration::get('PS_LEGACY_IMAGES')) {
                         $image_new->createImgFolder();
                     }
-                    copy(_PS_PROD_IMG_DIR_.$image_old->getExistingImgPath().'-'.$image_type['name'].'.jpg',
+                    copy(_PS_PROD_IMG_DIR_.$image_old->getExistingImagePath().'-'.$image_type['name'].'.jpg',
                             $new_path.'-'.$image_type['name'].'.jpg');
                     if (Configuration::get('WATERMARK_HASH')) {
-                        copy(_PS_PROD_IMG_DIR_.$image_old->getExistingImgPath().'-'.$image_type['name'].'-'.Configuration::get('WATERMARK_HASH').'.jpg',
+                        copy(_PS_PROD_IMG_DIR_.$image_old->getExistingImagePath().'-'.$image_type['name'].'-'.Configuration::get('WATERMARK_HASH').'.jpg',
                                 $new_path.'-'.$image_type['name'].'-'.Configuration::get('WATERMARK_HASH').'.jpg');
                     }
                 }
             }
 
-            if (file_exists(_PS_PROD_IMG_DIR_.$image_old->getExistingImgPath().'.jpg')) {
-                copy(_PS_PROD_IMG_DIR_.$image_old->getExistingImgPath().'.jpg', $new_path.'.jpg');
+            if (file_exists(_PS_PROD_IMG_DIR_.$image_old->getExistingImagePath().'.jpg')) {
+                copy(_PS_PROD_IMG_DIR_.$image_old->getExistingImagePath(). '.jpg', $new_path. '.jpg');
             }
 
-            Image::replaceAttributeImageAssociationId($combination_images, (int)$image_old->id, (int)$image_new->id);
+            JeproLabImageModel.replaceAttributeImageAssociationId($combination_images, (int)$image_old->id, (int)$image_new->id);
 
             // Duplicate shop associations for images
-            $image_new->duplicateShops($id_product_old);
+            imageNew.duplicateShops($id_product_old);
         } else {
             return false;
         }
     }
-        return Image::duplicateAttributeImageAssociations($combination_images);
+        return JeproLabImageModel.duplicateAttributeImageAssociations($combination_images);
     }
 
-    protected static function replaceAttributeImageAssociationId(&$combination_images, $saved_id, $id_image)
-    {
+    protected static function replaceAttributeImageAssociationId(&$combination_images, $saved_id, int imageId){
         if (!isset($combination_images['new']) || !is_array($combination_images['new'])) {
             return;
         }
@@ -470,7 +475,7 @@ public class JeproLabImageModel extends JeproLabModel {
      * Duplicate product attribute image associations
      * @param int analyzeAttributeId_old
      * @return bool
-     * /
+     */
     public static function duplicateAttributeImageAssociations($combination_images)
     {
         if (!isset($combination_images['new']) || !is_array($combination_images['new'])) {
@@ -486,94 +491,103 @@ public class JeproLabImageModel extends JeproLabModel {
         return DB::getInstance()->execute($query);
     }
 
-    /**
+    /*
      * Reposition image
      *
      * @param int $position Position
      * @param bool $direction Direction
      * @deprecated since version 1.5.0.1 use Image::updatePosition() instead
      * /
-    public function positionImage($position, $direction)
-    {
+    public function positionImage($position, $direction){
         Tools::displayAsDeprecated();
 
         $position = (int)$position;
         $direction = (int)$direction;
 
         // temporary position
-        $high_position = Image::getHighestPosition($this->id_product) + 1;
+        $high_position = Image::getHighestPosition(this.id_product) + 1;
 
         Db::getInstance()->execute('
             UPDATE `'._DB_PREFIX_.'image`
         SET `position` = '.(int)$high_position.'
-        WHERE `id_product` = '.(int)$this->id_product.'
+        WHERE `id_product` = '.(int)this.id_product.'
         AND `position` = '.($direction ? $position - 1 : $position + 1));
 
         Db::getInstance()->execute('
             UPDATE `'._DB_PREFIX_.'image`
         SET `position` = `position`'.($direction ? '-1' : '+1').'
-        WHERE `id_image` = '.(int)$this->id);
+        WHERE `id_image` = '.(int)this.id);
 
         Db::getInstance()->execute('
             UPDATE `'._DB_PREFIX_.'image`
-        SET `position` = '.$this->position.'
-        WHERE `id_product` = '.(int)$this->id_product.'
+        SET `position` = '.this.position.'
+        WHERE `id_product` = '.(int)this.id_product.'
         AND `position` = '.(int)$high_position);
-    }
+    }*/
 
     /**
      * Change an image position and update relative positions
      *
-     * @param int $way position is moved up if 0, moved down if 1
-     * @param int $position new position of the moved image
-     * @return int success
-     * /
-    public function updatePosition($way, $position)
-    {
-        if (!isset($this->id) || !$position) {
+     * @param way position is moved up if 0, moved down if 1
+     * @param position new position of the moved image
+     * @return boolean success
+     */
+    public boolean updatePosition(int way, int position){
+        if (this.image_id <= 0 || position <= 0) {
             return false;
         }
+        if(dataBaseObject == null){
+            dataBaseObject = JeproLabFactory.getDataBaseConnector();
+        }
+        String query = "UPDATE " + dataBaseObject.quoteName("#__jeprolab_image") + " SET " + dataBaseObject.quoteName("position") + " = ";
+        query += dataBaseObject.quoteName("position") + (way > 0 ? "- 1" : "+ 1" ) + " WHERE " + dataBaseObject.quoteName("position") ;
+        query += (way > 0 ? " > " + this.position + " AND " + dataBaseObject.quoteName("position") + " <= " + position :  " < " + this.position + " AND " + dataBaseObject.quoteName("position") + " >= " + position);
+        query += " AND " + dataBaseObject.quoteName("analyze_id") + " = " + this.analyze_id;
+        dataBaseObject.setQuery(query);
+        boolean result = dataBaseObject.query();
 
         // < and > statements rather than BETWEEN operator
         // since BETWEEN is treated differently according to databases
-        $result = (Db::getInstance()->execute('
-            UPDATE `'._DB_PREFIX_.'image`
-        SET `position`= `position` '.($way ? '- 1' : '+ 1').'
-        WHERE `position`
-        '.($way
-                ? '> '.(int)$this->position.' AND `position` <= '.(int)$position
-        : '< '.(int)$this->position.' AND `position` >= '.(int)$position).'
-        AND `id_product`='.(int)$this->id_product)
-            && Db::getInstance()->execute('
-            UPDATE `'._DB_PREFIX_.'image`
-        SET `position` = '.(int)$position.'
-        WHERE `id_image` = '.(int)$this->id_image));
 
-        return $result;
+        query = "UPDATE " + dataBaseObject.quoteName("#__jeprolab_image") + " SET " + dataBaseObject.quoteName("position") + " = " + position;
+        query += " WHERE " + dataBaseObject.quoteName("image_id") + " = " + this.image_id;
+        dataBaseObject.setQuery(query);
+        result &= dataBaseObject.query();
+
+        return result;
     }
 
-    public static function getSize($type)
-    {
-        if (!isset(self::$_cacheGetSize[$type]) || self::$_cacheGetSize[$type] === null) {
-        self::$_cacheGetSize[$type] = Db::getInstance()->getRow('
-                SELECT `width`, `height`
-                FROM '._DB_PREFIX_.'image_type
-        WHERE `name` = \''.pSQL($type).'\'
-        ');
-    }
-        return self::$_cacheGetSize[$type];
+    public static Map<String,Integer> getSize(String type){
+        if (!JeproLabImageModel._cacheGetSize.containsKey(type) || JeproLabImageModel._cacheGetSize.get(type) == null){
+            if (staticDataBaseObject == null) {
+                staticDataBaseObject = JeproLabFactory.getDataBaseConnector();
+            }
+            String query = "SELECT " + staticDataBaseObject.quoteName("width") + ", " + staticDataBaseObject.quoteName("height") + " FROM ";
+            query += staticDataBaseObject.quoteName("__jeprolab_image_type") + " WHERE " + staticDataBaseObject.quoteName("name") + " = ";
+            query += staticDataBaseObject.quote(type);
+            staticDataBaseObject.setQuery(query);
+            ResultSet sizeSet = staticDataBaseObject.loadObject();
+
+            try {
+                if (sizeSet.next()) {
+                    Map<String, Integer> entry = new HashMap<>();
+                    entry.put("width", sizeSet.getInt("width"));
+                    entry.put("height", sizeSet.getInt("height"));
+                    JeproLabImageModel._cacheGetSize.put(type, entry);
+                }
+            } catch (SQLException ignored) {
+
+            }
+        }
+        return JeproLabImageModel._cacheGetSize.get(type);
     }
 
-    public static function getWidth($params, &$smarty)
-    {
-        $result = self::getSize($params['type']);
-        return $result['width'];
+    public static int getWidth($params, &$smarty){
+        return JeproLabImageModel.getSize($params['type']).get("width");
     }
 
-    public static function getHeight($params, &$smarty)
-    {
-        $result = self::getSize($params['type']);
-        return $result['height'];
+    public static int getHeight($params, &$smarty){
+        return JeproLabImageModel.getSize($params['type']).get("height");
     }
 
     /**
@@ -590,49 +604,54 @@ public class JeproLabImageModel extends JeproLabModel {
     /**
      * Delete Image - Product attribute associations for this image
      */
-    public function deleteAnalyzeAttributeImage(){
-        return Db::getInstance()->execute('
-            DELETE
-            FROM `'._DB_PREFIX_.'product_attribute_image`
-        WHERE `id_image` = '.(int)$this->id
-        );
+    public boolean deleteAnalyzeAttributeImage(){
+        if(dataBaseObject == null){
+            dataBaseObject = JeproLabFactory.getDataBaseConnector();
+        }
+        String query = "DELETE FROM " + dataBaseObject.quoteName("#__jeprolab_analyze_attribute_image") ;
+        query += " WHERE " + dataBaseObject.quoteName("image_id") + " = " + this.image_id;
+        dataBaseObject.setQuery(query);
+        return dataBaseObject.query();
+    }
+
+    public boolean deleteImage(){
+        return  deleteImage(false);
     }
 
     /**
      * Delete the product image from disk and remove the containing folder if empty
      * Handles both legacy and new image filesystems
-     * /
-    public function deleteImage($force_delete = false)
-    {
-        if (!$this->id) {
+     */
+    public boolean deleteImage(boolean forceDelete){
+        if (this.image_id <= 0) {
             return false;
         }
 
         // Delete base image
-        if (file_exists($this->image_dir.$this->getExistingImgPath().'.'.$this->image_format)) {
-        unlink($this->image_dir.$this->getExistingImgPath().'.'.$this->image_format);
-    } else {
-        return false;
-    }
+        if (file_exists(this.image_dir+ this.getExistingImagePath() + '.' + this.image_format)) {
+            unlink(this.image_dir + this.getExistingImagePath()+ "." + this.image_format);
+        } else {
+            return false;
+        }
 
-        $files_to_delete = array();
+        List filesToDelete = new ArrayList<>();
 
         // Delete auto-generated images
-        $image_types = ImageType::getImagesTypes();
+        String imageTypes = JeproLabImageTypeModel.getImagesTypes();
         foreach ($image_types as $image_type) {
-        $files_to_delete[] = $this->image_dir.$this->getExistingImgPath().'-'.$image_type['name'].'.'.$this->image_format;
-        if (Configuration::get('WATERMARK_HASH')) {
-            $files_to_delete[] = $this->image_dir.$this->getExistingImgPath().'-'.$image_type['name'].'-'.Configuration::get('WATERMARK_HASH').'.'.$this->image_format;
+            $files_to_delete[] = this.image_dir.this.getExistingImagePath().'-'.$image_type['name'].'.'.this.image_format;
+            if (Configuration::get('WATERMARK_HASH')) {
+                $files_to_delete[] = this.image_dir.this.getExistingImagePath().'-'.$image_type['name'].'-'.Configuration::get('WATERMARK_HASH').'.'.this.image_format;
+            }
         }
-    }
 
         // Delete watermark image
-        $files_to_delete[] = $this->image_dir.$this->getExistingImgPath().'-watermark.'.$this->image_format;
+        $files_to_delete[] = this.image_dir.this.getExistingImagePath().'-watermark.'.this.image_format;
         // delete index.php
-        $files_to_delete[] = $this->image_dir.$this->getImgFolder().'index.php';
+        $files_to_delete[] = this.image_dir.this.getImgFolder().'index.php';
         // Delete tmp images
-        $files_to_delete[] = _PS_TMP_IMG_DIR_.'product_'.$this->id_product.'.'.$this->image_format;
-        $files_to_delete[] = _PS_TMP_IMG_DIR_.'product_mini_'.$this->id_product.'.'.$this->image_format;
+        $files_to_delete[] = _PS_TMP_IMG_DIR_.'product_'.this.id_product.'.'.this.image_format;
+        $files_to_delete[] = _PS_TMP_IMG_DIR_.'product_mini_'.this.id_product.'.'.this.image_format;
 
         foreach ($files_to_delete as $file) {
         if (file_exists($file) && !@unlink($file)) {
@@ -641,9 +660,9 @@ public class JeproLabImageModel extends JeproLabModel {
     }
 
         // Can we delete the image folder?
-        if (is_dir($this->image_dir.$this->getImgFolder())) {
+        if (is_dir(this.image_dir.this.getImgFolder())) {
         $delete_folder = true;
-        foreach (scandir($this->image_dir.$this->getImgFolder()) as $file) {
+        foreach (scandir(this.image_dir.this.getImgFolder()) as $file) {
             if (($file != '.' && $file != '..')) {
                 $delete_folder = false;
                 break;
@@ -651,7 +670,7 @@ public class JeproLabImageModel extends JeproLabModel {
         }
     }
         if (isset($delete_folder) && $delete_folder) {
-            @rmdir($this->image_dir.$this->getImgFolder());
+            @rmdir(this.image_dir.this.getImgFolder());
         }
 
         return true;
@@ -660,11 +679,11 @@ public class JeproLabImageModel extends JeproLabModel {
     /**
      * Recursively deletes all product images in the given folder tree and removes empty folders.
      *
-     * @param string $path folder containing the product images to delete
-     * @param string $format image format
+     * @param path folder containing the product images to delete
+     * @param format image format
      * @return bool success
-     * /
-    public static function deleteAllImages($path, $format = 'jpg')
+     */
+    public static function deleteAllImages(String path, String format = 'jpg')
     {
         if (!$path || !$format || !is_dir($path)) {
             return false;
@@ -673,7 +692,7 @@ public class JeproLabImageModel extends JeproLabModel {
         if (preg_match('/^[0-9]+(\-(.*))?\.'.$format.'$/', $file)) {
             unlink($path.$file);
         } elseif (is_dir($path.$file) && (preg_match('/^[0-9]$/', $file))) {
-            Image::deleteAllImages($path.$file.'/', $format);
+            JeproLabImageModel.deleteAllImages($path.$file.'/', $format);
         }
     }
 
@@ -710,7 +729,7 @@ public class JeproLabImageModel extends JeproLabModel {
         }
 
         if (this.existing_path == null || this.existing_path.equals("")) {
-            if (Configuration::get('PS_LEGACY_IMAGES') && file_exists(_PS_PROD_IMG_DIR_.$this->id_product.'-'.$this->id.'.'.$this->image_format)) {
+            if (Configuration::get('PS_LEGACY_IMAGES') && file_exists(_PS_PROD_IMG_DIR_.this.id_product.'-'.this.id.'.'.this.image_format)) {
                 this.existing_path = this.analyze_id + "_" + this.image_id;
             } else {
                 this.existing_path = this.getImagePath();
@@ -747,16 +766,16 @@ public class JeproLabImageModel extends JeproLabModel {
             return false;
         }
 
-        if (!file_exists(_PS_PROD_IMG_DIR_.$this->getImgFolder())) {
+        if (!file_exists(_PS_PROD_IMG_DIR_.this.getImgFolder())) {
         // Apparently sometimes mkdir cannot set the rights, and sometimes chmod can't. Trying both.
-        $success = @mkdir(_PS_PROD_IMG_DIR_.$this->getImgFolder(), self::$access_rights, true);
-        $chmod = @chmod(_PS_PROD_IMG_DIR_.$this->getImgFolder(), self::$access_rights);
+        $success = @mkdir(_PS_PROD_IMG_DIR_.this.getImgFolder(), self::$access_rights, true);
+        $chmod = @chmod(_PS_PROD_IMG_DIR_.this.getImgFolder(), self::$access_rights);
 
         // Create an index.php file in the new folder
         if (($success || $chmod)
-                && !file_exists(_PS_PROD_IMG_DIR_.$this->getImgFolder().'index.php')
-        && file_exists($this->source_index)) {
-            return @copy($this->source_index, _PS_PROD_IMG_DIR_.$this->getImgFolder().'index.php');
+                && !file_exists(_PS_PROD_IMG_DIR_.this.getImgFolder().'index.php')
+        && file_exists(this.source_index)) {
+            return @copy(this.source_index, _PS_PROD_IMG_DIR_.this.getImgFolder().'index.php');
         }
     }
         return true;
@@ -796,7 +815,7 @@ public class JeproLabImageModel extends JeproLabModel {
      *
      * @param int $max_execution_time
      * @return mixed success or timeout
-     * /
+     */
     public static function moveToNewFileSystem($max_execution_time = 0)
     {
         $start_time = time();
@@ -846,7 +865,7 @@ public class JeproLabImageModel extends JeproLabModel {
      * Try to create and delete some folders to check if moving images to new file system will be possible
      *
      * @return bool success
-     * /
+     */
     public static function testFileSystem()
     {
         $safe_mode = Tools::getSafeModeStatus();
@@ -897,5 +916,215 @@ public class JeproLabImageModel extends JeproLabModel {
             this.createImageFolder();
         }
         return JeproLabConfigurationSettings.JEPROLAB_ANALYZE_IMAGE_DIRECTORY + path;
+    }
+
+    public static class JeproLabImageTypeModel extends JeproLabModel{
+        public int image_type_id;
+
+        /** @var string Name */
+        public String name;
+
+        /** @var int Width */
+        public int width;
+
+        /** @var int Height */
+        public int height;
+
+        /** @var bool Apply to products */
+        public boolean analyzes;
+
+        /** @var int Apply to categories */
+        public boolean categories;
+
+        /** @var int Apply to manufacturers */
+        public boolean manufacturers;
+
+        /** @var int Apply to suppliers */
+        public boolean suppliers;
+
+        /** @var int Apply to scenes */
+        public boolean scenes;
+
+        /** @var boolean Apply to laboratories */
+        public boolean laboratories;
+
+        public boolean technicians;
+
+        /**
+         * @see ObjectModel::$definition
+         */
+        public static $definition = array(
+                'table' => 'image_type',
+                        'primary' => 'id_image_type',
+                        'fields' => array(
+                        'name' =>        array('type' => self::TYPE_STRING, 'validate' => 'isImageTypeName', 'required' => true, 'size' => 64),
+        'width' =>        array('type' => self::TYPE_INT, 'validate' => 'isImageSize', 'required' => true),
+        'height' =>        array('type' => self::TYPE_INT, 'validate' => 'isImageSize', 'required' => true),
+        'categories' =>    array('type' => self::TYPE_BOOL, 'validate' => 'isBool'),
+        'products' =>        array('type' => self::TYPE_BOOL, 'validate' => 'isBool'),
+        'manufacturers' =>    array('type' => self::TYPE_BOOL, 'validate' => 'isBool'),
+        'suppliers' =>        array('type' => self::TYPE_BOOL, 'validate' => 'isBool'),
+        'scenes' =>        array('type' => self::TYPE_BOOL, 'validate' => 'isBool'),
+        'stores' =>        array('type' => self::TYPE_BOOL, 'validate' => 'isBool'),
+        ),
+                );
+
+        /**
+         * @var array Image types cache
+         */
+        protected static Map<String, List<JeproLabImageTypeModel>>images_types_cache = new HashMap<>();
+
+        protected  static boolean is_passed = false;
+
+        //protected static $images_types_name_cache = array();
+
+        //protected $webserviceParameters = array();
+
+        public JeproLabImageTypeModel(){
+
+        }
+
+        public static List<JeproLabImageTypeModel> getImagesTypes(){
+            return getImagesTypes(null, false);
+        }
+
+        public static List<JeproLabImageTypeModel> getImagesTypes(String type){
+            return getImagesTypes(type, false);
+        }
+
+        /**
+         * Returns image type definitions
+         *
+         * @param type Image type
+         * @param orderBySize order by size
+         * @return array Image type definitions
+         */
+        public static List<JeproLabImageTypeModel> getImagesTypes(String type, boolean orderBySize){
+            if (!JeproLabImageTypeModel.images_types_cache.containsKey(type)){
+                String where = " WHERE 1";
+                if (!type.equals("")){
+                    where += " AND " + staticDataBaseObject.quoteName(type, true) + " = 1 ";
+                }
+                String query = "SELECT * FROM " + staticDataBaseObject.quoteName("#__jeprolab_image_type") + where + " ORDER BY ";
+                if (orderBySize) {
+                    query +=  staticDataBaseObject.quoteName("width") + " DESC, " + staticDataBaseObject.quoteName("height") + " DESC, ";
+                    query += staticDataBaseObject.quoteName("name") + "ASC";
+                } else {
+                    query += staticDataBaseObject.quoteName("name") + " ASC";
+                }
+                List<JeproLabImageTypeModel> imageTypeList = new ArrayList<>();
+                staticDataBaseObject.setQuery(query);
+                ResultSet imageTypeSet = staticDataBaseObject.loadObject();
+                try{
+                    JeproLabImageTypeModel imageType;
+                    while(imageTypeSet.next()){
+                        imageType = new JeproLabImageTypeModel();
+                        imageType.image_type_id = imageTypeSet.getInt("image_type_id");
+                        imageType.name = imageTypeSet.getString("name");
+                        imageType.width = imageTypeSet.getInt("width");
+                        imageType.height = imageTypeSet.getInt("height");
+                        imageType.analyzes = imageTypeSet.getInt("analyzes") > 0;
+                        imageType.categories = imageTypeSet.getInt("categories") > 0;
+                        imageType.manufacturers = imageTypeSet.getInt("manufacturers") > 0;
+                        imageType.suppliers = imageTypeSet.getInt("suppliers") > 0;
+                        imageType.suppliers = imageTypeSet.getInt("suppliers") > 0;
+                        imageType.scenes = imageTypeSet.getInt("scenes") > 0;
+                        imageType.technicians = imageTypeSet.getInt("technicians") > 0;
+                        imageType.laboratories = imageTypeSet.getInt("laboratories") > 0;
+                        imageTypeList.add(imageType);
+                    }
+                }catch(SQLException ignored){
+
+                }
+                JeproLabImageTypeModel.images_types_cache.put(type, imageTypeList);
+            }
+            return JeproLabImageTypeModel.images_types_cache.get(type);
+        }
+
+        /**
+         * Check if type already is already registered in database
+         *
+         * @param typeName Name
+         * @return int Number of results found
+         */
+        public static int typeAlreadyExists(String typeName){
+            if (!JeproLabTools.isImageTypeName(typeName)){
+                JeproLabTools.displayError(500, "");
+            }
+            String query = "SELECT " + staticDataBaseObject.quoteName("image_type_id") + " FROM " + staticDataBaseObject.quoteName("#__jeprolab_image_type");
+            query +=  " AS image_type WHERE " + staticDataBaseObject.quoteName("name") + " = " + staticDataBaseObject.quote(typeName);
+
+            int total = 0;
+            staticDataBaseObject.setQuery(query);
+            ResultSet resultSet = staticDataBaseObject.loadObject();
+            try{
+                while(resultSet.next()){
+                    total += 1;
+                }
+            }catch(SQLException ignored){
+                total = 0;
+            }
+            return total;
+        }
+
+        public static function getByNameAndType(String name){
+            getByNameAndType(name, null, 0);
+        }
+
+        public static function getByNameAndType(String name, String type){
+            getByNameAndType(name, type, 0);
+        }
+
+        /**
+         * Finds image type definition by name and type
+         * @param name
+         * @param type
+         */
+        public static function getByNameAndType(String name, String type, int order){
+            String cacheKey = name + "_" + type + "_" + order;
+            if (!JeproLabImageTypeModel.images_types_name_cache.containsKey(cacheKey) && !is_passed) {
+                String query = "SELECT * FROM " + staticDataBaseObject.quoteName("#__jeprolab_image_type");
+                staticDataBaseObject.setQuery(query);
+                ResultSet resultSet = staticDataBaseObject.loadObject();
+
+
+                $types = array('products', 'categories', 'manufacturers', 'suppliers', 'scenes', 'stores');
+                $total = count($types);
+                try {
+                    while(resultSet.next()) {
+                        foreach($result as $value) {
+                            for ($i = 0; $i < $total; ++$i) {
+                                self::$images_types_name_cache[$result['name']. '_'.$types[$i]. '_'.$value]=$result;
+                            }
+                        }
+                    }
+                }catch(SQLException ignored){
+
+                }
+                is_passed = true;
+            }
+
+            $return = false;
+            if (JeproLabImageTypeModel.images_types_name_cache.containsKey(cacheKey)){
+                $return = JeproLabImageTypeModel.images_types_name_cache.get(cacheKey);
+            }
+            return $return;
+        }
+
+        public static String getFormatedName(String name){
+            String themeName = JeproLabContext.getContext().laboratory.theme_name;
+            String nameWithoutThemeName = str_replace(array('_'.$theme_name, $theme_name.'_'), '', $name);
+
+            //check if the theme name is already in $name if yes only return $name
+            if (strstr($name, $theme_name) && JeproLabImageTypeModel.getByNameAndType(name)) {
+                return name;
+            } else if (JeproLabImageTypeModel.getByNameAndType(nameWithoutThemeName + "_" + themeName)) {
+                return nameWithoutThemeName + "_" + themeName;
+            } else if (JeproLabImageTypeModel.getByNameAndType(themeName + "_" + nameWithoutThemeName)) {
+                return themeName + "_" + nameWithoutThemeName;
+            } else {
+                return nameWithoutThemeName + "_default";
+            }
+        }
     }
 }
