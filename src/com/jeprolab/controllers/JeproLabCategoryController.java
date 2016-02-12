@@ -18,11 +18,13 @@ import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.HBox;
 import javafx.util.Callback;
 import sun.plugin2.jvm.RemoteJVMLauncher;
@@ -35,6 +37,7 @@ import java.util.List;
 import java.util.ResourceBundle;
 
 public class JeproLabCategoryController extends JeproLabController {
+    private double rowHeight;
     CheckBox checkAll;
     Button addCategoryBtn;
     JeproLabCategoryModel category;
@@ -74,8 +77,9 @@ public class JeproLabCategoryController extends JeproLabController {
             }
         }
 
-        double remainingWidth = (0.98 * JeproLab.APP_WIDTH) - 105;
+        double remainingWidth = (0.98 * JeproLab.APP_WIDTH) - 108;
         categoryTableView.setPrefWidth(0.98 * JeproLab.APP_WIDTH);
+        categoryTableView.setPrefHeight(600);
         categoryTableView.setLayoutX(0.01 * JeproLab.APP_WIDTH);
         categoryTableView.setLayoutY(20);
         categoryIndexColumn.setText("#");
@@ -98,6 +102,7 @@ public class JeproLabCategoryController extends JeproLabController {
         categoryDescriptionColumn.setCellValueFactory(new PropertyValueFactory<JeproLabCategory, String>("categoryDescription"));
         categoryPositionColumn.setText(bundle.getString("JEPROLAB_POSITION_LABEL"));
         categoryPositionColumn.setPrefWidth(0.06 * remainingWidth);
+        //categoryPositionColumn.
         categoryPositionColumn.setCellValueFactory(new PropertyValueFactory<JeproLabCategory, Integer>("categoryPosition"));
         categoryActionColumn.setText(bundle.getString("JEPROLAB_ACTIONS_LABEL"));
         categoryActionColumn.setPrefWidth(0.09 * remainingWidth);
@@ -109,7 +114,7 @@ public class JeproLabCategoryController extends JeproLabController {
 
     @Override
     protected void initializeContent(){
-        int categoryId = 0;
+        int categoryId = JeproLab.request.getIntValue("category_id");
 
         if(categoryId > 0){
             this.category = new JeproLabCategoryModel(categoryId);
@@ -274,6 +279,12 @@ public class JeproLabCategoryController extends JeproLabController {
             viewCategory.setMaxSize(btnSize, btnSize);
             viewCategory.setMinSize(btnSize, btnSize);
             viewCategory.getStyleClass().add("icon-btn");
+            viewCategory.setOnMouseClicked(new EventHandler<MouseEvent>() {
+                @Override
+                public void handle(MouseEvent event) {
+                    System.out.println("editit function");
+                }
+            });
             commandContainer.getChildren().addAll(editCategory, viewCategory, deleteCategory);
         }
 
@@ -323,6 +334,8 @@ public class JeproLabCategoryController extends JeproLabController {
             if((items != null) && (getIndex() < items.size())){
                 setGraphic(checkBox);
             }
+            rowHeight = getTableRow().getHeight();
+
         }
     }
 
@@ -339,7 +352,7 @@ public class JeproLabCategoryController extends JeproLabController {
         @Override
         public void commitEdit(Boolean it){
             super.commitEdit(it);
-            final ObservableList<JeproLabCategory> items = this.getTableView().getItems();
+            //final ObservableList<JeproLabCategory> items = this.getTableView().getItems();
 
         }
 
