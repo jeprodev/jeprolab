@@ -143,4 +143,8 @@ public class JeproLabEmployeeModel  extends JeproLabModel{
     public void setCookieLogin(boolean setCookie){
 
     }
+
+    public boolean canEdit(String table, int objectId){
+        return true;
+    }
 }

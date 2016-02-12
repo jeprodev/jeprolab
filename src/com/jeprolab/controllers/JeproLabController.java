@@ -29,6 +29,7 @@ public class JeproLabController implements Initializable {
         bundle = resource;
         context = JeproLabContext.getContext();
         context.controller = this;
+        this.updateToolBar();
 
         if(!isInitialized){
 
@@ -45,13 +46,13 @@ public class JeproLabController implements Initializable {
             JeproLabTools.displayError(500, JeproLab.getBundle().getString("JEPROLAB_YOU_DO_NOT_HAVE_PERMISSION_TO_VIEW_THIS_PAGE_MESSAGE"));
         }
 
-        if (task.equals("edit") || task.equals("add")) {
+        /*if (task.equals("edit") || task.equals("add")) {
             this.renderEditForm();
         } else if (task.equals("view")) {
             this.renderViewForm();
         } else if (task.equals("display") || task.equals("")) {
             this.renderDetails();
-        }//if(task.equals())
+        }//if(task.equals()) */
     }
 
     protected void renderDetails(){}

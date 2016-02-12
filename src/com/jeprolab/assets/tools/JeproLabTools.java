@@ -6,8 +6,11 @@ import com.jeprolab.models.JeproLabModel;
 import com.jeprolab.models.JeproLabSettingModel;
 
 import java.io.*;
+import java.text.DateFormat;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 
 public class JeproLabTools {
@@ -64,8 +67,17 @@ public class JeproLabTools {
         return format1.format(calendar.getTime());
     }
 
-    /*public static boolean (){}
-    public static boolean (){}*/
+    public static Date getDate(String value){
+        //value = value.replace("-", "/");
+        DateFormat formatter = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
+        try {
+            return formatter.parse(value);
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+    /*public static boolean (){}*/
 
     public static float convertPrice(float price){
         return convertPrice(price, 0, true, null);
@@ -81,9 +93,9 @@ public class JeproLabTools {
     /**
      * return converted price
      * @param price The price to be converted
-     * @param currencyId
-     * @param toCurrency
-     * @param context
+     * @param currencyId currency Id
+     * @param toCurrency to the new currency
+     * @param context current app context
      * @return float
      */
     public static float convertPrice(float price, int currencyId, boolean toCurrency, JeproLabContext context){

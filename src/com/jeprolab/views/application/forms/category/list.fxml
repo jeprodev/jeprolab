@@ -3,6 +3,7 @@
 <?import javafx.scene.control.TableView?>
 <?import javafx.scene.control.TableColumn?>
 <?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Pagination?>
 <VBox xmlns:fx="http://javafx.com/fxml" fx:controller="com.jeprolab.controllers.JeproLabCategoryController" >
     <children>
         <AnchorPane>
@@ -21,5 +22,6 @@
                 </TableView>
             </children>
         </AnchorPane>
+        <Pagination fx:id="pagination" />
     </children>
 </VBox>

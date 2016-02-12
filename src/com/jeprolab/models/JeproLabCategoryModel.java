@@ -11,7 +11,12 @@ import javafx.scene.control.Pagination;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.*;
+import java.sql.Date;
+import java.util.Map;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.ArrayList;
+import java.util.List;
 
 public class JeproLabCategoryModel extends JeproLabModel {
     public int category_id;
@@ -212,7 +217,7 @@ public class JeproLabCategoryModel extends JeproLabModel {
             }
         }
 
-        //this.image_id = (file_exists(JeproLabConfigurationSettings.JEPROLAB_CATEGORY_IMAGE_DIRRECTORY +  this.category_id + ".jpg")) ? this.category_id : 0;
+        //this.image_id = (file_exists(JeproLabConfigurationSettings.JEPROLAB_CATEGORY_IMAGE_DIRECTORY +  this.category_id + ".jpg")) ? this.category_id : 0;
         this.image_dir = JeproLabConfigurationSettings.JEPROLAB_CATEGORY_IMAGE_DIRECTORY;
     }
 /*
@@ -765,10 +770,10 @@ public class JeproLabCategoryModel extends JeproLabModel {
                 while (categoryResult.next()){
                     category = new JeproLabCategoryModel();
                     category.category_id = categoryResult.getInt("category_id");
+                    category.published = categoryResult.getInt("published") > 0;
+                    category.name.put("lang_" + langId, categoryResult.getString("name"));
+                    category.description.put("lang_" + langId, categoryResult.getString("description"));
                     /*category = categoryResult;
-                    category = categoryResult;
-                    category = categoryResult;
-                    category = categoryResult;
                     category = categoryResult; */
                     categories.add(category);
                 }
