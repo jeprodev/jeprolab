@@ -1,9 +1,11 @@
 package com.jeprolab.assets.tools;
 
 
+import com.jeprolab.JeproLab;
 import com.jeprolab.models.JeproLabCurrencyModel;
 import com.jeprolab.models.JeproLabModel;
 import com.jeprolab.models.JeproLabSettingModel;
+import javafx.scene.control.Alert;
 
 import java.io.*;
 import java.text.DateFormat;
@@ -16,6 +18,8 @@ import java.util.List;
 public class JeproLabTools {
     private static int default_currency_id = 0;
     private static int price_round_method = -1;
+
+    private static Alert dialogBox = null;
 
     public static boolean isLoadedObject(JeproLabModel model, String key){
         return false;
@@ -49,7 +53,25 @@ public class JeproLabTools {
     }
 
     public static void displayError(int errorCode, String errorMessage){
+        if(dialogBox == null){
+            dialogBox = new Alert(Alert.AlertType.ERROR);
+        }else{
+            dialogBox.setAlertType(Alert.AlertType.ERROR);
+        }
+        dialogBox.setTitle(JeproLab.getBundle().getString("JEPROLAB_AN_ERROR_OCCURRED_LABEL"));
+        dialogBox.setContentText(errorMessage);
+        dialogBox.showAndWait();
+    }
 
+    public static void displayWarning(int errorCode, String errorMessage){
+        if(dialogBox == null){
+            dialogBox = new Alert(Alert.AlertType.WARNING);
+        }else{
+            dialogBox.setAlertType(Alert.AlertType.WARNING);
+        }
+        dialogBox.setTitle(JeproLab.getBundle().getString("JEPROLAB_WARNING_LABEL"));
+        dialogBox.setContentText(errorMessage);
+        dialogBox.showAndWait();
     }
 
     public static boolean isOrderBy(String order){

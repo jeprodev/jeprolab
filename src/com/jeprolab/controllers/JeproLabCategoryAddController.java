@@ -4,15 +4,26 @@ import com.jeprolab.JeproLab;
 import com.jeprolab.assets.extend.controls.*;
 import com.jeprolab.assets.extend.controls.switchbutton.JeproSwitchButton;
 import com.jeprolab.assets.extend.controls.tree.JeproCategoryTree;
+import com.jeprolab.assets.tools.JeproLabConfigurationSettings;
+import com.jeprolab.assets.tools.JeproLabContext;
+import com.jeprolab.assets.tools.JeproLabTools;
+import com.jeprolab.models.JeproLabCategoryModel;
+import com.jeprolab.models.JeproLabGroupModel;
+import com.jeprolab.models.JeproLabSettingModel;
+import com.jeprolab.models.image.JeproLabImageManager;
 import javafx.fxml.FXML;
 import javafx.geometry.Insets;
+import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
 import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
+import javafx.scene.layout.HBox;
 
+import java.io.File;
 import java.net.URL;
+import java.util.List;
 import java.util.ResourceBundle;
 
 /**
@@ -40,7 +51,7 @@ public class JeproLabCategoryAddController extends JeproLabController{
     public JeproImageChooser jeproLabCategoryImageChooser;
 
     public void initialize(URL location, ResourceBundle resource){
-        bundle = resource;
+        super.initialize(location, resource);
         double labelColumnWidth = 150;
         double inputColumnWidth = 300;
         double formWidth = 2 * (labelColumnWidth + inputColumnWidth) + 30;
@@ -108,5 +119,65 @@ public class JeproLabCategoryAddController extends JeproLabController{
         GridPane.setMargin(jeproLabCategoryAllowedGroupLabel, new Insets(5, 0, 15, 10));
         GridPane.setMargin(jeproLabCategoryLabel, new Insets(5, 0, 15, 0));
         GridPane.setMargin(jeproLabCategoryDescription, new Insets(10, 0, 15, 0));
+
+        initializeContent();
+    }
+
+    @Override
+    protected void initializeContent(){
+        if(context == null) {
+            context = JeproLabContext.getContext();
+        }
+        int labId = context.laboratory.laboratory_id;
+        JeproLabCategoryModel category = this.loadCategory();
+        if(category != null){
+            int selectedCategoryId;
+            if((category.parent_id > 0) && category.isParentCategoryAvailable(labId)){
+               selectedCategoryId = category.parent_id;
+            }else {
+                selectedCategoryId = JeproLab.request.getIntValue("parent_id", JeproLabCategoryModel.getRootCategory().category_id);
+            }
+            String imagePath = JeproLabConfigurationSettings.JEPROLAB_CATEGORY_IMAGE_DIRECTORY +  category.category_id + ".jpg";
+            String imageLink = JeproLabImageManager.thumbNail(imagePath, "category_" + category.category_id + ".jpg", 350, "jpg", true, true);
+            File imageFile = new File(imagePath);
+            int imageSize = (imageFile.exists() && !imageFile.isDirectory()) ? (int)(imageFile.length()/1000) : 0;
+
+            boolean sharedCategory = ((category.category_id > 0) &&  category.hasMultiLabEntries();
+
+        }
+
+        JeproLabGroupModel unidentifiedGroup = new JeproLabGroupModel(JeproLabSettingModel.getIntValue("unidentified_group"));
+        JeproLabGroupModel guestGroup = new JeproLabGroupModel(JeproLabSettingModel.getIntValue("guest_group"));
+        JeproLabGroupModel customerGroup = new JeproLabGroupModel(JeproLabSettingModel.getIntValue("customer_group"));
+
+        List<JeproLabGroupModel> groups = JeproLabGroupModel.getGroups(context.language.language_id);
+    }
+
+    @Override
+    public void updateToolBar(){
+        HBox commandWrapper = JeproLab.getInstance().getApplicationToolBarCommandWrapper();
+        commandWrapper.getChildren().clear();
+        saveCategoryBtn = new Button(bundle.getString("JEPROLAB_SAVE_LABEL"));
+        commandWrapper.getChildren().addAll(saveCategoryBtn);
+    }
+
+    private JeproLabCategoryModel loadCategory(){
+        int categoryId = JeproLab.request.getIntValue("category_id");
+        if(context == null) {
+            context = JeproLabContext.getContext();
+        }
+
+        JeproLabCategoryModel category;
+        if(categoryId > 0){
+            category = new JeproLabCategoryModel(categoryId);
+            if(category.category_id <= 0){
+                JeproLabTools.displayError(500, bundle.getString("JEPROLAB_CATEGORY_NOT_FOUND_MESSAGE"));
+                return null;
+            }
+            return category;
+        }else{
+            JeproLabTools.displayError(500, bundle.getString("JEPROLAB_CATEGORY_DOES_NOT_EXIST_MESSAGE"));
+            return null;
+        }
     }
 }

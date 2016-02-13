@@ -286,9 +286,9 @@ public class JeproLabCategoryController extends JeproLabController {
                 JeproLab.getInstance().getScene().setCursor(Cursor.HAND);
                 tooltip.setText(bundle.getString("JEPROLAB_EDIT_CATEGORY_MESSAGE"));
             });
-            editCategory.setOnMouseExited(event -> {
-                JeproLab.getInstance().getScene().setCursor(Cursor.DEFAULT);
-            });
+            editCategory.setOnMouseExited(event ->
+                JeproLab.getInstance().getScene().setCursor(Cursor.DEFAULT)
+            );
             deleteCategory = new Button("", new ImageView(new Image(JeproLab.class.getResourceAsStream("resources/images/trash-icon.png"))));
             deleteCategory.setPrefSize(btnSize, btnSize);
             deleteCategory.setMaxSize(btnSize, btnSize);
@@ -298,6 +298,7 @@ public class JeproLabCategoryController extends JeproLabController {
             deleteCategory.setOnMouseClicked(new EventHandler<MouseEvent>() {
                 @Override
                 public void handle(MouseEvent event) {
+                    JeproLabTools.displayWarning(300, JeproLab.getBundle().getString("JEPROLAB_DELETE_CATEGORY_LABEL"));
                     System.out.println("editit function");
                 }
             });
