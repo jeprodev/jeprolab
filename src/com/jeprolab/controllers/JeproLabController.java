@@ -4,6 +4,7 @@ import com.jeprolab.JeproLab;
 import com.jeprolab.assets.tools.JeproLabContext;
 import com.jeprolab.assets.tools.JeproLabTools;
 import javafx.fxml.Initializable;
+import javafx.scene.control.Tooltip;
 
 import java.net.URL;
 import java.util.ResourceBundle;
@@ -17,6 +18,8 @@ public class JeproLabController implements Initializable {
 
     protected JeproLabContext context;
 
+    protected Tooltip tooltip;
+
     public String task = "";
 
     public boolean has_errors = false;
@@ -29,6 +32,7 @@ public class JeproLabController implements Initializable {
         bundle = resource;
         context = JeproLabContext.getContext();
         context.controller = this;
+        tooltip = new Tooltip();
         this.updateToolBar();
 
         if(!isInitialized){

@@ -20,6 +20,7 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
+import javafx.scene.Cursor;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.image.Image;
@@ -269,20 +270,59 @@ public class JeproLabCategoryController extends JeproLabController {
             editCategory.setMaxSize(btnSize, btnSize);
             editCategory.setMinSize(btnSize, btnSize);
             editCategory.getStyleClass().add("icon-btn");
+            editCategory.setTooltip(tooltip);
+            editCategory.setOnMouseClicked(event -> {
+                final ObservableList<JeproLabCategory> items = getTableView().getItems();
+                int categoryId = items.get(getIndex()).getCategoryIndex();
+                JeproLab.request.setRequest("category_id=" + categoryId);
+
+                try {
+                    JeproLab.getInstance().goToForm(JeproLab.getInstance().getApplicationForms().addCategoryForm);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            });
+            editCategory.setOnMouseEntered(event -> {
+                JeproLab.getInstance().getScene().setCursor(Cursor.HAND);
+                tooltip.setText(bundle.getString("JEPROLAB_EDIT_CATEGORY_MESSAGE"));
+            });
+            editCategory.setOnMouseExited(event -> {
+                JeproLab.getInstance().getScene().setCursor(Cursor.DEFAULT);
+            });
             deleteCategory = new Button("", new ImageView(new Image(JeproLab.class.getResourceAsStream("resources/images/trash-icon.png"))));
             deleteCategory.setPrefSize(btnSize, btnSize);
             deleteCategory.setMaxSize(btnSize, btnSize);
             deleteCategory.setMinSize(btnSize, btnSize);
             deleteCategory.getStyleClass().add("icon-btn");
+            deleteCategory.setTooltip(tooltip);
+            deleteCategory.setOnMouseClicked(new EventHandler<MouseEvent>() {
+                @Override
+                public void handle(MouseEvent event) {
+                    System.out.println("editit function");
+                }
+            });
+            deleteCategory.setOnMouseEntered(new EventHandler<MouseEvent>() {
+                @Override
+                public void handle(MouseEvent event) {
+                    tooltip.setText(bundle.getString("JEPROLAB_DELETE_CATEGORY_MESSAGE"));
+                }
+            });
             viewCategory = new Button("", new ImageView(new Image(JeproLab.class.getResourceAsStream("resources/images/view.png"))));
             viewCategory.setPrefSize(btnSize, btnSize);
             viewCategory.setMaxSize(btnSize, btnSize);
             viewCategory.setMinSize(btnSize, btnSize);
             viewCategory.getStyleClass().add("icon-btn");
+            viewCategory.setTooltip(tooltip);
             viewCategory.setOnMouseClicked(new EventHandler<MouseEvent>() {
                 @Override
                 public void handle(MouseEvent event) {
                     System.out.println("editit function");
+                }
+            });
+            viewCategory.setOnMouseEntered(new EventHandler<MouseEvent>() {
+                @Override
+                public void handle(MouseEvent event) {
+                    tooltip.setText(bundle.getString("JEPROLAB_VIEW_CATEGORY_MESSAGE"));
                 }
             });
             commandContainer.getChildren().addAll(editCategory, viewCategory, deleteCategory);
