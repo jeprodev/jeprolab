@@ -1,10 +1,19 @@
 package com.jeprolab.models.image;
 
 import com.jeprolab.JeproLab;
+import com.jeprolab.assets.tools.JeproLabConfigurationSettings;
 import com.jeprolab.assets.tools.JeproLabTools;
 import com.jeprolab.models.JeproLabSettingModel;
 
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
 import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
+import java.nio.file.DirectoryNotEmptyException;
+import java.nio.file.Files;
+import java.nio.file.NoSuchFileException;
+import java.util.Arrays;
 
 /**
  *
@@ -16,6 +25,9 @@ public class JeproLabImageManager {
     static final int ERROR_MEMORY_LIMIT   = 3;
 
     protected static int static_error = 0;
+
+    protected static int png_quality = -2;
+    protected static int jpeg_quality = -2;
 
     public static String thumbnail(String imagePath, String cacheImageKey, int size){
         return thumbnail(imagePath, cacheImageKey, size, "jpg", true, true);
@@ -45,72 +57,77 @@ public class JeproLabImageManager {
         if (!imageFile.exists()) {
             return "";
         }
-
-        if (file_exists(_PS_TMP_IMG_DIR_.$cache_image) && $regenerate) {
-            @unlink(_PS_TMP_IMG_DIR_.$cache_image);
+        File cacheImageFile = new File(JeproLabConfigurationSettings.JEPROLAB_TMP_IMAGE_DIRECTORY + cacheImageKey);
+        if (cacheImageFile.exists() && regenerate) {
+            imageFile.deleteOnExit();
         }
 
-        if ($regenerate || !file_exists(_PS_TMP_IMG_DIR_.$cache_image)){
-            $infos = getimagesize($image);
-
-            // Evaluate the memory required to resize the image: if it's too much, you can't resize it.
-            if (!JeproLabImageManager.checkImageMemoryLimit(imagePath)) {
-                return "";
-            }
-
-            $x = $infos[0];
-            $y = $infos[1];
-            $max_x = $size * 3;
-
-            // Size is already ok
-            if ($y < $size && $x <= $max_x) {
-                copy($image, _PS_TMP_IMG_DIR_.$cache_image);
-            }else {
-                // We need to resize */
-                $ratio_x = $x / ($y / $size);
-                if ($ratio_x > $max_x) {
-                    $ratio_x = $max_x;
-                    $size = $y / ($x / $max_x);
+        if (regenerate || !imageFile.exists()){
+            try {
+                BufferedImage buffer = ImageIO.read(imageFile);
+                // Evaluate the memory required to resize the image: if it's too much, you can't resize it.
+                if (!JeproLabImageManager.checkImageMemoryLimit(imagePath)) {
+                    return "";
                 }
+                int width = buffer.getWidth();
+                int height = buffer.getHeight();
+                int maxWidth = size * 3;
 
-                JeproLabImageManager.resize($image, _PS_TMP_IMG_DIR_.$cache_image, $ratio_x, $size, $image_type);
+                // Size is already ok
+                if (height < size && width <= maxWidth) {
+                    JeproLabTools.copy(imagePath, JeproLabConfigurationSettings.JEPROLAB_TMP_IMAGE_DIRECTORY + cacheImageKey);
+                }else {
+                    // We need to resize * /
+                    int widthRatio = (width / (height / size));
+                    if (widthRatio > maxWidth) {
+                        widthRatio = maxWidth;
+                        size = height / (width / maxWidth);
+                    }
+
+                    JeproLabImageManager.resize(imagePath, JeproLabConfigurationSettings.JEPROLAB_TMP_IMAGE_DIRECTORY + cacheImageKey, widthRatio, size, imageType);
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
             }
+
         }
-        // Relative link will always work, whatever the base uri set in the admin
-        if (Context::getContext()->controller->controller_type == 'admin') {
-            return '<img src="../img/tmp/'.$cache_image.($disable_cache ? '?time='.time() : '').'" alt="" class="imgm img-thumbnail" />';
-        } else {
-            return '<img src="'._PS_TMP_IMG_.$cache_image.($disable_cache ? '?time='.time() : '').'" alt="" class="imgm img-thumbnail" />';
-        }
+        return JeproLabConfigurationSettings.JEPROLAB_TMP_IMAGE_DIRECTORY + cacheImageKey; // + ($disable_cache ? '?time='.time() : '').'" alt="" class="imgm img-thumbnail" />';
+
     }
 
-    /**
+    /*
      * Check if memory limit is too long or not
      *
      * @param imagePath
      * @return bool
      */
     public static boolean checkImageMemoryLimit(String imagePath){
-        $infos = @getimagesize($image);
-
-        if (!is_array($infos) || !isset($infos['bits'])) {
-            return true;
-        }
-
-        $memory_limit = JeproLabTools.getMemoryLimit();
-        // memory_limit == -1 => unlimited memory
-        if (function_exists('memory_get_usage') && (int)$memory_limit != -1) {
-            $current_memory = memory_get_usage();
-            $channel = isset($infos['channels']) ? ($infos['channels'] / 8) : 1;
-
-            // Evaluate the memory required to resize the image: if it's too much, you can't resize it.
-            // For perfs, avoid computing static maths formulas in the code. pow(2, 16) = 65536 ; 1024 * 1024 = 1048576
-            if (($infos[0] * $infos[1] * $infos['bits'] * $channel + 65536) * 1.8 + $current_memory > $memory_limit - 1048576) {
-                return false;
+        try {
+            BufferedImage buffer = ImageIO.read(new File(imagePath));
+            int width = buffer.getWidth();
+            int height = buffer.getHeight();
+            //int a = buffer.$infos =
+            if (!is_array($infos) || !isset($infos['bits'])) {
+                return true;
             }
-        }
 
-        return true;
+            $memory_limit = JeproLabTools.getMemoryLimit();
+            // memory_limit == -1 => unlimited memory
+            if (function_exists('memory_get_usage') && (int)$memory_limit != -1) {
+                $current_memory = memory_get_usage();
+                $channel = isset($infos['channels']) ? ($infos['channels'] / 8) : 1;
+
+                // Evaluate the memory required to resize the image: if it's too much, you can't resize it.
+                // For perfs, avoid computing static maths formulas in the code. pow(2, 16) = 65536 ; 1024 * 1024 = 1048576
+                if (($infos[0] * $infos[1] * $infos['bits'] * $channel + 65536) * 1.8 + $current_memory > $memory_limit - 1048576) {
+                    return false;
+                }
+            }
+
+            return true;
+        }catch(IOException ignored){
+            @getimagesize($image)
+        }
     }
 
     public static boolean resize(String sourceFile, String destinationFile){
@@ -155,7 +172,7 @@ public class JeproLabImageManager {
      * @param destinationFile   Destination filename
      * @param destWidth  Desired width (optional)
      * @param destHeight Desired height (optional)
-     * @param fileType
+     * @param fileType image type
      * @param forceType
      * @param error
      * @param targetWidth
@@ -171,125 +188,127 @@ public class JeproLabImageManager {
         } else {
             clearstatcache(true, $src_file);
         }
-
+        File imageFile =
         if (!file_exists($src_file) || !filesize($src_file)) {
             return !($error = JeproLabImageManager.ERROR_FILE_NOT_EXIST);
         }
+        try {
+            list($tmp_width, $tmp_height, $type) = getimagesize($src_file);
+            int rotate = 0;
+            if (function_exists('exif_read_data') && function_exists('mb_strtolower')) {
+                $exif = @exif_read_data($src_file) ;
 
-        list($tmp_width, $tmp_height, $type) = getimagesize($src_file);
-        $rotate = 0;
-        if (function_exists('exif_read_data') && function_exists('mb_strtolower')) {
-            $exif = @exif_read_data($src_file);
+                if ($exif && isset($exif['Orientation'])) {
+                    switch ($exif['Orientation']) {
+                        case 3:
+                            srcWidth = $tmp_width;
+                            srcHeight = $tmp_height;
+                            rotate = 180;
+                            break;
 
-            if ($exif && isset($exif['Orientation'])) {
-                switch ($exif['Orientation']) {
-                    case 3:
-                        $src_width = $tmp_width;
-                        $src_height = $tmp_height;
-                        $rotate = 180;
-                        break;
+                        case 6:
+                            srcWidth = $tmp_height;
+                            srcHeight = $tmp_width;
+                            rotate = -90;
+                            break;
 
-                    case 6:
-                        $src_width = $tmp_height;
-                        $src_height = $tmp_width;
-                        $rotate = -90;
-                        break;
+                        case 8:
+                            srcWidth = $tmp_height;
+                            srcHeight = $tmp_width;
+                            rotate = 90;
+                            break;
 
-                    case 8:
-                        $src_width = $tmp_height;
-                        $src_height = $tmp_width;
-                        $rotate = 90;
-                        break;
-
-                    default:
-                        $src_width = $tmp_width;
-                        $src_height = $tmp_height;
+                        default:
+                            srcWidth = $tmp_width;
+                            srcHeight = $tmp_height;
+                    }
+                } else {
+                    srcWidth = $tmp_width;
+                    srcHeight = $tmp_height;
                 }
             } else {
-                $src_width = $tmp_width;
-                $src_height = $tmp_height;
+                srcWidth = $tmp_width;
+                srcHeight = $tmp_height;
             }
-        } else {
-            $src_width = $tmp_width;
-            $src_height = $tmp_height;
-        }
 
-        // If PS_IMAGE_QUALITY is activated, the generated image will be a PNG with .jpg as a file extension.
-        // This allow for higher quality and for transparency. JPG source files will also benefit from a higher quality
-        // because JPG re-encoding by GD, even with max quality setting, degrades the image.
-        if (JeproLabSettingModel.getStringValue("image_quality").equals("png_all") || (JeproLabSettingModel.getStringValue("image_quality").equals("png") && $type == IMAGETYPE_PNG) && !forceType) {
-            fileType = "png";
-        }
+            // If PS_IMAGE_QUALITY is activated, the generated image will be a PNG with .jpg as a file extension.
+            // This allow for higher quality and for transparency. JPG source files will also benefit from a higher quality
+            // because JPG re-encoding by GD, even with max quality setting, degrades the image.
+            if (JeproLabSettingModel.getStringValue("image_quality").equals("png_all") || (JeproLabSettingModel.getStringValue("image_quality").equals("png") && $type == IMAGETYPE_PNG) && !forceType) {
+                fileType = "png";
+            }
 
-        if (srcWidth <= 0) {
-            JeproLabTools.displayError(500, JeproLab.getBundle().getString("JEPROLAB_IMAGE_ERROR_FILE_WIDTH_LABEL"));
-            static_error = JeproLabImageManager.ERROR_FILE_WIDTH;
-            return !($error = JeproLabImageManager.ERROR_FILE_WIDTH);
-        }
+            if (srcWidth <= 0) {
+                JeproLabTools.displayError(500, JeproLab.getBundle().getString("JEPROLAB_IMAGE_ERROR_FILE_WIDTH_LABEL"));
+                static_error = JeproLabImageManager.ERROR_FILE_WIDTH;
+                return !($error = JeproLabImageManager.ERROR_FILE_WIDTH);
+            }
 
-        if (!$dst_width) {
-            $dst_width = $src_width;
-        }
-        if (!$dst_height) {
-            $dst_height = $src_height;
-        }
+            if (!$dst_width) {
+                $dst_width = $src_width;
+            }
+            if (!$dst_height) {
+                $dst_height = $src_height;
+            }
 
-        $width_diff = $dst_width / $src_width;
-        $height_diff = $dst_height / $src_height;
+            $width_diff = $dst_width / $src_width;
+            $height_diff = $dst_height / $src_height;
 
-        $ps_image_generation_method = Configuration::get('PS_IMAGE_GENERATION_METHOD');
-        if ($width_diff > 1 && $height_diff > 1) {
-            $next_width = $src_width;
-            $next_height = $src_height;
-        } else {
-            if ($ps_image_generation_method == 2 || (!$ps_image_generation_method && $width_diff > $height_diff)) {
-                $next_height = $dst_height;
-                $next_width = round(($src_width * $next_height) / $src_height);
-                $dst_width = (int)(!$ps_image_generation_method ? $dst_width : $next_width);
+            $ps_image_generation_method = Configuration::get ('PS_IMAGE_GENERATION_METHOD');
+            if ($width_diff > 1 && $height_diff > 1) {
+                $next_width = $src_width;
+                $next_height = $src_height;
             } else {
-                $next_width = $dst_width;
-                $next_height = round($src_height * $dst_width / $src_width);
-                $dst_height = (int)(!$ps_image_generation_method ? $dst_height : $next_height);
+                if ($ps_image_generation_method == 2 || (!$ps_image_generation_method && $width_diff > $height_diff)) {
+                    $next_height = $dst_height;
+                    $next_width = round(($src_width * $next_height) / $src_height);
+                    $dst_width = (int) (!$ps_image_generation_method ? $dst_width : $next_width);
+                } else {
+                    $next_width = $dst_width;
+                    $next_height = round($src_height * $dst_width / $src_width);
+                    $dst_height = (int) (!$ps_image_generation_method ? $dst_height : $next_height);
+                }
             }
-        }
 
-        if (!JeproLabImageManager.checkImageMemoryLimit($src_file)) {
-        return !($error = JeproLabImageManager.ERROR_MEMORY_LIMIT);
+            if (!JeproLabImageManager.checkImageMemoryLimit($src_file)) {
+                return !($error = JeproLabImageManager.ERROR_MEMORY_LIMIT);
+            }
+
+            $tgt_width = $dst_width;
+            $tgt_height = $dst_height;
+
+            $dest_image = imagecreatetruecolor($dst_width, $dst_height);
+
+            // If image is a PNG and the output is PNG, fill with transparency. Else fill with white background.
+            if ($file_type == 'png' && $type == IMAGETYPE_PNG) {
+                imagealphablending($dest_image, false);
+                imagesavealpha($dest_image, true);
+                $transparent = imagecolorallocatealpha($dest_image, 255, 255, 255, 127);
+                imagefilledrectangle($dest_image, 0, 0, $dst_width, $dst_height, $transparent);
+            } else {
+                $white = imagecolorallocate($dest_image, 255, 255, 255);
+                imagefilledrectangle($dest_image, 0, 0, $dst_width, $dst_height, $white);
+            }
+
+            $src_image = ImageManager::create ($type, $src_file);
+            if ($rotate) {
+                $src_image = imagerotate($src_image, $rotate, 0);
+            }
+
+            if ($dst_width >= $src_width && $dst_height >= $src_height) {
+                imagecopyresized($dest_image, $src_image, (int) (($dst_width - $next_width) / 2), (int) (($dst_height - $next_height) / 2), 0, 0, $next_width, $next_height, $src_width, $src_height);
+            } else {
+                JeproLabImageManager.imageCopyReSampled($dest_image, $src_image, (int) (($dst_width - $next_width) / 2), (int) (($dst_height - $next_height) / 2), 0, 0, $next_width, $next_height, $src_width, $src_height, $quality);
+            }
+            $write_file = ImageManager::write ($file_type, $dest_image, $dst_file);
+            @imagedestroy($src_image) ;
+            return $write_file;
+        }catch(IOException ignored){
+
+        }
     }
 
-        $tgt_width  = $dst_width;
-        $tgt_height = $dst_height;
-
-        $dest_image = imagecreatetruecolor($dst_width, $dst_height);
-
-        // If image is a PNG and the output is PNG, fill with transparency. Else fill with white background.
-        if ($file_type == 'png' && $type == IMAGETYPE_PNG) {
-            imagealphablending($dest_image, false);
-            imagesavealpha($dest_image, true);
-            $transparent = imagecolorallocatealpha($dest_image, 255, 255, 255, 127);
-            imagefilledrectangle($dest_image, 0, 0, $dst_width, $dst_height, $transparent);
-        } else {
-            $white = imagecolorallocate($dest_image, 255, 255, 255);
-            imagefilledrectangle($dest_image, 0, 0, $dst_width, $dst_height, $white);
-        }
-
-        $src_image = ImageManager::create($type, $src_file);
-        if ($rotate) {
-            $src_image = imagerotate($src_image, $rotate, 0);
-        }
-
-        if ($dst_width >= $src_width && $dst_height >= $src_height) {
-            imagecopyresized($dest_image, $src_image, (int)(($dst_width - $next_width) / 2), (int)(($dst_height - $next_height) / 2), 0, 0, $next_width, $next_height, $src_width, $src_height);
-        } else {
-            JeproLabImageManager.imageCopyReSampled($dest_image, $src_image, (int) (($dst_width - $next_width) / 2), (int) (($dst_height - $next_height) / 2), 0, 0, $next_width, $next_height, $src_width, $src_height, $quality);
-        }
-        $write_file = ImageManager::write($file_type, $dest_image, $dst_file);
-        @imagedestroy($src_image);
-        return $write_file;
-    }
-
-    public static function imageCopyReSampled(&$dst_image, $src_image, $dst_x, $dst_y, $src_x, $src_y, $dst_w, $dst_h, $src_w, $src_h, $quality = 3)
-    {
+    public static function imageCopyReSampled(&$dst_image, $src_image, $dst_x, $dst_y, $src_x, $src_y, int dstWidth, int dstHeight, int srcWeight, int srcHeight, int quality = 3){
         // Plug-and-Play fastimagecopyresampled function replaces much slower imagecopyresampled.
         // Just include this function and change all "imagecopyresampled" references to "fastimagecopyresampled".
         // Typically from 30 to 60 times faster when reducing high resolution images down to thumbnail size using the default quality setting.
@@ -303,10 +322,11 @@ public class JeproLabImageManager {
         // 4 = Up to 25 times faster.  Almost identical to imagecopyresampled for most images.
         // 5 = No speedup. Just uses imagecopyresampled, no advantage over imagecopyresampled.
 
-        if (empty($src_image) || empty($dst_image) || $quality <= 0) {
+        if (empty($src_image) || empty($dst_image) || quality <= 0) {
             return false;
         }
-        if ($quality < 5 && (($dst_w * $quality) < $src_w || ($dst_h * $quality) < $src_h)) {
+
+        if (quality < 5 && (($dst_w * quality) < $src_w || ($dst_h * quality) < $src_h)) {
             $temp = imagecreatetruecolor($dst_w * $quality + 1, $dst_h * $quality + 1);
             imagecopyresized($temp, $src_image, 0, 0, $src_x, $src_y, $dst_w * $quality + 1, $dst_h * $quality + 1, $src_w, $src_h);
             imagecopyresampled($dst_image, $temp, $dst_x, $dst_y, 0, 0, $dst_w, $dst_h, $dst_w * $quality, $dst_h * $quality);
@@ -317,79 +337,99 @@ public class JeproLabImageManager {
         return true;
     }
 
+    public static boolean isRealImage(String fileName){
+        return isRealImage(fileName, null, null);
+    }
+
+    public static boolean isRealImage(String fileName, String fileMimeType){
+        return isRealImage(fileName, fileMimeType, null);
+    }
+
     /**
      * Check if file is a real image
      *
-     * @param string $filename File path to check
-     * @param string $file_mime_type File known mime type (generally from $_FILES)
-     * @param array $mime_type_list Allowed MIME types
+     * @param fileName File path to check
+     * @param fileMimeType File known mime type (generally from $_FILES)
+     * @param mimeTypeList Allowed MIME types
      * @return bool
      */
-    public static boolean isRealImage($filename, $file_mime_type = null, $mime_type_list = null)
-    {
+    public static boolean isRealImage(String fileName, String fileMimeType, String[] mimeTypeList){
         // Detect mime content type
-        $mime_type = false;
-        if (!$mime_type_list) {
-            $mime_type_list = array('image/gif', 'image/jpg', 'image/jpeg', 'image/pjpeg', 'image/png', 'image/x-png');
+        String mimeType = null;
+        if (mimeTypeList == null) {
+            mimeTypeList = new String[5];
+            mimeTypeList[0] = "image/gif";
+            mimeTypeList[1] = "image/jpg";
+            mimeTypeList[2] = "image/jpeg";
+            mimeTypeList[3] = "image/pjpeg";
+            mimeTypeList[4] = "image/png";
+            mimeTypeList[5] = "image/x-png";
         }
 
         // Try 4 different methods to determine the mime type
         if (function_exists('getimagesize')) {
-            $image_info = @getimagesize($filename);
+            $image_info = @getimagesize(fileName);
 
             if ($image_info) {
-                $mime_type = $image_info['mime'];
+                mimeType = $image_info['mime'];
             } else {
                 $file_mime_type = false;
             }
-        } elseif (function_exists('finfo_open')) {
-        $const = defined('FILEINFO_MIME_TYPE') ? FILEINFO_MIME_TYPE : FILEINFO_MIME;
-        $finfo = finfo_open($const);
-        $mime_type = finfo_file($finfo, $filename);
-        finfo_close($finfo);
-    } elseif (function_exists('mime_content_type')) {
-        $mime_type = mime_content_type($filename);
-    } elseif (function_exists('exec')) {
-        $mime_type = trim(exec('file -b --mime-type '.escapeshellarg($filename)));
-        if (!$mime_type) {
-            $mime_type = trim(exec('file --mime '.escapeshellarg($filename)));
+        } else if (function_exists('finfo_open')) {
+            $const = defined('FILEINFO_MIME_TYPE') ? FILEINFO_MIME_TYPE : FILEINFO_MIME;
+            $finfo = finfo_open($const);
+            mimeType = finfo_file($finfo, fileName);
+            finfo_close($finfo);
+        } else if (function_exists('mime_content_type')) {
+            mimeType = mime_content_type(fileName);
+        } else if (function_exists('exec')) {
+            mimeType = trim(exec('file -b --mime-type '.escapeshellarg(fileName)));
+            if (!mimeType) {
+                mimeType = trim(exec('file --mime '.escapeshellarg(fileName)));
+            }
+            if (!mimeType) {
+                mimeType = trim(exec('file -bi '.escapeshellarg(fileName)));
+            }
         }
-        if (!$mime_type) {
-            $mime_type = trim(exec('file -bi '.escapeshellarg($filename)));
-        }
-    }
 
-        if ($file_mime_type && (empty($mime_type) || $mime_type == 'regular file' || $mime_type == 'text/plain')) {
-            $mime_type = $file_mime_type;
+        if ($file_mime_type && (mimeType == null || mimeType.equals("") || mimeType.equals("regular file") || mimeType.equals("text/plain"))) {
+            mimeType = fileMimeType;
         }
 
         // For each allowed MIME type, we are looking for it inside the current MIME type
-        foreach ($mime_type_list as $type) {
-        if (strstr($mime_type, $type)) {
-            return true;
+        foreach (mimeTypeList as $type) {
+            if (strstr(mimeType, $type)) {
+                return true;
+            }
         }
-    }
 
         return false;
     }
 
+    public static boolean isCorrectImageFileExtension(String fileName){
+        return isCorrectImageFileExtension(fileName, null);
+    }
     /**
      * Check if image file extension is correct
      *
-     * @param string $filename Real filename
-     * @param array|null $authorized_extensions
+     * @param fileName Real filename
+     * @param authorizedExtensions list of authorized extensions
      * @return bool True if it's correct
      */
-    public static function isCorrectImageFileExtension($filename, $authorized_extensions = null)
-    {
+    public static boolean isCorrectImageFileExtension(String fileName, String[] authorizedExtensions){
         // Filter on file extension
-        if ($authorized_extensions === null) {
-            $authorized_extensions = array('gif', 'jpg', 'jpeg', 'jpe', 'png');
+        if (authorizedExtensions == null) {
+            authorizedExtensions = new String[5];
+            authorizedExtensions[0] = "gif";
+            authorizedExtensions[1] = "jpg";
+            authorizedExtensions[2] = "jpeg";
+            authorizedExtensions[3] = "jpe";
+            authorizedExtensions[4] = "png";
         }
-        $name_explode = explode('.', $filename);
-        if (count($name_explode) >= 2) {
-            $current_extension = strtolower($name_explode[count($name_explode) - 1]);
-            if (!in_array($current_extension, $authorized_extensions)) {
+        String[] nameExplode = fileName.split(".");
+        if(nameExplode.length >= 2) {
+            String currentExtension = nameExplode[nameExplode.length - 1];
+            if (!Arrays.asList(authorizedExtensions).contains(currentExtension)){
                 return false;
             }
         } else {
@@ -406,37 +446,38 @@ public class JeproLabImageManager {
      * @param int $max_file_size Maximum upload size
      * @return bool|string Return false if no error encountered
      */
-    public static function validateUpload($file, $max_file_size = 0, $types = null)
-    {
+    public static boolean validateUpload($file, $max_file_size = 0, $types = null) {
         if ((int)$max_file_size > 0 && $file['size'] > (int)$max_file_size) {
             return sprintf(Tools::displayError('Image is too large (%1$d kB). Maximum allowed: %2$d kB'), $file['size'] / 1024, $max_file_size / 1024);
         }
-        if (!ImageManager::isRealImage($file['tmp_name'], $file['type']) || !ImageManager::isCorrectImageFileExt($file['name'], $types) || preg_match('/\%00/', $file['name'])) {
-        return Tools::displayError('Image format not recognized, allowed formats are: .gif, .jpg, .png');
-    }
+        if (!ImageManager::isRealImage($file['tmp_name'], $file['type']) || !JeproLabImageManager.isCorrectImageFileExtension($file['name'], $types) || preg_match('/\%00/', $file['name'])) {
+            return Tools::displayError('Image format not recognized, allowed formats are: .gif, .jpg, .png');
+        }
         if ($file['error']) {
-            return sprintf(Tools::displayError('Error while uploading image; please change your server\'s settings. (Error code: %s)'), $file['error']);
+            return JeproLabTools.displayError('Error while uploading image; please change your server\'s settings. (Error code: %s)'), $file['error']);
         }
         return false;
     }
 
+    public static boolean validateIconUpload($file){
+        return validateIconUpload(file, 0);
+    }
     /**
      * Validate icon upload
      *
      * @param array $file Upload $_FILE value
-     * @param int $max_file_size Maximum upload size
+     * @param maxFileSize Maximum upload size
      * @return bool|string Return false if no error encountered
      */
-    public static function validateIconUpload($file, $max_file_size = 0)
-    {
-        if ((int)$max_file_size > 0 && $file['size'] > $max_file_size) {
+    public static boolean validateIconUpload($file, int maxFileSize){
+        if (maxFileSize > 0 && $file['size'] > maxFileSize) {
             return sprintf(
                     Tools::displayError('Image is too large (%1$d kB). Maximum allowed: %2$d kB'),
                     $file['size'] / 1000,
                     $max_file_size / 1000
             );
         }
-        if (substr($file['name'], -4) != '.ico') {
+        if (substr($file['name'], -4) != ".ico") {
             return Tools::displayError('Image format not recognized, allowed formats are: .ico');
         }
         if ($file['error']) {
@@ -457,7 +498,7 @@ public class JeproLabImageManager {
      * @param int $dst_y
      *
      * @return bool Operation result
-     */
+     * /
     public static function cut($src_file, $dst_file, $dst_width = null, $dst_height = null, $file_type = 'jpg', $dst_x = 0, $dst_y = 0)
     {
         if (!file_exists($src_file)) {
@@ -492,23 +533,23 @@ public class JeproLabImageManager {
      * Create an image with GD extension from a given type
      *
      * @param string $type
-     * @param string $filename
+     * @param string fileName
      * @return resource
      */
-    public static function create($type, $filename)
+    public static function create($type, fileName)
     {
         switch ($type) {
             case IMAGETYPE_GIF :
-                return imagecreatefromgif($filename);
+                return imagecreatefromgif(fileName);
             break;
 
             case IMAGETYPE_PNG :
-                return imagecreatefrompng($filename);
+                return imagecreatefrompng(fileName);
             break;
 
             case IMAGETYPE_JPEG :
             default:
-                return imagecreatefromjpeg($filename);
+                return imagecreatefromjpeg(fileName);
             break;
         }
     }
@@ -516,12 +557,11 @@ public class JeproLabImageManager {
     /**
      * Create an empty image with white background
      *
-     * @param int $width
-     * @param int $height
+     * @param width image width
+     * @param height image height
      * @return resource
      */
-    public static function createWhiteImage($width, $height)
-    {
+    public static function createWhiteImage(int width, int height){
         $image = imagecreatetruecolor($width, $height);
         $white = imagecolorallocate($image, 255, 255, 255);
         imagefill($image, 0, 0, $white);
@@ -531,74 +571,66 @@ public class JeproLabImageManager {
     /**
      * Generate and write image
      *
-     * @param string $type
+     * @param type image type
      * @param resource $resource
-     * @param string $filename
+     * @param fileName String file name
      * @return bool
      */
-    public static function write($type, $resource, $filename)
-    {
-        static $ps_png_quality = null;
-        static $ps_jpeg_quality = null;
-
-        if ($ps_png_quality === null) {
-            $ps_png_quality = Configuration::get('PS_PNG_QUALITY');
+    public static boolean write(String type, $resource, String fileName){
+        if (png_quality < 0) {
+            png_quality = JeproLabSettingModel.getIntValue("png_quality");
         }
 
-        if ($ps_jpeg_quality === null) {
-            $ps_jpeg_quality = Configuration::get('PS_JPEG_QUALITY');
+        if (jpeg_quality < 0) {
+            jpeg_quality = JeproLabSettingModel.getIntValue("jpeg_quality");
         }
-
-        switch ($type) {
-            case 'gif':
-                $success = imagegif($resource, $filename);
+        int quality;
+        switch (type) {
+            case "gif":
+                $success = imagegif($resource, fileName);
                 break;
 
-            case 'png':
-                $quality = ($ps_png_quality === false ? 7 : $ps_png_quality);
-                $success = imagepng($resource, $filename, (int)$quality);
+            case "png":
+                $quality = (png_quality <= 0 ? 7 : png_quality);
+                $success = imagepng($resource, fileName, (int)$quality);
                 break;
 
-            case 'jpg':
-            case 'jpeg':
+            case "jpg":
+            case "jpeg":
             default:
-                $quality = ($ps_jpeg_quality === false ? 90 : $ps_jpeg_quality);
+                $quality = (jpeg_quality <= 0 ? 90 : jpeg_quality);
                 imageinterlace($resource, 1); /// make it PROGRESSIVE
-                $success = imagejpeg($resource, $filename, (int)$quality);
+                $success = imagejpeg($resource, fileName, (int)$quality);
                 break;
         }
         imagedestroy($resource);
-        @chmod($filename, 0664);
+        @chmod(fileName, 0664);
         return $success;
     }
 
     /**
      * Return the mime type by the file extension
      *
-     * @param string $file_name
+     * @param fileName String file name
      * @return string
      */
-    public static function getMimeTypeByExtension($file_name)
-    {
-        $types = array(
-                'image/gif' => array('gif'),
-                'image/jpeg' => array('jpg', 'jpeg'),
-            'image/png' => array('png')
-        );
-        $extension = substr($file_name, strrpos($file_name, '.') + 1);
+    public static String getMimeTypeByExtension(String fileName){
+        String[] types = new String[4];
+        types[0] = "gif";
+        types[1] = "jpg";
+        types[2] = "jpeg";
+        types[3] = "png";
+        String extension = fileName.substring(fileName.indexOf(".") + 1);
 
-        $mime_type = null;
-        foreach ($types as $mime => $exts) {
-        if (in_array($extension, $exts)) {
-            $mime_type = $mime;
-            break;
-        }
-    }
-
-        if ($mime_type === null) {
-            $mime_type = 'image/jpeg';
+        String mimeType = null;
+        if (Arrays.asList(types).contains(extension)){
+                mimeType = "image/" + extension;
         }
 
-        return $mime_type;
+        if (mimeType == null) {
+            mimeType = "image/jpeg";
+        }
+
+        return mimeType;
     }
 }
