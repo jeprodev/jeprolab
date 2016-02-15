@@ -22,29 +22,29 @@ public class JeproLabCountryModel  extends JeproLabModel{
 
     public int currency_id = 0;
 
-    public char[] isoCode = new char[3];
+    public char[] iso_code = new char[3];
 
     public Map<String, String> name;
 
-    public String callPrefix;
+    public String call_prefix;
 
     public boolean published = false;
 
-    public boolean containsStates = false;
+    public boolean contains_states = false;
 
-    public boolean needIdentificationNumber = false;
+    public boolean need_identification_number = false;
 
-    public boolean needZipCode = false;
+    public boolean need_zip_code = false;
 
-    public boolean displayTaxLabel = false;
+    public boolean display_tax_label = false;
 
-    public boolean getLabFromContext = false;
+    public boolean get_lab_from_context = false;
 
-    public boolean multiLang = true;
+    public boolean multi_lang = true;
 
-    public boolean multiLangLab = true;
+    public boolean multi_lang_lab = true;
 
-    public String zipCodeFormat;
+    public String zip_code_format;
 
     private static Pagination pagination = null;
 
@@ -69,7 +69,7 @@ public class JeproLabCountryModel  extends JeproLabModel{
 
         if(lab_id > 0  && this.isMultiLab()){
             this.lab_id = lab_id;
-            this.getLabFromContext = false;
+            this.get_lab_from_context = false;
         }
 
         if(this.isMultiLab() && this.lab_id <= 0){
@@ -105,14 +105,14 @@ public class JeproLabCountryModel  extends JeproLabModel{
                         this.country_id =  countryData.getInt("country_id");
                         this.zone_id = countryData.getInt("zone_id");
                         this.currency_id = countryData.getInt("currency_id");
-                        this.isoCode = countryData.getString("iso_code").toCharArray();
-                        this.callPrefix = countryData.getString("call_prefix");
+                        this.iso_code = countryData.getString("iso_code").toCharArray();
+                        this.call_prefix = countryData.getString("call_prefix");
                         this.published = countryData.getInt("published") > 0;
-                        this.containsStates = countryData.getInt("contains_states") > 0;
-                        this.needIdentificationNumber = countryData.getInt("need_identification_number") > 0;
-                        this.needZipCode = countryData.getInt("need_zip_code") > 0;
-                        this.zipCodeFormat = countryData.getString("zip_code_format");
-                        this.displayTaxLabel = countryData.getInt("display_tax_label") > 0;
+                        this.contains_states = countryData.getInt("contains_states") > 0;
+                        this.need_identification_number = countryData.getInt("need_identification_number") > 0;
+                        this.need_zip_code = countryData.getInt("need_zip_code") > 0;
+                        this.zip_code_format = countryData.getString("zip_code_format");
+                        this.display_tax_label = countryData.getInt("display_tax_label") > 0;
 
                         if(lang_id > 0){
                             //country.n
@@ -230,7 +230,7 @@ public class JeproLabCountryModel  extends JeproLabModel{
                     country.zone_id = countriesResultSet.getInt("zone_id");
                     country.name.put("lang_" + lang_id, countriesResultSet.getString("name"));
                     //country.isoCode = countriesResultSet.getString("iso_code");
-                    country.callPrefix = countriesResultSet.getString("call_prefix");
+                    country.call_prefix = countriesResultSet.getString("call_prefix");
                     country.published = countriesResultSet.getInt("published") > 0;
                     //country.containsStates = countriesResultSet.getInt("contains_states") > 0;
                     //country.needIdentificationNumber = countriesResultSet.getInt("need_identification_number") > 0;
@@ -293,7 +293,7 @@ public class JeproLabCountryModel  extends JeproLabModel{
     }*/
 
     public boolean isMultiLab(){
-        return JeproLabLaboratoryModel.isTableAssociated("country") || !this.multiLangLab;
+        return JeproLabLaboratoryModel.isTableAssociated("country") || !this.multi_lang_lab;
     }
 
     public List getCountryList(){

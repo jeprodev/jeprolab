@@ -485,10 +485,10 @@ public class JeproLabCategoryModel extends JeproLabModel {
         return categories;
     }
 
-    /* *
+    /**
      * @param labId
      * @return bool
-     * /
+     */
     public boolean isParentCategoryAvailable(int labId){
         if(labId <= 0) {
             labId = JeproLabContext.getContext().laboratory.laboratory_id;
@@ -504,9 +504,9 @@ public class JeproLabCategoryModel extends JeproLabModel {
 
         dataBaseObject.setQuery(query);
         //ResultSet result = dataBaseObject.loadObject();
-        return dataBaseObject.loadValue() > 0;
+        return dataBaseObject.loadValue("category_id") > 0;
     }
-
+/*
     public function getGroups(){
         String cacheKey = "jeprolab_category_getGroups_" + this.category_id;
         if (!JeproLabCache.getInstance().isStored(cacheKey)){

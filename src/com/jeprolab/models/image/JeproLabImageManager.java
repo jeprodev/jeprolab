@@ -29,16 +29,16 @@ public class JeproLabImageManager {
     protected static int png_quality = -2;
     protected static int jpeg_quality = -2;
 
-    public static String thumbnail(String imagePath, String cacheImageKey, int size){
-        return thumbnail(imagePath, cacheImageKey, size, "jpg", true, true);
+    public static String thumbNail(String imagePath, String cacheImageKey, int size){
+        return thumbNail(imagePath, cacheImageKey, size, "jpg", true, true);
     }
 
-    public static String thumbnail(String imagePath, String cacheImageKey, int size, String imageType){
-        return thumbnail(imagePath, cacheImageKey, size, imageType, true, true);
+    public static String thumbNail(String imagePath, String cacheImageKey, int size, String imageType){
+        return thumbNail(imagePath, cacheImageKey, size, imageType, true, true);
     }
 
-    public static String thumbnail(String imagePath, String cacheImageKey, int size, String imageType, boolean disableCache){
-        return thumbnail(imagePath, cacheImageKey, size, imageType, disableCache, true);
+    public static String thumbNail(String imagePath, String cacheImageKey, int size, String imageType, boolean disableCache){
+        return thumbNail(imagePath, cacheImageKey, size, imageType, disableCache, true);
     }
 
     /**
@@ -52,7 +52,7 @@ public class JeproLabImageManager {
      * @param regenerate When turned on and the file already exist, the file will be regenerated
      * @return string
      */
-    public static String thumbnail(String imagePath, String cacheImageKey, int size, String imageType, boolean disableCache, boolean regenerate){
+    public static String thumbNail(String imagePath, String cacheImageKey, int size, String imageType, boolean disableCache, boolean regenerate){
         File imageFile = new File(imagePath);
         if (!imageFile.exists()) {
             return "";
@@ -102,7 +102,7 @@ public class JeproLabImageManager {
      * @return bool
      */
     public static boolean checkImageMemoryLimit(String imagePath){
-        try {
+        /*try {
             BufferedImage buffer = ImageIO.read(new File(imagePath));
             int width = buffer.getWidth();
             int height = buffer.getHeight();
@@ -126,8 +126,8 @@ public class JeproLabImageManager {
 
             return true;
         }catch(IOException ignored){
-            @getimagesize($image)
-        }
+
+        } */ return true;
     }
 
     public static boolean resize(String sourceFile, String destinationFile){
@@ -173,7 +173,7 @@ public class JeproLabImageManager {
      * @param destWidth  Desired width (optional)
      * @param destHeight Desired height (optional)
      * @param fileType image type
-     * @param forceType
+     * @param forceType force image type
      * @param error
      * @param targetWidth
      * @param targetHeight
@@ -183,52 +183,57 @@ public class JeproLabImageManager {
      * @return bool Operation result
      */
     public static boolean resize(String sourceFile, String destinationFile, int destWidth, int destHeight, String fileType, boolean forceType, int error, int targetWidth, int targetHeight, int quality, int srcWidth, int srcHeight){
-        if (PHP_VERSION_ID < 50300) {
+        /*if (PHP_VERSION_ID < 50300) {
             clearstatcache();
         } else {
             clearstatcache(true, $src_file);
-        }
-        File imageFile =
-        if (!file_exists($src_file) || !filesize($src_file)) {
-            return !($error = JeproLabImageManager.ERROR_FILE_NOT_EXIST);
-        }
+        } */
+
+
         try {
-            list($tmp_width, $tmp_height, $type) = getimagesize($src_file);
+            File imageFile = new File(sourceFile);
+            if (!imageFile.exists() || imageFile.length() <= 0) {
+                //return !($error = JeproLabImageManager.ERROR_FILE_NOT_EXIST);
+            }
+            BufferedImage buffer = ImageIO.read(imageFile);
+            int tmpWidth = buffer.getWidth();
+            int tmpHeight = buffer.getHeight();
+            //list($tmp_width, $tmp_height, $type) = getimagesize($src_file);
             int rotate = 0;
-            if (function_exists('exif_read_data') && function_exists('mb_strtolower')) {
+            /*if (function_exists('exif_read_data') && function_exists('mb_strtolower')) {
                 $exif = @exif_read_data($src_file) ;
 
                 if ($exif && isset($exif['Orientation'])) {
                     switch ($exif['Orientation']) {
                         case 3:
-                            srcWidth = $tmp_width;
-                            srcHeight = $tmp_height;
+                            srcWidth = tmpWidth;
+                            srcHeight = tmpHeight;
                             rotate = 180;
                             break;
 
                         case 6:
-                            srcWidth = $tmp_height;
-                            srcHeight = $tmp_width;
+                            srcWidth = tmpHeight;
+                            srcHeight = tmpWidth;
                             rotate = -90;
                             break;
 
                         case 8:
-                            srcWidth = $tmp_height;
-                            srcHeight = $tmp_width;
+                            srcWidth = tmpHeight;
+                            srcHeight = tmpWidth;
                             rotate = 90;
                             break;
 
                         default:
-                            srcWidth = $tmp_width;
-                            srcHeight = $tmp_height;
+                            srcWidth = tmpWidth;
+                            srcHeight = tmpHeight;
                     }
                 } else {
-                    srcWidth = $tmp_width;
-                    srcHeight = $tmp_height;
+                    srcWidth = tmpWidth;
+                    srcHeight = tmpHeight;
                 }
             } else {
-                srcWidth = $tmp_width;
-                srcHeight = $tmp_height;
+                srcWidth = tmpWidth;
+                srcHeight = tmpHeight;
             }
 
             // If PS_IMAGE_QUALITY is activated, the generated image will be a PNG with .jpg as a file extension.
@@ -244,29 +249,29 @@ public class JeproLabImageManager {
                 return !($error = JeproLabImageManager.ERROR_FILE_WIDTH);
             }
 
-            if (!$dst_width) {
-                $dst_width = $src_width;
+            if (destWidth <= 0) {
+                destWidth = srcWidth;
             }
-            if (!$dst_height) {
-                $dst_height = $src_height;
+            if (destHeight <= 0) {
+                destHeight = srcHeight;
             }
 
-            $width_diff = $dst_width / $src_width;
-            $height_diff = $dst_height / $src_height;
+            int widthRatio = destWidth / srcWidth;
+            int heightRatio = destHeight / srcHeight;
 
             $ps_image_generation_method = Configuration::get ('PS_IMAGE_GENERATION_METHOD');
-            if ($width_diff > 1 && $height_diff > 1) {
-                $next_width = $src_width;
-                $next_height = $src_height;
+            if (widthRatio > 1 && heightRatio > 1) {
+                $next_width = srcWidth;
+                $next_height = srcHeight;
             } else {
-                if ($ps_image_generation_method == 2 || (!$ps_image_generation_method && $width_diff > $height_diff)) {
-                    $next_height = $dst_height;
-                    $next_width = round(($src_width * $next_height) / $src_height);
-                    $dst_width = (int) (!$ps_image_generation_method ? $dst_width : $next_width);
+                if ($ps_image_generation_method == 2 || (!$ps_image_generation_method && widthRatio > heightRatio)) {
+                    $next_height = destHeight;
+                    $next_width = round((srcWidth * $next_height) / srcHeight);
+                    destWidth = (!$ps_image_generation_method ? destWidth : $next_width);
                 } else {
-                    $next_width = $dst_width;
-                    $next_height = round($src_height * $dst_width / $src_width);
-                    $dst_height = (int) (!$ps_image_generation_method ? $dst_height : $next_height);
+                    $next_width = destWidth;
+                    $next_height = round(srcHeight * destWidth / srcWidth);
+                    destHeight =  (!$ps_image_generation_method ? destHeight : $next_height);
                 }
             }
 
@@ -274,41 +279,46 @@ public class JeproLabImageManager {
                 return !($error = JeproLabImageManager.ERROR_MEMORY_LIMIT);
             }
 
-            $tgt_width = $dst_width;
-            $tgt_height = $dst_height;
+            $tgt_width = destWidth;
+            $tgt_height = destHeight;
 
-            $dest_image = imagecreatetruecolor($dst_width, $dst_height);
+            $dest_image = imagecreatetruecolor(destWidth, destHeight);
 
             // If image is a PNG and the output is PNG, fill with transparency. Else fill with white background.
             if ($file_type == 'png' && $type == IMAGETYPE_PNG) {
                 imagealphablending($dest_image, false);
                 imagesavealpha($dest_image, true);
                 $transparent = imagecolorallocatealpha($dest_image, 255, 255, 255, 127);
-                imagefilledrectangle($dest_image, 0, 0, $dst_width, $dst_height, $transparent);
+                imagefilledrectangle($dest_image, 0, 0, destWidth, destHeight, $transparent);
             } else {
                 $white = imagecolorallocate($dest_image, 255, 255, 255);
-                imagefilledrectangle($dest_image, 0, 0, $dst_width, $dst_height, $white);
+                imagefilledrectangle($dest_image, 0, 0, destWidth, destHeight, $white);
             }
 
-            $src_image = ImageManager::create ($type, $src_file);
+            $src_image = JeproLabImageManager.create ($type, $src_file);
             if ($rotate) {
                 $src_image = imagerotate($src_image, $rotate, 0);
             }
 
-            if ($dst_width >= $src_width && $dst_height >= $src_height) {
-                imagecopyresized($dest_image, $src_image, (int) (($dst_width - $next_width) / 2), (int) (($dst_height - $next_height) / 2), 0, 0, $next_width, $next_height, $src_width, $src_height);
+            if (destWidth >= srcWidth && destHeight >= srcHeight) {
+                imagecopyresized($dest_image, $src_image, (int) ((destWidth - $next_width) / 2), (int) ((destHeight - $next_height) / 2), 0, 0, $next_width, $next_height, srcWidth, srcHeight);
             } else {
-                JeproLabImageManager.imageCopyReSampled($dest_image, $src_image, (int) (($dst_width - $next_width) / 2), (int) (($dst_height - $next_height) / 2), 0, 0, $next_width, $next_height, $src_width, $src_height, $quality);
+                JeproLabImageManager.imageCopyReSampled($dest_image, $src_image, (int) ((destWidth - $next_width) / 2), (int) ((destHeight - $next_height) / 2), 0, 0, $next_width, $next_height, srcWidth, srcHeight, quality);
             }
-            $write_file = ImageManager::write ($file_type, $dest_image, $dst_file);
+            $write_file = JeproLabImageManager.write ($file_type, $dest_image, $dst_file);
             @imagedestroy($src_image) ;
-            return $write_file;
+            return $write_file; */
         }catch(IOException ignored){
 
         }
+        return true;
+    }
+/*
+    public static function imageCopyReSampled(&$dst_image, $src_image, $dst_x, $dst_y, $src_x, $src_y, int destWidth, int destHeight, int srcWidth, int srcHeight){
+        return imageCopyReSampled(3);
     }
 
-    public static function imageCopyReSampled(&$dst_image, $src_image, $dst_x, $dst_y, $src_x, $src_y, int dstWidth, int dstHeight, int srcWeight, int srcHeight, int quality = 3){
+    public static function imageCopyReSampled(&$dst_image, $src_image, $dst_x, $dst_y, $src_x, $src_y, int destWidth, int destHeight, int srcWidth, int srcHeight, int quality = 3){
         // Plug-and-Play fastimagecopyresampled function replaces much slower imagecopyresampled.
         // Just include this function and change all "imagecopyresampled" references to "fastimagecopyresampled".
         // Typically from 30 to 60 times faster when reducing high resolution images down to thumbnail size using the default quality setting.
@@ -326,13 +336,13 @@ public class JeproLabImageManager {
             return false;
         }
 
-        if (quality < 5 && (($dst_w * quality) < $src_w || ($dst_h * quality) < $src_h)) {
-            $temp = imagecreatetruecolor($dst_w * $quality + 1, $dst_h * $quality + 1);
-            imagecopyresized($temp, $src_image, 0, 0, $src_x, $src_y, $dst_w * $quality + 1, $dst_h * $quality + 1, $src_w, $src_h);
-            imagecopyresampled($dst_image, $temp, $dst_x, $dst_y, 0, 0, $dst_w, $dst_h, $dst_w * $quality, $dst_h * $quality);
+        if (quality < 5 && ((destW * quality) < srcWidth || (destHeight * quality) < srcHeight)) {
+            $temp = imagecreatetruecolor(destWidth * quality + 1, destHeight * quality + 1);
+            imagecopyresized($temp, $src_image, 0, 0, $src_x, $src_y, destWidth * quality + 1, destHeight * quality + 1, srcWidth, srcHeight);
+            imagecopyresampled($dst_image, $temp, $dst_x, $dst_y, 0, 0, destWidth, destHeight, destWidth * quality, destHeight * quality);
             imagedestroy($temp);
         } else {
-            imagecopyresampled($dst_image, $src_image, $dst_x, $dst_y, $src_x, $src_y, $dst_w, $dst_h, $src_w, $src_h);
+            imagecopyresampled($dst_image, $src_image, $dst_x, $dst_y, $src_x, $src_y, destW, destH, srcW, srcH);
         }
         return true;
     }
@@ -366,7 +376,7 @@ public class JeproLabImageManager {
             mimeTypeList[5] = "image/x-png";
         }
 
-        // Try 4 different methods to determine the mime type
+        /*// Try 4 different methods to determine the mime type
         if (function_exists('getimagesize')) {
             $image_info = @getimagesize(fileName);
 
@@ -401,7 +411,7 @@ public class JeproLabImageManager {
             if (strstr(mimeType, $type)) {
                 return true;
             }
-        }
+        } */
 
         return false;
     }
@@ -435,17 +445,16 @@ public class JeproLabImageManager {
         } else {
             return false;
         }
-
         return true;
     }
 
-    /**
+    /*
      * Validate image upload (check image type and weight)
      *
      * @param array $file Upload $_FILE value
      * @param int $max_file_size Maximum upload size
      * @return bool|string Return false if no error encountered
-     */
+     * /
     public static boolean validateUpload($file, $max_file_size = 0, $types = null) {
         if ((int)$max_file_size > 0 && $file['size'] > (int)$max_file_size) {
             return sprintf(Tools::displayError('Image is too large (%1$d kB). Maximum allowed: %2$d kB'), $file['size'] / 1024, $max_file_size / 1024);
@@ -468,7 +477,7 @@ public class JeproLabImageManager {
      * @param array $file Upload $_FILE value
      * @param maxFileSize Maximum upload size
      * @return bool|string Return false if no error encountered
-     */
+     * /
     public static boolean validateIconUpload($file, int maxFileSize){
         if (maxFileSize > 0 && $file['size'] > maxFileSize) {
             return sprintf(
@@ -491,16 +500,15 @@ public class JeproLabImageManager {
      *
      * @param array $src_file Origin filename
      * @param string $dst_file Destination filename
-     * @param int $dst_width Desired width
-     * @param int $dst_height Desired height
+     * @param int destWidth Desired width
+     * @param int destHeight Desired height
      * @param string $file_type
      * @param int $dst_x
      * @param int $dst_y
      *
      * @return bool Operation result
      * /
-    public static function cut($src_file, $dst_file, $dst_width = null, $dst_height = null, $file_type = 'jpg', $dst_x = 0, $dst_y = 0)
-    {
+    public static function cut($src_file, $dst_file, destWidth = null, destHeight = null, $file_type = 'jpg', $dst_x = 0, $dst_y = 0) {
         if (!file_exists($src_file)) {
             return false;
         }
@@ -517,8 +525,8 @@ public class JeproLabImageManager {
         $dest = array();
         $dest['x'] = $dst_x;
         $dest['y'] = $dst_y;
-        $dest['width'] = !is_null($dst_width) ? $dst_width : $src['width'];
-        $dest['height'] = !is_null($dst_height) ? $dst_height : $src['height'];
+        $dest['width'] = !is_null(destWidth) ? destWidth : $src['width'];
+        $dest['height'] = !is_null(destHeight) ? destHeight : $src['height'];
         $dest['ressource'] = ImageManager::createWhiteImage($dest['width'], $dest['height']);
 
         $white = imagecolorallocate($dest['ressource'], 255, 255, 255);
@@ -535,7 +543,7 @@ public class JeproLabImageManager {
      * @param string $type
      * @param string fileName
      * @return resource
-     */
+     * /
     public static function create($type, fileName)
     {
         switch ($type) {
@@ -560,7 +568,7 @@ public class JeproLabImageManager {
      * @param width image width
      * @param height image height
      * @return resource
-     */
+     * /
     public static function createWhiteImage(int width, int height){
         $image = imagecreatetruecolor($width, $height);
         $white = imagecolorallocate($image, 255, 255, 255);
@@ -575,7 +583,7 @@ public class JeproLabImageManager {
      * @param resource $resource
      * @param fileName String file name
      * @return bool
-     */
+     * /
     public static boolean write(String type, $resource, String fileName){
         if (png_quality < 0) {
             png_quality = JeproLabSettingModel.getIntValue("png_quality");
@@ -591,16 +599,16 @@ public class JeproLabImageManager {
                 break;
 
             case "png":
-                $quality = (png_quality <= 0 ? 7 : png_quality);
-                $success = imagepng($resource, fileName, (int)$quality);
+                quality = (png_quality <= 0 ? 7 : png_quality);
+                $success = imagepng($resource, fileName, (int)quality);
                 break;
 
             case "jpg":
             case "jpeg":
             default:
-                $quality = (jpeg_quality <= 0 ? 90 : jpeg_quality);
+                quality = (jpeg_quality <= 0 ? 90 : jpeg_quality);
                 imageinterlace($resource, 1); /// make it PROGRESSIVE
-                $success = imagejpeg($resource, fileName, (int)$quality);
+                $success = imagejpeg($resource, fileName, (int)quality);
                 break;
         }
         imagedestroy($resource);
@@ -613,7 +621,7 @@ public class JeproLabImageManager {
      *
      * @param fileName String file name
      * @return string
-     */
+     * /
     public static String getMimeTypeByExtension(String fileName){
         String[] types = new String[4];
         types[0] = "gif";
@@ -632,5 +640,5 @@ public class JeproLabImageManager {
         }
 
         return mimeType;
-    }
+    } */
 }

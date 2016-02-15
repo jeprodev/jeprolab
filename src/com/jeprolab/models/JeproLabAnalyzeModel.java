@@ -162,7 +162,7 @@ public class JeproLabAnalyzeModel extends JeproLabModel {
     public String redirect_type = "";
 
     /** @var bool Product statuts */
-    public int product_redirected_id = 0;
+    public int analyze_redirected_id = 0;
 
     /** @var bool Product available for order */
     public boolean available_for_order = true;
@@ -921,6 +921,39 @@ public class JeproLabAnalyzeModel extends JeproLabModel {
 
         combinations.get(analyzeId).put(minimumQuantity, result);
         return result;
+    }
+
+    public boolean isAssociatedToLaboratory(){
+        return isAssociatedToLaboratory(0);
+    }
+
+    /**
+     * Checks if current object is associated to a laboratory.
+     *
+     * @param labId laboratory Id
+     * @return bool
+     */
+    public boolean isAssociatedToLaboratory(int labId){
+        if (labId <= 0) {
+            labId = JeproLabContext.getContext().laboratory.laboratory_id;
+        }
+        boolean associated = false;
+        String cacheKey = "jeprolab_model_lab_analyze_" + this.analyze_id + "_" + labId;
+        if (!JeproLabCache.getInstance().isStored(cacheKey)) {
+            if (dataBaseObject == null) {
+                dataBaseObject = JeproLabFactory.getDataBaseConnector();
+            }
+            String query = "SELECT lab_id FROM " + dataBaseObject.quoteName("#__jeprolab_analyze_lab") + " WHERE " + dataBaseObject.quoteName("analyze_id");
+            query += " = " + this.analyze_id + " AND lab_id = " + labId;
+            dataBaseObject.setQuery(query);
+            associated = dataBaseObject.loadValue("lab_id") > 0;
+
+
+            JeproLabCache.getInstance().store(cacheKey, associated);
+            return associated;
+        }
+
+        return (boolean)JeproLabCache.getInstance().retrieve(cacheKey);
     }
 /*
     public function setAvailableDate($available_date = '0000-00-00')
@@ -2359,26 +2392,29 @@ public class JeproLabAnalyzeModel extends JeproLabModel {
      * Check if product has attributes combinations
      *
      * @return int Attributes combinations number
-     * /
-    public function hasAttributes()
-    {
-        if (!Combination::isFeatureActive()) {
-        return 0;
-    }
-        return Db::getInstance(_PS_USE_SQL_SLAVE_)->getValue('
-            SELECT COUNT(*)
-        FROM `'._DB_PREFIX_.'product_attribute` pa
-        '.Shop::addSqlAssociation('product_attribute', 'pa').'
-        WHERE pa.`id_product` = '.(int)this.id
-        );
+     */
+    public int hasAttributes(){
+        if (!JeproLabCombinationModel.isFeaturePublished()) {
+            return 0;
+        }
+        if(dataBaseObject == null){
+            dataBaseObject = JeproLabFactory.getDataBaseConnector();
+        }
+
+        String query = "SELECT COUNT(*) AS attributes FROM " + dataBaseObject.quoteName("#__jeprolab_analyze_attribute") + " AS analyze_attribute ";
+        query += JeproLabLaboratoryModel.addSqlAssociation("analyze_attribute") + " WHERE attribute_analyze." + dataBaseObject.quoteName("analyze_id");
+        query += " = " + this.analyze_id;
+
+        dataBaseObject.setQuery(query);
+        return (int)dataBaseObject.loadValue("attributes");
     }
 
-    /**
+    /*
      * Get new products
      *
-     * @param int $id_lang Language id
-     * @param int $pageNumber Start from (optional)
-     * @param int $nbProducts Number of products to return (optional)
+     * @param langId Language id
+     * @param pageNumber Start from (optional)
+     * @param nbProducts Number of products to return (optional)
      * @return array New products
      * /
     public static function getNewProducts($id_lang, $page_number = 0, $nb_products = 10, $count = false, $order_by = null, $order_way = null, Context context = null)
@@ -3690,37 +3726,45 @@ public class JeproLabAnalyzeModel extends JeproLabModel {
     /**
      * Get all available attribute groups
      *
-     * @param int $id_lang Language id
+     * @param langId Language id
      * @return array Attribute groups
-     * /
-    public function getAttributesGroups($id_lang)
-    {
-        if (!Combination::isFeatureActive()) {
-        return array();
-    }
-        $sql = 'SELECT ag.`id_attribute_group`, ag.`is_color_group`, agl.`name` AS group_name, agl.`public_name` AS public_group_name,
-        a.`id_attribute`, al.`name` AS attribute_name, a.`color` AS attribute_color, product_attribute_shop.`id_product_attribute`,
-        IFNULL(stock.quantity, 0) as quantity, product_attribute_shop.`price`, product_attribute_shop.`ecotax`, product_attribute_shop.`weight`,
-        product_attribute_shop.`default_on`, pa.`reference`, product_attribute_shop.`unit_price_impact`,
-        product_attribute_shop.`minimal_quantity`, product_attribute_shop.`available_date`, ag.`group_type`
-        FROM `'._DB_PREFIX_.'product_attribute` pa
-        '.Shop::addSqlAssociation('product_attribute', 'pa').'
-        '.Product::sqlStock('pa', 'pa').'
-        LEFT JOIN `'._DB_PREFIX_.'product_attribute_combination` pac ON (pac.`id_product_attribute` = pa.`id_product_attribute`)
-        LEFT JOIN `'._DB_PREFIX_.'attribute` a ON (a.`id_attribute` = pac.`id_attribute`)
-        LEFT JOIN `'._DB_PREFIX_.'attribute_group` ag ON (ag.`id_attribute_group` = a.`id_attribute_group`)
-        LEFT JOIN `'._DB_PREFIX_.'attribute_lang` al ON (a.`id_attribute` = al.`id_attribute`)
-        LEFT JOIN `'._DB_PREFIX_.'attribute_group_lang` agl ON (ag.`id_attribute_group` = agl.`id_attribute_group`)
-        '.Shop::addSqlAssociation('attribute', 'a').'
-        WHERE pa.`id_product` = '.(int)this.id.'
-        AND al.`id_lang` = '.(int)$id_lang.'
-        AND agl.`id_lang` = '.(int)$id_lang.'
-        GROUP BY id_attribute_group, id_product_attribute
-        ORDER BY ag.`position` ASC, a.`position` ASC, agl.`name` ASC';
+     */
+    public List<JeproLabAttributeGroupModel> getAttributesGroups(int langId){
+        if (!JeproLabCombinationModel.isFeaturePublished()){
+            return new ArrayList<>();
+        }
+        if(dataBaseObject == null){
+            dataBaseObject = JeproLabFactory.getDataBaseConnector();
+        }
+        String query = "SELECT attribute_group." + dataBaseObject.quoteName("attribute_group_id") + ", attribute_group." + dataBaseObject.quoteName("is_color_group");
+        query += ", attribute_group_lang." + dataBaseObject.quoteName("name") + " AS group_name, attribute_group_lang." + dataBaseObject.quoteName("public_name");
+        query += " AS public_group_name, attribute." + dataBaseObject.quoteName("attribute_id") + ", attribute_lang." + dataBaseObject.quoteName("name");
+        query += " AS attribute_name, attribute." + dataBaseObject.quoteName("color") + " AS attribute_color, analyze_attribute_lab." + dataBaseObject.quoteName("analyze_attribute_id");
+        query += ", IFNULL(stock.quantity, 0) as quantity, analyze_attribute_lab." + dataBaseObject.quoteName("price") + ", analyze_attribute_lab.";
+        query += dataBaseObject.quoteName("ecotax") + ", analyze_attribute_lab." + dataBaseObject.quoteName("weight") + ", analyze_attribute_lab." ;
+        query += dataBaseObject.quoteName("default_on") + ", analyze_attribute." + dataBaseObject.quoteName("reference") + ", analyze_attribute_lab.";
+        query += dataBaseObject.quoteName("unit_price_impact") + ", analyze_attribute_lab." + dataBaseObject.quoteName("minimal_quantity") + ", analyze_attribute_lab.";
+        query += dataBaseObject.quoteName("available_date") + ", attribute_group." + dataBaseObject.quoteName("group_type") + " FROM ";
+        query += dataBaseObject.quoteName("#__jeprolab_analyze_attribute") + " AS analyze_attribute " + JeproLabLaboratoryModel.addSqlAssociation("analyze_attribute");
+        query += JeproLabAnalyzeModel.queryStock("analyze_attribute") + " LEFT JOIN " + dataBaseObject.quoteName("#__jeprolab_analyze_attribute_combination");
+        query += " AS analyze_attribute_combination ON (analyze_attribute_combination." + dataBaseObject.quoteName("analyze_attribute_id") + " = analyze_attribute.";
+        query += dataBaseObject.quoteName("analyze__attribute_id") + ") LEFT JOIN  " + dataBaseObject.quoteName("#__jeprolab_attribute") + " AS attribute";
+        query += " ON (attribute." + dataBaseObject.quoteName("attribute_id") + " = analyze_attribute_combination." + dataBaseObject.quoteName("attribute_id") ;
+        query += ") LEFT JOIN " + dataBaseObject.quoteName("#__jeprolab_attribute_group") + " AS attribute_group ON (attribute_group." + dataBaseObject.quoteName("attribute_group_id");
+        query += " = attribute." + dataBaseObject.quoteName("attribute_group_id") + ") LEFT JOIN " + dataBaseObject.quoteName("#__jeprolab_attribute_lang") + " AS attribute_lang ON (attribute.";
+        query += dataBaseObject.quoteName("attribute_id") + " = attribute_lang." + dataBaseObject.quoteName("attribute_id") + ") LEFT JOIN " + dataBaseObject.quoteName("#__jeprolab_attribute_group_lang");
+        query += " AS attribute_group_lang ON (attribute_group." + dataBaseObject.quoteName("attribute_group_id") + " = attribute_group_lang." + dataBaseObject.quoteName("attribute_group_id") ;
+        query += ") " + JeproLabLaboratoryModel.addSqlAssociation("attribute") + " WHERE analyze_attribute." + dataBaseObject.quoteName("analyze_id") + " = " + this.analyze_id;
+        query += " AND attribute_lang." + dataBaseObject.quoteName("lang_id") + " = " + langId + " AND attribute_group_lang." + dataBaseObject.quoteName("lang_id") + " = " + langId;
+        query += " GROUP BY attribute_group_id, analyze_attribute_id ORDER BY attribute_group." + dataBaseObject.quoteName("position") + " ASC, attribute.";
+        query += dataBaseObject.quoteName("position") + " ASC, " + " attribute_group_lang." + dataBaseObject.quoteName("name") + " ASC";
+
+        dataBaseObject.setQuery(query);
+        ResultSet attributeGroupSet = dataBaseObject.loadObject();
         return Db::getInstance()->executeS($sql);
     }
 
-    /**
+    /*
      * Delete product accessories
      *
      * @return mixed Deletion result
@@ -5923,54 +5967,66 @@ public function getAnchor($id_product_attribute, $with_id = false)
         }
         return $anchor;
         }
+*/
 
-/**
- * Gets the name of a given product, in the given lang
- *
- * @since 1.5.0
- * @param int $id_product
- * @param int $id_product_attribute Optional
- * @param int $id_lang Optional
- * @return string
- * /
-public static function getProductName($id_product, $id_product_attribute = null, $id_lang = null)
-        {
+    public static String getAnalyzeName(int analyzeId){
+        return getAnalyzeName(analyzeId, 0, 0);
+    }
+
+    public static String getAnalyzeName(int analyzeId, int analyzeAttributeId){
+        return getAnalyzeName(analyzeId, analyzeAttributeId, 0);
+    }
+    /**
+     * Gets the name of a given analyze, in the given lang
+     *
+     * @param analyzeId
+     * @param analyzeAttributeId Optional
+     * @param langId Optional
+     * @return string
+     */
+    public static String getAnalyzeName(int analyzeId, int analyzeAttributeId,int langId) {
         // use the lang in the context if $id_lang is not defined
-        if (!$id_lang) {
-        $id_lang = (int)Context::getContext()->language->id;
+        if (langId <= 0) {
+            langId = JeproLabContext.getContext().language.language_id;
         }
-
-        // creates the query object
-        $query = new DbQuery();
+        String select = "";
+        String from = "";
+        String leftJoin = "";
+        String innerJoin = "";
+        String where = "";
 
         // selects different names, if it is a combination
-        if ($id_product_attribute) {
-        $query->select('IFNULL(CONCAT(pl.name, \' : \', GROUP_CONCAT(DISTINCT agl.`name`, \' - \', al.name SEPARATOR \', \')),pl.name) as name');
+        if (analyzeAttributeId > 0) {
+            select = "SELECT IFNULL(CONCAT(analyze_lang.name, ' : ', GROUP_CONCAT(DISTINCT attribute_group_lang." + staticDataBaseObject.quoteName("name");
+            select += ", ' - ', attribute_lang.name SEPARATOR ', ')), analyze_lang.name) as name ";
         } else {
-        $query->select('DISTINCT pl.name as name');
+            select = "SELECT DISTINCT analyze_lang.name as name ";
         }
 
         // adds joins & where clauses for combinations
-        if ($id_product_attribute) {
-        $query->from('product_attribute', 'pa');
-        $query->join(Shop::addSqlAssociation('product_attribute', 'pa'));
-        $query->innerJoin('product_lang', 'pl', 'pl.id_product = pa.id_product AND pl.id_lang = '.(int)$id_lang.Shop::addSqlRestrictionOnLang('pl'));
-        $query->leftJoin('product_attribute_combination', 'pac', 'pac.id_product_attribute = pa.id_product_attribute');
-        $query->leftJoin('attribute', 'atr', 'atr.id_attribute = pac.id_attribute');
-        $query->leftJoin('attribute_lang', 'al', 'al.id_attribute = atr.id_attribute AND al.id_lang = '.(int)$id_lang);
-        $query->leftJoin('attribute_group_lang', 'agl', 'agl.id_attribute_group = atr.id_attribute_group AND agl.id_lang = '.(int)$id_lang);
-        $query->where('pa.id_product = '.(int)$id_product.' AND pa.id_product_attribute = '.(int)$id_product_attribute);
+        if (analyzeAttributeId > 0) {
+            from = " FROM " + staticDataBaseObject.quoteName("#__jeprolab_analyze_attribute") + " AS analyze_attribute ";
+            String join = JeproLabLaboratoryModel.addSqlAssociation ("analyze_attribute");
+            innerJoin = " LEFT JOIN " + staticDataBaseObject.quoteName("#__jeprolab_analyze_lang") + " AS analyze_lang ON (analyze_lang.";
+            innerJoin += staticDataBaseObject.quoteName("analyze_id") + " = analyze_attribute." + staticDataBaseObject.quoteName("analyze_id");
+            innerJoin += " AND analyze_lang." + staticDataBaseObject.quoteName("lang_id") + " = " + langId + JeproLabLaboratoryModel.addSqlRestrictionOnLang("analyze_lang");
+            leftJoin = join + " LEFT JOIN " + staticDataBaseObject.quoteName("#__jeprolab_analyze_attribute_combination") + " AS analyze_attribute_combination ";
+            leftJoin += " ON (analyze_attribute_combination.analyze_attribute_id = attribute_analyze.analyze_attribute_id) LEFT JOIN ";
+            leftJoin += staticDataBaseObject.quoteName("#__jeprolab_attribute") + " AS attribute ON (attribute.attribute_id = analyze_attribute_combination.";
+            leftJoin += "attribute_id) LEFT JOIN " + staticDataBaseObject.quoteName("#__jeprolab_attribute_lang") + " AS attribute_lang ON (";
+            leftJoin += "attribute_lang.attribute_id = attribute.attribute_id AND attribute_lang.lang_id = " + langId + ") LEFT JOIN ";
+            leftJoin += staticDataBaseObject.quoteName("#__jeprolab_attribute_group_lang") + " AS attribute_group_lang ON(attribute_group_lang.";
+            leftJoin += "attribute_group_id = attribute.attribute_group_id AND attribute_group_lang.lang_id = " + langId;
+            where = " WHERE analyze_attribute.analyze_id = " + analyzeId + " AND analyze_attribute.analyze_attribute_id = " + analyzeAttributeId;
         } else {
-        // or just adds a 'where' clause for a simple product
-
-        $query->from('product_lang', 'pl');
-        $query->where('pl.id_product = '.(int)$id_product);
-        $query->where('pl.id_lang = '.(int)$id_lang.Shop::addSqlRestrictionOnLang('pl'));
+            from = " FROM " + staticDataBaseObject.quoteName("#__jeprolab_analyze_lang") + " AS analyze_lang";
+            where = " WHERE analyze_lang.analyze_id = " + analyzeId + " AND analyze_lang."  + staticDataBaseObject.quoteName("lang_id");
+            where += langId + JeproLabLaboratoryModel.addSqlRestrictionOnLang("analyze_lang");
         }
-
-        return Db::getInstance()->getValue($query);
-        }
-
+        staticDataBaseObject.setQuery(select + from + leftJoin + innerJoin + where);
+        return staticDataBaseObject.loadStringValue("name");
+    }
+/*
 public function addWs($autodate = true, $null_values = false)
         {
         $success = this.add($autodate, $null_values);

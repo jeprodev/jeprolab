@@ -221,7 +221,7 @@ public class JeproLabCurrencyModel extends JeproLabModel {
         }
         return currencySign;
     }
-
+*/
     public static List<JeproLabCurrencyModel> getCurrencies(){
         return getCurrencies(false, true, false);
     }
@@ -234,7 +234,7 @@ public class JeproLabCurrencyModel extends JeproLabModel {
      * Return available currencies
      *
      * @return array Currencies
-     * /
+     */
     public static List<JeproLabCurrencyModel> getCurrencies(boolean object, boolean published, boolean groupBy){
         if(staticDataBaseObject == null){
             staticDataBaseObject = JeproLabFactory.getDataBaseConnector();
@@ -267,7 +267,7 @@ public class JeproLabCurrencyModel extends JeproLabModel {
         }
         return currencies;
     }
-
+/*
     public static List<JeproLabCurrencyModel> getCurrenciesByLaboratoryId(){
         return getCurrenciesByLaboratoryId(0);
     }

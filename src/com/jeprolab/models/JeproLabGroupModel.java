@@ -19,7 +19,7 @@ public class JeproLabGroupModel extends JeproLabModel {
     public Map<String, String> name = new HashMap<>();
 
     /** @var string Reduction */
-    public String reduction;
+    public float reduction;
 
     /** @var int Price display method (JeproLabTaxManagerFactory inc/JeproLabTaxManagerFactory exc) */
     public int price_display_method;
@@ -88,21 +88,50 @@ public class JeproLabGroupModel extends JeproLabModel {
             group_price_display_method.put(this.group_id, this.price_display_method);
         }
     }
-/*
-    public static function getGroups($id_lang, $id_shop = false){
-        $shop_criteria = '';
-        if ($id_shop) {
-            $shop_criteria = Shop::addSqlAssociation('group', 'g');
+
+    public static List<JeproLabGroupModel> getGroups(int langId){
+        return getGroups(langId, 0);
+    }
+    public static List<JeproLabGroupModel> getGroups(int langId, int labId){
+        String labCriteria = "";
+        if (labId > 0) {
+            labCriteria = JeproLabLaboratoryModel.addSqlAssociation("group");
         }
 
-        return Db::getInstance(_PS_USE_SQL_SLAVE_)->executeS('
-            SELECT DISTINCT g.`id_group`, g.`reduction`, g.`price_display_method`, gl.`name`
-            FROM `'._DB_PREFIX_.'group` g
-        LEFT JOIN `'._DB_PREFIX_.'group_lang` AS gl ON (g.`id_group` = gl.`id_group` AND gl.`id_lang` = '.(int)$id_lang.')
-        '.$shop_criteria.'
-        ORDER BY g.`id_group` ASC');
-    }
+        if(staticDataBaseObject == null){
+            staticDataBaseObject = JeproLabFactory.getDataBaseConnector();
+        }
 
+        String query = "SELECT DISTINCT grp." + staticDataBaseObject.quoteName("group_id") + ", grp." + staticDataBaseObject.quoteName("reduction");
+        query += ", grp." + staticDataBaseObject.quoteName("price_display_method") + ", grp_lang." + staticDataBaseObject.quoteName("name") + " FROM ";
+        query += staticDataBaseObject.quoteName("#__jeprolab_group") + " AS grp LEFT JOIN " + staticDataBaseObject.quoteName("#__jeprolab_group_lang");
+        query += " AS grp_lang ON (grp." + staticDataBaseObject.quoteName("group_id") + " = grp_lang." + staticDataBaseObject.quoteName("group_id");
+        query += " AND grp_lang." + staticDataBaseObject.quoteName("lang_id") + " = " +  langId + ") " + labCriteria + " ORDER BY grp.";
+        query += staticDataBaseObject.quoteName("group_id") + " ASC";
+
+        staticDataBaseObject.setQuery(query);
+        ResultSet groupSet = staticDataBaseObject.loadObject();
+        List<JeproLabGroupModel> groupList = new ArrayList<>();
+
+        try{
+            JeproLabGroupModel group;
+            while(groupSet.next()){
+                group = new JeproLabGroupModel();
+                group.group_id = groupSet.getInt("group_id");
+                group.reduction = groupSet.getFloat("reduction");
+                group.price_display_method = groupSet.getInt("price_display_method");
+                if(langId > 0){
+                    group.name.put("lang_" + langId, groupSet.getString("name"));
+                }
+                //group = groupSet.get("");
+                groupList.add(group);
+            }
+        }catch(SQLException ignored){
+
+        }
+        return groupList;
+    }
+/*
     public function getCustomers($count = false, $start = 0, $limit = 0, $shop_filtering = false)
     {
         if ($count) {

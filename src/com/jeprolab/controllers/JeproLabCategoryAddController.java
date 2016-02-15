@@ -31,6 +31,7 @@ import java.util.ResourceBundle;
  * Created by jeprodev on 11/01/2014.
  */
 public class JeproLabCategoryAddController extends JeproLabController{
+    private Button saveCategoryBtn, cancelBtn;
     @FXML
     public Label jeproLabCategoryNameLabel, jeproLabPublishedCategoryLabel, jeproLabCategoryParentLabel, jeproLabCategoryDescriptionLabel;
     public Label jeproLabCategoryImageChooserLabel, jeproLabCategoryMetaTileLabel, jeproLabCategoryMetaDescriptionLabel;
@@ -142,7 +143,7 @@ public class JeproLabCategoryAddController extends JeproLabController{
             File imageFile = new File(imagePath);
             int imageSize = (imageFile.exists() && !imageFile.isDirectory()) ? (int)(imageFile.length()/1000) : 0;
 
-            boolean sharedCategory = ((category.category_id > 0) &&  category.hasMultiLabEntries();
+            boolean sharedCategory = ((category.category_id > 0) &&  category.hasMultiLabEntries());
 
         }
 
@@ -158,7 +159,9 @@ public class JeproLabCategoryAddController extends JeproLabController{
         HBox commandWrapper = JeproLab.getInstance().getApplicationToolBarCommandWrapper();
         commandWrapper.getChildren().clear();
         saveCategoryBtn = new Button(bundle.getString("JEPROLAB_SAVE_LABEL"));
-        commandWrapper.getChildren().addAll(saveCategoryBtn);
+        cancelBtn = new Button(bundle.getString("JEPROLAB_CANCEL_LABEL"));
+
+        commandWrapper.getChildren().addAll(saveCategoryBtn, cancelBtn);
     }
 
     private JeproLabCategoryModel loadCategory(){

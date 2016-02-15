@@ -496,22 +496,22 @@ public class JeproLabLaboratoryModel  extends JeproLabModel{
         return results;
     }
 
-    public static List getLaboratories(){
+    public static List<JeproLabLaboratoryModel> getLaboratories(){
         return getLaboratories(true);
     }
 
-    public static List getLaboratories(boolean published){
+    public static List<JeproLabLaboratoryModel> getLaboratories(boolean published){
         return getLaboratories(published, 0);
     }
 
-    public static List getLaboratories(boolean published, int labGroupId){
+    public static List<JeproLabLaboratoryModel> getLaboratories(boolean published, int labGroupId){
         return getLaboratories(published, labGroupId, false);
     }
 
-    public static List getLaboratories(boolean published, int labGroupId, boolean getAsListIds){
+    public static List<JeproLabLaboratoryModel> getLaboratories(boolean published, int labGroupId, boolean getAsListIds){
         JeproLabLaboratoryModel.cacheLaboratories();
 
-        List results = new ArrayList();
+        List<JeproLabLaboratoryModel> results = new ArrayList();
         /*todo foreach (JeproLabLaboratoryModel.labs as $group_id => $group_data){
             foreach ($group_data['labs'] as $lab_id => $lab_data){
                 if((!$published || $lab_data->published) && (!$lab_group_id || $lab_group_id == $group_id)){
