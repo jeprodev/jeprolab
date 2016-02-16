@@ -1120,4 +1120,195 @@ public class JeproLabImageModel extends JeproLabModel {
             }
         }
     } */
+
+    public static class JeproLabImageTypeModel extends JeproLabModel {
+        public int image_type_id;
+
+        /** @var string Name */
+        public String name;
+
+        /** @var int Width */
+        public int width;
+
+        /** @var int Height */
+        public int height;
+
+        /** @var bool Apply to products */
+        public boolean analyzes;
+
+        /** @var int Apply to categories */
+        public boolean categories;
+
+        /** @var int Apply to manufacturers */
+        public boolean manufacturers;
+
+        /** @var int Apply to suppliers */
+        public boolean suppliers;
+
+        /** @var int Apply to scenes */
+        public boolean scenes;
+
+        public boolean technicians;
+        /** @var int Apply to store */
+        public boolean laboratories;
+
+        /*
+         * @see ObjectModel::$definition
+         * /
+        public static $definition = array(
+                'table' => 'image_type',
+                        'primary' => 'id_image_type',
+                        'fields' => array(
+                        'name' =>        array('type' => self::TYPE_STRING, 'validate' => 'isImageTypeName', 'required' => true, 'size' => 64),
+        'width' =>        array('type' => self::TYPE_INT, 'validate' => 'isImageSize', 'required' => true),
+        'height' =>        array('type' => self::TYPE_INT, 'validate' => 'isImageSize', 'required' => true),
+        'categories' =>    array('type' => self::TYPE_BOOL, 'validate' => 'isBool'),
+        'products' =>        array('type' => self::TYPE_BOOL, 'validate' => 'isBool'),
+        'manufacturers' =>    array('type' => self::TYPE_BOOL, 'validate' => 'isBool'),
+        'suppliers' =>        array('type' => self::TYPE_BOOL, 'validate' => 'isBool'),
+        'scenes' =>        array('type' => self::TYPE_BOOL, 'validate' => 'isBool'),
+        'stores' =>        array('type' => self::TYPE_BOOL, 'validate' => 'isBool'),
+        ),
+                );
+
+        /**
+         * @var array Image types cache
+         */
+        protected static Map<String, List<JeproLabImageTypeModel>>images_types_cache = new HashMap<>();
+
+        /*protected static $images_types_name_cache = array();
+
+        protected $webserviceParameters = array();
+*/
+        public static List<JeproLabImageTypeModel> getImagesTypes() {
+            return getImagesTypes("", false);
+        }
+
+        public static List<JeproLabImageTypeModel> getImagesTypes(String type) {
+            return getImagesTypes(type, false);
+        }
+
+        /**
+         * Returns image type definitions
+         *
+         * @param type Image type
+         * @param orderBySize order by size
+         * @return array Image type definitions
+         */
+        public static List<JeproLabImageTypeModel> getImagesTypes(String type, boolean orderBySize) {
+            if(staticDataBaseObject == null){
+                staticDataBaseObject = JeproLabFactory.getDataBaseConnector();
+            }
+
+            if (!JeproLabImageTypeModel.images_types_cache.containsKey(type)) {
+                String where = " WHERE 1 ";
+                if (!type.equals("")){
+                    where += " AND " + staticDataBaseObject.quote(type) + " = 1 ";
+                }
+                String query = "SELECT * FROM " + staticDataBaseObject.quoteName("#__jeprolab_image_type") + where + "ORDER BY ";
+
+                if (orderBySize) {
+                    query += staticDataBaseObject.quoteName("width") + " DESC, " + staticDataBaseObject.quoteName("height") + " DESC, ";
+                }
+                query += staticDataBaseObject.quoteName("name") + " ASC ";
+
+                staticDataBaseObject.setQuery(query);
+                ResultSet imageTypeSet = staticDataBaseObject.loadObject();
+                List<JeproLabImageTypeModel> list = new ArrayList<>();
+                try{
+                    JeproLabImageTypeModel imageType;
+                    while(imageTypeSet.next()){
+                        imageType = new JeproLabImageTypeModel();
+                        imageType.image_type_id = imageTypeSet.getInt("image_type_id");
+                        imageType.name = imageTypeSet.getString("name");
+                        imageType.width = imageTypeSet.getInt("width");
+                        imageType.height = imageTypeSet.getInt("height");
+                        imageType.analyzes = imageTypeSet.getInt("analyzes") > 0;
+                        imageType.categories = imageTypeSet.getInt("categories") > 0;
+                        imageType.manufacturers = imageTypeSet.getInt("manufactures") > 0;
+                        imageType.suppliers = imageTypeSet.getInt("suppliers") > 0;
+                        imageType.technicians = imageTypeSet.getInt("technicians") > 0;
+                        imageType.scenes = imageTypeSet.getInt("scenes") > 0;
+                        imageType.laboratories = imageTypeSet.getInt("laboratories") > 0;
+                        list.add(imageType);
+                    }
+                }catch (SQLException ignored){
+
+                }
+
+                JeproLabImageTypeModel.images_types_cache.put(type, list);
+            }
+            return JeproLabImageTypeModel.images_types_cache.get(type);
+        }
+
+        /**
+         * Check if type already is already registered in database
+         *
+         * @param string $typeName Name
+         * @return int Number of results found
+         * /
+        public static function typeAlreadyExists($type_name)
+        {
+            if (!Validate::isImageTypeName($type_name)) {
+            die(Tools::displayError());
+        }
+
+            Db::getInstance()->executeS('
+                SELECT `id_image_type`
+                FROM `'._DB_PREFIX_.'image_type`
+            WHERE `name` = \''.pSQL($type_name).'\'');
+
+            return Db::getInstance()->NumRows();
+        }
+
+        /**
+         * Finds image type definition by name and type
+         * @param string $name
+         * @param string $type
+         * /
+        public static function getByNameNType($name, $type = null, $order = 0)
+        {
+            static $is_passed = false;
+
+            if (!isset(self::$images_types_name_cache[$name.'_'.$type.'_'.$order]) && !$is_passed) {
+            $results = Db::getInstance()->ExecuteS('SELECT * FROM `'._DB_PREFIX_.'image_type`');
+
+            $types = array('products', 'categories', 'manufacturers', 'suppliers', 'scenes', 'stores');
+            $total = count($types);
+
+            foreach ($results as $result) {
+                foreach ($result as $value) {
+                    for ($i = 0; $i < $total; ++$i) {
+                        self::$images_types_name_cache[$result['name'].'_'.$types[$i].'_'.$value] = $result;
+                    }
+                }
+            }
+
+            $is_passed = true;
+        }
+
+            $return = false;
+            if (isset(self::$images_types_name_cache[$name.'_'.$type.'_'.$order])) {
+            $return = self::$images_types_name_cache[$name.'_'.$type.'_'.$order];
+        }
+            return $return;
+        }
+
+        public static function getFormatedName($name)
+        {
+            $theme_name = Context::getContext()->shop->theme_name;
+            $name_without_theme_name = str_replace(array('_'.$theme_name, $theme_name.'_'), '', $name);
+
+            //check if the theme name is already in $name if yes only return $name
+            if (strstr($name, $theme_name) && self::getByNameNType($name)) {
+            return $name;
+        } elseif (self::getByNameNType($name_without_theme_name.'_'.$theme_name)) {
+            return $name_without_theme_name.'_'.$theme_name;
+        } elseif (self::getByNameNType($theme_name.'_'.$name_without_theme_name)) {
+            return $theme_name.'_'.$name_without_theme_name;
+        } else {
+            return $name_without_theme_name.'_default';
+        }
+        }*/
+    }
 }

@@ -219,7 +219,7 @@ public class JeproLabAnalyzeModel extends JeproLabModel {
     public boolean cache_has_attachments;
     public boolean is_virtual;
     public int analyze_pack_attribute_id;
-    public int default_cache_attribute;
+    public int cache_default_attribute;
 
     /**
      * @var string If product is populated, this property contain the rewrite link of the default category
@@ -465,11 +465,11 @@ public class JeproLabAnalyzeModel extends JeproLabModel {
 
     /**
      * Note:  prefix is "PTYPE" because TYPE_ is used in ObjectModel (definition)
-     * /
-    const PTYPE_SIMPLE = 0;
-    const PTYPE_PACK = 1;
-    const PTYPE_VIRTUAL = 2;
-*/
+     */
+    public static final int SIMPLE_ANALYZE = 0;
+    public static final int PACK_ANALYZE = 1;
+    //const PTYPE_VIRTUAL = 2;
+
     public JeproLabAnalyzeModel(){
         this(0, false, 0, 0, null);
     }
@@ -6229,27 +6229,25 @@ public function deleteAttributeCombinaison($id_product_attribute)
         return this.deleteAttributeCombination($id_product_attribute);
         }
 
-/*
- * Get the product type (simple, virtual, pack)
- * @since in 1.5.0
- *
- * @return int
- * /
-public function getType()
-        {
-        if (!this.id) {
-        return Product::PTYPE_SIMPLE;
+    /**
+     * Get the product type (simple, virtual, pack)
+     *
+     * @return int
+     */
+    public int getType() {
+        if (this.analyze_id > 0) {
+            return JeproLabAnalyzeModel.SIMPLE_ANALYZE;
         }
-        if (Pack::isPack(this.id)) {
-        return Product::PTYPE_PACK;
+        if (JeproLabAnalyzePackModel.isPack(this.analyze_id)) {
+            return JeproLabAnalyzeModel.PACK_ANALYZE;
         }
-        if (this.is_virtual) {
+        /*if (this.is_virtual) {
         return Product::PTYPE_VIRTUAL;
-        }
+        }*/
 
-        return Product::PTYPE_SIMPLE;
-        }
-
+        return JeproLabAnalyzeModel.SIMPLE_ANALYZE;
+    }
+/*
 public function hasAttributesInOtherShops()
         {
         return (bool)Db::getInstance(_PS_USE_SQL_SLAVE_)->getValue('

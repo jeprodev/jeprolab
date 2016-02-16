@@ -157,7 +157,7 @@ public class JeproLabAnalyzeAddController extends JeproLabController{
         languages = JeproLabLanguageModel.getLanguages();
         defaultLanguageId = JeproLabSettingModel.getIntValue("default_lang");
         displayMultiLabCheckBoxes = (JeproLabLaboratoryModel.isFeaturePublished() && JeproLabLaboratoryModel.getLabContext() != JeproLabLaboratoryModel.LAB_CONTEXT);
-        getCombinationImagesJS();
+        getCombinationImages();
 
         if(analyze.analyze_id > 0){
             analyzeId = analyze.analyze_id;
@@ -188,7 +188,7 @@ public class JeproLabAnalyzeAddController extends JeproLabController{
         //$this->helper = new JeproLabHelper();
 
         /** prepare fields data **/
-        this.initInformationsForm();
+        this.initInformationForm();
         this.initPriceForm();
         this.initAssociationsForm();
         this.initAttributesForm();
@@ -202,7 +202,7 @@ public class JeproLabAnalyzeAddController extends JeproLabController{
         //this->assign('current_shop_url', $this->context.shop->getBaseURL());
     }
 
-    private void initInformationsForm(){
+    private void initInformationForm(){
         String analyzeNameRedirected = JeproLabAnalyzeModel.getAnalyzeName(analyze.analyze_redirected_id, 0, context.language.language_id);
         //$this->assignRef('product_name_redirected', $product_name_redirected);
         /*
@@ -214,8 +214,8 @@ public class JeproLabAnalyzeAddController extends JeproLabController{
             $product_download = new JeproLabProductDownloadModelProductDownload($product_download_id);
         }
         $this->product->productDownload = $product_download;
-
-        $cache_default_attribute = (int)$this->product->cache_default_attribute;
+*/
+        int cacheDefaultAttribute = analyze.cache_default_attribute;
 
         /*$product_props = array();
         // global informations
@@ -252,27 +252,27 @@ public class JeproLabAnalyzeAddController extends JeproLabController{
                 //$images[$k]->src = $this->context.controller->getImageLink($this->product->link_rewrite[$this->context.language->lang_id], $this->product->product_id.'-'.$image->image_id, 'small_default'); echo $images[$k]->src;
             }
            //$this->assignRef('product_images', $images);
-        }
-        $imagesTypes = JeproLabImageTypeModelImageType::getImagesTypes('products');
+        }*/
+        List<JeproLabImageModel.JeproLabImageTypeModel> imagesTypes = JeproLabImageModel.JeproLabImageTypeModel.getImagesTypes("analyzes");
        //$this->assignRef('imagesTypes', $imagesTypes);
 
-        $this->product->tags = JeproLabTagModelTag::getProductTags($this->product->product_id);
+        analyze.tags = JeproLabTagModel.getAnalyzeTags(analyze.analyze_id);
 
-        $product_type = (int)$app->input->get('product_type', $this->product->getType());
+        int analyzeType = JeproLab.request.getIntValue("analyze_type", analyze.getType());
        //$this->assignRef('product_type', $product_type);
-        $is_in_pack = (int)JeproLabProductPack::isPacked($this->product->product_id);
+        boolean isInPack = JeproLabAnalyzePackModel.isPacked(analyze.analyze_id);
        //$this->assignRef('is_in_pack', $is_in_pack);
 
-        $check_product_association_ajax = false;
-        if (JeproLabLaboratoryModel::isFeaturePublished() && JeproLabLaboratoryModel::getShopContext() != JeproLabLaboratoryModel::CONTEXT_ALL){
-            $check_product_association_ajax = true;
+        boolean checkAnalyzeAssociationAjax = false;
+        if (JeproLabLaboratoryModel.isFeaturePublished() && JeproLabLaboratoryModel.getLabContext() != JeproLabLaboratoryModel.ALL_CONTEXT){
+            checkAnalyzeAssociationAjax = true;
         }
 
-        $iso_tiny_mce = $this->context.language->iso_code;
-        $iso_tiny_mce = (file_exists(JURI::base() . '/components/com_jeproshop/assets/javascript/tiny_mce/langs/'.$iso_tiny_mce.'.js') ? $iso_tiny_mce : 'en');
+        //String isoTinyMce = context.language.iso_code;
+        //$iso_tiny_mce = (file_exists(JURI::base() . '/components/com_jeproshop/assets/javascript/tiny_mce/langs/'.$iso_tiny_mce.'.js') ? $iso_tiny_mce : 'en');
        //$this->assignRef('iso_tiny_mce', $iso_tiny_mce);
        //$this->assignRef('check_product_association_ajax', $check_product_association_ajax);
-        $combinationImageJs = $this->getCombinationImagesJs();
+        getCombinationImages();
        //$this->assignRef('combinationImagesJs', $combinationImageJs); */
     }
 
@@ -1087,7 +1087,7 @@ public class JeproLabAnalyzeAddController extends JeproLabController{
         return $content; */
     }
 
-    private void getCombinationImagesJS(){
+    private void getCombinationImages(){
         /*if (!$this->loadObject(true)){ return; }
         $content = 'var combination_images = new Array();';
         $allCombinationImages = $this->product->getCombinationImages($this->context.language->lang_id);
@@ -1170,21 +1170,7 @@ public class JeproLabAnalyzeAddController extends JeproLabController{
 
     } */
 
-    /*public void getCombinationImagesJS(){
-        /*if (!$this->loadObject(true)){ return; }
-        $content = 'var combination_images = new Array();';
-        $allCombinationImages = $this->product->getCombinationImages($this->context.language->lang_id);
-        if(!$allCombinationImages){ return $content; }
 
-        foreach ($allCombinationImages as $product_attribute_id => $combination_images){
-            $i = 0;
-            $content .= 'combination_images['.(int)$product_attribute_id.'] = new Array();';
-            foreach ($combination_images as $combination_image){
-                $content .= 'combination_images['.(int)$product_attribute_id.']['.$i++.'] = '.(int)$combination_image->image_id .';';
-            }
-        }
-        return $content; * /
-    }*/
 
 
     private boolean loadObject(){
