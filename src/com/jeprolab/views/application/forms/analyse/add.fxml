@@ -49,7 +49,37 @@
                     <JeproMultiLangTextField GridPane.columnIndex="1" GridPane.rowIndex="6" fx:id="jeproLabAnalyzeTags" />
                 </GridPane>
             </Tab>
+            <Tab fx:id="jeproLabAnalyzePriceTabForm" >
+                <GridPane>
+                    <Label GridPane.columnIndex="0" />
+                </GridPane>
+            </Tab>
+            <Tab fx:id="jeproLabAnalyzeSeoTabForm" >
+                <GridPane>
+                    <Label GridPane.columnIndex="0" />
+                </GridPane>
+            </Tab>
+            <Tab fx:id="jeproLabAnalyzeAssociationTabForm" >
+                <GridPane>
+                    <Label GridPane.columnIndex="0" />
+                </GridPane>
+            </Tab>
+            <Tab fx:id="jeproLabAnalyzeImageTabForm" >
+                <GridPane>
+                    <Label GridPane.columnIndex="0" />
+                </GridPane>
+            </Tab>
             <Tab fx:id="jeproLabAnalyzeAttachedFileTabForm" >
+                <GridPane>
+                    <Label GridPane.columnIndex="0" />
+                </GridPane>
+            </Tab>
+            <Tab fx:id="jeproLabAnalyzeShippingTabForm" >
+                <GridPane>
+                    <Label GridPane.columnIndex="0" />
+                </GridPane>
+            </Tab>
+            <Tab fx:id="jeproLabAnalyzeTechnicianTabForm" >
                 <GridPane>
                     <Label GridPane.columnIndex="0" />
                 </GridPane>

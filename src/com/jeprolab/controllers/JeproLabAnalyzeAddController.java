@@ -1170,9 +1170,6 @@ public class JeproLabAnalyzeAddController extends JeproLabController{
 
     } */
 
-
-
-
     private boolean loadObject(){
         return loadObject(false);
     }
@@ -1187,7 +1184,7 @@ public class JeproLabAnalyzeAddController extends JeproLabController{
             }
 
             if(analyze.analyze_id <= 0){
-                JeproLabTools.displayError(500, bundle.getString("JEPROSHOP_ANALYZE_NOT_FOUND_MESSAGE"));
+                JeproLabTools.displayError(500, bundle.getString("JEPROLAB_ANALYZE_NOT_FOUND_MESSAGE"));
                 isLoaded = false;
             }else{
                 isLoaded = true;
