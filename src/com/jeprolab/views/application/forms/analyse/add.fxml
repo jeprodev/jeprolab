@@ -12,6 +12,7 @@
 <?import com.jeprolab.assets.extend.controls.JeproImageChooser?>
 <?import javafx.scene.control.TextArea?>
 <?import com.jeprolab.assets.extend.controls.JeproImageSlider?>
+<?import javafx.scene.control.ComboBox?>
 <JeproFormPanel  xmlns:fx="http://javafx.com/fxml" fx:id="jeproLabAddAnalyseFormWrapper" fx:controller="com.jeprolab.controllers.JeproLabAnalyzeAddController">
     <JeproFormPanelTitle fx:id="jeproLabAddAnalyseFormTitleWrapper" />
     <JeproFormPanelContainer fx:id="jeproLabAddAnalyseFormContainerWrapper"  >
@@ -24,10 +25,20 @@
                     <JeproSwitchButton GridPane.columnIndex="3" GridPane.rowIndex="0" fx:id="jeproLabAnalyzePublished" />
                     <Label GridPane.columnIndex="0" GridPane.rowIndex="1" fx:id="jeproLabAnalyzeReferenceLabel" />
                     <TextField GridPane.columnIndex="1" GridPane.rowIndex="1" fx:id="jeproLabAnalyzeReference" />
+                    <Label GridPane.columnIndex="0" GridPane.rowIndex="2" fx:id="jeproLabAnalyzeEan13Label" />
+                    <TextField GridPane.columnIndex="1" GridPane.rowIndex="2" fx:id="jeproLabAnalyzeEan13" />
+                    <Label GridPane.columnIndex="0" GridPane.rowIndex="3" fx:id="jeproLabAnalyzeUpcLabel" />
+                    <TextField GridPane.columnIndex="1" GridPane.rowIndex="3" fx:id="jeproLabAnalyzeUpc" />
+                    <Label GridPane.columnIndex="0" GridPane.rowIndex="0" fx:id="jeproLabAnalyzeRedirectLabel" />
+                    <ComboBox GridPane.columnIndex="0" GridPane.rowIndex="0" fx:id="jeproLabAnalyzeRedirect" />
+                    <Label GridPane.columnIndex="0" GridPane.rowIndex="0" fx:id="jeproLabAnalyzeVisibilityLabel" />
+                    <TextField GridPane.columnIndex="0" GridPane.rowIndex="0" fx:id="jeproLabAnalyzeVisibility" />
+                    <Label GridPane.columnIndex="0" GridPane.rowIndex="0" fx:id="jeproLabAnalyzeOptionLabel" />
+                    <ComboBox GridPane.columnIndex="0" GridPane.rowIndex="0" fx:id="jeproLabAnalyzeOption" />
                     <Label GridPane.columnIndex="0" GridPane.rowIndex="2" fx:id="jeproLabAnalyzeImageChooserLabel" />
                     <JeproImageChooser GridPane.columnIndex="1" GridPane.rowIndex="2" fx:id="jeproLabAnalyzeImageChooser" />
-                    <!--Label GridPane.columnIndex="0" GridPane.rowIndex="0" fx:id="jeproLabAnalyze" />
-                    <Label GridPane.columnIndex="0" GridPane.rowIndex="0" fx:id="jeproLabAnalyze" /-->
+
+                    <Label GridPane.columnIndex="0" GridPane.rowIndex="0" fx:id="jeproLabAnalyze" />
                     <Label GridPane.columnIndex="0" GridPane.rowIndex="3" fx:id="jeproLabAnalyzeShortDescriptionLabel" />
                     <TextArea GridPane.columnIndex="1" GridPane.rowIndex="3" GridPane.columnSpan="3" fx:id="jeproLabAnalyzeShortDescription" />
                     <Label GridPane.columnIndex="0" GridPane.rowIndex="4" fx:id="jeproLabAnalyzeDescriptionLabel" />
