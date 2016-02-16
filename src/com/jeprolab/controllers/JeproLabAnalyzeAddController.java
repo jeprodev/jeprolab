@@ -15,6 +15,9 @@ import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
 
 import java.net.URL;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.ResourceBundle;
@@ -248,17 +251,17 @@ public class JeproLabAnalyzeAddController extends JeproLabController{
             foreach ($images as $k => $image){
                 //$images[$k]->src = $this->context.controller->getImageLink($this->product->link_rewrite[$this->context.language->lang_id], $this->product->product_id.'-'.$image->image_id, 'small_default'); echo $images[$k]->src;
             }
-            $this->assignRef('product_images', $images);
+           //$this->assignRef('product_images', $images);
         }
         $imagesTypes = JeproLabImageTypeModelImageType::getImagesTypes('products');
-        $this->assignRef('imagesTypes', $imagesTypes);
+       //$this->assignRef('imagesTypes', $imagesTypes);
 
         $this->product->tags = JeproLabTagModelTag::getProductTags($this->product->product_id);
 
         $product_type = (int)$app->input->get('product_type', $this->product->getType());
-        $this->assignRef('product_type', $product_type);
+       //$this->assignRef('product_type', $product_type);
         $is_in_pack = (int)JeproLabProductPack::isPacked($this->product->product_id);
-        $this->assignRef('is_in_pack', $is_in_pack);
+       //$this->assignRef('is_in_pack', $is_in_pack);
 
         $check_product_association_ajax = false;
         if (JeproLabLaboratoryModel::isFeaturePublished() && JeproLabLaboratoryModel::getShopContext() != JeproLabLaboratoryModel::CONTEXT_ALL){
@@ -267,10 +270,10 @@ public class JeproLabAnalyzeAddController extends JeproLabController{
 
         $iso_tiny_mce = $this->context.language->iso_code;
         $iso_tiny_mce = (file_exists(JURI::base() . '/components/com_jeproshop/assets/javascript/tiny_mce/langs/'.$iso_tiny_mce.'.js') ? $iso_tiny_mce : 'en');
-        $this->assignRef('iso_tiny_mce', $iso_tiny_mce);
-        $this->assignRef('check_product_association_ajax', $check_product_association_ajax);
+       //$this->assignRef('iso_tiny_mce', $iso_tiny_mce);
+       //$this->assignRef('check_product_association_ajax', $check_product_association_ajax);
         $combinationImageJs = $this->getCombinationImagesJs();
-        $this->assignRef('combinationImagesJs', $combinationImageJs); */
+       //$this->assignRef('combinationImagesJs', $combinationImageJs); */
     }
 
     private void initImagesForm(){
@@ -287,7 +290,7 @@ public class JeproLabAnalyzeAddController extends JeproLabController{
                         }
                     }
                 }
-                $this->assignRef('shops', $shops);
+               //$this->assignRef('shops', $shops);
                 $db = JFactory::getDBO();
                 $app = JFactory::getApplication();
 
@@ -314,24 +317,24 @@ public class JeproLabAnalyzeAddController extends JeproLabController{
                 ->setUseAjax(true)->setUrl($image_link);
 
 
-                $this->assignRef('countImages', $count_images);
+               //$this->assignRef('countImages', $count_images);
                 /*$this->assignRef(
                         'id_product' => (int)Tools::getValue('id_product'),
                         'id_category_default' => (int)$this->_category->id, * /
-                $this->assignRef('images', $images);
+               //$this->assignRef('images', $images);
                 /*'iso_lang' => $languages[0]['iso_code'],
                 'token' =>  $this->token,
                 'table' => $this->table,* /
                 $image_size = ((int)JeproLabSettingModelSetting::getValue('product_picture_max_size') / 1024 / 1024);
-                $this->assignRef('max_image_size', $image_size);
+               //$this->assignRef('max_image_size', $image_size);
                 $virtualProductFilenameAttribute = (string)$app->input->get('virtual_product_filename_attribute');
-                $this->assignRef('up_filename', $virtualProductFilenameAttribute);
+               //$this->assignRef('up_filename', $virtualProductFilenameAttribute);
                 //'currency' => $this->context.currency,
-                $this->assignRef('current_shop_id', $current_shop_id);
+               //$this->assignRef('current_shop_id', $current_shop_id);
                 //		'languages' => $this->_languages,
                 //		'default_language' => (int)Configuration::get('PS_LANG_DEFAULT'),
                 $imageUploader = $image_uploader->render();
-                $this->assignRef('image_uploader', $imageUploader);
+               //$this->assignRef('image_uploader', $imageUploader);
                 //));
 
                 $type = JeproLabImageTypeModelImageType::getByNameNType('%', 'products', 'height');
@@ -340,7 +343,7 @@ public class JeproLabAnalyzeAddController extends JeproLabController{
                 }else{
                     $imageType = 'small_default';
                 }
-                $this->assignRef('image_type', $imageType);
+               //$this->assignRef('image_type', $imageType);
             }
             else
                 $this->displayWarning($this->l('You must save the product in this shop before adding images.'));
@@ -383,7 +386,7 @@ public class JeproLabAnalyzeAddController extends JeproLabController{
                         }
                     }
 
-                    $this->assignRef('available_features', $features);
+                   //$this->assignRef('available_features', $features);
 
                     /*$data->assign('product', $obj);
                     $data->assign('link', $this->context.link);
@@ -429,15 +432,15 @@ public class JeproLabAnalyzeAddController extends JeproLabController{
                                 'languages' => $this->_languages,
                                 'id_lang' => $this->context.language->id,; * /
                 $attachments_1 = JeproLabAttachmentModelAttachment::getAttachments($this->context.language->lang_id, $this->product->product_id, true);
-                $this->assignRef('attachments_1', $attachments_1);
+               //$this->assignRef('attachments_1', $attachments_1);
                 $attachments_2 = JeproLabAttachmentModelAttachment::getAttachments($this->context.language->lang_id, $this->product->product_id, false);
-                $this->assignRef('attachments_2', $attachments_2);
-                $this->assignRef('attachment_name', $attachment_name);
-                $this->assignRef('attachment_description', $attachment_description);
+               //$this->assignRef('attachments_2', $attachments_2);
+               //$this->assignRef('attachment_name', $attachment_name);
+               //$this->assignRef('attachment_description', $attachment_description);
                 $attachment_maximum_size = JeproLabSettingModelSetting::getValue('attachment_maximum_size');
-                $this->assignRef('attachment_maximum_size', $attachment_maximum_size);
+               //$this->assignRef('attachment_maximum_size', $attachment_maximum_size);
                 $attachment_uploader = $attachment_uploader->render();
-                $this->assignRef('attachment_uploader', $attachment_uploader);
+               //$this->assignRef('attachment_uploader', $attachment_uploader);
             }else
                 $this->displayWarning($this->l('You must save the product in this shop before adding attachements.'));
         }
@@ -453,16 +456,16 @@ public class JeproLabAnalyzeAddController extends JeproLabController{
                 $has_file_labels = (int)$this->product->uploadable_files;
                 $has_text_labels = (int)$this->product->text_fields;
 
-                $this->assignRef('has_file_labels', $has_file_labels);
+               //$this->assignRef('has_file_labels', $has_file_labels);
                 $displayFileLabels = $this->displayLabelFields($obj, $labels, JeproLabSettingModelSetting::getValue('default_lang'), JeproLabAnalyzeModel.::CUSTOMIZE_FILE);
-                $this->assignRef('display_file_labels', $displayFileLabels);
-                $this->assignRef('has_text_labels', $has_text_labels);
+               //$this->assignRef('display_file_labels', $displayFileLabels);
+               //$this->assignRef('has_text_labels', $has_text_labels);
                 $displayTextLabels = $this->displayLabelFields($obj, $labels, JeproLabSettingModelSetting::getValue('default_lang'), JeproLabAnalyzeModel.::CUSTOMIZE_TEXT_FIELD);
-                $this->assignRef('display_text_labels', $displayTextLabels);
+               //$this->assignRef('display_text_labels', $displayTextLabels);
                 $uploadable_files = (int)($this->product->uploadable_files ? (int)$this->product->uploadable_files : '0');
-                $this->assignRef('uploadable_files', $uploadable_files);
+               //$this->assignRef('uploadable_files', $uploadable_files);
                 $text_fields = (int)($this->product->text_fields ? (int)$this->product->text_fields : '0');
-                $this->assignRef('text_fields', $text_fields);
+               //$this->assignRef('text_fields', $text_fields);
 
             }
             else
@@ -522,9 +525,9 @@ public class JeproLabAnalyzeAddController extends JeproLabController{
                 }
 
                 $stock_management = JeproLabSettingModelSetting::getValue('stock_management');
-                $this->assignRef('stock_management', $stock_management);
+               //$this->assignRef('stock_management', $stock_management);
                 $has_attribute = $this->product->hasAttributes();
-                $this->assignRef('has_attribute', $has_attribute);
+               //$this->assignRef('has_attribute', $has_attribute);
                 // Check if product has combination, to display the available date only for the product or for each combination
                 $db = JFactory::getDBO();
                 if(JeproLabCombinationModelCombination::isFeaturePublished()){
@@ -535,7 +538,7 @@ public class JeproLabAnalyzeAddController extends JeproLabController{
                 }else{
                     $countAttributes = false;
                 }
-                $this->assignRef('count_attributes', $countAttributes);
+               //$this->assignRef('count_attributes', $countAttributes);
                 // if advanced stock management is active, checks associations
                 $advanced_stock_management_warning = false;
                 if (JeproLabSettingModelSetting::getValue('advanced_stock_management') && $this->product->advanced_stock_management){
@@ -595,15 +598,15 @@ public class JeproLabAnalyzeAddController extends JeproLabController{
                     $this->displayWarning($this->l('You must have a common warehouse between this pack and its product.'));
                 }
 
-                $this->assignRef('attributes', $attributes);
-                $this->assignRef('available_quantity', $available_quantity);
-                $this->assignRef('pack_quantity', $pack_quantity);
+               //$this->assignRef('attributes', $attributes);
+               //$this->assignRef('available_quantity', $available_quantity);
+               //$this->assignRef('pack_quantity', $pack_quantity);
                 $stock_management_active = JeproLabSettingModelSetting::getValue('advanced_stock_management');
-                $this->assignRef('stock_management_active', $stock_management_active);
-                $this->assignRef('product_designation', $product_designation);
-                $this->assignRef('show_quantities', $show_quantities);
+               //$this->assignRef('stock_management_active', $stock_management_active);
+               //$this->assignRef('product_designation', $product_designation);
+               //$this->assignRef('show_quantities', $show_quantities);
                 $order_out_of_stock = JeproLabSettingModelSetting::getValue('allow_out_of_stock_ordering');
-                $this->assignRef('order_out_of_stock', $order_out_of_stock);
+               //$this->assignRef('order_out_of_stock', $order_out_of_stock);
                 /*'token_preferences' => Tools::getAdminTokenLite('AdminPPreferences'),
                 'token' => $this->token,
                 'languages' => $this->_languages,
@@ -619,11 +622,11 @@ public class JeproLabAnalyzeAddController extends JeproLabController{
 
     private void initShippingForm(){
         /*$dimension_unit = JeproLabSettingModelSetting::getValue('dimension_unit');
-        $this->assignRef('dimension_unit', $dimension_unit);
+       //$this->assignRef('dimension_unit', $dimension_unit);
         $weight_unit = JeproLabSettingModelSetting::getValue('weight_unit');
-        $this->assignRef('weight_unit', $weight_unit);
+       //$this->assignRef('weight_unit', $weight_unit);
         $carrier_list = $this->getCarrierList();
-        $this->assignRef('carrier_list', $carrier_list); */
+       //$this->assignRef('carrier_list', $carrier_list); */
     }
 /*
     protected function getCarrierList(){
@@ -658,19 +661,19 @@ public class JeproLabAnalyzeAddController extends JeproLabController{
                             $attribute_js[$attribute->attribute_group_id][$attribute->attribute_id] = $attribute->name;
                         }
                     }
-                    $this->assignRef('attributeJs', $attribute_js);
+                   //$this->assignRef('attributeJs', $attribute_js);
                     $attributes_groups =  JeproLabAttributeGroupModelAttributeGroup::getAttributesGroups($this->context.language->lang_id);
-                    $this->assignRef('attributes_groups',$attributes_groups);
+                   //$this->assignRef('attributes_groups',$attributes_groups);
 
                     $images = JeproLabImageModelImage::getImages($this->context.language->lang_id, $this->product->product_id);
                     $weight_unit = JeproLabSettingModelSetting::getValue('weight_unit');
-                    $this->assignRef('weight_unit', $weight_unit);
+                   //$this->assignRef('weight_unit', $weight_unit);
                     $reasons = JeproLabStockMovementReasonModelStockMovementReason::getStockMovementReasons();
-                    $this->assignRef('reasons', $reasons);
+                   //$this->assignRef('reasons', $reasons);
                     //$this->assignRef('minimal_quantity', );
-                    $this->assignRef('available_date', $available_date);
+                   //$this->assignRef('available_date', $available_date);
                     $stock_mvt_default_reason = JeproLabSettingModelSetting::getValue('default_stock_mvt_reason');
-                    $this->assignRef('default_stock_mvt_reason', $stock_mvt_default_reason);
+                   //$this->assignRef('default_stock_mvt_reason', $stock_mvt_default_reason);
 
                     $i = 0;
                     /*$type = JeproLabImageTypeModelImageType::getByNameNType('%', 'products', 'height');
@@ -683,11 +686,11 @@ public class JeproLabAnalyzeAddController extends JeproLabController{
                         $images[$k]->obj = new JeproLabImageModelImage($image->image_id);
                         ++$i;
                     }
-                    $this->assignRef('attribute_images', $images);
+                   //$this->assignRef('attribute_images', $images);
                     $attributeList = $this->renderAttributesList($this->product, $this->currency);
-                    $this->assignRef('list', $attributeList);
+                   //$this->assignRef('list', $attributeList);
                     $combination_exists = (JeproLabLaboratoryModel::isFeaturePublished() && (JeproLabLaboratoryModel::getContextShopGroup()->share_stock) && count(JeproLabAttributeGroupModelAttributeGroup::getAttributesGroups($this->context.language->lang_id)) > 0 && $this->product->hasAttributes());
-                    $this->assignRef('combination_exists', $combination_exists);
+                   //$this->assignRef('combination_exists', $combination_exists);
                 }
             }
         } */
@@ -712,7 +715,7 @@ public class JeproLabAnalyzeAddController extends JeproLabController{
 
         // Multishop block
         $feature_shop_active = JeproLabLaboratoryModel::isFeaturePublished();
-        $this->assignRef('feature_shop_published', $feature_shop_active);
+       //$this->assignRef('feature_shop_published', $feature_shop_active);
 
         /** Accessories ** /
         $accessories = JeproLabAnalyzeModel.::getAccessoriesLight($this->context.language->lang_id, $this->product->product_id);
@@ -726,7 +729,7 @@ public class JeproLabAnalyzeAddController extends JeproLabController{
                 }
             }
         }
-        $this->assignRef('accessories', $accessories);
+       //$this->assignRef('accessories', $accessories);
         $this->product->manufacturer_name = JeproLabManufacturerModelManufacturer::getNameById($this->product->manufacturer_id);
 
         $categories = array();
@@ -737,16 +740,16 @@ public class JeproLabAnalyzeAddController extends JeproLabController{
         $categories_tree = new JeproLabCategoriesTree('associated_categories_tree', JText::_('COM_JEPROSHOP_ASSOCIATED_CATEGORIES_LABEL'));
         $categories_tree->setTreeLayout('associated_categories')->setRootCategory((int)$root->category_id)->setUseCheckBox(true)->setSelectedCategories($categories);
 
-        $this->assignRef('manufacturers', $manufacturers);
+       //$this->assignRef('manufacturers', $manufacturers);
         $selected_category_ids = implode(',', array_keys($selected_category));
-        $this->assignRef('selected_category_ids', $selected_category_ids);
-        $this->assignRef('selected_category', $selected_category);
+       //$this->assignRef('selected_category_ids', $selected_category_ids);
+       //$this->assignRef('selected_category', $selected_category);
         $categoryId = $this->product->getDefaultCategoryId();
-        $this->assignRef('default_category_id', $categoryId);
+       //$this->assignRef('default_category_id', $categoryId);
         $category_tree = $categories_tree->render();
-        $this->assignRef('category_tree', $category_tree);
+       //$this->assignRef('category_tree', $category_tree);
         $is_shop_context = JeproLabLaboratoryModel::getShopContext() == JeproLabLaboratoryModel::CONTEXT_SHOP;
-        $this->assignRef('is_shop_context', $is_shop_context); */
+       //$this->assignRef('is_shop_context', $is_shop_context); */
     }
 
     private void initSuppliersForm(){
@@ -798,18 +801,18 @@ public class JeproLabAnalyzeAddController extends JeproLabController{
                     }
                 }
 
-                $this->assignRef('attributes', $attributes);
-                $this->assignRef('suppliers', $suppliers);
-                $this->assignRef('default_supplier', $default_supplier);
-                $this->assignRef('associated_suppliers', $associated_suppliers);
-                $this->assignRef('associated_suppliers_collection', $product_supplier_collection);
-                $this->assignRef('product_designation', $product_designation);
+               //$this->assignRef('attributes', $attributes);
+               //$this->assignRef('suppliers', $suppliers);
+               //$this->assignRef('default_supplier', $default_supplier);
+               //$this->assignRef('associated_suppliers', $associated_suppliers);
+               //$this->assignRef('associated_suppliers_collection', $product_supplier_collection);
+               //$this->assignRef('product_designation', $product_designation);
                 /*$this->assignRef(			'currencies' => Currency::getCurrencies(),
 
                             'link' => $this->context.link,
                             'token' => $this->token,));* /
                 $default_currency_id = JeproLabSettingModelSetting::getValue('default_currency');
-                $this->assignRef('default_currency_id', $default_currency_id);
+               //$this->assignRef('default_currency_id', $default_currency_id);
 
             }
             else
@@ -828,72 +831,77 @@ public class JeproLabAnalyzeAddController extends JeproLabController{
             List<JeproLabCountryModel> countries = JeproLabCountryModel.getCountries(context.language.language_id);
             List<JeproLabGroupModel> groups = JeproLabGroupModel.getGroups(context.language.language_id);
             List<JeproLabCurrencyModel> currencies = JeproLabCurrencyModel.getCurrencies();
-            List<JeproLabAttributeGroupModel> attributeGroups = analyze.getAttributesGroups(context.language.language_id);
-            /*$combinations = array();
-            if(count($attributes)){
-                foreach($attributes as $attribute){
-                    $combinations[$attribute->product_attribute_id] = new JObject();
-                    $combinations[$attribute->product_attribute_id]->product_attribute_id = $attribute->product_attribute_id;
-                    if(!isset($combinations[$attribute->product_attribute_id]->attributes)){
-                        $combinations[$attribute->product_attribute_id]->attributes = '';
-                    }
-                    if(isset($combinations[$attribute->product_attribute_id])){
-                        $combinations[$attribute->product_attribute_id]->attributes .= $attribute->attribute_name . ' - ';
+            ResultSet attributeGroups = analyze.getAttributesGroups(context.language.language_id);
+            List combinations = new ArrayList<>();
+            if(attributeGroups != null){
+                /*try {
+                    while(attributeGroups.next()) {
+                        $combinations[$attribute -> product_attribute_id] = new JObject();
+                        $combinations[$attribute -> product_attribute_id]->
+                        product_attribute_id = $attribute -> product_attribute_id;
+                        if (!isset($combinations[$attribute -> product_attribute_id]->attributes)){
+                            $combinations[$attribute -> product_attribute_id]->attributes = '';
+                        }
+                        if (isset($combinations[$attribute -> product_attribute_id])) {
+                            $combinations[$attribute -> product_attribute_id]->
+                            attributes. = $attribute -> attribute_name + " - ";
 
-                        $combinations[$attribute->product_attribute_id]->price = JeproLabTools::displayPrice(
-                                JeproLabTools.convertPrice(
-                                JeproLabAnalyzeModel.getStaticPrice((int)$this->product->product_id, false, $attribute->product_attribute_id),
-                        context.currency
-                        ), context.currency	);
+                            $combinations[$attribute -> product_attribute_id]->price = JeproLabTools::displayPrice (
+                                    JeproLabTools.convertPrice(
+                                            JeproLabAnalyzeModel.getStaticPrice((int) $this -> product -> product_id, false, $attribute -> product_attribute_id),
+                                            context.currency
+                                    ), context.currency);
+                        }
                     }
+                }catch(SQLException ignored){
+
                 }
 
                 foreach($combinations as $combination){
                     if(isset($combination->attributes )){
                         $combination->attributes = rtrim($combination->attributes, ' - ');
                     }
-                }
+                }*/
             }
-            $specificPriceModificationForm = $this->displaySpecificPriceModificationForm($this->context.currency, $shops, $currencies, $countries, $groups);
-            $this->assignRef('specific_price_modification_form', $specificPriceModificationForm);
-            $this->assignRef('ecotax_tax_excluded', $this->product->ecotax);
+            displaySpecificPriceModificationForm(context.currency, laboratories, currencies, countries, groups);
+           //$this->assignRef('specific_price_modification_form', $specificPriceModificationForm);
+           //$this->assignRef('ecotax_tax_excluded', $this->product->ecotax);
             //$this->applyTaxToEcotax();
 
-            $this->assignRef('shops', $shops);
-            $admin_one_shop = count($this->context.employee->getAssociatedShops()) == 1;
-            $this->assignRef('admin_one_shop', $admin_one_shop);
-            $this->assignRef('currencies', $currencies);
-            $this->assignRef('currency', $this->context.currency);
-            $this->assignRef('countries', $countries);
-            $this->assignRef('groups', $groups);
-            $this->assignRef('combinations', $combinations);
-            $multiShop = JeproLabLaboratoryModel::isFeaturePublished();
-            $this->assignRef('multi_shop', $multiShop); */
+           //$this->assignRef('shops', $shops);
+            boolean adminOneLaboratories = context.employee.getAssociatedLaboratories().size() >= 1;
+           //$this->assignRef('admin_one_shop', $admin_one_shop);
+           //$this->assignRef('currencies', $currencies);
+           //$this->assignRef('currency', $this->context.currency);
+           //$this->assignRef('countries', $countries);
+           //$this->assignRef('groups', $groups);
+           //$this->assignRef('combinations', $combinations);
+            boolean multiShop = JeproLabLaboratoryModel.isFeaturePublished();
+           //$this->assignRef('multi_shop', $multiShop);
         }else{
-            //JError::raiseWarnig(JText::_('COM_JEPROSHOP_YOU_MUST_SAVE_THIS_PRODUCT_BEFORE_ADDING_SPECIFIC_PRICING_MESSAGE'));
-            //$this->product->tax_rules_group_id = JeproLabAnalyzeModel.::getTaxRulesMostUsedGroupId();
-            //$this->assignRef('ecotax_tax_excluded', 0);
+            JeproLabTools.displayWarning(500, bundle.getString("JEPROLAB_YOU_MUST_SAVE_THIS_ANALYZE_BEFORE_ADDING_SPECIFIC_PRICING_MESSAGE"));
+            analyze.tax_rules_group_id = JeproLabAnalyzeModel.getMostUsedTaxRulesGroupId();
+           //$this->assignRef('ecotax_tax_excluded', 0);
         }
-        /*$use_tax = JeproLabSettingModelSetting::getValue('use_tax');
-        $this->assignRef('use_tax', $use_tax);
-        $use_ecotax = JeproLabSettingModelSetting::getValue('use_eco_tax');
-        $this->assignRef('use_ecotax', $use_ecotax);
-        $tax_rules_groups = JeproLabTaxRulesGroupModelTaxRulesGroup::getTaxRulesGroups(true);
-        $this->assignRef('tax_rules_groups', $tax_rules_groups);
-        $taxesRatesByGroup = JeproLabTaxRulesGroupModelTaxRulesGroup::getAssociatedTaxRatesByCountryId($this->context.country->country_id);
-        $this->assignRef('taxesRatesByGroup', $taxesRatesByGroup);
-        $ecotaxTaxRate = JeproLabTaxModelTax::getProductEcotaxRate();
-        $this->assignRef('ecotaxTaxRate', $ecotaxTaxRate);
-        $tax_exclude_tax_option = JeproLabTaxModelTax::taxExcludedOption();
-        $this->assignRef('tax_exclude_tax_option', $tax_exclude_tax_option);
+        boolean useTax = JeproLabSettingModel.getIntValue("use_tax") > 0;
+       //$this->assignRef('use_tax', $use_tax);
+        boolean useEcotax = JeproLabSettingModel.getIntValue("use_eco_tax") > 0;
+       //$this->assignRef('use_ecotax', $use_ecotax);
+        List<JeproLabTaxRulesGroupModel> taxRulesGroups = JeproLabTaxRulesGroupModel.getTaxRulesGroups(true);
+       //$this->assignRef('tax_rules_groups', $tax_rules_groups);
+        Map<Integer, Float> taxesRatesByGroup = JeproLabTaxRulesGroupModel.getAssociatedTaxRatesByCountryId(context.country.country_id);
+       //$this->assignRef('taxesRatesByGroup', $taxesRatesByGroup);
+        float ecotaxTaxRate = JeproLabTaxModel.getAnalyzeEcotaxRate();
+       //$this->assignRef('ecotaxTaxRate', $ecotaxTaxRate);
+        boolean taxExcludeTaxOption = JeproLabTaxModel.excludeTaxOption();
+       //$this->assignRef('tax_exclude_tax_option', $tax_exclude_tax_option);
 
-        $this->product->price = JeproLabTools::convertPrice($this->product->price, $this->context.currency, true, $this->context);
-        if($this->product->unit_price_ratio != 0){
-            $unit_price = JeproLabTools::roundPrice($this->product->price / $this->product->unit_price_ratio, 2);
-        }else{
-            $unit_price = 0;
+        analyze.price = JeproLabTools.convertPrice(analyze.price, context.currency.currency_id, true, context);
+        float unitPrice = 0;
+        if(analyze.unit_price_ratio != 0){
+            unitPrice = JeproLabTools.roundPrice(analyze.price / analyze.unit_price_ratio, 2);
         }
-        $this->assignRef('unit_price', $unit_price); */
+       //$this->assignRef('unit_price', $unit_price); */
     }
 /*
     protected void displayLabelFields(&$obj, &$labels, $default_language, $type){
@@ -907,8 +915,8 @@ public class JeproLabAnalyzeAddController extends JeproLabController{
         $content .= $this->displayLabelField($label, $default_language, $type, $fieldIds, (int)($id_customization_field));
         return $content; * /
     } * /
-
-    private void displaySpecificPriceModificationForm($default_currency, $shops, $currencies, $countries, $groups){
+*/
+    private void displaySpecificPriceModificationForm(JeproLabCurrencyModel defaultCurrency, List<JeproLabLaboratoryModel> laboratories, List<JeproLabCurrencyModel> currencies, List<JeproLabCountryModel> countries, List<JeproLabGroupModel> groups){
         /* $content = '';
         if(!$this->product){ return null; }
 
@@ -1077,7 +1085,7 @@ public class JeproLabAnalyzeAddController extends JeproLabController{
         }
         $content .= '</script>';
         return $content; */
-    //}
+    }
 
     private void getCombinationImagesJS(){
         /*if (!$this->loadObject(true)){ return; }

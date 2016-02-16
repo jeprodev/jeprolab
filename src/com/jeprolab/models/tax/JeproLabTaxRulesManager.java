@@ -74,7 +74,7 @@ public class JeproLabTaxRulesManager {
 
         String postcode = "";
 
-        if (!this.address.postcode.equals("")) {
+        if (this.address != null && !this.address.postcode.equals("")) {
             postcode = this.address.postcode;
         }
 
@@ -84,7 +84,7 @@ public class JeproLabTaxRulesManager {
             JeproLabDataBaseConnector dataBaseConnector = JeproLabFactory.getDataBaseConnector();
             String query = "SELECT tax_rule.* FROM " + dataBaseConnector.quoteName("#__jeprolab_tax_rule") + " AS tax_rule LEFT JOIN ";
             query += dataBaseConnector.quoteName("#__jeprolab_tax_rules_group") + " AS tax_rule_group ON (tax_rule." + dataBaseConnector.quoteName("tax_rules_group_id");
-            query += " tax_rule_group." + dataBaseConnector.quoteName("tax_rules_group_id") + ") WHERE tax_rule_group." + dataBaseConnector.quoteName("published");
+            query += " = tax_rule_group." + dataBaseConnector.quoteName("tax_rules_group_id") + ") WHERE tax_rule_group." + dataBaseConnector.quoteName("published");
             query += " = 1 AND tax_rule." + dataBaseConnector.quoteName("country_id") + " = " + this.address.country_id + " AND tax_rule.";
             query += dataBaseConnector.quoteName("tax_rules_group_id") + " = " + this.type + " AND tax_rule." + dataBaseConnector.quoteName("state_id");
             query += " IN (0, " + this.address.state_id + ") AND (" + dataBaseConnector.quote(postcode) + " BETWEEN tax_rule.";

@@ -13,6 +13,8 @@ import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.List;
 
 public class JeproLabEmployeeModel  extends JeproLabModel{
     public boolean isLogged = false;
@@ -133,6 +135,30 @@ public class JeproLabEmployeeModel  extends JeproLabModel{
         }else{ */
             return null;
         //}
+    }
+
+    public List<Integer> getAssociatedLaboratories(){
+        if (!JeproLabLaboratoryModel.isTableAssociated("employee")) {
+            return new ArrayList<>();
+        }
+
+        List<Integer> labs = new ArrayList<>();
+        if(staticDataBaseObject == null){
+            staticDataBaseObject = JeproLabFactory.getDataBaseConnector();
+        }
+        String query = "SELECT lab_id FROM " + staticDataBaseObject.quoteName("#__jeproLab_employee_shop") + " WHERE employee_id = " + this.employee_id;
+        dataBaseObject.setQuery(query);
+        ResultSet labSet = staticDataBaseObject.loadObject();
+        if(labSet != null){
+            try{
+                while(labSet.next()){
+                    labs.add(labSet.getInt("lab_id"));
+                }
+            }catch(SQLException ignored){
+
+            }
+        }
+        return labs;
     }
 
     public void save(){

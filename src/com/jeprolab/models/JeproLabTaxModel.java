@@ -1,5 +1,9 @@
 package com.jeprolab.models;
 
+import com.jeprolab.models.tax.JeproLabTaxCalculator;
+import com.jeprolab.models.tax.JeproLabTaxManagerFactory;
+import com.jeprolab.models.tax.JeproLabTaxRulesManager;
+
 /**
  *
  * Created by jeprodev on 04/02/14.
@@ -17,7 +21,7 @@ public class JeproLabTaxModel extends JeproLabModel {
     /** @var bool true if the tax has been historized */
     public boolean deleted = false;
 
-    /**
+    /*
      * @see ObjectModel::$definition
      * /
     public static $definition = array(
@@ -162,7 +166,7 @@ public class JeproLabTaxModel extends JeproLabModel {
         return (JeproLabSettingModel.getIntValue("use_tax") > 0);
     }
 
-    /**
+    /*
      * Return the tax id associated to the specified name
      *
      * @param string $tax_name
@@ -179,21 +183,24 @@ public class JeproLabTaxModel extends JeproLabModel {
 
         return $tax ? (int)$tax['id_tax'] : false;
     }
+                   */
+    public static float getAnalyzeEcotaxRate(){
+        return getAnalyzeEcotaxRate(0);
+    }
 
     /**
      * Returns the ecotax tax rate
      *
-     * @param id_address
+     * @param addressId address id
      * @return float $tax_rate
-     * /
-    public static function getProductEcotaxRate($id_address = null)
-    {
-        $address = Address::initialize($id_address);
+     */
+    public static float getAnalyzeEcotaxRate(int addressId){
+        JeproLabAddressModel address = JeproLabAddressModel.initialize(addressId);
 
-        $tax_manager = TaxManagerFactory::getManager($address, (int)Configuration::get('PS_ECOTAX_TAX_RULES_GROUP_ID'));
-        $tax_calculator = $tax_manager->getTaxCalculator();
+        JeproLabTaxRulesManager taxManager = JeproLabTaxManagerFactory.getManager(address, JeproLabSettingModel.getIntValue("ecotax_tax_rules_group_id"));
+        JeproLabTaxCalculator taxCalculator = taxManager.getTaxCalculator();
 
-        return $tax_calculator->getTotalRate();
+        return taxCalculator.getTotalRate();
     }
 
     /**

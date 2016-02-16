@@ -175,6 +175,7 @@ public class JeproLabLaboratoryModel  extends JeproLabModel{
             boolean through = false;
             List resultLabs = new ArrayList<>();
             boolean isMainUri = false;
+
             try {
                 while(results.next()) {
                     //if (preg_match('#^'.preg_quote($result -> uri, '#'). '#i', $request_uri)){
@@ -459,9 +460,9 @@ public class JeproLabLaboratoryModel  extends JeproLabModel{
         if(JeproLabLaboratoryModel.getLabContext() == JeproLabLaboratoryModel.LAB_CONTEXT){
             list = (share != null && !share.equals("")) ? JeproLabLaboratoryModel.getSharedLaboratories(JeproLabLaboratoryModel.getContextLabId(), share) : new ArrayList(JeproLabLaboratoryModel.getContextLabId());
         } else if(JeproLabLaboratoryModel.getLabContext() == JeproLabLaboratoryModel.GROUP_CONTEXT) {
-            list = JeproLabLaboratoryModel.getLaboratories(true, JeproLabLaboratoryModel.getContextLabGroupId(), true);
+            list = JeproLabLaboratoryModel.getLaboratoryIds(true, JeproLabLaboratoryModel.getContextLabGroupId());
         }else{
-            list = JeproLabLaboratoryModel.getLaboratories(true, 0, true);
+            list = JeproLabLaboratoryModel.getLaboratoryIds(true, 0);
         }
         return list;
     }

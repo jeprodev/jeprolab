@@ -559,12 +559,12 @@ public class JeproLabAddressModel extends JeproLabModel {
 
         if (!JeproLabCache.getInstance().isStored(cacheKey)) {
             // if an id_address has been specified retrieve the address
-            if (addressId >= 0) {
+            if (addressId > 0) {
                 address = new JeproLabAddressModel(addressId);
 
-                /*if (!Validate::isLoadedObject($address)) {
-                    throw new PrestaShopException('Invalid address #'.(int)$id_address);
-                }*/
+                if (address.address_id <= 0) {
+                    JeproLabTools.displayWarning(500, JeproLab.getBundle().getString("JEPROLAB_LABEL") + addressId); //'Invalid address #'.(int)$id_address);
+                }
             } else if (withGeolocation && (context.customer.geolocation_country_id > 0)) {
                 address = new JeproLabAddressModel();
                 address.country_id = context.customer.geolocation_country_id;
