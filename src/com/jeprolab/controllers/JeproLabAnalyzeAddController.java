@@ -13,6 +13,7 @@ import javafx.geometry.VPos;
 import javafx.scene.control.*;
 import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 
 import java.net.URL;
@@ -39,10 +40,15 @@ public class JeproLabAnalyzeAddController extends JeproLabController{
     public JeproFormPanelContainer jeproLabAddAnalyseFormContainerWrapper;
     public JeproImageSlider jeproLabAnalyzeSlider;
 
-    public GridPane jeproLabAnalyzeInformationLayout;
-    public Pane jeproLabAnalyzeSpecificPriceModification;
+    public GridPane jeproLabAnalyzeInformationLayout, jeproLabAnalyzePriceLayout;
+    public Pane jeproLabAnalyzeSpecificPriceModification, jeproLabAnalyzePricePane, jeproLabSpecificPricePaneWrapper, jeproLabSpecificPricePaneTitle;
+    public Pane jeproLabSpecificPricePaneContent;
     public TabPane jeproLabAnalyzeTabPane;
     public Tab jeproLabAnalyzeInformationTabForm, jeproLabAnalyzePriceTabForm, jeproLabAnalyzeAttachedFileTabForm;
+    public Tab jeproLabAnalyzeSeoTabForm, jeproLabAnalyzeAssociationTabForm, jeproLabAnalyzeImageTabForm, jeproLabAnalyzeShippingTabForm;
+    public Tab jeproLabAnalyzeTechnicianTabForm;
+
+    public HBox jeproLabAnalyzeSpecificPriceLabIdWrapper;
 
     public Label jeproLabAnalyzeNameLabel, jeproLabAnalyzePublishedLabel, jeproLabAnalyzeReferenceLabel, jeproLabAnalyzeImageChooserLabel;
     public Label jeproLabAnalyzeShortDescriptionLabel, jeproLabAnalyzeDescriptionLabel, jeproLabAnalyzeImagesLabel, jeproLabAnalyzeTagLabel;
@@ -50,9 +56,12 @@ public class JeproLabAnalyzeAddController extends JeproLabController{
     public Label jeproLabAnalyzeVisibilityLabel, jeproLabAnalyzeOptionLabel, jeproLabAnalyzeWholeSalePriceLabel, jeproLabAnalyzePriceTaxExcludedLabel;
     public Label jeproLabAnalyzePriceTaxRuleLabel, jeproLabAnalyzePriceUseEcoTaxLabel, jeproLabAnalyzePriceTaxIncludedLabel, jeproLabAnalyzeUnitPriceLabel;
     public Label jeproLabAnalyzeFinalPriceWithoutTaxLabel, jeproLabAnalyzeSpecificPriceLabIdLabel, jeproLabAnalyzeSpecificPriceCustomerIdLabel;
-    public Label jeproLabAnalyzeSpecificPriceCombinationLabel;
-    public TextField jeproLabAnalyzeReference;
+    public Label jeproLabAnalyzeSpecificPriceCombinationLabel, jeproLabAnalyzeApplyDiscountOfLabel, jeproLabAnalyzeSpecificPriceFromLabel;
+    public TextField jeproLabAnalyzeReference, jeproLabAnalyzeEan13, jeproLabAnalyzeUpc;
+    public ComboBox jeproLabAnalyzeRedirect, jeproLabAnalyzeVisibility, jeproLabAnalyzeOption, jeproLabAnalyzeApplyDiscountOf;
     public TextArea jeproLabAnalyzeShortDescription, jeproLabAnalyzeDescription;
+    public CheckBox jeproLabAnalyzeLeaveBasePrice;
+    public DatePicker jeproLabAnalyzeSpecificPriceFrom;
     public JeproMultiLangTextField jeproLabAnalyzeName, jeproLabAnalyzeTags;
     public JeproSwitchButton jeproLabAnalyzePublished;
     public JeproImageChooser jeproLabAnalyzeImageChooser;
@@ -929,21 +938,21 @@ public class JeproLabAnalyzeAddController extends JeproLabController{
         TableColumn rulesColumn, combinationColumn, labsColumn, currenciesColumn, countriesColumn, groupsColumn, customerColumn;
         TableColumn fixedPriceColumn, impactColumn, periodColumn, actionsColumn, fromColumn;
         boolean multiLab = JeproLabLaboratoryModel.isFeaturePublished();
-        jeproLabAnalyzeSpecificPriceModificationLabel.setText(bundle.getString("JEPROLAB_LABEL"));
+        jeproLabAnalyzeSpecificPriceModificationLabel.setText(bundle.getString("JEPROLAB_SPECIFIC_PRICE_LABEL"));
 
         if(analyze != null) {
-            //$specificPrices = JeproLabSpecificPriceModel.getSpecificPricesByProductId(analyze.analyze_id);
-            //$specificPricePriorities = JeproLabSpecificPriceModel.getPriority(analyze.analyze_id);
+            List<JeproLabSpecificPriceModel> specificPrices = JeproLabSpecificPriceModel.getSpecificPricesByAnalyzeId(analyze.analyze_id);
+            String specificPricePriorities = JeproLabSpecificPriceModel.getPriority(analyze.analyze_id);
 
-            rulesColumn = new TableColumn(bundle.getString("JEPROLAB_LABEL"));
-            combinationColumn = new TableColumn(bundle.getString("JEPROLAB_LABEL"));
-            fromColumn = new TableColumn(bundle.getString("JEPROLAB_LABEL"));
-            currenciesColumn = new TableColumn(bundle.getString("JEPROLAB_LABEL"));
-            countriesColumn = new TableColumn(bundle.getString("JEPROLAB_LABEL"));
-            groupsColumn = new TableColumn(bundle.getString("JEPROLAB_LABEL"));
-            customerColumn = new TableColumn(bundle.getString("JEPROLAB_LABEL"));
-            fixedPriceColumn = new TableColumn(bundle.getString("JEPROLAB_LABEL"));
-            impactColumn = new TableColumn(bundle.getString("JEPROLAB_LABEL"));
+            rulesColumn = new TableColumn(bundle.getString("JEPROLAB_RULES_LABEL"));
+            combinationColumn = new TableColumn(bundle.getString("JEPROLAB_COMBINATION_LABEL"));
+            fromColumn = new TableColumn(bundle.getString("JEPROLAB_FROM_LABEL"));
+            currenciesColumn = new TableColumn(bundle.getString("JEPROLAB_CURRENCIES_LABEL"));
+            countriesColumn = new TableColumn(bundle.getString("JEPROLAB_COUNTRIES__LABEL"));
+            groupsColumn = new TableColumn(bundle.getString("JEPROLAB_GROUPS_LABEL"));
+            customerColumn = new TableColumn(bundle.getString("JEPROLAB_CUSTOMER_LABEL"));
+            fixedPriceColumn = new TableColumn(bundle.getString("JEPROLAB_FIXED_PRICE_LABEL"));
+            impactColumn = new TableColumn(bundle.getString("JEPROLAB_IMPACT_LABEL"));
             periodColumn = new TableColumn(bundle.getString("JEPROLAB_PERIOD_LABEL"));
             actionsColumn = new TableColumn(bundle.getString("JEPROLAB_ACTIONS_LABEL"));
             //$app = JFactory::getApplication ();
@@ -975,10 +984,6 @@ public class JeproLabAnalyzeAddController extends JeproLabController{
             specificPriceTableView.getColumns().addAll(fixedPriceColumn, impactColumn, periodColumn, fromColumn, actionsColumn);
 /*
 
-        $content .= '<th>' . JText::_('COM_JEPROSHOP_CURRENCY_LABEL') . '</th><th>';  $content .= JText::_('COM_JEPROSHOP_COUNTRY_LABEL') . '</th><th>' . JText::_('COM_JEPROSHOP_GROUP_LABEL');
-        $content .= '</th><th>' . JText::_('COM_JEPROSHOP_CUSTOMER_LABEL') . '</th><th>'; $content .= JText::_('COM_JEPROSHOP_FIXED_PRICE_LABEL') . '</th><th>' . JText::_('COM_JEPROSHOP_IMPACT_LABEL');
-        $content .= '</th><th>' . JText::_('COM_JEPROSHOP_PERIOD_LABEL') . '</th><th>' . JText::_('COM_JEPROSHOP_FROM_LABEL');
-        $content .= '</th><th>' . JText::_('COM_JEPROSHOP_ACTIONS_LABEL') . '</th></tr></thead><tbody>';
         if(!is_array($specificPrices) || !count($specificPrices)){
             $content .= '<tr><td class="text-center" colspan="13" ><i class="icon-warning-sign"></i>&nbsp;';
             $content .= JText::_('COM_JEPROSHOP_NO_SPECIFIC_PRICES_MESSAGE') . '</td></tr>';

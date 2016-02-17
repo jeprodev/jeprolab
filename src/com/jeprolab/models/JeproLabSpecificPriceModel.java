@@ -1,8 +1,6 @@
 package com.jeprolab.models;
 
-import com.jeprolab.JeproLab;
 import com.jeprolab.models.core.JeproLabFactory;
-import com.jeprolab.models.core.JeproLabSession;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -14,6 +12,7 @@ import java.util.*;
  */
 public class JeproLabSpecificPriceModel extends JeproLabModel{
     public int analyze_id;
+    public int specific_price_id = 0;
     public int specific_price_rule_id = 0;
     public int cart_id = 0;
     public int analyze_attribute_id;
@@ -127,17 +126,61 @@ public class JeproLabSpecificPriceModel extends JeproLabModel{
     }
         return false;
     }
-
-    public static function getByProductId($id_product, $id_product_attribute = false, $id_cart = false)
-    {
-        return Db::getInstance(_PS_USE_SQL_SLAVE_)->executeS('
-            SELECT *
-                    FROM `'._DB_PREFIX_.'specific_price`
-        WHERE `id_product` = '.(int)$id_product.
-        ($id_product_attribute ? ' AND id_product_attribute = '.(int)$id_product_attribute : '').'
-        AND id_cart = '.(int)$id_cart);
+*/
+    public static List<JeproLabSpecificPriceModel> getSpecificPricesByAnalyzeId(int analyzeId){
+        return getSpecificPricesByAnalyzeId(analyzeId, 0, 0);
     }
 
+    public static List<JeproLabSpecificPriceModel> getSpecificPricesByAnalyzeId(int analyzeId, int analyzeAttributeId){
+        return getSpecificPricesByAnalyzeId(analyzeId, analyzeAttributeId, 0);
+    }
+
+    public static List<JeproLabSpecificPriceModel> getSpecificPricesByAnalyzeId(int analyzeId, int analyzeAttributeId, int cartId){
+        if(staticDataBaseObject == null){
+            staticDataBaseObject = JeproLabFactory.getDataBaseConnector();
+        }
+
+        String query = "SELECT * FROM " + staticDataBaseObject.quoteName("#__jeprolab_specific_price") + " WHERE " + staticDataBaseObject.quoteName("analyze_id");
+        query += " = " + analyzeId + (analyzeAttributeId > 0 ? " AND analyze_attribute_id = " + analyzeAttributeId : "" );
+        query += (cartId > 0 ? " AND cart_id = " + cartId : "" );
+
+        staticDataBaseObject.setQuery(query);
+        ResultSet specificSet = staticDataBaseObject.loadObject();
+        List<JeproLabSpecificPriceModel> specificList = new ArrayList<>();
+        if(specificSet != null){
+            try{
+                JeproLabSpecificPriceModel specificPrice;
+                while(specificSet.next()){
+                    specificPrice = new JeproLabSpecificPriceModel();
+                    specificPrice.specific_price_id = specificSet.getInt("specific_price_id");
+                    specificPrice.specific_price_rule_id = specificSet.getInt("specific_price_rule_id");
+                    specificPrice.cart_id = specificSet.getInt("cart_id");
+                    specificPrice.analyze_id = specificSet.getInt("analyze_id");
+                    specificPrice.analyze_attribute_id = specificSet.getInt("analyze_attribute_id");
+                    specificPrice.laboratory_id = specificSet.getInt("laboratory_id");
+                    specificPrice.laboratory_group_id = specificSet.getInt("laboratory_group_id");
+                    specificPrice.currency_id = specificSet.getInt("currency_id");
+                    specificPrice.country_id = specificSet.getInt("country_id");
+                    specificPrice.customer_id = specificSet.getInt("customer_id");
+                    specificPrice.group_id = specificSet.getInt("group_id");
+                    specificPrice.price = specificSet.getFloat("price");
+                    specificPrice.from_quantity = specificSet.getInt("from_quantity");
+                    specificPrice.reduction = specificSet.getFloat("reduction");
+                    specificPrice.reduction_type = specificSet.getString("reduction_type");
+                    specificPrice.from = specificSet.getDate("from");
+                    specificPrice.to = specificSet.getDate("to");
+                    //specificPrice = specificSet.get("");
+                    //specificPrice = specificSet.get("");
+                    specificList.add(specificPrice);
+                }
+            }catch (SQLException ignored){
+
+            }
+        }
+
+        return specificList;
+    }
+/*
     public static function deleteByIdCart($id_cart, $id_product = false, $id_product_attribute = false)
     {
         return Db::getInstance()->execute('
@@ -230,9 +273,9 @@ public class JeproLabSpecificPriceModel extends JeproLabModel{
     /**
      * Remove or add a field value to a query if values are present in the database (cache friendly)
      *
-     * @param fieldName
-     * @param fieldValue
-     * @param threshold
+     * @param fieldName field name
+     * @param fieldValue field value
+     * @param threshold threshold
      * @return string
      */
     protected static String filterOutField(String fieldName, int fieldValue, int threshold){
