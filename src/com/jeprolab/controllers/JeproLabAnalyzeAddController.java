@@ -13,6 +13,7 @@ import javafx.geometry.VPos;
 import javafx.scene.control.*;
 import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
+import javafx.scene.layout.Pane;
 
 import java.net.URL;
 import java.sql.ResultSet;
@@ -39,12 +40,13 @@ public class JeproLabAnalyzeAddController extends JeproLabController{
     public JeproImageSlider jeproLabAnalyzeSlider;
 
     public GridPane jeproLabAnalyzeInformationLayout;
-
+    public Pane jeproLabAnalyzeSpecificPriceModification;
     public TabPane jeproLabAnalyzeTabPane;
     public Tab jeproLabAnalyzeInformationTabForm, jeproLabAnalyzeAttachedFileTabForm;
 
     public Label jeproLabAnalyzeNameLabel, jeproLabAnalyzePublishedLabel, jeproLabAnalyzeReferenceLabel, jeproLabAnalyzeImageChooserLabel;
     public Label jeproLabAnalyzeShortDescriptionLabel, jeproLabAnalyzeDescriptionLabel, jeproLabAnalyzeImagesLabel, jeproLabAnalyzeTagLabel;
+    public Label jeproLabAnalyzeSpecificPriceModificationLabel;
     public TextField jeproLabAnalyzeReference;
     public TextArea jeproLabAnalyzeShortDescription, jeproLabAnalyzeDescription;
     public JeproMultiLangTextField jeproLabAnalyzeName, jeproLabAnalyzeTags;
@@ -917,46 +919,58 @@ public class JeproLabAnalyzeAddController extends JeproLabController{
     } * /
 */
     private void displaySpecificPriceModificationForm(JeproLabCurrencyModel defaultCurrency, List<JeproLabLaboratoryModel> laboratories, List<JeproLabCurrencyModel> currencies, List<JeproLabCountryModel> countries, List<JeproLabGroupModel> groups){
-        /* $content = '';
-        if(!$this->product){ return null; }
+        TableView specificPriceTableView = new TableView();
+        TableColumn rulesColumn, combinationColumn, labsColumn, currenciesColumn, countriesColumn, groupsColumn, customerColumn;
+        TableColumn fixedPriceColumn, impactColumn, periodColumn, actionsColumn, fromColumn;
+        boolean multiLab = JeproLabLaboratoryModel.isFeaturePublished();
+        jeproLabAnalyzeSpecificPriceModificationLabel.setText(bundle.getString("JEPROLAB_LABEL"));
 
-        $specificPrices = JeproLabSpecificPriceModelSpecificPrice::getSpecificPricesByProductId((int)$this->product->product_id);
-        $specificPricePriorities = JeproLabSpecificPriceModelSpecificPrice::getPriority((int)$this->product->product_id);
-        $app = JFactory::getApplication();
-        $taxRate = $this->product->getTaxesRate(JeproLabAddressModelAddress::initialize());
+        if(analyze != null) {
+            //$specificPrices = JeproLabSpecificPriceModel.getSpecificPricesByProductId(analyze.analyze_id);
+            //$specificPricePriorities = JeproLabSpecificPriceModel.getPriority(analyze.analyze_id);
 
-        $tmp = array();
-        foreach($shops as $shop){
-            $tmp[$shop->shop_id] = $shop;
-        }
-        $shops = $tmp;
+            rulesColumn = new TableColumn(bundle.getString("JEPROLAB_LABEL"));
+            combinationColumn = new TableColumn(bundle.getString("JEPROLAB_LABEL"));
+            fromColumn = new TableColumn(bundle.getString("JEPROLAB_LABEL"));
+            currenciesColumn = new TableColumn(bundle.getString("JEPROLAB_LABEL"));
+            countriesColumn = new TableColumn(bundle.getString("JEPROLAB_LABEL"));
+            groupsColumn = new TableColumn(bundle.getString("JEPROLAB_LABEL"));
+            customerColumn = new TableColumn(bundle.getString("JEPROLAB_LABEL"));
+            fixedPriceColumn = new TableColumn(bundle.getString("JEPROLAB_LABEL"));
+            impactColumn = new TableColumn(bundle.getString("JEPROLAB_LABEL"));
+            periodColumn = new TableColumn(bundle.getString("JEPROLAB_PERIOD_LABEL"));
+            actionsColumn = new TableColumn(bundle.getString("JEPROLAB_ACTIONS_LABEL"));
+            //$app = JFactory::getApplication ();
+            float taxRate = analyze.getTaxesRate(JeproLabAddressModel.initialize());
+            /* $tmp = array();
+            foreach($shops as $shop) {
+                $tmp[$shop -> shop_id] = $shop;
+            }
+            $shops = $tmp;            $tmp = array();
+            foreach($currencies as $currency) {
+                $tmp[$currency -> currency_id] = $currency;
+            }
+            $currencies = $tmp;          $tmp = array();
+            foreach($countries as $country) {
+                $tmp[$country -> country_id] = $country;
+            }
+            $countries = $tmp;       $tmp = array();
+            foreach($groups as $group) {
+                $tmp[$group -> group_id] = $group;
+            }
+            $groups = $tmp;*/
+            specificPriceTableView.getColumns().addAll(rulesColumn, combinationColumn);
 
-        $tmp = array();
-        foreach($currencies as $currency){
-            $tmp[$currency->currency_id] = $currency;
-        }
-        $currencies = $tmp;
+            if(multiLab){
+                labsColumn = new TableColumn(bundle.getString("JEPROLAB_LABORATORIES_LABEL"));
+                specificPriceTableView.getColumns().add(labsColumn);
+            }
+            specificPriceTableView.getColumns().addAll(currenciesColumn, countriesColumn, groupsColumn, customerColumn);
+            specificPriceTableView.getColumns().addAll(fixedPriceColumn, impactColumn, periodColumn, fromColumn, actionsColumn);
+/*
 
-        $tmp = array();
-        foreach($countries as $country){
-            $tmp[$country->country_id] = $country;
-        }
-        $countries = $tmp;
-
-        $tmp = array();
-        foreach($groups as $group){
-            $tmp[$group->group_id] = $group;
-        }
-        $groups = $tmp;
-
-        $content .= '<table class="table table-striped" ><thead><tr><th>' . JText::_('COM_JEPROSHOP_RULES_LABEL') ;
-        $content .= '</th><th>' . JText::_('COM_JEPROSHOP_COMBINATION_LABEL') . '</th>';
-        $multi_shop = JeproLabLaboratoryModel::isFeaturePublished();
-        if($multi_shop){ $content .= '<th>' . JText::_('COM_JEPROSHOP_SHOP_LABEL') . '</th>'; }
-        $content .= '<th>' . JText::_('COM_JEPROSHOP_CURRENCY_LABEL') . '</th><th>';
-        $content .= JText::_('COM_JEPROSHOP_COUNTRY_LABEL') . '</th><th>' . JText::_('COM_JEPROSHOP_GROUP_LABEL');
-        $content .= '</th><th>' . JText::_('COM_JEPROSHOP_CUSTOMER_LABEL') . '</th><th>';
-        $content .= JText::_('COM_JEPROSHOP_FIXED_PRICE_LABEL') . '</th><th>' . JText::_('COM_JEPROSHOP_IMPACT_LABEL');
+        $content .= '<th>' . JText::_('COM_JEPROSHOP_CURRENCY_LABEL') . '</th><th>';  $content .= JText::_('COM_JEPROSHOP_COUNTRY_LABEL') . '</th><th>' . JText::_('COM_JEPROSHOP_GROUP_LABEL');
+        $content .= '</th><th>' . JText::_('COM_JEPROSHOP_CUSTOMER_LABEL') . '</th><th>'; $content .= JText::_('COM_JEPROSHOP_FIXED_PRICE_LABEL') . '</th><th>' . JText::_('COM_JEPROSHOP_IMPACT_LABEL');
         $content .= '</th><th>' . JText::_('COM_JEPROSHOP_PERIOD_LABEL') . '</th><th>' . JText::_('COM_JEPROSHOP_FROM_LABEL');
         $content .= '</th><th>' . JText::_('COM_JEPROSHOP_ACTIONS_LABEL') . '</th></tr></thead><tbody>';
         if(!is_array($specificPrices) || !count($specificPrices)){
@@ -1085,6 +1099,8 @@ public class JeproLabAnalyzeAddController extends JeproLabController{
         }
         $content .= '</script>';
         return $content; */
+            jeproLabAnalyzeSpecificPriceModification.getChildren().add(specificPriceTableView);
+        }
     }
 
     private void getCombinationImages(){
