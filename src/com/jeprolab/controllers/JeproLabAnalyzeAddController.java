@@ -42,11 +42,15 @@ public class JeproLabAnalyzeAddController extends JeproLabController{
     public GridPane jeproLabAnalyzeInformationLayout;
     public Pane jeproLabAnalyzeSpecificPriceModification;
     public TabPane jeproLabAnalyzeTabPane;
-    public Tab jeproLabAnalyzeInformationTabForm, jeproLabAnalyzeAttachedFileTabForm;
+    public Tab jeproLabAnalyzeInformationTabForm, jeproLabAnalyzePriceTabForm, jeproLabAnalyzeAttachedFileTabForm;
 
     public Label jeproLabAnalyzeNameLabel, jeproLabAnalyzePublishedLabel, jeproLabAnalyzeReferenceLabel, jeproLabAnalyzeImageChooserLabel;
     public Label jeproLabAnalyzeShortDescriptionLabel, jeproLabAnalyzeDescriptionLabel, jeproLabAnalyzeImagesLabel, jeproLabAnalyzeTagLabel;
-    public Label jeproLabAnalyzeSpecificPriceModificationLabel;
+    public Label jeproLabAnalyzeSpecificPriceModificationLabel, jeproLabAnalyzeEan13Label, jeproLabAnalyzeUpcLabel, jeproLabAnalyzeRedirectLabel;
+    public Label jeproLabAnalyzeVisibilityLabel, jeproLabAnalyzeOptionLabel, jeproLabAnalyzeWholeSalePriceLabel, jeproLabAnalyzePriceTaxExcludedLabel;
+    public Label jeproLabAnalyzePriceTaxRuleLabel, jeproLabAnalyzePriceUseEcoTaxLabel, jeproLabAnalyzePriceTaxIncludedLabel, jeproLabAnalyzeUnitPriceLabel;
+    public Label jeproLabAnalyzeFinalPriceWithoutTaxLabel, jeproLabAnalyzeSpecificPriceLabIdLabel, jeproLabAnalyzeSpecificPriceCustomerIdLabel;
+    public Label jeproLabAnalyzeSpecificPriceCombinationLabel;
     public TextField jeproLabAnalyzeReference;
     public TextArea jeproLabAnalyzeShortDescription, jeproLabAnalyzeDescription;
     public JeproMultiLangTextField jeproLabAnalyzeName, jeproLabAnalyzeTags;
@@ -124,6 +128,8 @@ public class JeproLabAnalyzeAddController extends JeproLabController{
         GridPane.setMargin(jeproLabAnalyzeSlider, new Insets(15, 0, 10, 0));
         jeproLabAnalyzeSlider.setSliderPrefHeight(100);
         jeproLabAnalyzeSlider.setSliderPrefWidth(JeproLab.APP_WIDTH - 300);
+
+        jeproLabAnalyzePriceTabForm.setText(bundle.getString("JEPROLAB_PRICE_LABEL"));
 
         /** Setting and laying out Attached file form **/
         jeproLabAnalyzeAttachedFileTabForm.setText(bundle.getString("JEPROLAB_ATTACHED_FILES_LABEL"));

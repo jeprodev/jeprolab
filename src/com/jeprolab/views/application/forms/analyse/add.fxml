@@ -54,7 +54,7 @@
                     <JeproMultiLangTextField GridPane.columnIndex="1" GridPane.rowIndex="6" fx:id="jeproLabAnalyzeTags" />
                 </GridPane>
             </Tab>
-            <Tab fx:id="jeproLabAnalyzePriceTabForm" >
+            <Tab fx:id="jeproLabAnalyzePriceTabForm" closable="false" >
                 <Pane fx:id="jeproLabAnalyzePricePane" >
                     <GridPane fx:id="jeproLabAnalyzePriceLayout">
                         <Label GridPane.columnIndex="0" GridPane.rowIndex="0" fx:id="jeproLabAnalyzeWholeSalePriceLabel" />
@@ -81,7 +81,7 @@
                 <Pane fx:id="jeproLabSpecificPricePaneWrapper" >
                     <Pane fx:id="jeproLabSpecificPricePaneTitle" />
                     <Pane fx:id="jeproLabSpecificPricePaneContent" >
-                        <GridPane fx:id="" >
+                        <GridPane >
                             <Label GridPane.columnIndex="0" GridPane.rowIndex="0" fx:id="jeproLabAnalyzeSpecificPriceLabIdLabel" />
                             <HBox GridPane.columnIndex="1" GridPane.rowIndex="0" GridPane.columnSpan="3" fx:id="jeproLabAnalyzeSpecificPriceLabId" />
                             <Label GridPane.columnIndex="0" GridPane.rowIndex="1" fx:id="jeproLabAnalyzeSpecificPriceCustomerIdLabel" />
@@ -92,7 +92,7 @@
                             <DatePicker GridPane.columnIndex="1" GridPane.rowIndex="3" fx:id="jeproLabAnalyzeSpecificPriceFrom" />
                             <Label GridPane.columnIndex="2" GridPane.rowIndex="3" fx:id="jeproLabAnalyzeSpecificPriceToLabel" />
                             <DatePicker GridPane.columnIndex="3" GridPane.rowIndex="3" fx:id="jeproLabAnalyzeSpecificPriceTo" />
-                            <Label GridPane.columnSpan="0" GridPane.rowIndex="4" fx:id="jeproLabAnalyzeStartingAtLabel" />
+                            <Label GridPane.columnIndex="0" GridPane.rowIndex="4" fx:id="jeproLabAnalyzeStartingAtLabel" />
                             <TextField GridPane.columnIndex="1" GridPane.rowIndex="4" fx:id="jeproLabAnalyzeStartingAt" />
                             <Label GridPane.columnIndex="0" GridPane.rowIndex="5" fx:id="jeproLabAnalyzeSpecificPriceLabel" />
                             <Label GridPane.columnIndex="1" GridPane.rowIndex="5" fx:id="jeproLabAnalyzeSpecificPrice" />
@@ -100,7 +100,7 @@
                             <Label GridPane.columnIndex="0" GridPane.rowIndex="7" fx:id="jeproLabAnalyzeApplyDiscountOfLabel" />
                             <ComboBox GridPane.columnIndex="1" GridPane.rowIndex="7" fx:id="jeproLabAnalyzeApplyDiscountOf" />
                             <Label GridPane.columnIndex="0" GridPane.rowIndex="8" fx:id="jeproLabAnalyzeSpecificPriceModificationLabel" />
-                            <Pane GridPane.columnIndex="1" GridPane.rowIndex="8" GridPane.columnSpan="3" fx:id="jeproLabAnalyzeSpecificPriceModification" />
+                            <Pane GridPane.columnIndex="0" GridPane.rowIndex="9" GridPane.columnSpan="4" fx:id="jeproLabAnalyzeSpecificPriceModification" />
                         </GridPane>
                     </Pane>
                 </Pane>
