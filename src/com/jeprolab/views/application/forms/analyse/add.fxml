@@ -44,7 +44,11 @@
                     <Label GridPane.columnIndex="0" GridPane.rowIndex="3" fx:id="jeproLabAnalyzeUpcLabel" />
                     <TextField GridPane.columnIndex="1" GridPane.rowIndex="3" fx:id="jeproLabAnalyzeUpc" />
                     <Label GridPane.columnIndex="2" GridPane.rowIndex="3" fx:id="jeproLabAnalyzeOptionLabel" />
-                    <ComboBox GridPane.columnIndex="3" GridPane.rowIndex="3" fx:id="jeproLabAnalyzeOption" />
+                    <GridPane GridPane.columnIndex="3" GridPane.rowIndex="3" GridPane.rowSpan="2" fx:id="jeproLabAnalyzeOptionLayout" >
+                        <CheckBox GridPane.columnIndex="0" GridPane.rowIndex="0" fx:id="jeproLabAnalyzeShowPrice"/>
+                        <CheckBox GridPane.columnIndex="0" GridPane.rowIndex="1" fx:id="jeproLabAnalyzeOnSale" />
+                        <CheckBox GridPane.columnIndex="0" GridPane.rowIndex="2" fx:id="jeproLabAnalyzeAvailableForOrder" />
+                    </GridPane>
 
                     <Label GridPane.columnIndex="0" GridPane.rowIndex="4" fx:id="jeproLabAnalyzeImageChooserLabel" />
                     <JeproImageChooser GridPane.columnIndex="1" GridPane.rowIndex="4" fx:id="jeproLabAnalyzeImageChooser" />
@@ -75,7 +79,7 @@
                         <JeproLabPriceBox GridPane.columnIndex="1" GridPane.rowIndex="2" fx:id="jeproLabAnalyzePriceTaxIncluded" />
                         <Label GridPane.columnIndex="2" GridPane.rowIndex="2" fx:id="jeproLabAnalyzeUnitPriceLabel" />
                         <HBox GridPane.columnIndex="3" GridPane.rowIndex="2" fx:id="jeproLabAnalyzeUnitPriceWrapper" />
-                        <CheckBox GridPane.columnIndex="1" GridPane.rowIndex="3" GridPane.columnSpan="3" fx:id="jeproLabAnalyzeOnSale" />
+                        <CheckBox GridPane.columnIndex="1" GridPane.rowIndex="3" GridPane.columnSpan="3" fx:id="jeproLabAnalyzeIsOnSale" />
                         <Label GridPane.columnIndex="0" GridPane.rowIndex="4" fx:id="jeproLabAnalyzeFinalPriceWithoutTaxLabel" />
                         <Label GridPane.columnIndex="1" GridPane.rowIndex="4" fx:id="jeproLabAnalyzeFinalPriceWithoutTax" />
                         <HBox GridPane.columnIndex="0" GridPane.rowIndex="5" GridPane.columnSpan="4" fx:id="jeproLabAnalyzePriceCommandWrapper" />

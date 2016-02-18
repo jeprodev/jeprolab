@@ -4,6 +4,7 @@ import com.jeprolab.JeproLab;
 import com.jeprolab.assets.tools.JeproLabCache;
 import com.jeprolab.assets.tools.JeproLabContext;
 import com.jeprolab.assets.tools.JeproLabTools;
+import com.jeprolab.controllers.JeproLabCategoryController;
 import com.jeprolab.models.core.JeproLabFactory;
 import com.jeprolab.models.tax.JeproLabTaxCalculator;
 import com.jeprolab.models.tax.JeproLabTaxManagerFactory;
@@ -220,6 +221,7 @@ public class JeproLabAnalyzeModel extends JeproLabModel {
     public boolean is_virtual;
     public int analyze_pack_attribute_id;
     public int cache_default_attribute;
+    private List<Integer> laboratory_list_id = new ArrayList<>();
 
     /**
      * @var string If product is populated, this property contain the rewrite link of the default category
@@ -652,9 +654,54 @@ public class JeproLabAnalyzeModel extends JeproLabModel {
         return $fields;
     }
 */
-    public static int save(){
+    public int save(){
         Map<String, String> post = JeproLab.request.getPost();
-        System.out.println(post.get("reference"));
+
+        JeproLabContext context = JeproLabContext.getContext();
+        Map<Integer, JeproLabLanguageModel> languages = JeproLabLanguageModel.getLanguages();
+
+        //checkAnalyze();
+        //removeTaxFromEcotax();
+        List<Integer> labIds = new ArrayList<>();
+        if(JeproLabLaboratoryModel.isTableAssociated("analyze")){
+            labIds = JeproLabLaboratoryModel.getContextListLaboratoryIds();
+            if(this.laboratory_list_id.size() > 0){
+                labIds = this.laboratory_list_id;
+            }
+        }
+
+        if(JeproLabLaboratoryModel.checkDefaultLabId("analyze")){
+            int minValue =  labIds.get(0);
+            for (Integer value : labIds){
+                if(value < minValue) {
+                    minValue = value;
+                }
+            }
+            this.default_laboratory_id = minValue;
+        }
+        String analyzeReference = post.get("reference");
+        String analyzeEan13 = post.get("ean13");
+        String analyzeUpc = post.get("upc");
+        int analyzePublished = Integer.parseInt(post.get("published"));
+        String analyzeRedirectType = post.get("redirect_type");
+        int availableForOrder = Integer.parseInt(post.get("available_for_order"));
+        int showPrice = Integer.parseInt(post.get("show_price"));
+        int onlineOnly = Integer.parseInt(post.get("online_only"));
+        String analyzeVisibility = post.get("visibility");
+        int analyzeRedirectId = Integer.parseInt(post.get("redirect_id"));
+        String analyzeCondition = post.get("delay");
+
+        String query = "INSERT INTO " + dataBaseObject.quoteName("#__jeprolab_analyze") + "("  + dataBaseObject.quoteName("reference") + ", " ;
+        query +=  dataBaseObject.quoteName("ean13") + ", " + dataBaseObject.quoteName("upc") + ", "  + dataBaseObject.quoteName("published");
+        query += ", "  + dataBaseObject.quoteName("redirect_type") + ", " + dataBaseObject.quoteName("visibility") + ", " ;
+        query += dataBaseObject.quoteName("condition") + ", "  + dataBaseObject.quoteName("available_for_order") + ", "  + dataBaseObject.quoteName("show_price") + ", ";
+        query += dataBaseObject.quoteName("online_only") + ", " + dataBaseObject.quoteName("default_lab_id") + ", " + dataBaseObject.quoteName("analyze_redirected_id");
+        query += ", " + dataBaseObject.quoteName("date_add") + ", " + dataBaseObject.quoteName("date_upd") + " ) VALUES(" + dataBaseObject.quote(analyzeReference, true) ;
+        query += ", " + dataBaseObject.quote(analyzeEan13, true) + ", " + dataBaseObject.quote(analyzeUpc, true) + ", " + analyzePublished;
+        query += ", " + dataBaseObject.quote(analyzeRedirectType, true) + ", " + dataBaseObject.quote(analyzeVisibility, true) + ", " + dataBaseObject.quote(analyzeCondition);
+        query += ", " + availableForOrder + ", " + showPrice + ", " + onlineOnly + ", " + default_laboratory_id + ", " + analyzeRedirectId + ", ";
+        query += dataBaseObject.quote(this.date_add.toString())+ ", " + dataBaseObject.quote(this.date_upd.toString()) + ") ";
+
         /*if (!parent::add($autodate, $null_values)) {
         return false;
     }

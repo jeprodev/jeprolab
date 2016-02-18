@@ -46,7 +46,7 @@ public class JeproLabAnalyzeAddController extends JeproLabController{
     public JeproFormPanelContainer jeproLabAddAnalyseFormContainerWrapper;
     public JeproImageSlider jeproLabAnalyzeSlider;
 
-    public GridPane jeproLabAnalyzeInformationLayout, jeproLabAnalyzePriceLayout, jeproLabSpecificPricePaneLayout;
+    public GridPane jeproLabAnalyzeInformationLayout, jeproLabAnalyzePriceLayout, jeproLabSpecificPricePaneLayout, jeproLabAnalyzeOptionLayout;
     public Pane jeproLabAnalyzeSpecificPriceModification, jeproLabAnalyzePricePane, jeproLabSpecificPricePaneWrapper, jeproLabSpecificPricePaneTitle;
     public Pane jeproLabSpecificPricePaneContent;
     public TabPane jeproLabAnalyzeTabPane;
@@ -65,9 +65,9 @@ public class JeproLabAnalyzeAddController extends JeproLabController{
     public Label jeproLabAnalyzeSpecificPriceCombinationLabel, jeproLabAnalyzeApplyDiscountOfLabel, jeproLabAnalyzeSpecificPriceFromLabel;
     public Label jeproLabAnalyzeFinalPriceWithoutTax, jeproLabAnalyzeSpecificPriceToLabel, jeproLabAnalyzeStartingAtLabel, jeproLabAnalyzeSpecificPriceLabel;
     public TextField jeproLabAnalyzeReference, jeproLabAnalyzeEan13, jeproLabAnalyzeUpc, jeproLabAnalyzeStartingAt;
-    public ComboBox jeproLabAnalyzeRedirect, jeproLabAnalyzeVisibility, jeproLabAnalyzeOption, jeproLabAnalyzeApplyDiscountOf;
+    public ComboBox jeproLabAnalyzeRedirect, jeproLabAnalyzeVisibility, jeproLabAnalyzeApplyDiscountOf;
     public TextArea jeproLabAnalyzeShortDescription, jeproLabAnalyzeDescription;
-    public CheckBox jeproLabAnalyzeLeaveBasePrice, jeproLabAnalyzeOnSale;
+    public CheckBox jeproLabAnalyzeLeaveBasePrice, jeproLabAnalyzeOnSale, jeproLabAnalyzeShowPrice, jeproLabAnalyzeAvailableForOrder, jeproLabAnalyzeIsOnSale;
     public DatePicker jeproLabAnalyzeSpecificPriceFrom, jeproLabAnalyzeSpecificPriceTo;
     public JeproMultiLangTextField jeproLabAnalyzeName, jeproLabAnalyzeTags;
     public JeproSwitchButton jeproLabAnalyzePublished;
@@ -141,6 +141,8 @@ public class JeproLabAnalyzeAddController extends JeproLabController{
         jeproLabAnalyzeImagesLabel.getStyleClass().add("input-label");
         jeproLabAnalyzeTagLabel.setText(bundle.getString("JEPROLAB_TAG_LABEL"));
         jeproLabAnalyzeTagLabel.getStyleClass().add("input-label");
+        jeproLabAnalyzeShowPrice.setText(bundle.getString("JEPROLAB_ON_SALE_LABEL"));
+        jeproLabAnalyzeShowPrice.getStyleClass().add("input-label");
 
         jeproLabAnalyzeEan13Label.setText(bundle.getString("JEPROLAB_EAN13_LABEL"));
         jeproLabAnalyzeEan13Label.getStyleClass().add("input-label");
@@ -896,8 +898,8 @@ public class JeproLabAnalyzeAddController extends JeproLabController{
         jeproLabAnalyzeUnitPriceLabel.getStyleClass().add("input-label");
         jeproLabAnalyzeFinalPriceWithoutTaxLabel.setText(bundle.getString("JEPROLAB_PRICE_WITHOUT_TAX_LABEL"));
         jeproLabAnalyzeFinalPriceWithoutTaxLabel.getStyleClass().add("input-label");
-        jeproLabAnalyzeOnSale.setText(bundle.getString("JEPROLAB_ON_SALE_LABEL"));
-        jeproLabAnalyzeOnSale.getStyleClass().add("input-label");
+        jeproLabAnalyzeIsOnSale.setText(bundle.getString("JEPROLAB_ON_SALE_LABEL"));
+        jeproLabAnalyzeIsOnSale.getStyleClass().add("input-label");
         jeproLabAnalyzeSpecificPriceModificationLabel.setText(bundle.getString("JEPROLAB_SPECIFIC_PRICE_MODIFICATION_LABEL"));
         jeproLabAnalyzeSpecificPriceModificationLabel.getStyleClass().add("input-label");
         jeproLabAnalyzeSpecificPriceModificationLabel.setPadding(new Insets(10, 10, 10, 10));
@@ -922,7 +924,7 @@ public class JeproLabAnalyzeAddController extends JeproLabController{
         GridPane.setMargin(jeproLabAnalyzeUnitPriceWrapper, new Insets(5, 10, 5, 10));
         GridPane.setMargin(jeproLabAnalyzeFinalPriceWithoutTaxLabel, new Insets(5, 10, 5, 10));
         GridPane.setMargin(jeproLabAnalyzeFinalPriceWithoutTax, new Insets(5, 10, 5, 10));
-        GridPane.setMargin(jeproLabAnalyzeOnSale, new Insets(5, 10, 5, 10));
+        GridPane.setMargin(jeproLabAnalyzeIsOnSale, new Insets(5, 10, 5, 10));
         //GridPane.setMargin(, new Insets(5, 10, 5, 10));
         //GridPane.setMargin(, new Insets(5, 10, 5, 10));
 
@@ -1331,12 +1333,16 @@ public class JeproLabAnalyzeAddController extends JeproLabController{
         }
         cancelBtn = new Button(bundle.getString("JEPROLAB_CANCEL_LABEL"), new ImageView(new Image(JeproLab.class.getResourceAsStream("resources/images/unpublished.png"))));
         saveAnalyzeBtn.setOnMouseClicked(evt -> {
-            String post = "reference=" + jeproLabAnalyzeReference.getText();
+            String post = "reference=" + jeproLabAnalyzeReference.getText() + "&ean13=" + jeproLabAnalyzeEan13.getText() + "&upc=" + jeproLabAnalyzeUpc.getText();
+            //post += "&published=" + jeproLabAnalyzePublished.getValue() + "&redirect_type=" + jeproLabAnalyzeVisibility.getValue().toString() + "&available_for_order=";
+            //post += jeproLabAnalyzeAvailableForOrder + "&show_price=" + jeproLabAnalyzeShowPrice + "&online_only=" + jeproLabAnalyzeOnlineOnly + "&visibility=" + jeproLabAnalyzeVisibility.getValue().toString() +"&redirect_id=" + jeproLabAnalyzeRedirect.getValue().toString();
             JeproLab.request.setPost(post);
+
             if(analyze.analyze_id > 0){
                 analyze.update();
             }else {
-                int savedId = JeproLabAnalyzeModel.save();
+                //JeproLabAnalyzeModel
+                int savedId = analyze.save();
             }
         });
         commandWrapper.getChildren().addAll(saveAnalyzeBtn, cancelBtn);
