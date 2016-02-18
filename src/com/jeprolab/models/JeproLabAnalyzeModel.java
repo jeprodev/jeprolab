@@ -661,8 +661,8 @@ public class JeproLabAnalyzeModel extends JeproLabModel {
         JeproLabContext context = JeproLabContext.getContext();
         Map<Integer, JeproLabLanguageModel> languages = JeproLabLanguageModel.getLanguages();
 
-        //checkAnalyze();
-        //removeTaxFromEcotax();
+        checkAnalyze();
+        //removeTaxFromEcoTax();
         List<Integer> labIds = new ArrayList<>();
         if(JeproLabLaboratoryModel.isTableAssociated("analyze")){
             labIds = JeproLabLaboratoryModel.getContextListLaboratoryIds();
