@@ -11,6 +11,8 @@ import javafx.fxml.FXML;
 import javafx.geometry.Insets;
 import javafx.geometry.VPos;
 import javafx.scene.control.*;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
@@ -30,9 +32,13 @@ import java.util.ResourceBundle;
  */
 public class JeproLabAnalyzeAddController extends JeproLabController{
     private Label jeproLabFormTitle;
+    private final double inputColumnWidth = 280;
+    private final double labelColumnWidth = 150;
     private JeproLabAnalyzeModel analyze;
     private int defaultLanguageId;
+    private Button saveAnalyzeBtn, cancelBtn;
     private Map<Integer, JeproLabLanguageModel> languages;
+    public JeproLabPriceBox jeproLabAnalyzeUnitPrice;
 
     @FXML
     public JeproFormPanel jeproLabAddAnalyseFormWrapper;
@@ -40,7 +46,7 @@ public class JeproLabAnalyzeAddController extends JeproLabController{
     public JeproFormPanelContainer jeproLabAddAnalyseFormContainerWrapper;
     public JeproImageSlider jeproLabAnalyzeSlider;
 
-    public GridPane jeproLabAnalyzeInformationLayout, jeproLabAnalyzePriceLayout;
+    public GridPane jeproLabAnalyzeInformationLayout, jeproLabAnalyzePriceLayout, jeproLabSpecificPricePaneLayout;
     public Pane jeproLabAnalyzeSpecificPriceModification, jeproLabAnalyzePricePane, jeproLabSpecificPricePaneWrapper, jeproLabSpecificPricePaneTitle;
     public Pane jeproLabSpecificPricePaneContent;
     public TabPane jeproLabAnalyzeTabPane;
@@ -57,20 +63,23 @@ public class JeproLabAnalyzeAddController extends JeproLabController{
     public Label jeproLabAnalyzePriceTaxRuleLabel, jeproLabAnalyzePriceUseEcoTaxLabel, jeproLabAnalyzePriceTaxIncludedLabel, jeproLabAnalyzeUnitPriceLabel;
     public Label jeproLabAnalyzeFinalPriceWithoutTaxLabel, jeproLabAnalyzeSpecificPriceLabIdLabel, jeproLabAnalyzeSpecificPriceCustomerIdLabel;
     public Label jeproLabAnalyzeSpecificPriceCombinationLabel, jeproLabAnalyzeApplyDiscountOfLabel, jeproLabAnalyzeSpecificPriceFromLabel;
-    public TextField jeproLabAnalyzeReference, jeproLabAnalyzeEan13, jeproLabAnalyzeUpc;
+    public Label jeproLabAnalyzeFinalPriceWithoutTax, jeproLabAnalyzeSpecificPriceToLabel, jeproLabAnalyzeStartingAtLabel, jeproLabAnalyzeSpecificPriceLabel;
+    public TextField jeproLabAnalyzeReference, jeproLabAnalyzeEan13, jeproLabAnalyzeUpc, jeproLabAnalyzeStartingAt;
     public ComboBox jeproLabAnalyzeRedirect, jeproLabAnalyzeVisibility, jeproLabAnalyzeOption, jeproLabAnalyzeApplyDiscountOf;
     public TextArea jeproLabAnalyzeShortDescription, jeproLabAnalyzeDescription;
-    public CheckBox jeproLabAnalyzeLeaveBasePrice;
-    public DatePicker jeproLabAnalyzeSpecificPriceFrom;
+    public CheckBox jeproLabAnalyzeLeaveBasePrice, jeproLabAnalyzeOnSale;
+    public DatePicker jeproLabAnalyzeSpecificPriceFrom, jeproLabAnalyzeSpecificPriceTo;
     public JeproMultiLangTextField jeproLabAnalyzeName, jeproLabAnalyzeTags;
     public JeproSwitchButton jeproLabAnalyzePublished;
     public JeproImageChooser jeproLabAnalyzeImageChooser;
+    public HBox jeproLabAnalyzePriceTaxRuleWrapper, jeproLabAnalyzeUnitPriceWrapper, jeproLabAnalyzeSpecificPriceCombinationWrapper;
+
+    public JeproLabPriceBox jeproLabAnalyzeWholeSalePrice, jeproLabAnalyzePriceTaxExcluded, jeproLabAnalyzePriceUseEcoTax, jeproLabAnalyzePriceTaxIncluded;
+    public JeproLabPriceBox jeproLabAnalyzeSpecificPrice;
 
     public void initialize(URL location, ResourceBundle resource){
-        bundle = resource;
+        super.initialize(location, resource);
 
-        double labelColumnWidth = 150;
-        double inputColumnWidth = 280;
         double formWidth = 0.92 * JeproLab.APP_WIDTH;
         //double centerGrid = (formWidth - (labelColumnWidth + inputColumnWidth))/2;
         double posX = (JeproLab.APP_WIDTH/2) - (formWidth)/2;
@@ -99,13 +108,18 @@ public class JeproLabAnalyzeAddController extends JeproLabController{
         /*** Tab Information **/
         jeproLabAnalyzeInformationTabForm.setText(bundle.getString("JEPROLAB_INFORMATION_LABEL"));
         jeproLabAnalyzeInformationTabForm.setClosable(false);
-        GridPane.setMargin(jeproLabAnalyzeNameLabel, new Insets(5, 10, 15, 15));
-        GridPane.setMargin(jeproLabAnalyzePublishedLabel, new Insets(5, 10, 15, 15));
-        GridPane.setMargin(jeproLabAnalyzeReferenceLabel, new Insets(5, 10, 15, 15));
-        GridPane.setMargin(jeproLabAnalyzeImageChooserLabel, new Insets(5, 10, 15, 15));
+        GridPane.setMargin(jeproLabAnalyzeNameLabel, new Insets(15, 10, 10, 15));
+        GridPane.setMargin(jeproLabAnalyzeName, new Insets(15, 10, 10, 0));
+        GridPane.setMargin(jeproLabAnalyzePublishedLabel, new Insets(5, 10, 10, 15));
+        GridPane.setMargin(jeproLabAnalyzeReferenceLabel, new Insets(5, 10, 10, 15));
+        GridPane.setMargin(jeproLabAnalyzeImageChooserLabel, new Insets(5, 10, 10, 15));
         GridPane.setMargin(jeproLabAnalyzeShortDescriptionLabel, new Insets(5, 10, 15, 15));
-        GridPane.setMargin(jeproLabAnalyzeDescriptionLabel, new Insets(5, 10, 15, 15));
-        GridPane.setMargin(jeproLabAnalyzeImagesLabel, new Insets(5, 10, 15, 15));
+        GridPane.setMargin(jeproLabAnalyzeDescriptionLabel, new Insets(5, 10, 10, 15));
+        GridPane.setMargin(jeproLabAnalyzeImagesLabel, new Insets(5, 10, 10, 15));
+        GridPane.setMargin(jeproLabAnalyzeEan13Label, new Insets(5, 10, 30, 15));
+        GridPane.setMargin(jeproLabAnalyzeUpcLabel, new Insets(5, 10, 30, 15));
+        GridPane.setMargin(jeproLabAnalyzeTagLabel, new Insets(5, 10, 30, 15));
+        GridPane.setMargin(jeproLabAnalyzeRedirectLabel, new Insets(5, 10, 30, 15));
         GridPane.setMargin(jeproLabAnalyzeTagLabel, new Insets(5, 10, 30, 15));
 
         jeproLabAnalyzeNameLabel.setText(bundle.getString("JEPROLAB_ANALYSE_NAME_LABEL"));
@@ -128,6 +142,14 @@ public class JeproLabAnalyzeAddController extends JeproLabController{
         jeproLabAnalyzeTagLabel.setText(bundle.getString("JEPROLAB_TAG_LABEL"));
         jeproLabAnalyzeTagLabel.getStyleClass().add("input-label");
 
+        jeproLabAnalyzeEan13Label.setText(bundle.getString("JEPROLAB_EAN13_LABEL"));
+        jeproLabAnalyzeEan13Label.getStyleClass().add("input-label");
+        jeproLabAnalyzeUpcLabel.setText(bundle.getString("JEPROLAB_UPC_LABEL"));
+        jeproLabAnalyzeUpcLabel.getStyleClass().add("input-label");
+        jeproLabAnalyzeRedirectLabel.setText(bundle.getString("JEPROLAB_REDIRECT_TO_LABEL"));
+        jeproLabAnalyzeRedirectLabel.getStyleClass().add("input-label");
+
+        jeproLabAnalyzeName.setWidth(310);
         GridPane.setMargin(jeproLabAnalyzeShortDescription, new Insets(10, 0, 0, 0));
         jeproLabAnalyzeShortDescription.setPrefHeight(55);
         GridPane.setMargin(jeproLabAnalyzeDescription, new Insets(10, 0, 0, 0));
@@ -138,13 +160,19 @@ public class JeproLabAnalyzeAddController extends JeproLabController{
         jeproLabAnalyzeSlider.setSliderPrefHeight(100);
         jeproLabAnalyzeSlider.setSliderPrefWidth(JeproLab.APP_WIDTH - 300);
 
-        jeproLabAnalyzePriceTabForm.setText(bundle.getString("JEPROLAB_PRICE_LABEL"));
+
+        jeproLabAnalyzeSeoTabForm.setText(bundle.getString("JEPROLAB_PRICE_LABEL"));
+        jeproLabAnalyzeAssociationTabForm.setText(bundle.getString("JEPROLAB_PRICE_LABEL"));
+        jeproLabAnalyzeImageTabForm.setText(bundle.getString("JEPROLAB_PRICE_LABEL"));
+        jeproLabAnalyzeShippingTabForm.setText(bundle.getString("JEPROLAB_PRICE_LABEL"));
+        jeproLabAnalyzeTechnicianTabForm.setText(bundle.getString("JEPROLAB_PRICE_LABEL"));
 
         /** Setting and laying out Attached file form **/
         jeproLabAnalyzeAttachedFileTabForm.setText(bundle.getString("JEPROLAB_ATTACHED_FILES_LABEL"));
         jeproLabAnalyzeAttachedFileTabForm.setClosable(false);
 
         initializeContent();
+        updateToolBar();
     }
 
     @Override
@@ -843,6 +871,61 @@ public class JeproLabAnalyzeAddController extends JeproLabController{
 
     private void initPriceForm(){
         if(context == null){ context = JeproLabContext.getContext(); }
+        /** Setting and laying out Attached file form **/
+        jeproLabAnalyzePriceTabForm.setText(bundle.getString("JEPROLAB_PRICE_LABEL"));
+        jeproLabAnalyzePriceLayout.getColumnConstraints().addAll(
+                new ColumnConstraints(labelColumnWidth), new ColumnConstraints(inputColumnWidth),
+                new ColumnConstraints(labelColumnWidth), new ColumnConstraints(inputColumnWidth)
+        );
+
+        jeproLabSpecificPricePaneLayout.getColumnConstraints().addAll(
+                new ColumnConstraints(labelColumnWidth), new ColumnConstraints(inputColumnWidth),
+                new ColumnConstraints(labelColumnWidth), new ColumnConstraints(inputColumnWidth)
+        );
+        jeproLabAnalyzeWholeSalePriceLabel.setText(bundle.getString("JEPROLAB_WHOLESALE_PRICE_LABEL"));
+        jeproLabAnalyzeWholeSalePriceLabel.getStyleClass().add("input-label");
+        jeproLabAnalyzePriceTaxExcludedLabel.setText(bundle.getString("JEPROLAB_PRICE_TAX_EXCLUDED_LABEL"));
+        jeproLabAnalyzePriceTaxExcludedLabel.getStyleClass().add("input-label");
+        jeproLabAnalyzePriceTaxRuleLabel.setText(bundle.getString("JEPROLAB_TAX_RULES_LABEL"));
+        jeproLabAnalyzePriceTaxRuleLabel.getStyleClass().add("input-label");
+        jeproLabAnalyzePriceUseEcoTaxLabel.setText(bundle.getString("JEPROLAB_ECOTAX_LABEL"));
+        jeproLabAnalyzePriceUseEcoTaxLabel.getStyleClass().add("input-label");
+        jeproLabAnalyzePriceTaxIncludedLabel.setText(bundle.getString("JEPROLAB_PRICE_TAX_INCLUDED_LABEL"));
+        jeproLabAnalyzePriceTaxIncludedLabel.getStyleClass().add("input-label");
+        jeproLabAnalyzeUnitPriceLabel.setText(bundle.getString("JEPROLAB_UNIT_PRICE_LABEL"));
+        jeproLabAnalyzeUnitPriceLabel.getStyleClass().add("input-label");
+        jeproLabAnalyzeFinalPriceWithoutTaxLabel.setText(bundle.getString("JEPROLAB_PRICE_WITHOUT_TAX_LABEL"));
+        jeproLabAnalyzeFinalPriceWithoutTaxLabel.getStyleClass().add("input-label");
+        jeproLabAnalyzeOnSale.setText(bundle.getString("JEPROLAB_ON_SALE_LABEL"));
+        jeproLabAnalyzeOnSale.getStyleClass().add("input-label");
+        jeproLabAnalyzeSpecificPriceModificationLabel.setText(bundle.getString("JEPROLAB_SPECIFIC_PRICE_MODIFICATION_LABEL"));
+        jeproLabAnalyzeSpecificPriceModificationLabel.getStyleClass().add("input-label");
+        jeproLabAnalyzeSpecificPriceModificationLabel.setPadding(new Insets(10, 10, 10, 10));
+        jeproLabAnalyzeSpecificPriceFromLabel.setText(bundle.getString("JEPROLAB_FROM_LABEL"));
+        jeproLabAnalyzeSpecificPriceFromLabel.getStyleClass().add("input-label");
+        jeproLabAnalyzeSpecificPriceToLabel.setText(bundle.getString("JEPROLAB_TO_LABEL"));
+        jeproLabAnalyzeSpecificPriceToLabel.getStyleClass().add("input-label");
+
+        GridPane.setMargin(jeproLabAnalyzeWholeSalePriceLabel, new Insets(10, 10, 5, 10));
+        GridPane.setMargin(jeproLabAnalyzeWholeSalePrice, new Insets(10, 10, 5, 10));
+        GridPane.setMargin(jeproLabAnalyzePriceTaxExcluded, new Insets(10, 10, 5, 10));
+        GridPane.setMargin(jeproLabAnalyzePriceTaxRuleLabel, new Insets(5, 10, 5, 10));
+        GridPane.setMargin(jeproLabAnalyzePriceTaxRuleWrapper, new Insets(5, 10, 5, 10));
+        GridPane.setMargin(jeproLabAnalyzePriceUseEcoTax, new Insets(5, 10, 5, 10));
+        GridPane.setMargin(jeproLabAnalyzePriceTaxIncludedLabel, new Insets(5, 10, 5, 10));
+        GridPane.setMargin(jeproLabAnalyzePriceTaxIncluded, new Insets(5, 10, 5, 10));
+        GridPane.setMargin(jeproLabAnalyzeSpecificPriceFromLabel, new Insets(5, 10, 5, 10));
+        GridPane.setMargin(jeproLabAnalyzeSpecificPriceToLabel, new Insets(5, 10, 5, 10));
+        GridPane.setMargin(jeproLabAnalyzeSpecificPriceFrom, new Insets(5, 10, 5, 10));
+        GridPane.setMargin(jeproLabAnalyzeSpecificPriceTo, new Insets(5, 10, 5, 10));
+        //GridPane.setMargin(jeproLabAnalyzeUnitPriceLabel, new Insets(5, 10, 5, 10));
+        GridPane.setMargin(jeproLabAnalyzeUnitPriceWrapper, new Insets(5, 10, 5, 10));
+        GridPane.setMargin(jeproLabAnalyzeFinalPriceWithoutTaxLabel, new Insets(5, 10, 5, 10));
+        GridPane.setMargin(jeproLabAnalyzeFinalPriceWithoutTax, new Insets(5, 10, 5, 10));
+        GridPane.setMargin(jeproLabAnalyzeOnSale, new Insets(5, 10, 5, 10));
+        //GridPane.setMargin(, new Insets(5, 10, 5, 10));
+        //GridPane.setMargin(, new Insets(5, 10, 5, 10));
+
         if(analyze.analyze_id > 0){
             List<JeproLabLaboratoryModel> laboratories = JeproLabLaboratoryModel.getLaboratories();
             List<JeproLabCountryModel> countries = JeproLabCountryModel.getCountries(context.language.language_id);
@@ -894,9 +977,9 @@ public class JeproLabAnalyzeAddController extends JeproLabController{
            //$this->assignRef('groups', $groups);
            //$this->assignRef('combinations', $combinations);
             boolean multiShop = JeproLabLaboratoryModel.isFeaturePublished();
-           //$this->assignRef('multi_shop', $multiShop);
-        }else{
-            JeproLabTools.displayWarning(500, bundle.getString("JEPROLAB_YOU_MUST_SAVE_THIS_ANALYZE_BEFORE_ADDING_SPECIFIC_PRICING_MESSAGE"));
+            //$this->assignRef('multi_shop', $multiShop);
+        } else {
+            //JeproLabTools.displayWarning(500, bundle.getString("JEPROLAB_YOU_MUST_SAVE_THIS_ANALYZE_BEFORE_ADDING_SPECIFIC_PRICING_MESSAGE"));
             analyze.tax_rules_group_id = JeproLabAnalyzeModel.getMostUsedTaxRulesGroupId();
            //$this->assignRef('ecotax_tax_excluded', 0);
         }
@@ -948,7 +1031,7 @@ public class JeproLabAnalyzeAddController extends JeproLabController{
             combinationColumn = new TableColumn(bundle.getString("JEPROLAB_COMBINATION_LABEL"));
             fromColumn = new TableColumn(bundle.getString("JEPROLAB_FROM_LABEL"));
             currenciesColumn = new TableColumn(bundle.getString("JEPROLAB_CURRENCIES_LABEL"));
-            countriesColumn = new TableColumn(bundle.getString("JEPROLAB_COUNTRIES__LABEL"));
+            countriesColumn = new TableColumn(bundle.getString("JEPROLAB_COUNTRIES_LABEL"));
             groupsColumn = new TableColumn(bundle.getString("JEPROLAB_GROUPS_LABEL"));
             customerColumn = new TableColumn(bundle.getString("JEPROLAB_CUSTOMER_LABEL"));
             fixedPriceColumn = new TableColumn(bundle.getString("JEPROLAB_FIXED_PRICE_LABEL"));
@@ -1197,9 +1280,9 @@ public class JeproLabAnalyzeAddController extends JeproLabController{
 
     } */
 
-    private boolean loadObject(){
+    /*private boolean loadObject(){
         return loadObject(false);
-    }
+    }*/
 
     private boolean loadObject(boolean option){
         int analyzeId = JeproLab.request.getIntValue("analyze_id"); //$app = JFactory::getApplication();
@@ -1233,5 +1316,29 @@ public class JeproLabAnalyzeAddController extends JeproLabController{
             analyze.loadStockData();
         }
         return isLoaded;
+    }
+
+    @Override
+    public void updateToolBar(){
+        HBox commandWrapper = JeproLab.getInstance().getApplicationToolBarCommandWrapper();
+        commandWrapper.getChildren().clear();
+        commandWrapper.setSpacing(4);
+        saveAnalyzeBtn = new Button("", new ImageView(new Image(JeproLab.class.getResourceAsStream("resources/images/floppy-icon.png"))));
+        if(analyze.analyze_id > 0) {
+            saveAnalyzeBtn.setText(bundle.getString("JEPROLAB_UPDATE_LABEL"));
+        }else{
+            saveAnalyzeBtn.setText(bundle.getString("JEPROLAB_SAVE_LABEL"));
+        }
+        cancelBtn = new Button(bundle.getString("JEPROLAB_CANCEL_LABEL"), new ImageView(new Image(JeproLab.class.getResourceAsStream("resources/images/unpublished.png"))));
+        saveAnalyzeBtn.setOnMouseClicked(evt -> {
+            String post = "reference=" + jeproLabAnalyzeReference.getText();
+            JeproLab.request.setPost(post);
+            if(analyze.analyze_id > 0){
+                analyze.update();
+            }else {
+                int savedId = JeproLabAnalyzeModel.save();
+            }
+        });
+        commandWrapper.getChildren().addAll(saveAnalyzeBtn, cancelBtn);
     }
 }

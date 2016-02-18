@@ -18,6 +18,8 @@
 <?import javafx.scene.control.CheckBox?>
 <?import javafx.scene.control.DatePicker?>
 
+<?import com.jeprolab.assets.extend.controls.JeproLabPriceBox?>
+<?import javafx.scene.layout.VBox?>
 <JeproFormPanel  xmlns:fx="http://javafx.com/fxml" fx:id="jeproLabAddAnalyseFormWrapper" fx:controller="com.jeprolab.controllers.JeproLabAnalyzeAddController">
     <JeproFormPanelTitle fx:id="jeproLabAddAnalyseFormTitleWrapper" />
     <JeproFormPanelContainer fx:id="jeproLabAddAnalyseFormContainerWrapper"  >
@@ -28,47 +30,51 @@
                     <JeproMultiLangTextField GridPane.columnIndex="1" GridPane.rowIndex="0" fx:id="jeproLabAnalyzeName"/>
                     <Label GridPane.columnIndex="2" GridPane.rowIndex="0" fx:id="jeproLabAnalyzePublishedLabel" />
                     <JeproSwitchButton GridPane.columnIndex="3" GridPane.rowIndex="0" fx:id="jeproLabAnalyzePublished" />
+
                     <Label GridPane.columnIndex="0" GridPane.rowIndex="1" fx:id="jeproLabAnalyzeReferenceLabel" />
                     <TextField GridPane.columnIndex="1" GridPane.rowIndex="1" fx:id="jeproLabAnalyzeReference" />
+                    <Label GridPane.columnIndex="2" GridPane.rowIndex="1" fx:id="jeproLabAnalyzeRedirectLabel" />
+                    <ComboBox GridPane.columnIndex="3" GridPane.rowIndex="1" fx:id="jeproLabAnalyzeRedirect" />
+
                     <Label GridPane.columnIndex="0" GridPane.rowIndex="2" fx:id="jeproLabAnalyzeEan13Label" />
                     <TextField GridPane.columnIndex="1" GridPane.rowIndex="2" fx:id="jeproLabAnalyzeEan13" />
+                    <Label GridPane.columnIndex="2" GridPane.rowIndex="2" fx:id="jeproLabAnalyzeVisibilityLabel" />
+                    <ComboBox GridPane.columnIndex="3" GridPane.rowIndex="2" fx:id="jeproLabAnalyzeVisibility" />
+
                     <Label GridPane.columnIndex="0" GridPane.rowIndex="3" fx:id="jeproLabAnalyzeUpcLabel" />
                     <TextField GridPane.columnIndex="1" GridPane.rowIndex="3" fx:id="jeproLabAnalyzeUpc" />
-                    <Label GridPane.columnIndex="0" GridPane.rowIndex="0" fx:id="jeproLabAnalyzeRedirectLabel" />
-                    <ComboBox GridPane.columnIndex="0" GridPane.rowIndex="0" fx:id="jeproLabAnalyzeRedirect" />
-                    <Label GridPane.columnIndex="0" GridPane.rowIndex="0" fx:id="jeproLabAnalyzeVisibilityLabel" />
-                    <ComboBox GridPane.columnIndex="0" GridPane.rowIndex="0" fx:id="jeproLabAnalyzeVisibility" />
-                    <Label GridPane.columnIndex="0" GridPane.rowIndex="0" fx:id="jeproLabAnalyzeOptionLabel" />
-                    <ComboBox GridPane.columnIndex="0" GridPane.rowIndex="0" fx:id="jeproLabAnalyzeOption" />
-                    <Label GridPane.columnIndex="0" GridPane.rowIndex="2" fx:id="jeproLabAnalyzeImageChooserLabel" />
-                    <JeproImageChooser GridPane.columnIndex="1" GridPane.rowIndex="2" fx:id="jeproLabAnalyzeImageChooser" />
+                    <Label GridPane.columnIndex="2" GridPane.rowIndex="3" fx:id="jeproLabAnalyzeOptionLabel" />
+                    <ComboBox GridPane.columnIndex="3" GridPane.rowIndex="3" fx:id="jeproLabAnalyzeOption" />
+
+                    <Label GridPane.columnIndex="0" GridPane.rowIndex="4" fx:id="jeproLabAnalyzeImageChooserLabel" />
+                    <JeproImageChooser GridPane.columnIndex="1" GridPane.rowIndex="4" fx:id="jeproLabAnalyzeImageChooser" />
 
                     <!--Label GridPane.columnIndex="0" GridPane.rowIndex="0" fx:id="jeproLabAnalyze" / -->
-                    <Label GridPane.columnIndex="0" GridPane.rowIndex="3" fx:id="jeproLabAnalyzeShortDescriptionLabel" />
-                    <TextArea GridPane.columnIndex="1" GridPane.rowIndex="3" GridPane.columnSpan="3" fx:id="jeproLabAnalyzeShortDescription" />
-                    <Label GridPane.columnIndex="0" GridPane.rowIndex="4" fx:id="jeproLabAnalyzeDescriptionLabel" />
-                    <TextArea GridPane.columnIndex="1" GridPane.rowIndex="4" GridPane.columnSpan="3" fx:id="jeproLabAnalyzeDescription" />
-                    <Label GridPane.columnIndex="0" GridPane.rowIndex="5" fx:id="jeproLabAnalyzeImagesLabel" />
-                    <JeproImageSlider GridPane.columnIndex="1" GridPane.rowIndex="5" GridPane.columnSpan="3" fx:id="jeproLabAnalyzeSlider" />
-                    <Label GridPane.columnIndex="0" GridPane.rowIndex="6" fx:id="jeproLabAnalyzeTagLabel" />
-                    <JeproMultiLangTextField GridPane.columnIndex="1" GridPane.rowIndex="6" fx:id="jeproLabAnalyzeTags" />
+                    <Label GridPane.columnIndex="0" GridPane.rowIndex="6" fx:id="jeproLabAnalyzeShortDescriptionLabel" />
+                    <TextArea GridPane.columnIndex="1" GridPane.rowIndex="6" GridPane.columnSpan="3" fx:id="jeproLabAnalyzeShortDescription" />
+                    <Label GridPane.columnIndex="0" GridPane.rowIndex="7" fx:id="jeproLabAnalyzeDescriptionLabel" />
+                    <TextArea GridPane.columnIndex="1" GridPane.rowIndex="7" GridPane.columnSpan="3" fx:id="jeproLabAnalyzeDescription" />
+                    <Label GridPane.columnIndex="0" GridPane.rowIndex="8" fx:id="jeproLabAnalyzeImagesLabel" />
+                    <JeproImageSlider GridPane.columnIndex="1" GridPane.rowIndex="8" GridPane.columnSpan="3" fx:id="jeproLabAnalyzeSlider" />
+                    <Label GridPane.columnIndex="0" GridPane.rowIndex="9" fx:id="jeproLabAnalyzeTagLabel" />
+                    <JeproMultiLangTextField GridPane.columnIndex="1" GridPane.rowIndex="9" fx:id="jeproLabAnalyzeTags" />
                 </GridPane>
             </Tab>
             <Tab fx:id="jeproLabAnalyzePriceTabForm" closable="false" >
-                <Pane fx:id="jeproLabAnalyzePricePane" >
+                <VBox fx:id="jeproLabAnalyzePricePane" >
                     <GridPane fx:id="jeproLabAnalyzePriceLayout">
                         <Label GridPane.columnIndex="0" GridPane.rowIndex="0" fx:id="jeproLabAnalyzeWholeSalePriceLabel" />
-                        <HBox GridPane.columnIndex="1" GridPane.rowIndex="0" fx:id="jeproLabAnalyzeWholeSalePrice" />
+                        <JeproLabPriceBox GridPane.columnIndex="1" GridPane.rowIndex="0" fx:id="jeproLabAnalyzeWholeSalePrice" />
                         <Label GridPane.columnIndex="2" GridPane.rowIndex="0" fx:id="jeproLabAnalyzePriceTaxExcludedLabel" />
-                        <HBox GridPane.columnIndex="3" GridPane.rowIndex="0" fx:id="jeproLabAnalyzePriceTaxExcluded" />
+                        <JeproLabPriceBox GridPane.columnIndex="3" GridPane.rowIndex="0" fx:id="jeproLabAnalyzePriceTaxExcluded" />
                         <Label GridPane.columnIndex="0" GridPane.rowIndex="1" fx:id="jeproLabAnalyzePriceTaxRuleLabel" />
-                        <HBox GridPane.columnIndex="1" GridPane.rowIndex="1" fx:id="jeproLabAnalyzePriceTaxRule" />
+                        <HBox GridPane.columnIndex="1" GridPane.rowIndex="1" fx:id="jeproLabAnalyzePriceTaxRuleWrapper" />
                         <Label GridPane.columnIndex="2" GridPane.rowIndex="1" fx:id="jeproLabAnalyzePriceUseEcoTaxLabel" />
-                        <Label GridPane.columnIndex="3" GridPane.rowIndex="1" fx:id="jeproLabAnalyzePriceUseEcoTax" />
+                        <JeproLabPriceBox GridPane.columnIndex="3" GridPane.rowIndex="1" fx:id="jeproLabAnalyzePriceUseEcoTax" />
                         <Label GridPane.columnIndex="0" GridPane.rowIndex="2" fx:id="jeproLabAnalyzePriceTaxIncludedLabel" />
-                        <Label GridPane.columnIndex="1" GridPane.rowIndex="2" fx:id="jeproLabAnalyzePriceTaxIncluded" />
+                        <JeproLabPriceBox GridPane.columnIndex="1" GridPane.rowIndex="2" fx:id="jeproLabAnalyzePriceTaxIncluded" />
                         <Label GridPane.columnIndex="2" GridPane.rowIndex="2" fx:id="jeproLabAnalyzeUnitPriceLabel" />
-                        <Label GridPane.columnIndex="3" GridPane.rowIndex="2" fx:id="jeproLabAnalyzeUnitPrice" />
+                        <HBox GridPane.columnIndex="3" GridPane.rowIndex="2" fx:id="jeproLabAnalyzeUnitPriceWrapper" />
                         <CheckBox GridPane.columnIndex="1" GridPane.rowIndex="3" GridPane.columnSpan="3" fx:id="jeproLabAnalyzeOnSale" />
                         <Label GridPane.columnIndex="0" GridPane.rowIndex="4" fx:id="jeproLabAnalyzeFinalPriceWithoutTaxLabel" />
                         <Label GridPane.columnIndex="1" GridPane.rowIndex="4" fx:id="jeproLabAnalyzeFinalPriceWithoutTax" />
@@ -77,33 +83,33 @@
                         <Label GridPane.columnIndex="" GridPane.rowIndex="" fx:id="jeproLabAnalyze" />
                         <Label GridPane.columnIndex="" GridPane.rowIndex="" fx:id="jeproLabAnalyze" / -->
                     </GridPane>
-                </Pane>
-                <Pane fx:id="jeproLabSpecificPricePaneWrapper" >
-                    <Pane fx:id="jeproLabSpecificPricePaneTitle" />
-                    <Pane fx:id="jeproLabSpecificPricePaneContent" >
-                        <GridPane >
-                            <Label GridPane.columnIndex="0" GridPane.rowIndex="0" fx:id="jeproLabAnalyzeSpecificPriceLabIdLabel" />
-                            <HBox GridPane.columnIndex="1" GridPane.rowIndex="0" GridPane.columnSpan="3" fx:id="jeproLabAnalyzeSpecificPriceLabIdWrapper" />
-                            <Label GridPane.columnIndex="0" GridPane.rowIndex="1" fx:id="jeproLabAnalyzeSpecificPriceCustomerIdLabel" />
-                            <HBox GridPane.columnIndex="1" GridPane.rowIndex="1" fx:id="jeproLabAnalyzeSpecificPriceCustomerId" />
-                            <Label GridPane.columnIndex="0" GridPane.rowIndex="2" fx:id="jeproLabAnalyzeSpecificPriceCombinationLabel" />
-                            <HBox GridPane.columnIndex="1" GridPane.rowIndex="2" fx:id="jeproLabAnalyzeSpecificPriceCombination" />
-                            <Label GridPane.columnIndex="0" GridPane.rowIndex="3" fx:id="jeproLabAnalyzeSpecificPriceFromLabel" />
-                            <DatePicker GridPane.columnIndex="1" GridPane.rowIndex="3" fx:id="jeproLabAnalyzeSpecificPriceFrom" />
-                            <Label GridPane.columnIndex="2" GridPane.rowIndex="3" fx:id="jeproLabAnalyzeSpecificPriceToLabel" />
-                            <DatePicker GridPane.columnIndex="3" GridPane.rowIndex="3" fx:id="jeproLabAnalyzeSpecificPriceTo" />
-                            <Label GridPane.columnIndex="0" GridPane.rowIndex="4" fx:id="jeproLabAnalyzeStartingAtLabel" />
-                            <TextField GridPane.columnIndex="1" GridPane.rowIndex="4" fx:id="jeproLabAnalyzeStartingAt" />
-                            <Label GridPane.columnIndex="0" GridPane.rowIndex="5" fx:id="jeproLabAnalyzeSpecificPriceLabel" />
-                            <Label GridPane.columnIndex="1" GridPane.rowIndex="5" fx:id="jeproLabAnalyzeSpecificPrice" />
-                            <CheckBox GridPane.columnIndex="1" GridPane.rowIndex="6" GridPane.columnSpan="3" fx:id="jeproLabAnalyzeLeaveBasePrice" />
-                            <Label GridPane.columnIndex="0" GridPane.rowIndex="7" fx:id="jeproLabAnalyzeApplyDiscountOfLabel" />
-                            <ComboBox GridPane.columnIndex="1" GridPane.rowIndex="7" fx:id="jeproLabAnalyzeApplyDiscountOf" />
-                            <Label GridPane.columnIndex="0" GridPane.rowIndex="8" fx:id="jeproLabAnalyzeSpecificPriceModificationLabel" />
-                            <Pane GridPane.columnIndex="0" GridPane.rowIndex="9" GridPane.columnSpan="4" fx:id="jeproLabAnalyzeSpecificPriceModification" />
-                        </GridPane>
+                    <Pane fx:id="jeproLabSpecificPricePaneWrapper" >
+                        <Pane fx:id="jeproLabSpecificPricePaneTitle" />
+                        <VBox fx:id="jeproLabSpecificPricePaneContent" >
+                            <GridPane fx:id="jeproLabSpecificPricePaneLayout" >
+                                <Label GridPane.columnIndex="0" GridPane.rowIndex="0" fx:id="jeproLabAnalyzeSpecificPriceLabIdLabel" />
+                                <HBox GridPane.columnIndex="1" GridPane.rowIndex="0" GridPane.columnSpan="3" fx:id="jeproLabAnalyzeSpecificPriceLabIdWrapper" />
+                                <Label GridPane.columnIndex="0" GridPane.rowIndex="1" fx:id="jeproLabAnalyzeSpecificPriceCustomerIdLabel" />
+                                <HBox GridPane.columnIndex="1" GridPane.rowIndex="1" fx:id="jeproLabAnalyzeSpecificPriceCustomerId" />
+                                <Label GridPane.columnIndex="0" GridPane.rowIndex="2" fx:id="jeproLabAnalyzeSpecificPriceCombinationLabel" />
+                                <HBox GridPane.columnIndex="1" GridPane.rowIndex="2" GridPane.columnSpan="3" fx:id="jeproLabAnalyzeSpecificPriceCombinationWrapper" />
+                                <Label GridPane.columnIndex="0" GridPane.rowIndex="3" fx:id="jeproLabAnalyzeSpecificPriceFromLabel" />
+                                <DatePicker GridPane.columnIndex="1" GridPane.rowIndex="3" fx:id="jeproLabAnalyzeSpecificPriceFrom" />
+                                <Label GridPane.columnIndex="2" GridPane.rowIndex="3" fx:id="jeproLabAnalyzeSpecificPriceToLabel" />
+                                <DatePicker GridPane.columnIndex="3" GridPane.rowIndex="3" fx:id="jeproLabAnalyzeSpecificPriceTo" />
+                                <Label GridPane.columnIndex="0" GridPane.rowIndex="4" fx:id="jeproLabAnalyzeStartingAtLabel" />
+                                <TextField GridPane.columnIndex="1" GridPane.rowIndex="4" fx:id="jeproLabAnalyzeStartingAt" />
+                                <Label GridPane.columnIndex="0" GridPane.rowIndex="5" fx:id="jeproLabAnalyzeSpecificPriceLabel" />
+                                <JeproLabPriceBox GridPane.columnIndex="1" GridPane.rowIndex="5" fx:id="jeproLabAnalyzeSpecificPrice" />
+                                <CheckBox GridPane.columnIndex="1" GridPane.rowIndex="6" GridPane.columnSpan="3" fx:id="jeproLabAnalyzeLeaveBasePrice" />
+                                <Label GridPane.columnIndex="0" GridPane.rowIndex="7" fx:id="jeproLabAnalyzeApplyDiscountOfLabel" />
+                                <ComboBox GridPane.columnIndex="1" GridPane.rowIndex="7" fx:id="jeproLabAnalyzeApplyDiscountOf" />
+                                <Label GridPane.columnIndex="0" GridPane.rowIndex="8" GridPane.columnSpan="4" fx:id="jeproLabAnalyzeSpecificPriceModificationLabel" />
+                                <Pane GridPane.columnIndex="0" GridPane.rowIndex="9" GridPane.columnSpan="4" fx:id="jeproLabAnalyzeSpecificPriceModification" />
+                            </GridPane>
+                        </VBox>
                     </Pane>
-                </Pane>
+                </VBox>
             </Tab>
             <Tab fx:id="jeproLabAnalyzeSeoTabForm" >
                 <GridPane>

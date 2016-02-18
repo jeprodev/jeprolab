@@ -3,7 +3,6 @@ package com.jeprolab;
 import com.jeprolab.assets.config.JeproLabConfig;
 import com.jeprolab.assets.tools.JeproLabContext;
 import com.jeprolab.assets.tools.JeproLabCookie;
-import com.jeprolab.assets.tools.JeproLabTools;
 import com.jeprolab.assets.tools.JeproLabWindowsButtons;
 import com.jeprolab.models.*;
 import com.jeprolab.models.core.JeproLabRequest;
@@ -95,7 +94,7 @@ public class JeproLab extends Application {
             scene.getStylesheets().setAll(JeproLab.class.getResource("assets/css/jeprolab.css").toExternalForm());
         }else{
             appStage = primaryStage;
-            request = new JeproLabRequest();
+            request = JeproLabRequest.getInstance();
             initialize();
             menuBar = new JeproLabApplicationForm("menu/menu.fxml");
 

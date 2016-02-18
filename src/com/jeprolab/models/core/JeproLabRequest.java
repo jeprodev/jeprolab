@@ -8,26 +8,65 @@ import java.util.Map;
  * Created by jeprodev on 02/02/2014.
  */
 public class JeproLabRequest {
-    private Map<String, String> request;
+    private static Map<String, String> request, post;
+    private static JeproLabRequest instance = null;
+
+    private JeproLabRequest(){
+        request = new HashMap<>();
+        post = new HashMap<>();
+        instance = this;
+    }
 
     public void setRequest(String value){
-        //synchronized
-        if(request == null){
-            request = new HashMap<>();
-        }else{
-            request.clear();
-        }
+        synchronized(this) {
+            if (request == null) {
+                request = new HashMap<>();
+            } else {
+                request.clear();
+            }
 
-        String[] queries = new String[0];
-        if(value.contains("&amp;")){
-            queries = value.split("&amp;");
-        } else if(value.contains("&")){
-            queries = value.split("&");
+            String[] queries;
+            if (value.contains("&amp;")) {
+                queries = value.split("&amp;");
+            } else if (value.contains("&")) {
+                queries = value.split("&");
+            } else {
+                queries = new String[1];
+                queries[0] = value;
+            }
+
+            if (queries.length > 0) {
+                for (String query : queries) {
+                    String[] requestQuery = query.split("=");
+                    request.put(requestQuery[0], requestQuery[1]);
+                }
+            }
         }
-        if(queries.length > 0) {
-            for (String query : queries) {
-                String[] requestQuery = query.split("=");
-                request.put(requestQuery[0], requestQuery[1]);
+    }
+
+    public void setPost(String value){
+        synchronized(this) {
+            if (post == null) {
+                post = new HashMap<>();
+            } else {
+                post.clear();
+            }
+
+            String[] queries;
+            if (value.contains("&amp;")) {
+                queries = value.split("&amp;");
+            } else if (value.contains("&")) {
+                queries = value.split("&");
+            } else {
+                queries = new String[1];
+                queries[0] = value;
+            }
+
+            if (queries.length > 0) {
+                for (String query : queries) {
+                    String[] requestQuery = query.split("=");
+                    post.put(requestQuery[0], requestQuery[1]);
+                }
             }
         }
     }
@@ -52,5 +91,26 @@ public class JeproLabRequest {
             return Integer.parseInt(request.get(key));
         }
         return defaultValue;
+    }
+
+    public Map<String, String> getRequest(){
+        if(request == null){
+            request = new HashMap<>();
+        }
+        return request;
+    }
+
+    public Map<String, String> getPost(){
+        if(post == null){
+            post = new HashMap<>();
+        }
+        return post;
+    }
+
+    public static JeproLabRequest getInstance(){
+        if(instance == null){
+            new JeproLabRequest();
+        }
+        return instance;
     }
 }

@@ -651,10 +651,11 @@ public class JeproLabAnalyzeModel extends JeproLabModel {
 
         return $fields;
     }
-
-    public function add($autodate = true, $null_values = false)
-    {
-        if (!parent::add($autodate, $null_values)) {
+*/
+    public static int save(){
+        Map<String, String> post = JeproLab.request.getPost();
+        System.out.println(post.get("reference"));
+        /*if (!parent::add($autodate, $null_values)) {
         return false;
     }
 
@@ -664,7 +665,7 @@ public class JeproLabAnalyzeModel extends JeproLabModel {
                 StockAvailable::setProductOutOfStock((int)this.id, 1, $value);
             }
 
-            if (this.active && !Conf        iguration::get('PS_VIRTUAL_PROD_FEATURE_ACTIVE')) {
+            if (this.active && !Configuration::get('PS_VIRTUAL_PROD_FEATURE_ACTIVE')) {
                 Configuration::updateGlobalValue('PS_VIRTUAL_PROD_FEATURE_ACTIVE', '1');
             }
         } else {
@@ -674,13 +675,12 @@ public class JeproLabAnalyzeModel extends JeproLabModel {
         }
 
         this.setGroupReduction();
-        Hook::exec('actionProductSave', array('id_product' => (int)this.id, 'product' => $this));
-        return true;
+        Hook::exec('actionProductSave', array('id_product' => (int)this.id, 'product' => $this)); */
+        return 0;
     }
 
-    public function update($null_values = false)
-    {
-        $return = parent::update($null_values);
+    public boolean update(){
+        /*$return = parent::update($null_values);
         this.setGroupReduction();
 
         // Sync stock Reference, EAN13 and UPC
@@ -697,10 +697,10 @@ public class JeproLabAnalyzeModel extends JeproLabModel {
         if (this.getType() == Product::PTYPE_VIRTUAL && this.active && !Configuration::get('PS_VIRTUAL_PROD_FEATURE_ACTIVE')) {
         Configuration::updateGlobalValue('PS_VIRTUAL_PROD_FEATURE_ACTIVE', '1');
     }
-
-        return $return;
+*/
+        return true;
     }
-
+/*
     public static function initPricesComputation($id_customer = null)
     {
         if ($id_customer) {
@@ -878,9 +878,9 @@ public class JeproLabAnalyzeModel extends JeproLabModel {
             staticDataBaseObject = JeproLabFactory.getDataBaseConnector();
         }
 
-        String query = "SELECT analyze_attribute_lab.analyze_attribute_id FROM " + staticDataBaseObject.quoteName("#__jeprolab_analyze_attribute");
+        String query = "SELECT analyze_attribute.analyze_attribute_id FROM " + staticDataBaseObject.quoteName("#__jeprolab_analyze_attribute");
         query += " AS analyze_attribute " + JeproLabLaboratoryModel.addSqlAssociation("analyze_attribute") + " WHERE analyze_attribute.analyze_id = " + analyzeId;
-
+        System.out.println(query);
         staticDataBaseObject.setQuery(query);
         int resultNoFilter = (int)staticDataBaseObject.loadValue("analyze_attribute_id");
         if (resultNoFilter <= 0) {
@@ -892,7 +892,7 @@ public class JeproLabAnalyzeModel extends JeproLabModel {
         query += " AS analyze_attribute " + JeproLabLaboratoryModel.addSqlAssociation("analyze_attribute");
         query += (minimumQuantity > 0 ? JeproLabAnalyzeModel.queryStock("analyze_attribute") : "") + " WHERE analyze_attribute_lab.default_on = 1";
         query += (minimumQuantity > 0 ? " AND IFNULL (stock.quantity, 0) >= " + minimumQuantity : "") + " AND analyze_attribute.analyze_id = " + analyzeId;
-
+System.out.println(query);
         staticDataBaseObject.setQuery(query);
         int result = (int)staticDataBaseObject.loadValue("analyze_attribute_id");
 
@@ -3758,7 +3758,7 @@ public class JeproLabAnalyzeModel extends JeproLabModel {
         query += " AND attribute_lang." + dataBaseObject.quoteName("lang_id") + " = " + langId + " AND attribute_group_lang." + dataBaseObject.quoteName("lang_id") + " = " + langId;
         query += " GROUP BY attribute_group_id, analyze_attribute_id ORDER BY attribute_group." + dataBaseObject.quoteName("position") + " ASC, attribute.";
         query += dataBaseObject.quoteName("position") + " ASC, " + " attribute_group_lang." + dataBaseObject.quoteName("name") + " ASC";
-
+        System.out.println(JeproLabLaboratoryModel.addSqlAssociation("analyze_attribute"));
         dataBaseObject.setQuery(query);
         return dataBaseObject.loadObject();
     }

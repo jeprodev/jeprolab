@@ -33,7 +33,7 @@ public class JeproLabController implements Initializable {
         context = JeproLabContext.getContext();
         context.controller = this;
         tooltip = new Tooltip();
-        this.updateToolBar();
+        //this.updateToolBar();
 
         if(!isInitialized){
 
