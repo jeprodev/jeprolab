@@ -78,7 +78,7 @@ public class JeproLabAnalyzePackModel extends JeproLabAnalyzeModel {
     {
         $sum = 0;
         $price_display_method = !JeproLabAnalyzePackModel._taxCalculationMethod;
-        $items = JeproLabAnalyzePackModel.getItems($id_product, Configuration::get('PS_LANG_DEFAULT'));
+        $items = JeproLabAnalyzePackModel.getItems($id_product, JeproLabSettingModel.getInt('PS_LANG_DEFAULT'));
         foreach ($items as $item) {
         /** @var Product $item * /
         $sum += $item->getPrice($price_display_method) * $item->pack_quantity;
@@ -90,7 +90,7 @@ public class JeproLabAnalyzePackModel extends JeproLabAnalyzeModel {
     public static function noPackWholesalePrice($id_product)
     {
         $sum = 0;
-        $items = JeproLabAnalyzePackModel.getItems($id_product, Configuration::get('PS_LANG_DEFAULT'));
+        $items = JeproLabAnalyzePackModel.getItems($id_product, JeproLabSettingModel.get('PS_LANG_DEFAULT'));
         foreach ($items as $item) {
         $sum += $item->wholesale_price * $item->pack_quantity;
     }
@@ -143,7 +143,7 @@ public class JeproLabAnalyzePackModel extends JeproLabAnalyzeModel {
         return true;
     }
 
-        $items = JeproLabAnalyzePackModel.getItems((int)$id_product, Configuration::get('PS_LANG_DEFAULT'));
+        $items = JeproLabAnalyzePackModel.getItems((int)$id_product, JeproLabSettingsModel.get('PS_LANG_DEFAULT'));
 
         foreach ($items as $item) {
         /** @var Product $item * /
@@ -278,7 +278,7 @@ public class JeproLabAnalyzePackModel extends JeproLabAnalyzeModel {
     {
         return Db::getInstance()->update('product', array('cache_is_pack' => 0), 'id_product = '.(int)$id_product) &&
         Db::getInstance()->execute('DELETE FROM `'._DB_PREFIX_.'pack` WHERE `id_product_pack` = '.(int)$id_product) &&
-        Configuration::updateGlobalValue('PS_PACK_FEATURE_ACTIVE', JeproLabAnalyzePackModel.isCurrentlyUsed());
+        JeproLabSettingsModel.updateGlobalValue('PS_PACK_FEATURE_ACTIVE', JeproLabAnalyzePackModel.isCurrentlyUsed());
     }
 
     /**
@@ -301,7 +301,7 @@ public class JeproLabAnalyzePackModel extends JeproLabAnalyzeModel {
             'id_product_attribute_item' => (int)$id_attribute_item,
             'quantity' => (int)$qty
         ))
-        && Configuration::updateGlobalValue('PS_PACK_FEATURE_ACTIVE', '1');
+        && JeproLabSettingsModel.updateGlobalValue('PS_PACK_FEATURE_ACTIVE', '1');
     }
 
     public static function duplicate($id_product_old, $id_product_new)
@@ -350,7 +350,7 @@ public class JeproLabAnalyzePackModel extends JeproLabAnalyzeModel {
         return false;
     }
 
-        $products = JeproLabAnalyzePackModel.getItems($id_product, Configuration::get('PS_LANG_DEFAULT'));
+        $products = JeproLabAnalyzePackModel.getItems($id_product, JeproLabSettingsModel.get('PS_LANG_DEFAULT'));
         foreach ($products as $product) {
         // if one product uses the advanced stock management
         if ($product->advanced_stock_management == 1) {
@@ -373,7 +373,7 @@ public class JeproLabAnalyzePackModel extends JeproLabAnalyzeModel {
         return false;
     }
 
-        $products = JeproLabAnalyzePackModel.getItems($id_product, Configuration::get('PS_LANG_DEFAULT'));
+        $products = JeproLabAnalyzePackModel.getItems($id_product, JeproLabSettingsModel.get('PS_LANG_DEFAULT'));
         foreach ($products as $product) {
         // if one product uses the advanced stock management
         if ($product->advanced_stock_management == 0) {
