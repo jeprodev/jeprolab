@@ -3,6 +3,7 @@ package com.jeprolab.assets.extend.controls;
 import com.jeprolab.models.JeproLabLanguageModel;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.TextArea;
+import javafx.scene.control.TextField;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
@@ -58,6 +59,22 @@ public class JeproMultiLangTextArea extends Pane {
         width = width - 75;
         for (TextArea field : fields) {
             field.setPrefSize(width, height);
+        }
+    }
+
+    public void setText(Map<String, String> value){
+        if(languages == null){
+            languages = JeproLabLanguageModel.getLanguages();
+        }
+        Iterator langIt = languages.entrySet().iterator();
+        while(langIt.hasNext()){
+            Map.Entry lang = (Map.Entry)langIt.next();
+            JeproLabLanguageModel language = (JeproLabLanguageModel)lang.getValue();
+            for (TextArea field : fields) {
+                if(field.getId().equals("language_" + language.language_id )) {
+                    field.setText(value.containsKey("lang_" + language.language_id) ? value.get("lang_" + language.language_id) : "");
+                }
+            }
         }
     }
 

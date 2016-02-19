@@ -20,6 +20,7 @@
 
 <?import com.jeprolab.assets.extend.controls.JeproLabPriceBox?>
 <?import javafx.scene.layout.VBox?>
+<?import com.jeprolab.assets.extend.controls.JeproMultiLangTextArea?>
 <JeproFormPanel  xmlns:fx="http://javafx.com/fxml" fx:id="jeproLabAddAnalyseFormWrapper" fx:controller="com.jeprolab.controllers.JeproLabAnalyzeAddController">
     <JeproFormPanelTitle fx:id="jeproLabAddAnalyseFormTitleWrapper" />
     <JeproFormPanelContainer fx:id="jeproLabAddAnalyseFormContainerWrapper"  >
@@ -55,13 +56,18 @@
 
                     <!--Label GridPane.columnIndex="0" GridPane.rowIndex="0" fx:id="jeproLabAnalyze" / -->
                     <Label GridPane.columnIndex="0" GridPane.rowIndex="6" fx:id="jeproLabAnalyzeShortDescriptionLabel" />
-                    <TextArea GridPane.columnIndex="1" GridPane.rowIndex="6" GridPane.columnSpan="3" fx:id="jeproLabAnalyzeShortDescription" />
+                    <JeproMultiLangTextArea GridPane.columnIndex="1" GridPane.rowIndex="6" GridPane.columnSpan="3" fx:id="jeproLabAnalyzeShortDescription" />
                     <Label GridPane.columnIndex="0" GridPane.rowIndex="7" fx:id="jeproLabAnalyzeDescriptionLabel" />
-                    <TextArea GridPane.columnIndex="1" GridPane.rowIndex="7" GridPane.columnSpan="3" fx:id="jeproLabAnalyzeDescription" />
+                    <JeproMultiLangTextArea GridPane.columnIndex="1" GridPane.rowIndex="7" GridPane.columnSpan="3" fx:id="jeproLabAnalyzeDescription" />
                     <Label GridPane.columnIndex="0" GridPane.rowIndex="8" fx:id="jeproLabAnalyzeImagesLabel" />
                     <JeproImageSlider GridPane.columnIndex="1" GridPane.rowIndex="8" GridPane.columnSpan="3" fx:id="jeproLabAnalyzeSlider" />
                     <Label GridPane.columnIndex="0" GridPane.rowIndex="9" fx:id="jeproLabAnalyzeTagLabel" />
                     <JeproMultiLangTextField GridPane.columnIndex="1" GridPane.rowIndex="9" fx:id="jeproLabAnalyzeTags" />
+                    <Label GridPane.columnIndex="2" GridPane.rowIndex="9" fx:id="jeproLabAnalyzeDelayLabel" />
+                    <HBox GridPane.columnIndex="3" GridPane.rowIndex="9" spacing="5" fx:id="jeproLabAnalyzeDelayWrapper" >
+                        <TextField fx:id="jeproLabAnalyzeDelay" />
+                        <Label fx:id="jeproLabDaysLabel" />
+                    </HBox>
                 </GridPane>
             </Tab>
             <Tab fx:id="jeproLabAnalyzePriceTabForm" closable="false" >

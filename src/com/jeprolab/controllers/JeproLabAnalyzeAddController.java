@@ -7,7 +7,10 @@ import com.jeprolab.assets.tools.JeproLabContext;
 import com.jeprolab.assets.tools.JeproLabTools;
 import com.jeprolab.models.*;
 import com.jeprolab.models.core.JeproLabRequest;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
+import javafx.geometry.HPos;
 import javafx.geometry.Insets;
 import javafx.geometry.VPos;
 import javafx.scene.control.*;
@@ -54,7 +57,7 @@ public class JeproLabAnalyzeAddController extends JeproLabController{
     public Tab jeproLabAnalyzeSeoTabForm, jeproLabAnalyzeAssociationTabForm, jeproLabAnalyzeImageTabForm, jeproLabAnalyzeShippingTabForm;
     public Tab jeproLabAnalyzeTechnicianTabForm;
 
-    public HBox jeproLabAnalyzeSpecificPriceLabIdWrapper;
+    public HBox jeproLabAnalyzeSpecificPriceLabIdWrapper, jeproLabAnalyzeDelayWrapper;
 
     public Label jeproLabAnalyzeNameLabel, jeproLabAnalyzePublishedLabel, jeproLabAnalyzeReferenceLabel, jeproLabAnalyzeImageChooserLabel;
     public Label jeproLabAnalyzeShortDescriptionLabel, jeproLabAnalyzeDescriptionLabel, jeproLabAnalyzeImagesLabel, jeproLabAnalyzeTagLabel;
@@ -64,9 +67,10 @@ public class JeproLabAnalyzeAddController extends JeproLabController{
     public Label jeproLabAnalyzeFinalPriceWithoutTaxLabel, jeproLabAnalyzeSpecificPriceLabIdLabel, jeproLabAnalyzeSpecificPriceCustomerIdLabel;
     public Label jeproLabAnalyzeSpecificPriceCombinationLabel, jeproLabAnalyzeApplyDiscountOfLabel, jeproLabAnalyzeSpecificPriceFromLabel;
     public Label jeproLabAnalyzeFinalPriceWithoutTax, jeproLabAnalyzeSpecificPriceToLabel, jeproLabAnalyzeStartingAtLabel, jeproLabAnalyzeSpecificPriceLabel;
-    public TextField jeproLabAnalyzeReference, jeproLabAnalyzeEan13, jeproLabAnalyzeUpc, jeproLabAnalyzeStartingAt;
-    public ComboBox jeproLabAnalyzeRedirect, jeproLabAnalyzeVisibility, jeproLabAnalyzeApplyDiscountOf;
-    public TextArea jeproLabAnalyzeShortDescription, jeproLabAnalyzeDescription;
+    public Label jeproLabAnalyzeDelayLabel, jeproLabDaysLabel;
+    public TextField jeproLabAnalyzeReference, jeproLabAnalyzeEan13, jeproLabAnalyzeUpc, jeproLabAnalyzeStartingAt, jeproLabAnalyzeDelay;
+    public ComboBox<String> jeproLabAnalyzeRedirect, jeproLabAnalyzeVisibility, jeproLabAnalyzeApplyDiscountOf;
+    public JeproMultiLangTextArea jeproLabAnalyzeShortDescription, jeproLabAnalyzeDescription;
     public CheckBox jeproLabAnalyzeLeaveBasePrice, jeproLabAnalyzeOnSale, jeproLabAnalyzeShowPrice, jeproLabAnalyzeAvailableForOrder, jeproLabAnalyzeIsOnSale;
     public DatePicker jeproLabAnalyzeSpecificPriceFrom, jeproLabAnalyzeSpecificPriceTo;
     public JeproMultiLangTextField jeproLabAnalyzeName, jeproLabAnalyzeTags;
@@ -108,19 +112,34 @@ public class JeproLabAnalyzeAddController extends JeproLabController{
         /*** Tab Information **/
         jeproLabAnalyzeInformationTabForm.setText(bundle.getString("JEPROLAB_INFORMATION_LABEL"));
         jeproLabAnalyzeInformationTabForm.setClosable(false);
-        GridPane.setMargin(jeproLabAnalyzeNameLabel, new Insets(15, 10, 10, 15));
-        GridPane.setMargin(jeproLabAnalyzeName, new Insets(15, 10, 10, 0));
-        GridPane.setMargin(jeproLabAnalyzePublishedLabel, new Insets(5, 10, 10, 15));
-        GridPane.setMargin(jeproLabAnalyzeReferenceLabel, new Insets(5, 10, 10, 15));
+        GridPane.setMargin(jeproLabAnalyzeNameLabel, new Insets(10, 10, 5, 15));
+        GridPane.setMargin(jeproLabAnalyzeName, new Insets(15, 10, 5, 0));
+        GridPane.setMargin(jeproLabAnalyzePublishedLabel, new Insets(10, 10, 5, 15));
+        GridPane.setMargin(jeproLabAnalyzePublished, new Insets(15, 10, 5, 0));
+
+        GridPane.setMargin(jeproLabAnalyzeReferenceLabel, new Insets(5, 10, 5, 15));
+        GridPane.setMargin(jeproLabAnalyzeReference, new Insets(5, 10, 5, 0));
+        GridPane.setMargin(jeproLabAnalyzeRedirectLabel, new Insets(5, 10, 5, 15));
+        GridPane.setMargin(jeproLabAnalyzeRedirect, new Insets(5, 10, 5, 0));
+
+        GridPane.setMargin(jeproLabAnalyzeUpcLabel, new Insets(5, 10, 5, 15));
+        GridPane.setMargin(jeproLabAnalyzeUpc, new Insets(5, 10, 5, 0));
+        GridPane.setMargin(jeproLabAnalyzeEan13Label, new Insets(5, 10, 5, 15));
+        GridPane.setMargin(jeproLabAnalyzeEan13, new Insets(5, 10, 5, 0));
+
         GridPane.setMargin(jeproLabAnalyzeImageChooserLabel, new Insets(5, 10, 10, 15));
         GridPane.setMargin(jeproLabAnalyzeShortDescriptionLabel, new Insets(5, 10, 15, 15));
         GridPane.setMargin(jeproLabAnalyzeDescriptionLabel, new Insets(5, 10, 10, 15));
         GridPane.setMargin(jeproLabAnalyzeImagesLabel, new Insets(5, 10, 10, 15));
-        GridPane.setMargin(jeproLabAnalyzeEan13Label, new Insets(5, 10, 30, 15));
-        GridPane.setMargin(jeproLabAnalyzeUpcLabel, new Insets(5, 10, 30, 15));
+        GridPane.setMargin(jeproLabAnalyzeVisibilityLabel, new Insets(5, 10, 10, 15));
+        GridPane.setMargin(jeproLabAnalyzeVisibility, new Insets(5, 10, 10, 0));
+        GridPane.setMargin(jeproLabAnalyzeOptionLabel, new Insets(5, 10, 10, 15));
+        GridPane.setMargin(jeproLabAnalyzeOnSale, new Insets(5, 10, 10, 0));
         GridPane.setMargin(jeproLabAnalyzeTagLabel, new Insets(5, 10, 30, 15));
-        GridPane.setMargin(jeproLabAnalyzeRedirectLabel, new Insets(5, 10, 30, 15));
-        GridPane.setMargin(jeproLabAnalyzeTagLabel, new Insets(5, 10, 30, 15));
+
+        GridPane.setMargin(jeproLabAnalyzeDelayLabel, new Insets(5, 10, 30, 15));
+        GridPane.setHalignment(jeproLabAnalyzeDelayLabel, HPos.RIGHT);
+        GridPane.setMargin(jeproLabDaysLabel, new Insets(5, 10, 30, 15));
 
         jeproLabAnalyzeNameLabel.setText(bundle.getString("JEPROLAB_ANALYSE_NAME_LABEL"));
         jeproLabAnalyzeNameLabel.getStyleClass().add("input-label");
@@ -141,8 +160,10 @@ public class JeproLabAnalyzeAddController extends JeproLabController{
         jeproLabAnalyzeImagesLabel.getStyleClass().add("input-label");
         jeproLabAnalyzeTagLabel.setText(bundle.getString("JEPROLAB_TAG_LABEL"));
         jeproLabAnalyzeTagLabel.getStyleClass().add("input-label");
-        jeproLabAnalyzeShowPrice.setText(bundle.getString("JEPROLAB_ON_SALE_LABEL"));
+        jeproLabAnalyzeShowPrice.setText(bundle.getString("JEPROLAB_SHOW_PRICE_LABEL"));
         jeproLabAnalyzeShowPrice.getStyleClass().add("input-label");
+        jeproLabAnalyzeOnSale.setText(bundle.getString("JEPROLAB_ON_SALE_LABEL"));
+        jeproLabAnalyzeOnSale.getStyleClass().add("input-label");
 
         jeproLabAnalyzeEan13Label.setText(bundle.getString("JEPROLAB_EAN13_LABEL"));
         jeproLabAnalyzeEan13Label.getStyleClass().add("input-label");
@@ -150,24 +171,32 @@ public class JeproLabAnalyzeAddController extends JeproLabController{
         jeproLabAnalyzeUpcLabel.getStyleClass().add("input-label");
         jeproLabAnalyzeRedirectLabel.setText(bundle.getString("JEPROLAB_REDIRECT_TO_LABEL"));
         jeproLabAnalyzeRedirectLabel.getStyleClass().add("input-label");
+        jeproLabAnalyzeDelayLabel.setText(bundle.getString("JEPROLAB_DELAYS_LABEL"));
+        jeproLabAnalyzeDelayLabel.getStyleClass().add("input-label");
+        jeproLabDaysLabel.setText(bundle.getString("JEPROLAB_DAYS_LABEL"));
+        jeproLabDaysLabel.getStyleClass().add("input-label");
 
         jeproLabAnalyzeName.setWidth(310);
         GridPane.setMargin(jeproLabAnalyzeShortDescription, new Insets(10, 0, 0, 0));
-        jeproLabAnalyzeShortDescription.setPrefHeight(55);
+        jeproLabAnalyzeShortDescription.setTextAreaPrefSize(770, 55);
         GridPane.setMargin(jeproLabAnalyzeDescription, new Insets(10, 0, 0, 0));
-        jeproLabAnalyzeDescription.setPrefHeight(85);
-
+        jeproLabAnalyzeDescription.setTextAreaPrefSize(770, 85);
 
         GridPane.setMargin(jeproLabAnalyzeSlider, new Insets(15, 0, 10, 0));
         jeproLabAnalyzeSlider.setSliderPrefHeight(100);
         jeproLabAnalyzeSlider.setSliderPrefWidth(JeproLab.APP_WIDTH - 300);
-
 
         jeproLabAnalyzeSeoTabForm.setText(bundle.getString("JEPROLAB_PRICE_LABEL"));
         jeproLabAnalyzeAssociationTabForm.setText(bundle.getString("JEPROLAB_PRICE_LABEL"));
         jeproLabAnalyzeImageTabForm.setText(bundle.getString("JEPROLAB_PRICE_LABEL"));
         jeproLabAnalyzeShippingTabForm.setText(bundle.getString("JEPROLAB_PRICE_LABEL"));
         jeproLabAnalyzeTechnicianTabForm.setText(bundle.getString("JEPROLAB_PRICE_LABEL"));
+        jeproLabAnalyzeOptionLabel.setText(bundle.getString("JEPROLAB_OPTIONS_LABEL"));
+        jeproLabAnalyzeOptionLabel.getStyleClass().add("input-label");
+        jeproLabAnalyzeVisibilityLabel.setText(bundle.getString("JEPROLAB_VISIBILITY_LABEL"));
+        jeproLabAnalyzeVisibilityLabel.getStyleClass().add("input-label");
+        jeproLabAnalyzeAvailableForOrder.setText(bundle.getString("JEPROLAB_AVAILABLE_FOR_ORDER_LABEL"));
+        jeproLabAnalyzeAvailableForOrder.getStyleClass().add("input-label");
 
         /** Setting and laying out Attached file form **/
         jeproLabAnalyzeAttachedFileTabForm.setText(bundle.getString("JEPROLAB_ATTACHED_FILES_LABEL"));
@@ -179,10 +208,10 @@ public class JeproLabAnalyzeAddController extends JeproLabController{
 
     @Override
     public void initializeContent(){
-        int analyzeId = 0;
         if(context == null){ context = JeproLabContext.getContext(); }
         JeproLabRequest request = JeproLab.request;
         this.loadObject(true);
+
         /*$this->addToolBar();
         $this->sideBar = JHtmlSidebar::render();
 */
@@ -205,13 +234,13 @@ public class JeproLabAnalyzeAddController extends JeproLabController{
         defaultLanguageId = JeproLabSettingModel.getIntValue("default_lang");
         displayMultiLabCheckBoxes = (JeproLabLaboratoryModel.isFeaturePublished() && JeproLabLaboratoryModel.getLabContext() != JeproLabLaboratoryModel.LAB_CONTEXT);
         getCombinationImages();
-
+/*
         if(analyze.analyze_id > 0){
             analyzeId = analyze.analyze_id;
         }else{
             analyzeId = JeproLab.request.getIntValue("analyze_id");
         }
-
+*/
         //$upload_max_file_size = JeproLabTools::getOctets(ini_get('upload_max_filesize'));
         //$upload_max_file_size = ($upload_max_file_size/1024)/1024;
 
@@ -251,6 +280,7 @@ public class JeproLabAnalyzeAddController extends JeproLabController{
 
     private void initInformationForm(){
         String analyzeNameRedirected = JeproLabAnalyzeModel.getAnalyzeName(analyze.analyze_redirected_id, 0, context.language.language_id);
+
         //$this->assignRef('product_name_redirected', $product_name_redirected);
         /*
          * Form for adding a virtual product like software, mp3, etc...
@@ -321,6 +351,44 @@ public class JeproLabAnalyzeAddController extends JeproLabController{
        //$this->assignRef('check_product_association_ajax', $check_product_association_ajax);
         getCombinationImages();
        //$this->assignRef('combinationImagesJs', $combinationImageJs); */
+
+        if(analyze.analyze_id > 0){
+            jeproLabAnalyzePublished.setSelected(analyze.published);
+            jeproLabAnalyzeOnSale.setSelected(analyze.on_sale);
+            jeproLabAnalyzeAvailableForOrder.setSelected(analyze.available_for_order);
+            jeproLabAnalyzeShowPrice.setSelected(analyze.show_price);
+            jeproLabAnalyzeName.setText(analyze.name);
+            jeproLabAnalyzeShortDescription.setText(analyze.short_description);
+            jeproLabAnalyzeDescription.setText(analyze.description);
+        }
+        String[] redirection = new String[3];
+        redirection[0] = "404";
+        redirection[1] = "301";
+        redirection[2] = "302";
+        jeproLabAnalyzeRedirect.getItems().clear();
+        for(String label : redirection){
+            jeproLabAnalyzeRedirect.getItems().add(bundle.getString("JEPROLAB_" + label + "_LABEL"));
+            if(analyze.analyze_id > 0 && label.equals(analyze.redirect_type)){
+                jeproLabAnalyzeRedirect.setValue(bundle.getString("JEPROLAB_" + label + "_LABEL"));
+            }else if(label.equals("404")){
+                jeproLabAnalyzeRedirect.setValue(bundle.getString("JEPROLAB_" + label + "_LABEL"));
+            }
+        }
+
+        String[] visibilities = new String[4];
+        visibilities[0] = "both";
+        visibilities[1] = "catalog";
+        visibilities[2] = "search";
+        visibilities[3] = "none";
+        jeproLabAnalyzeVisibility.getItems().clear();
+        for(String label : visibilities) {
+            jeproLabAnalyzeVisibility.getItems().add(bundle.getString("JEPROLAB_" + label.toUpperCase() +"_LABEL"));
+            if(analyze.analyze_id > 0 && label.equals(analyze.visibility)){
+                jeproLabAnalyzeVisibility.setValue(bundle.getString("JEPROLAB_" + label.toUpperCase() +"_LABEL"));
+            }else if(label.equals("both")){
+                jeproLabAnalyzeVisibility.setValue(bundle.getString("JEPROLAB_" + label.toUpperCase() +"_LABEL"));
+            }
+        }
     }
 
     private void initImagesForm(){
@@ -1287,7 +1355,7 @@ public class JeproLabAnalyzeAddController extends JeproLabController{
     }*/
 
     private boolean loadObject(boolean option){
-        int analyzeId = JeproLab.request.getIntValue("analyze_id"); //$app = JFactory::getApplication();
+        int analyzeId = JeproLab.request.getRequest().containsKey("analyze_id") ? Integer.parseInt(JeproLab.request.getRequest().get("analyze_id")) : 0;
 
         boolean isLoaded = false;
         if(analyzeId > 0){
@@ -1334,7 +1402,7 @@ public class JeproLabAnalyzeAddController extends JeproLabController{
         cancelBtn = new Button(bundle.getString("JEPROLAB_CANCEL_LABEL"), new ImageView(new Image(JeproLab.class.getResourceAsStream("resources/images/unpublished.png"))));
         saveAnalyzeBtn.setOnMouseClicked(evt -> {
             String post = "reference=" + jeproLabAnalyzeReference.getText() + "&ean13=" + jeproLabAnalyzeEan13.getText() + "&upc=" + jeproLabAnalyzeUpc.getText();
-            //post += "&published=" + jeproLabAnalyzePublished.getValue() + "&redirect_type=" + jeproLabAnalyzeVisibility.getValue().toString() + "&available_for_order=";
+            post += "&published=" + (jeproLabAnalyzePublished.isSelected() ? "1" : "0") + "&redirect_type=" + jeproLabAnalyzeVisibility.getValue().toString() + "&available_for_order=";
             //post += jeproLabAnalyzeAvailableForOrder + "&show_price=" + jeproLabAnalyzeShowPrice + "&online_only=" + jeproLabAnalyzeOnlineOnly + "&visibility=" + jeproLabAnalyzeVisibility.getValue().toString() +"&redirect_id=" + jeproLabAnalyzeRedirect.getValue().toString();
             JeproLab.request.setPost(post);
 

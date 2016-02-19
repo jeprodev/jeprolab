@@ -35,7 +35,7 @@ public class JeproMultiLangTextField extends Pane{
             Map.Entry lang = (Map.Entry)langIt.next();
             JeproLabLanguageModel language = (JeproLabLanguageModel)lang.getValue();
             TextField field = new TextField();
-            field.setId("language_" + language.language_code);
+            field.setId("language_" + language.language_id);
             fieldsPane.getChildren().add(field);
             fields[index] = field;
             index++;
@@ -51,8 +51,24 @@ public class JeproMultiLangTextField extends Pane{
     @Override
     public void  setWidth(double width){
         width -= 75;
-        for(int i = 0; i < fields.length; i++){
-            fields[i].setPrefWidth(width);
+        for (TextField field : fields) {
+            field.setPrefWidth(width);
+        }
+    }
+
+    public void setText(Map<String, String> value){
+        if(languages == null){
+            languages = JeproLabLanguageModel.getLanguages();
+        }
+        Iterator langIt = languages.entrySet().iterator();
+        while(langIt.hasNext()){
+            Map.Entry lang = (Map.Entry)langIt.next();
+            JeproLabLanguageModel language = (JeproLabLanguageModel)lang.getValue();
+            for (TextField field : fields) {
+                if(field.getId().equals("language_" + language.language_id )) {
+                    field.setText(value.containsKey("lang_" + language.language_id) ? value.get("lang_" + language.language_id) : "");
+                }
+            }
         }
     }
 }

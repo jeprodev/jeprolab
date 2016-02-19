@@ -181,8 +181,8 @@ public class JeproLabAnalyzeModel extends JeproLabModel {
     /** @var bool is the product indexed in the search index? * /
     public $indexed = 0;
 
-    /** @var string ENUM('both', 'catalog', 'search', 'none') front office visibility * /
-    public $visibility;
+    /** @var string ENUM('both', 'catalog', 'search', 'none') front office visibility */
+    public String visibility = "both";
 
     /** @var string Object creation date */
     public Date date_add;
@@ -223,6 +223,7 @@ public class JeproLabAnalyzeModel extends JeproLabModel {
     public int analyze_pack_attribute_id;
     public int cache_default_attribute;
     private List<Integer> laboratory_list_id = new ArrayList<>();
+    private Map<Integer, JeproLabLanguageModel> languages = null;
 
     /**
      * @var string If product is populated, this property contain the rewrite link of the default category
@@ -655,14 +656,23 @@ public class JeproLabAnalyzeModel extends JeproLabModel {
         return $fields;
     }
 */
+
+    protected void removeTaxFromEcoTax(){
+        Float ecoTax = JeproLab.request.getPost().containsKey("ecotax") ? Float.parseFloat(JeproLab.request.getPost().get("ecotax")) : 0;
+        if (ecoTax > 0) {
+            ecoTax = JeproLabTools.roundPrice(ecoTax/(1 + JeproLabTaxModel.getAnalyzeEcotaxRate()/100), 6);
+            JeproLab.request.getPost().put("ecotax", ecoTax.toString());
+        }
+    }
     public int save(){
         Map<String, String> post = JeproLab.request.getPost();
 
         JeproLabContext context = JeproLabContext.getContext();
-        Map<Integer, JeproLabLanguageModel> languages = JeproLabLanguageModel.getLanguages();
-
+        if(languages == null) {
+            languages = JeproLabLanguageModel.getLanguages();
+        }
         checkAnalyze();
-        //removeTaxFromEcoTax();
+        removeTaxFromEcoTax();
         List<Integer> labIds = new ArrayList<>();
         if(JeproLabLaboratoryModel.isTableAssociated("analyze")){
             labIds = JeproLabLaboratoryModel.getContextListLaboratoryIds();
@@ -703,6 +713,7 @@ public class JeproLabAnalyzeModel extends JeproLabModel {
         query += ", " + availableForOrder + ", " + showPrice + ", " + onlineOnly + ", " + default_laboratory_id + ", " + analyzeRedirectId + ", ";
         query += dataBaseObject.quote(this.date_add.toString())+ ", " + dataBaseObject.quote(this.date_upd.toString()) + ") ";
 
+        System.out.println(query);
         /*if (!parent::add($autodate, $null_values)) {
         return false;
     }
@@ -752,6 +763,7 @@ public class JeproLabAnalyzeModel extends JeproLabModel {
     public static void initPricesComputation(){
         initPricesComputation(0);
     }
+
     public static void initPricesComputation(int customerId){
         if (customerId > 0) {
             JeproLabCustomerModel customer = new JeproLabCustomerModel(customerId);
@@ -3649,6 +3661,152 @@ public class JeproLabAnalyzeModel extends JeproLabModel {
         query += JeproLabStockAvailableModel.addSqlLaboratoryRestriction(lab, "stock") + ") ";
 
         return query;
+    }
+
+    private void checkAnalyze(){
+       // $className = 'Product';
+        // @todo : the call_user_func seems to contains only statics values (className = 'Product')
+        //$rules = call_user_func(array($this->className, 'getValidationRules'), $this->className);
+        JeproLabLanguageModel defaultLanguage = new JeproLabLanguageModel(JeproLabSettingModel.getIntValue("default_lang"));
+        if(this.languages == null) {
+            languages = JeproLabLanguageModel.getLanguages();
+        }/*
+        // Check required fields
+        foreach ($rules['required'] as $field) {
+            if (!$this->isProductFieldUpdated($field)) {
+                continue;
+            }
+
+            if (($value = Tools::getValue($field)) == false && $value != '0') {
+                if (Tools::getValue('id_'.$this->table) && $field == 'passwd') {
+                    continue;
+                }
+                $this->errors[] = sprintf(
+                        Tools::displayError('The %s field is required.'),
+                        call_user_func(array($className, 'displayFieldName'), $field, $className)
+                );
+            }
+        }
+
+        // Check multilingual required fields
+        foreach ($rules['requiredLang'] as $fieldLang) {
+            if ($this->isProductFieldUpdated($fieldLang, $default_language->id) && !Tools::getValue($fieldLang.'_'.$default_language->id)) {
+                $this->errors[] = sprintf(
+                        Tools::displayError('This %1$s field is required at least in %2$s'),
+                        call_user_func(array($className, 'displayFieldName'), $fieldLang, $className),
+                        $default_language->name
+                );
+            }
+        }
+
+        // Check fields sizes
+        foreach ($rules['size'] as $field => $maxLength) {
+            if ($this->isProductFieldUpdated($field) && ($value = Tools::getValue($field)) && Tools::strlen($value) > $maxLength) {
+                $this->errors[] = sprintf(
+                        Tools::displayError('The %1$s field is too long (%2$d chars max).'),
+                        call_user_func(array($className, 'displayFieldName'), $field, $className),
+                        $maxLength
+                );
+            }
+        }
+
+        if (Tools::getIsset('description_short') && $this->isProductFieldUpdated('description_short')) {
+            $saveShort = Tools::getValue('description_short');
+            $_POST['description_short'] = strip_tags(Tools::getValue('description_short'));
+        }
+
+        // Check description short size without html
+        $limit = (int)Configuration::get('PS_PRODUCT_SHORT_DESC_LIMIT');
+        if ($limit <= 0) {
+            $limit = 400;
+        }
+        foreach ($languages as $language) {
+            if ($this->isProductFieldUpdated('description_short', $language['id_lang']) && ($value = Tools::getValue('description_short_'.$language['id_lang']))) {
+                if (Tools::strlen(strip_tags($value)) > $limit) {
+                    $this->errors[] = sprintf(
+                            Tools::displayError('This %1$s field (%2$s) is too long: %3$d chars max (current count %4$d).'),
+                            call_user_func(array($className, 'displayFieldName'), 'description_short'),
+                            $language['name'],
+                            $limit,
+                            Tools::strlen(strip_tags($value))
+                    );
+                }
+            }
+        }
+
+        // Check multilingual fields sizes
+        foreach ($rules['sizeLang'] as $fieldLang => $maxLength) {
+            foreach ($languages as $language) {
+                $value = Tools::getValue($fieldLang.'_'.$language['id_lang']);
+                if ($value && Tools::strlen($value) > $maxLength) {
+                    $this->errors[] = sprintf(
+                            Tools::displayError('The %1$s field is too long (%2$d chars max).'),
+                            call_user_func(array($className, 'displayFieldName'), $fieldLang, $className),
+                            $maxLength
+                    );
+                }
+            }
+        }
+
+        if ($this->isProductFieldUpdated('description_short') && isset($_POST['description_short'])) {
+            $_POST['description_short'] = $saveShort;
+        }
+
+        // Check fields validity
+        foreach ($rules['validate'] as $field => $function) {
+            if ($this->isProductFieldUpdated($field) && ($value = Tools::getValue($field))) {
+                $res = true;
+                if (Tools::strtolower($function) == 'iscleanhtml') {
+                    if (!Validate::$function($value, (int)Configuration::get('PS_ALLOW_HTML_IFRAME'))) {
+                        $res = false;
+                    }
+                } elseif (!Validate::$function($value)) {
+                    $res = false;
+                }
+
+                if (!$res) {
+                    $this->errors[] = sprintf(
+                            Tools::displayError('The %s field is invalid.'),
+                            call_user_func(array($className, 'displayFieldName'), $field, $className)
+                    );
+                }
+            }
+        }
+        // Check multilingual fields validity
+        foreach ($rules['validateLang'] as $fieldLang => $function) {
+            foreach ($languages as $language) {
+                if ($this->isProductFieldUpdated($fieldLang, $language['id_lang']) && ($value = Tools::getValue($fieldLang.'_'.$language['id_lang']))) {
+                    if (!Validate::$function($value, (int)Configuration::get('PS_ALLOW_HTML_IFRAME'))) {
+                        $this->errors[] = sprintf(
+                                Tools::displayError('The %1$s field (%2$s) is invalid.'),
+                                call_user_func(array($className, 'displayFieldName'), $fieldLang, $className),
+                                $language['name']
+                        );
+                    }
+                }
+            }
+        }
+
+        // Categories
+        if ($this->isProductFieldUpdated('id_category_default') && (!Tools::isSubmit('categoryBox') || !count(Tools::getValue('categoryBox')))) {
+            $this->errors[] = $this->l('Products must be in at least one category.');
+        }
+
+        if ($this->isProductFieldUpdated('id_category_default') && (!is_array(Tools::getValue('categoryBox')) || !in_array(Tools::getValue('id_category_default'), Tools::getValue('categoryBox')))) {
+            $this->errors[] = $this->l('This product must be in the default category.');
+        }
+
+        // Tags
+        foreach ($languages as $language) {
+            if ($value = Tools::getValue('tags_'.$language['id_lang'])) {
+                if (!Validate::isTagsList($value)) {
+                    $this->errors[] = sprintf(
+                            Tools::displayError('The tags list (%s) is invalid.'),
+                            $language['name']
+                    );
+                }
+            }
+        } */
     }
 
     /*
