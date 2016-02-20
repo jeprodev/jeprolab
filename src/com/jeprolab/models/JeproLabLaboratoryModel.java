@@ -655,7 +655,7 @@ public class JeproLabLaboratoryModel  extends JeproLabModel{
 
     public static int getContextLaboratoryId(boolean nullValueWithoutMultiLab){
         if(nullValueWithoutMultiLab && !JeproLabLaboratoryModel.isFeaturePublished()){
-            return 0;
+            return JeproLabSettingModel.getIntValue("default_lab");
         }
         return JeproLabLaboratoryModel.contextLabId;
     }

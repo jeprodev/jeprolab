@@ -26,16 +26,12 @@ public class JeproMultiLangTextArea extends Pane {
         int index = 0;
         languages = JeproLabLanguageModel.getLanguages();
         fields = new TextArea[languages.size()];
-        fieldsPane = new
-
-                StackPane();
+        fieldsPane = new StackPane();
 
         languageSelector = new ComboBox<>();
         languageSelector.setPrefWidth(75);
         Iterator langIt = languages.entrySet().iterator();
-        while (langIt.hasNext())
-
-        {
+        while (langIt.hasNext()){
             Map.Entry lang = (Map.Entry) langIt.next();
             JeproLabLanguageModel language = (JeproLabLanguageModel) lang.getValue();
             TextArea field = new TextArea();
@@ -76,6 +72,15 @@ public class JeproMultiLangTextArea extends Pane {
                 }
             }
         }
+    }
+
+    public String getFieldContent(int langId){
+        for(TextArea field : fields){
+            if(field.getId().equals("language_" + langId)){
+                return (field.getText() == null) ? " " : field.getText();
+            }
+        }
+        return "";
     }
 
 }

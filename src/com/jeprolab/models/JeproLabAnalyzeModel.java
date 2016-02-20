@@ -172,8 +172,8 @@ public class JeproLabAnalyzeModel extends JeproLabModel {
     /** @var string Object available order date */
     public Date available_date; //= '0000-00-00';
 
-    /** @var string Enumerated (enum) product condition (new, used, refurbished) * /
-    public $condition;
+    /** @var int delay */
+    public int delay;
 
     /** @var bool Show price of Product */
     public boolean show_price = true;
@@ -264,10 +264,10 @@ public class JeproLabAnalyzeModel extends JeproLabModel {
             'table' => 'product',
                     'primary' => 'id_product',
                     'multilang' => true,
-                    'multilang_shop' => true,
+                    'multilang_lab' => true,
                     'fields' => array(
             /* Classic fields * /
-                    'id_shop_default' =>            array('type' => JeproLabAnalyzeModel.TYPE_INT, 'validate' => 'isUnsignedId'),
+                    'id_lab_default' =>            array('type' => JeproLabAnalyzeModel.TYPE_INT, 'validate' => 'isUnsignedId'),
     'id_manufacturer' =>            array('type' => JeproLabAnalyzeModel.TYPE_INT, 'validate' => 'isUnsignedId'),
     'id_supplier' =>                array('type' => JeproLabAnalyzeModel.TYPE_INT, 'validate' => 'isUnsignedId'),
     'reference' =>                    array('type' => JeproLabAnalyzeModel.TYPE_STRING, 'validate' => 'isReference', 'size' => 32),
@@ -285,34 +285,34 @@ public class JeproLabAnalyzeModel extends JeproLabModel {
     'is_virtual' =>                array('type' => JeproLabAnalyzeModel.TYPE_BOOL, 'validate' => 'isBool'),
 
             /* Shop fields * /
-    'id_category_default' =>        array('type' => JeproLabAnalyzeModel.TYPE_INT, 'shop' => true, 'validate' => 'isUnsignedId'),
-    'id_tax_rules_group' =>        array('type' => JeproLabAnalyzeModel.TYPE_INT, 'shop' => true, 'validate' => 'isUnsignedId'),
-    'on_sale' =>                    array('type' => JeproLabAnalyzeModel.TYPE_BOOL, 'shop' => true, 'validate' => 'isBool'),
-    'online_only' =>                array('type' => JeproLabAnalyzeModel.TYPE_BOOL, 'shop' => true, 'validate' => 'isBool'),
-    'ecotax' =>                    array('type' => JeproLabAnalyzeModel.TYPE_FLOAT, 'shop' => true, 'validate' => 'isPrice'),
-    'minimal_quantity' =>            array('type' => JeproLabAnalyzeModel.TYPE_INT, 'shop' => true, 'validate' => 'isUnsignedInt'),
-    'price' =>                        array('type' => JeproLabAnalyzeModel.TYPE_FLOAT, 'shop' => true, 'validate' => 'isPrice', 'required' => true),
-    'wholesale_price' =>            array('type' => JeproLabAnalyzeModel.TYPE_FLOAT, 'shop' => true, 'validate' => 'isPrice'),
-    'unity' =>                        array('type' => JeproLabAnalyzeModel.TYPE_STRING, 'shop' => true, 'validate' => 'isString'),
-    'unit_price_ratio' =>            array('type' => JeproLabAnalyzeModel.TYPE_FLOAT, 'shop' => true),
-    'additional_shipping_cost' =>    array('type' => JeproLabAnalyzeModel.TYPE_FLOAT, 'shop' => true, 'validate' => 'isPrice'),
-    'customizable' =>                array('type' => JeproLabAnalyzeModel.TYPE_INT, 'shop' => true, 'validate' => 'isUnsignedInt'),
-    'text_fields' =>                array('type' => JeproLabAnalyzeModel.TYPE_INT, 'shop' => true, 'validate' => 'isUnsignedInt'),
-    'uploadable_files' =>            array('type' => JeproLabAnalyzeModel.TYPE_INT, 'shop' => true, 'validate' => 'isUnsignedInt'),
-    'active' =>                    array('type' => JeproLabAnalyzeModel.TYPE_BOOL, 'shop' => true, 'validate' => 'isBool'),
-    'redirect_type' =>                array('type' => JeproLabAnalyzeModel.TYPE_STRING, 'shop' => true, 'validate' => 'isString'),
-    'id_product_redirected' =>        array('type' => JeproLabAnalyzeModel.TYPE_INT, 'shop' => true, 'validate' => 'isUnsignedId'),
-    'available_for_order' =>        array('type' => JeproLabAnalyzeModel.TYPE_BOOL, 'shop' => true, 'validate' => 'isBool'),
-    'available_date' =>            array('type' => JeproLabAnalyzeModel.TYPE_DATE, 'shop' => true, 'validate' => 'isDateFormat'),
-    'condition' =>                    array('type' => JeproLabAnalyzeModel.TYPE_STRING, 'shop' => true, 'validate' => 'isGenericName', 'values' => array('new', 'used', 'refurbished'), 'default' => 'new'),
-            'show_price' =>                array('type' => JeproLabAnalyzeModel.TYPE_BOOL, 'shop' => true, 'validate' => 'isBool'),
-    'indexed' =>                    array('type' => JeproLabAnalyzeModel.TYPE_BOOL, 'shop' => true, 'validate' => 'isBool'),
-    'visibility' =>                array('type' => JeproLabAnalyzeModel.TYPE_STRING, 'shop' => true, 'validate' => 'isProductVisibility', 'values' => array('both', 'catalog', 'search', 'none'), 'default' => 'both'),
-            'cache_default_attribute' =>    array('type' => JeproLabAnalyzeModel.TYPE_INT, 'shop' => true),
-    'advanced_stock_management' =>    array('type' => JeproLabAnalyzeModel.TYPE_BOOL, 'shop' => true, 'validate' => 'isBool'),
-    'date_add' =>                    array('type' => JeproLabAnalyzeModel.TYPE_DATE, 'shop' => true, 'validate' => 'isDate'),
-    'date_upd' =>                    array('type' => JeproLabAnalyzeModel.TYPE_DATE, 'shop' => true, 'validate' => 'isDate'),
-    'pack_stock_type' =>            array('type' => JeproLabAnalyzeModel.TYPE_INT, 'shop' => true, 'validate' => 'isUnsignedInt'),
+    'id_category_default' =>        array('type' => JeproLabAnalyzeModel.TYPE_INT, 'lab' => true, 'validate' => 'isUnsignedId'),
+    'id_tax_rules_group' =>        array('type' => JeproLabAnalyzeModel.TYPE_INT, 'lab' => true, 'validate' => 'isUnsignedId'),
+    'on_sale' =>                    array('type' => JeproLabAnalyzeModel.TYPE_BOOL, 'lab' => true, 'validate' => 'isBool'),
+    'online_only' =>                array('type' => JeproLabAnalyzeModel.TYPE_BOOL, 'lab' => true, 'validate' => 'isBool'),
+    'ecotax' =>                    array('type' => JeproLabAnalyzeModel.TYPE_FLOAT, 'lab' => true, 'validate' => 'isPrice'),
+    'minimal_quantity' =>            array('type' => JeproLabAnalyzeModel.TYPE_INT, 'lab' => true, 'validate' => 'isUnsignedInt'),
+    'price' =>                        array('type' => JeproLabAnalyzeModel.TYPE_FLOAT, 'lab' => true, 'validate' => 'isPrice', 'required' => true),
+    'wholesale_price' =>            array('type' => JeproLabAnalyzeModel.TYPE_FLOAT, 'lab' => true, 'validate' => 'isPrice'),
+    'unity' =>                        array('type' => JeproLabAnalyzeModel.TYPE_STRING, 'lab' => true, 'validate' => 'isString'),
+    'unit_price_ratio' =>            array('type' => JeproLabAnalyzeModel.TYPE_FLOAT, 'lab' => true),
+    'additional_shipping_cost' =>    array('type' => JeproLabAnalyzeModel.TYPE_FLOAT, 'lab' => true, 'validate' => 'isPrice'),
+    'customizable' =>                array('type' => JeproLabAnalyzeModel.TYPE_INT, 'lab' => true, 'validate' => 'isUnsignedInt'),
+    'text_fields' =>                array('type' => JeproLabAnalyzeModel.TYPE_INT, 'lab' => true, 'validate' => 'isUnsignedInt'),
+    'uploadable_files' =>            array('type' => JeproLabAnalyzeModel.TYPE_INT, 'lab' => true, 'validate' => 'isUnsignedInt'),
+    'active' =>                    array('type' => JeproLabAnalyzeModel.TYPE_BOOL, 'lab' => true, 'validate' => 'isBool'),
+    'redirect_type' =>                array('type' => JeproLabAnalyzeModel.TYPE_STRING, 'lab' => true, 'validate' => 'isString'),
+    'id_product_redirected' =>        array('type' => JeproLabAnalyzeModel.TYPE_INT, 'lab' => true, 'validate' => 'isUnsignedId'),
+    'available_for_order' =>        array('type' => JeproLabAnalyzeModel.TYPE_BOOL, 'lab' => true, 'validate' => 'isBool'),
+    'available_date' =>            array('type' => JeproLabAnalyzeModel.TYPE_DATE, 'lab' => true, 'validate' => 'isDateFormat'),
+    'condition' =>                    array('type' => JeproLabAnalyzeModel.TYPE_STRING, 'lab' => true, 'validate' => 'isGenericName', 'values' => array('new', 'used', 'refurbished'), 'default' => 'new'),
+            'show_price' =>                array('type' => JeproLabAnalyzeModel.TYPE_BOOL, 'lab' => true, 'validate' => 'isBool'),
+    'indexed' =>                    array('type' => JeproLabAnalyzeModel.TYPE_BOOL, 'lab' => true, 'validate' => 'isBool'),
+    'visibility' =>                array('type' => JeproLabAnalyzeModel.TYPE_STRING, 'lab' => true, 'validate' => 'isProductVisibility', 'values' => array('both', 'catalog', 'search', 'none'), 'default' => 'both'),
+            'cache_default_attribute' =>    array('type' => JeproLabAnalyzeModel.TYPE_INT, 'lab' => true),
+    'advanced_stock_management' =>    array('type' => JeproLabAnalyzeModel.TYPE_BOOL, 'lab' => true, 'validate' => 'isBool'),
+    'date_add' =>                    array('type' => JeproLabAnalyzeModel.TYPE_DATE, 'lab' => true, 'validate' => 'isDate'),
+    'date_upd' =>                    array('type' => JeproLabAnalyzeModel.TYPE_DATE, 'lab' => true, 'validate' => 'isDate'),
+    'pack_stock_type' =>            array('type' => JeproLabAnalyzeModel.TYPE_INT, 'lab' => true, 'validate' => 'isUnsignedInt'),
 
             /* Lang fields * /
     'meta_description' =>            array('type' => JeproLabAnalyzeModel.TYPE_STRING, 'lang' => true, 'validate' => 'isGenericName', 'size' => 255),
@@ -560,6 +560,7 @@ public class JeproLabAnalyzeModel extends JeproLabModel {
                         this.customizable = analyzeResult.getInt("customizable") > 0;
                         this.uploadable_files = analyzeResult.getInt("uploadable_files");
                         this.text_fields = analyzeResult.getInt("text_fields");
+                        this.delay = analyzeResult.getInt("delay");
                         this.published = analyzeResult.getInt("published") > 0;
                     }
                 }catch(SQLException ignored){
@@ -664,7 +665,7 @@ public class JeproLabAnalyzeModel extends JeproLabModel {
             JeproLab.request.getPost().put("ecotax", ecoTax.toString());
         }
     }
-    public int save(){
+    public JeproLabAnalyzeModel save(){
         Map<String, String> post = JeproLab.request.getPost();
 
         JeproLabContext context = JeproLabContext.getContext();
@@ -699,45 +700,71 @@ public class JeproLabAnalyzeModel extends JeproLabModel {
         int showPrice = Integer.parseInt(post.get("show_price"));
         int onlineOnly = 0; //Integer.parseInt(post.get("online_only"));
         String analyzeVisibility = post.get("visibility");
-        int analyzeRedirectId = Integer.parseInt(post.get("redirect_id"));
+        int analyzeRedirectId = 0; //Integer.parseInt(post.get("redirect_id"));
         String analyzeDelay = post.get("delay");
 
         //this.date_add =  ;
 
         String query = "INSERT INTO " + dataBaseObject.quoteName("#__jeprolab_analyze") + "("  + dataBaseObject.quoteName("reference") + ", " ;
         query +=  dataBaseObject.quoteName("ean13") + ", " + dataBaseObject.quoteName("upc") + ", "  + dataBaseObject.quoteName("published");
-        query += ", "  + dataBaseObject.quoteName("redirect_type") + ", " + dataBaseObject.quoteName("visibility") + ", " ;
-        query += dataBaseObject.quoteName("delay") + ", "  + dataBaseObject.quoteName("available_for_order") + ", "  + dataBaseObject.quoteName("show_price") + ", ";
+        query += ", "  + dataBaseObject.quoteName("redirect_type") + ", " + dataBaseObject.quoteName("visibility") + ", " + dataBaseObject.quoteName("tax_rules_group_id");
+        query += ", " + dataBaseObject.quoteName("delay") + ", "  + dataBaseObject.quoteName("available_for_order") + ", "  + dataBaseObject.quoteName("show_price") + ", ";
         query += dataBaseObject.quoteName("online_only") + ", " + dataBaseObject.quoteName("default_lab_id") + ", " + dataBaseObject.quoteName("analyze_redirected_id");
-        query += ", " + dataBaseObject.quoteName("date_add") + ", " + dataBaseObject.quoteName("date_upd") + " ) VALUES(" + dataBaseObject.quote(analyzeReference, true) ;
+        query += ", " + dataBaseObject.quoteName("date_add") + ", " + dataBaseObject.quoteName("date_upd") +  ", " + dataBaseObject.quoteName("available_date") + " ) VALUES(" + dataBaseObject.quote(analyzeReference, true) ;
         query += ", " + dataBaseObject.quote(analyzeEan13, true) + ", " + dataBaseObject.quote(analyzeUpc, true) + ", " + analyzePublished;
-        query += ", " + dataBaseObject.quote(analyzeRedirectType, true) + ", " + dataBaseObject.quote(analyzeVisibility, true) + ", " + analyzeDelay;
+        query += ", " + dataBaseObject.quote(analyzeRedirectType, true) + ", " + dataBaseObject.quote(analyzeVisibility, true) + ", 1, " + analyzeDelay;
         query += ", " + availableForOrder + ", " + showPrice + ", " + onlineOnly + ", " + default_laboratory_id + ", " + analyzeRedirectId + ", ";
-        query += dataBaseObject.quote(JeproLabTools.date("yyyy-MM-dd hh:mm:ss"))+ ", " + dataBaseObject.quote(JeproLabTools.date("yyyy-MM-dd hh:mm:ss")) + ") ";
+        query += dataBaseObject.quote(JeproLabTools.date("yyyy-MM-dd hh:mm:ss"))+ ", " + dataBaseObject.quote(JeproLabTools.date("yyyy-MM-dd hh:mm:ss")) + ", " + dataBaseObject.quote(JeproLabTools.date("yyyy-MM-dd hh:mm:ss"))+ ") ";
 
-        System.out.println(query);
-        /*if (!parent::add($autodate, $null_values)) {
-        return false;
-    }
+        dataBaseObject.setQuery(query);
+        dataBaseObject.query(true);
+        int analyzeId = dataBaseObject.getGeneratedKey();
+        this.analyze_id = analyzeId;
 
-        $id_shop_list = JeproLabLaboratoryModel.getContextListShopID();
-        if (this.getType() == JeproLabAnalyzeModel.PTYPE_VIRTUAL) {
-            foreach ($id_shop_list as $value) {
-                StockAvailable::setProductOutOfStock((int)this.id, 1, $value);
-            }
+        if(JeproLabLaboratoryModel.isTableAssociated("analyze")) {
+            String dateAdd = JeproLabTools.date("yyyy-MM-dd hh:mm:ss");
+            /* Laboratory fields */
+            for(int labId : labIds){
+                query = "INSERT INTO " + dataBaseObject.quoteName("#__jeprolab_analyze_lab") + "( " + dataBaseObject.quoteName("analyze_id") + ", ";
+                query += dataBaseObject.quoteName("lab_id") + ", " + dataBaseObject.quoteName("online_only") +  ", " + dataBaseObject.quoteName("published") + ", ";
+                query += dataBaseObject.quoteName("redirect_type") + ", " + dataBaseObject.quoteName("analyze_redirected_id") + ", " + dataBaseObject.quoteName("available_for_order");
+                query += ",  " + dataBaseObject.quoteName("tax_rules_group_id") + ", " + dataBaseObject.quoteName("delay") + ", " + dataBaseObject.quoteName("show_price") + ", " + dataBaseObject.quoteName("visibility") + ", " ;
+                query += dataBaseObject.quoteName("available_date") + ", " + dataBaseObject.quoteName("date_add") + ", " + dataBaseObject.quoteName("date_upd") + ") VALUES( " + analyzeId + ", "  + labId + ", ";
+                query += onlineOnly + ", " + analyzePublished + ", " + dataBaseObject.quote(analyzeRedirectType) + ", 0, " + availableForOrder + ", 1, "  +analyzeDelay + ", ";
+                query += showPrice + ", " + dataBaseObject.quote(analyzeVisibility) + ", " + dataBaseObject.quote(dateAdd) + ", " + dataBaseObject.quote(dateAdd) + ", " + dataBaseObject.quote(dateAdd)+ ") ";
 
-            if (this.active && !JeproLabSettingModel.get('PS_VIRTUAL_PROD_FEATURE_ACTIVE')) {
-                JeproLabSettingModel.updateGlobalValue('PS_VIRTUAL_PROD_FEATURE_ACTIVE', '1');
-            }
-        } else {
-            foreach ($id_shop_list as $value) {
-                StockAvailable::setProductOutOfStock((int)this.id, 2, $value);
+                dataBaseObject.setQuery(query);
+                dataBaseObject.query(false);
+                /* Multilingual fields */
+                Iterator langIt = languages.entrySet().iterator();
+                while(langIt.hasNext()){
+                    Map.Entry lang = (Map.Entry)langIt.next();
+                    JeproLabLanguageModel language = (JeproLabLanguageModel)lang.getValue();
+
+                    String analyzeName = post.containsKey("name_" + language.language_id) ? post.get("name_" + language.language_id) : " ";
+                    String analyzeDescription = post.containsKey("description_" + language.language_id) ? post.get("description_" + language.language_id) : " ";
+                    String analyzeShortDescription = post.containsKey("short_description_" + language.language_id) ? post.get("short_description_" + language.language_id) : " ";
+
+                    query = "INSERT INTO " + dataBaseObject.quoteName("#__jeprolab_analyze_lang") + "(" + dataBaseObject.quoteName("analyze_id") + ", ";
+                    query += dataBaseObject.quoteName("lab_id") + ", " + dataBaseObject.quoteName("lang_id") + ", " + dataBaseObject.quoteName("description");
+                    query += ", " + dataBaseObject.quoteName("link_rewrite") + ", " + dataBaseObject.quoteName("meta_description") + ", " + dataBaseObject.quoteName("meta_keywords");
+                    query += ", " + dataBaseObject.quoteName("meta_title") + ", " + dataBaseObject.quoteName("short_description") + ", " + dataBaseObject.quoteName("name");
+                    query += ") VALUES (" + analyzeId + ", " + labId + ", " + language.language_id + ", " + dataBaseObject.quote(analyzeDescription) + ", " + dataBaseObject.quote("");
+                    query += ", " + dataBaseObject.quote("") + ", " + dataBaseObject.quote("") + ", " + dataBaseObject.quote("") + ", " + dataBaseObject.quote(analyzeShortDescription) + ", ";
+                    query += dataBaseObject.quote(analyzeName) + ")";
+
+                    dataBaseObject.setQuery(query);
+                    dataBaseObject.query(false);
+                }
             }
         }
 
+        JeproLabAnalyzeModel analyze = new JeproLabAnalyzeModel(analyzeId);
+        JeproLabStockAvailableModel.setAnalyzeOutOfStock(analyze.analyze_id, 2);
+
         this.setGroupReduction();
-        Hook::exec('actionProductSave', array('id_product' => (int)this.id, 'product' => $this)); */
-        return 0;
+        /* Hook::exec('actionProductSave', array('id_product' => (int)this.id, 'product' => $this)); */
+        return analyze;
     }
 
     public boolean update(){
@@ -745,7 +772,7 @@ public class JeproLabAnalyzeModel extends JeproLabModel {
         this.setGroupReduction();
 
         // Sync stock Reference, EAN13 and UPC
-        if (JeproLabSettingModel.get('PS_ADVANCED_STOCK_MANAGEMENT') && StockAvailable::dependsOnStock(this.id, JeproLabContext.getContext()->shop->id)) {
+        if (JeproLabSettingModel.get('PS_ADVANCED_STOCK_MANAGEMENT') && StockAvailable::dependsOnStock(this.id, JeproLabContext.getContext()->lab->id)) {
         Db::getInstance()->update('stock', array(
                         'reference' => pSQL(this.reference),
                 'ean13'     => pSQL(this.ean13),
@@ -865,7 +892,7 @@ public class JeproLabAnalyzeModel extends JeproLabModel {
                 query += " AND " + dataBaseObject.quoteName("category_id") + " = " + movedAnalyzeCategoryId;
 
                 dataBaseObject.setQuery(query);
-                result &= dataBaseObject.query();
+                result &= dataBaseObject.query(false);
 
                 query = "UPDATE " + dataBaseObject.quoteName("#__jeprolab_analyze_category") + " AS category_analyze INNER JOIN " + dataBaseObject.quoteName("#__jeprolab_analyze");
                 query += " AS analyze ON (analyze." + dataBaseObject.quoteName("analyze_id") + " = category_analyze." + dataBaseObject.quoteName("analyze_id") + ") ";
@@ -874,7 +901,7 @@ public class JeproLabAnalyzeModel extends JeproLabModel {
                 query += " = " + JeproLabTools.date("Y-m-d H:i:s") + " WHERE category_analyze." + dataBaseObject.quoteName("analyze_id") + " = " + movedAnalyzeId;
                 query += " AND category_analyze." + dataBaseObject.quoteName("category_id") + " = " + movedAnalyzeCategoryId;
                 dataBaseObject.setQuery(query);
-                result &= dataBaseObject.query();
+                result &= dataBaseObject.query(false);
                 //Hook::exec('actionProductUpdate', array('id_product' => (int)this.id, 'product' => $this));
                 return result;
             }catch (SQLException ignored){
@@ -924,7 +951,7 @@ public class JeproLabAnalyzeModel extends JeproLabModel {
                         );
                         $return &= Db::getInstance()->execute(
                                 'UPDATE `'.staticDataBaseObject.quoteName("#__jeprolab.'product` p'.JeproLabLaboratoryModel.addSqlAssociation('product', 'p').'
-                                        SET p.`date_upd` = "'.date('Y-m-d H:i:s').'", product_shop.`date_upd` = "'.date('Y-m-d H:i:s').'"
+                                        SET p.`date_upd` = "'.date('Y-m-d H:i:s').'", product_lab.`date_upd` = "'.date('Y-m-d H:i:s').'"
                         WHERE p.`id_product` = '.(int)$result[$i]['id_product']
                         );
                     }
@@ -950,7 +977,7 @@ public class JeproLabAnalyzeModel extends JeproLabModel {
             for ($i = 0; $i < $total; $i++) {
                 $return &= Db::getInstance()->execute(
                         'UPDATE `'.staticDataBaseObject.quoteName("#__jeprolab.'product` p'.JeproLabLaboratoryModel.addSqlAssociation('product', 'p').'
-                SET p.`date_upd` = "'.date('Y-m-d H:i:s').'", product_shop.`date_upd` = "'.date('Y-m-d H:i:s').'"
+                SET p.`date_upd` = "'.date('Y-m-d H:i:s').'", product_lab.`date_upd` = "'.date('Y-m-d H:i:s').'"
                 WHERE p.`id_product` = '.(int)$result[$i]['id_product']
                 );
             }
@@ -1192,11 +1219,11 @@ public class JeproLabAnalyzeModel extends JeproLabModel {
     }
         $result = parent::delete();
 
-        // Removes the product from StockAvailable, for the current shop
+        // Removes the product from StockAvailable, for the current lab
         StockAvailable::removeProductFromStockAvailable(this.id);
         $result &= (this.deleteProductAttributes() && this.deleteImages() && this.deleteSceneProducts());
-        // If there are still entries in product_shop, don't remove completely the product
-        if (this.hasMultishopEntries()) {
+        // If there are still entries in product_lab, don't remove completely the product
+        if (this.hasMultilabEntries()) {
             return true;
         }
 
@@ -1488,7 +1515,7 @@ public class JeproLabAnalyzeModel extends JeproLabModel {
             $order_by_prefix = $order_by[0];
             $order_by = $order_by[1];
         }
-        $sql = 'SELECT p.*, product_shop.*, pl.* , m.`name` AS manufacturer_name, s.`name` AS supplier_name
+        $sql = 'SELECT p.*, product_lab.*, pl.* , m.`name` AS manufacturer_name, s.`name` AS supplier_name
         FROM `'.staticDataBaseObject.quoteName("#__jeprolab.'product` p
         '.JeproLabLaboratoryModel.addSqlAssociation('product', 'p').'
         LEFT JOIN `'.staticDataBaseObject.quoteName("#__jeprolab.'product_lang` pl ON (p.`id_product` = pl.`id_product` '.JeproLabLaboratoryModel.addSqlRestrictionOnLang('pl').')
@@ -1497,8 +1524,8 @@ public class JeproLabAnalyzeModel extends JeproLabModel {
         ($id_category ? 'LEFT JOIN `'.staticDataBaseObject.quoteName("#__jeprolab.'category_product` c ON (c.`id_product` = p.`id_product`)' : '').'
         WHERE pl.`id_lang` = '.(int)$id_lang.
         ($id_category ? ' AND c.`id_category` = '.(int)$id_category : '').
-        ($front ? ' AND product_shop.`visibility` IN ("both", "catalog")' : '').
-        ($only_active ? ' AND product_shop.`active` = 1' : '').'
+        ($front ? ' AND product_lab.`visibility` IN ("both", "catalog")' : '').
+        ($only_active ? ' AND product_lab.`active` = 1' : '').'
         ORDER BY '.(isset($order_by_prefix) ? pSQL($order_by_prefix).'.' : '').'`'.pSQL($order_by).'` '.pSQL($order_way).
         ($limit > 0 ? ' LIMIT '.(int)$start.','.(int)$limit : '');
         $rq = Db::getInstance(_PS_USE_SQL_SLAVE_)->executeS($sql);
@@ -1529,7 +1556,7 @@ public class JeproLabAnalyzeModel extends JeproLabModel {
         '.JeproLabLaboratoryModel.addSqlAssociation('product', 'p').'
         LEFT JOIN `'.staticDataBaseObject.quoteName("#__jeprolab.'product_lang` pl ON (p.`id_product` = pl.`id_product` '.JeproLabLaboratoryModel.addSqlRestrictionOnLang('pl').')
         WHERE pl.`id_lang` = '.(int)$id_lang.'
-        '.($front ? ' AND product_shop.`visibility` IN ("both", "catalog")' : '').'
+        '.($front ? ' AND product_lab.`visibility` IN ("both", "catalog")' : '').'
         ORDER BY pl.`name`';
         return Db::getInstance(_PS_USE_SQL_SLAVE_)->executeS($sql);
     }
@@ -1558,7 +1585,7 @@ public class JeproLabAnalyzeModel extends JeproLabModel {
         return total > 0;
     }
 /*
-    public function productAttributeExists($attributes_list, $current_product_attribute = false, Context context = null, $all_shops = false, $return_id = false)
+    public function productAttributeExists($attributes_list, $current_product_attribute = false, Context context = null, $all_labs = false, $return_id = false)
     {
         if (!Combination::isFeatureActive()) {
         return false;
@@ -1569,10 +1596,10 @@ public class JeproLabAnalyzeModel extends JeproLabModel {
         $result = Db::getInstance()->executeS(
             'SELECT pac.`id_attribute`, pac.`id_product_attribute`
             FROM `'.staticDataBaseObject.quoteName("#__jeprolab.'product_attribute` pa
-        JOIN `'.staticDataBaseObject.quoteName("#__jeprolab.'product_attribute_shop` pas ON (pas.id_product_attribute = pa.id_product_attribute)
+        JOIN `'.staticDataBaseObject.quoteName("#__jeprolab.'product_attribute_lab` pas ON (pas.id_product_attribute = pa.id_product_attribute)
         LEFT JOIN `'.staticDataBaseObject.quoteName("#__jeprolab.'product_attribute_combination` pac ON (pac.`id_product_attribute` = pa.`id_product_attribute`)
-        WHERE 1 '.(!$all_shops ? ' AND pas.id_shop ='.(int)context.shop->id : '').' AND pa.`id_product` = '.(int)this.id.
-        ($all_shops ? ' GROUP BY pac.id_attribute, pac.id_product_attribute ' : '')
+        WHERE 1 '.(!$all_labs ? ' AND pas.id_lab ='.(int)context.lab->id : '').' AND pa.`id_product` = '.(int)this.id.
+        ($all_labs ? ' GROUP BY pac.id_attribute, pac.id_product_attribute ' : '')
         );
 
         /* If something's wrong * /
@@ -1608,11 +1635,11 @@ public class JeproLabAnalyzeModel extends JeproLabModel {
     /**
      * addProductAttribute is deprecated
      *
-     * The quantity params now set StockAvailable for the current shop with the specified quantity
+     * The quantity params now set StockAvailable for the current lab with the specified quantity
      * The supplier_reference params now set the supplier reference of the default supplier of the product if possible
      *
      * @see StockManager if you want to manage real stock
-     * @see StockAvailable if you want to manage available quantities for sale on your shop(s)
+     * @see StockAvailable if you want to manage available quantities for sale on your lab(s)
      * @see ProductSupplier for manage supplier reference(s)
      *
      * @deprecated since 1.5.0
@@ -1680,13 +1707,13 @@ public class JeproLabAnalyzeModel extends JeproLabModel {
      * @param string $supplier_reference DEPRECATED
      * /
     public function addCombinationEntity($wholesale_price, $price, $weight, $unit_impact, ecoTax, $quantity,
-                                         $id_images, $reference, $id_supplier, $ean13, $default, $location = null, $upc = null, $minimal_quantity = 1, array $id_shop_list = array(), $available_date = null)
+                                         $id_images, $reference, $id_supplier, $ean13, $default, $location = null, $upc = null, $minimal_quantity = 1, array $id_lab_list = array(), $available_date = null)
     {
         $id_product_attribute = this.addAttribute(
                 $price, $weight, $unit_impact, ecoTax, $id_images,
-                $reference, $ean13, $default, $location, $upc, $minimal_quantity, $id_shop_list, $available_date);
+                $reference, $ean13, $default, $location, $upc, $minimal_quantity, $id_lab_list, $available_date);
         this.addSupplierReference($id_supplier, $id_product_attribute);
-        $result = ObjectModel::updateMultishopTable('Combination', array(
+        $result = ObjectModel::updateMultilabTable('Combination', array(
             'wholesale_price' => (float)$wholesale_price,
         ), 'a.id_product_attribute = '.(int)$id_product_attribute);
 
@@ -1717,15 +1744,15 @@ public class JeproLabAnalyzeModel extends JeproLabModel {
         if ($set_default) {
             $obj->default_on = $default_value;
             $default_value = 0;
-            // if we add a combination for this shop and this product does not use the combination feature in other shop,
-            // we clone the default combination in every shop linked to this product
+            // if we add a combination for this lab and this product does not use the combination feature in other lab,
+            // we clone the default combination in every lab linked to this product
             if (!this.hasAttributesInOtherShops()) {
-                $id_shop_list_array = JeproLabAnalyzeModel.getShopsByProduct(this.id);
-                $id_shop_list = array();
-                foreach ($id_shop_list_array as $array_shop) {
-                    $id_shop_list[] = $array_shop['id_shop'];
+                $id_lab_list_array = JeproLabAnalyzeModel.getShopsByProduct(this.id);
+                $id_lab_list = array();
+                foreach ($id_lab_list_array as $array_lab) {
+                    $id_lab_list[] = $array_lab['id_lab'];
                 }
-                $obj->id_shop_list = $id_shop_list;
+                $obj->id_lab_list = $id_lab_list;
             }
         }
         $obj->add();
@@ -1740,18 +1767,18 @@ public class JeproLabAnalyzeModel extends JeproLabModel {
      * /
     public function deleteDefaultAttributes()
     {
-        return ObjectModel::updateMultishopTable('Combination', array(
+        return ObjectModel::updateMultilabTable('Combination', array(
             'default_on' => null,
         ), 'a.`id_product` = '.(int)this.id);
     }
 
     public function setDefaultAttribute($id_product_attribute)
     {
-        $result = ObjectModel::updateMultishopTable('Combination', array(
+        $result = ObjectModel::updateMultilabTable('Combination', array(
             'default_on' => 1
         ), 'a.`id_product` = '.(int)this.id.' AND a.`id_product_attribute` = '.(int)$id_product_attribute);
 
-        $result &= ObjectModel::updateMultishopTable('product', array(
+        $result &= ObjectModel::updateMultilabTable('product', array(
             'cache_default_attribute' => (int)$id_product_attribute,
         ), 'a.`id_product` = '.(int)this.id);
         this.cache_default_attribute = (int)$id_product_attribute;
@@ -1762,7 +1789,7 @@ public class JeproLabAnalyzeModel extends JeproLabModel {
     {
         $id_default_attribute = (int)JeproLabAnalyzeModel.getDefaultAttribute($id_product, 0, true);
 
-        $result = Db::getInstance()->update('product_shop', array(
+        $result = Db::getInstance()->update('product_lab', array(
                     'cache_default_attribute' => $id_default_attribute,
             ), 'id_product = '.(int)$id_product.JeproLabLaboratoryModel.addSqlRestriction());
 
@@ -1852,7 +1879,7 @@ public class JeproLabAnalyzeModel extends JeproLabModel {
      * @return array Update result
      * /
     public function updateAttribute($id_product_attribute, $wholesale_price, $price, $weight, $unit, ecoTax,
-                                    $id_images, $reference, $ean13, $default, $location = null, $upc = null, $minimal_quantity = null, $available_date = null, $update_all_fields = true, array $id_shop_list = array())
+                                    $id_images, $reference, $ean13, $default, $location = null, $upc = null, $minimal_quantity = null, $available_date = null, $update_all_fields = true, array $id_lab_list = array())
     {
         $combination = new Combination($id_product_attribute);
 
@@ -1885,8 +1912,8 @@ public class JeproLabAnalyzeModel extends JeproLabModel {
         $combination->minimal_quantity = (int)$minimal_quantity;
         $combination->available_date = $available_date ? pSQL($available_date) : '0000-00-00';
 
-        if (count($id_shop_list)) {
-            $combination->id_shop_list = $id_shop_list;
+        if (count($id_lab_list)) {
+            $combination->id_lab_list = $id_lab_list;
         }
 
         $combination->save();
@@ -1901,7 +1928,7 @@ public class JeproLabAnalyzeModel extends JeproLabModel {
         }
 
         // Sync stock Reference, EAN13 and UPC for this attribute
-        if (JeproLabSettingModel.get('PS_ADVANCED_STOCK_MANAGEMENT') && StockAvailable::dependsOnStock(this.id, JeproLabContext.getContext()->shop->id)) {
+        if (JeproLabSettingModel.get('PS_ADVANCED_STOCK_MANAGEMENT') && StockAvailable::dependsOnStock(this.id, JeproLabContext.getContext()->lab->id)) {
         Db::getInstance()->update('stock', array(
                         'reference' => pSQL($reference),
                 'ean13'     => pSQL($ean13),
@@ -1931,7 +1958,7 @@ public class JeproLabAnalyzeModel extends JeproLabModel {
      * @return mixed $id_product_attribute or false
      * /
     public function addAttribute($price, $weight, $unit_impact, ecoTax, $id_images, $reference, $ean13,
-                                 $default, $location = null, $upc = null, $minimal_quantity = 1, array $id_shop_list = array(), $available_date = null)
+                                 $default, $location = null, $upc = null, $minimal_quantity = 1, array $id_lab_list = array(), $available_date = null)
     {
         if (!this.id) {
             return;
@@ -1955,8 +1982,8 @@ public class JeproLabAnalyzeModel extends JeproLabModel {
         $combination->minimal_quantity = (int)$minimal_quantity;
         $combination->available_date = $available_date;
 
-        if (count($id_shop_list)) {
-            $combination->id_shop_list = array_unique($id_shop_list);
+        if (count($id_lab_list)) {
+            $combination->id_lab_list = array_unique($id_lab_list);
         }
 
         $combination->add();
@@ -2296,7 +2323,7 @@ public class JeproLabAnalyzeModel extends JeproLabModel {
         return array();
     }
 
-        $combinations = Db::getInstance()->executeS('SELECT pa.*, product_attribute_shop.*
+        $combinations = Db::getInstance()->executeS('SELECT pa.*, product_attribute_lab.*
             FROM `'.staticDataBaseObject.quoteName("#__jeprolab.'product_attribute` pa
         '.JeproLabLaboratoryModel.addSqlAssociation('product_attribute', 'pa').'
         WHERE pa.`id_product` = '.(int)this.id.'
@@ -2355,7 +2382,7 @@ public class JeproLabAnalyzeModel extends JeproLabModel {
         return array();
     }
 
-        $sql = 'SELECT pa.*, product_attribute_shop.*, ag.`id_attribute_group`, ag.`is_color_group`, agl.`name` AS group_name, al.`name` AS attribute_name,
+        $sql = 'SELECT pa.*, product_attribute_lab.*, ag.`id_attribute_group`, ag.`is_color_group`, agl.`name` AS group_name, al.`name` AS attribute_name,
         a.`id_attribute`
         FROM `'.staticDataBaseObject.quoteName("#__jeprolab.'product_attribute` pa
         '.JeproLabLaboratoryModel.addSqlAssociation('product_attribute', 'pa').'
@@ -2399,7 +2426,7 @@ public class JeproLabAnalyzeModel extends JeproLabModel {
         if (!Combination::isFeatureActive()) {
         return array();
     }
-        $sql = 'SELECT pa.*, product_attribute_shop.*, ag.`id_attribute_group`, ag.`is_color_group`, agl.`name` AS group_name, al.`name` AS attribute_name,
+        $sql = 'SELECT pa.*, product_attribute_lab.*, ag.`id_attribute_group`, ag.`is_color_group`, agl.`name` AS group_name, al.`name` AS attribute_name,
         a.`id_attribute`
         FROM `'.staticDataBaseObject.quoteName("#__jeprolab.'product_attribute` pa
         '.JeproLabLaboratoryModel.addSqlAssociation('product_attribute', 'pa').'
@@ -2551,7 +2578,7 @@ public class JeproLabAnalyzeModel extends JeproLabModel {
             $order_way = 'DESC';
         }
         if ($order_by == 'id_product' || $order_by == 'price' || $order_by == 'date_add' || $order_by == 'date_upd') {
-            $order_by_prefix = 'product_shop';
+            $order_by_prefix = 'product_lab';
         } elseif ($order_by == 'name') {
         $order_by_prefix = 'pl';
     }
@@ -2577,18 +2604,18 @@ public class JeproLabAnalyzeModel extends JeproLabModel {
             $sql = 'SELECT COUNT(p.`id_product`) AS nb
             FROM `'.staticDataBaseObject.quoteName("#__jeprolab.'product` p
             '.JeproLabLaboratoryModel.addSqlAssociation('product', 'p').'
-            WHERE product_shop.`active` = 1
-            AND product_shop.`date_add` > "'.date('Y-m-d', strtotime("_".(JeproLabSettingModel.get('PS_NB_DAYS_NEW_PRODUCT') ? (int)JeproLabSettingModel.get('PS_NB_DAYS_NEW_PRODUCT') : 20).' DAY')).'"
-            '.($front ? ' AND product_shop.`visibility` IN ("both", "catalog")' : '').'
+            WHERE product_lab.`active` = 1
+            AND product_lab.`date_add` > "'.date('Y-m-d', strtotime("_".(JeproLabSettingModel.get('PS_NB_DAYS_NEW_PRODUCT') ? (int)JeproLabSettingModel.get('PS_NB_DAYS_NEW_PRODUCT') : 20).' DAY')).'"
+            '.($front ? ' AND product_lab.`visibility` IN ("both", "catalog")' : '').'
             '.$sql_groups;
             return (int)Db::getInstance(_PS_USE_SQL_SLAVE_)->getValue($sql);
         }
 
         $sql = new DbQuery();
         $sql->select(
-                'p.*, product_shop.*, stock.out_of_stock, IFNULL(stock.quantity, 0) as quantity, pl.`description`, pl.`description_short`, pl.`link_rewrite`, pl.`meta_description`,
-                pl.`meta_keywords`, pl.`meta_title`, pl.`name`, pl.`available_now`, pl.`available_later`, image_shop.`id_image` id_image, il.`legend`, m.`name` AS manufacturer_name,
-                product_shop.`date_add` > "'.date('Y-m-d', strtotime("_".(JeproLabSettingModel.get('PS_NB_DAYS_NEW_PRODUCT') ? (int)JeproLabSettingModel.get('PS_NB_DAYS_NEW_PRODUCT') : 20).' DAY')).'" as new'
+                'p.*, product_lab.*, stock.out_of_stock, IFNULL(stock.quantity, 0) as quantity, pl.`description`, pl.`description_short`, pl.`link_rewrite`, pl.`meta_description`,
+                pl.`meta_keywords`, pl.`meta_title`, pl.`name`, pl.`available_now`, pl.`available_later`, image_lab.`id_image` id_image, il.`legend`, m.`name` AS manufacturer_name,
+                product_lab.`date_add` > "'.date('Y-m-d', strtotime("_".(JeproLabSettingModel.get('PS_NB_DAYS_NEW_PRODUCT') ? (int)JeproLabSettingModel.get('PS_NB_DAYS_NEW_PRODUCT') : 20).' DAY')).'" as new'
         );
 
         $sql->from('product', 'p');
@@ -2597,15 +2624,15 @@ public class JeproLabAnalyzeModel extends JeproLabModel {
                 p.`id_product` = pl.`id_product`
         AND pl.`id_lang` = '.(int)$id_lang.JeproLabLaboratoryModel.addSqlRestrictionOnLang('pl')
         );
-        $sql->leftJoin('image_shop', 'image_shop', 'image_shop.`id_product` = p.`id_product` AND image_shop.cover=1 AND image_shop.id_shop='.(int)context.shop->id);
-        $sql->leftJoin('image_lang', 'il', 'image_shop.`id_image` = il.`id_image` AND il.`id_lang` = '.(int)$id_lang);
+        $sql->leftJoin('image_lab', 'image_lab', 'image_lab.`id_product` = p.`id_product` AND image_lab.cover=1 AND image_lab.id_lab='.(int)context.lab->id);
+        $sql->leftJoin('image_lang', 'il', 'image_lab.`id_image` = il.`id_image` AND il.`id_lang` = '.(int)$id_lang);
         $sql->leftJoin('manufacturer', 'm', 'm.`id_manufacturer` = p.`id_manufacturer`');
 
-        $sql->where('product_shop.`active` = 1');
+        $sql->where('product_lab.`active` = 1');
         if ($front) {
-            $sql->where('product_shop.`visibility` IN ("both", "catalog")');
+            $sql->where('product_lab.`visibility` IN ("both", "catalog")');
         }
-        $sql->where('product_shop.`date_add` > "'.date('Y-m-d', strtotime("_".(JeproLabSettingModel.get('PS_NB_DAYS_NEW_PRODUCT') ? (int)JeproLabSettingModel.get('PS_NB_DAYS_NEW_PRODUCT') : 20).' DAY')).'"');
+        $sql->where('product_lab.`date_add` > "'.date('Y-m-d', strtotime("_".(JeproLabSettingModel.get('PS_NB_DAYS_NEW_PRODUCT') ? (int)JeproLabSettingModel.get('PS_NB_DAYS_NEW_PRODUCT') : 20).' DAY')).'"');
         if (Group::isFeatureActive()) {
         $groups = FrontController::getCurrentCustomerGroups();
         $sql->where('EXISTS(SELECT 1 FROM `'.staticDataBaseObject.quoteName("#__jeprolab.'category_product` cp
@@ -2617,8 +2644,8 @@ public class JeproLabAnalyzeModel extends JeproLabModel {
         $sql->limit($nb_products, $page_number * $nb_products);
 
         if (Combination::isFeatureActive()) {
-        $sql->select('product_attribute_shop.minimal_quantity AS product_attribute_minimal_quantity, IFNULL(product_attribute_shop.id_product_attribute,0) id_product_attribute');
-        $sql->leftJoin('product_attribute_shop', 'product_attribute_shop', 'p.`id_product` = product_attribute_shop.`id_product` AND product_attribute_shop.`default_on` = 1 AND product_attribute_shop.id_shop='.(int)context.shop->id);
+        $sql->select('product_attribute_lab.minimal_quantity AS product_attribute_minimal_quantity, IFNULL(product_attribute_lab.id_product_attribute,0) id_product_attribute');
+        $sql->leftJoin('product_attribute_lab', 'product_attribute_lab', 'p.`id_product` = product_attribute_lab.`id_product` AND product_attribute_lab.`default_on` = 1 AND product_attribute_lab.id_lab='.(int)context.lab->id);
     }
         $sql->join(JeproLabAnalyzeModel.sqlStock('p', 0));
 
@@ -2652,7 +2679,7 @@ public class JeproLabAnalyzeModel extends JeproLabModel {
         $id_country = $ids['id_country'] ? (int)$ids['id_country'] : (int)JeproLabSettingModel.get('PS_COUNTRY_DEFAULT');
 
         return SpecificPrice::getProductIdByDate(
-            context.shop->id,
+            context.lab->id,
             context.currency->id,
             $id_country,
             context.customer->id_default_group,
@@ -2701,16 +2728,16 @@ public class JeproLabAnalyzeModel extends JeproLabModel {
             WHERE cp.`id_product` = p.`id_product`)';
 
             // Please keep 2 distinct queries because RAND() is an awful way to achieve this result
-            $sql = 'SELECT product_shop.id_product, IFNULL(product_attribute_shop.id_product_attribute,0) id_product_attribute
+            $sql = 'SELECT product_lab.id_product, IFNULL(product_attribute_lab.id_product_attribute,0) id_product_attribute
             FROM
             `'.staticDataBaseObject.quoteName("#__jeprolab.'product_reductions` pr,
             `'.staticDataBaseObject.quoteName("#__jeprolab.'product` p
             '.JeproLabLaboratoryModel.addSqlAssociation('product', 'p').'
-            LEFT JOIN `'.staticDataBaseObject.quoteName("#__jeprolab.'product_attribute_shop` product_attribute_shop
-            ON (p.`id_product` = product_attribute_shop.`id_product` AND product_attribute_shop.`default_on` = 1 AND product_attribute_shop.id_shop='.(int)context.shop->id.')
-            WHERE p.id_product=pr.id_product AND (pr.id_product_attribute = 0 OR product_attribute_shop.id_product_attribute = pr.id_product_attribute) AND product_shop.`active` = 1
+            LEFT JOIN `'.staticDataBaseObject.quoteName("#__jeprolab.'product_attribute_lab` product_attribute_lab
+            ON (p.`id_product` = product_attribute_lab.`id_product` AND product_attribute_lab.`default_on` = 1 AND product_attribute_lab.id_lab='.(int)context.lab->id.')
+            WHERE p.id_product=pr.id_product AND (pr.id_product_attribute = 0 OR product_attribute_lab.id_product_attribute = pr.id_product_attribute) AND product_lab.`active` = 1
             '.$sql_groups.'
-            '.($front ? ' AND product_shop.`visibility` IN ("both", "catalog")' : '').'
+            '.($front ? ' AND product_lab.`visibility` IN ("both", "catalog")' : '').'
             ORDER BY RAND()';
 
             $result = Db::getInstance()->getRow($sql);
@@ -2721,11 +2748,11 @@ public class JeproLabAnalyzeModel extends JeproLabModel {
                 return false;
             }
 
-            // no group by needed : there's only one attribute with cover=1 for a given id_product + shop
-            $sql = 'SELECT p.*, product_shop.*, stock.`out_of_stock` out_of_stock, pl.`description`, pl.`description_short`,
+            // no group by needed : there's only one attribute with cover=1 for a given id_product + lab
+            $sql = 'SELECT p.*, product_lab.*, stock.`out_of_stock` out_of_stock, pl.`description`, pl.`description_short`,
             pl.`link_rewrite`, pl.`meta_description`, pl.`meta_keywords`, pl.`meta_title`, pl.`name`, pl.`available_now`, pl.`available_later`,
-            p.`ean13`, p.`upc`, image_shop.`id_image` id_image, il.`legend`,
-            DATEDIFF(product_shop.`date_add`, DATE_SUB("'.date('Y-m-d').' 00:00:00",
+            p.`ean13`, p.`upc`, image_lab.`id_image` id_image, il.`legend`,
+            DATEDIFF(product_lab.`date_add`, DATE_SUB("'.date('Y-m-d').' 00:00:00",
                     INTERVAL '.(Validate::isUnsignedInt(JeproLabSettingModel.get('PS_NB_DAYS_NEW_PRODUCT')) ? JeproLabSettingModel.get('PS_NB_DAYS_NEW_PRODUCT') : 20).'
             DAY)) > 0 AS new
                     FROM `'.staticDataBaseObject.quoteName("#__jeprolab.'product` p
@@ -2734,9 +2761,9 @@ public class JeproLabAnalyzeModel extends JeproLabModel {
             AND pl.`id_lang` = '.(int)$id_lang.JeproLabLaboratoryModel.addSqlRestrictionOnLang('pl').'
             )
             '.JeproLabLaboratoryModel.addSqlAssociation('product', 'p').'
-            LEFT JOIN `'.staticDataBaseObject.quoteName("#__jeprolab.'image_shop` image_shop
-            ON (image_shop.`id_product` = p.`id_product` AND image_shop.cover=1 AND image_shop.id_shop='.(int)context.shop->id.')
-            LEFT JOIN `'.staticDataBaseObject.quoteName("#__jeprolab.'image_lang` il ON (image_shop.`id_image` = il.`id_image` AND il.`id_lang` = '.(int)$id_lang.')
+            LEFT JOIN `'.staticDataBaseObject.quoteName("#__jeprolab.'image_lab` image_lab
+            ON (image_lab.`id_product` = p.`id_product` AND image_lab.cover=1 AND image_lab.id_lab='.(int)context.lab->id.')
+            LEFT JOIN `'.staticDataBaseObject.quoteName("#__jeprolab.'image_lang` il ON (image_lab.`id_image` = il.`id_image` AND il.`id_lang` = '.(int)$id_lang.')
             '.JeproLabAnalyzeModel.sqlStock('p', 0).'
             WHERE p.id_product = '.(int)$id_product;
 
@@ -2784,7 +2811,7 @@ public class JeproLabAnalyzeModel extends JeproLabModel {
             $order_way = 'DESC';
         }
         if ($order_by == 'id_product' || $order_by == 'price' || $order_by == 'date_add' || $order_by == 'date_upd') {
-            $order_by_prefix = 'product_shop';
+            $order_by_prefix = 'product_lab';
         } elseif ($order_by == 'name') {
         $order_by_prefix = 'pl';
     }
@@ -2821,9 +2848,9 @@ public class JeproLabAnalyzeModel extends JeproLabModel {
                     SELECT COUNT(DISTINCT p.`id_product`)
                     FROM `'.staticDataBaseObject.quoteName("#__jeprolab.'product` p
             '.JeproLabLaboratoryModel.addSqlAssociation('product', 'p').'
-            WHERE product_shop.`active` = 1
-            AND product_shop.`show_price` = 1
-            '.($front ? ' AND product_shop.`visibility` IN ("both", "catalog")' : '').'
+            WHERE product_lab.`active` = 1
+            AND product_lab.`show_price` = 1
+            '.($front ? ' AND product_lab.`visibility` IN ("both", "catalog")' : '').'
             '.((!$beginning && !$ending) ? 'AND p.`id_product` IN('.((is_array($tab_id_product) && count($tab_id_product)) ? implode(', ', $tab_id_product) : 0).')' : '').'
             '.$sql_groups);
         }
@@ -2835,10 +2862,10 @@ public class JeproLabAnalyzeModel extends JeproLabModel {
 
         $sql = '
         SELECT
-        p.*, product_shop.*, stock.out_of_stock, IFNULL(stock.quantity, 0) as quantity, pl.`description`, pl.`description_short`, pl.`available_now`, pl.`available_later`,
-        IFNULL(product_attribute_shop.id_product_attribute, 0) id_product_attribute,
+        p.*, product_lab.*, stock.out_of_stock, IFNULL(stock.quantity, 0) as quantity, pl.`description`, pl.`description_short`, pl.`available_now`, pl.`available_later`,
+        IFNULL(product_attribute_lab.id_product_attribute, 0) id_product_attribute,
             pl.`link_rewrite`, pl.`meta_description`, pl.`meta_keywords`, pl.`meta_title`,
-        pl.`name`, image_shop.`id_image` id_image, il.`legend`, m.`name` AS manufacturer_name,
+        pl.`name`, image_lab.`id_image` id_image, il.`legend`, m.`name` AS manufacturer_name,
         DATEDIFF(
                 p.`date_add`,
                 DATE_SUB(
@@ -2848,19 +2875,19 @@ public class JeproLabAnalyzeModel extends JeproLabModel {
         ) > 0 AS new
             FROM `'.staticDataBaseObject.quoteName("#__jeprolab.'product` p
         '.JeproLabLaboratoryModel.addSqlAssociation('product', 'p').'
-        LEFT JOIN `'.staticDataBaseObject.quoteName("#__jeprolab.'product_attribute_shop` product_attribute_shop
-        ON (p.`id_product` = product_attribute_shop.`id_product` AND product_attribute_shop.`default_on` = 1 AND product_attribute_shop.id_shop='.(int)context.shop->id.')
-        '.JeproLabAnalyzeModel.sqlStock('p', 0, false, context.shop).'
+        LEFT JOIN `'.staticDataBaseObject.quoteName("#__jeprolab.'product_attribute_lab` product_attribute_lab
+        ON (p.`id_product` = product_attribute_lab.`id_product` AND product_attribute_lab.`default_on` = 1 AND product_attribute_lab.id_lab='.(int)context.lab->id.')
+        '.JeproLabAnalyzeModel.sqlStock('p', 0, false, context.lab).'
         LEFT JOIN `'.staticDataBaseObject.quoteName("#__jeprolab.'product_lang` pl ON (
             p.`id_product` = pl.`id_product`
         AND pl.`id_lang` = '.(int)$id_lang.JeproLabLaboratoryModel.addSqlRestrictionOnLang('pl').'
         )
-        LEFT JOIN `'.staticDataBaseObject.quoteName("#__jeprolab.'image_shop` image_shop
-        ON (image_shop.`id_product` = p.`id_product` AND image_shop.cover=1 AND image_shop.id_shop='.(int)context.shop->id.')
-        LEFT JOIN `'.staticDataBaseObject.quoteName("#__jeprolab.'image_lang` il ON (image_shop.`id_image` = il.`id_image` AND il.`id_lang` = '.(int)$id_lang.')
+        LEFT JOIN `'.staticDataBaseObject.quoteName("#__jeprolab.'image_lab` image_lab
+        ON (image_lab.`id_product` = p.`id_product` AND image_lab.cover=1 AND image_lab.id_lab='.(int)context.lab->id.')
+        LEFT JOIN `'.staticDataBaseObject.quoteName("#__jeprolab.'image_lang` il ON (image_lab.`id_image` = il.`id_image` AND il.`id_lang` = '.(int)$id_lang.')
         LEFT JOIN `'.staticDataBaseObject.quoteName("#__jeprolab.'manufacturer` m ON (m.`id_manufacturer` = p.`id_manufacturer`)
-        WHERE product_shop.`active` = 1
-        AND product_shop.`show_price` = 1
+        WHERE product_lab.`active` = 1
+        AND product_lab.`show_price` = 1
         '.($front ? ' AND p.`visibility` IN ("both", "catalog")' : '').'
         '.((!$beginning && !$ending) ? ' AND p.`id_product` IN ('.((is_array($tab_id_product) && count($tab_id_product)) ? implode(', ', $tab_id_product) : 0).')' : '').'
         '.$sql_groups.'
@@ -2884,30 +2911,46 @@ public class JeproLabAnalyzeModel extends JeproLabModel {
     /**
      * getProductCategories return an array of categories which this product belongs to
      *
-     * @return array of categories
-     * /
-    public static function getProductCategories($id_product = '')
-    {
-        $cacheKey = 'JeproLabAnalyzeModel.getProductCategories_'.(int)$id_product;
-        if (!Cache::isStored($cacheKey)) {
-        $ret = array();
+     * @return List of categories id
+     */
+    public static List<Integer> getAnalyzeCategories(){
+        return getAnalyzeCategories(0);
+    }
 
-        $row = Db::getInstance(_PS_USE_SQL_SLAVE_)->executeS('
-                SELECT `id_category` FROM `'.staticDataBaseObject.quoteName("#__jeprolab.'category_product`
-        WHERE `id_product` = '.(int)$id_product
-        );
-
-        if ($row) {
-            foreach ($row as $val) {
-                $ret[] = $val['id_category'];
+    /**
+     * getProductCategories return an array of categories which this product belongs to
+     *
+     * @return List of categories id
+     */
+    public static List<Integer> getAnalyzeCategories(int analyzeId){
+        String cacheKey = "jeprolab_analyze_model_get_analyze_categories_" + analyzeId;
+        if (!JeproLabCache.getInstance().isStored(cacheKey)) {
+            if (staticDataBaseObject == null) {
+                staticDataBaseObject = JeproLabFactory.getDataBaseConnector();
             }
-        }
-        Cache::store($cacheKey, $ret);
-        return $ret;
-    }
-        return Cache::retrieve($cacheKey);
-    }
+            List<Integer> categoryIds = new ArrayList<>();
 
+            String query = "SELECT " + staticDataBaseObject.quoteName("category_id") + " FROM " + staticDataBaseObject.quoteName("#__jeprolab_analyze_category");
+            query += " WHERE " + staticDataBaseObject.quoteName("analyze_id") + " = " + analyzeId;
+
+            staticDataBaseObject.setQuery(query);
+            ResultSet categorySet = staticDataBaseObject.loadObject();
+
+            if (categorySet != null) {
+                try {
+                    while(categorySet.next()){
+                        categoryIds.add(categorySet.getInt("category_id"));
+                    }
+                }catch(SQLException ignored){
+
+                }
+            }
+            JeproLabCache.getInstance().store(cacheKey, categoryIds);
+            return categoryIds;
+        }
+        return (List<Integer>)JeproLabCache.getInstance().retrieve(cacheKey);
+    }
+/*
     public static function getProductCategoriesFull($id_product = '', $id_lang = null)
     {
         if (!$id_lang) {
@@ -2952,7 +2995,7 @@ public class JeproLabAnalyzeModel extends JeproLabModel {
         INNER JOIN `'.staticDataBaseObject.quoteName("#__jeprolab.'carrier` c
         ON (c.`id_reference` = pc.`id_carrier_reference` AND c.`deleted` = 0)
         WHERE pc.`id_product` = '.(int)this.id.'
-        AND pc.`id_shop` = '.(int)this.id_shop);
+        AND pc.`id_lab` = '.(int)this.id_lab);
     }
 
     /**
@@ -2966,13 +3009,13 @@ public class JeproLabAnalyzeModel extends JeproLabModel {
         $data[] = array(
                 'id_product' => (int)this.id,
                 'id_carrier_reference' => (int)$carrier,
-                'id_shop' => (int)this.id_shop
+                'id_lab' => (int)this.id_lab
         );
     }
         Db::getInstance()->execute(
             'DELETE FROM `'.staticDataBaseObject.quoteName("#__jeprolab.'product_carrier`
         WHERE id_product = '.(int)this.id.'
-        AND id_shop = '.(int)this.id_shop
+        AND id_lab = '.(int)this.id_lab
         );
 
         $unique_array = array();
@@ -2996,7 +3039,7 @@ public class JeproLabAnalyzeModel extends JeproLabModel {
     public function getImages($id_lang, Context context = null)
     {
         return Db::getInstance()->executeS('
-            SELECT image_shop.`cover`, i.`id_image`, il.`legend`, i.`position`
+            SELECT image_lab.`cover`, i.`id_image`, il.`legend`, i.`position`
             FROM `'.staticDataBaseObject.quoteName("#__jeprolab.'image` i
         '.JeproLabLaboratoryModel.addSqlAssociation('image', 'i').'
         LEFT JOIN `'.staticDataBaseObject.quoteName("#__jeprolab.'image_lang` il ON (i.`id_image` = il.`id_image` AND il.`id_lang` = '.(int)$id_lang.')
@@ -3015,13 +3058,13 @@ public class JeproLabAnalyzeModel extends JeproLabModel {
         if (!context) {
             context = JeproLabContext.getContext();
         }
-        $cacheKey = 'JeproLabAnalyzeModel.getCover_'.(int)$id_product."_".(int)context.shop->id;
+        $cacheKey = 'JeproLabAnalyzeModel.getCover_'.(int)$id_product."_".(int)context.lab->id;
         if (!Cache::isStored($cacheKey)) {
-        $sql = 'SELECT image_shop.`id_image`
+        $sql = 'SELECT image_lab.`id_image`
         FROM `'.staticDataBaseObject.quoteName("#__jeprolab.'image` i
         '.JeproLabLaboratoryModel.addSqlAssociation('image', 'i').'
         WHERE i.`id_product` = '.(int)$id_product.'
-        AND image_shop.`cover` = 1';
+        AND image_lab.`cover` = 1';
         $result = Db::getInstance()->getRow($sql);
         Cache::store($cacheKey, $result);
         return $result;
@@ -3504,7 +3547,7 @@ public class JeproLabAnalyzeModel extends JeproLabModel {
         $id_currency = (int)context.currency->id;
         $ids = Address::getCountryAndState((int)context.cart->{JeproLabSettingModel.get('PS_TAX_ADDRESS_TYPE')});
         $id_country = $ids['id_country'] ? (int)$ids['id_country'] : (int)JeproLabSettingModel.get('PS_COUNTRY_DEFAULT');
-        return (bool)SpecificPrice::getSpecificPrice((int)$id_product, context.shop->id, $id_currency, $id_country, $id_group, $quantity, null, 0, 0, $quantity);
+        return (bool)SpecificPrice::getSpecificPrice((int)$id_product, context.lab->id, $id_currency, $id_country, $id_group, $quantity, null, 0, 0, $quantity);
     }
 
     /**
@@ -3542,7 +3585,7 @@ public class JeproLabAnalyzeModel extends JeproLabModel {
             FROM `'.staticDataBaseObject.quoteName("#__jeprolab.'product_attribute` pa
         '.JeproLabLaboratoryModel.addSqlAssociation('product_attribute', 'pa').'
         WHERE pa.`id_product` = '.(int)this.id.'
-        ORDER BY product_attribute_shop.`price` DESC');
+        ORDER BY product_attribute_lab.`price` DESC');
     }
 
     public function getDefaultIdProductAttribute()
@@ -3556,7 +3599,7 @@ public class JeproLabAnalyzeModel extends JeproLabModel {
             FROM `'.staticDataBaseObject.quoteName("#__jeprolab.'product_attribute` pa
         '.JeproLabLaboratoryModel.addSqlAssociation('product_attribute', 'pa').'
         WHERE pa.`id_product` = '.(int)this.id.'
-        AND product_attribute_shop.default_on = 1'
+        AND product_attribute_lab.default_on = 1'
         );
     }
 
@@ -3818,7 +3861,7 @@ public class JeproLabAnalyzeModel extends JeproLabModel {
      * Now this method do nothing
      *
      * @see StockManager if you want to manage real stock
-     * @see StockAvailable if you want to manage available quantities for sale on your shop(s)
+     * @see StockAvailable if you want to manage available quantities for sale on your lab(s)
      *
      * @deprecated 1.5.3.0
      * @return false
@@ -3838,7 +3881,7 @@ public class JeproLabAnalyzeModel extends JeproLabModel {
      *
      * @deprecated 1.5.3.0
      * @see StockManager if you want to manage real stock
-     * @see StockAvailable if you want to manage available quantities for sale on your shop(s)
+     * @see StockAvailable if you want to manage available quantities for sale on your lab(s)
      * @return false
      * /
     public static function reinjectQuantities()
@@ -3905,19 +3948,19 @@ public class JeproLabAnalyzeModel extends JeproLabModel {
         if (Db::getInstance()->getValue('SELECT COUNT(*)
             FROM `'.staticDataBaseObject.quoteName("#__jeprolab.'product_attribute` pa
         '.JeproLabLaboratoryModel.addSqlAssociation('product_attribute', 'pa').'
-        WHERE product_attribute_shop.`default_on` = 1
+        WHERE product_attribute_lab.`default_on` = 1
         AND pa.`id_product` = '.(int)this.id) > JeproLabLaboratoryModel.getTotalShops(true)) {
-        Db::getInstance()->execute('UPDATE '.staticDataBaseObject.quoteName("#__jeprolab.'product_attribute_shop product_attribute_shop, '.staticDataBaseObject.quoteName("#__jeprolab.'product_attribute pa
-        SET product_attribute_shop.default_on=NULL, pa.default_on = NULL
-        WHERE product_attribute_shop.id_product_attribute=pa.id_product_attribute AND pa.id_product='.(int)this.id
-            .JeproLabLaboratoryModel.addSqlRestriction(false, 'product_attribute_shop'));
+        Db::getInstance()->execute('UPDATE '.staticDataBaseObject.quoteName("#__jeprolab.'product_attribute_lab product_attribute_lab, '.staticDataBaseObject.quoteName("#__jeprolab.'product_attribute pa
+        SET product_attribute_lab.default_on=NULL, pa.default_on = NULL
+        WHERE product_attribute_lab.id_product_attribute=pa.id_product_attribute AND pa.id_product='.(int)this.id
+            .JeproLabLaboratoryModel.addSqlRestriction(false, 'product_attribute_lab'));
     }
 
     $row = Db::getInstance()->getRow('
                                      SELECT pa.id_product
                                              FROM `'.staticDataBaseObject.quoteName("#__jeprolab.'product_attribute` pa
                                              '.JeproLabLaboratoryModel.addSqlAssociation('product_attribute', 'pa').'
-                                             WHERE product_attribute_shop.`default_on` = 1
+                                             WHERE product_attribute_lab.`default_on` = 1
                                              AND pa.`id_product` = '.(int)this.id
     );
     if ($row) {
@@ -3934,7 +3977,7 @@ public class JeproLabAnalyzeModel extends JeproLabModel {
         return false;
     }
 
-    if (!ObjectModel::updateMultishopTable('Combination', array('default_on' => 1), 'a.id_product_attribute = '.(int)$mini['id_attr'])) {
+    if (!ObjectModel::updateMultilabTable('Combination', array('default_on' => 1), 'a.id_product_attribute = '.(int)$mini['id_attr'])) {
         return false;
     }
     return true;
@@ -3954,7 +3997,7 @@ public class JeproLabAnalyzeModel extends JeproLabModel {
         FROM `'.staticDataBaseObject.quoteName("#__jeprolab.'product_attribute` pa
         '.JeproLabLaboratoryModel.addSqlAssociation('product_attribute', 'pa').
         ($check_stock ? JeproLabAnalyzeModel.sqlStock('pa', 'pa') : '').'
-        JOIN `'.staticDataBaseObject.quoteName("#__jeprolab.'product_attribute_combination` pac ON (pac.`id_product_attribute` = product_attribute_shop.`id_product_attribute`)
+        JOIN `'.staticDataBaseObject.quoteName("#__jeprolab.'product_attribute_combination` pac ON (pac.`id_product_attribute` = product_attribute_lab.`id_product_attribute`)
         JOIN `'.staticDataBaseObject.quoteName("#__jeprolab.'attribute` a ON (a.`id_attribute` = pac.`id_attribute`)
         JOIN `'.staticDataBaseObject.quoteName("#__jeprolab.'attribute_lang` al ON (a.`id_attribute` = al.`id_attribute` AND al.`id_lang` = '.(int)$id_lang.')
         JOIN `'.staticDataBaseObject.quoteName("#__jeprolab.'attribute_group` ag ON (a.id_attribute_group = ag.`id_attribute_group`)
@@ -4069,9 +4112,9 @@ public class JeproLabAnalyzeModel extends JeproLabModel {
      * /
     public function getAccessories($id_lang, $active = true)
     {
-        $sql = 'SELECT p.*, product_shop.*, stock.out_of_stock, IFNULL(stock.quantity, 0) as quantity, pl.`description`, pl.`description_short`, pl.`link_rewrite`,
+        $sql = 'SELECT p.*, product_lab.*, stock.out_of_stock, IFNULL(stock.quantity, 0) as quantity, pl.`description`, pl.`description_short`, pl.`link_rewrite`,
         pl.`meta_description`, pl.`meta_keywords`, pl.`meta_title`, pl.`name`, pl.`available_now`, pl.`available_later`,
-        image_shop.`id_image` id_image, il.`legend`, m.`name` as manufacturer_name, cl.`name` AS category_default, IFNULL(product_attribute_shop.id_product_attribute, 0) id_product_attribute,
+        image_lab.`id_image` id_image, il.`legend`, m.`name` as manufacturer_name, cl.`name` AS category_default, IFNULL(product_attribute_lab.id_product_attribute, 0) id_product_attribute,
             DATEDIFF(
                     p.`date_add`,
                     DATE_SUB(
@@ -4082,24 +4125,24 @@ public class JeproLabAnalyzeModel extends JeproLabModel {
             FROM `'.staticDataBaseObject.quoteName("#__jeprolab.'accessory`
         LEFT JOIN `'.staticDataBaseObject.quoteName("#__jeprolab.'product` p ON p.`id_product` = `id_product_2`
         '.JeproLabLaboratoryModel.addSqlAssociation('product', 'p').'
-        LEFT JOIN `'.staticDataBaseObject.quoteName("#__jeprolab.'product_attribute_shop` product_attribute_shop
-        ON (p.`id_product` = product_attribute_shop.`id_product` AND product_attribute_shop.`default_on` = 1 AND product_attribute_shop.id_shop='.(int)this.id_shop.')
+        LEFT JOIN `'.staticDataBaseObject.quoteName("#__jeprolab.'product_attribute_lab` product_attribute_lab
+        ON (p.`id_product` = product_attribute_lab.`id_product` AND product_attribute_lab.`default_on` = 1 AND product_attribute_lab.id_lab='.(int)this.id_lab.')
         LEFT JOIN `'.staticDataBaseObject.quoteName("#__jeprolab.'product_lang` pl ON (
             p.`id_product` = pl.`id_product`
         AND pl.`id_lang` = '.(int)$id_lang.JeproLabLaboratoryModel.addSqlRestrictionOnLang('pl').'
         )
         LEFT JOIN `'.staticDataBaseObject.quoteName("#__jeprolab.'category_lang` cl ON (
-            product_shop.`id_category_default` = cl.`id_category`
+            product_lab.`id_category_default` = cl.`id_category`
         AND cl.`id_lang` = '.(int)$id_lang.JeproLabLaboratoryModel.addSqlRestrictionOnLang('cl').'
         )
-        LEFT JOIN `'.staticDataBaseObject.quoteName("#__jeprolab.'image_shop` image_shop
-        ON (image_shop.`id_product` = p.`id_product` AND image_shop.cover=1 AND image_shop.id_shop='.(int)this.id_shop.')
-        LEFT JOIN `'.staticDataBaseObject.quoteName("#__jeprolab.'image_lang` il ON (image_shop.`id_image` = il.`id_image` AND il.`id_lang` = '.(int)$id_lang.')
+        LEFT JOIN `'.staticDataBaseObject.quoteName("#__jeprolab.'image_lab` image_lab
+        ON (image_lab.`id_product` = p.`id_product` AND image_lab.cover=1 AND image_lab.id_lab='.(int)this.id_lab.')
+        LEFT JOIN `'.staticDataBaseObject.quoteName("#__jeprolab.'image_lang` il ON (image_lab.`id_image` = il.`id_image` AND il.`id_lang` = '.(int)$id_lang.')
         LEFT JOIN `'.staticDataBaseObject.quoteName("#__jeprolab.'manufacturer` m ON (p.`id_manufacturer`= m.`id_manufacturer`)
         '.JeproLabAnalyzeModel.sqlStock('p', 0).'
         WHERE `id_product_1` = '.(int)this.id.
-        ($active ? ' AND product_shop.`active` = 1 AND product_shop.`visibility` != \'none\'' : '').'
-        GROUP BY product_shop.id_product';
+        ($active ? ' AND product_lab.`active` = 1 AND product_lab.`visibility` != \'none\'' : '').'
+        GROUP BY product_lab.id_product';
 
         if (!$result = Db::getInstance(_PS_USE_SQL_SLAVE_)->executeS($sql)) {
         return false;
@@ -4269,7 +4312,7 @@ public class JeproLabAnalyzeModel extends JeproLabModel {
         }
 
         $sql = new DbQuery();
-        $sql->select('p.`id_product`, pl.`name`, p.`ean13`, p.`upc`, p.`active`, p.`reference`, m.`name` AS manufacturer_name, stock.`quantity`, product_shop.advanced_stock_management, p.`customizable`');
+        $sql->select('p.`id_product`, pl.`name`, p.`ean13`, p.`upc`, p.`active`, p.`reference`, m.`name` AS manufacturer_name, stock.`quantity`, product_lab.advanced_stock_management, p.`customizable`');
         $sql->from('product', 'p');
         $sql->join(JeproLabLaboratoryModel.addSqlAssociation('product', 'p'));
         $sql->leftJoin('product_lang', 'pl', '
@@ -4323,7 +4366,7 @@ public class JeproLabAnalyzeModel extends JeproLabModel {
         $combination_images = array();
 
         $result = Db::getInstance()->executeS('
-            SELECT pa.*, product_attribute_shop.*
+            SELECT pa.*, product_attribute_lab.*
                     FROM `'.staticDataBaseObject.quoteName("#__jeprolab.'product_attribute` pa
         '.JeproLabLaboratoryModel.addSqlAssociation('product_attribute', 'pa').'
         WHERE pa.`id_product` = '.(int)$id_product_old
@@ -4334,7 +4377,7 @@ public class JeproLabAnalyzeModel extends JeproLabModel {
         $id_product_attribute_old = (int)$row['id_product_attribute'];
         if (!isset($combinations[$id_product_attribute_old])) {
             $id_combination = null;
-            $id_shop = null;
+            $id_lab = null;
             $result2 = Db::getInstance()->executeS('
                     SELECT *
                             FROM `'.staticDataBaseObject.quoteName("#__jeprolab.'product_attribute_combination`
@@ -4342,16 +4385,16 @@ public class JeproLabAnalyzeModel extends JeproLabModel {
             );
         } else {
             $id_combination = (int)$combinations[$id_product_attribute_old];
-            $id_shop = (int)$row['id_shop'];
+            $id_lab = (int)$row['id_lab'];
             context_old = JeproLabLaboratoryModel.getContext();
-            context_shop_id_old = JeproLabLaboratoryModel.getContextShopID();
-            JeproLabLaboratoryModel.setContext(JeproLabLaboratoryModel.CONTEXT_SHOP, $id_shop);
+            context_lab_id_old = JeproLabLaboratoryModel.getContextShopID();
+            JeproLabLaboratoryModel.setContext(JeproLabLaboratoryModel.CONTEXT_SHOP, $id_lab);
         }
 
         $row['id_product'] = $id_product_new;
         unset($row['id_product_attribute']);
 
-        $combination = new Combination($id_combination, null, $id_shop);
+        $combination = new Combination($id_combination, null, $id_lab);
         foreach ($row as $k => $v) {
             $combination->$k = $v;
         }
@@ -4371,7 +4414,7 @@ public class JeproLabAnalyzeModel extends JeproLabModel {
                 $return &= Db::getInstance()->insert('product_attribute_combination', $row2);
             }
         } else {
-            JeproLabLaboratoryModel.setContext(context_old, context_shop_id_old);
+            JeproLabLaboratoryModel.setContext(context_old, context_lab_id_old);
         }
 
         //Copy suppliers
@@ -4587,14 +4630,14 @@ public class JeproLabAnalyzeModel extends JeproLabModel {
         return $return;
     }
 
-    protected static function _getCustomizationFieldsNLabels($product_id, $id_shop = null)
+    protected static function _getCustomizationFieldsNLabels($product_id, $id_lab = null)
     {
         if (!Customization::isFeatureActive()) {
         return false;
     }
 
-        if (JeproLabLaboratoryModel.isFeatureActive() && !$id_shop) {
-        $id_shop = (int)JeproLabContext.getContext()->shop->id;
+        if (JeproLabLaboratoryModel.isFeatureActive() && !$id_lab) {
+        $id_lab = (int)JeproLabContext.getContext()->lab->id;
     }
 
         $customizations = array();
@@ -4618,7 +4661,7 @@ if (empty($customizations['fields'])) {
         if (($customization_labels = Db::getInstance()->executeS('
         SELECT `id_customization_field`, `id_lang`, `name`
         FROM `'.staticDataBaseObject.quoteName("#__jeprolab.'customization_field_lang`
-        WHERE `id_customization_field` IN ('.implode(', ', $customization_field_ids).')'.($id_shop ? ' AND cfl.`id_shop` = '.$id_shop : '').'
+        WHERE `id_customization_field` IN ('.implode(', ', $customization_field_ids).')'.($id_lab ? ' AND cfl.`id_lab` = '.$id_lab : '').'
         ORDER BY `id_customization_field`')) === false) {
         return false;
         }
@@ -4982,7 +5025,7 @@ public function getAttachments($id_lang)
     ** Customization management
     * /
 
-public static function getAllCustomizedDatas($id_cart, $id_lang = null, $only_in_cart = true, $id_shop = null)
+public static function getAllCustomizedDatas($id_cart, $id_lang = null, $only_in_cart = true, $id_lab = null)
         {
         if (!Customization::isFeatureActive()) {
         return false;
@@ -4995,8 +5038,8 @@ public static function getAllCustomizedDatas($id_cart, $id_lang = null, $only_in
         if (!$id_lang) {
         $id_lang = JeproLabContext.getContext()->language->id;
         }
-        if (JeproLabLaboratoryModel.isFeatureActive() && !$id_shop) {
-        $id_shop = (int)JeproLabContext.getContext()->shop->id;
+        if (JeproLabLaboratoryModel.isFeatureActive() && !$id_lab) {
+        $id_lab = (int)JeproLabContext.getContext()->lab->id;
         }
 
 
@@ -5006,7 +5049,7 @@ public static function getAllCustomizedDatas($id_cart, $id_lang = null, $only_in
         FROM `'.staticDataBaseObject.quoteName("#__jeprolab.'customized_data` cd
         NATURAL JOIN `'.staticDataBaseObject.quoteName("#__jeprolab.'customization` c
         LEFT JOIN `'.staticDataBaseObject.quoteName("#__jeprolab.'customization_field_lang` cfl ON (cfl.id_customization_field = cd.`index` AND id_lang = '.(int)$id_lang.
-        ($id_shop ? ' AND cfl.`id_shop` = '.$id_shop : '').')
+        ($id_lab ? ' AND cfl.`id_lab` = '.$id_lab : '').')
         WHERE c.`id_cart` = '.(int)$id_cart.
         ($only_in_cart ? ' AND c.`in_cart` = 1' : '').'
         ORDER BY `id_product`, `id_product_attribute`, `type`, `index`')) {
@@ -5183,14 +5226,14 @@ protected function _createLabel($languages, $type)
         $values = '';
 
         foreach ($languages as $language) {
-        foreach (JeproLabLaboratoryModel.getContextListShopID() as $id_shop) {
-        $values .= '('.(int)$id_customization_field.', '.(int)$language['id_lang'].', '.$id_shop .',\'\'), ';
+        foreach (JeproLabLaboratoryModel.getContextListShopID() as $id_lab) {
+        $values .= '('.(int)$id_customization_field.', '.(int)$language['id_lang'].', '.$id_lab .',\'\'), ';
         }
         }
 
         $values = rtrim($values, ', ');
         if (!Db::getInstance()->execute('
-        INSERT INTO `'.staticDataBaseObject.quoteName("#__jeprolab.'customization_field_lang` (`id_customization_field`, `id_lang`, `id_shop`, `name`)
+        INSERT INTO `'.staticDataBaseObject.quoteName("#__jeprolab.'customization_field_lang` (`id_customization_field`, `id_lang`, `id_lab`, `name`)
         VALUES '.$values)) {
         return false;
         }
@@ -5234,9 +5277,9 @@ public function updateLabels()
         }
                 /* Multilingual label name update * /
         if (JeproLabLaboratoryModel.isFeatureActive()) {
-        foreach (JeproLabLaboratoryModel.getContextListShopID() as $id_shop) {
+        foreach (JeproLabLaboratoryModel.getContextListShopID() as $id_lab) {
         if (!Db::getInstance()->execute('INSERT INTO `'.staticDataBaseObject.quoteName("#__jeprolab.'customization_field_lang`
-        (`id_customization_field`, `id_lang`, `id_shop`, `name`) VALUES ('.(int)$tmp[2].', '.(int)$tmp[3].', '.$id_shop.', \''.pSQL($value).'\')
+        (`id_customization_field`, `id_lang`, `id_lab`, `name`) VALUES ('.(int)$tmp[2].', '.(int)$tmp[3].', '.$id_lab.', \''.pSQL($value).'\')
         ON DUPLICATE KEY UPDATE `name` = \''.pSQL($value).'\'')) {
         return false;
         }
@@ -5260,7 +5303,7 @@ public function updateLabels()
         }
         }
 
-        if ($has_required_fields && !ObjectModel::updateMultishopTable('product', array('customizable' => 2), 'a.id_product = '.(int)this.id)) {
+        if ($has_required_fields && !ObjectModel::updateMultilabTable('product', array('customizable' => 2), 'a.id_product = '.(int)this.id)) {
         return false;
         }
 
@@ -5271,14 +5314,14 @@ public function updateLabels()
         return true;
         }
 
-public function getCustomizationFields($id_lang = false, $id_shop = null)
+public function getCustomizationFields($id_lang = false, $id_lab = null)
         {
         if (!Customization::isFeatureActive()) {
         return false;
         }
 
-        if (JeproLabLaboratoryModel.isFeatureActive() && !$id_shop) {
-        $id_shop = (int)JeproLabContext.getContext()->shop->id;
+        if (JeproLabLaboratoryModel.isFeatureActive() && !$id_lab) {
+        $id_lab = (int)JeproLabContext.getContext()->lab->id;
         }
 
         if (!$result = Db::getInstance()->executeS('
@@ -5286,7 +5329,7 @@ public function getCustomizationFields($id_lang = false, $id_shop = null)
         FROM `'.staticDataBaseObject.quoteName("#__jeprolab.'customization_field` cf
         NATURAL JOIN `'.staticDataBaseObject.quoteName("#__jeprolab.'customization_field_lang` cfl
         WHERE cf.`id_product` = '.(int)this.id.($id_lang ? ' AND cfl.`id_lang` = '.(int)$id_lang : '').
-        ($id_shop ? ' AND cfl.`id_shop` = '.$id_shop : '').'
+        ($id_lab ? ' AND cfl.`id_lab` = '.$id_lab : '').'
         ORDER BY cf.`id_customization_field`')) {
         return false;
         }
@@ -5435,10 +5478,10 @@ public static function checkAccessStatic($id_product, $id_customer)
 /**
  * Add a stock movement for current product
  *
- * Since 1.5, this method only permit to add/remove available quantities of the current product in the current shop
+ * Since 1.5, this method only permit to add/remove available quantities of the current product in the current lab
  *
  * @see StockManager if you want to manage real stock
- * @see StockAvailable if you want to manage available quantities for sale on your shop(s)
+ * @see StockAvailable if you want to manage available quantities for sale on your lab(s)
  *
  * @deprecated since 1.5.0
  *
@@ -5511,7 +5554,7 @@ public static function getUrlRewriteInformations($id_product)
         LEFT JOIN `'.staticDataBaseObject.quoteName("#__jeprolab.'product_lang` pl ON (p.`id_product` = pl.`id_product`'.JeproLabLaboratoryModel.addSqlRestrictionOnLang('pl').')
         '.JeproLabLaboratoryModel.addSqlAssociation('product', 'p').'
         LEFT JOIN `'.staticDataBaseObject.quoteName("#__jeprolab.'lang` l ON (pl.`id_lang` = l.`id_lang`)
-        LEFT JOIN `'.staticDataBaseObject.quoteName("#__jeprolab.'category_lang` cl ON (cl.`id_category` = product_shop.`id_category_default`  AND cl.`id_lang` = pl.`id_lang`'.JeproLabLaboratoryModel.addSqlRestrictionOnLang('cl').')
+        LEFT JOIN `'.staticDataBaseObject.quoteName("#__jeprolab.'category_lang` cl ON (cl.`id_category` = product_lab.`id_category_default`  AND cl.`id_lang` = pl.`id_lang`'.JeproLabLaboratoryModel.addSqlRestrictionOnLang('cl').')
         WHERE p.`id_product` = '.(int)$id_product.'
         AND l.`active` = 1
         ');
@@ -5880,11 +5923,11 @@ public function getCoverWs()
  * /
 public function setCoverWs($id_image)
         {
-        Db::getInstance()->execute('UPDATE `'.staticDataBaseObject.quoteName("#__jeprolab.'image_shop` image_shop, `'.staticDataBaseObject.quoteName("#__jeprolab.'image` i
-        SET image_shop.`cover` = 0
-        WHERE i.`id_product` = '.(int)this.id.' AND i.id_image = image_shop.id_image
-        AND image_shop.id_shop='.(int)JeproLabContext.getContext()->shop->id);
-        Db::getInstance()->execute('UPDATE `'.staticDataBaseObject.quoteName("#__jeprolab.'image_shop`
+        Db::getInstance()->execute('UPDATE `'.staticDataBaseObject.quoteName("#__jeprolab.'image_lab` image_lab, `'.staticDataBaseObject.quoteName("#__jeprolab.'image` i
+        SET image_lab.`cover` = 0
+        WHERE i.`id_product` = '.(int)this.id.' AND i.id_image = image_lab.id_image
+        AND image_lab.id_lab='.(int)JeproLabContext.getContext()->lab->id);
+        Db::getInstance()->execute('UPDATE `'.staticDataBaseObject.quoteName("#__jeprolab.'image_lab`
         SET `cover` = 1 WHERE `id_image` = '.(int)$id_image);
 
         return true;
@@ -5967,20 +6010,19 @@ public function getWsManufacturerName()
 
 public static function resetEcoTax()
         {
-        return ObjectModel::updateMultishopTable('product', array(
+        return ObjectModel::updateMultilabTable('product', array(
         'ecotax' => 0,
         ));
         }
 
-/**
- * Set Group reduction if needed
- * /
-public function setGroupReduction()
-        {
-        return GroupReduction::setProductReduction(this.id);
-        }
+    /**
+     * Set Group reduction if needed
+     */
+    public boolean setGroupReduction() {
+        return JeproLabGroupReductionModel.setAnalyzeReduction(this.analyze_id);
+    }
 
-/**
+/*
  * Checks if reference exists
  * @return bool
  * /
@@ -6001,12 +6043,12 @@ public function existsRefInDatabase($reference)
  * @param int $id_product the id of the product
  * @return array product attribute id list
  * /
-public static function getProductAttributesIds($id_product, $shop_only = false)
+public static function getProductAttributesIds($id_product, $lab_only = false)
         {
         return Db::getInstance()->executeS('
         SELECT pa.id_product_attribute
         FROM `'.staticDataBaseObject.quoteName("#__jeprolab.'product_attribute` pa'.
-        ($shop_only ? JeproLabLaboratoryModel.addSqlAssociation('product_attribute', 'pa') : '').'
+        ($lab_only ? JeproLabLaboratoryModel.addSqlAssociation('product_attribute', 'pa') : '').'
         WHERE pa.`id_product` = '.(int)$id_product);
         }
 
@@ -6020,8 +6062,8 @@ public static function getProductAttributesIds($id_product, $shop_only = false)
 public static function getAttributesParams($id_product, $id_product_attribute)
         {
         $id_lang = (int)JeproLabContext.getContext()->language->id;
-        $id_shop = (int)JeproLabContext.getContext()->shop->id;
-        $cacheKey = 'JeproLabAnalyzeModel.getAttributesParams_'.(int)$id_product."_".(int)$id_product_attribute."_".(int)$id_lang."_".(int)$id_shop;
+        $id_lab = (int)JeproLabContext.getContext()->lab->id;
+        $cacheKey = 'JeproLabAnalyzeModel.getAttributesParams_'.(int)$id_product."_".(int)$id_product_attribute."_".(int)$id_lang."_".(int)$id_lab;
 
         // if blocklayered module is installed we check if user has set custom attribute name
         if (Module::isInstalled('blocklayered') && Module::isEnabled('blocklayered')) {
@@ -6308,10 +6350,10 @@ public function updateWs($null_values = false)
  * @param int $id_product
  * @param int $id_product_attribute
  * @param int $id_warehouse
- * @param int $id_shop
+ * @param int $id_lab
  * @return int real_quantity
  * /
-public static function getRealQuantity($id_product, $id_product_attribute = 0, $id_warehouse = 0, $id_shop = null)
+public static function getRealQuantity($id_product, $id_product_attribute = 0, $id_warehouse = 0, $id_lab = null)
         {
 static $manager = null;
 
@@ -6320,10 +6362,10 @@ static $manager = null;
         }
 
         if (JeproLabSettingModel.get('PS_ADVANCED_STOCK_MANAGEMENT') && JeproLabAnalyzeModel.usesAdvancedStockManagement($id_product) &&
-        StockAvailable::dependsOnStock($id_product, $id_shop)) {
+        StockAvailable::dependsOnStock($id_product, $id_lab)) {
         return $manager->getProductRealQuantities($id_product, $id_product_attribute, $id_warehouse, true);
         } else {
-        return StockAvailable::getQuantityAvailableByProduct($id_product, $id_product_attribute, $id_shop);
+        return StockAvailable::getQuantityAvailableByProduct($id_product, $id_product_attribute, $id_lab);
         }
         }
 
@@ -6337,7 +6379,7 @@ static $manager = null;
 public static function usesAdvancedStockManagement($id_product)
         {
         $query = new DbQuery;
-        $query->select('product_shop.advanced_stock_management');
+        $query->select('product_lab.advanced_stock_management');
         $query->from('product', 'p');
         $query->join(JeproLabLaboratoryModel.addSqlAssociation('product', 'p'));
         $query->where('p.id_product = '.(int)$id_product);
@@ -6384,7 +6426,7 @@ public function getParentCategories($id_lang = null)
      */
     public void loadStockData() {
         if (this.analyze_id > 0){
-            // By default, the product quantity correspond to the available quantity to sell in the current shop
+            // By default, the product quantity correspond to the available quantity to sell in the current lab
             this.quantity = JeproLabStockAvailableModel.getQuantityAvailableByAnalyzeId(this.analyze_id, 0);
             this.out_of_stock = JeproLabStockAvailableModel.outOfStock(this.analyze_id);
             this.depends_on_stock = JeproLabStockAvailableModel.dependsOnStock(this.analyze_id);
@@ -6408,9 +6450,9 @@ public function getParentCategories($id_lang = null)
 public function setAdvancedStockManagement($value)
         {
         this.advanced_stock_management = (int)$value;
-        if (JeproLabContext.getContext()->shop->getContext() == JeproLabLaboratoryModel.CONTEXT_GROUP && JeproLabContext.getContext()->shop->getContextShopGroup()->share_stock == 1) {
+        if (JeproLabContext.getContext()->lab->getContext() == JeproLabLaboratoryModel.CONTEXT_GROUP && JeproLabContext.getContext()->lab->getContextShopGroup()->share_stock == 1) {
         Db::getInstance()->execute('
-        UPDATE `'.staticDataBaseObject.quoteName("#__jeprolab.'product_shop`
+        UPDATE `'.staticDataBaseObject.quoteName("#__jeprolab.'product_lab`
         SET `advanced_stock_management`='.(int)$value.'
         WHERE id_product='.(int)this.id.JeproLabLaboratoryModel.addSqlRestriction()
         );
@@ -6421,18 +6463,18 @@ public function setAdvancedStockManagement($value)
         }
 
 /**
- * get the default category according to the shop
+ * get the default category according to the lab
  * /
 public function getDefaultCategory()
         {
         $default_category = Db::getInstance()->getValue('
-        SELECT product_shop.`id_category_default`
+        SELECT product_lab.`id_category_default`
         FROM `'.staticDataBaseObject.quoteName("#__jeprolab.'product` p
         '.JeproLabLaboratoryModel.addSqlAssociation('product', 'p').'
         WHERE p.`id_product` = '.(int)this.id);
 
         if (!$default_category) {
-        return array('id_category_default' => JeproLabContext.getContext()->shop->id_category);
+        return array('id_category_default' => JeproLabContext.getContext()->lab->id_category);
         } else {
         return $default_category;
         }
@@ -6441,8 +6483,8 @@ public function getDefaultCategory()
 public static function getShopsByProduct($id_product)
         {
         return Db::getInstance()->executeS('
-        SELECT `id_shop`
-        FROM `'.staticDataBaseObject.quoteName("#__jeprolab.'product_shop`
+        SELECT `id_lab`
+        FROM `'.staticDataBaseObject.quoteName("#__jeprolab.'product_lab`
         WHERE `id_product` = '.(int)$id_product);
         }
 
@@ -6509,7 +6551,7 @@ public function hasAttributesInOtherShops()
         return (bool)Db::getInstance(_PS_USE_SQL_SLAVE_)->getValue('
         SELECT pa.id_product_attribute
         FROM `'.staticDataBaseObject.quoteName("#__jeprolab.'product_attribute` pa
-        LEFT JOIN `'.staticDataBaseObject.quoteName("#__jeprolab.'product_attribute_shop` pas ON (pa.`id_product_attribute` = pas.`id_product_attribute`)
+        LEFT JOIN `'.staticDataBaseObject.quoteName("#__jeprolab.'product_attribute_lab` pas ON (pa.`id_product_attribute` = pas.`id_product_attribute`)
         WHERE pa.`id_product` = '.(int)this.id
         );
         }
@@ -6623,20 +6665,20 @@ public function setWsProductBundle($items)
         return true;
         }
 
-public function isColorUnavailable($id_attribute, $id_shop)
+public function isColorUnavailable($id_attribute, $id_lab)
         {
         return Db::getInstance()->getValue('
         SELECT sa.id_product_attribute
         FROM '.staticDataBaseObject.quoteName("#__jeprolab.'stock_available sa
         WHERE id_product='.(int)this.id.' AND quantity <= 0
-        '.StockAvailable::addSqlShopRestriction(null, $id_shop, 'sa').'
+        '.StockAvailable::addSqlShopRestriction(null, $id_lab, 'sa').'
         AND EXISTS (
         SELECT 1
         FROM '.staticDataBaseObject.quoteName("#__jeprolab.'product_attribute pa
-        JOIN '.staticDataBaseObject.quoteName("#__jeprolab.'product_attribute_shop product_attribute_shop
-        ON (product_attribute_shop.id_product_attribute = pa.id_product_attribute AND product_attribute_shop.id_shop='.(int)$id_shop.')
+        JOIN '.staticDataBaseObject.quoteName("#__jeprolab.'product_attribute_lab product_attribute_lab
+        ON (product_attribute_lab.id_product_attribute = pa.id_product_attribute AND product_attribute_lab.id_lab='.(int)$id_lab.')
         JOIN '.staticDataBaseObject.quoteName("#__jeprolab.'product_attribute_combination pac
-        ON (pac.id_product_attribute AND product_attribute_shop.id_product_attribute)
+        ON (pac.id_product_attribute AND product_attribute_lab.id_product_attribute)
         WHERE sa.id_product_attribute = pa.id_product_attribute AND pa.id_product='.(int)this.id.' AND pac.id_attribute='.(int)$id_attribute.'
         )'
         );
@@ -6650,7 +6692,7 @@ public static function getColorsListCacheId($id_product, $full = true)
         }
 
         if ($full) {
-        $cacheKey .= '|'.(int)JeproLabContext.getContext()->shop->id.'|'.(int)JeproLabContext.getContext()->cookie->id_lang;
+        $cacheKey .= '|'.(int)JeproLabContext.getContext()->lab->id.'|'.(int)JeproLabContext.getContext()->cookie->id_lang;
         }
 
         return $cacheKey;
@@ -6659,6 +6701,6 @@ public static function getColorsListCacheId($id_product, $full = true)
 public static function setPackStockType($id_product, $pack_stock_type)
         {
         return Db::getInstance()->execute('UPDATE '.staticDataBaseObject.quoteName("#__jeprolab.'product p
-        '.JeproLabLaboratoryModel.addSqlAssociation('product', 'p').' SET product_shop.pack_stock_type = '.(int)$pack_stock_type.' WHERE p.`id_product` = '.(int)$id_product);
+        '.JeproLabLaboratoryModel.addSqlAssociation('product', 'p').' SET product_lab.pack_stock_type = '.(int)$pack_stock_type.' WHERE p.`id_product` = '.(int)$id_product);
         }*/
 }

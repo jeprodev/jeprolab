@@ -26,10 +26,7 @@ import javafx.scene.layout.Pane;
 import java.net.URL;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.ResourceBundle;
+import java.util.*;
 
 /**
  *
@@ -1433,10 +1430,18 @@ public class JeproLabAnalyzeAddController extends JeproLabController {
             }
 
             String post = "reference=" + jeproLabAnalyzeReference.getText() + "&ean13=" + jeproLabAnalyzeEan13.getText() + "&upc=" + jeproLabAnalyzeUpc.getText();
-            post += "&published=" + (jeproLabAnalyzePublished.isSelected() ? "1" : "0") + "&redirect_type=" + jeproLabAnalyzeVisibility.getValue() + "&available_for_order=";
+            post += "&published=" + (jeproLabAnalyzePublished.isSelected() ? "1" : "0") + "&redirect_type=" + analyzeRedirect + "&available_for_order=";
             post += (jeproLabAnalyzeAvailableForOrder.isSelected() ? "1" : "0") + "&show_price=" + (jeproLabAnalyzeShowPrice.isSelected() ? "1" : "0") + "&visibility=";
-            post += analyzeVisibility + "&redirect_id=" + analyzeRedirect + "&delay=" + (jeproLabAnalyzeDelay.getText().equals("") ? 0 : jeproLabAnalyzeDelay.getText());
-
+            post += analyzeVisibility + "&delay=" + (jeproLabAnalyzeDelay.getText().equals("") ? 1 : jeproLabAnalyzeDelay.getText());
+            Iterator langIt = languages.entrySet().iterator();
+            while(langIt.hasNext()) {
+                Map.Entry lang = (Map.Entry) langIt.next();
+                JeproLabLanguageModel language = (JeproLabLanguageModel) lang.getValue();
+                post += "&name_" + language.language_id + "=" + jeproLabAnalyzeName.getFieldContent(language.language_id);
+                post += "&description_" + language.language_id + "=" + jeproLabAnalyzeDescription.getFieldContent(language.language_id);
+                post += "&short_description_" + language.language_id + "=" + jeproLabAnalyzeShortDescription.getFieldContent(language.language_id);
+                post += "&tag_" + language.language_id + "=" + jeproLabAnalyzeTags.getFieldContent(language.language_id);
+            }
             JeproLab.request.setPost(post);
 
             if (analyze.analyze_id > 0) {
@@ -1451,6 +1456,7 @@ public class JeproLabAnalyzeAddController extends JeproLabController {
 
     private void addEventListener(){
         jeproLabAnalyzeDelay.addEventFilter(KeyEvent.KEY_TYPED , JeproLabTools.numericValidation(2));
-        jeproLabAnalyzeUpc.addEventFilter(KeyEvent.KEY_TYPED, JeproLabTools.upcValidation());
+        jeproLabAnalyzeEan13.addEventFilter(KeyEvent.KEY_TYPED, JeproLabTools.codeValidation(13));
+        jeproLabAnalyzeUpc.addEventFilter(KeyEvent.KEY_TYPED, JeproLabTools.codeValidation(12));
     }
 }

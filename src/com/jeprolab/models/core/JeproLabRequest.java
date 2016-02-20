@@ -1,5 +1,7 @@
 package com.jeprolab.models.core;
 
+import com.jeprolab.JeproLab;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -63,9 +65,13 @@ public class JeproLabRequest {
             }
 
             if (queries.length > 0) {
-                for (String query : queries) {
+                for (String query : queries){
                     String[] requestQuery = query.split("=");
-                    post.put(requestQuery[0], requestQuery[1]);
+                    if(requestQuery.length < 2 ){
+                        post.put(requestQuery[0],  JeproLab.getBundle().getString("JEPROLAB_EMPTY_FIELD_HAS_TO_BE_COMPLETED_LABEL"));
+                    }else {
+                        post.put(requestQuery[0], requestQuery[1]);
+                    }
                 }
             }
         }

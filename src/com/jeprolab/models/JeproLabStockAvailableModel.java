@@ -3,6 +3,11 @@ package com.jeprolab.models;
 import com.jeprolab.assets.tools.JeproLabCache;
 import com.jeprolab.assets.tools.JeproLabContext;
 import com.jeprolab.models.core.JeproLabFactory;
+import org.apache.commons.collections4.MapIterator;
+
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
 
 /**
  *
@@ -80,27 +85,31 @@ public class JeproLabStockAvailableModel extends  JeproLabModel{
         }
         return $this->update();
     }
+*/
+    public static boolean getStockAvailableIdByAnalyzeId(int analyzeId) {
+        return getStockAvailableIdByAnalyzeId(analyzeId, 0, 0);
+    }
 
-    public static function getStockAvailableIdByProductId($id_product, $id_product_attribute = null, $id_shop = null)
-    {
-        if (!Validate::isUnsignedId($id_product)) {
+    public static boolean getStockAvailableIdByAnalyzeId(int analyzeId, int analyzeAttributeId) {
+        return getStockAvailableIdByAnalyzeId(analyzeId, analyzeAttributeId, 0);
+    }
+
+    public static boolean getStockAvailableIdByAnalyzeId(int analyzeId, int analyzeAttributeId, int labId) {
+        if (analyzeId > 0) {
+            String query = "SELECT " + staticDataBaseObject.quoteName("#__jeprolab_stock_available") + " WHERE analyze_id = " + analyzeId;
+            if(analyzeAttributeId > 0){
+                query += " AND analyze_attribute_id = " + analyzeAttributeId;
+            }
+
+
+            query += JeproLabStockAvailableModel.addSqlLaboratoryRestriction(new JeproLabLaboratoryModel(labId));
+            staticDataBaseObject.setQuery(query);
+            return ((int)staticDataBaseObject.loadValue("stock_available_id")) > 0;
+        }
         return false;
     }
 
-        $query = new DbQuery();
-        $query->select('id_stock_available');
-        $query->from('stock_available');
-        $query->where('id_product = '.(int)$id_product);
-
-        if ($id_product_attribute !== null) {
-            $query->where('id_product_attribute = '.(int)$id_product_attribute);
-        }
-
-        $query = StockAvailable::addSqlShopRestriction($query, $id_shop);
-        return (int)Db::getInstance(_PS_USE_SQL_SLAVE_)->getValue($query);
-    }
-
-    /**
+    /*
      * For a given id_product, synchronizes StockAvailable::quantity with Stock::usable_quantity
      *
      * @param int $id_product
@@ -286,43 +295,66 @@ public class JeproLabStockAvailableModel extends  JeproLabModel{
         if ($depends_on_stock) {
             StockAvailable::synchronize($id_product);
         }
+    } */
+
+    public static void setAnalyzeOutOfStock(int analyzeId){
+        setAnalyzeOutOfStock(analyzeId, 0, 0, 0);
+    }
+
+    public static void setAnalyzeOutOfStock(int analyzeId, int outOfStock){
+        setAnalyzeOutOfStock(analyzeId, outOfStock, 0, 0);
+    }
+
+    public static void setAnalyzeOutOfStock(int analyzeId, int outOfStock, int labId){
+        setAnalyzeOutOfStock(analyzeId, outOfStock, labId, 0);
     }
 
     /**
      * For a given id_product, sets if product is available out of stocks
      *
-     * @param int $id_product
-     * @param int $out_of_stock Optional false by default
-     * @param int $id_shop Optional gets context by default
-     * /
-    public static function setProductOutOfStock($id_product, $out_of_stock = false, $id_shop = null, $id_product_attribute = 0)
-    {
-        if (!Validate::isUnsignedId($id_product)) {
-        return false;
-    }
+     * @param analyzeId
+     * @param outOfStock Optional false by default
+     * @param labId Optional gets context by default
+     */
+    public static void setAnalyzeOutOfStock(int analyzeId, int outOfStock, int labId, int analyzeAttributeId){
+        if (analyzeId > 0) {
+            boolean existingId = JeproLabStockAvailableModel.getStockAvailableIdByAnalyzeId(analyzeId, analyzeAttributeId, labId);
 
-        $existing_id = (int)StockAvailable::getStockAvailableIdByProductId((int)$id_product, (int)$id_product_attribute, $id_shop);
+            String query;
+            if (existingId) {
+                query = "UPDATE " + staticDataBaseObject.quoteName("#__jeprolab_stock_available") + " SET " + staticDataBaseObject.quoteName("stock_available");
+                query += " = " + outOfStock + ", " + staticDataBaseObject.quoteName("analyze_id") + " = " + analyzeId;
+                query += (analyzeAttributeId > 0 ? " AND " + staticDataBaseObject.quoteName("analyze_attribute_id") + " = " + analyzeAttributeId : "");
+                query += JeproLabStockAvailableModel.addSqlLaboratoryRestriction(new JeproLabLaboratoryModel(labId));
 
-        if ($existing_id > 0) {
-            Db::getInstance()->update(
-                    'stock_available',
-                    array('out_of_stock' => (int)$out_of_stock),
-                    'id_product = '.(int)$id_product.
-            (($id_product_attribute) ? ' AND id_product_attribute = '.(int)$id_product_attribute : '').
-            StockAvailable::addSqlShopRestriction(null, $id_shop)
-            );
-        } else {
-            $params = array(
-                    'out_of_stock' => (int)$out_of_stock,
-                    'id_product' => (int)$id_product,
-                    'id_product_attribute' => (int)$id_product_attribute
-            );
+                staticDataBaseObject.setQuery(query);
+                staticDataBaseObject.query(false);
+            } else {
+                query = "INSERT " + staticDataBaseObject.quoteName("#__jeprolab_stock_available") + "(" ;
+                Map<String, Integer> queryParams = new HashMap<>();
+                queryParams.put("out_of_stock", outOfStock);
+                queryParams.put("analyze_id", analyzeId);
+                queryParams.put("analyze_attribute_id", analyzeAttributeId);
 
-            StockAvailable::addSqlShopParams($params, $id_shop);
-            Db::getInstance()->insert('stock_available', $params, false, true, Db::ON_DUPLICATE_KEY);
+                queryParams = JeproLabStockAvailableModel.addSqlLaboratoryParams(queryParams, labId);
+                Iterator queryIterator = queryParams.entrySet().iterator();
+                String keyFields = "";
+                String valueFields = "";
+                while(queryIterator.hasNext()){
+                    Map.Entry field = (Map.Entry)queryIterator.next();
+                    keyFields += staticDataBaseObject.quote(field.getKey().toString()) +  ", ";
+                    valueFields += field.getValue().toString() + ", ";
+                }
+                keyFields = keyFields.endsWith(", ") ? keyFields.substring(0, keyFields.length() - 3) : keyFields;
+                valueFields = valueFields.endsWith(", ") ? valueFields.substring(0, valueFields.length() - 3) : valueFields;
+                query += keyFields + ") VALUES( " + valueFields + ")"; // ON DUPLICATE KEY UPDATE ";
+
+                staticDataBaseObject.setQuery(query);
+                staticDataBaseObject.query(false);
+            }
         }
     }
-    */
+
 
     public static int getQuantityAvailableByAnalyzeId(){
         return getQuantityAvailableByAnalyzeId(0, 0, 0);
@@ -339,7 +371,7 @@ public class JeproLabStockAvailableModel extends  JeproLabModel{
     /**
      * For a given id_product and id_product_attribute, gets its stock available
      *
-     * @param analyzeId
+     * @param analyzeId analyze id
      * @param analyzeAttributeId Optional
      * @param labId Optional : gets context by default
      * @return int Quantity
@@ -412,7 +444,7 @@ public class JeproLabStockAvailableModel extends  JeproLabModel{
             return true;
         }
 
-        $id_shop = (Shop::getContext() != Shop::CONTEXT_GROUP && $this->id_shop ? $this->id_shop : null);
+        $id_shop = (JeproLabLaboratoryModel.getContext() != JeproLabLaboratoryModel.CONTEXT_GROUP && $this->id_shop ? $this->id_shop : null);
 
         if (!Configuration::get('PS_DISP_UNAVAILABLE_ATTR')) {
         $combination = new Combination((int)$this->id_product_attribute);
@@ -480,7 +512,7 @@ public class JeproLabStockAvailableModel extends  JeproLabModel{
         $context = Context::getContext();
 
         // if there is no $id_shop, gets the context one
-        if ($id_shop === null && Shop::getContext() != Shop::CONTEXT_GROUP) {
+        if ($id_shop === null && JeproLabLaboratoryModel.getContext() != JeproLabLaboratoryModel.CONTEXT_GROUP) {
         $id_shop = (int)$context->shop->id;
     }
 
@@ -502,9 +534,9 @@ public class JeproLabStockAvailableModel extends  JeproLabModel{
                 $stock_available->quantity = (int)$quantity;
 
                 if ($id_shop === null) {
-                    $shop_group = Shop::getContextShopGroup();
+                    $shop_group = JeproLabLaboratoryModel.getContextShopGroup();
                 } else {
-                    $shop_group = new ShopGroup((int)Shop::getGroupFromShop((int)$id_shop));
+                    $shop_group = new ShopGroup((int)JeproLabLaboratoryModel.getGroupFromShop((int)$id_shop));
                 }
 
                 // if quantities are shared between shops of the group
@@ -545,8 +577,8 @@ public class JeproLabStockAvailableModel extends  JeproLabModel{
         return false;
     }
 
-        if (Shop::getContext() == SHOP::CONTEXT_SHOP) {
-        if (Shop::getContextShopGroup()->share_stock == 1) {
+        if (JeproLabLaboratoryModel.getContext() == SHOP::CONTEXT_SHOP) {
+        if (JeproLabLaboratoryModel.getContextShopGroup()->share_stock == 1) {
             $pa_sql = '';
             if ($id_product_attribute !== null) {
                 $pa_sql = '_attribute';
@@ -558,7 +590,7 @@ public class JeproLabStockAvailableModel extends  JeproLabModel{
             if ((int)Db::getInstance()->getValue('SELECT COUNT(*)
                     FROM '._DB_PREFIX_.'product'.$pa_sql.'_shop
             WHERE id_product'.$pa_sql.'='.(int)$id_product_attribute_sql.'
-            AND id_shop IN ('.implode(',', array_map('intval', Shop::getContextListShopID(SHOP::SHARE_STOCK))).')')) {
+            AND id_shop IN ('.implode(',', array_map('intval', JeproLabLaboratoryModel.getContextListShopID(SHOP::SHARE_STOCK))).')')) {
             return true;
         }
     }
@@ -601,7 +633,7 @@ public class JeproLabStockAvailableModel extends  JeproLabModel{
     public static function resetProductFromStockAvailableByShopGroup(ShopGroup $shop_group)
     {
         if ($shop_group->share_stock) {
-            $shop_list = Shop::getShops(false, $shop_group->id, true);
+            $shop_list = JeproLabLaboratoryModel.getShops(false, $shop_group->id, true);
         }
 
         if (count($shop_list) > 0) {
@@ -619,7 +651,7 @@ public class JeproLabStockAvailableModel extends  JeproLabModel{
     /**
      * For a given product, tells if it depends on the physical (usable) stock
      *
-     * @param analyzeId
+     * @param analyzeId analyze id
      * @param labId Optional : gets context if null @see Context::getContext()
      * @return bool : depends on stock @see $depends_on_stock
      */
@@ -649,7 +681,7 @@ public class JeproLabStockAvailableModel extends  JeproLabModel{
     /**
      * For a given product, get its "out of stock" flag
      *
-     * @param analyzeId
+     * @param analyzeId analyze id
      * @param labId Optional : gets context if null @see Context::getContext()
      * @return bool : depends on stock @see $depends_on_stock
      */
@@ -729,46 +761,51 @@ public class JeproLabStockAvailableModel extends  JeproLabModel{
         return query;
     }
 
-    /*
+    public static Map<String, Integer> addSqlLaboratoryParams(Map<String, Integer> queryParams){
+        return addSqlLaboratoryParams(queryParams, 0);
+    }
+
+    /**
      * Add sql params for shops fields - specific to StockAvailable
      *
-     * @param array $params Reference to the params array
-     * @param int $id_shop Optional : The shop ID
+     * @param queryParams Reference to the params array
+     * @param labId Optional : The shop ID
      *
-     * /
-    public static function addSqlShopParams(&$params, $id_shop = null)
-    {
-        $context = Context::getContext();
-        $group_ok = false;
-
+     */
+    public static Map<String, Integer> addSqlLaboratoryParams(Map<String, Integer> queryParams, int labId){
+        JeproLabContext context = JeproLabContext.getContext();
+        boolean groupOk = false;
+        JeproLabLaboratoryGroupModel labGroup;
         // if there is no $id_shop, gets the context one
         // get shop group too
-        if ($id_shop === null) {
-            if (Shop::getContext() == Shop::CONTEXT_GROUP) {
-                $shop_group = Shop::getContextShopGroup();
+        if (labId <= 0) {
+
+            if (JeproLabLaboratoryModel.getLabContext() == JeproLabLaboratoryModel.GROUP_CONTEXT) {
+                labGroup = JeproLabLaboratoryModel.getContextLaboratoryGroup();
             } else {
-                $shop_group = $context->shop->getGroup();
-                $id_shop = $context->shop->id;
+                labGroup = context.laboratory.getLaboratoryGroup();
+                labId = context.laboratory.laboratory_id;
             }
         } else {
-            $shop = new Shop($id_shop);
-            $shop_group = $shop->getGroup();
+            JeproLabLaboratoryModel lab = new JeproLabLaboratoryModel(labId);
+            labGroup = lab.getLaboratoryGroup();
         }
 
         // if quantities are shared between shops of the group
-        if ($shop_group->share_stock) {
-            $params['id_shop_group'] = (int)$shop_group->id;
-            $params['id_shop'] = 0;
+        if (labGroup.share_stock) {
+            queryParams.put("lab_group_id", labGroup.laboratory_group_id);
+            queryParams.put("lab_id", 0);
 
-            $group_ok = true;
+            groupOk = true;
         } else {
-            $params['id_shop_group'] = 0;
+            queryParams.put("lab_group_id", 0);
         }
 
         // if no group specific restriction, set simple shop restriction
-        if (!$group_ok) {
-            $params['id_shop'] = (int)$id_shop;
+        if (!groupOk) {
+            queryParams.put("lab_id", labId);
         }
+        return queryParams;
     }
 
     /**

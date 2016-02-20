@@ -2,7 +2,10 @@ package com.jeprolab.models;
 
 import com.jeprolab.models.core.JeproLabFactory;
 
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -28,6 +31,10 @@ public class JeproLabGroupReductionModel extends JeproLabModel{
             );
 */
     protected static Map<String, Float> reduction_cache = new HashMap<>();
+
+    public JeproLabGroupReductionModel(int groupReductionId){
+
+    }
 /*
     public function add($autodate = true, $null_values = false)
     {
@@ -62,30 +69,38 @@ public class JeproLabGroupReductionModel extends JeproLabModel{
     {
         return Db::getInstance()->delete('product_group_reduction_cache', 'id_group = '.(int)$this->id_group);
     }
-
-    protected function _setCache()
-    {
-        $products = Db::getInstance(_PS_USE_SQL_SLAVE_)->executeS('
-            SELECT cp.`id_product`
-            FROM `'._DB_PREFIX_.'category_product` cp
-        WHERE cp.`id_category` = '.(int)$this->id_category
-        );
-
-        $values = array();
-        foreach ($products as $row) {
-        $values[] = '('.(int)$row['id_product'].', '.(int)$this->id_group.', '.(float)$this->reduction.')';
-    }
-
-        if (count($values)) {
-            $query = 'INSERT INTO `'._DB_PREFIX_.'product_group_reduction_cache` (`id_product`, `id_group`, `reduction`)
-            VALUES '.implode(', ', $values).' ON DUPLICATE KEY UPDATE
-            `reduction` = IF(VALUES(`reduction`) > `reduction`, VALUES(`reduction`), `reduction`)';
-            return (Db::getInstance()->execute($query));
+*/
+    protected boolean setCache(){
+        if(dataBaseObject == null){
+            dataBaseObject = JeproLabFactory.getDataBaseConnector();
         }
 
+        String query = "SELECT category_analyze." + dataBaseObject.quoteName("analyze_id") + " FROM " + dataBaseObject.quoteName("#__jeprolab_analyzecategory");
+        query += " category_analyze WHERE category_analyze." + dataBaseObject.quoteName("category_id")+ " = "+ this.category_id;
+
+        dataBaseObject.setQuery(query);
+        ResultSet analyzeSet = dataBaseObject.loadObject();
+        boolean result = true;
+        if(analyzeSet != null){
+            try{
+                while (analyzeSet.next()){
+                    query = "INSERT INTO " + dataBaseObject.quoteName("#__jeprolab_analyze_group_reduction_cache") + "(" + dataBaseObject.quoteName("analyze_id");
+                    query += ", " + dataBaseObject.quoteName("group_id") + ", " + dataBaseObject.quoteName("reduction") + ") VALUES (" + analyzeSet.getInt("analyze_id");
+                    query += ", " + this.group_id + ", " + this.reduction + ") ON DUPLICATE KEY UPDATE " + dataBaseObject.quoteName("reduction") + " = IF ( VALUES(";
+                    query += dataBaseObject.quoteName("reduction") + ") > " + dataBaseObject.quoteName("reduction") + ", VALUES(" + dataBaseObject.quoteName("reduction");
+                    query += "), " + dataBaseObject.quoteName("reduction") + ")";
+
+                    dataBaseObject.setQuery(query);
+                    result &= dataBaseObject.query(false);
+                }
+                return result;
+            }catch(SQLException ignored){
+
+            }
+        }
         return true;
     }
-
+/*
     protected function _updateCache()
     {
         $products = Db::getInstance(_PS_USE_SQL_SLAVE_)->executeS('
@@ -149,17 +164,21 @@ public class JeproLabGroupReductionModel extends JeproLabModel{
             FROM `'._DB_PREFIX_.'group_reduction`
         WHERE `id_group` = '.(int)$id_group.' AND `id_category` = '.(int)$id_category);
     }
+*/
+    public static ResultSet getGroupsByCategoryId(int categoryId){
+        if(staticDataBaseObject == null){
+            staticDataBaseObject = JeproLabFactory.getDataBaseConnector();
+        }
 
-    public static function getGroupsByCategoryId($id_category)
-    {
-        return Db::getInstance(_PS_USE_SQL_SLAVE_)->executeS('
-            SELECT gr.`id_group` as id_group, gr.`reduction` as reduction, id_group_reduction
-            FROM `'._DB_PREFIX_.'group_reduction` gr
-        WHERE `id_category` = '.(int)$id_category
-        );
+        String query = "SELECT gr." + staticDataBaseObject.quoteName("group_id") + " AS group_id , gr." + staticDataBaseObject.quoteName("reduction");
+        query += "AS group_reduction_id FROM " + staticDataBaseObject.quoteName("#__jeprolab_group_reduction") + " AS gr WHERE " + staticDataBaseObject.quoteName("category_id");
+        query += " = "  + categoryId;
+
+        staticDataBaseObject.setQuery(query);
+        return staticDataBaseObject.loadObject();
     }
 
-    /**
+    /*
      * @deprecated 1.5.3.0
      * @param int $id_category
      * @return array|null
@@ -195,38 +214,55 @@ public class JeproLabGroupReductionModel extends JeproLabModel{
             FROM `'._DB_PREFIX_.'group_reduction` gr
         WHERE `id_category` = '.(int)$id_category, false);
     }
+*/
+    public static boolean setAnalyzeReduction(int analyzeId){
+        return setAnalyzeReduction(analyzeId, 0, 0, 0);
+    }
 
-    public static function setProductReduction($id_product, $id_group = null, $id_category = null, $reduction = null)
-    {
-        $res = true;
-        GroupReduction::deleteProductReduction((int)$id_product);
+    public static boolean setAnalyzeReduction(int analyzeId, int groupId){
+        return setAnalyzeReduction(analyzeId, groupId, 0, 0);
+    }
 
-        $categories = Product::getProductCategories((int)$id_product);
+    public static boolean setAnalyzeReduction(int analyzeId, int groupId, int categoryId){
+        return setAnalyzeReduction(analyzeId, groupId, categoryId, 0);
+    }
 
-        if ($categories) {
-            foreach ($categories as $category) {
-                $reductions = GroupReduction::getGroupsByCategoryId((int)$category);
-                if ($reductions) {
-                    foreach ($reductions as $reduction) {
-                        $current_group_reduction = new GroupReduction((int)$reduction['id_group_reduction']);
-                        $res &= $current_group_reduction->_setCache();
+    public static boolean setAnalyzeReduction(int analyzeId, int groupId, int categoryId, float reduction){
+        boolean result = true;
+        JeproLabGroupReductionModel.deleteAnalyzeReduction(analyzeId);
+
+        List<Integer> categories = JeproLabAnalyzeModel.getAnalyzeCategories(analyzeId);
+
+        if (categories.size() > 0) {
+            for(int id : categories){
+                ResultSet reductions = JeproLabGroupReductionModel.getGroupsByCategoryId(id);
+                if (reductions != null){
+                    try {
+                        JeproLabGroupReductionModel currentGroupReduction;
+                        while (reductions.next()) {
+                            currentGroupReduction = new JeproLabGroupReductionModel(reductions.getInt("group_reduction_id"));
+                            result &= currentGroupReduction.setCache();
+                        }
+                    }catch (SQLException ignored){
+
                     }
                 }
             }
         }
-
-        return $res;
+        return result;
     }
 
-    public static function deleteProductReduction($id_product)
-    {
-        $query = 'DELETE FROM `'._DB_PREFIX_.'product_group_reduction_cache` WHERE `id_product` = '.(int)$id_product;
-        if (Db::getInstance()->execute($query) === false) {
-        return false;
-    }
-        return true;
-    }
+    public static void deleteAnalyzeReduction(int analyzeId){
+        if(staticDataBaseObject == null){
+            staticDataBaseObject = JeproLabFactory.getDataBaseConnector();
+        }
+        String query = "DELETE FROM " + staticDataBaseObject.quoteName("#__jeprolab_analyze_group_reduction_cache") + " WHERE ";
+        query += staticDataBaseObject.quoteName("analyze_id") + " = "+ analyzeId;
 
+        staticDataBaseObject.setQuery(query);
+        staticDataBaseObject.query(false);
+    }
+/*
     public static function duplicateReduction($id_product_old, $id_product)
     {
         $res = Db::getInstance(_PS_USE_SQL_SLAVE_)->executes('

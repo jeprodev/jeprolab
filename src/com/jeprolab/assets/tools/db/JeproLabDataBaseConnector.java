@@ -19,6 +19,7 @@ public class JeproLabDataBaseConnector {
     private String dataBaseUrl;
     private int dataBasePortNumber = 3306;
     private static JeproLabDataBaseConnector instance;
+    private int generatedKey = -2;
 
     private Connection connection;
     private String hostName;
@@ -195,16 +196,28 @@ public class JeproLabDataBaseConnector {
         }
     }
 
-    public boolean query(){
+    public boolean query(boolean isInsert){
         try{
             /** JDBC Registration **/
             Class.forName(driverName);
 
             connection = DriverManager.getConnection(dataBaseUrl, JeproLabConfig.dataBaseUserName , JeproLabConfig.dataBasePassword);
-            return connection.createStatement().execute(queryRequest);
+            if (isInsert) {
+                PreparedStatement statement = connection.prepareStatement(queryRequest, Statement.RETURN_GENERATED_KEYS);
+                boolean result = statement.execute();
+                ResultSet generatedKeys = statement.getGeneratedKeys();
+                generatedKeys.next();
+                generatedKey = generatedKeys.getInt(1);
+                statement.close();
+                return result;
+            }else {
+                return connection.createStatement().execute(queryRequest);
+            }
         }catch(SQLException ex){
+            ex.printStackTrace();
             return false;
         }catch (Exception exc){
+            exc.printStackTrace();
             return false;
         }
     }
@@ -247,5 +260,9 @@ public class JeproLabDataBaseConnector {
         } catch (SQLException sqlEx) {
             sqlEx.printStackTrace();
         }
+    }
+
+    public int getGeneratedKey(){
+        return generatedKey;
     }
 }

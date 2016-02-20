@@ -233,10 +233,10 @@ public class JeproLabTools {
     }
 
     /***************** Numeric Validation Limit the  characters to maxLength AND to ONLY DigitS *********************/
-    public static EventHandler<KeyEvent> upcValidation() {
+    public static EventHandler<KeyEvent> codeValidation(final Integer maxLength) {
         return e -> {
             TextField txtTextField = (TextField) e.getSource();
-            if (txtTextField.getText().length() >= 12) {
+            if (txtTextField.getText().length() >= maxLength) {
                 e.consume();
             }
             if(e.getCharacter().matches("[0-9]")){

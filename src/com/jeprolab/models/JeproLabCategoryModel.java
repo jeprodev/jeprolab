@@ -1201,7 +1201,7 @@ public class JeproLabCategoryModel extends JeproLabModel {
                 query += " WHERE category_id = " + subCategoryId;
 
                 dataBaseObject.setQuery(query);
-                dataBaseObject.query();
+                dataBaseObject.query(false);
             /* Recursive call */
                 this.recalculateDepthLevel(subCategoryId);
             }
@@ -1227,7 +1227,7 @@ public class JeproLabCategoryModel extends JeproLabModel {
                     query += ", " + laboratoryId + ", " + position + ") ON DUPLICATE KEY UPDATE " + dataBaseObject.quoteName("position") + " = "  + position;
 
                     dataBaseObject.setQuery(query);
-                    result &= dataBaseObject.query();
+                    result &= dataBaseObject.query(true);
                 }
             }else {
                 labId = JeproLabContext.getContext().laboratory.laboratory_id;
@@ -1238,7 +1238,7 @@ public class JeproLabCategoryModel extends JeproLabModel {
                 query += ", " + labId + ", " + position + ") ON DUPLICATE KEY UPDATE " + dataBaseObject.quoteName("position") + " = " + position;
 
                 dataBaseObject.setQuery(query);
-                result &= dataBaseObject.query();
+                result &= dataBaseObject.query(true);
             }
         }else{
             String query = "INSERT INTO " + dataBaseObject.quoteName("#__jeprolab_category_lab") + " ("+ dataBaseObject.quoteName("category_id");
@@ -1246,7 +1246,7 @@ public class JeproLabCategoryModel extends JeproLabModel {
             query += ", " + labId + ", " + position + ") ON DUPLICATE KEY UPDATE " + dataBaseObject.quoteName("position") + " = " + position;
 
             dataBaseObject.setQuery(query);
-            result &= dataBaseObject.query();
+            result &= dataBaseObject.query(true);
         }
         return result;
     }

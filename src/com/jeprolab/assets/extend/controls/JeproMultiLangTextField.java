@@ -71,4 +71,13 @@ public class JeproMultiLangTextField extends Pane{
             }
         }
     }
+
+    public String getFieldContent(int langId){
+        for(TextField field : fields){
+            if(field.getId().equals("language_" + langId)){
+                return (field.getText() == (null) ? " " : field.getText()) ;
+            }
+        }
+        return "";
+    }
 }
