@@ -1,11 +1,14 @@
 package com.jeprolab.assets.extend.controls;
 
 import com.jeprolab.JeproLab;
+import com.jeprolab.models.JeproLabImageModel;
 import javafx.scene.control.Button;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
+
+import java.util.List;
 
 
 /**
@@ -32,5 +35,9 @@ public class JeproImageSlider extends HBox {
     public void setSliderPrefWidth(double width){
         this.setPrefWidth(width);
         this.imageWrapper.setPrefWidth(width - 2 * (previousBtn.getWidth()) - 1);
+    }
+
+    public void setImages(List<JeproLabImageModel> images){
+
     }
 }

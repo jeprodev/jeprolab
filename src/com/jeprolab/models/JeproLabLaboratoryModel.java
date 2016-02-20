@@ -234,6 +234,7 @@ public class JeproLabLaboratoryModel  extends JeproLabModel{
     private static void init(){
         JeproLabLaboratoryModel.defaultLabTablesId.add("analyze");
         JeproLabLaboratoryModel.defaultLabTablesId.add("category");
+        associatedTables.add("analyze");
         associatedTables.add("category");
         associatedTables.add("contact");
         associatedTables.add("country");
@@ -272,7 +273,7 @@ public class JeproLabLaboratoryModel  extends JeproLabModel{
         if(!JeproLabLaboratoryModel.isInitialized){
             JeproLabLaboratoryModel.init();
         }
-        return false;
+        return associatedTables.contains(table);
     }
     /**
      * Get the current id of laboratory group if context is LAB_CONTEXT or GROUP_CONTEXT
@@ -425,6 +426,7 @@ public class JeproLabLaboratoryModel  extends JeproLabModel{
         }
 
         if(table.equals("group")){ outputAlias = "grp"; }
+        else if(table.equals("analyze")){ outputAlias = "analze"; }
         else{ outputAlias = table; }
 
         boolean isAssociatedToTable = JeproLabLaboratoryModel.getAssociatedTable(table);
@@ -455,10 +457,14 @@ public class JeproLabLaboratoryModel  extends JeproLabModel{
         return getContextListLaboratoryIds("");
     }
 
-    public static List getContextListLaboratoryIds(String share){
-        List<Integer> list;
+    public static List<Integer> getContextListLaboratoryIds(String share){
+        List<Integer> list = new ArrayList<>();
         if(JeproLabLaboratoryModel.getLabContext() == JeproLabLaboratoryModel.LAB_CONTEXT){
-            list = (share != null && !share.equals("")) ? JeproLabLaboratoryModel.getSharedLaboratories(JeproLabLaboratoryModel.getContextLabId(), share) : new ArrayList(JeproLabLaboratoryModel.getContextLabId());
+            if(share != null && !share.equals("")) {
+                list = JeproLabLaboratoryModel.getSharedLaboratories(JeproLabLaboratoryModel.getContextLabId(), share);
+            }else{
+                list.add(JeproLabLaboratoryModel.getContextLabId());
+            }
         } else if(JeproLabLaboratoryModel.getLabContext() == JeproLabLaboratoryModel.GROUP_CONTEXT) {
             list = JeproLabLaboratoryModel.getLaboratoryIds(true, JeproLabLaboratoryModel.getContextLabGroupId());
         }else{
@@ -527,7 +533,7 @@ public class JeproLabLaboratoryModel  extends JeproLabModel{
         return results;
     }
 
-    public static List getSharedLaboratories(int labId, String labType){
+    public static List<Integer> getSharedLaboratories(int labId, String labType){
         if (!labType.equals(JeproLabLaboratoryModel.SHARE_CUSTOMER) || !labType.equals(JeproLabLaboratoryModel.SHARE_REQUEST) || !labType.equals(JeproLabLaboratoryModel.SHARE_RESULTS)){
             //die('Wrong argument ($type) in Lab::getSharedLabs() method');
         }
@@ -538,7 +544,7 @@ public class JeproLabLaboratoryModel  extends JeproLabModel{
                 return array_keys($group_data['labs']);
             }*/
         }
-        return new ArrayList(labId);
+        return new ArrayList<>(labId);
     }
 
     public static void cacheLaboratories(){

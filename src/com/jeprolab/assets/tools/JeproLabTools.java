@@ -5,7 +5,10 @@ import com.jeprolab.JeproLab;
 import com.jeprolab.models.JeproLabCurrencyModel;
 import com.jeprolab.models.JeproLabModel;
 import com.jeprolab.models.JeproLabSettingModel;
+import javafx.event.EventHandler;
 import javafx.scene.control.Alert;
+import javafx.scene.control.TextField;
+import javafx.scene.input.KeyEvent;
 
 import java.io.*;
 import java.text.DateFormat;
@@ -209,6 +212,58 @@ public class JeproLabTools {
             unset($row['price_tmp']);
         }* /
     } */
+
+    /***************** Numeric Validation Limit the  characters to maxLength AND to ONLY DigitS *********************/
+    public static EventHandler<KeyEvent> numericValidation(final Integer maxLength) {
+        return e -> {
+            TextField txtTextField = (TextField) e.getSource();
+            if (txtTextField.getText().length() >= maxLength) {
+                e.consume();
+            }
+            if(e.getCharacter().matches("[0-9.]")){
+                if(txtTextField.getText().contains(".") && e.getCharacter().matches("[.]")){
+                    e.consume();
+                }else if(txtTextField.getText().length() == 0 && e.getCharacter().matches("[.]")){
+                    e.consume();
+                }
+            }else{
+                e.consume();
+            }
+        };
+    }
+
+    /***************** Numeric Validation Limit the  characters to maxLength AND to ONLY DigitS *********************/
+    public static EventHandler<KeyEvent> upcValidation() {
+        return e -> {
+            TextField txtTextField = (TextField) e.getSource();
+            if (txtTextField.getText().length() >= 12) {
+                e.consume();
+            }
+            if(e.getCharacter().matches("[0-9]")){
+                if(txtTextField.getText().contains(".") && e.getCharacter().matches("[.]")){
+                    e.consume();
+                }else if(txtTextField.getText().length() == 0 && e.getCharacter().matches("[.]")){
+                    e.consume();
+                }
+            }else{
+                e.consume();
+            }
+        };
+    }
+
+    /************* Letters Validation Limit the  characters to maxLengh AND to ONLY Letters *************************/
+    public EventHandler<KeyEvent> letterValidation(final Integer maxLength) {
+        return evt -> {
+            TextField txt_TextField = (TextField) evt.getSource();
+            if (txt_TextField.getText().length() >= maxLength) {
+                evt.consume();
+            }
+            if(!evt.getCharacter().matches("[A-Za-z]")){
+                evt.consume();
+            }
+
+        };
+    }
 
     public static String getOrderFormToken(){
         return "a";

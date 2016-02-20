@@ -54,21 +54,21 @@ public class JeproLabCountryModel  extends JeproLabModel{
         this(0, 0, 0);
     }
 
-    public JeproLabCountryModel(int country_id){
-        this(country_id, 0, 0);
+    public JeproLabCountryModel(int countryId){
+        this(countryId, 0, 0);
     }
 
-    public JeproLabCountryModel(int country_id, int lang_id){
-        this(country_id, lang_id, 0);
+    public JeproLabCountryModel(int countryId, int langId){
+        this(countryId, langId, 0);
     }
 
-    public JeproLabCountryModel(int country_id, int lang_id, int lab_id){
-        if(lang_id > 0){
-            this.lang_id = (JeproLabLanguageModel.checkLanguage(lang_id) ? lang_id : JeproLabSettingModel.getIntValue("default_lang"));
+    public JeproLabCountryModel(int countryId, int langId, int labId){
+        if(langId > 0){
+            this.lang_id = (JeproLabLanguageModel.checkLanguage(langId) ? langId : JeproLabSettingModel.getIntValue("default_lang"));
         }
 
-        if(lab_id > 0  && this.isMultiLab()){
-            this.lab_id = lab_id;
+        if(labId > 0  && this.isMultiLab()){
+            this.lab_id = labId;
             this.get_lab_from_context = false;
         }
 
@@ -79,23 +79,24 @@ public class JeproLabCountryModel  extends JeproLabModel{
         name = new HashMap<>();
         Map<Integer, JeproLabLanguageModel> languages = JeproLabLanguageModel.getLanguages();
 
-        if(country_id > 0){
-            String cacheKey = "jeproshop_country_model_" + country_id + '_' + lang_id + '_' + lab_id;
+        if(countryId > 0){
+            String cacheKey = "jeprolab_country_model_" + countryId + '_' + langId + '_' + labId;
             if(!JeproLabCache.getInstance().isStored(cacheKey)){
-                String query = "SELECT * FROM " + dataBaseObject.quoteName("#__jeproshop_country") + " AS country ";
+                String query = "SELECT * FROM " + dataBaseObject.quoteName("#__jeprolab_country") + " AS country ";
 
                 //Get language data
-                if(lang_id > 0){
-                    query += " LEFT JOIN " + dataBaseObject.quoteName("#__jeproshop_country_lang") + " AS country_lang ON (country_lang.";
+                if(langId > 0){
+                    query += " LEFT JOIN " + dataBaseObject.quoteName("#__jeprolab_country_lang") + " AS country_lang ON (country_lang.";
                     query +=  dataBaseObject.quoteName("country_id") + " = country." + dataBaseObject.quoteName("country_id");
-                    query += " AND country_lang." + dataBaseObject.quoteName("lang_id") + " = " + lang_id + ")";
+                    query += " AND country_lang." + dataBaseObject.quoteName("lang_id") + " = " + langId + ")";
                 }
 
-                if(JeproLabLaboratoryModel.isTableAssociated("country")){
-                    query += " LEFT JOIN " + dataBaseObject.quoteName("#__jeproshop_country_shop") + " AS country_shop ON (country_lab.";
+                if(labId < 0 && JeproLabLaboratoryModel.isTableAssociated("country")){
+                    query += " LEFT JOIN " + dataBaseObject.quoteName("#__jeprolab_country_lab") + " AS country_lab ON (country_lab.";
                     query += dataBaseObject.quoteName("country_id") + " = country." + dataBaseObject.quoteName("country_id") + " AND country_lab.";
-                    query += dataBaseObject.quoteName("shop_id") + " = " + lab_id + ") ";
+                    query += dataBaseObject.quoteName("lab_id") + " = " + labId + ") ";
                 }
+                query += " WHERE country.country_id = " + countryId;
 
                 dataBaseObject.setQuery(query);
                 ResultSet countryData = dataBaseObject.loadObject();
@@ -114,25 +115,25 @@ public class JeproLabCountryModel  extends JeproLabModel{
                         this.zip_code_format = countryData.getString("zip_code_format");
                         this.display_tax_label = countryData.getInt("display_tax_label") > 0;
 
-                        if(lang_id > 0){
+                        if(langId > 0){
                             //country.n
                         }
 
                         if (lang_id <= 0) {
-                            query = "SELECT * FROM " + dataBaseObject.quoteName("#__jeproshop_country_lang");
+                            query = "SELECT * FROM " + dataBaseObject.quoteName("#__jeprolab_country_lang");
                             query += " WHERE " + dataBaseObject.quoteName("country_id") + " = " + country_id;
 
                             dataBaseObject.setQuery(query);
                             ResultSet countryLangData = dataBaseObject.loadObject();
                             while(countryLangData.next()) {
-                                int langId = countryLangData.getInt("lang_id");
+                                int languageId = countryLangData.getInt("lang_id");
                                 String countryName = countryLangData.getString("name");
                                 Iterator langIt = languages.entrySet().iterator();
                                 while(langIt.hasNext()){
                                     Map.Entry lang = (Map.Entry)langIt.next();
                                     JeproLabLanguageModel language = (JeproLabLanguageModel)lang.getValue();
-                                    if(langId == language.language_id){
-                                        name.put("lang_" + langId, countryName);
+                                    if(languageId == language.language_id){
+                                        name.put("lang_" + languageId, countryName);
                                     }
                                 }
 
@@ -177,7 +178,7 @@ public class JeproLabCountryModel  extends JeproLabModel{
      *
      * @return Array Countries and corresponding zones
      */
-    public static List getCountries(int lang_id, boolean published, boolean contain_states, boolean list_states) {
+    public static List<JeproLabCountryModel> getCountries(int lang_id, boolean published, boolean contain_states, boolean list_states) {
         List countries = new ArrayList<>();
         if(staticDataBaseObject == null){
             staticDataBaseObject = JeproLabFactory.getDataBaseConnector();
@@ -314,14 +315,14 @@ public class JeproLabCountryModel  extends JeproLabModel{
         return Db::getInstance()->execute('DELETE FROM '._DB_PREFIX_.'cart_rule_country WHERE id_country = '.(int)$this->id);
     }
 
-    public static function getCountriesByIdShop($id_shop, $id_lang)
+    public static function getCountriesByIdShop($id_lab, $id_lang)
     {
         return Db::getInstance(_PS_USE_SQL_SLAVE_)->ExecuteS('
 		SELECT *
 		FROM `'._DB_PREFIX_.'country` c
-		LEFT JOIN `'._DB_PREFIX_.'country_shop` cs ON (cs.`id_country`= c.`id_country`)
+		LEFT JOIN `'._DB_PREFIX_.'country_lab` cs ON (cs.`id_country`= c.`id_country`)
 		LEFT JOIN `'._DB_PREFIX_.'country_lang` cl ON (c.`id_country` = cl.`id_country` AND cl.`id_lang` = '.(int)$id_lang.')
-		WHERE `id_shop` = '.(int)$id_shop);
+		WHERE `id_lab` = '.(int)$id_lab);
     }
 
     /**
@@ -350,8 +351,7 @@ public static function getByIso($iso_code, $active = false)
     return false;
 }
 
-    public static function getIdZone($id_country)
-    {
+    public static function getZoneId(int countryId){
         if (!Validate::isUnsignedId($id_country)) {
         die(Tools::displayError());
     }
@@ -557,10 +557,10 @@ public static function getByIso($iso_code, $active = false)
         return (bool)preg_match($zip_regexp, $zip_code);
     }
 
-    public static function addModuleRestrictions(array $shops = array(), array $countries = array(), array $modules = array())
+    public static function addModuleRestrictions(array $labs = array(), array $countries = array(), array $modules = array())
     {
-        if (!count($shops)) {
-            $shops = Shop::getShops(true, null, true);
+        if (!count($labs)) {
+            $labs = Shop::getShops(true, null, true);
         }
 
         if (!count($countries)) {
@@ -572,16 +572,16 @@ public static function getByIso($iso_code, $active = false)
         }
 
         $sql = false;
-        foreach ($shops as $id_shop) {
+        foreach ($labs as $id_lab) {
         foreach ($countries as $country) {
             foreach ($modules as $module) {
-                $sql .= '('.(int)$module['id_module'].', '.(int)$id_shop.', '.(int)$country['id_country'].'),';
+                $sql .= '('.(int)$module['id_module'].', '.(int)$id_lab.', '.(int)$country['id_country'].'),';
             }
         }
     }
 
         if ($sql) {
-            $sql = 'INSERT IGNORE INTO `'._DB_PREFIX_.'module_country` (`id_module`, `id_shop`, `id_country`) VALUES '.rtrim($sql, ',');
+            $sql = 'INSERT IGNORE INTO `'._DB_PREFIX_.'module_country` (`id_module`, `id_lab`, `id_country`) VALUES '.rtrim($sql, ',');
             return Db::getInstance()->execute($sql);
         } else {
             return true;

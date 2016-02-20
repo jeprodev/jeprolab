@@ -116,7 +116,7 @@ public class JeproLabDataBaseConnector {
 
 
     public ArrayList<String> quote(ArrayList<String> fields, boolean escape){
-        ArrayList<String> quotedField = new ArrayList();
+        ArrayList<String> quotedField = new ArrayList<>();
         for (String field : fields){
             quotedField.add((escape ? "\'" : "'") + field + (escape ? "\'" : "'"));
         }
@@ -176,7 +176,7 @@ public class JeproLabDataBaseConnector {
     }
 
     public ResultSet loadObject(){
-        ResultSet results = null;
+        ResultSet results;
         try {
             /** JDBC Registration **/
             Class.forName(driverName);
@@ -196,20 +196,48 @@ public class JeproLabDataBaseConnector {
     }
 
     public boolean query(){
-        return true;
+        try{
+            /** JDBC Registration **/
+            Class.forName(driverName);
+
+            connection = DriverManager.getConnection(dataBaseUrl, JeproLabConfig.dataBaseUserName , JeproLabConfig.dataBasePassword);
+            return connection.createStatement().execute(queryRequest);
+        }catch(SQLException ex){
+            return false;
+        }catch (Exception exc){
+            return false;
+        }
     }
 
-    public double loadValue(String key){ //todo
-        return  2;
+    public double loadValue(String key){
+        ResultSet result = loadObject();
+        try{
+            if(result.next()){
+                return result.getDouble(key);
+            }
+        }catch(SQLException ignored) {
+            return 0;
+        }
+        return 0;
     }
 
     public String loadStringValue(String key){
-        return key;
+        ResultSet result = loadObject();
+        try{
+            if(result.next()){
+                return result.getString(key);
+            }
+        }catch(SQLException ignored) {
+            return "";
+        }finally {
+            closeConnexion();
+        }
+        return "";
     }
 
-    public String secureData(String data){ //todo
+    /*public String secureData(String data){ //todo
         return data;
-    }
+    }*/
 
     public void closeConnexion(){
         try {

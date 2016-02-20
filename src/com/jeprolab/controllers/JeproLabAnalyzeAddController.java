@@ -9,6 +9,7 @@ import com.jeprolab.models.*;
 import com.jeprolab.models.core.JeproLabRequest;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.geometry.HPos;
 import javafx.geometry.Insets;
@@ -16,6 +17,7 @@ import javafx.geometry.VPos;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
@@ -33,7 +35,7 @@ import java.util.ResourceBundle;
  *
  * Created by jeprodev on 06/06/2014.
  */
-public class JeproLabAnalyzeAddController extends JeproLabController{
+public class JeproLabAnalyzeAddController extends JeproLabController {
     private Label jeproLabFormTitle;
     private final double inputColumnWidth = 280;
     private final double labelColumnWidth = 150;
@@ -81,12 +83,12 @@ public class JeproLabAnalyzeAddController extends JeproLabController{
     public JeproLabPriceBox jeproLabAnalyzeWholeSalePrice, jeproLabAnalyzePriceTaxExcluded, jeproLabAnalyzePriceUseEcoTax, jeproLabAnalyzePriceTaxIncluded;
     public JeproLabPriceBox jeproLabAnalyzeSpecificPrice;
 
-    public void initialize(URL location, ResourceBundle resource){
+    public void initialize(URL location, ResourceBundle resource) {
         super.initialize(location, resource);
 
         double formWidth = 0.92 * JeproLab.APP_WIDTH;
         //double centerGrid = (formWidth - (labelColumnWidth + inputColumnWidth))/2;
-        double posX = (JeproLab.APP_WIDTH/2) - (formWidth)/2;
+        double posX = (JeproLab.APP_WIDTH / 2) - (formWidth) / 2;
         double posY = 15;
 
         jeproLabFormTitle = new Label(bundle.getString("JEPROLAB_ADD_NEW_ANALYSE_LABEL"));
@@ -202,13 +204,17 @@ public class JeproLabAnalyzeAddController extends JeproLabController{
         jeproLabAnalyzeAttachedFileTabForm.setText(bundle.getString("JEPROLAB_ATTACHED_FILES_LABEL"));
         jeproLabAnalyzeAttachedFileTabForm.setClosable(false);
 
+
         initializeContent();
+        addEventListener();
         updateToolBar();
     }
 
     @Override
-    public void initializeContent(){
-        if(context == null){ context = JeproLabContext.getContext(); }
+    public void initializeContent() {
+        if (context == null) {
+            context = JeproLabContext.getContext();
+        }
         JeproLabRequest request = JeproLab.request;
         this.loadObject(true);
 
@@ -218,13 +224,13 @@ public class JeproLabAnalyzeAddController extends JeproLabController{
         boolean displayCommonField = false;
         boolean displayMultiLabCheckBoxes = false;
         int multiLabCheck = 0;
-        if(JeproLabLaboratoryModel.isFeaturePublished()){
-            if(JeproLabLaboratoryModel.getLabContext() != JeproLabLaboratoryModel.LAB_CONTEXT){
+        if (JeproLabLaboratoryModel.isFeaturePublished()) {
+            if (JeproLabLaboratoryModel.getLabContext() != JeproLabLaboratoryModel.LAB_CONTEXT) {
                 displayMultiLabCheckBoxes = true;
                 multiLabCheck = request.getIntValue("multi_lab_check", 0);
             }
 
-            if(JeproLabLaboratoryModel.getLabContext() != JeproLabLaboratoryModel.ALL_CONTEXT){
+            if (JeproLabLaboratoryModel.getLabContext() != JeproLabLaboratoryModel.ALL_CONTEXT) {
                 //$bullet_common_field = '<i class="icon-circle text-orange"></i>';
                 displayCommonField = true;
             }
@@ -248,7 +254,7 @@ public class JeproLabAnalyzeAddController extends JeproLabController{
         boolean hasCombinations = analyze.hasAttributes() > 0;
         boolean analyzeExistsInLab = true;
 
-        if(analyze.analyze_id > 0 && JeproLabLaboratoryModel.isFeaturePublished() && JeproLabLaboratoryModel.getLabContext() == JeproLabLaboratoryModel.LAB_CONTEXT && !analyze.isAssociatedToLaboratory(context.laboratory.laboratory_id)){
+        if (analyze.analyze_id > 0 && JeproLabLaboratoryModel.isFeaturePublished() && JeproLabLaboratoryModel.getLabContext() == JeproLabLaboratoryModel.LAB_CONTEXT && !analyze.isAssociatedToLaboratory(context.laboratory.laboratory_id)) {
             analyzeExistsInLab = false;
 
             JeproLabAnalyzeModel defaultAnalyze = new JeproLabAnalyzeModel();
@@ -278,7 +284,7 @@ public class JeproLabAnalyzeAddController extends JeproLabController{
         //this->assign('current_shop_url', $this->context.shop->getBaseURL());
     }
 
-    private void initInformationForm(){
+    private void initInformationForm() {
         String analyzeNameRedirected = JeproLabAnalyzeModel.getAnalyzeName(analyze.analyze_redirected_id, 0, context.language.language_id);
 
         //$this->assignRef('product_name_redirected', $product_name_redirected);
@@ -331,28 +337,29 @@ public class JeproLabAnalyzeAddController extends JeproLabController{
            //$this->assignRef('product_images', $images);
         }*/
         List<JeproLabImageModel.JeproLabImageTypeModel> imagesTypes = JeproLabImageModel.JeproLabImageTypeModel.getImagesTypes("analyzes");
-       //$this->assignRef('imagesTypes', $imagesTypes);
+        //$this->assignRef('imagesTypes', $imagesTypes);
 
         analyze.tags = JeproLabTagModel.getAnalyzeTags(analyze.analyze_id);
 
         int analyzeType = JeproLab.request.getIntValue("analyze_type", analyze.getType());
-       //$this->assignRef('product_type', $product_type);
+        //$this->assignRef('product_type', $product_type);
         boolean isInPack = JeproLabAnalyzePackModel.isPacked(analyze.analyze_id);
-       //$this->assignRef('is_in_pack', $is_in_pack);
+        //$this->assignRef('is_in_pack', $is_in_pack);
 
         boolean checkAnalyzeAssociationAjax = false;
-        if (JeproLabLaboratoryModel.isFeaturePublished() && JeproLabLaboratoryModel.getLabContext() != JeproLabLaboratoryModel.ALL_CONTEXT){
+        if (JeproLabLaboratoryModel.isFeaturePublished() && JeproLabLaboratoryModel.getLabContext() != JeproLabLaboratoryModel.ALL_CONTEXT) {
             checkAnalyzeAssociationAjax = true;
         }
 
         //String isoTinyMce = context.language.iso_code;
         //$iso_tiny_mce = (file_exists(JURI::base() . '/components/com_jeproshop/assets/javascript/tiny_mce/langs/'.$iso_tiny_mce.'.js') ? $iso_tiny_mce : 'en');
-       //$this->assignRef('iso_tiny_mce', $iso_tiny_mce);
-       //$this->assignRef('check_product_association_ajax', $check_product_association_ajax);
+        //$this->assignRef('iso_tiny_mce', $iso_tiny_mce);
+        //$this->assignRef('check_product_association_ajax', $check_product_association_ajax);
         getCombinationImages();
-       //$this->assignRef('combinationImagesJs', $combinationImageJs); */
+        //$this->assignRef('combinationImagesJs', $combinationImageJs); */
 
-        if(analyze.analyze_id > 0){
+
+        if (analyze.analyze_id > 0) {
             jeproLabAnalyzePublished.setSelected(analyze.published);
             jeproLabAnalyzeOnSale.setSelected(analyze.on_sale);
             jeproLabAnalyzeAvailableForOrder.setSelected(analyze.available_for_order);
@@ -361,16 +368,17 @@ public class JeproLabAnalyzeAddController extends JeproLabController{
             jeproLabAnalyzeShortDescription.setText(analyze.short_description);
             jeproLabAnalyzeDescription.setText(analyze.description);
         }
+
         String[] redirection = new String[3];
         redirection[0] = "404";
         redirection[1] = "301";
         redirection[2] = "302";
         jeproLabAnalyzeRedirect.getItems().clear();
-        for(String label : redirection){
+        for (String label : redirection) {
             jeproLabAnalyzeRedirect.getItems().add(bundle.getString("JEPROLAB_" + label + "_LABEL"));
-            if(analyze.analyze_id > 0 && label.equals(analyze.redirect_type)){
+            if (analyze.analyze_id > 0 && label.equals(analyze.redirect_type)) {
                 jeproLabAnalyzeRedirect.setValue(bundle.getString("JEPROLAB_" + label + "_LABEL"));
-            }else if(label.equals("404")){
+            } else if (label.equals("404")) {
                 jeproLabAnalyzeRedirect.setValue(bundle.getString("JEPROLAB_" + label + "_LABEL"));
             }
         }
@@ -381,17 +389,17 @@ public class JeproLabAnalyzeAddController extends JeproLabController{
         visibilities[2] = "search";
         visibilities[3] = "none";
         jeproLabAnalyzeVisibility.getItems().clear();
-        for(String label : visibilities) {
-            jeproLabAnalyzeVisibility.getItems().add(bundle.getString("JEPROLAB_" + label.toUpperCase() +"_LABEL"));
-            if(analyze.analyze_id > 0 && label.equals(analyze.visibility)){
-                jeproLabAnalyzeVisibility.setValue(bundle.getString("JEPROLAB_" + label.toUpperCase() +"_LABEL"));
-            }else if(label.equals("both")){
-                jeproLabAnalyzeVisibility.setValue(bundle.getString("JEPROLAB_" + label.toUpperCase() +"_LABEL"));
+        for (String label : visibilities) {
+            jeproLabAnalyzeVisibility.getItems().add(bundle.getString("JEPROLAB_" + label.toUpperCase() + "_LABEL"));
+            if (analyze.analyze_id > 0 && label.equals(analyze.visibility)) {
+                jeproLabAnalyzeVisibility.setValue(bundle.getString("JEPROLAB_" + label.toUpperCase() + "_LABEL"));
+            } else if (label.equals("both")) {
+                jeproLabAnalyzeVisibility.setValue(bundle.getString("JEPROLAB_" + label.toUpperCase() + "_LABEL"));
             }
         }
     }
 
-    private void initImagesForm(){
+    private void initImagesForm() {
         /* if ((bool)$this->product->product_id){
             if ($this->product_exists_in_shop){
                 $shops = false;
@@ -465,7 +473,7 @@ public class JeproLabAnalyzeAddController extends JeproLabController{
         } */
     }
 
-    private void initFeaturesForm(){
+    private void initFeaturesForm() {
         //if (!$this->context.controller->default_form_language){ $this->context.controller->getLanguages(); }
 
         /*$data = $this->createTemplate($this->tpl_form);
@@ -517,7 +525,7 @@ public class JeproLabAnalyzeAddController extends JeproLabController{
 */
     }
 
-    private void initAttachmentForm(){
+    private void initAttachmentForm() {
         /*if (!$this->context.controller->default_form_language){
             $this->languages = $this->context.controller->getLanguages();
         }
@@ -563,7 +571,7 @@ public class JeproLabAnalyzeAddController extends JeproLabController{
             $this->displayWarning($this->l('You must save this product before adding attachements.')); */
     }
 
-    private void initCustomizationsForm(){ /*
+    private void initCustomizationsForm() { /*
         if ((bool)$this->product->product_id){
             if ($this->product_exists_in_shop){
                 $labels = $this->product->getCustomizationFields();
@@ -591,7 +599,7 @@ public class JeproLabAnalyzeAddController extends JeproLabController{
 
     }
 
-    private void initQuantitiesForm(){
+    private void initQuantitiesForm() {
         /*if(!$this->context.controller->default_form_language){
             $this->languages = $this->context.controller->getLanguages();
         }
@@ -735,7 +743,7 @@ public class JeproLabAnalyzeAddController extends JeproLabController{
         } */
     }
 
-    private void initShippingForm(){
+    private void initShippingForm() {
         /*$dimension_unit = JeproLabSettingModelSetting::getValue('dimension_unit');
        //$this->assignRef('dimension_unit', $dimension_unit);
         $weight_unit = JeproLabSettingModelSetting::getValue('weight_unit');
@@ -760,7 +768,7 @@ public class JeproLabAnalyzeAddController extends JeproLabController{
         return $carrier_list; * /
     }*/
 
-    private void initAttributesForm(){
+    private void initAttributesForm() {
         /* if(!JeproLabCombinationModelCombination::isFeaturePublished()){
             $settingPanelLink = '<a href="#" >' . JText::_('COM_JEPROSHOP_PERFORMANCE_LABEL') . '</a>';
             JError::raiseWarning(500, JText::_('COM_JEPROSHOP_FEATURE_HAS_BEEN_DISABLED_MESSAGE') . $settingPanelLink);
@@ -811,7 +819,7 @@ public class JeproLabAnalyzeAddController extends JeproLabController{
         } */
     }
 
-    private void initAssociationsForm(){
+    private void initAssociationsForm() {
         /* $app = JFactory::getApplication();
         /** prepare category tree ** /
         $root = JeproLabCategoryModelCategory::getRootCategory();
@@ -867,7 +875,7 @@ public class JeproLabAnalyzeAddController extends JeproLabController{
        //$this->assignRef('is_shop_context', $is_shop_context); */
     }
 
-    private void initSuppliersForm(){
+    private void initSuppliersForm() {
         /*if ($this->product->product_id){
             if ($this->product_exists_in_shop){
                 // Get all id_product_attribute
@@ -939,8 +947,10 @@ public class JeproLabAnalyzeAddController extends JeproLabController{
         //$this->tpl_form_vars['custom_form'] = $data->fetch();
     }
 
-    private void initPriceForm(){
-        if(context == null){ context = JeproLabContext.getContext(); }
+    private void initPriceForm() {
+        if (context == null) {
+            context = JeproLabContext.getContext();
+        }
         /** Setting and laying out Attached file form **/
         jeproLabAnalyzePriceTabForm.setText(bundle.getString("JEPROLAB_PRICE_LABEL"));
         jeproLabAnalyzePriceLayout.getColumnConstraints().addAll(
@@ -977,33 +987,33 @@ public class JeproLabAnalyzeAddController extends JeproLabController{
         jeproLabAnalyzeSpecificPriceToLabel.getStyleClass().add("input-label");
 
         GridPane.setMargin(jeproLabAnalyzeWholeSalePriceLabel, new Insets(10, 10, 5, 10));
-        GridPane.setMargin(jeproLabAnalyzeWholeSalePrice, new Insets(10, 10, 5, 10));
-        GridPane.setMargin(jeproLabAnalyzePriceTaxExcluded, new Insets(10, 10, 5, 10));
+        GridPane.setMargin(jeproLabAnalyzeWholeSalePrice, new Insets(10, 10, 5, 0));
+        GridPane.setMargin(jeproLabAnalyzePriceTaxExcluded, new Insets(10, 10, 5, 0));
         GridPane.setMargin(jeproLabAnalyzePriceTaxRuleLabel, new Insets(5, 10, 5, 10));
-        GridPane.setMargin(jeproLabAnalyzePriceTaxRuleWrapper, new Insets(5, 10, 5, 10));
-        GridPane.setMargin(jeproLabAnalyzePriceUseEcoTax, new Insets(5, 10, 5, 10));
+        GridPane.setMargin(jeproLabAnalyzePriceTaxRuleWrapper, new Insets(5, 10, 5, 0));
+        GridPane.setMargin(jeproLabAnalyzePriceUseEcoTax, new Insets(5, 10, 5, 0));
         GridPane.setMargin(jeproLabAnalyzePriceTaxIncludedLabel, new Insets(5, 10, 5, 10));
-        GridPane.setMargin(jeproLabAnalyzePriceTaxIncluded, new Insets(5, 10, 5, 10));
+        GridPane.setMargin(jeproLabAnalyzePriceTaxIncluded, new Insets(5, 10, 5, 0));
         GridPane.setMargin(jeproLabAnalyzeSpecificPriceFromLabel, new Insets(5, 10, 5, 10));
         GridPane.setMargin(jeproLabAnalyzeSpecificPriceToLabel, new Insets(5, 10, 5, 10));
-        GridPane.setMargin(jeproLabAnalyzeSpecificPriceFrom, new Insets(5, 10, 5, 10));
-        GridPane.setMargin(jeproLabAnalyzeSpecificPriceTo, new Insets(5, 10, 5, 10));
+        GridPane.setMargin(jeproLabAnalyzeSpecificPriceFrom, new Insets(5, 10, 5, 0));
+        GridPane.setMargin(jeproLabAnalyzeSpecificPriceTo, new Insets(5, 10, 5, 0));
         //GridPane.setMargin(jeproLabAnalyzeUnitPriceLabel, new Insets(5, 10, 5, 10));
-        GridPane.setMargin(jeproLabAnalyzeUnitPriceWrapper, new Insets(5, 10, 5, 10));
+        GridPane.setMargin(jeproLabAnalyzeUnitPriceWrapper, new Insets(5, 10, 5, 0));
         GridPane.setMargin(jeproLabAnalyzeFinalPriceWithoutTaxLabel, new Insets(5, 10, 5, 10));
-        GridPane.setMargin(jeproLabAnalyzeFinalPriceWithoutTax, new Insets(5, 10, 5, 10));
-        GridPane.setMargin(jeproLabAnalyzeIsOnSale, new Insets(5, 10, 5, 10));
+        GridPane.setMargin(jeproLabAnalyzeFinalPriceWithoutTax, new Insets(5, 10, 5, 0));
+        GridPane.setMargin(jeproLabAnalyzeIsOnSale, new Insets(5, 10, 5, 0));
         //GridPane.setMargin(, new Insets(5, 10, 5, 10));
         //GridPane.setMargin(, new Insets(5, 10, 5, 10));
 
-        if(analyze.analyze_id > 0){
+        if (analyze.analyze_id > 0) {
             List<JeproLabLaboratoryModel> laboratories = JeproLabLaboratoryModel.getLaboratories();
             List<JeproLabCountryModel> countries = JeproLabCountryModel.getCountries(context.language.language_id);
             List<JeproLabGroupModel> groups = JeproLabGroupModel.getGroups(context.language.language_id);
             List<JeproLabCurrencyModel> currencies = JeproLabCurrencyModel.getCurrencies();
             ResultSet attributeGroups = analyze.getAttributesGroups(context.language.language_id);
             List combinations = new ArrayList<>();
-            if(attributeGroups != null){
+            if (attributeGroups != null) {
                 /*try {
                     while(attributeGroups.next()) {
                         $combinations[$attribute -> product_attribute_id] = new JObject();
@@ -1034,66 +1044,67 @@ public class JeproLabAnalyzeAddController extends JeproLabController{
                 }*/
             }
             displaySpecificPriceModificationForm(context.currency, laboratories, currencies, countries, groups);
-           //$this->assignRef('specific_price_modification_form', $specificPriceModificationForm);
-           //$this->assignRef('ecotax_tax_excluded', $this->product->ecotax);
+            //$this->assignRef('specific_price_modification_form', $specificPriceModificationForm);
+            //$this->assignRef('ecotax_tax_excluded', $this->product->ecotax);
             //$this->applyTaxToEcotax();
 
-           //$this->assignRef('shops', $shops);
+            //$this->assignRef('shops', $shops);
             boolean adminOneLaboratories = context.employee.getAssociatedLaboratories().size() >= 1;
-           //$this->assignRef('admin_one_shop', $admin_one_shop);
-           //$this->assignRef('currencies', $currencies);
-           //$this->assignRef('currency', $this->context.currency);
-           //$this->assignRef('countries', $countries);
-           //$this->assignRef('groups', $groups);
-           //$this->assignRef('combinations', $combinations);
+            //$this->assignRef('admin_one_shop', $admin_one_shop);
+            //$this->assignRef('currencies', $currencies);
+            //$this->assignRef('currency', $this->context.currency);
+            //$this->assignRef('countries', $countries);
+            //$this->assignRef('groups', $groups);
+            //$this->assignRef('combinations', $combinations);
             boolean multiShop = JeproLabLaboratoryModel.isFeaturePublished();
             //$this->assignRef('multi_shop', $multiShop);
         } else {
             //JeproLabTools.displayWarning(500, bundle.getString("JEPROLAB_YOU_MUST_SAVE_THIS_ANALYZE_BEFORE_ADDING_SPECIFIC_PRICING_MESSAGE"));
             analyze.tax_rules_group_id = JeproLabAnalyzeModel.getMostUsedTaxRulesGroupId();
-           //$this->assignRef('ecotax_tax_excluded', 0);
+            //$this->assignRef('ecotax_tax_excluded', 0);
         }
         boolean useTax = JeproLabSettingModel.getIntValue("use_tax") > 0;
-       //$this->assignRef('use_tax', $use_tax);
+        //$this->assignRef('use_tax', $use_tax);
         boolean useEcotax = JeproLabSettingModel.getIntValue("use_eco_tax") > 0;
-       //$this->assignRef('use_ecotax', $use_ecotax);
+        //$this->assignRef('use_ecotax', $use_ecotax);
         List<JeproLabTaxRulesGroupModel> taxRulesGroups = JeproLabTaxRulesGroupModel.getTaxRulesGroups(true);
-       //$this->assignRef('tax_rules_groups', $tax_rules_groups);
+        //$this->assignRef('tax_rules_groups', $tax_rules_groups);
         Map<Integer, Float> taxesRatesByGroup = JeproLabTaxRulesGroupModel.getAssociatedTaxRatesByCountryId(context.country.country_id);
-       //$this->assignRef('taxesRatesByGroup', $taxesRatesByGroup);
+        //$this->assignRef('taxesRatesByGroup', $taxesRatesByGroup);
         float ecotaxTaxRate = JeproLabTaxModel.getAnalyzeEcotaxRate();
-       //$this->assignRef('ecotaxTaxRate', $ecotaxTaxRate);
+        //$this->assignRef('ecotaxTaxRate', $ecotaxTaxRate);
         boolean taxExcludeTaxOption = JeproLabTaxModel.excludeTaxOption();
-       //$this->assignRef('tax_exclude_tax_option', $tax_exclude_tax_option);
+        //$this->assignRef('tax_exclude_tax_option', $tax_exclude_tax_option);
 
         analyze.price = JeproLabTools.convertPrice(analyze.price, context.currency.currency_id, true, context);
         float unitPrice = 0;
-        if(analyze.unit_price_ratio != 0){
+        if (analyze.unit_price_ratio != 0) {
             unitPrice = JeproLabTools.roundPrice(analyze.price / analyze.unit_price_ratio, 2);
         }
-       //$this->assignRef('unit_price', $unit_price); */
+        //$this->assignRef('unit_price', $unit_price); */
     }
-/*
-    protected void displayLabelFields(&$obj, &$labels, $default_language, $type){
-        /*$content = '';
-        $type = (int)($type);
-        $labelGenerated = array(JeproLabAnalyzeModel.::CUSTOMIZE_FILE => (isset($labels[JeproLabAnalyzeModel.::CUSTOMIZE_FILE]) ? count($labels[JeproLabAnalyzeModel.::CUSTOMIZE_FILE]) : 0), JeproLabAnalyzeModel.::CUSTOMIZE_TEXT_FIELD => (isset($labels[JeproLabAnalyzeModel.::CUSTOMIZE_TEXT_FIELD]) ? count($labels[JeproLabAnalyzeModel.::CUSTOMIZE_TEXT_FIELD]) : 0));
 
-        $fieldIds = $this->product->getCustomizationFieldIds($labels, $labelGenerated, $obj);
-        if (isset($labels[$type]))
-            foreach ($labels[$type] as $id_customization_field => $label)
-        $content .= $this->displayLabelField($label, $default_language, $type, $fieldIds, (int)($id_customization_field));
-        return $content; * /
-    } * /
-*/
-    private void displaySpecificPriceModificationForm(JeproLabCurrencyModel defaultCurrency, List<JeproLabLaboratoryModel> laboratories, List<JeproLabCurrencyModel> currencies, List<JeproLabCountryModel> countries, List<JeproLabGroupModel> groups){
+    /*
+        protected void displayLabelFields(&$obj, &$labels, $default_language, $type){
+            /*$content = '';
+            $type = (int)($type);
+            $labelGenerated = array(JeproLabAnalyzeModel.::CUSTOMIZE_FILE => (isset($labels[JeproLabAnalyzeModel.::CUSTOMIZE_FILE]) ? count($labels[JeproLabAnalyzeModel.::CUSTOMIZE_FILE]) : 0), JeproLabAnalyzeModel.::CUSTOMIZE_TEXT_FIELD => (isset($labels[JeproLabAnalyzeModel.::CUSTOMIZE_TEXT_FIELD]) ? count($labels[JeproLabAnalyzeModel.::CUSTOMIZE_TEXT_FIELD]) : 0));
+
+            $fieldIds = $this->product->getCustomizationFieldIds($labels, $labelGenerated, $obj);
+            if (isset($labels[$type]))
+                foreach ($labels[$type] as $id_customization_field => $label)
+            $content .= $this->displayLabelField($label, $default_language, $type, $fieldIds, (int)($id_customization_field));
+            return $content; * /
+        } * /
+    */
+    private void displaySpecificPriceModificationForm(JeproLabCurrencyModel defaultCurrency, List<JeproLabLaboratoryModel> laboratories, List<JeproLabCurrencyModel> currencies, List<JeproLabCountryModel> countries, List<JeproLabGroupModel> groups) {
         TableView specificPriceTableView = new TableView();
         TableColumn rulesColumn, combinationColumn, labsColumn, currenciesColumn, countriesColumn, groupsColumn, customerColumn;
         TableColumn fixedPriceColumn, impactColumn, periodColumn, actionsColumn, fromColumn;
         boolean multiLab = JeproLabLaboratoryModel.isFeaturePublished();
         jeproLabAnalyzeSpecificPriceModificationLabel.setText(bundle.getString("JEPROLAB_SPECIFIC_PRICE_LABEL"));
 
-        if(analyze != null) {
+        if (analyze != null) {
             List<JeproLabSpecificPriceModel> specificPrices = JeproLabSpecificPriceModel.getSpecificPricesByAnalyzeId(analyze.analyze_id);
             String specificPricePriorities = JeproLabSpecificPriceModel.getPriority(analyze.analyze_id);
 
@@ -1129,7 +1140,7 @@ public class JeproLabAnalyzeAddController extends JeproLabController{
             $groups = $tmp;*/
             specificPriceTableView.getColumns().addAll(rulesColumn, combinationColumn);
 
-            if(multiLab){
+            if (multiLab) {
                 labsColumn = new TableColumn(bundle.getString("JEPROLAB_LABORATORIES_LABEL"));
                 specificPriceTableView.getColumns().add(labsColumn);
             }
@@ -1267,7 +1278,7 @@ public class JeproLabAnalyzeAddController extends JeproLabController{
         }
     }
 
-    private void getCombinationImages(){
+    private void getCombinationImages() {
         /*if (!$this->loadObject(true)){ return; }
         $content = 'var combination_images = new Array();';
         $allCombinationImages = $this->product->getCombinationImages($this->context.language->lang_id);
@@ -1354,33 +1365,33 @@ public class JeproLabAnalyzeAddController extends JeproLabController{
         return loadObject(false);
     }*/
 
-    private boolean loadObject(boolean option){
+    private boolean loadObject(boolean option) {
         int analyzeId = JeproLab.request.getRequest().containsKey("analyze_id") ? Integer.parseInt(JeproLab.request.getRequest().get("analyze_id")) : 0;
 
         boolean isLoaded = false;
-        if(analyzeId > 0){
-            if(analyze == null){
+        if (analyzeId > 0) {
+            if (analyze == null) {
                 analyze = new JeproLabAnalyzeModel(analyzeId);
             }
 
-            if(analyze.analyze_id <= 0){
+            if (analyze.analyze_id <= 0) {
                 JeproLabTools.displayError(500, bundle.getString("JEPROLAB_ANALYZE_NOT_FOUND_MESSAGE"));
                 isLoaded = false;
-            }else{
+            } else {
                 isLoaded = true;
             }
-        }else if(option){
-            if(analyze == null){
+        } else if (option) {
+            if (analyze == null) {
                 analyze = new JeproLabAnalyzeModel();
             }
-        }else{
+        } else {
             JeproLabTools.displayError(500, bundle.getString("JEPROSHOP_ANALYZE_DOES_NOT_EXIST_MESSAGE"));
             isLoaded = false;
         }
 
         //specified
-        if(isLoaded && analyze.analyze_id > 0){
-            if(JeproLabLaboratoryModel.getLabContext() == JeproLabLaboratoryModel.LAB_CONTEXT && JeproLabLaboratoryModel.isFeaturePublished() && !analyze.isAssociatedToLaboratory()){
+        if (isLoaded && analyze.analyze_id > 0) {
+            if (JeproLabLaboratoryModel.getLabContext() == JeproLabLaboratoryModel.LAB_CONTEXT && JeproLabLaboratoryModel.isFeaturePublished() && !analyze.isAssociatedToLaboratory()) {
                 analyze = new JeproLabAnalyzeModel(analyze.analyze_id, false, 0, analyze.default_laboratory_id);
             }
             analyze.loadStockData();
@@ -1389,30 +1400,57 @@ public class JeproLabAnalyzeAddController extends JeproLabController{
     }
 
     @Override
-    public void updateToolBar(){
+    public void updateToolBar() {
         HBox commandWrapper = JeproLab.getInstance().getApplicationToolBarCommandWrapper();
         commandWrapper.getChildren().clear();
         commandWrapper.setSpacing(4);
         saveAnalyzeBtn = new Button("", new ImageView(new Image(JeproLab.class.getResourceAsStream("resources/images/floppy-icon.png"))));
-        if(analyze.analyze_id > 0) {
+        if (analyze.analyze_id > 0) {
             saveAnalyzeBtn.setText(bundle.getString("JEPROLAB_UPDATE_LABEL"));
-        }else{
+        } else {
             saveAnalyzeBtn.setText(bundle.getString("JEPROLAB_SAVE_LABEL"));
         }
         cancelBtn = new Button(bundle.getString("JEPROLAB_CANCEL_LABEL"), new ImageView(new Image(JeproLab.class.getResourceAsStream("resources/images/unpublished.png"))));
         saveAnalyzeBtn.setOnMouseClicked(evt -> {
+            String analyzeVisibility;
+            if (jeproLabAnalyzeVisibility.getValue().equals(bundle.getString("JEPROLAB_CATALOG_LABEL"))) {
+                analyzeVisibility = "catalog";
+            } else if (jeproLabAnalyzeVisibility.getValue().equals(bundle.getString("JEPROLAB_SEARCH_LABEL"))) {
+                analyzeVisibility = "search";
+            } else if (jeproLabAnalyzeVisibility.getValue().equals(bundle.getString("JEPROLAB_NONE_LABEL"))) {
+                analyzeVisibility = "none";
+            } else {
+                analyzeVisibility = "both";
+            }
+
+            String analyzeRedirect;
+            if (jeproLabAnalyzeRedirect.getValue().equals(bundle.getString("JEPROLAB_301_LABEL"))) {
+                analyzeRedirect = "301";
+            } else if (jeproLabAnalyzeRedirect.getValue().equals(bundle.getString("JEPROLAB_302_LABEL"))) {
+                analyzeRedirect = "302";
+            }else{
+                analyzeRedirect = "404";
+            }
+
             String post = "reference=" + jeproLabAnalyzeReference.getText() + "&ean13=" + jeproLabAnalyzeEan13.getText() + "&upc=" + jeproLabAnalyzeUpc.getText();
-            post += "&published=" + (jeproLabAnalyzePublished.isSelected() ? "1" : "0") + "&redirect_type=" + jeproLabAnalyzeVisibility.getValue().toString() + "&available_for_order=";
-            //post += jeproLabAnalyzeAvailableForOrder + "&show_price=" + jeproLabAnalyzeShowPrice + "&online_only=" + jeproLabAnalyzeOnlineOnly + "&visibility=" + jeproLabAnalyzeVisibility.getValue().toString() +"&redirect_id=" + jeproLabAnalyzeRedirect.getValue().toString();
+            post += "&published=" + (jeproLabAnalyzePublished.isSelected() ? "1" : "0") + "&redirect_type=" + jeproLabAnalyzeVisibility.getValue() + "&available_for_order=";
+            post += (jeproLabAnalyzeAvailableForOrder.isSelected() ? "1" : "0") + "&show_price=" + (jeproLabAnalyzeShowPrice.isSelected() ? "1" : "0") + "&visibility=";
+            post += analyzeVisibility + "&redirect_id=" + analyzeRedirect + "&delay=" + (jeproLabAnalyzeDelay.getText().equals("") ? 0 : jeproLabAnalyzeDelay.getText());
+
             JeproLab.request.setPost(post);
 
-            if(analyze.analyze_id > 0){
+            if (analyze.analyze_id > 0) {
                 analyze.update();
-            }else {
+            } else {
                 //JeproLabAnalyzeModel
                 int savedId = analyze.save();
             }
         });
         commandWrapper.getChildren().addAll(saveAnalyzeBtn, cancelBtn);
+    }
+
+    private void addEventListener(){
+        jeproLabAnalyzeDelay.addEventFilter(KeyEvent.KEY_TYPED , JeproLabTools.numericValidation(2));
+        jeproLabAnalyzeUpc.addEventFilter(KeyEvent.KEY_TYPED, JeproLabTools.upcValidation());
     }
 }

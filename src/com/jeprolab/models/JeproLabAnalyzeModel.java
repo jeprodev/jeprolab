@@ -697,21 +697,23 @@ public class JeproLabAnalyzeModel extends JeproLabModel {
         String analyzeRedirectType = post.get("redirect_type");
         int availableForOrder = Integer.parseInt(post.get("available_for_order"));
         int showPrice = Integer.parseInt(post.get("show_price"));
-        int onlineOnly = Integer.parseInt(post.get("online_only"));
+        int onlineOnly = 0; //Integer.parseInt(post.get("online_only"));
         String analyzeVisibility = post.get("visibility");
         int analyzeRedirectId = Integer.parseInt(post.get("redirect_id"));
-        String analyzeCondition = post.get("delay");
+        String analyzeDelay = post.get("delay");
+
+        //this.date_add =  ;
 
         String query = "INSERT INTO " + dataBaseObject.quoteName("#__jeprolab_analyze") + "("  + dataBaseObject.quoteName("reference") + ", " ;
         query +=  dataBaseObject.quoteName("ean13") + ", " + dataBaseObject.quoteName("upc") + ", "  + dataBaseObject.quoteName("published");
         query += ", "  + dataBaseObject.quoteName("redirect_type") + ", " + dataBaseObject.quoteName("visibility") + ", " ;
-        query += dataBaseObject.quoteName("condition") + ", "  + dataBaseObject.quoteName("available_for_order") + ", "  + dataBaseObject.quoteName("show_price") + ", ";
+        query += dataBaseObject.quoteName("delay") + ", "  + dataBaseObject.quoteName("available_for_order") + ", "  + dataBaseObject.quoteName("show_price") + ", ";
         query += dataBaseObject.quoteName("online_only") + ", " + dataBaseObject.quoteName("default_lab_id") + ", " + dataBaseObject.quoteName("analyze_redirected_id");
         query += ", " + dataBaseObject.quoteName("date_add") + ", " + dataBaseObject.quoteName("date_upd") + " ) VALUES(" + dataBaseObject.quote(analyzeReference, true) ;
         query += ", " + dataBaseObject.quote(analyzeEan13, true) + ", " + dataBaseObject.quote(analyzeUpc, true) + ", " + analyzePublished;
-        query += ", " + dataBaseObject.quote(analyzeRedirectType, true) + ", " + dataBaseObject.quote(analyzeVisibility, true) + ", " + dataBaseObject.quote(analyzeCondition);
+        query += ", " + dataBaseObject.quote(analyzeRedirectType, true) + ", " + dataBaseObject.quote(analyzeVisibility, true) + ", " + analyzeDelay;
         query += ", " + availableForOrder + ", " + showPrice + ", " + onlineOnly + ", " + default_laboratory_id + ", " + analyzeRedirectId + ", ";
-        query += dataBaseObject.quote(this.date_add.toString())+ ", " + dataBaseObject.quote(this.date_upd.toString()) + ") ";
+        query += dataBaseObject.quote(JeproLabTools.date("yyyy-MM-dd hh:mm:ss"))+ ", " + dataBaseObject.quote(JeproLabTools.date("yyyy-MM-dd hh:mm:ss")) + ") ";
 
         System.out.println(query);
         /*if (!parent::add($autodate, $null_values)) {
@@ -990,7 +992,7 @@ public class JeproLabAnalyzeModel extends JeproLabModel {
 
         String query = "SELECT analyze_attribute.analyze_attribute_id FROM " + staticDataBaseObject.quoteName("#__jeprolab_analyze_attribute");
         query += " AS analyze_attribute " + JeproLabLaboratoryModel.addSqlAssociation("analyze_attribute") + " WHERE analyze_attribute.analyze_id = " + analyzeId;
-        System.out.println(query);
+
         staticDataBaseObject.setQuery(query);
         int resultNoFilter = (int)staticDataBaseObject.loadValue("analyze_attribute_id");
         if (resultNoFilter <= 0) {
@@ -2510,7 +2512,7 @@ public class JeproLabAnalyzeModel extends JeproLabModel {
         }
 
         String query = "SELECT COUNT(*) AS attributes FROM " + dataBaseObject.quoteName("#__jeprolab_analyze_attribute") + " AS analyze_attribute ";
-        query += JeproLabLaboratoryModel.addSqlAssociation("analyze_attribute") + " WHERE attribute_analyze." + dataBaseObject.quoteName("analyze_id");
+        query += JeproLabLaboratoryModel.addSqlAssociation("analyze_attribute") + " WHERE analyze_attribute." + dataBaseObject.quoteName("analyze_id");
         query += " = " + this.analyze_id;
 
         dataBaseObject.setQuery(query);
@@ -4012,7 +4014,7 @@ public class JeproLabAnalyzeModel extends JeproLabModel {
         query += " AND attribute_lang." + dataBaseObject.quoteName("lang_id") + " = " + langId + " AND attribute_group_lang." + dataBaseObject.quoteName("lang_id") + " = " + langId;
         query += " GROUP BY attribute_group_id, analyze_attribute_id ORDER BY attribute_group." + dataBaseObject.quoteName("position") + " ASC, attribute.";
         query += dataBaseObject.quoteName("position") + " ASC, " + " attribute_group_lang." + dataBaseObject.quoteName("name") + " ASC";
-        System.out.println(JeproLabLaboratoryModel.addSqlAssociation("analyze_attribute"));
+
         dataBaseObject.setQuery(query);
         return dataBaseObject.loadObject();
     }
@@ -6273,7 +6275,7 @@ public function getAnchor($id_product_attribute, $with_id = false)
             where = " WHERE analyze_attribute.analyze_id = " + analyzeId + " AND analyze_attribute.analyze_attribute_id = " + analyzeAttributeId;
         } else {
             from = " FROM " + staticDataBaseObject.quoteName("#__jeprolab_analyze_lang") + " AS analyze_lang";
-            where = " WHERE analyze_lang.analyze_id = " + analyzeId + " AND analyze_lang."  + staticDataBaseObject.quoteName("lang_id");
+            where = " WHERE analyze_lang.analyze_id = " + analyzeId + " AND analyze_lang." + staticDataBaseObject.quoteName("lang_id") + " = ";
             where += langId + JeproLabLaboratoryModel.addSqlRestrictionOnLang("analyze_lang");
         }
         staticDataBaseObject.setQuery(select + from + leftJoin + innerJoin + where);
@@ -6512,19 +6514,19 @@ public function hasAttributesInOtherShops()
         );
         }
 */
-    public static int getMostUsedTaxRulesGroupId(){
-        if(staticDataBaseObject == null){
+    public static int getMostUsedTaxRulesGroupId() {
+        if (staticDataBaseObject == null) {
             staticDataBaseObject = JeproLabFactory.getDataBaseConnector();
         }
 
         String query = "SELECT tax_rules_group_id FROM ( SELECT COUNT(*) n, analyze_lab.tax_rules_group_id FROM " + staticDataBaseObject.quoteName("#__jeprolab_analyze");
-        query += " analyze " + JeproLabLaboratoryModel.addSqlAssociation("analyze") + " JOIN " + staticDataBaseObject.quoteName("#__jeprolab_tax_rules_group");
-        query += " AS tax_rules_group ON (analyze_lab.tax_rules_group_id = tax_rules_group.tax_rules_group_id) WHERE tax_rules_group.published = 1 AND ";
-        query += " tax_rules_group.deleted = 0 GROUP BY analyze_lab.tax_rules_group_id ORDER BY n DESC LIMIT 1 ) most_used";
+        query += " analze " + JeproLabLaboratoryModel.addSqlAssociation("analyze") + " LEFT JOIN " + staticDataBaseObject.quoteName("#__jeprolab_tax_rules_group");
+        query += " AS tax_rules_group ON (analyze_lab.tax_rules_group_id = tax_rules_group.tax_rules_group_id) WHERE tax_rules_group.published = 1 ";
+        query += " GROUP BY analyze_lab.tax_rules_group_id ORDER BY n DESC LIMIT 1 ) most_used";
 
         staticDataBaseObject.setQuery(query);
-        return (int)staticDataBaseObject.loadValue("tax_rules_group_id");
-        }
+        return (int) staticDataBaseObject.loadValue("most_used");
+    }
 
 /*
  * For a given ean13 reference, returns the corresponding id
