@@ -111,7 +111,7 @@ public class JeproLabStockAvailableModel extends  JeproLabModel{
         return 0;
     }
 
-    public static function synchronize(int analyzeId) {
+    public static void synchronize(int analyzeId) {
         synchronize(analyzeId, 0);
     }
 
@@ -120,7 +120,7 @@ public class JeproLabStockAvailableModel extends  JeproLabModel{
      *
      * @param int analyzeId
      */
-    public static function synchronize(int analyzeId, int orderLabId) {
+    public static void synchronize(int analyzeId, int orderLabId) {
         if (analyzeId > 0) {
             //if analyze is pack recursive sync  analyze in pack
             if (JeproLabAnalyzePackModel.isPack(analyzeId)){
@@ -132,9 +132,9 @@ public class JeproLabStockAvailableModel extends  JeproLabModel{
                             JeproLabStockAvailableModel.synchronize(analyzePack.analyze_id, orderLabId);
                         }
                     }
-                }else{
+                }/*else{
                     return false;
-                }
+                } */
             }
 
             // gets warehouse ids grouped by shops
@@ -175,11 +175,11 @@ public class JeproLabStockAvailableModel extends  JeproLabModel{
                     // if it's a simple product
                     if (analyzeAttributeIds.isEmpty()){
                         $allowedWarehouseForAnalyze = JeproLabWarehouseModel.getAnalyzeWarehouseList(analyzeId, 0, labId);
-                        $allowedWarehouseForAnalyzeClean = array();
+                        List allowedWarehouseForAnalyzeClean = new ArrayList<>();
                         foreach($allowed_warehouse_for_product as $warehouse) {
                             $allowed_warehouse_for_product_clean[]=(int) $warehouse['id_warehouse'];
                         }
-                        $allowed_warehouse_for_product_clean = array_intersect($allowed_warehouse_for_product_clean, $warehouses);
+                        allowedWarehouseForAnalyzeClean = array_intersect($allowed_warehouse_for_product_clean, $warehouses);
                         if ($order_id_shop != null && !count(array_intersect($allowed_warehouse_for_product_clean, $order_warehouses))) {
                             continue;
                         }

@@ -271,40 +271,53 @@ public class JeproLabWarehouseModel extends  JeproLabModel{
         $query->where('id_product_attribute = '.(int)$id_product_attribute);
 
         return (Db::getInstance(_PS_USE_SQL_SLAVE_)->getValue($query));
+    } **/
+
+    public static List getAnalyzeWarehouseList(int analyzeId){
+        return getAnalyzeWarehouseList(analyzeId, 0, 0);
+    }
+
+    public static List getAnalyzeWarehouseList(int analyzeId, int analyzeAttributeId){
+        return getAnalyzeWarehouseList(analyzeId, analyzeAttributeId, 0);
     }
 
     /**
      * For a given {product, product attribute} gets warehouse list
      *
-     * @param int $id_product ID of the product
-     * @param int $id_product_attribute Optional, uses 0 if this product does not have attributes
-     * @param int $id_shop Optional, ID of the shop. Uses the context shop id (@see Context::shop)
+     * @param analyzeId ID of the analyze id
+     * @param analyzeAttributeId Optional, uses 0 if this product does not have attributes
+     * @param labId Optional, ID of the shop. Uses the context shop id (@see Context::shop)
      * @return array Warehouses (ID, reference/name concatenated)
-     * /
-    public static function getProductWarehouseList($id_product, $id_product_attribute = 0, $id_shop = null)
-    {
+     */
+    public static List getAnalyzeWarehouseList(int analyzeId, int analyzeAttributeId, int labId){
         // if it's a pack, returns warehouses if and only if some products use the advanced stock management
-        $share_stock = false;
-        if ($id_shop === null) {
-            if (Shop::getContext() == Shop::CONTEXT_GROUP) {
-                $shop_group = Shop::getContextShopGroup();
+        boolean shareStock = false;
+        JeproLabLaboratoryGroupModel labGroup;
+        if (labId <= 0) {
+            if (JeproLabLaboratoryModel.getLabContext() == JeproLabLaboratoryModel.GROUP_CONTEXT){
+                labGroup = JeproLabLaboratoryModel.getContextLaboratoryGroup();
             } else {
-                $shop_group = Context::getContext()->shop->getGroup();
-                $id_shop = (int)Context::getContext()->shop->id;
+                labGroup = JeproLabContext.getContext().laboratory.getLaboratoryGroup();
+                labId = JeproLabContext.getContext().laboratory.laboratory_id;
             }
-            $share_stock = $shop_group->share_stock;
+            shareStock = labGroup.share_stock;
         } else {
-            $shop_group = Shop::getGroupFromShop($id_shop);
-            $share_stock = $shop_group['share_stock'];
+            labGroup = JeproLabLaboratoryModel.getLaboratoryGroupFromLaboratory(labId);
+            shareStock = labGroup.share_stock;
+        }
+        List<Integer> labIds;
+        if (shareStock) {
+            labIds = JeproLabLaboratoryModel.getLaboratoryIds(true, labGroup.laboratory_group_id);
+        } else {
+            labIds = new ArrayList<>();
+            labIds.add(labId);
         }
 
-        if ($share_stock) {
-            $ids_shop = Shop::getShops(true, (int)$shop_group->id, true);
-        } else {
-            $ids_shop = array((int)$id_shop);
-        }
-
-        $query = new DbQuery();
+        String query = "SELECT warehouse_analyze_location." + staticDataBaseObject.quoteName("warehouse_id") + ", CONCAT(warehouse.reference,";
+        query += " '-', warehouse.name) as name FROM " + staticDataBaseObject.quoteName("#__jeprolab_warehouse_analyze_location") + " AS ";
+        query += "warehouse_analyze_location INNER JOIN " + staticDataBaseObject.quoteName("#__jeprolab_warehouse_lab") + " AS warehouse_lab ";
+        query += " 0N (warehouse_lab.warehouse_id = warehouse_analyze_location.warehouse_id AND lab_id IN (" + labIds.toString() + ") ";
+        query += " INNER JOIN " + staticDataBaseObject.quoteName("#__jeprolab_warehouse") +
         $query->select('wpl.id_warehouse, CONCAT(w.reference, " - ", w.name) as name');
         $query->from('warehouse_product_location', 'wpl');
         $query->innerJoin('warehouse_shop', 'ws', 'ws.id_warehouse = wpl.id_warehouse AND id_shop IN ('.implode(',', array_map('intval', $ids_shop)).')');
@@ -315,7 +328,8 @@ public class JeproLabWarehouseModel extends  JeproLabModel{
         $query->groupBy('wpl.id_warehouse');
 
         return (Db::getInstance(_PS_USE_SQL_SLAVE_)->executeS($query));
-    } */
+    }
+
     public static ResultSet getWarehouses(){
         return getWarehouses(false, 0);
     }
