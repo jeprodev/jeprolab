@@ -3,11 +3,13 @@ package com.jeprolab.models;
 import com.jeprolab.assets.tools.JeproLabCache;
 import com.jeprolab.assets.tools.JeproLabContext;
 import com.jeprolab.models.core.JeproLabFactory;
+import com.jeprolab.models.stock.JeproLabStockManager;
+import com.jeprolab.models.stock.JeproLabStockManagerFactory;
 import org.apache.commons.collections4.MapIterator;
 
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.*;
 
 /**
  *
@@ -86,15 +88,15 @@ public class JeproLabStockAvailableModel extends  JeproLabModel{
         return $this->update();
     }
 */
-    public static boolean getStockAvailableIdByAnalyzeId(int analyzeId) {
+    public static int getStockAvailableIdByAnalyzeId(int analyzeId) {
         return getStockAvailableIdByAnalyzeId(analyzeId, 0, 0);
     }
 
-    public static boolean getStockAvailableIdByAnalyzeId(int analyzeId, int analyzeAttributeId) {
+    public static int getStockAvailableIdByAnalyzeId(int analyzeId, int analyzeAttributeId) {
         return getStockAvailableIdByAnalyzeId(analyzeId, analyzeAttributeId, 0);
     }
 
-    public static boolean getStockAvailableIdByAnalyzeId(int analyzeId, int analyzeAttributeId, int labId) {
+    public static int getStockAvailableIdByAnalyzeId(int analyzeId, int analyzeAttributeId, int labId) {
         if (analyzeId > 0) {
             String query = "SELECT " + staticDataBaseObject.quoteName("#__jeprolab_stock_available") + " WHERE analyze_id = " + analyzeId;
             if(analyzeAttributeId > 0){
@@ -104,198 +106,244 @@ public class JeproLabStockAvailableModel extends  JeproLabModel{
 
             query += JeproLabStockAvailableModel.addSqlLaboratoryRestriction(new JeproLabLaboratoryModel(labId));
             staticDataBaseObject.setQuery(query);
-            return ((int)staticDataBaseObject.loadValue("stock_available_id")) > 0;
+            return (int)staticDataBaseObject.loadValue("stock_available_id");
         }
-        return false;
+        return 0;
+    }
+
+    public static function synchronize(int analyzeId) {
+        synchronize(analyzeId, 0);
     }
 
     /*
      * For a given id_product, synchronizes StockAvailable::quantity with Stock::usable_quantity
      *
-     * @param int $id_product
-     * /
-    public static function synchronize($id_product, $order_id_shop = null)
-    {
-        if (!Validate::isUnsignedId($id_product)) {
-        return false;
-    }
-
-        //if product is pack sync recursivly product in pack
-        if (Pack::isPack($id_product)) {
-        if (Validate::isLoadedObject($product = new Product((int)$id_product))) {
-            if ($product->pack_stock_type == 1 || $product->pack_stock_type == 2 || ($product->pack_stock_type == 3 && Configuration::get('PS_PACK_STOCK_TYPE') > 0)) {
-                $products_pack = Pack::getItems($id_product, (int)Configuration::get('PS_LANG_DEFAULT'));
-                foreach ($products_pack as $product_pack) {
-                    StockAvailable::synchronize($product_pack->id, $order_id_shop);
-                }
-            }
-        } else {
-            return false;
-        }
-    }
-
-        // gets warehouse ids grouped by shops
-        $ids_warehouse = Warehouse::getWarehousesGroupedByShops();
-        if ($order_id_shop !== null) {
-            $order_warehouses = array();
-            $wh = Warehouse::getWarehouses(false, (int)$order_id_shop);
-            foreach ($wh as $warehouse) {
-                $order_warehouses[] = $warehouse['id_warehouse'];
-            }
-        }
-
-        // gets all product attributes ids
-        $ids_product_attribute = array();
-        foreach (Product::getProductAttributesIds($id_product) as $id_product_attribute) {
-        $ids_product_attribute[] = $id_product_attribute['id_product_attribute'];
-    }
-
-        // Allow to order the product when out of stock?
-        $out_of_stock = StockAvailable::outOfStock($id_product);
-
-        $manager = StockManagerFactory::getManager();
-        // loops on $ids_warehouse to synchronize quantities
-        foreach ($ids_warehouse as $id_shop => $warehouses) {
-        // first, checks if the product depends on stock for the given shop $id_shop
-        if (StockAvailable::dependsOnStock($id_product, $id_shop)) {
-            // init quantity
-            $product_quantity = 0;
-
-            // if it's a simple product
-            if (empty($ids_product_attribute)) {
-                $allowed_warehouse_for_product = WareHouse::getProductWarehouseList((int)$id_product, 0, (int)$id_shop);
-                $allowed_warehouse_for_product_clean = array();
-                foreach ($allowed_warehouse_for_product as $warehouse) {
-                    $allowed_warehouse_for_product_clean[] = (int)$warehouse['id_warehouse'];
-                }
-                $allowed_warehouse_for_product_clean = array_intersect($allowed_warehouse_for_product_clean, $warehouses);
-                if ($order_id_shop != null && !count(array_intersect($allowed_warehouse_for_product_clean, $order_warehouses))) {
-                    continue;
-                }
-
-                $product_quantity = $manager->getProductRealQuantities($id_product, null, $allowed_warehouse_for_product_clean, true);
-
-                Hook::exec('actionUpdateQuantity',
-                        array(
-                                'id_product' => $id_product,
-                        'id_product_attribute' => 0,
-                        'quantity' => $product_quantity,
-                        'id_shop' => $id_shop
-                )
-                );
-            }
-            // else this product has attributes, hence loops on $ids_product_attribute
-            else {
-                foreach ($ids_product_attribute as $id_product_attribute) {
-                    $allowed_warehouse_for_combination = WareHouse::getProductWarehouseList((int)$id_product, (int)$id_product_attribute, (int)$id_shop);
-                    $allowed_warehouse_for_combination_clean = array();
-                    foreach ($allowed_warehouse_for_combination as $warehouse) {
-                        $allowed_warehouse_for_combination_clean[] = (int)$warehouse['id_warehouse'];
+     * @param int analyzeId
+     */
+    public static function synchronize(int analyzeId, int orderLabId) {
+        if (analyzeId > 0) {
+            //if analyze is pack recursive sync  analyze in pack
+            if (JeproLabAnalyzePackModel.isPack(analyzeId)){
+                JeproLabAnalyzeModel analyze = new JeproLabAnalyzeModel(analyzeId);
+                if (analyze.analyze_id > 0){
+                    if (analyze.pack_stock_type == 1 || analyze.pack_stock_type == 2 || (analyze.pack_stock_type == 3 && JeproLabSettingModel.getIntValue("pack_stock_type") > 0)){
+                        List<JeproLabAnalyzeModel> analyzePacks = JeproLabAnalyzePackModel.getItems(analyzeId, JeproLabSettingModel.getIntValue("default_lang"));
+                        for(JeproLabAnalyzeModel analyzePack : analyzePacks) {
+                            JeproLabStockAvailableModel.synchronize(analyzePack.analyze_id, orderLabId);
+                        }
                     }
-                    $allowed_warehouse_for_combination_clean = array_intersect($allowed_warehouse_for_combination_clean, $warehouses);
-                    if ($order_id_shop != null && !count(array_intersect($allowed_warehouse_for_combination_clean, $order_warehouses))) {
-                        continue;
+                }else{
+                    return false;
+                }
+            }
+
+            // gets warehouse ids grouped by shops
+            Map<Integer, List<Integer>> warehouseIds = JeproLabWarehouseModel.getWarehousesGroupedByLaboratories();
+            List<Integer> orderWarehouses = new ArrayList<>();
+            if (orderLabId > 0) {
+                ResultSet warehouses = JeproLabWarehouseModel.getWarehouses(false, orderLabId);
+                if(warehouses != null) {
+                    try {
+                        while(warehouses.next()) {
+                            orderWarehouses.add(warehouses.getInt("warehouse_id"));
+                        }
+                    }catch(SQLException ignored){
+
                     }
+                }
+            }
 
-                    $quantity = $manager->getProductRealQuantities($id_product, $id_product_attribute, $allowed_warehouse_for_combination_clean, true);
+            // gets all analyze attributes ids
+            List<Integer> analyzeAttributeIds = new JeproLabAnalyzeModel.getAnalyzeAttributesIds(analyzeId);
+            /*foreach( as analyzeId_attribute){
+                analyzeAttributeIds.add(analyzeId_attribute['id_product_attribute']);
+            }*/
 
-                    $query = new DbQuery();
-                    $query->select('COUNT(*)');
-                    $query->from('stock_available');
-                    $query->where('id_product = '.(int)$id_product.' AND id_product_attribute = '.(int)$id_product_attribute.
-                            StockAvailable::addSqlShopRestriction(null, $id_shop));
+            // Allow the order when the analyze is out of stock?
+            boolean outOfStock = JeproLabStockAvailableModel.outOfStock(analyzeId);
 
-                    if ((int)Db::getInstance(_PS_USE_SQL_SLAVE_)->getValue($query)) {
-                        $query = array(
-                                'table' => 'stock_available',
-                                'data' => array('quantity' => $quantity),
-                        'where' => 'id_product = '.(int)$id_product.' AND id_product_attribute = '.(int)$id_product_attribute.
-                                StockAvailable::addSqlShopRestriction(null, $id_shop)
-                        );
-                        Db::getInstance()->update($query['table'], $query['data'], $query['where']);
-                    } else {
-                        $query = array(
-                                'table' => 'stock_available',
-                                'data' => array(
-                                'quantity' => $quantity,
-                                'depends_on_stock' => 1,
-                                'out_of_stock' => $out_of_stock,
-                                'id_product' => (int)$id_product,
-                                'id_product_attribute' => (int)$id_product_attribute,
+            JeproLabStockManager manager = JeproLabStockManagerFactory.getManager();
+            String query;
+
+            // loops on warehouseIds to synchronize quantities
+            foreach($ids_warehouse as $id_shop = > $warehouses){
+                // first, checks if the product depends on stock for the given shop $id_shop
+                if (JeproLabStockAvailableModel.dependsOnStock(analyzeId, labId)){
+                    // init quantity
+                    $product_quantity = 0;
+
+                    // if it's a simple product
+                    if (analyzeAttributeIds.isEmpty()){
+                        $allowedWarehouseForAnalyze = JeproLabWarehouseModel.getAnalyzeWarehouseList(analyzeId, 0, labId);
+                        $allowedWarehouseForAnalyzeClean = array();
+                        foreach($allowed_warehouse_for_product as $warehouse) {
+                            $allowed_warehouse_for_product_clean[]=(int) $warehouse['id_warehouse'];
+                        }
+                        $allowed_warehouse_for_product_clean = array_intersect($allowed_warehouse_for_product_clean, $warehouses);
+                        if ($order_id_shop != null && !count(array_intersect($allowed_warehouse_for_product_clean, $order_warehouses))) {
+                            continue;
+                        }
+
+                        $product_quantity = manager.getAnalyzeRealQuantities(analyzeId, null, allowedWarehouseForAnalyzeClean, true);
+
+                        Hook::exec ('actionUpdateQuantity',
+                                array(
+                                        'id_product' = > analyzeId,
+                                'id_product_attribute' =>0,
+                                'quantity' =>$product_quantity,
+                                'id_shop' =>$id_shop
                         )
                         );
-                        StockAvailable::addSqlShopParams($query['data'], $id_shop);
-                        Db::getInstance()->insert($query['table'], $query['data']);
+                    }else {
+                        // else this product has attributes, hence loops on $ids_product_attribute
+                        foreach($ids_product_attribute as analyzeId_attribute) {
+                            $allowed_warehouse_for_combination = WareHouse::getProductWarehouseList
+                            ((int) analyzeId, (int) analyzeId_attribute, (int) $id_shop);
+                            $allowed_warehouse_for_combination_clean = array();
+                            foreach($allowed_warehouse_for_combination as $warehouse) {
+                                $allowed_warehouse_for_combination_clean[]=(int) $warehouse['id_warehouse'];
+                            }
+                            $allowed_warehouse_for_combination_clean = array_intersect($allowed_warehouse_for_combination_clean, $warehouses);
+                            if ($order_id_shop != null && !count(array_intersect($allowed_warehouse_for_combination_clean, $order_warehouses))) {
+                                continue;
+                            }
+
+                            int quantity = manager.getAnalyzeRealQuantities(analyzeId, analyzeAttributeIds, allowedWarehouseForCombinationClean, true);
+
+                            query = "SELECT COUNT(*) stock FROM "  + staticDataBaseObject.quoteName("#__jeprolab_stock_available") + " WHERE " + staticDataBaseObject.quoteName("analyze_id");
+                            query += " = " + analyzeId + " AND " + staticDataBaseObject.quoteName("analyze_attribute_id") + " = " + analyzeAttributeId;
+                            query += JeproLabStockAvailableModel.addSqlLaboratoryRestriction(new JeproLabLaboratoryModel(labId));
+
+                            staticDataBaseObject.setQuery(query);
+                            int stock = (int)staticDataBaseObject.loadValue("stock");
+
+                            if(stock > 0){
+                                $query = array(
+                                        'table' = > 'stock_available',
+                                        'data' =>array('quantity' = > $quantity),
+                                'where' =>'id_product = '. (int) analyzeId. ' AND id_product_attribute = '.
+                                (int) $id_product_attribute.
+                                        StockAvailable::addSqlShopRestriction (null, $id_shop)
+                                );
+                                Db::getInstance () -> update($query['table'], $query['data'], $query['where']);
+                            }else{
+                                $query = array(
+                                        'table' = > 'stock_available',
+                                        'data' =>array(
+                                        'quantity' = > $quantity,
+                                        'depends_on_stock' =>1,
+                                        'out_of_stock' =>$out_of_stock,
+                                        'id_product' =>(int) analyzeId,
+                                        'id_product_attribute' =>(int) $id_product_attribute,
+                                )
+                                );
+                                Map<String, Integer> queryParams = new HashMap<>();
+                                queryParams.put("quantity", quantity);
+                                queryParams.put("depends_on_stock", 1);
+                                queryParams.put("out_of_stock", outOfStock);
+                                queryParams.put("analyze_id", analyzeId);
+                                queryParams.put("analyze_attribute_id", analyzeAttributeId);
+
+                                JeproLabStockAvailableModel.addSqlLaboratoryParams($query['data'], $id_shop);
+                                Db::getInstance () -> insert($query['table'], $query['data']);
+                            }
+
+                            $product_quantity += $quantity;
+
+                            Hook::exec ('actionUpdateQuantity',
+                                    array(
+                                            'id_product' = > analyzeId,
+                                    'id_product_attribute' =>$id_product_attribute,
+                                    'quantity' =>$quantity,
+                                    'id_shop' =>$id_shop
+                            )
+                            );
+                        }
                     }
-
-                    $product_quantity += $quantity;
-
-                    Hook::exec('actionUpdateQuantity',
-                            array(
-                                    'id_product' => $id_product,
-                            'id_product_attribute' => $id_product_attribute,
-                            'quantity' => $quantity,
-                            'id_shop' => $id_shop
-                    )
-                    );
+                    // updates
+                    // if $id_product has attributes, it also updates the sum for all attributes
+                    if (($order_id_shop != null && array_intersect($warehouses, $order_warehouses)) || $order_id_shop == null) {
+                        $query = array(
+                                'table' = > 'stock_available',
+                                'data' =>array('quantity' = > $product_quantity),
+                        'where' =>'id_product = '. (int) $id_product. ' AND id_product_attribute = 0'.
+                                StockAvailable::addSqlShopRestriction (null, $id_shop)
+                        );
+                        Db::getInstance () -> update($query['table'], $query['data'], $query['where']);
+                    }
                 }
             }
-            // updates
-            // if $id_product has attributes, it also updates the sum for all attributes
-            if (($order_id_shop != null && array_intersect($warehouses, $order_warehouses)) || $order_id_shop == null) {
-                $query = array(
-                        'table' => 'stock_available',
-                        'data' => array('quantity' => $product_quantity),
-                'where' => 'id_product = '.(int)$id_product.' AND id_product_attribute = 0'.
-                        StockAvailable::addSqlShopRestriction(null, $id_shop)
-                );
-                Db::getInstance()->update($query['table'], $query['data'], $query['where']);
+            // In case there are no warehouses, removes analyze from StockAvailable
+            if (warehouseIds.size() == 0 && JeproLabStockAvailableModel.dependsOnStock (analyzeId)){
+                query = "UPDATE " + staticDataBaseObject.quoteName("#__jeprolab_stock_available") + " SET " + staticDataBaseObject.quoteName("quantity") ;
+                query += " => 0 WHERE " + staticDataBaseObject.quoteName("analyze_id") + " = " + analyzeId;
+
+                staticDataBaseObject.setQuery(query);
+                staticDataBaseObject.query(false);
             }
+
+            JeproLabCache.getInstance().remove("jeprolab_stock_available_get_quantity_available_by_analyze_" + analyzeId + "*" );
         }
     }
-        // In case there are no warehouses, removes product from StockAvailable
-        if (count($ids_warehouse) == 0 && StockAvailable::dependsOnStock((int)$id_product)) {
-        Db::getInstance()->update('stock_available', array('quantity' => 0 ), 'id_product = '.(int)$id_product);
+
+    public static void setAnalyzeDependsOnStock(int analyzeId){
+        setAnalyzeDependsOnStock(analyzeId, true, 0, 0);
     }
 
-        Cache::clean('StockAvailable::getQuantityAvailableByProduct_'.(int)$id_product.'*');
+    public static void setAnalyzeDependsOnStock(int analyzeId, boolean dependsOnStock){
+        setAnalyzeDependsOnStock(analyzeId, dependsOnStock, 0, 0);
+    }
+
+    public static void setAnalyzeDependsOnStock(int analyzeId, boolean dependsOnStock, int labId){
+        setAnalyzeDependsOnStock(analyzeId, dependsOnStock, labId, 0);
     }
 
     /**
-     * For a given id_product, sets if stock available depends on stock
+     * For a given analyzeId, sets if stock available depends on stock
      *
-     * @param int $id_product
-     * @param int $depends_on_stock Optional : true by default
-     * @param int $id_shop Optional : gets context by default
-     * /
-    public static function setProductDependsOnStock($id_product, $depends_on_stock = true, $id_shop = null, $id_product_attribute = 0)
-    {
-        if (!Validate::isUnsignedId($id_product)) {
-        return false;
+     * @param analyzeId analyze id
+     * @param dependsOnStock Optional : true by default
+     * @param labId Optional : gets context by default
+     */
+    public static void setAnalyzeDependsOnStock(int analyzeId, boolean dependsOnStock, int labId, int analyzeAttributeId){
+        if (analyzeId > 0) {
+            int existingId = JeproLabStockAvailableModel.getStockAvailableIdByAnalyzeId(analyzeId, analyzeAttributeId, labId);
+            if (existingId > 0) {
+                String query = "UPDATE " + staticDataBaseObject.quoteName("#__jeprolab_stock_available") + " SET ";
+                query += staticDataBaseObject.quoteName("depends_on_stock") + " = " + (dependsOnStock ? 1 : 0);
+                query += " WHERE " + staticDataBaseObject.quoteName("stock_available_id") + " = " + existingId;
+
+                staticDataBaseObject.setQuery(query);
+                staticDataBaseObject.query(false);
+            } else {
+                Map<String, Integer> queryParams = new HashMap<>();
+                queryParams.put("depends_on_stock", (dependsOnStock ? 1 : 0));
+                queryParams.put("analyze_id", analyzeId);
+                queryParams.put("analyze_attribute_id",analyzeAttributeId );
+
+                queryParams = JeproLabStockAvailableModel.addSqlLaboratoryParams(queryParams, labId);
+                String query = "INSERT INTO " + staticDataBaseObject.quoteName("#__jeprolab_stock_available") + "(";
+                Iterator queryIterator = queryParams.entrySet().iterator();
+                String keyFields = "";
+                String valueFields = "";
+                while(queryIterator.hasNext()){
+                    Map.Entry field = (Map.Entry)queryIterator.next();
+                    keyFields += staticDataBaseObject.quote(field.getKey().toString()) +  ", ";
+                    valueFields += field.getValue().toString() + ", ";
+                }
+                keyFields = keyFields.endsWith(", ") ? keyFields.substring(0, keyFields.length() - 3) : keyFields;
+                valueFields = valueFields.endsWith(", ") ? valueFields.substring(0, valueFields.length() - 3) : valueFields;
+                query += keyFields + ") VALUES( " + valueFields + ")";
+                staticDataBaseObject.setQuery(query);
+                staticDataBaseObject.query(false);
+            }
+
+            // depends on stock.. hence synchronizes
+            if (dependsOnStock) {
+                JeproLabStockAvailableModel.synchronize(analyzeId);
+            }
+        }
     }
-
-        $existing_id = StockAvailable::getStockAvailableIdByProductId((int)$id_product, (int)$id_product_attribute, $id_shop);
-        if ($existing_id > 0) {
-            Db::getInstance()->update('stock_available', array(
-                            'depends_on_stock' => (int)$depends_on_stock
-            ), 'id_stock_available = '.(int)$existing_id);
-        } else {
-            $params = array(
-                    'depends_on_stock' => (int)$depends_on_stock,
-                    'id_product' => (int)$id_product,
-                    'id_product_attribute' => (int)$id_product_attribute
-            );
-
-            StockAvailable::addSqlShopParams($params, $id_shop);
-
-            Db::getInstance()->insert('stock_available', $params);
-        }
-
-        // depends on stock.. hence synchronizes
-        if ($depends_on_stock) {
-            StockAvailable::synchronize($id_product);
-        }
-    } */
 
     public static void setAnalyzeOutOfStock(int analyzeId){
         setAnalyzeOutOfStock(analyzeId, 0, 0, 0);
@@ -312,16 +360,16 @@ public class JeproLabStockAvailableModel extends  JeproLabModel{
     /**
      * For a given id_product, sets if product is available out of stocks
      *
-     * @param analyzeId
+     * @param analyzeId analyze id
      * @param outOfStock Optional false by default
      * @param labId Optional gets context by default
      */
     public static void setAnalyzeOutOfStock(int analyzeId, int outOfStock, int labId, int analyzeAttributeId){
         if (analyzeId > 0) {
-            boolean existingId = JeproLabStockAvailableModel.getStockAvailableIdByAnalyzeId(analyzeId, analyzeAttributeId, labId);
+            int existingId = JeproLabStockAvailableModel.getStockAvailableIdByAnalyzeId(analyzeId, analyzeAttributeId, labId);
 
             String query;
-            if (existingId) {
+            if (existingId > 0) {
                 query = "UPDATE " + staticDataBaseObject.quoteName("#__jeprolab_stock_available") + " SET " + staticDataBaseObject.quoteName("stock_available");
                 query += " = " + outOfStock + ", " + staticDataBaseObject.quoteName("analyze_id") + " = " + analyzeId;
                 query += (analyzeAttributeId > 0 ? " AND " + staticDataBaseObject.quoteName("analyze_attribute_id") + " = " + analyzeAttributeId : "");
@@ -464,7 +512,7 @@ public class JeproLabStockAvailableModel extends  JeproLabModel{
             FROM '._DB_PREFIX_.'stock_available
         WHERE id_product = '.(int)$this->id_product.'
         AND id_product_attribute <> 0 '.
-        StockAvailable::addSqlShopRestriction(null, $id_shop)
+        JeproLabStockAvailableModel.addSqlShopRestriction(null, $id_shop)
         );
         $this->setQuantity($this->id_product, 0, $total_quantity, $id_shop);
 
@@ -516,17 +564,17 @@ public class JeproLabStockAvailableModel extends  JeproLabModel{
         $id_shop = (int)$context->shop->id;
     }
 
-        $depends_on_stock = StockAvailable::dependsOnStock($id_product);
+        $depends_on_stock = JeproLabStockAvailableModel.dependsOnStock($id_product);
 
         //Try to set available quantity if product does not depend on physical stock
         if (!$depends_on_stock) {
-            $id_stock_available = (int)StockAvailable::getStockAvailableIdByProductId($id_product, $id_product_attribute, $id_shop);
+            $id_stock_available = (int)JeproLabStockAvailableModel.getStockAvailableIdByProductId($id_product, $id_product_attribute, $id_shop);
             if ($id_stock_available) {
                 $stock_available = new StockAvailable($id_stock_available);
                 $stock_available->quantity = (int)$quantity;
                 $stock_available->update();
             } else {
-                $out_of_stock = StockAvailable::outOfStock($id_product, $id_shop);
+                $out_of_stock = JeproLabStockAvailableModel.outOfStock($id_product, $id_shop);
                 $stock_available = new StockAvailable();
                 $stock_available->out_of_stock = (int)$out_of_stock;
                 $stock_available->id_product = (int)$id_product;

@@ -1,5 +1,5 @@
+<?xml version="1.0" encoding="UTF-8"?>
 <?import javafx.scene.layout.GridPane?>
-
 <?import com.jeprolab.assets.extend.controls.JeproFormPanel?>
 <?import com.jeprolab.assets.extend.controls.JeproFormPanelTitle?>
 <?import com.jeprolab.assets.extend.controls.JeproFormPanelContainer?>

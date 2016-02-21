@@ -232,9 +232,11 @@ public class JeproLabAnalyzeModel extends JeproLabModel {
 
     /**
      * @var int tell the type of stock management to apply on the pack
-     * /
-    public $pack_stock_type = 3;
      */
+    public int pack_stock_type = 3;
+    public int pack_analyze_attribute_id = 0;
+    public int pack_quantity = 0;
+
     public static int _taxCalculationMethod = 0;
     protected static Map<String, Float> _prices = new HashMap<>();
     protected static Map<String, Map<Integer, Map<String,Float>>> _pricesLevel2 = new HashMap<>();
@@ -762,8 +764,30 @@ public class JeproLabAnalyzeModel extends JeproLabModel {
         JeproLabAnalyzeModel analyze = new JeproLabAnalyzeModel(analyzeId);
         JeproLabStockAvailableModel.setAnalyzeOutOfStock(analyze.analyze_id, 2);
 
-        this.setGroupReduction();
+        analyze.setGroupReduction();
         /* Hook::exec('actionProductSave', array('id_product' => (int)this.id, 'product' => $this)); */
+        analyze.addCarriers();
+        analyze.updateAccessories();
+        analyze.updatePackItems();
+        analyze.updateDownloadProduct();
+
+        if(JeproLabSettingModel.getIntValue("use_advanced_stock_management_on_new_product") > 0 && JeproLabSettingModel.getIntValue("advanced_stock_management") > 0){
+            analyze.advanced_stock_management = true;
+            JeproLabStockAvailableModel.setAnalyzeDependsOnStock(analyze.analyze_id, true, context.laboratory.laboratory_id, 0);
+            analyze.update();
+        }
+
+        if(!context.controller.has_errors){
+            if(JeproLabSettingModel.getIntValue("default_warehouse_new_analyze") != 0 && JeproLabSettingModel.getIntValue("advanced_stock_management") > 0){
+                JeproLabWarehouseAnalyzeLocationModel warehouseLocationEntity = new JeproLabWarehouseAnalyzeLocationModel();
+                warehouseLocationEntity.analyze_id = analyze.analyze_id;
+                warehouseLocationEntity.product_attribute_id = 0;
+                warehouseLocationEntity.warehouse_id = JeproLabSettingModel.getIntValue("default_warehouse_new_analyze");
+                warehouseLocationEntity.location = dataBaseObject.quote("");
+                warehouseLocationEntity.save();
+            }
+        }
+
         return analyze;
     }
 
@@ -5592,7 +5616,7 @@ public static function getUrlRewriteInformations($id_product)
     /**
      * Returns JeproLabTaxManagerFactory rate.
      *
-     * @param address
+     * @param address addres to get tax from
      * @return float The total taxes rate applied to the product
      */
     public float getTaxesRate(JeproLabAddressModel address) {
@@ -6034,25 +6058,44 @@ public function existsRefInDatabase($reference)
         WHERE p.reference = "'.pSQL($reference).'"');
 
         return isset($row['reference']);
-        }
+        } */
 
-/**
- * Get all product attributes ids
- *
- * @since 1.5.0
- * @param int $id_product the id of the product
- * @return array product attribute id list
- * /
-public static function getProductAttributesIds($id_product, $lab_only = false)
-        {
-        return Db::getInstance()->executeS('
-        SELECT pa.id_product_attribute
-        FROM `'.staticDataBaseObject.quoteName("#__jeprolab.'product_attribute` pa'.
-        ($lab_only ? JeproLabLaboratoryModel.addSqlAssociation('product_attribute', 'pa') : '').'
-        WHERE pa.`id_product` = '.(int)$id_product);
-        }
+    public static List<Integer> getAnalyzeAttributesIds(int analyzeId) {
+        return getAnalyzeAttributesIds(analyzeId, false);
+    }
 
-/**
+    /**
+     * Get all product attributes ids
+     *
+     * @since 1.5.0
+     * @param analyzeId the id of the product
+     * @return array analyze attribute id list
+     */
+    public static List<Integer> getAnalyzeAttributesIds(int analyzeId, boolean labOnly) {
+        List<Integer> analyzeIds = new ArrayList<>();
+        if(staticDataBaseObject == null){
+            staticDataBaseObject = JeproLabFactory.getDataBaseConnector();
+        }
+        String query = "SELECT analyze_attribute." + staticDataBaseObject.quoteName("analyze_attribute_id") + " FROM " + staticDataBaseObject.quoteName("#__jeprolabanalyze_attribute");
+        query += " AS analyze_attribute " + ( labOnly ? JeproLabLaboratoryModel.addSqlAssociation("analyze_attribute") : "" ) + " WHERE analyze_attribute.";
+        query += staticDataBaseObject.quoteName("analyze_id") + " = " + analyzeId;
+
+        staticDataBaseObject.setQuery(query);
+        ResultSet attributeList = staticDataBaseObject.loadObject();
+
+        if(attributeList != null){
+            try{
+                while (attributeList.next()){
+                    analyzeIds.add(attributeList.getInt("analyze_attribute_id"));
+                }
+            }catch (SQLException ignored){
+
+            }
+        }
+        return analyzeIds;
+    }
+
+/*
  * Get label by lang and value by lang too
  * @todo Remove existing module condition
  * @param int $id_product
