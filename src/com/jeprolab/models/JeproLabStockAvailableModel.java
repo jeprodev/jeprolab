@@ -153,11 +153,11 @@ public class JeproLabStockAvailableModel extends  JeproLabModel{
                 }
             }
 
-            // gets all analyze attributes ids
-            List<Integer> analyzeAttributeIds = new JeproLabAnalyzeModel.getAnalyzeAttributesIds(analyzeId);
+            //todo gets all analyze attributes ids
+            /*List<Integer> analyzeAttributeIds = new JeproLabAnalyzeModel.getAnalyzeAttributesIds(analyzeId);
             /*foreach( as analyzeId_attribute){
                 analyzeAttributeIds.add(analyzeId_attribute['id_product_attribute']);
-            }*/
+            }* /
 
             // Allow the order when the analyze is out of stock?
             boolean outOfStock = JeproLabStockAvailableModel.outOfStock(analyzeId);
@@ -280,7 +280,7 @@ public class JeproLabStockAvailableModel extends  JeproLabModel{
 
                 staticDataBaseObject.setQuery(query);
                 staticDataBaseObject.query(false);
-            }
+            } */
 
             JeproLabCache.getInstance().remove("jeprolab_stock_available_get_quantity_available_by_analyze_" + analyzeId + "*" );
         }

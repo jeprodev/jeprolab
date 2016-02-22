@@ -17,6 +17,8 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
@@ -32,6 +34,7 @@ import java.util.ResourceBundle;
  */
 public class JeproLabCategoryAddController extends JeproLabController{
     private Button saveCategoryBtn, cancelBtn;
+    JeproLabCategoryModel category = null;
     @FXML
     public Label jeproLabCategoryNameLabel, jeproLabPublishedCategoryLabel, jeproLabCategoryParentLabel, jeproLabCategoryDescriptionLabel;
     public Label jeproLabCategoryImageChooserLabel, jeproLabCategoryMetaTileLabel, jeproLabCategoryMetaDescriptionLabel;
@@ -74,7 +77,8 @@ public class JeproLabCategoryAddController extends JeproLabController{
 
         jeproLabCategoryInformationTab.setText(bundle.getString("JEPROLAB_INFORMATION_LABEL"));
         jeproLabCategoryInformationLabel.setText(bundle.getString("JEPROLAB_INFORMATION_LABEL"));
-        jeproLabCategoryAssociatedLaboratoriesTab.setText(bundle.getString("JEPROLAB_ASSOCIATED_SHOPS_LABEL"));
+        jeproLabCategoryInformationLabel.getStyleClass().add("input-label");
+        jeproLabCategoryAssociatedLaboratoriesTab.setText(bundle.getString("JEPROLAB_ASSOCIATED_LABORATORIES_LABEL"));
         jeproLabCategoryAssociatedGroupTab.setText(bundle.getString("JEPROLAB_ASSOCIATED_GROUPS_LABEL"));
         jeproLabAddCategoryFormTitle = new Label(bundle.getString("JEPROLAB_ADD_NEW_LABEL") + " " +  bundle.getString("JEPROLAB_CATEGORY_LABEL"));
         jeproLabCategoryNameLabel.setText(bundle.getString("JEPROLAB_CATEGORY_NAME_LABEL"));
@@ -106,6 +110,7 @@ public class JeproLabCategoryAddController extends JeproLabController{
 
         jeproLabCategoryDescription.setTextAreaPrefSize(760, 90);
 
+        GridPane.setMargin(jeproLabCategoryInformationLabel, new Insets(5, 0, 15, 10));
         GridPane.setMargin(jeproLabCategoryNameLabel, new Insets(5, 0, 15, 10));
         GridPane.setMargin(jeproLabPublishedCategoryLabel, new Insets(5, 0, 15, 20));
         GridPane.setMargin(jeproLabCategoryParentLabel, new Insets(5, 0, 15, 10));
@@ -122,6 +127,7 @@ public class JeproLabCategoryAddController extends JeproLabController{
         GridPane.setMargin(jeproLabCategoryDescription, new Insets(10, 0, 15, 0));
 
         initializeContent();
+        updateToolBar();
     }
 
     @Override
@@ -158,9 +164,15 @@ public class JeproLabCategoryAddController extends JeproLabController{
     public void updateToolBar(){
         HBox commandWrapper = JeproLab.getInstance().getApplicationToolBarCommandWrapper();
         commandWrapper.getChildren().clear();
-        saveCategoryBtn = new Button(bundle.getString("JEPROLAB_SAVE_LABEL"));
-        cancelBtn = new Button(bundle.getString("JEPROLAB_CANCEL_LABEL"));
-
+        saveCategoryBtn = new Button(bundle.getString("JEPROLAB_SAVE_LABEL"),new ImageView(new Image(JeproLab.class.getResourceAsStream("resources/images/floppy-icon.png"))));
+        if(category != null && category.category_id > 0){
+            saveCategoryBtn.setText(bundle.getString("JEPROLAB_UPDATE_LABEL"));
+        }else {
+            category = new JeproLabCategoryModel();
+            category.saveCategory();
+        }
+        cancelBtn = new Button(bundle.getString("JEPROLAB_CANCEL_LABEL"),  new ImageView(new Image(JeproLab.class.getResourceAsStream("resources/images/unpublished.png"))));
+        commandWrapper.setSpacing(4);
         commandWrapper.getChildren().addAll(saveCategoryBtn, cancelBtn);
     }
 

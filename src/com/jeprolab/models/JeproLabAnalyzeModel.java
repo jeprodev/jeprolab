@@ -738,10 +738,9 @@ public class JeproLabAnalyzeModel extends JeproLabModel {
                 dataBaseObject.setQuery(query);
                 dataBaseObject.query(false);
                 /* Multilingual fields */
-                Iterator langIt = languages.entrySet().iterator();
-                while(langIt.hasNext()){
-                    Map.Entry lang = (Map.Entry)langIt.next();
-                    JeproLabLanguageModel language = (JeproLabLanguageModel)lang.getValue();
+                for (Object o : languages.entrySet()) {
+                    Map.Entry lang = (Map.Entry) o;
+                    JeproLabLanguageModel language = (JeproLabLanguageModel) lang.getValue();
 
                     String analyzeName = post.containsKey("name_" + language.language_id) ? post.get("name_" + language.language_id) : " ";
                     String analyzeDescription = post.containsKey("description_" + language.language_id) ? post.get("description_" + language.language_id) : " ";
@@ -769,7 +768,7 @@ public class JeproLabAnalyzeModel extends JeproLabModel {
         analyze.addCarriers();
         analyze.updateAccessories();
         analyze.updatePackItems();
-        analyze.updateDownloadProduct();
+        //analyze.updateDownloadProduct();
 
         if(JeproLabSettingModel.getIntValue("use_advanced_stock_management_on_new_product") > 0 && JeproLabSettingModel.getIntValue("advanced_stock_management") > 0){
             analyze.advanced_stock_management = true;
@@ -779,12 +778,12 @@ public class JeproLabAnalyzeModel extends JeproLabModel {
 
         if(!context.controller.has_errors){
             if(JeproLabSettingModel.getIntValue("default_warehouse_new_analyze") != 0 && JeproLabSettingModel.getIntValue("advanced_stock_management") > 0){
-                JeproLabWarehouseAnalyzeLocationModel warehouseLocationEntity = new JeproLabWarehouseAnalyzeLocationModel();
+               /* JeproLabWarehouseAnalyzeLocationModel warehouseLocationEntity = new JeproLabWarehouseAnalyzeLocationModel();
                 warehouseLocationEntity.analyze_id = analyze.analyze_id;
                 warehouseLocationEntity.product_attribute_id = 0;
                 warehouseLocationEntity.warehouse_id = JeproLabSettingModel.getIntValue("default_warehouse_new_analyze");
                 warehouseLocationEntity.location = dataBaseObject.quote("");
-                warehouseLocationEntity.save();
+                warehouseLocationEntity.save();*/
             }
         }
 
@@ -811,6 +810,95 @@ public class JeproLabAnalyzeModel extends JeproLabModel {
     }
 */
         return true;
+    }
+
+    /**
+     * delete all items in pack, then check if type_product value is 2.
+     * if yes, add the pack items from input "inputPackItems"
+     *
+     * @return boolean
+     */
+    public void updatePackItems(){
+        /*JeproshopProductPack::deleteItems($this->product_id);
+        // lines format: QTY x ID-QTY x ID
+        $app = JFactory::getApplication();
+        $data = JRequest::get('post');
+        $input_data = isset($data['information']) ?  $data['information'] : $data['jform'];
+        if($input_data['product_type'] == JeproshopProductModelProduct::PACKAGE_PRODUCT){
+            $this->setDefaultAttribute(0); //reset cache_default_attribute
+            $items = $app->input->get('input_pack_items');
+            $lines = array_unique(explode('-', $items));
+            // lines is an array of string with format : QTYxID
+            if (count($lines)){
+                foreach ($lines as $line){
+                    if (!empty($line)){
+                        list($qty, $item_id) = explode('x', $line);
+                        if ($qty > 0 && isset($item_id)){
+                            if(JeproshopProductPack::isPack((int)$item_id)){
+                                $this->context->controller->has_errors  = JText::_('COM_JEPROSHOP_YOU_CANT_ADD_PRODUCT_PACKS_INTO_A_PACK_MESSAGE');
+                            }elseif (!JeproshopProductPack::addItem((int)$this->product_id, (int)$item_id, (int)$qty)){
+                                $this->context->controller->has_errors  = JText::_('COM_JEPROSHOP_AN_ERROR_OCCURRED_WHILE_ATTEMPTING_TO_ADD_PRODUCTS_TO_THE_PACK_MESSAGE');
+                            }
+                        }
+                    }
+                }
+            }
+        }*/
+    }
+
+    public void addCarriers(){
+        /*$app = JFactory::getApplication();
+        $db = JFactory::getDBO();
+        if (!isset($product)){
+            $product = new JeproshopProductModelProduct((int)$app->input->get('product_id'));
+        }
+        if (JeproshopTools::isLoadedObject($product, 'product_id')){
+            $carriers = array();
+            $input = JRequest::get('post');
+            $product_data = $input['shipping'];
+            if (isset($product_data['selected_carriers[]'])){
+                $carriers = $product_data['selected_carriers[]'];
+            }
+
+            $query = "UPDATE " . $db->quoteName('#__jeproshop_product') . " SET " . $db->quoteName('width') . " = " . (float)$product_data['width'] . ", " . $db->quoteName('height') . " = ";
+            $query .= (float)$product_data['height'] . ", " . $db->quoteName('weight') . " = " . (float)$product_data['weight'] . ", " . $db->quoteName('additional_shipping_cost') . " = ";
+            $query .= (float)$product_data['additional_shipping_cost'] . " WHERE " . $db->quoteName('product_id') . " = " . (int)$product->product_id;
+
+            $db->setQuery($query);
+            $db->query();
+
+            if(count($carriers)){
+                $query = "DELETE FROM " . $db->quoteName('#__jeproshop_product_carrier') . " WHERE product_id = " . (int)$product->product_id . " AND shop_id = " . (int)$product->shop_id;
+
+                $db->setQuery($query);
+                $db->query();
+                foreach ($carriers as $carrier){
+                    $query = "INSERT INGORE INTO " . $db->quoteName('#__jeproshop_product_carrier') . $db->quoteName('product_id') . ", ";
+                    $query .= $db->quoteName('carrier_reference_id') . ", " . $db->quoteName('shop_id') . " VALUES (" . (int)$product->product_id;
+                    $query .= ", " . (int)$carrier . ", " . (int)$product->shop_id . ") ";
+
+                    $db->setQuery($query);
+                    $db->query();
+                }
+            }
+        }*/
+    }
+
+
+    /**
+     * Update product accessories
+     */
+    public void updateAccessories(){
+       /* $app = JFactory::getApplication();
+        $this->deleteAccessories();
+        $accessories = $app->input->get('input_accessories');
+        if($accessories){
+            $accessories_id = array_unique(explode('-', $accessories));
+            if (count($accessories_id)){
+                array_pop($accessories_id);
+                $this->changeAccessories($accessories_id);
+            }
+        }*/
     }
 
     public static void initPricesComputation(){
@@ -884,7 +972,7 @@ public class JeproLabAnalyzeModel extends JeproLabModel {
         query += " AS category_analyze WHERE category_analyze." + dataBaseObject.quoteName("category_id") + " = " + categoryId + " ORDER BY ";
         query += " category_analyze." + dataBaseObject.quoteName("position") + " ASC ";
 
-        boolean result = true;
+        boolean result;
         dataBaseObject.setQuery(query);
         ResultSet resultSet = dataBaseObject.loadObject();
         List<JeproLabAnalyzeModel> analyzeList = new ArrayList<>();
@@ -916,7 +1004,7 @@ public class JeproLabAnalyzeModel extends JeproLabModel {
                 query += " AND " + dataBaseObject.quoteName("category_id") + " = " + movedAnalyzeCategoryId;
 
                 dataBaseObject.setQuery(query);
-                result &= dataBaseObject.query(false);
+                result = dataBaseObject.query(false);
 
                 query = "UPDATE " + dataBaseObject.quoteName("#__jeprolab_analyze_category") + " AS category_analyze INNER JOIN " + dataBaseObject.quoteName("#__jeprolab_analyze");
                 query += " AS analyze ON (analyze." + dataBaseObject.quoteName("analyze_id") + " = category_analyze." + dataBaseObject.quoteName("analyze_id") + ") ";

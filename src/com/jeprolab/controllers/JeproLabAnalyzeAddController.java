@@ -1433,9 +1433,8 @@ public class JeproLabAnalyzeAddController extends JeproLabController {
             post += "&published=" + (jeproLabAnalyzePublished.isSelected() ? "1" : "0") + "&redirect_type=" + analyzeRedirect + "&available_for_order=";
             post += (jeproLabAnalyzeAvailableForOrder.isSelected() ? "1" : "0") + "&show_price=" + (jeproLabAnalyzeShowPrice.isSelected() ? "1" : "0") + "&visibility=";
             post += analyzeVisibility + "&delay=" + (jeproLabAnalyzeDelay.getText().equals("") ? 1 : jeproLabAnalyzeDelay.getText());
-            Iterator langIt = languages.entrySet().iterator();
-            while(langIt.hasNext()) {
-                Map.Entry lang = (Map.Entry) langIt.next();
+            for (Object o : languages.entrySet()) {
+                Map.Entry lang = (Map.Entry) o;
                 JeproLabLanguageModel language = (JeproLabLanguageModel) lang.getValue();
                 post += "&name_" + language.language_id + "=" + jeproLabAnalyzeName.getFieldContent(language.language_id);
                 post += "&description_" + language.language_id + "=" + jeproLabAnalyzeDescription.getFieldContent(language.language_id);
@@ -1448,7 +1447,8 @@ public class JeproLabAnalyzeAddController extends JeproLabController {
                 analyze.update();
             } else {
                 //JeproLabAnalyzeModel
-                int savedId = analyze.save();
+                analyze = analyze.save();
+
             }
         });
         commandWrapper.getChildren().addAll(saveAnalyzeBtn, cancelBtn);

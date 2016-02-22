@@ -312,22 +312,21 @@ public class JeproLabWarehouseModel extends  JeproLabModel{
             labIds = new ArrayList<>();
             labIds.add(labId);
         }
+        List warehouseList = new ArrayList<>();
 
         String query = "SELECT warehouse_analyze_location." + staticDataBaseObject.quoteName("warehouse_id") + ", CONCAT(warehouse.reference,";
         query += " '-', warehouse.name) as name FROM " + staticDataBaseObject.quoteName("#__jeprolab_warehouse_analyze_location") + " AS ";
         query += "warehouse_analyze_location INNER JOIN " + staticDataBaseObject.quoteName("#__jeprolab_warehouse_lab") + " AS warehouse_lab ";
         query += " 0N (warehouse_lab.warehouse_id = warehouse_analyze_location.warehouse_id AND lab_id IN (" + labIds.toString() + ") ";
-        query += " INNER JOIN " + staticDataBaseObject.quoteName("#__jeprolab_warehouse") +
-        $query->select('wpl.id_warehouse, CONCAT(w.reference, " - ", w.name) as name');
-        $query->from('warehouse_product_location', 'wpl');
-        $query->innerJoin('warehouse_shop', 'ws', 'ws.id_warehouse = wpl.id_warehouse AND id_shop IN ('.implode(',', array_map('intval', $ids_shop)).')');
-        $query->innerJoin('warehouse', 'w', 'ws.id_warehouse = w.id_warehouse');
-        $query->where('id_product = '.(int)$id_product);
-        $query->where('id_product_attribute = '.(int)$id_product_attribute);
-        $query->where('w.deleted = 0');
-        $query->groupBy('wpl.id_warehouse');
+        query += " INNER JOIN " + staticDataBaseObject.quoteName("#__jeprolab_warehouse") + " AS warehouse ON (warehouse.warehouse_id = ";
+        query += "warehouse.warehouse_id WHERE analyze_id = " + analyzeId + " AND analyze_attribute_id = " + analyzeAttributeId + " AND ";
+        query += "warehouse.deleted = 0 GROUP BY warehouse_analyze_location";
 
-        return (Db::getInstance(_PS_USE_SQL_SLAVE_)->executeS($query));
+        staticDataBaseObject.setQuery(query);
+        ResultSet warehouseSet = staticDataBaseObject.loadObject();
+
+
+        return warehouseList;
     }
 
     public static ResultSet getWarehouses(){
