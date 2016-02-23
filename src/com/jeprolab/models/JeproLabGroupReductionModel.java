@@ -157,8 +157,7 @@ public class JeproLabGroupReductionModel extends JeproLabModel{
         return JeproLabGroupReductionModel.reduction_cache.get(cacheKey);
     }
 /*
-    public static function doesExist($id_group, $id_category)
-    {
+    public static function doesExist($id_group, $id_category){
         return (bool)Db::getInstance(_PS_USE_SQL_SLAVE_)->getValue('
             SELECT `id_group`
             FROM `'._DB_PREFIX_.'group_reduction`
@@ -191,30 +190,22 @@ public class JeproLabGroupReductionModel extends JeproLabModel{
             FROM `'._DB_PREFIX_.'group_reduction` gr
         WHERE `id_category` = '.(int)$id_category, false);
     }
-
-    public static function getGroupsReductionByCategoryId($id_category)
-    {
-        return Db::getInstance(_PS_USE_SQL_SLAVE_)->executeS('
-            SELECT gr.`id_group_reduction` as id_group_reduction, id_group
-            FROM `'._DB_PREFIX_.'group_reduction` gr
-        WHERE `id_category` = '.(int)$id_category
-        );
-    }
-
-    /**
-     * @deprecated 1.5.3.0
-     * @param int $id_category
-     * @return array|null
-     * /
-    public static function getGroupReductionByCategoryId($id_category)
-    {
-        Tools::displayAsDeprecated('Use GroupReduction::getGroupsByCategoryId($id_category)');
-        return Db::getInstance(_PS_USE_SQL_SLAVE_)->getRow('
-            SELECT gr.`id_group_reduction` as id_group_reduction
-            FROM `'._DB_PREFIX_.'group_reduction` gr
-        WHERE `id_category` = '.(int)$id_category, false);
-    }
 */
+    public static ResultSet getGroupsReductionByCategoryId(int categoryId){
+        if(staticDataBaseObject == null){
+            staticDataBaseObject = JeproLabFactory.getDataBaseConnector();
+        }
+        String query = "SELECT gr." + staticDataBaseObject.quoteName("group_reduction_id") + " as group_reduction_id, group_id FROM ";
+        query += staticDataBaseObject.quoteName("#__jeprolab_group_reduction") + " AS gr WHERE " + staticDataBaseObject.quoteName("category_id");
+        query += " = " + categoryId;
+
+        staticDataBaseObject.setQuery(query);
+
+        return staticDataBaseObject.loadObject();
+    }
+
+
+
     public static boolean setAnalyzeReduction(int analyzeId){
         return setAnalyzeReduction(analyzeId, 0, 0, 0);
     }
@@ -284,13 +275,14 @@ public class JeproLabGroupReductionModel extends JeproLabModel{
 
         return Db::getInstance()->execute($query);
     }
-
-    public static function deleteCategory($id_category)
-    {
-        $query = 'DELETE FROM `'._DB_PREFIX_.'group_reduction` WHERE `id_category` = '.(int)$id_category;
-        if (Db::getInstance()->Execute($query) === false) {
-        return false;
+*/
+    public static boolean deleteCategory(int categoryId){
+        if(staticDataBaseObject == null){
+            staticDataBaseObject = JeproLabFactory.getDataBaseConnector();
+        }
+        String query = "DELETE FROM " + staticDataBaseObject.quoteName("#__jeprolab_group_reduction") + " WHERE ";
+        query += staticDataBaseObject.quoteName("category_id") + " = " + categoryId;
+        staticDataBaseObject.setQuery(query);
+        return staticDataBaseObject.query(false);
     }
-        return true;
-    } */
 }

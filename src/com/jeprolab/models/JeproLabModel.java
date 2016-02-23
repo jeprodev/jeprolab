@@ -8,6 +8,8 @@ public class JeproLabModel {
     protected JeproLabDataBaseConnector dataBaseObject;
     protected static JeproLabDataBaseConnector staticDataBaseObject;
 
+    protected String image_format = "jpg";
+
     public JeproLabModel(){
         if(dataBaseObject == null || staticDataBaseObject == null){
             dataBaseObject = JeproLabFactory.getDataBaseConnector();
