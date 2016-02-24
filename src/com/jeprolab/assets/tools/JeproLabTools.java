@@ -251,7 +251,7 @@ public class JeproLabTools {
         };
     }
 
-    /************* Letters Validation Limit the  characters to maxLengh AND to ONLY Letters *************************/
+    /************* Letters Validation Limit the  characters to maxLengh AND to ONLY Letters **************/
     public EventHandler<KeyEvent> letterValidation(final Integer maxLength) {
         return evt -> {
             TextField txt_TextField = (TextField) evt.getSource();
@@ -263,6 +263,14 @@ public class JeproLabTools {
             }
 
         };
+    }
+
+    public static String getCleanDescription(String value){
+        return value;
+    }
+
+    public static boolean fileExistsInCache(String filePath){
+        return true;
     }
 
     public static String getOrderFormToken(){

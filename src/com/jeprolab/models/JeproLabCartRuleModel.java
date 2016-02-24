@@ -3,6 +3,7 @@ package com.jeprolab.models;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.List;
 
 /**
  *
@@ -978,7 +979,7 @@ public class JeproLabCartRuleModel extends JeproLabModel {
                 $reduction_value += $selected_products_reduction * $this->reduction_percent / 100;
             }
 
-            // Discount (¤)
+            // Discount (ï¿½)
             if ((float)$this->reduction_amount > 0) {
                 $prorata = 1;
                 if (!is_null($package) && count($all_products)) {
@@ -1035,7 +1036,7 @@ public class JeproLabCartRuleModel extends JeproLabModel {
                             }
                         }
                     }
-                    // Discount (¤) on the whole order
+                    // Discount (ï¿½) on the whole order
                     elseif ($this->reduction_product == 0) {
                         $cart_amount_te = null;
                         $cart_amount_ti = null;
@@ -1351,7 +1352,7 @@ public class JeproLabCartRuleModel extends JeproLabModel {
     }
 
     /* When an entity associated to a analyze rule (product, category, attribute, supplier, manufacturer...) is deleted, the product rules must be updated */
-    public static boolean cleanAnalyzeRuleIntegrity(String type, $list){
+    public static boolean cleanAnalyzeRuleIntegrity(String type, List<Integer> list){
         String[] fieldTypes = {"analyzes", "categories", "attributes", "manufacturers", "suppliers"};
         // Type must be available in the 'type' enum of the table cart_rule_product_rule
         if (!Arrays.asList(fieldTypes).contains(type)) {

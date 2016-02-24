@@ -431,7 +431,7 @@ public class JeproLabGroupModel extends JeproLabModel {
     /**
      * Checks if current object is associated to a shop.
      *
-     * @param labId
+     * @param labId laboratory filter
      * @return bool
      */
     public boolean isAssociatedToLaboratory(int labId){

@@ -29,9 +29,9 @@ public class JeproLabImageModel extends JeproLabModel {
     /** @var string Legend */
     public Map<String, String> legend = new HashMap<>();
 
-    /** @var string image extension */
-    public String image_format = "jpg";
+    /** @var string image extension * /
 
+    public String image_format = "jpg";
     /** @var string path to index.php file to be copied to new image folders * /
     public String source_index;
 
@@ -1152,6 +1152,9 @@ public class JeproLabImageModel extends JeproLabModel {
         /** @var int Apply to store */
         public boolean laboratories;
 
+
+        private static boolean is_passed = false;
+
         /*
          * @see ObjectModel::$definition
          * /
@@ -1176,9 +1179,9 @@ public class JeproLabImageModel extends JeproLabModel {
          */
         protected static Map<String, List<JeproLabImageTypeModel>>images_types_cache = new HashMap<>();
 
-        /*protected static $images_types_name_cache = array();
+        protected static Map<String, String>images_types_name_cache = new HashMap<>();
 
-        protected $webserviceParameters = array();
+ /*       protected $webserviceParameters = array();
 */
         public static List<JeproLabImageTypeModel> getImagesTypes() {
             return getImagesTypes("", false);
@@ -1259,56 +1262,78 @@ public class JeproLabImageModel extends JeproLabModel {
             WHERE `name` = \''.pSQL($type_name).'\'');
 
             return Db::getInstance()->NumRows();
+        } */
+
+        public static fu getByNameType(String name){
+            getByNameType(name, null, 0);
+        }
+
+        public static fu getByNameType(String name, String type){
+            getByNameType(name, type, 0);
         }
 
         /**
          * Finds image type definition by name and type
-         * @param string $name
-         * @param string $type
-         * /
-        public static function getByNameNType($name, $type = null, $order = 0)
-        {
-            static $is_passed = false;
+         * @param name
+         * @param type
+         */
+        public static function getByNameType(String name, String type, int order){
+            //is_passed = false;
 
-            if (!isset(self::$images_types_name_cache[$name.'_'.$type.'_'.$order]) && !$is_passed) {
-            $results = Db::getInstance()->ExecuteS('SELECT * FROM `'._DB_PREFIX_.'image_type`');
+            String cacheKey = name + "_" + type + "_" + order;
+            if (!JeproLabImageTypeModel.images_types_name_cache.containsKey(cacheKey) && !JeproLabImageTypeModel.is_passed){
+                if(staticDataBaseObject == null){
+                    staticDataBaseObject = JeproLabFactory.getDataBaseConnector();
+                }
+                String query = "SELECT * FROM " + staticDataBaseObject.quoteName("#__jeprolab_image_type");
+                staticDataBaseObject.setQuery(query);
+                ResultSet resultSet = staticDataBaseObject.loadObject();
 
-            $types = array('products', 'categories', 'manufacturers', 'suppliers', 'scenes', 'stores');
-            $total = count($types);
+                List<String> types = new ArrayList<>();
+                types.add("analyzes");
+                types.add("categories");
+                types.add("manufacturers");
+                types.add("suppliers");
+                types.add("scenes");
+                types.add("laboratories");
+                int total = types.size();
+                if(resultSet != null) {
+                    try {
+                        while (resultSet.next()) {
+                            foreach($result as $value) {
+                                for ($i = 0; $i < $total; ++$i) {
+                                    JeproLabImageTypeModel.images_types_name_cache[$result['name']. '_'.$types[$i]. '_'.$value]=$result;
+                                }
+                            }
+                        }
+                    }catch(SQLException ignored){
 
-            foreach ($results as $result) {
-                foreach ($result as $value) {
-                    for ($i = 0; $i < $total; ++$i) {
-                        self::$images_types_name_cache[$result['name'].'_'.$types[$i].'_'.$value] = $result;
                     }
                 }
+                is_passed = true;
             }
 
-            $is_passed = true;
-        }
-
             $return = false;
-            if (isset(self::$images_types_name_cache[$name.'_'.$type.'_'.$order])) {
-            $return = self::$images_types_name_cache[$name.'_'.$type.'_'.$order];
-        }
+            if (isset(self::$images_types_name_cache[$name.'_'.$type.'_'.$order])){
+                $return = self::$images_types_name_cache[$name. '_'.$type. '_'.$order];
+            }
             return $return;
         }
 
-        public static function getFormatedName($name)
-        {
-            $theme_name = Context::getContext()->shop->theme_name;
-            $name_without_theme_name = str_replace(array('_'.$theme_name, $theme_name.'_'), '', $name);
+        public static String getFormattedName(String name){
+            String themeName = JeproLabContext.getContext().laboratory.theme_name;
+            String nameWithoutThemeName = JeproLabTools.str_replace(array('_'.$theme_name, $theme_name.'_'), '', $name);
 
             //check if the theme name is already in $name if yes only return $name
-            if (strstr($name, $theme_name) && self::getByNameNType($name)) {
-            return $name;
-        } elseif (self::getByNameNType($name_without_theme_name.'_'.$theme_name)) {
-            return $name_without_theme_name.'_'.$theme_name;
-        } elseif (self::getByNameNType($theme_name.'_'.$name_without_theme_name)) {
-            return $theme_name.'_'.$name_without_theme_name;
-        } else {
-            return $name_without_theme_name.'_default';
+            if (JeproLabTools.strStr(name, themeName) && JeproLabImageTypeModel.getByNameType(name)) {
+                return name;
+            } else if (JeproLabImageTypeModel.getByNameType(nameWithoutThemeName + "_" + themeName) != null){
+                return nameWithoutThemeName + "_" + themeName;
+            } else if (JeproLabImageTypeModel.getByNameType(themeName + "_" + nameWithoutThemeName) != null){
+                return themeName + "_" + nameWithoutThemeName;
+            } else{
+                return nameWithoutThemeName + "_default";
+            }
         }
-        }*/
     }
 }
