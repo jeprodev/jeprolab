@@ -2743,8 +2743,10 @@ public class JeproLabCategoryModel extends JeproLabModel {
             }
         }
 
-        for(JeproLabLanguageModel language : languages){
-            this.description.put("lang_" + language.language_id, JeproLabTools.getCleanDescription(this.description.get("lang_" + language.language_id));
+        for (Object o : languages.entrySet()) {
+            Map.Entry lang = (Map.Entry) o;
+            JeproLabLanguageModel language = (JeproLabLanguageModel) lang.getValue();
+            this.description.put("lang_" + language.language_id, JeproLabTools.getCleanDescription(this.description.get("lang_" + language.language_id)));
         }
 
         JeproLabSubCategory jeproLabSubCategory = new JeproLabSubCategory();
