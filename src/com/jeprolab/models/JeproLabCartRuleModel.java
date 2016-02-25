@@ -1358,7 +1358,7 @@ public class JeproLabCartRuleModel extends JeproLabModel {
         if (!Arrays.asList(fieldTypes).contains(type)) {
             return false;
         }
-
+/*
         // This check must not be removed because this var is used a few lines below
         $list = (is_array($list) ? implode(',', array_map('intval', $list)) : (int)$list);
         if (!preg_match('/^[0-9,]+$/', $list)) {
@@ -1366,18 +1366,24 @@ public class JeproLabCartRuleModel extends JeproLabModel {
         }
 
         // Delete associated restrictions on cart rules
+        String query = "DELETE cart_rule_analyze_rule_value FROM " + staticDataBaseObject.quoteName("#__jeprolab_cart_rule_analyze_rule");
+        query += " AS cart_rule_analyze_rule LEFT JOIN " + staticDataBaseObject.quoteName("#__jeprolab_cart_rule_analyze_rule_value");
+        query += " AS cart_rule_analyze_rule_value ON cart_rule_analyze_rule." + staticDataBaseObject.quoteName("analyze_rule_id") + " =";
+        query += "cart_rule_analyze_rule_value." + staticDataBaseObject.quoteName("analyze_rule_id") + " WHERE cart_rule_analyze_rule.";
+        query += staticDataBaseObject.quoteName("type") + " = " + staticDataBaseObject.quoteName(type) + " AND cart_rule_analyze_rule_value.";
+        query += staticDataBaseObject.quoteName("item_id") + " IN (" + itemList + ")";
+
+        staticDataBaseObject.setQuery(query);
+
         Db::getInstance()->execute('
-            DELETE crprv
-            FROM `'.dataBaseObject.quoteName(".'cart_rule_product_rule` crpr
-        LEFT JOIN `'.dataBaseObject.quoteName(".'cart_rule_product_rule_value` crprv ON crpr.`id_product_rule` = crprv.`id_product_rule`
-        WHERE crpr.`type` = "'.pSQL($type).'"
-        AND crprv.`id_item` IN ('.$list.')'); // $list is checked a few lines above
+            '); // $list is checked a few lines above
 
         // Delete the product rules that does not have any values
-        if (Db::getInstance()->Affected_Rows() > 0) {
-        Db::getInstance()->delete('cart_rule_product_rule', 'NOT EXISTS (SELECT 1 FROM `'.dataBaseObject.quoteName(".'cart_rule_product_rule_value`
-        WHERE `'.dataBaseObject.quoteName(".'cart_rule_product_rule`.`id_product_rule` = `'.dataBaseObject.quoteName(".'cart_rule_product_rule_value`.`id_product_rule`)');
-    }
+        if (staticDataBaseObject.executeQuery() > 0) {
+            query = "DELETE FROM " + staticDataBaseObject.quoteName("#__jeprolab_cart_rule_analyze_rule") + " NOT EXISTS (SELECT";
+            query += " 1 FROM " + staticDataBaseObject.quoteName("#__jeprolab_cart_rule_analyze_rule_value") + " WHERE ";
+            query += staticDataBaseObject.quoteName(".'cart_rule_product_rule`.`id_product_rule` = `'.dataBaseObject.quoteName(".'cart_rule_product_rule_value`.`id_product_rule`)');
+        }
         // If the product rules were the only conditions of a product rule group, delete the product rule group
         if (Db::getInstance()->Affected_Rows() > 0) {
         Db::getInstance()->delete('cart_rule_product_rule_group', 'NOT EXISTS (SELECT 1 FROM `'.dataBaseObject.quoteName(".'cart_rule_product_rule`
@@ -1385,13 +1391,15 @@ public class JeproLabCartRuleModel extends JeproLabModel {
     }
 
         // If the product rule group were the only restrictions of a cart rule, update de cart rule restriction cache
-        if (Db::getInstance()->Affected_Rows() > 0) {
-        Db::getInstance()->execute('
-                    UPDATE `'.dataBaseObject.quoteName(".'cart_rule` cr
-        LEFT JOIN `'.dataBaseObject.quoteName(".'cart_rule_product_rule_group` crprg ON cr.id_cart_rule = crprg.id_cart_rule
-        SET product_restriction = IF(crprg.id_product_rule_group IS NULL, 0, 1)');
-    }
+        if (Db::getInstance()->Affected_Rows() > 0){
+            query = "UPDATE " + staticDataBaseObject.quoteName("#__jeprolab_cart_rule") + " AS cart_rule LEFT JOIN ";
+            query += staticDataBaseObject.quoteName("#__jeprolab_cart_rule_analyze_rule_group") + " AS cart_rule_analyze_rule_group ";
+            query += " ON cart_rule.cart_rule_id = cart_rule_analyze_rule_group.cart_rule_id SET analyze_restriction = IF(";
+            query += " cart_rule_analyze_rule_group.analyze_rule_group_id IS NULL, 0, 1)";
 
+            staticDataBaseObject.setQuery(query);
+            staticDataBaseObject.query(false);
+        }*/
         return true;
     }
 

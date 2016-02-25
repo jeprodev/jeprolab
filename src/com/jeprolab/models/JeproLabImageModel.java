@@ -1301,8 +1301,8 @@ public class JeproLabImageModel extends JeproLabModel {
                     try {
                         while (resultSet.next()) {
                             foreach($result as $value) {
-                                for ($i = 0; $i < $total; ++$i) {
-                                    JeproLabImageTypeModel.images_types_name_cache[$result['name']. '_'.$types[$i]. '_'.$value]=$result;
+                                for (int i = 0; i < total; i++) {
+                                    JeproLabImageTypeModel.images_types_name_cache.put(resultSet.getString("name") + "_" + types.get(i) + "_'.$value]=$result;
                                 }
                             }
                         }
@@ -1312,17 +1312,16 @@ public class JeproLabImageModel extends JeproLabModel {
                 }
                 is_passed = true;
             }
-
-            $return = false;
-            if (isset(self::$images_types_name_cache[$name.'_'.$type.'_'.$order])){
-                $return = self::$images_types_name_cache[$name. '_'.$type. '_'.$order];
+            result = false;
+            if (JeproLabImageTypeModel.images_types_name_cache.containsKey(cacheKey)){
+                result = JeproLabImageTypeModel.images_types_name_cache.get(cacheKey);
             }
-            return $return;
+            return result;
         }
 
         public static String getFormattedName(String name){
             String themeName = JeproLabContext.getContext().laboratory.theme_name;
-            String nameWithoutThemeName = JeproLabTools.str_replace(array('_'.$theme_name, $theme_name.'_'), '', $name);
+            String nameWithoutThemeName = JeproLabTools.strSeplace(array('_'.$theme_name, $theme_name.'_'), '', $name);
 
             //check if the theme name is already in $name if yes only return $name
             if (JeproLabTools.strStr(name, themeName) && JeproLabImageTypeModel.getByNameType(name)) {

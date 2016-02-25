@@ -1284,22 +1284,42 @@ public class JeproLabAnalyzeModel extends JeproLabModel {
         }
         return parent::validateField($field, $value, $id_lang, $skip, $human_errors);
     }
-
-    public function toggleStatus() {
+*/
+    public boolean toggleStatus() {
         //test if the product is active and if redirect_type is empty string and set default value to id_product_redirected & redirect_type
         //  /!\ after parent::toggleStatus() active will be false, that why we set 404 by default :p
-        if (this.active) {
+        int newVal = this.published ? 1 : 0;
+
+        if (this.published) {
             //case where active will be false after parent::toggleStatus()
-            this.id_product_redirected = 0;
-            this.redirect_type = '404';
+            this.analyze_redirected_id = 0;
+            this.redirect_type = "404";
         } else {
             //case where active will be true after parent::toggleStatus()
-            this.id_product_redirected = 0;
-            this.redirect_type = '';
+            this.analyze_redirected_id = 0;
+            this.redirect_type = "";
         }
-        return parent::toggleStatus();
-    }
+        String query = "UPDATE " + dataBaseObject.quoteName("#__jeprolab_analyze") + " SET " + dataBaseObject.quoteName("published");
+        query += " = " + newVal + ", " + dataBaseObject.quoteName("analyze_redirected_id") + " = " + this.analyze_redirected_id + ", ";
+        query += dataBaseObject.quoteName("redirect_type") + " = " + dataBaseObject.quoteName(this.redirect_type) + " WHERE " ;
+        query += dataBaseObject.quoteName("analyze_id") + " = " + this.analyze_id;
 
+        staticDataBaseObject.setQuery(query);
+        boolean result = staticDataBaseObject.query(false);
+
+        int labId = JeproLabContext.getContext().laboratory.laboratory_id;
+        query = "UPDATE " + dataBaseObject.quoteName("#__jeprolab_analyze_lab") + " SET " + dataBaseObject.quoteName("published");
+        query += " = " + newVal + ", " + dataBaseObject.quoteName("analyze_redirected_id") + " = " + this.analyze_redirected_id + ", ";
+        query += dataBaseObject.quoteName("redirect_type") + " = " + dataBaseObject.quoteName(this.redirect_type) + " WHERE " ;
+        query += dataBaseObject.quoteName("analyze_id") + " = " + this.analyze_id + " AND " + dataBaseObject.quoteName("lab_id");
+        query += " = " + labId;
+
+        staticDataBaseObject.setQuery(query);
+        result &= staticDataBaseObject.query(false);
+        this.published = !this.published;
+        return result;
+    }
+/*
     public function delete()
     {
         /*
@@ -1484,85 +1504,120 @@ public class JeproLabAnalyzeModel extends JeproLabModel {
 
         SpecificPriceRule::applyAllRules(array((int)this.id));
         return true;
+    } */
+
+    public boolean deleteCategory(int categoryId){
+        return deleteCategory(categoryId, true);
     }
 
     /**
      * deleteCategory delete this product from the category $id_category
      *
-     * @param mixed $id_category
-     * @param mixed $clean_positions
+     * @param categoryId category to be removes
+     * @param cleanPositions reset analyzes positions
      * @return bool
-     * /
-    public function deleteCategory($id_category, $clean_positions = true)
-    {
-        $result = Db::getInstance()->executeS(
-            'SELECT `id_category`, `position`
-            FROM `'.staticDataBaseObject.quoteName("#__jeprolab.'category_product`
-        WHERE `id_product` = '.(int)this.id.'
-        AND id_category = '.(int)$id_category.''
-        );
+     */
+    public boolean deleteCategory(int categoryId, boolean cleanPositions){
+        if(dataBaseObject == null){
+            dataBaseObject = JeproLabFactory.getDataBaseConnector();
+        }
 
-        $return = Db::getInstance()->delete('category_product', 'id_product = '.(int)this.id.' AND id_category = '.(int)$id_category);
-        if ($clean_positions === true) {
-            foreach ($result as $row) {
-                this.cleanPositions((int)$row['id_category'], (int)$row['position']);
+        String query = "SELECT " + dataBaseObject.quoteName("category_id") + ", " + dataBaseObject.quoteName("position") + " FROM ";
+        query += dataBaseObject.quoteName("#__jeprolab_analyze_category") + " WHERE " + dataBaseObject.quoteName("analyze_id") + " = ";
+        query += this.analyze_id + " AND category_id = " + categoryId;
+
+        dataBaseObject.setQuery(query);
+        ResultSet resultSet = dataBaseObject.loadObject();
+
+        query = "DELETE " + dataBaseObject.quoteName("#__jeprolab_analyze_category") + " WHERE " + dataBaseObject.quoteName("analyze_id");
+        query += " = " + this.analyze_id + " AND " + dataBaseObject.quoteName("category_id") + " = " + categoryId;
+
+        dataBaseObject.setQuery(query);
+        boolean result = dataBaseObject.query(false);
+        //$return = Db::getInstance()->delete('category_product', 'id_product = '.(int)this.id.' AND id_category = '.(int)$id_category);
+        if (cleanPositions && resultSet != null) {
+            try {
+                while(resultSet.next()) {
+                    this.cleanPositions(resultSet.getInt("category_id"), resultSet.getInt("position"));
+                }
+            }catch(SQLException ignored){
+
             }
         }
-        SpecificPriceRule::applyAllRules(array((int)this.id));
-        return $return;
+        JeproLabSpecificPriceModel.JeproLabSpecificPriceRuleModel.applyAllRules(this.analyze_id));
+        return result;
+    }
+
+    public boolean deleteCategories(){
+        return deleteCategories(false);
     }
 
     /**
      * Delete all association to category where product is indexed
      *
-     * @param bool $clean_positions clean category positions after deletion
+     * @param cleanPositions clean category positions after deletion
      * @return array Deletion result
-     * /
-    public function deleteCategories($clean_positions = false)
-    {
-        if ($clean_positions === true) {
-            $result = Db::getInstance()->executeS(
-                    'SELECT `id_category`, `position`
-                    FROM `'.staticDataBaseObject.quoteName("#__jeprolab.'category_product`
-            WHERE `id_product` = '.(int)this.id
-            );
-        }
+     */
+    public boolean deleteCategories(boolean cleanPositions){
+        ResultSet resultSet = null;
+        String query;
+        if (cleanPositions) {
+            query = "SELECT " + dataBaseObject.quoteName("category_id") + ", " + dataBaseObject.quoteName("position") + " FROM ";
+            query += dataBaseObject.quoteName("#__jeprolab_analyze_category") + " WHERE " + dataBaseObject.quoteName("analyze_id");
+            query += " = " + this.analyze_id;
 
-        $return = Db::getInstance()->delete('category_product', 'id_product = '.(int)this.id);
-        if ($clean_positions === true && is_array($result)) {
-            foreach ($result as $row) {
-                $return &= this.cleanPositions((int)$row['id_category'], (int)$row['position']);
+            dataBaseObject.setQuery(query);
+            resultSet = dataBaseObject.loadObject();
+        }
+        query = "DELETE " + dataBaseObject.quoteName("#__jeprolab_analyze_category") + " WHERE " + dataBaseObject.quoteName("analyze_id");
+        query += " = " + this.analyze_id;
+
+        dataBaseObject.setQuery(query);
+        boolean result = dataBaseObject.query(false);
+
+        if (cleanPositions && resultSet != null) {
+            try {
+                while(resultSet.next()) {
+                    result &= this.cleanPositions(resultSet.getInt("category_id"), resultSet.getInt("position"));
+                }
+            }catch(SQLException ignored){
+
             }
         }
 
-        return $return;
+        return result;
     }
 
     /**
      * Delete products tags entries
      *
      * @return array Deletion result
-     * /
-    public function deleteTags()
-    {
-        return Tag::deleteTagsForProduct((int)this.id);
+     */
+    public boolean deleteTags(){
+        return JeproLabTagModel.deleteTagsForAnalyze(this.analyze_id);
     }
 
     /**
      * Delete product from cart
      *
      * @return array Deletion result
-     * /
-    public function deleteCartProducts()
-    {
-        return Db::getInstance()->delete('cart_product', 'id_product = '.(int)this.id);
+     */
+    public boolean deleteCartAnalyzes(){
+        if(dataBaseObject == null){
+            dataBaseObject = JeproLabFactory.getDataBaseConnector();
+        }
+        String query = "DELETE " + dataBaseObject.quoteName("#__jeprolab_cart_analyze") + " WHERE " + dataBaseObject.quoteName("analyze_id") + " = " + this.analyze_id;
+
+        dataBaseObject.setQuery(query);
+        return dataBaseObject.query(false);
+        //return Db::getInstance()->delete('cart_product', 'id_product = '.(int)this.id);
     }
 
     /**
      * Delete product images from database
      *
      * @return bool success
-     * /
+     */
     public function deleteImages()
     {
         $result = Db::getInstance()->executeS('
@@ -1583,7 +1638,7 @@ public class JeproLabAnalyzeModel extends JeproLabModel {
 
     /**
      * @deprecated 1.5.0 Use Combination::getPrice()
-     * /
+     */
     public static function getProductAttributePrice($id_product_attribute)
     {
         return Combination::getPrice($id_product_attribute);
@@ -1598,7 +1653,7 @@ public class JeproLabAnalyzeModel extends JeproLabModel {
      * @param string $order_by Field for ordering
      * @param string $order_way Way for ordering (ASC or DESC)
      * @return array Products details
-     * /
+     */
     public static function getProducts($id_lang, $start, $limit, $order_by, $order_way, $id_category = false,
                                        $only_active = false, Context context = null)
     {
@@ -1672,7 +1727,7 @@ public class JeproLabAnalyzeModel extends JeproLabModel {
         ORDER BY pl.`name`';
         return Db::getInstance(_PS_USE_SQL_SLAVE_)->executeS($sql);
     }
-*/
+
     public boolean isNew(){
         if(dataBaseObject == null){
             dataBaseObject = JeproLabFactory.getDataBaseConnector();
