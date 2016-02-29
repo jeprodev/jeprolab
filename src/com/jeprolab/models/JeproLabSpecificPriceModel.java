@@ -649,20 +649,20 @@ public class JeproLabSpecificPriceModel extends JeproLabModel{
 
 
     public static class JeproLabSpecificPriceRuleModel extends JeproLabModel {
-        public $name;
-        public $id_shop;
-        public $id_currency;
-        public $id_country;
-        public $id_group;
-        public $from_quantity;
-        public $price;
-        public $reduction;
-        public $reduction_tax;
-        public $reduction_type;
-        public $from;
-        public $to;
+        public String name;
+        public int laboratory_id;
+        public int currency_id;
+        public int country_id;
+        public int group_id;
+        public int from_quantity;
+        public float price;
+        public float reduction;
+        public float reduction_tax;
+        public String reduction_type;
+        public Date from;
+        public Date to;
 
-        protected static $rules_application_enable = true;
+        protected static boolean rules_application_enable = true;
 
         /*
          * @see ObjectModel::$definition
@@ -773,21 +773,27 @@ public class JeproLabSpecificPriceModel extends JeproLabModel{
                 $where .= ' AND id_product IN ('.implode(', ', array_map('intval', $products)).')';
             }
             return Db::getInstance()->execute('DELETE FROM '._DB_PREFIX_.'specific_price WHERE id_specific_price_rule='.(int)$this->id.$where);
+        }*/
+
+        public static void applyAllRules(int analyzeId) {
+            List<Integer> analyzeList = new ArrayList<>();
+            analyzeList.add(analyzeId);
+            applyAllRules(analyzeList);
         }
 
         /**
-         * @param array|bool $products
+         * @param analyzeList $products
          */
-        public static function applyAllRules($products = false) {
-            if (!SpecificPriceRule::$rules_application_enable) {
+        public static void applyAllRules(List<Integer> analyzeList) {
+            if (!JeproLabSpecificPriceRuleModel.rules_application_enable) {
                 return;
             }
 
-            $rules = new PrestaShopCollection('SpecificPriceRule');
+            /*$rules = new PrestaShopCollection('SpecificPriceRule');
             foreach ($rules as $rule) {
-            /** @var SpecificPriceRule $rule */
-            $rule->apply($products);
-        }
+                /** @var SpecificPriceRule $rule * /
+                $rule->apply($products);
+            }*/
         }
 /*
         public function getConditions()

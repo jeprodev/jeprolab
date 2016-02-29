@@ -4,7 +4,9 @@ import com.jeprolab.models.core.JeproLabFactory;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -25,8 +27,8 @@ public class JeproLabTagModel extends JeproLabModel{
             'table' => 'tag',
                     'primary' => 'id_tag',
                     'fields' => array(
-                    'id_lang' =>    array('type' => self::TYPE_INT, 'validate' => 'isUnsignedId', 'required' => true),
-    'name' =>        array('type' => self::TYPE_STRING, 'validate' => 'isGenericName', 'required' => true, 'size' => 32),
+                    'id_lang' =>    array('type' => JeproLabTagModel.TYPE_INT, 'validate' => 'isUnsignedId', 'required' => true),
+    'name' =>        array('type' => JeproLabTagModel.TYPE_STRING, 'validate' => 'isGenericName', 'required' => true, 'size' => 32),
     ),
             );
 
@@ -92,7 +94,7 @@ public class JeproLabTagModel extends JeproLabModel{
                 if (!Validate::isGenericName($tag)) {
                     return false;
                 }
-                $tag = trim(Tools::substr($tag, 0, self::$definition['fields']['name']['size']));
+                $tag = trim(Tools::substr($tag, 0, JeproLabTagModel.$definition['fields']['name']['size']));
                 $tag_obj = new Tag(null, $tag, (int)$id_lang);
 
                 /* Tag does not exist in database * /
@@ -117,15 +119,14 @@ public class JeproLabTagModel extends JeproLabModel{
         VALUES '.$data);
 
         if ($list != array()) {
-            self::updateTagCount($list);
+            JeproLabTagModel.updateTagCount($list);
         }
 
         return $result;
     }
-
-    public static function updateTagCount($tag_list = null)
-    {
-        if (!Module::getBatchMode()) {
+*/
+    public static void updateTagCount(List<Integer> tagList){
+        /*if (!Module::getBatchMode()) {
         if ($tag_list != null) {
             $tag_list_query = ' AND pt.id_tag IN ('.implode(',', $tag_list).')';
             Db::getInstance()->execute('DELETE pt FROM `'._DB_PREFIX_.'tag_count` pt WHERE 1=1 '.$tag_list_query);
@@ -155,9 +156,9 @@ public class JeproLabTagModel extends JeproLabModel{
         WHERE product_shop.`active` = 1
         '.$tag_list_query.'
         GROUP BY pt.id_tag, pt.id_lang, id_shop ORDER BY NULL');
+    }*/
     }
-    }
-
+/*
     public static function getMainTags($id_lang, $nb = 10)
     {
         $context = Context::getContext();
@@ -196,7 +197,7 @@ public class JeproLabTagModel extends JeproLabModel{
         Map<String, String> result = new HashMap<>();
         try {
             while(tagSet.next()) {
-
+//todo
             }
         } catch (SQLException ignored) {
 
@@ -253,23 +254,42 @@ public class JeproLabTagModel extends JeproLabModel{
                 }
             }
         }
-        self::updateTagCount(array((int)$this->id));
+        JeproLabTagModel.updateTagCount(array((int)$this->id));
         return $result;
     }
-
-    public static function deleteTagsForProduct($id_product)
-    {
-        $tags_removed = Db::getInstance()->executeS('SELECT id_tag FROM '._DB_PREFIX_.'product_tag WHERE id_product='.(int)$id_product);
-        $result = Db::getInstance()->delete('product_tag', 'id_product = '.(int)$id_product);
-        Db::getInstance()->delete('tag', 'NOT EXISTS (SELECT 1 FROM '._DB_PREFIX_.'product_tag
-        WHERE '._DB_PREFIX_.'product_tag.id_tag = '._DB_PREFIX_.'tag.id_tag)');
-        $tag_list = array();
-        foreach($tags_removed as $tag_removed) {
-        $tag_list[] = $tag_removed['id_tag'];
-    }
-        if ($tag_list != array()) {
-            self::updateTagCount($tag_list);
+*/
+    public static boolean deleteTagsForAnalyze(int analyzeId){
+        if(staticDataBaseObject == null){
+            staticDataBaseObject = JeproLabFactory.getDataBaseConnector();
         }
-        return $result;
-    }*/
+        String query = "SELECT tag_id FROM " + staticDataBaseObject.quoteName("#__jeprolab_analyze_tag") + " WHERE analyze_id = " + analyzeId;
+        staticDataBaseObject.setQuery(query);
+        ResultSet tagsSet = staticDataBaseObject.loadObject();
+
+        query = "DELETE " + staticDataBaseObject.quoteName("#__jeprolab_analyze_tag") + " WHERE analyzeId = " + analyzeId;
+        staticDataBaseObject.setQuery(query);
+        boolean result = staticDataBaseObject.query(false);
+
+        query = "DELETE " + staticDataBaseObject.quoteName("#__jeprolab_tag") + " NOT EXISTS (SELECT 1 FROM " + staticDataBaseObject.quoteName("#__jeprolab_analyze_tag");
+        query += " WHERE " + staticDataBaseObject.quoteName("#__jeprolab_analyze_tag") + ".tag_id = " + staticDataBaseObject.quoteName("#__jeprolab_analyze_tag") + ".tag_id)";
+
+        staticDataBaseObject.setQuery(query);
+        staticDataBaseObject.query(false);
+
+        List<Integer> tagList = new ArrayList<>();
+        if(tagsSet != null){
+            try{
+                while(tagsSet.next()){
+                    tagList.add(tagsSet.getInt("tag_id"));
+                }
+            }catch(SQLException ignored){
+
+            }
+        }
+
+        if (tagList.size() > 0) {
+            JeproLabTagModel.updateTagCount(tagList);
+        }
+        return result;
+    }
 }

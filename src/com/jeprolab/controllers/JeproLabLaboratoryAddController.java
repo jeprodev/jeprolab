@@ -5,13 +5,15 @@ import com.jeprolab.assets.extend.controls.JeproFormPanel;
 import com.jeprolab.assets.extend.controls.JeproFormPanelContainer;
 import com.jeprolab.assets.extend.controls.JeproFormPanelTitle;
 import com.jeprolab.assets.extend.controls.switchbutton.JeproSwitchButton;
+import com.jeprolab.assets.tools.JeproLabContext;
+import com.jeprolab.models.*;
 import javafx.fxml.FXML;
 import javafx.geometry.Insets;
 import javafx.scene.control.*;
-import javafx.scene.layout.Pane;
 import javafx.scene.layout.GridPane;
 
 import java.net.URL;
+import java.util.List;
 import java.util.ResourceBundle;
 
 /**
@@ -19,6 +21,7 @@ import java.util.ResourceBundle;
  * Created by jeprodev on 07/01/15.
  */
 public class JeproLabLaboratoryAddController extends JeproLabController {
+    private JeproLabLaboratoryModel laboratory;
     @FXML
     public JeproFormPanel jeproLabLaboratoryPanelWrapper;
     public JeproFormPanelTitle jeproLabLaboratoryPanelTitleWrapper;
@@ -32,7 +35,7 @@ public class JeproLabLaboratoryAddController extends JeproLabController {
 
     public TextField jeproLabLaboratoryName, jeproLabLaboratoryDomain, jeproLabLaboratorySslDomain, jeproLabLaboratoryPhysicalUri;
     public TextField jeproLabLaboratoryVirtualUri;
-    public ComboBox jeproLabLaboratoryGroup, jeproLabLaboratoryCategory, jeproLabLaboratoryTheme;
+    public ComboBox<String> jeproLabLaboratoryGroup, jeproLabLaboratoryCategory, jeproLabLaboratoryTheme;
 
     public GridPane jeproLabLaboratoryUrlsLayout, jeproLabLaboratoryInformationLayout;
 
@@ -125,5 +128,59 @@ public class JeproLabLaboratoryAddController extends JeproLabController {
         GridPane.setMargin(jeproLabLaboratoryMainUrlLabel, new Insets(10, 10, 10, 10));
         GridPane.setMargin(jeproLabLaboratoryMainUrl, new Insets(10, 10, 10, 10));
         GridPane.setMargin(jeproLabLaboratoryUrlsTableView, new Insets(10, 10, 10, 10));
+
+        initializeContent();
+    }
+
+    @Override
+    protected void initializeContent() {
+        super.initializeContent();
+        if(this.context == null){
+            this.context = JeproLabContext.getContext();
+        }
+        int labId = JeproLab.request.getRequest().containsKey("laboratory_id") ? Integer.parseInt(JeproLab.request.getRequest().get("laboratory_id")) : 0;
+        //int rootCategoryId = JeproLabSettingModel.getIntValue("root_category");
+        laboratory = new JeproLabLaboratoryModel(labId);
+        List<JeproLabLaboratoryGroupModel> labGroups = JeproLabLaboratoryGroupModel.getLaboratoryGroups();
+        if(labGroups != null){
+            for(JeproLabLaboratoryGroupModel labGroup : labGroups){
+                jeproLabLaboratoryGroup.getItems().add(labGroup.name);
+                if(laboratory.laboratory_id > 0 && laboratory.laboratory_group_id == labGroup.laboratory_group_id){
+                    jeproLabLaboratoryGroup.setValue(labGroup.name);
+
+                }else {
+                    jeproLabLaboratoryGroup.setPromptText(bundle.getString("JEPROLAB_SELECT_LABORATORY_GROUP_LABEL"));
+                }
+            }
+        }
+
+        List<JeproLabCategoryModel> labCategories = JeproLabCategoryModel.getHomeCategories(this.context.language.language_id);
+        if(labCategories != null){
+            for(JeproLabCategoryModel category : labCategories){
+                jeproLabLaboratoryCategory.getItems().add(category.name.get("lang_" + context.language.language_id));
+                if(laboratory.laboratory_id > 0 && laboratory.getCategoryId() == category.category_id){
+                    jeproLabLaboratoryCategory.setValue(category.name.get("lang_" + context.language.language_id));
+
+                }else {
+                    jeproLabLaboratoryCategory.setPromptText(bundle.getString("JEPROLAB_SELECT_ROOT_CATEGORY_LABEL"));
+                }
+            }
+        }
+        List<JeproLabThemeModel> themes = JeproLabThemeModel.getThemes();
+        if(labCategories != null){
+            for(JeproLabThemeModel theme : themes){
+                jeproLabLaboratoryTheme.getItems().add(theme.name);
+                if(laboratory.laboratory_id > 0 && laboratory.theme_id == theme.theme_id){
+                    jeproLabLaboratoryTheme.setValue(theme.name);
+
+                }else {
+                    jeproLabLaboratoryTheme.setPromptText(bundle.getString("JEPROLAB_SELECT_THEME_LABEL"));
+                }
+            }
+        }
+
+        if(laboratory.laboratory_id > 0){
+            jeproLabLaboratoryPublished.setSelected(laboratory.published);
+        }
     }
 }

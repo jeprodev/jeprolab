@@ -269,6 +269,14 @@ public class JeproLabTools {
         return value;
     }
 
+    public static String strReplace(String value, String search, String replaceWith){
+        return value.replaceAll(search, replaceWith);
+    }
+
+    public static String strStr(String value, String regex){
+        return value.substring(value.indexOf(regex), value.length() - 1);
+    }
+
     public static boolean fileExistsInCache(String filePath){
         return true;
     }

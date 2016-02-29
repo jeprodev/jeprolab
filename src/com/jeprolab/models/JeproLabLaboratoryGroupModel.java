@@ -13,7 +13,7 @@ public class JeproLabLaboratoryGroupModel extends JeproLabModel {
 
     public int laboratory_group_id = 0;
 
-    public boolean share_customers, share_results, share_requests, share_stock;
+    public boolean share_customers, share_results, share_requests, share_stocks;
 
     public boolean published = true, deleted = false;
 
@@ -49,10 +49,10 @@ public class JeproLabLaboratoryGroupModel extends JeproLabModel {
                 laboratoryGroup = new JeproLabLaboratoryGroupModel();
                 laboratoryGroup.laboratory_group_id = results.getInt("lab_group_id");
                 laboratoryGroup.name = results.getString("lab_group_name");
-                laboratoryGroup.share_customers = results.getInt("share_customer") > 0;
+                laboratoryGroup.share_customers = results.getInt("share_customers") > 0;
                 laboratoryGroup.share_requests = results.getInt("share_requests") > 0;
                 laboratoryGroup.share_results = results.getInt("share_results") > 0;
-                laboratoryGroup.share_stock = results.getInt("share_stock") > 0;
+                laboratoryGroup.share_stocks = results.getInt("share_stocks") > 0;
                 laboratoryGroup.published = results.getInt("published") > 0;
                 laboratoryGroup.deleted = results.getInt("deleted") > 0;
                 laboratoryGroups.add(laboratoryGroup);

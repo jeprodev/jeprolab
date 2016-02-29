@@ -799,7 +799,7 @@ public class JeproLabStockAvailableModel extends  JeproLabModel{
         String query;
 
         // if quantities are shared between shops of the group
-        if (labGroup.share_stock) {
+        if (labGroup.share_stocks) {
             query = " AND " + alias + "lab_group_id = " + labGroup.laboratory_group_id + " AND " + alias + "lab_id = 0 ";
 
         } else {
@@ -840,7 +840,7 @@ public class JeproLabStockAvailableModel extends  JeproLabModel{
         }
 
         // if quantities are shared between shops of the group
-        if (labGroup.share_stock) {
+        if (labGroup.share_stocks) {
             queryParams.put("lab_group_id", labGroup.laboratory_group_id);
             queryParams.put("lab_id", 0);
 

@@ -24,7 +24,7 @@ public class JeproLabLaboratoryController extends JeproLabController{
 
         jeproLabLaboratoryTableView.setPrefWidth(.98 * JeproLab.APP_WIDTH);
         jeproLabLaboratoryTableView.setLayoutX(0.01 * JeproLab.APP_WIDTH);
-
+        jeproLabLaboratoryTableView.setLayoutY(10);
         jeproLabLaboratoryIndexColumn.setText("#");
         jeproLabLaboratoryIndexColumn.setPrefWidth(30);
         jeproLabLaboratoryCheckBoxColumn.setText(bundle.getString("JEPROLAB_LABEL"));

@@ -1,6 +1,6 @@
 package com.jeprolab.models;
 
-import com.jeprolab.JeproLab;
+
 import com.jeprolab.assets.tools.JeproLabCache;
 import com.jeprolab.assets.tools.JeproLabConfigurationSettings;
 import com.jeprolab.assets.tools.JeproLabContext;
@@ -714,13 +714,12 @@ public class JeproLabImageModel extends JeproLabModel {
         }
 
         if (this.existing_path == null || this.existing_path.equals("")) {
-            if (Configuration::get('PS_LEGACY_IMAGES') && file_exists(JeproLabConfigurationSettings.JEPROLAB_ANALYZE_IMAGE_DIRECTORY.this.id_product.'-'.this.id.'.'.this.image_format)) {
+            if (Configuration::get('PS_LEGACY_IMAGES') && file_exists(JeproLabConfigurationSettings.JEPROLAB_ANALYZE_IMAGE_DIRECTORY + this.analyze_id + "_" + this.image_id + "." + this.image_format)) {
                 this.existing_path = this.analyze_id + "_" + this.image_id;
             } else {
                 this.existing_path = this.getImagePath();
             }
         }
-
         return this.existing_path;
     }
 
@@ -903,223 +902,7 @@ public class JeproLabImageModel extends JeproLabModel {
         return JeproLabConfigurationSettings.JEPROLAB_ANALYZE_IMAGE_DIRECTORY + path;
     }
 
-
-
-    public static class JeproLabImageTypeModel extends JeproLabModel{
-        public int image_type_id;
-
-        /** @var string Name * /
-        public String name;
-
-        /** @var int Width * /
-        public int width;
-
-        /** @var int Height * /
-        public int height;
-
-        /** @var bool Apply to products * /
-        public boolean analyzes;
-
-        /** @var int Apply to categories * /
-        public boolean categories;
-
-        /** @var int Apply to manufacturers * /
-        public boolean manufacturers;
-
-        /** @var int Apply to suppliers * /
-        public boolean suppliers;
-
-        /** @var int Apply to scenes * /
-        public boolean scenes;
-
-        /** @var boolean Apply to laboratories * /
-        public boolean laboratories;
-
-        public boolean technicians;
-
-        /*
-         * @see ObjectModel::$definition
-         * /
-        public static $definition = array(
-                'table' => 'image_type',
-                        'primary' => 'id_image_type',
-                        'fields' => array(
-                        'name' =>        array('type' => self::TYPE_STRING, 'validate' => 'isImageTypeName', 'required' => true, 'size' => 64),
-        'width' =>        array('type' => self::TYPE_INT, 'validate' => 'isImageSize', 'required' => true),
-        'height' =>        array('type' => self::TYPE_INT, 'validate' => 'isImageSize', 'required' => true),
-        'categories' =>    array('type' => self::TYPE_BOOL, 'validate' => 'isBool'),
-        'products' =>        array('type' => self::TYPE_BOOL, 'validate' => 'isBool'),
-        'manufacturers' =>    array('type' => self::TYPE_BOOL, 'validate' => 'isBool'),
-        'suppliers' =>        array('type' => self::TYPE_BOOL, 'validate' => 'isBool'),
-        'scenes' =>        array('type' => self::TYPE_BOOL, 'validate' => 'isBool'),
-        'stores' =>        array('type' => self::TYPE_BOOL, 'validate' => 'isBool'),
-        ),
-                );
-
-        /**
-         * @var array Image types cache
-         * /
-        protected static Map<String, List<JeproLabImageTypeModel>>images_types_cache = new HashMap<>();
-
-        protected  static boolean is_passed = false;
-
-        protected static Map<String> images_types_name_cache = new HashMap<>();
-
-        //protected $webserviceParameters = array();
-
-        public JeproLabImageTypeModel(){
-
-        }
-
-        public static List<JeproLabImageTypeModel> getImagesTypes(){
-            return getImagesTypes(null, false);
-        }
-
-        public static List<JeproLabImageTypeModel> getImagesTypes(String type){
-            return getImagesTypes(type, false);
-        }
-
-        /**
-         * Returns image type definitions
-         *
-         * @param type Image type
-         * @param orderBySize order by size
-         * @return array Image type definitions
-         * /
-        public static List<JeproLabImageTypeModel> getImagesTypes(String type, boolean orderBySize){
-            if (!JeproLabImageTypeModel.images_types_cache.containsKey(type)){
-                String where = " WHERE 1";
-                if (!type.equals("")){
-                    where += " AND " + staticDataBaseObject.quoteName(type, true) + " = 1 ";
-                }
-                String query = "SELECT * FROM " + staticDataBaseObject.quoteName("#__jeprolab_image_type") + where + " ORDER BY ";
-                if (orderBySize) {
-                    query +=  staticDataBaseObject.quoteName("width") + " DESC, " + staticDataBaseObject.quoteName("height") + " DESC, ";
-                    query += staticDataBaseObject.quoteName("name") + "ASC";
-                } else {
-                    query += staticDataBaseObject.quoteName("name") + " ASC";
-                }
-                List<JeproLabImageTypeModel> imageTypeList = new ArrayList<>();
-                staticDataBaseObject.setQuery(query);
-                ResultSet imageTypeSet = staticDataBaseObject.loadObject();
-                try{
-                    JeproLabImageTypeModel imageType;
-                    while(imageTypeSet.next()){
-                        imageType = new JeproLabImageTypeModel();
-                        imageType.image_type_id = imageTypeSet.getInt("image_type_id");
-                        imageType.name = imageTypeSet.getString("name");
-                        imageType.width = imageTypeSet.getInt("width");
-                        imageType.height = imageTypeSet.getInt("height");
-                        imageType.analyzes = imageTypeSet.getInt("analyzes") > 0;
-                        imageType.categories = imageTypeSet.getInt("categories") > 0;
-                        imageType.manufacturers = imageTypeSet.getInt("manufacturers") > 0;
-                        imageType.suppliers = imageTypeSet.getInt("suppliers") > 0;
-                        imageType.suppliers = imageTypeSet.getInt("suppliers") > 0;
-                        imageType.scenes = imageTypeSet.getInt("scenes") > 0;
-                        imageType.technicians = imageTypeSet.getInt("technicians") > 0;
-                        imageType.laboratories = imageTypeSet.getInt("laboratories") > 0;
-                        imageTypeList.add(imageType);
-                    }
-                }catch(SQLException ignored){
-
-                }
-                JeproLabImageTypeModel.images_types_cache.put(type, imageTypeList);
-            }
-            return JeproLabImageTypeModel.images_types_cache.get(type);
-        }
-
-        /**
-         * Check if type already is already registered in database
-         *
-         * @param typeName Name
-         * @return int Number of results found
-         * /
-        public static int typeAlreadyExists(String typeName){
-            if (!JeproLabTools.isImageTypeName(typeName)){
-                JeproLabTools.displayError(500, "");
-            }
-            String query = "SELECT " + staticDataBaseObject.quoteName("image_type_id") + " FROM " + staticDataBaseObject.quoteName("#__jeprolab_image_type");
-            query +=  " AS image_type WHERE " + staticDataBaseObject.quoteName("name") + " = " + staticDataBaseObject.quote(typeName);
-
-            int total = 0;
-            staticDataBaseObject.setQuery(query);
-            ResultSet resultSet = staticDataBaseObject.loadObject();
-            try{
-                while(resultSet.next()){
-                    total += 1;
-                }
-            }catch(SQLException ignored){
-                total = 0;
-            }
-            return total;
-        }
-
-        public static function getByNameAndType(String name){
-            getByNameAndType(name, null, 0);
-        }
-
-        public static function getByNameAndType(String name, String type){
-            getByNameAndType(name, type, 0);
-        }
-
-        /**
-         * Finds image type definition by name and type
-         * @param name
-         * @param type
-         * /
-        public static function getByNameAndType(String name, String type, int order){
-            String cacheKey = name + "_" + type + "_" + order;
-            if (!JeproLabImageTypeModel.images_types_name_cache.containsKey(cacheKey) && !is_passed) {
-                String query = "SELECT * FROM " + staticDataBaseObject.quoteName("#__jeprolab_image_type");
-                staticDataBaseObject.setQuery(query);
-                ResultSet resultSet = staticDataBaseObject.loadObject();
-
-                int total = 7;
-                String types[] = new String[total];
-                types[0] = "products";
-                types[1] = "categories";
-                types[2] = "manufacturers";
-                types[3] = "suppliers";
-                types[4] = "scenes";
-                types[5] = "stores";
-
-                try {
-                    while(resultSet.next()) {
-                        foreach($result as $value) {
-                            for (int i = 0; i < total; i++) {
-                                JeproLabImageTypeModel.images_types_name_cache.put($result['name'] + "_" + types[i]. '_'.$value]=$result;
-                            }
-                        }
-                    }
-                }catch(SQLException ignored){
-
-                }
-                is_passed = true;
-            }
-
-            $return = false;
-            if (JeproLabImageTypeModel.images_types_name_cache.containsKey(cacheKey)){
-                $return = JeproLabImageTypeModel.images_types_name_cache.get(cacheKey);
-            }
-            return $return;
-        }
-
-        public static String getFormatedName(String name){
-            String themeName = JeproLabContext.getContext().laboratory.theme_name;
-            String nameWithoutThemeName = str_replace(array('_'.$theme_name, $theme_name.'_'), '', $name);
-
-            //check if the theme name is already in $name if yes only return $name
-            if (strstr($name, $theme_name) && JeproLabImageTypeModel.getByNameAndType(name)) {
-                return name;
-            } else if (JeproLabImageTypeModel.getByNameAndType(nameWithoutThemeName + "_" + themeName)) {
-                return nameWithoutThemeName + "_" + themeName;
-            } else if (JeproLabImageTypeModel.getByNameAndType(themeName + "_" + nameWithoutThemeName)) {
-                return themeName + "_" + nameWithoutThemeName;
-            } else {
-                return nameWithoutThemeName + "_default";
-            }
-        }
-    } */
+*/
 
     public static class JeproLabImageTypeModel extends JeproLabModel {
         public int image_type_id;
@@ -1179,7 +962,7 @@ public class JeproLabImageModel extends JeproLabModel {
          */
         protected static Map<String, List<JeproLabImageTypeModel>>images_types_cache = new HashMap<>();
 
-        protected static Map<String, String>images_types_name_cache = new HashMap<>();
+        protected static Map<String, JeproLabImageTypeModel>images_types_name_cache = new HashMap<>();
 
  /*       protected $webserviceParameters = array();
 */
@@ -1244,7 +1027,7 @@ public class JeproLabImageModel extends JeproLabModel {
             return JeproLabImageTypeModel.images_types_cache.get(type);
         }
 
-        /**
+        /*
          * Check if type already is already registered in database
          *
          * @param string $typeName Name
@@ -1264,20 +1047,20 @@ public class JeproLabImageModel extends JeproLabModel {
             return Db::getInstance()->NumRows();
         } */
 
-        public static fu getByNameType(String name){
-            getByNameType(name, null, 0);
+        public static JeproLabImageTypeModel getByNameType(String name){
+            return getByNameType(name, null, 0);
         }
 
-        public static fu getByNameType(String name, String type){
-            getByNameType(name, type, 0);
+        public static JeproLabImageTypeModel getByNameType(String name, String type){
+            return getByNameType(name, type, 0);
         }
 
         /**
          * Finds image type definition by name and type
-         * @param name
-         * @param type
+         * @param name name
+         * @param type type
          */
-        public static function getByNameType(String name, String type, int order){
+        public static JeproLabImageTypeModel getByNameType(String name, String type, int order){
             //is_passed = false;
 
             String cacheKey = name + "_" + type + "_" + order;
@@ -1299,12 +1082,26 @@ public class JeproLabImageModel extends JeproLabModel {
                 int total = types.size();
                 if(resultSet != null) {
                     try {
+                        JeproLabImageTypeModel imageType;
                         while (resultSet.next()) {
-                            foreach($result as $value) {
+                            imageType = new JeproLabImageTypeModel();
+                            imageType.image_type_id = resultSet.getInt("image_type_id");
+                            imageType.name = resultSet.getString("name");
+                            imageType.width = resultSet.getInt("width");
+                            imageType.height = resultSet.getInt("height");
+                            imageType.analyzes = resultSet.getInt("analyzes") > 0;
+                            imageType.categories = resultSet.getInt("categories") > 0;
+                            imageType.manufacturers = resultSet.getInt("manufactures") > 0;
+                            imageType.suppliers = resultSet.getInt("suppliers") > 0;
+                            imageType.technicians = resultSet.getInt("technicians") > 0;
+                            imageType.scenes = resultSet.getInt("scenes") > 0;
+                            imageType.laboratories = resultSet.getInt("laboratories") > 0;
+                            //foreach($result as $value) {
                                 for (int i = 0; i < total; i++) {
-                                    JeproLabImageTypeModel.images_types_name_cache.put(resultSet.getString("name") + "_" + types.get(i) + "_'.$value]=$result;
+                                    JeproLabImageTypeModel.images_types_name_cache.put(resultSet.getString("name") + "_" + types.get(i) + "_" , imageType);
+                                    //JeproLabImageTypeModel.images_types_name_cache.put(resultSet.getString("name") + "_" + types.get(i) + "_" + value, imageType);
                                 }
-                            }
+                            //}
                         }
                     }catch(SQLException ignored){
 
@@ -1312,7 +1109,7 @@ public class JeproLabImageModel extends JeproLabModel {
                 }
                 is_passed = true;
             }
-            result = false;
+            JeproLabImageTypeModel result = null;
             if (JeproLabImageTypeModel.images_types_name_cache.containsKey(cacheKey)){
                 result = JeproLabImageTypeModel.images_types_name_cache.get(cacheKey);
             }
@@ -1321,10 +1118,11 @@ public class JeproLabImageModel extends JeproLabModel {
 
         public static String getFormattedName(String name){
             String themeName = JeproLabContext.getContext().laboratory.theme_name;
-            String nameWithoutThemeName = JeproLabTools.strSeplace(array('_'.$theme_name, $theme_name.'_'), '', $name);
+            String nameWithoutThemeName = JeproLabTools.strReplace(name, "_" + themeName, "");
+            nameWithoutThemeName = JeproLabTools.strReplace(nameWithoutThemeName, themeName + "_", "");
 
             //check if the theme name is already in $name if yes only return $name
-            if (JeproLabTools.strStr(name, themeName) && JeproLabImageTypeModel.getByNameType(name)) {
+            if (!JeproLabTools.strStr(name, themeName).equals("") && JeproLabImageTypeModel.getByNameType(name) != null) {
                 return name;
             } else if (JeproLabImageTypeModel.getByNameType(nameWithoutThemeName + "_" + themeName) != null){
                 return nameWithoutThemeName + "_" + themeName;

@@ -971,20 +971,21 @@ public class JeproLabCategoryModel extends JeproLabModel {
      * @return array
      */
     public static ResultSet getChildren(int parentId, int langId, boolean published, int labId){
-           String cacheKey = "jeprolab_category_get_children_" + parentId + "_" + langId + "_"+ (published ? 1 : 0) + "_" + labId;
+        String cacheKey = "jeprolab_category_get_children_" + parentId + "_" + langId + "_"+ (published ? 1 : 0) + "_" + labId;
         if (!JeproLabCache.getInstance().isStored(cacheKey)){
             if(staticDataBaseObject == null){
                 staticDataBaseObject = JeproLabFactory.getDataBaseConnector();
             }
             String query = "SELECT category." + staticDataBaseObject.quoteName("category_id") + ", category_lang." ;
             query += staticDataBaseObject.quoteName("name") + ", category_lang." + staticDataBaseObject.quoteName("link_rewrite");
-            query += ", category_lab." + staticDataBaseObject.quoteName("lab_id") + " FROM " + staticDataBaseObject.quoteName("#__jeprolab_category");
+            query += (labId > 0 ? ", category_lab." + staticDataBaseObject.quoteName("lab_id") : "") + " FROM " + staticDataBaseObject.quoteName("#__jeprolab_category");
             query += " AS category LEFT JOIN " + staticDataBaseObject.quoteName("#__jeprolab_category_lang") + " AS category_lang ON (category.";
             query += staticDataBaseObject.quoteName("category_id") + " = category_lang." + staticDataBaseObject.quoteName("category_id") ;
-            query += JeproLabLaboratoryModel.addSqlRestrictionOnLang("category_lang") + ") " + JeproLabLaboratoryModel.addSqlAssociation("category");
+            query += JeproLabLaboratoryModel.addSqlRestrictionOnLang("category_lang") + ") "
+                    + (labId > 0 ? JeproLabLaboratoryModel.addSqlAssociation("category") : "");
             query += " WHERE " + staticDataBaseObject.quoteName("lang_id") + " = " + langId + " AND category." + staticDataBaseObject.quoteName("parent_id");
             query += " = " + parentId +  (published ? " AND " + staticDataBaseObject.quoteName("published") + " = 1" : "") +" GROUP BY category.";
-            query += staticDataBaseObject.quoteName("category_id") + "	ORDER BY category_lab." + staticDataBaseObject.quoteName("position") + " ASC ";
+            query += staticDataBaseObject.quoteName("category_id") + (labId > 0 ? " ORDER BY category_lab." + staticDataBaseObject.quoteName("position") + " ASC " : "");
 
             staticDataBaseObject.setQuery(query);
             ResultSet result = staticDataBaseObject.loadObject();
@@ -2265,25 +2266,34 @@ public class JeproLabCategoryModel extends JeproLabModel {
     public static List<JeproLabCategoryModel> getHomeCategories(int langId, boolean active, int labId){
         ResultSet resultSet = JeproLabCategoryModel.getChildren(JeproLabSettingModel.getIntValue("root_category"), langId, active, labId);
         List<JeproLabCategoryModel> categories = new ArrayList<>();
+
         if(resultSet != null){
             try{
                 JeproLabCategoryModel category;
                 while(resultSet.next()){
                     category = new JeproLabCategoryModel();
                     category.category_id = resultSet.getInt("category_id");
-                    category.parent_id = resultSet.getInt("parent_id");
-                    category.default_laboratory_id = resultSet.getInt("default_lab_id");
-                    category.depth_level = resultSet.getInt("depth_level");
-                    category.n_left = resultSet.getInt("n_left");
-                    category.n_right = resultSet.getInt("n_right");
+                    /*category.parent_id = resultSet.getInt("parent_id");
+                    //category.default_laboratory_id = resultSet.getInt("default_lab_id");
+                    //category.depth_level = resultSet.getInt("depth_level");
+                    //category.n_left = resultSet.getInt("n_left");
+                    //category.n_right = resultSet.getInt("n_right");
                     category.published = resultSet.getInt("published") > 0;
                     category.date_add = resultSet.getDate("date_add");
                     category.date_upd = resultSet.getDate("date_upd");
-                    category.position = resultSet.getInt("position");
+                    category.position = resultSet.getInt("position");*/
+                    if(category.name == null){
+                        category.name = new HashMap<>();
+                    }
+                    category.name.put("lang_" + langId, resultSet.getString("name"));
+                    if(category.link_rewrite == null){
+                        category.link_rewrite = new HashMap<>();
+                    }
+                    category.link_rewrite.put("lang_" + langId, resultSet.getString("link_rewrite"));
                     categories.add(category);
                 }
             }catch (SQLException ignored){
-
+ignored.printStackTrace();
             }
         }
 

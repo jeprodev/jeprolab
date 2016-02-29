@@ -300,10 +300,10 @@ public class JeproLabWarehouseModel extends  JeproLabModel{
                 labGroup = JeproLabContext.getContext().laboratory.getLaboratoryGroup();
                 labId = JeproLabContext.getContext().laboratory.laboratory_id;
             }
-            shareStock = labGroup.share_stock;
+            shareStock = labGroup.share_stocks;
         } else {
             labGroup = JeproLabLaboratoryModel.getLaboratoryGroupFromLaboratory(labId);
-            shareStock = labGroup.share_stock;
+            shareStock = labGroup.share_stocks;
         }
         List<Integer> labIds;
         if (shareStock) {

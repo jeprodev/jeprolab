@@ -120,9 +120,9 @@ public class JeproLabZoneModel extends JeproLabModel{
     /**
      * Get a zone ID from its default language name
      *
-     * @param name
+     * @param name zone name
      * @return zone_id
-     * /
+     */
     public static int getIdByName(String name){
         if(staticDataBaseObject == null){
             staticDataBaseObject = JeproLabFactory.getDataBaseConnector();
@@ -132,7 +132,7 @@ public class JeproLabZoneModel extends JeproLabModel{
         query += " WHERE " + staticDataBaseObject.quoteName("name") + " = " + staticDataBaseObject.quote(name);
 
         staticDataBaseObject.setQuery(query);
-        return $db->loadResult();
+        return (int)staticDataBaseObject.loadValue("zone_id");
     }
 
     /**
