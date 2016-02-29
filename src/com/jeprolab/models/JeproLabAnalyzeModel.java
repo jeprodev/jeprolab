@@ -220,6 +220,7 @@ public class JeproLabAnalyzeModel extends JeproLabModel {
     public boolean cache_is_pack;
     public boolean cache_has_attachments;
     public boolean is_virtual;
+    public int analyze_attribute_id;
     public int analyze_pack_attribute_id;
     public int cache_default_attribute;
     private List<Integer> laboratory_list_id = new ArrayList<>();
