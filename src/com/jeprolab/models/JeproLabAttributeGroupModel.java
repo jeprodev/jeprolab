@@ -3,9 +3,10 @@ package com.jeprolab.models;
 import java.util.Map;
 
 /**
- * Created by jeproQxT on 15/02/2016.
+ *
+ * Created by jeprodev on 15/02/2014.
  */
-public class JeproLabAttributeGroupModel {
+public class JeproLabAttributeGroupModel extends JeproLabModel{
     /** @var string Name */
     public Map<String, String> name;
     public boolean is_color_group;

@@ -1,4 +1,18 @@
-<?import javafx.scene.layout.VBox?>
-<VBox xmlns:fx="http://javafx.com/fxml" fx:controller="com.jeprolab.controllers.JeproLabAnalyzeController" >
-
-</VBox>
+<?import com.jeprolab.assets.extend.controls.JeproFormPanel?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.TableColumn?>
+<JeproFormPanel xmlns:fx="http://javafx.com/fxml" fx:controller="com.jeprolab.controllers.JeproLabAnalyzeController" >
+    <TableView fx:id="jeproLabAnalyzeTableView" >
+        <columns>
+            <TableColumn fx:id="jeproLabAnalyzeIndexColumn" resizable="false" editable="false" />
+            <TableColumn fx:id="jeproLabAnalyzeCheckBoxColumn" resizable="false" editable="false" />
+            <TableColumn fx:id="jeproLabAnalyzeStatusColumn" resizable="false" editable="false" />
+            <TableColumn fx:id="jeproLabAnalyzeNameColumn" resizable="false" editable="false" />
+            <TableColumn fx:id="jeproLabAnalyzeReferenceColumn" resizable="false" editable="false" />
+            <TableColumn fx:id="jeproLabAnalyzeCategoryColumn" resizable="false" editable="false" />
+            <TableColumn fx:id="jeproLabAnalyzeBasePriceColumn" resizable="false" editable="false" />
+            <TableColumn fx:id="jeproLabAnalyzeFinalPriceColumn" resizable="false" editable="false" />
+            <TableColumn fx:id="jeproLabAnalyzeActionsColumn" resizable="false" editable="false" />
+        </columns>
+    </TableView>
+</JeproFormPanel>

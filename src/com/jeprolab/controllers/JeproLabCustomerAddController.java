@@ -3,6 +3,7 @@ package com.jeprolab.controllers;
 
 import com.jeprolab.JeproLab;
 import com.jeprolab.assets.extend.controls.*;
+import com.jeprolab.models.JeproLabCustomerModel;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
@@ -22,6 +23,7 @@ public class JeproLabCustomerAddController extends JeproLabController {
     private ResourceBundle bundle;
     private Label jeproLabAddCustomerFormTitle;
     private Button saveButton, cancelButton;
+    private JeproLabCustomerModel customer;
 
     @FXML
     public Label customerTitleLabel, customerFirstNameLabel, customerLastNameLabel, customerBusinessInternetLabel;
@@ -31,7 +33,7 @@ public class JeproLabCustomerAddController extends JeproLabController {
     public TextField customerAddressStreetName;
     public TextField customerFirstName, customerLastName, customerWebsite, customerState, customerCity, customerAddressNumber;
     public JeproPhoneField customerPhone, customerMobilePhone;
-    public ComboBox<Pair<String, String>> customerTitle;
+    public ComboBox<String> customerTitle;
     public ComboBox customerZone, customerCountry, customerStreetType;
     public CheckBox customerNewsLetter, customerAllowAds;
     public JeproEmailField customerEmail;
@@ -45,7 +47,7 @@ public class JeproLabCustomerAddController extends JeproLabController {
 
 
     public void initialize(URL location , ResourceBundle resource){
-        bundle = resource;
+        super.initialize(location, resource);
         double labelColumnWidth = 180;
         double inputColumnWidth = 250;
         double formWidth = 2 *(labelColumnWidth + inputColumnWidth) + 30;
@@ -79,9 +81,7 @@ public class JeproLabCustomerAddController extends JeproLabController {
         customerTitleLabel.setText(bundle.getString("JEPROLAB_TITLE_LABEL"));
         customerTitleLabel.getStyleClass().add("input-label");
         customerTitle.getItems().addAll(
-                new Pair<>("mr", bundle.getString("JEPROLAB_MR_LABEL")),
-                new Pair<>("mrs", bundle.getString("JEPROLAB_MRS_LABEL")),
-                new Pair<>("miss", bundle.getString("JEPROLAB_MISS_LABEL"))
+             bundle.getString("JEPROLAB_MR_LABEL"), bundle.getString("JEPROLAB_MRS_LABEL"), bundle.getString("JEPROLAB_MISS_LABEL")
         );
 
         customerFirstNameLabel.setText(bundle.getString("JEPROLAB_FIRST_NAME_LABEL"));
@@ -140,6 +140,11 @@ public class JeproLabCustomerAddController extends JeproLabController {
         GridPane.setMargin(customerEmailLabel, new Insets(10, 30, 10, 0));
         GridPane.setMargin(customerAllowAds, new Insets(10, 30, 10, 0));
         isInitialized = true;
+    }
+
+    @Override
+    protected void initializeContent(){
+
     }
 
     public void handleSaveButton(ActionEvent actionEvent) {

@@ -1,16 +1,27 @@
-<?import javafx.scene.layout.VBox?>
-<?import javafx.scene.layout.AnchorPane?>
-<?import javafx.scene.control.TableView?>
-<?import javafx.scene.control.TableColumn?>
 <?import javafx.scene.layout.GridPane?>
 <?import com.jeprolab.assets.extend.controls.JeproFormPanel?>
 <?import com.jeprolab.assets.extend.controls.JeproFormPanelTitle?>
 <?import com.jeprolab.assets.extend.controls.JeproFormPanelContainer?>
-<JeproFormPanel xmlns:fx="http://javafx.com/fxml" fx:controller="com.jeprolab.controllers.JeproLabCountryAddZoneController" >
-    <JeproFormPanelTitle />
-    <JeproFormPanelContainer>
-        <GridPane>
-            
-        </GridPane>
+<?import javafx.scene.control.Label?>
+<?import com.jeprolab.assets.extend.controls.switchbutton.JeproSwitchButton?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.control.TabPane?>
+<?import javafx.scene.control.Tab?>
+<JeproFormPanel xmlns:fx="http://javafx.com/fxml" fx:controller="com.jeprolab.controllers.JeproLabCountryAddZoneController" fx:id="jeproLabAddZonePanelWrapper">
+    <JeproFormPanelTitle fx:id="jeproLabAddZonePanelTitleWrapper" />
+    <JeproFormPanelContainer fx:id="jeproLabAddZonePanelContainerWrapper">
+        <TabPane fx:id="jeproLabAddZoneTabPaneWrapper">
+            <Tab fx:id="jeproLabZoneInformationTab" closable="false" >
+                <GridPane fx:id="jeproLabZoneLayout" hgap="10" vgap="10">
+                    <Label GridPane.columnIndex="0" GridPane.rowIndex="0" fx:id="jeproLabZoneNameLabel" />
+                    <TextField GridPane.columnIndex="1" GridPane.rowIndex="0" fx:id="jeproLabZoneName" />
+                    <Label GridPane.columnIndex="0" GridPane.rowIndex="1" fx:id="jeproLabZoneAllowDeliveryLabel" />
+                    <JeproSwitchButton GridPane.columnIndex="1" GridPane.rowIndex="1" fx:id="jeproLabAllowDeliveryZone" />
+                </GridPane>
+            </Tab>
+            <Tab fx:id="jeproLabZoneAssociatedLabTab" closable="false" >
+
+            </Tab>
+        </TabPane>
     </JeproFormPanelContainer>
 </JeproFormPanel>

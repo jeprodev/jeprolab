@@ -19,6 +19,42 @@ public class JeproLabZoneModel extends JeproLabModel{
 
     private Pagination pagination = null;
 
+    public JeproLabZoneModel(){
+        this(0);
+    }
+
+    public JeproLabZoneModel(int zoneId){
+        if(zoneId > 0){
+            String cacheKey =  "jeprolab_zone_model_" + zoneId;
+            if(!JeproLabCache.getInstance().isStored(cacheKey)){
+                if(dataBaseObject == null) {
+                    dataBaseObject = JeproLabFactory.getDataBaseConnector();
+                }
+                String query = "SELECT * FROM " + dataBaseObject.quoteName("#__jeproshop_zone") + " AS zone WHERE ";
+                query += dataBaseObject.quoteName("zone_id") + " = " + zoneId;
+                dataBaseObject.setQuery(query);
+                ResultSet zoneData = dataBaseObject.loadObject();
+                if(zoneData != null){
+                    try{
+                        if(zoneData.next()){
+                            this.zone_id = zoneData.getInt("zone_id");
+                            this.name = zoneData.getString("name");
+                            this.allow_delivery = zoneData.getInt("allow_delivery") > 0;
+                        }
+                    }catch (SQLException ignored){
+
+                    }
+                }
+                JeproLabCache.getInstance().store(cacheKey, this);
+            }else{
+                JeproLabZoneModel zone = (JeproLabZoneModel)JeproLabCache.getInstance().retrieve(cacheKey);
+                this.zone_id = zone.zone_id;
+                this.name = zone.name;
+                this.allow_delivery = zone.allow_delivery;
+            }
+        }
+    }
+
     /*public function saveZone(){
         $db = JFactory::getDBO();
 
@@ -134,6 +170,8 @@ public class JeproLabZoneModel extends JeproLabModel{
         staticDataBaseObject.setQuery(query);
         return (int)staticDataBaseObject.loadValue("zone_id");
     }
+
+
 
     /**
      * Delete a zone

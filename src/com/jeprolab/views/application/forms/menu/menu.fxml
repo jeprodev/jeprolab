@@ -9,33 +9,46 @@
             <MenuItem fx:id="dashBoardMenuItem" onAction="#handleDashBoardMenuEvent" />
         </Menu>
         <Menu fx:id="catalogMenu" >
-            <Menu fx:id="categorySubMenu" onAction="#handleCategoriesMenuEvent" >
+            <Menu fx:id="categorySubMenu" >
+                <MenuItem fx:id="categorySubMenuItem" onAction="#handleCategoriesMenuEvent" />
                 <MenuItem fx:id="addCategoryMenuItem" onAction="#handleAddCategoryMenuEvent" />
             </Menu>
-            <Menu fx:id="analyzeSubMenu" onAction="#handleAnalyzesMenuEvent" >
+            <Menu fx:id="analyzeSubMenu" >
+                <MenuItem fx:id="analyzeSubMenuItem" onAction="#handleAnalyzesMenuEvent" />
                 <MenuItem fx:id="addAnalyseSubMenuItem" onAction="#handleAddAnalyseMenuEvent" />
             </Menu>
-            <Menu fx:id="attachmentsSubMenu" onAction="#handleAttachmentsMenuEvent" >
-                 <MenuItem fx:id="addAttachmentSubMenuItem" onAction="#handleAddAttachmentMenuEvent" />
+            <Menu fx:id="attachmentsSubMenu" >
+                <MenuItem fx:id="attachmentSubMenuItem" onAction="#handleAttachmentsMenuEvent" />
+                <MenuItem fx:id="addAttachmentSubMenuItem" onAction="#handleAddAttachmentMenuEvent" />
             </Menu>
-            <!--MenuItem fx:id="attachmentMenuItem" onAction="#handleAttachmentsMenuEvent" / -->
+
         </Menu>
         <Menu fx:id="customerMenu" >
-            <Menu fx:id="customersSubMenu" onAction="#handleCustomersMenuEvent" >
+            <Menu fx:id="customersSubMenu" >
+                <MenuItem fx:id="customersSubMenuItem"  onAction="#handleCustomersMenuEvent" />
                 <MenuItem fx:id="addCustomerMenuItem" onAction="#handleAddNewCustomerMenuEvent"/>
             </Menu>
-            <Menu fx:id="addressesSubMenu" onAction="#handleAddressesMenuEvent" >
+            <Menu fx:id="addressesSubMenu" >
+                <MenuItem fx:id="addressesSubMenuItem" onAction="#handleAddressesMenuEvent" />
                 <MenuItem fx:id="addAddressMenuItem" onAction="#handleAddNewAddressMenuEvent" />
             </Menu>
-            <Menu fx:id="groupsSubMenu" onAction="#handleGroupsMenuEvent" >
+            <Menu fx:id="groupsSubMenu" >
+                <MenuItem fx:id="groupsMenuItem" onAction="#handleGroupsMenuEvent" />
                 <MenuItem fx:id="addGroupMenuItem" onAction="#handleAddGroupMenuEvent" />
             </Menu>
-            <Menu fx:id="currentSubRequestMenu" onAction="#handleRequestsMenuEvent" ></Menu>
-            <Menu fx:id="threadsSubMenu" onAction="#handleCustomerThreadsMenuEvent" ></Menu>
-            <Menu fx:id="contactsSubMenu" onAction="#handleContactsMenuEvents"></Menu>
+            <Menu fx:id="currentSubRequestMenu" onAction="#handleRequestsMenuEvent" >
+
+            </Menu>
+            <Menu fx:id="threadsSubMenu" onAction="#handleCustomerThreadsMenuEvent" >
+
+            </Menu>
+            <Menu fx:id="contactsSubMenu">
+                <MenuItem fx:id="contactsSubMenuItem" onAction="#handleContactsMenuEvents" />
+            </Menu>
         </Menu>
         <Menu fx:id="feedsMenu" >
-            <Menu fx:id="feedsSubMenu" onAction="#handleFeedsMenuEvent" >
+            <Menu fx:id="feedsSubMenu"  >
+                <MenuItem fx:id="feedsSubMenuItem" onAction="#handleFeedsMenuEvent" />
                 <MenuItem fx:id="addFeedMenuItem"  onAction="#handleAddFeedMenuEvent" />
             </Menu>
             <MenuItem fx:id="feedBackMenuItem" onAction="#handleFeedBackMenuEvent">
@@ -50,6 +63,25 @@
             </Menu>
             <Menu fx:id="laboratoryGroupSubMenu" onAction="#handleLaboratoryGroupsMenuEvent" >
                 <MenuItem fx:id="addLaboratoryGroupSubMenuItem" onAction="#handleAddNewLaboratoryGroupMenuEvent" />
+            </Menu>
+            <Menu fx:id="localisationSubMenu" >
+                <Menu fx:id="countriesSubMenu" >
+                    <MenuItem fx:id="addCountrySubMenu" onAction="#handleAddNewCountryMenuEvent" />
+                </Menu>
+                <Menu fx:id="zonesSubMenu" >
+                    <MenuItem fx:id="zoneListSubMenuItem" onAction="#handleZoneListMenuEvent" />
+                    <MenuItem fx:id="editZoneSubMenu" onAction="#handleAddNewZoneMenuEvent" />
+                </Menu>
+                <Menu fx:id="statesSubMenu" >
+                    <MenuItem fx:id="addStateSubMenu" onAction="#handleAddNewStateMenuEvent" />
+                </Menu>
+                <Menu fx:id="currenciesSubMenu" >
+                    <MenuItem fx:id="addCurrencySubMenu" onAction="#handleAddNewCurrencyMenuEvent" />
+                </Menu>
+                <Menu fx:id="taxesSubMenu" >
+                    <MenuItem fx:id="addTaxSubMenuItem" onAction="#handleAddNewTaxMenuEvent" />
+                    <MenuItem fx:id="addTaxGroupSubMenuItem" onAction="#handleAddNewTaxGroupMenuEvent" />
+                </Menu>
             </Menu>
         </Menu>
         <Menu fx:id="helpMenu" >

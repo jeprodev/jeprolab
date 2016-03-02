@@ -1,7 +1,6 @@
 package com.jeprolab.models;
 
 
-import com.jeprolab.JeproLab;
 import com.jeprolab.assets.tools.JeproLabCache;
 import com.jeprolab.assets.tools.JeproLabContext;
 import com.jeprolab.models.core.JeproLabFactory;
@@ -115,11 +114,7 @@ public class JeproLabCountryModel  extends JeproLabModel{
                         this.zip_code_format = countryData.getString("zip_code_format");
                         this.display_tax_label = countryData.getInt("display_tax_label") > 0;
 
-                        if(langId > 0){
-                            //country.n
-                        }
-
-                        if (lang_id <= 0) {
+                        if (langId <= 0) {
                             query = "SELECT * FROM " + dataBaseObject.quoteName("#__jeprolab_country_lang");
                             query += " WHERE " + dataBaseObject.quoteName("country_id") + " = " + country_id;
 
@@ -128,16 +123,17 @@ public class JeproLabCountryModel  extends JeproLabModel{
                             while(countryLangData.next()) {
                                 int languageId = countryLangData.getInt("lang_id");
                                 String countryName = countryLangData.getString("name");
-                                Iterator langIt = languages.entrySet().iterator();
-                                while(langIt.hasNext()){
-                                    Map.Entry lang = (Map.Entry)langIt.next();
-                                    JeproLabLanguageModel language = (JeproLabLanguageModel)lang.getValue();
-                                    if(languageId == language.language_id){
+                                for (Object o : languages.entrySet()) {
+                                    Map.Entry lang = (Map.Entry) o;
+                                    JeproLabLanguageModel language = (JeproLabLanguageModel) lang.getValue();
+                                    if (languageId == language.language_id) {
                                         name.put("lang_" + languageId, countryName);
                                     }
                                 }
 
                             }
+                        }else{
+                            name.put("lang_" + langId, countryData.getString("name"));
                         }
                         JeproLabCache.getInstance().store(cacheKey, this);
                     }
@@ -169,7 +165,7 @@ public class JeproLabCountryModel  extends JeproLabModel{
     }
 
     /**
-     * @brief Return available countries
+     * Return available countries
      *
      * @param lang_id Language ID
      * @param published return only active countries

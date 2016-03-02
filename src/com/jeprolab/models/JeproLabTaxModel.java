@@ -1,14 +1,19 @@
 package com.jeprolab.models;
 
+import com.jeprolab.assets.tools.JeproLabContext;
+import com.jeprolab.models.core.JeproLabFactory;
 import com.jeprolab.models.tax.JeproLabTaxCalculator;
 import com.jeprolab.models.tax.JeproLabTaxManagerFactory;
 import com.jeprolab.models.tax.JeproLabTaxRulesManager;
+
+import java.sql.ResultSet;
 
 /**
  *
  * Created by jeprodev on 04/02/14.
  */
 public class JeproLabTaxModel extends JeproLabModel {
+    public int tax_id;
     /** @var string Name */
     public String name;
 
@@ -61,16 +66,22 @@ public class JeproLabTaxModel extends JeproLabModel {
     public JeproLabTaxModel(int taxId, int langId, int labId){
 
     }
-/*
-    public function delete()
-    {
-        /* Clean associations * /
-        TaxRule::deleteTaxRuleByIdTax((int)$this->id);
 
-        if ($this->isUsed()) {
-            return $this->historize();
+    public boolean delete(){
+        /* Clean associations */
+        JeproLabTaxRuleModel.deleteTaxRuleByTaxId(this.tax_id);
+
+        if (this.isUsed()) {
+            return this.historize();
         } else {
-            return parent::delete();
+            if(dataBaseObject == null){
+                dataBaseObject = JeproLabFactory.getDataBaseConnector();
+            }
+            String query = "DELETE FROM " + dataBaseObject.quoteName("#__jeprolab_tax") + " WHERE ";
+            query += staticDataBaseObject.quoteName("tax_id") + " = " + this.tax_id;
+
+            dataBaseObject.setQuery(query);
+            return dataBaseObject.query(false);
         }
     }
 
@@ -78,48 +89,79 @@ public class JeproLabTaxModel extends JeproLabModel {
      * Save the object with the field deleted to true
      *
      *  @return bool
-     * /
-    public function historize()
-    {
-        $this->deleted = true;
-        return parent::update();
+     */
+    public boolean historize(){
+        if(dataBaseObject == null){
+            dataBaseObject = JeproLabFactory.getDataBaseConnector();
+        }
+        this.deleted = true;
+        String query = "UPDATE " + dataBaseObject.quoteName("#__jeprolab_tax") + " SET " + staticDataBaseObject.quoteName("published");
+        query += " = 0, " + staticDataBaseObject.quoteName("deleted") + " = 1 WHERE " + staticDataBaseObject.quoteName("tax_id") + " = " + this.tax_id;
+
+        dataBaseObject.setQuery(query);
+        return dataBaseObject.query(false);
     }
 
-    public function toggleStatus()
-    {
-        if (parent::toggleStatus()) {
-        return $this->_onStatusChange();
-    }
+    public boolean toggleStatus(){
+        if(dataBaseObject == null){
+            dataBaseObject = JeproLabFactory.getDataBaseConnector();
+        }
+        //this.deleted = true;
+        String query = "UPDATE " + dataBaseObject.quoteName("#__jeprolab_tax") + " SET " + staticDataBaseObject.quoteName("published");
+        query += " = " + (this.published ? "0" : "1") + ", " + staticDataBaseObject.quoteName("deleted") + " = " + (this.deleted ? "0" : "1");
+        query += " WHERE " + staticDataBaseObject.quoteName("tax_id") + " = " + this.tax_id;
 
+        dataBaseObject.setQuery(query);
+
+        if (dataBaseObject.query(false)){
+            return this.onStatusChange();
+        }
         return false;
     }
 
-    public function update($null_values = false)
-    {
-        if (!$this->deleted && $this->isUsed()) {
-            $historized_tax = new Tax($this->id);
-            $historized_tax->historize();
+    public boolean selfAdd(){
+        if(dataBaseObject == null){
+            dataBaseObject = JeproLabFactory.getDataBaseConnector();
+        }
+        String query = "INSERT INTO " + dataBaseObject.quoteName("#__jeprolab_tax") + "(" + dataBaseObject.quoteName("rate") + ", " + dataBaseObject.quoteName("published");
+        query += ", " + dataBaseObject.quoteName("deleted") + ") VALUES(" + this.rate + ", " + this.published + ", " + this.deleted + ")";
+
+        dataBaseObject.setQuery(query);
+        return dataBaseObject.query(false);
+    }
+
+    public boolean update(){
+        if (!this.deleted && this.isUsed()) {
+            JeproLabTaxModel historizedTax = new JeproLabTaxModel(this.tax_id);
+            historizedTax.historize();
 
             // remove the id in order to create a new object
-            $this->id = 0;
-            $res = $this->add();
+            this.tax_id = 0;
+            boolean res = this.selfAdd();
 
             // change tax id in the tax rule table
-            $res &= TaxRule::swapTaxId($historized_tax->id, $this->id);
-            return $res;
-        } elseif (parent::update($null_values)) {
-        return $this->_onStatusChange();
-    }
+            res &= JeproLabTaxRuleModel.swapTaxId(historizedTax.tax_id, this.tax_id);
+            return res;
+        } else{
+            if(dataBaseObject == null){
+                dataBaseObject = JeproLabFactory.getDataBaseConnector();
+            }
+            String query = "UPDATE " + dataBaseObject.quoteName("#__jeprolab_tax") + " SET " + staticDataBaseObject.quoteName("published");
+            query += " = " + (this.published ? "0" : "1") + ", " + staticDataBaseObject.quoteName("deleted") + " = " + (this.deleted ? "0" : "1");
+            query += " WHERE " + staticDataBaseObject.quoteName("tax_id") + " = " + this.tax_id;
 
-        return false;
-    }
-
-    protected function _onStatusChange()
-    {
-        if (!$this->active) {
-            return TaxRule::deleteTaxRuleByIdTax($this->id);
+            dataBaseObject.setQuery(query);
+            if (dataBaseObject.query(false)){
+                return this.onStatusChange();
+            }
+            return false;
         }
+    }
 
+    protected boolean onStatusChange(){
+        if (!this.published) {
+            return JeproLabTaxRuleModel.deleteTaxRuleByTaxId(this.tax_id);
+        }
         return true;
     }
 
@@ -127,63 +169,83 @@ public class JeproLabTaxModel extends JeproLabModel {
      * Returns true if the tax is used in an order details
      *
      * @return bool
-     * /
-    public function isUsed()
-    {
-        return Db::getInstance()->getValue('
-            SELECT `id_tax`
-            FROM `'._DB_PREFIX_.'order_detail_tax`
-        WHERE `id_tax` = '.(int)$this->id
-        );
+     */
+    public boolean isUsed(){
+        if(dataBaseObject == null){
+            dataBaseObject = JeproLabFactory.getDataBaseConnector();
+        }
+
+        String query = "SELECT " + dataBaseObject.quoteName("tax_id") + " FROM " + dataBaseObject.quoteName("#__jeprolab_order_detail_tax");
+        query += " WHERE " + dataBaseObject.quoteName("tax_id") + " = " + this.tax_id;
+
+        dataBaseObject.setQuery(query);
+        return (int)dataBaseObject.loadValue("tax_id") > 0;
+    }
+
+    public static ResultSet getTaxes(){
+        return getTaxes(0, true);
+    }
+
+    public static ResultSet getTaxes(int langId ){
+        return getTaxes(langId, true);
     }
 
     /**
      * Get all available taxes
      *
      * @return array Taxes
-     * /
-    public static function getTaxes($id_lang = false, $active_only = true)
-    {
-        $sql = new DbQuery();
-        $sql->select('t.id_tax, t.rate');
-        $sql->from('tax', 't');
-        $sql->where('t.`deleted` != 1');
+     */
+    public static ResultSet getTaxes(int langId, boolean activeOnly){
+        if(staticDataBaseObject == null){
+            staticDataBaseObject = JeproLabFactory.getDataBaseConnector();
+        }
+        String selectQuery = "SELECT tax.tax_id, tax.rate";
+        String fromQuery = " FROM " + staticDataBaseObject.quoteName("#__jeprolab_tax") + " AS tax ";
+        String whereQuery = " WHERE tax." + staticDataBaseObject.quoteName("deleted") + " != 1";
+        String leftJoin = "", orderBy = "";
 
-        if ($id_lang) {
-            $sql->select('tl.name, tl.id_lang');
-            $sql->leftJoin('tax_lang', 'tl', 't.`id_tax` = tl.`id_tax` AND tl.`id_lang` = '.(int)$id_lang);
-            $sql->orderBy('`name` ASC');
+        if (langId > 0) {
+            selectQuery = ", tax_lang.name, tax_lang.lang_id ";
+            leftJoin += " LEFT JOIN " + staticDataBaseObject.quoteName("#__jeprolab_tax_lang") + " AS tax_lang ON (tax_lang.";
+            leftJoin += staticDataBaseObject.quoteName("tax_id") + " = tax." + staticDataBaseObject.quoteName("tax_id") ;
+            leftJoin += " AND tax_lang." + staticDataBaseObject.quoteName("lang_id") +  " = " + langId + ") ";
+            orderBy += staticDataBaseObject.quoteName("name") + " ASC";
         }
 
-        if ($active_only) {
-            $sql->where('t.`active` = 1');
+        if (activeOnly) {
+            whereQuery += " AND tax." + staticDataBaseObject.quoteName("published") + " = 1";
         }
+        staticDataBaseObject.setQuery(selectQuery + fromQuery + leftJoin + whereQuery + orderBy);
 
-        return Db::getInstance(_PS_USE_SQL_SLAVE_)->executeS($sql);
+        return staticDataBaseObject.loadObject();
     }
-*/
+
     public static boolean excludeTaxOption(){
         return (JeproLabSettingModel.getIntValue("use_tax") > 0);
     }
 
-    /*
+    public static int getTaxIdByName(String taxName){
+        return getTaxIdByName(taxName, true);
+    }
+    /**
      * Return the tax id associated to the specified name
      *
-     * @param string $tax_name
-     * @param bool $active (true by default)
-     * /
-    public static function getTaxIdByName($tax_name, $active = 1)
-    {
-        $tax = Db::getInstance(_PS_USE_SQL_SLAVE_)->getRow('
-            SELECT t.`id_tax`
-            FROM `'._DB_PREFIX_.'tax` t
-        LEFT JOIN `'._DB_PREFIX_.'tax_lang` tl ON (tl.id_tax = t.id_tax)
-        WHERE tl.`name` = \''.pSQL($tax_name).'\' '.
-        ($active == 1 ? ' AND t.`active` = 1' : ''));
+     * @param taxName tax name of a tax to be retrieved
+     * @param active (true by default)
+     */
+    public static int getTaxIdByName(String taxName, boolean active){
+        if(staticDataBaseObject == null){
+            staticDataBaseObject = JeproLabFactory.getDataBaseConnector();
+        }
+        String query = "SELECT tax." + staticDataBaseObject.quoteName("tax_id") + " FROM " + staticDataBaseObject.quoteName("#__jeprolab_tax");
+        query += " AS tax LEFT JOIN " + staticDataBaseObject.quoteName("#__jeprolab_tax_lang") + " As tax_lang ON (tax_lang.tax_id = tax.tax_id)";
+        query += " WHERE tax_lang." + staticDataBaseObject.quoteName("name") + " = " + staticDataBaseObject.quote(taxName);
+        query += (active ? " AND tax." + staticDataBaseObject.quoteName("published") + " = 1 " : "");
 
-        return $tax ? (int)$tax['id_tax'] : false;
+        staticDataBaseObject.setQuery(query);
+        return (int)staticDataBaseObject.loadValue("tax_id");
     }
-                   */
+
     public static float getAnalyzeEcotaxRate(){
         return getAnalyzeEcotaxRate(0);
     }
@@ -203,34 +265,37 @@ public class JeproLabTaxModel extends JeproLabModel {
         return taxCalculator.getTotalRate();
     }
 
-    /**
-     * Returns the carrier tax rate
-     *
-     * @param id_address
-     * @return float $tax_rate
-     * /
-    public static function getCarrierTaxRate($id_carrier, $id_address = null)
-    {
-        $address = Address::initialize($id_address);
-        $id_tax_rules = (int)Carrier::getIdTaxRulesGroupByIdCarrier((int)$id_carrier);
-
-        $tax_manager = TaxManagerFactory::getManager($address, $id_tax_rules);
-        $tax_calculator = $tax_manager->getTaxCalculator();
-
-        return $tax_calculator->getTotalRate();
+    public static float getCarrierTaxRate(int carrierId){
+        return getCarrierTaxRate(carrierId, 0);
     }
 
     /**
+     * Returns the carrier tax rate
+     *
+     * @param carrierId carrier Id
+     * @param addressId address id
+     * @return float $tax_rate
+     */
+    public static float getCarrierTaxRate(int carrierId, int addressId){
+        JeproLabAddressModel address = JeproLabAddressModel.initialize(addressId);
+        int taxRulesId = JeproLabCarrierModel.getTaxRulesGroupIdByCarrierId(carrierId);
+
+        JeproLabTaxRulesManager taxManager = JeproLabTaxManagerFactory.getManager(address, taxRulesId);
+        JeproLabTaxCalculator taxCalculator = taxManager.getTaxCalculator();
+
+        return taxCalculator.getTotalRate();
+    }
+
+    /*
      * Return the product tax rate using the tax rules system
      *
-     * @param int $id_product
+     * @param analyzeId
      * @param int $id_country
      * @return Tax
      *
      * @deprecated since 1.5
      * /
-    public static function getProductTaxRateViaRules($id_product, $id_country, $id_state, $zipcode)
-    {
+    public static function getProductTaxRateViaRules(int analyzeId, int countryIdy, int stateId, String zipCode){
         Tools::displayAsDeprecated();
 
         if (!isset(self::$_product_tax_via_rules[$id_product.'-'.$id_country.'-'.$id_state.'-'.$zipcode])) {
@@ -239,27 +304,34 @@ public class JeproLabTaxModel extends JeproLabModel {
     }
 
         return self::$_product_tax_via_rules[$id_product.'-'.$id_country.'-'.$zipcode];
+    } */
+
+    public static float getAnalyzeTaxRate(int analyzeId ){
+        return getAnalyzeTaxRate(analyzeId, 0, null);
+    }
+
+    public static float getAnalyzeTaxRate(int analyzeId, int addressId){
+        return getAnalyzeTaxRate(analyzeId, addressId, null);
     }
 
     /**
      * Returns the product tax
      *
-     * @param int $id_product
-     * @param int $id_country
-     * @return Tax
-     * /
-    public static function getProductTaxRate($id_product, $id_address = null, Context $context = null)
-    {
-        if ($context == null) {
-            $context = Context::getContext();
+     * @param analyzeId analyze id
+     * @param addressId address to get the tax from
+     * @return Tax value
+     */
+    public static float getAnalyzeTaxRate(int analyzeId, int addressId, JeproLabContext context){
+        if (context == null) {
+            context = JeproLabContext.getContext();
         }
 
-        $address = Address::initialize($id_address);
-        $id_tax_rules = (int)Product::getIdTaxRulesGroupByIdProduct($id_product, $context);
+        JeproLabAddressModel address = JeproLabAddressModel.initialize(addressId);
+        int taxRulesId = JeproLabAnalyzeModel.getTaxRulesGroupIdByAnalyzeId(analyzeId, context);
 
-        $tax_manager = TaxManagerFactory::getManager($address, $id_tax_rules);
-        $tax_calculator = $tax_manager->getTaxCalculator();
+        JeproLabTaxRulesManager taxManager = JeproLabTaxManagerFactory.getManager(address, taxRulesId);
+        JeproLabTaxCalculator taxCalculator = taxManager.getTaxCalculator();
 
-        return $tax_calculator->getTotalRate();
-    } */
+        return taxCalculator.getTotalRate();
+    }
 }

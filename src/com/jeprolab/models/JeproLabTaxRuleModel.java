@@ -1,5 +1,7 @@
 package com.jeprolab.models;
 
+import com.jeprolab.models.core.JeproLabFactory;
+
 /**
  *
  * Created by jeprodev on 04/02/14.
@@ -79,16 +81,19 @@ public class JeproLabTaxRuleModel extends JeproLabModel{
         ORDER BY `country_name` ASC, `state_name` ASC, `zipcode_from` ASC, `zipcode_to` ASC'
         );
     }
+*/
+    public static boolean deleteTaxRuleByTaxId(int taxId){
+        if(staticDataBaseObject == null){
+            staticDataBaseObject = JeproLabFactory.getDataBaseConnector();
+        }
 
-    public static function deleteTaxRuleByIdTax($id_tax)
-    {
-        return Db::getInstance()->execute('
-            DELETE FROM `'._DB_PREFIX_.'tax_rule`
-        WHERE `id_tax` = '.(int)$id_tax
-        );
+        String query = "DELETE FROM " + staticDataBaseObject.quoteName("#__jeprolab_tax_rule") + " AS tax_rule WHERE ";
+        query += staticDataBaseObject.quoteName("tax_id") + " = " + taxId;
+        staticDataBaseObject.setQuery(query);
+        return staticDataBaseObject.query(false);
     }
 
-    /**
+    /*
      * @deprecated since 1.5
      * /
     public static function deleteTaxRuleByIdCounty($id_county)
@@ -144,15 +149,18 @@ public class JeproLabTaxRuleModel extends JeproLabModel{
     /**
      * Replace a tax_rule id by an other one in the tax_rule table
      *
-     * @param int $old_id
-     * @param int $new_id
-     * /
-    public static function swapTaxId($old_id, $new_id)
-    {
-        return Db::getInstance()->execute('
-            UPDATE `'._DB_PREFIX_.'tax_rule`
-        SET `id_tax` = '.(int)$new_id.'
-        WHERE `id_tax` = '.(int)$old_id
-        );
-    } */
+     * @param oldId old tax id
+     * @param newId new tax id
+     */
+    public static boolean swapTaxId(int oldId, int newId){
+        if(staticDataBaseObject == null){
+            staticDataBaseObject = JeproLabFactory.getDataBaseConnector();
+        }
+
+        String query = "UPDATE " + staticDataBaseObject.quoteName("#__jeprolab_tax_rule") + " SET " + staticDataBaseObject.quoteName("tax_id");
+        query += " = " + newId + " WHERE " + staticDataBaseObject.quoteName("tax_id") + " = "+ oldId;
+
+        staticDataBaseObject.setQuery(query);
+        return staticDataBaseObject.query(false);
+    }
 }

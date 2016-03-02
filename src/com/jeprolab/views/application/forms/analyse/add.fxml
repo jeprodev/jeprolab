@@ -10,7 +10,7 @@
 <?import javafx.scene.control.TextField?>
 <?import com.jeprolab.assets.extend.controls.switchbutton.JeproSwitchButton?>
 <?import com.jeprolab.assets.extend.controls.JeproImageChooser?>
-<?import javafx.scene.control.TextArea?>
+
 <?import com.jeprolab.assets.extend.controls.JeproImageSlider?>
 <?import javafx.scene.control.ComboBox?>
 <?import javafx.scene.layout.Pane?>

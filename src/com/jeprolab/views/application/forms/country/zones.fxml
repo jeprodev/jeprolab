@@ -1,0 +1,14 @@
+<?import com.jeprolab.assets.extend.controls.JeproFormPanel?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.TableColumn?>
+<JeproFormPanel xmlns:fx="http://javafx.com/fxml" fx:controller="com.jeprolab.controllers.JeproLabCountryZoneController" fx:id="jeproLabAddZonePanelWrapper">
+    <TableView fx:id="jeproLabZoneTableView" >
+        <columns>
+            <TableColumn fx:id="jeproLabZoneIndexColumn" resizable="false" editable="false" />
+            <TableColumn fx:id="jeproLabZoneCheckBoxColumn" resizable="false" editable="false" />
+            <TableColumn fx:id="jeproLabZoneNameColumn" resizable="false" editable="false" />
+            <TableColumn fx:id="jeproLabZoneAllowDeliveryColumn" resizable="false" editable="false" />
+            <TableColumn fx:id="jeproLabZoneActionsColumn" resizable="false" editable="false" />
+        </columns>
+    </TableView>
+</JeproFormPanel>

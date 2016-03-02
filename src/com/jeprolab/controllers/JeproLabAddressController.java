@@ -1,6 +1,7 @@
 package com.jeprolab.controllers;
 
 import com.jeprolab.JeproLab;
+import com.jeprolab.assets.extend.controls.JeproFormPanel;
 import com.jeprolab.models.JeproLabAddressModel;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleStringProperty;
@@ -30,7 +31,7 @@ public class JeproLabAddressController extends JeproLabController {
     public TableColumn<JeproLabAddressRecord, String> addressIndexColumn;
     public TableColumn addressCheckBoxColumn, addressLastColumn, addressActionColumn, addressCountryColumn;
     public TableColumn addressFirstNameColumn, addressDetailColumn, addressZipCodeColumn, addressCityColumn;
-    public AnchorPane jeproLabAddressContainer;
+    public JeproFormPanel jeproLabAddressContainer;
 
 
     public void initialize(URL location, ResourceBundle resourceBundle){
