@@ -150,6 +150,7 @@ public class JeproLabCategoryController extends JeproLabController {
         categories = categoryModel.getCategoriesList();
         renderDetails();
         pagination = categoryModel.getPagination();
+        updateToolBar();
     }
 
     @Override
@@ -169,7 +170,7 @@ public class JeproLabCategoryController extends JeproLabController {
     public void updateToolBar(){
         HBox commandWrapper = JeproLab.getInstance().getApplicationToolBarCommandWrapper();
         commandWrapper.getChildren().clear();
-        addCategoryBtn = new Button(bundle.getString("JEPROLAB_ADD_LABEL"));
+        addCategoryBtn = new Button(bundle.getString("JEPROLAB_ADD_NEW_LABEL"), new ImageView(new Image(JeproLab.class.getResourceAsStream("resources/images/add.png"))));
         commandWrapper.getChildren().addAll(addCategoryBtn);
     }
 

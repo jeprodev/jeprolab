@@ -33,7 +33,7 @@
                 <MenuItem fx:id="addAddressMenuItem" onAction="#handleAddNewAddressMenuEvent" />
             </Menu>
             <Menu fx:id="groupsSubMenu" >
-                <MenuItem fx:id="groupsMenuItem" onAction="#handleGroupsMenuEvent" />
+                <MenuItem fx:id="groupsSubMenuItem" onAction="#handleGroupsMenuEvent" />
                 <MenuItem fx:id="addGroupMenuItem" onAction="#handleAddGroupMenuEvent" />
             </Menu>
             <Menu fx:id="currentSubRequestMenu" onAction="#handleRequestsMenuEvent" >
@@ -79,7 +79,9 @@
                     <MenuItem fx:id="addCurrencySubMenu" onAction="#handleAddNewCurrencyMenuEvent" />
                 </Menu>
                 <Menu fx:id="taxesSubMenu" >
+                    <MenuItem fx:id="taxesSubMenuItem" onAction="#handleTaxesMenuEvent" />
                     <MenuItem fx:id="addTaxSubMenuItem" onAction="#handleAddNewTaxMenuEvent" />
+                    <MenuItem fx:id="taxesGroupSubMenuItem" onAction="#handleTaxesGroupMenuEvent" />
                     <MenuItem fx:id="addTaxGroupSubMenuItem" onAction="#handleAddNewTaxGroupMenuEvent" />
                 </Menu>
             </Menu>

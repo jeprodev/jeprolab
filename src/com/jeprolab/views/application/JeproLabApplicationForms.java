@@ -1,6 +1,7 @@
 package com.jeprolab.views.application;
 
 
+import com.jeprolab.models.core.JeproLabApplication;
 
 /**
  *
@@ -17,7 +18,8 @@ public class JeproLabApplicationForms {
     public JeproLabApplicationForm addressesForm, addAddressForm;
     public JeproLabApplicationForm groupsForm, addGroupForm, requestForm;
     public JeproLabApplicationForm customerThreadsForm, contactsForm;
-    public JeproLabApplicationForm addTaxGroupForm, addTaxForm, addCurrencyForm, addStateForm, addCountryForm, addZoneForm, zonesForm;
+    public JeproLabApplicationForm addTaxGroupForm, addTaxForm, taxesForm, taxGroupForm;
+    public JeproLabApplicationForm addCurrencyForm, addStateForm, addCountryForm, addZoneForm, zonesForm;
 
     public JeproLabApplicationForms(){
         loginForm = new JeproLabApplicationForm("login.fxml");
@@ -48,7 +50,10 @@ public class JeproLabApplicationForms {
         laboratoriesGroupsForm = new JeproLabApplicationForm("lab/groups.fxml");
         addLaboratoriesGroupForm = new JeproLabApplicationForm("lab/add_group.fxml");
         addTaxGroupForm = new JeproLabApplicationForm("lab/add_group.fxml");
-        addTaxForm = new JeproLabApplicationForm("tax/add.fxml");
+        addTaxForm = new JeproLabApplicationForm("taxes/add.fxml");
+        taxesForm = new JeproLabApplicationForm("taxes/list.fxml");
+        taxGroupForm = new JeproLabApplicationForm("taxes/groups.fxml");
+        //addTaxGroupForm = new JeproLabApplicationForm("taxes/add_group.fxml");
         addCurrencyForm = new JeproLabApplicationForm("currency/add.fxml");
         addStateForm = new JeproLabApplicationForm("country/add_state.fxml");
         addCountryForm = new JeproLabApplicationForm("country/add.fxml");

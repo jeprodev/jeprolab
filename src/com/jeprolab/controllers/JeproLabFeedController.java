@@ -2,8 +2,12 @@ package com.jeprolab.controllers;
 
 import com.jeprolab.JeproLab;
 import javafx.fxml.FXML;
+import javafx.scene.control.Button;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
+import javafx.scene.layout.HBox;
 
 import java.net.URL;
 import java.util.ResourceBundle;
@@ -13,6 +17,7 @@ import java.util.ResourceBundle;
  * Created by jeprodev on 19/12/2014.
  */
 public class JeproLabFeedController extends JeproLabController {
+    private Button addFeedBtn;
     @FXML
     public TableView jeproLabFeedTableView;
     public TableColumn jeproLabFeedIndexColumn, jeproLabFeedCheckBoxColumn, jeproLabFeedTitleColumn, jeproLabFeedAuthorColumn, jeproLabFeedDescriptionColumn, jeproLabFeedActionColumn;
@@ -37,5 +42,13 @@ public class JeproLabFeedController extends JeproLabController {
         jeproLabFeedDescriptionColumn.setPrefWidth(.6 * remainingWidth);
         jeproLabFeedActionColumn.setText(bundle.getString("JEPROLAB_ACTIONS_LABEL"));
         jeproLabFeedActionColumn.setPrefWidth(0.1 * remainingWidth);
+    }
+
+    @Override
+    public void updateToolBar(){
+        HBox commandWrapper = JeproLab.getInstance().getApplicationToolBarCommandWrapper();
+        commandWrapper.getChildren().clear();
+        addFeedBtn = new Button(bundle.getString("JEPROLAB_ADD_NEW_LABEL"), new ImageView(new Image(JeproLab.class.getResourceAsStream("resources/images/add.png"))));
+        commandWrapper.getChildren().addAll(addFeedBtn);
     }
 }

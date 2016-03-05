@@ -9,6 +9,9 @@ import javafx.scene.control.Button;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 
 import java.net.URL;
@@ -16,7 +19,7 @@ import java.util.ResourceBundle;
 
 public class JeproLabCustomerController extends JeproLabController{
     private ResourceBundle bundle;
-
+    private Button addCustomerBtn;
 
     @FXML
     public VBox jeproLabCustomerListWrapper;
@@ -57,5 +60,10 @@ public class JeproLabCustomerController extends JeproLabController{
     }
 
     @Override
-    public void updateToolBar(){}
+    public void updateToolBar(){
+        HBox commandWrapper = JeproLab.getInstance().getApplicationToolBarCommandWrapper();
+        commandWrapper.getChildren().clear();
+        addCustomerBtn = new Button(bundle.getString("JEPROLAB_ADD_NEW_LABEL"), new ImageView(new Image(JeproLab.class.getResourceAsStream("resources/images/add.png"))));
+        commandWrapper.getChildren().addAll(addCustomerBtn);
+    }
 }

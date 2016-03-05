@@ -16,7 +16,7 @@
             <Label GridPane.columnIndex="0" GridPane.rowIndex="1" fx:id="jeproLabFeedLinkLabel" />
             <TextField GridPane.columnIndex="1" GridPane.rowIndex="1" fx:id="jeproLabFeedLink"/>
             <Label  GridPane.columnIndex="0" GridPane.rowIndex="2" fx:id="jeproLabFeedDescriptionLabel" />
-            <JeproMultiLangTextArea  GridPane.columnIndex="1" GridPane.rowIndex="3" fx:id="jeproLabFeedDescription" />
+            <JeproMultiLangTextArea  GridPane.columnIndex="1" GridPane.rowIndex="2" fx:id="jeproLabFeedDescription" />
             <Label  GridPane.columnIndex="0" GridPane.rowIndex="3" fx:id="jeproLabFeedAuthorLabel" />
             <TextField  GridPane.columnIndex="1" GridPane.rowIndex="3" fx:id="jeproLabFeedAuthor" />
         </GridPane>

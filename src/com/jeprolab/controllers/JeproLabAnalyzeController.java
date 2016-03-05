@@ -3,15 +3,20 @@ package com.jeprolab.controllers;
 
 import com.jeprolab.JeproLab;
 import javafx.fxml.FXML;
+import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
+import javafx.scene.layout.HBox;
 
 import java.net.URL;
 import java.util.ResourceBundle;
 
 public class JeproLabAnalyzeController extends JeproLabController {
     private CheckBox checkAll;
+    private Button addAnalyzeBtn;
     @FXML
     public TableView jeproLabAnalyzeTableView;
     public TableColumn jeproLabAnalyzeIndexColumn, jeproLabAnalyzeCheckBoxColumn, jeproLabAnalyzeNameColumn, jeproLabAnalyzeStatusColumn, jeproLabAnalyzeReferenceColumn;
@@ -57,5 +62,10 @@ public class JeproLabAnalyzeController extends JeproLabController {
     }
 
     @Override
-    public void updateToolBar(){}
+    public void updateToolBar(){
+        HBox commandWrapper = JeproLab.getInstance().getApplicationToolBarCommandWrapper();
+        commandWrapper.getChildren().clear();
+        addAnalyzeBtn = new Button(bundle.getString("JEPROLAB_ADD_NEW_LABEL"), new ImageView(new Image(JeproLab.class.getResourceAsStream("resources/images/add.png"))));
+        commandWrapper.getChildren().addAll(addAnalyzeBtn);
+    }
 }

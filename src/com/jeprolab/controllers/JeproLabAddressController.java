@@ -12,6 +12,8 @@ import javafx.geometry.Insets;
 import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.HBox;
 
@@ -24,6 +26,7 @@ import java.util.ResourceBundle;
 public class JeproLabAddressController extends JeproLabController {
     private ObservableList<JeproLabAddressRecord> addressList;
     private CheckBox selectAll;
+    private Button addAddressBtn;
 
     @FXML
     public Button jeproLabAddAddressButton, jeproLabDeleteAddressesButton;
@@ -91,15 +94,21 @@ public class JeproLabAddressController extends JeproLabController {
         }catch (SQLException ignored){
 
         }
-        this.jeproLabAddressesList.setItems(addressList);
+        initializeContent();
+        //this.jeproLabAddressesList.setItems(addressList);
+    }
+
+    @Override
+    public void initializeContent(){
+        updateToolBar();
     }
 
     @Override
     public void updateToolBar(){
-        ToolBar appToolBar = JeproLab.getInstance().getApplicationToolBar();
-        for(Node child : appToolBar.getItems()){
-            //appToolBar.remo
-        }
+        HBox commandWrapper = JeproLab.getInstance().getApplicationToolBarCommandWrapper();
+        commandWrapper.getChildren().clear();
+        addAddressBtn = new Button(bundle.getString("JEPROLAB_ADD_NEW_LABEL"), new ImageView(new Image(JeproLab.class.getResourceAsStream("resources/images/add.png"))));
+        commandWrapper.getChildren().addAll(addAddressBtn);
     }
 
     private static class JeproLabAddressRecord {
