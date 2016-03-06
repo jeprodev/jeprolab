@@ -43,7 +43,7 @@ public class JeproLabFeedAddController extends JeproLabController{
         double posY = 25;
 
         jeproLabFeedLayout.getColumnConstraints().addAll(
-                new ColumnConstraints(labelColumnWidth - 25), new ColumnConstraints(inputColumnWidth - 25)
+                 new ColumnConstraints(labelColumnWidth - 25), new ColumnConstraints(inputColumnWidth - 25)
         );
 
         jeproLabFeedEditForm.setLayoutX(posX);

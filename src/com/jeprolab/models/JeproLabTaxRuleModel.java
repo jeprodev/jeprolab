@@ -2,16 +2,22 @@ package com.jeprolab.models;
 
 import com.jeprolab.models.core.JeproLabFactory;
 
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  *
  * Created by jeprodev on 04/02/14.
  */
 public class JeproLabTaxRuleModel extends JeproLabModel{
+    public int tax_rule_id;
     public int tax_rules_group_id;
     public int country_id;
     public int state_id;
-    public String zipcode_from;
-    public String zipcode_to;
+    public String zip_code_from;
+    public String zip_code_to;
     public int tax_id;
     public int behavior;
     public String description;
@@ -60,28 +66,48 @@ public class JeproLabTaxRuleModel extends JeproLabModel{
             SELECT * FROM `'._DB_PREFIX_.'tax_rule`
         WHERE `id_tax_rule` = '.(int)$id_tax_rule);
     }
-
-    public static function getTaxRulesByGroupId($id_lang, $id_group)
-    {
-        return Db::getInstance()->executeS('
-            SELECT g.`id_tax_rule`,
-            c.`name` AS country_name,
-            s.`name` AS state_name,
-            t.`rate`,
-            g.`zipcode_from`, g.`zipcode_to`,
-            g.`description`,
-            g.`behavior`,
-            g.`id_country`,
-            g.`id_state`
-            FROM `'._DB_PREFIX_.'tax_rule` g
-        LEFT JOIN `'._DB_PREFIX_.'country_lang` c ON (g.`id_country` = c.`id_country` AND `id_lang` = '.(int)$id_lang.')
-        LEFT JOIN `'._DB_PREFIX_.'state` s ON (g.`id_state` = s.`id_state`)
-        LEFT JOIN `'._DB_PREFIX_.'tax` t ON (g.`id_tax` = t.`id_tax`)
-        WHERE `id_tax_rules_group` = '.(int)$id_group.'
-        ORDER BY `country_name` ASC, `state_name` ASC, `zipcode_from` ASC, `zipcode_to` ASC'
-        );
-    }
 */
+    public static List<JeproLabTaxRuleModel> getTaxRulesByGroupId(int langId, int groupId){
+        if(staticDataBaseObject == null){
+            staticDataBaseObject = JeproLabFactory.getDataBaseConnector();
+        }
+
+        String query = "SELECT tax_rule." + staticDataBaseObject.quoteName("tax_rule_id") + ", country_lang." + staticDataBaseObject.quoteName("name");
+        query += " AS country_name, state." + staticDataBaseObject.quoteName("name") + " AS state_name, tax." + staticDataBaseObject.quoteName("rate");
+        query += ", tax_rule." + staticDataBaseObject.quoteName("zipcode_from") + ", tax_rule." + staticDataBaseObject.quoteName("zipcode_to");
+        query += ", tax_rule." + staticDataBaseObject.quoteName("description") + ", tax_rule." + staticDataBaseObject.quoteName("behavior") + ", tax_rule.";
+        query += staticDataBaseObject.quoteName("country_id") + ", tax_group." + staticDataBaseObject.quoteName("state_id") + " FROM ";
+        query += staticDataBaseObject.quoteName("#__jeprolab_tax_rule") + " AS tax_rule LEFT JOIN " + staticDataBaseObject.quoteName("#__jeprolab_country_lang");
+        query += " AS country_lang ON (tax_rule." + staticDataBaseObject.quoteName("country_id") + " = country_lang." + staticDataBaseObject.quoteName("country_id");
+        query += " AND " + staticDataBaseObject.quoteName("lang_id") + " = " + langId + ") LEFT JOIN " + staticDataBaseObject.quoteName("#__jeprolab_state");
+        query += " AS state ON (tax_rule."  + staticDataBaseObject.quoteName("state_id") + " = state." + staticDataBaseObject.quoteName("state_id") + ") LEFT JOIN ";
+        query += staticDataBaseObject.quoteName("#__jeprolab_tax") + " AS tax ON (tax_rule." + staticDataBaseObject.quoteName("tax_id") + " = tax.";
+        query += staticDataBaseObject.quoteName("tax_id") + " WHERE " + staticDataBaseObject.quoteName("tax_rules_group_id") + " = " + groupId + " ORDER BY ";
+        query += "`country_name` ASC, `state_name` ASC, `zipcode_from` ASC, `zipcode_to` ASC";
+
+        staticDataBaseObject.setQuery(query);
+        ResultSet taxRuleSet = staticDataBaseObject.loadObject();
+        List<JeproLabTaxRuleModel> taxRulesList = new ArrayList<>();
+        if(taxRuleSet != null){
+            try{
+                JeproLabTaxRuleModel taxRule;
+                while(taxRuleSet.next()){
+                    taxRule = new JeproLabTaxRuleModel();
+                    taxRule.tax_id = taxRuleSet.getInt("tax_id");
+                    taxRule.tax_rule_id = taxRuleSet.getInt("tax_rule_id");
+                    //taxRule.tax_rule_id = taxRuleSet.getInt("tax_rule_id");
+                    //taxRule. = taxRuleSet.get("");
+                    //taxRule = taxRuleSet.get("");
+                    //taxRule = taxRuleSet.get("");
+                    taxRulesList.add(taxRule);
+                }
+            }catch (SQLException ignored){
+
+            }
+        }
+        return taxRulesList;
+    }
+
     public static boolean deleteTaxRuleByTaxId(int taxId){
         if(staticDataBaseObject == null){
             staticDataBaseObject = JeproLabFactory.getDataBaseConnector();

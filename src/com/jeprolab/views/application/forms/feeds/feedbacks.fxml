@@ -1,29 +1,26 @@
-<?import javafx.scene.layout.VBox?>
 <?import javafx.scene.control.TableView?>
 <?import javafx.scene.control.TableColumn?>
-<?import javafx.scene.layout.AnchorPane?>
-<VBox xmlns:fx="http://javafx.com/fxml" fx:controller="com.jeprolab.controllers.JeproLabFeedBackController" >
-    <AnchorPane>
-        <TableView fx:id="jeproLabFeedBackTableView" >
-            <columns>
-                <TableColumn resizable="false" editable="false" fx:id="jeproLabFeedBackIndexColumn" />
-                <TableColumn resizable="false" editable="false" fx:id="jeproLabFeedBackCheckBoxColumn" />
-                <TableColumn resizable="false" editable="false" fx:id="jeproLabFeedBackCustomerColumn" />
-                <TableColumn resizable="false" editable="false" fx:id="jeproLabFeedBackEnjoyWorkingWithUsColumn" />
-                <TableColumn resizable="false" editable="false" fx:id="jeproLabFeedBackStaffCourtesyColumn" />
-                <TableColumn resizable="false" editable="false" fx:id="jeproLabFeedBackTeamAbilitiesColumn" />
-                <TableColumn resizable="false" editable="false" fx:id="jeproLabFeedBackProblemSupportColumn" />
-                <TableColumn resizable="false" editable="false" fx:id="jeproLabFeedBackTeamAvailabilitiesColumn" />
-                <TableColumn resizable="false" editable="false" fx:id="jeproLabFeedBackRecommendOurServicesColumn"/>
-                <TableColumn resizable="false" editable="false" fx:id="jeproLabFeedBackReuseOurServicesColumn"/>
-                <TableColumn resizable="false" editable="false" fx:id="jeproLabFeedBackServiceSpeedColumn"/>
-                <TableColumn resizable="false" editable="false" fx:id="jeproLabFeedBackSampleDeliveryColumn"/>
-                <TableColumn resizable="false" editable="false" fx:id="jeproLabFeedBackSubmissionColumn" />
-                <TableColumn resizable="false" editable="false" fx:id="jeproLabFeedBackReportsQualityColumn"/>
-                <TableColumn resizable="false" editable="false" fx:id="jeproLabFeedBackAnalyseSpeedColumn"/>
-                <TableColumn resizable="false" editable="false" fx:id="jeproLabFeedBackOnlineServicesColumn"/>
-                <TableColumn resizable="false" editable="false" fx:id="jeproLabFeedBackGlobalQualityColumn"/>
-            </columns>
-        </TableView>
-    </AnchorPane>
-</VBox>
+<?import com.jeprolab.assets.extend.controls.JeproFormPanel?>
+<JeproFormPanel xmlns:fx="http://javafx.com/fxml" fx:controller="com.jeprolab.controllers.JeproLabFeedBackController" >
+    <TableView fx:id="jeproLabFeedBackTableView" >
+        <columns>
+            <TableColumn resizable="false" editable="false" fx:id="jeproLabFeedBackIndexColumn" />
+            <TableColumn resizable="false" editable="false" fx:id="jeproLabFeedBackCheckBoxColumn" />
+            <TableColumn resizable="false" editable="false" fx:id="jeproLabFeedBackCustomerColumn" />
+            <TableColumn resizable="false" editable="false" fx:id="jeproLabFeedBackEnjoyWorkingWithUsColumn" />
+            <TableColumn resizable="false" editable="false" fx:id="jeproLabFeedBackStaffCourtesyColumn" />
+            <TableColumn resizable="false" editable="false" fx:id="jeproLabFeedBackTeamAbilitiesColumn" />
+            <TableColumn resizable="false" editable="false" fx:id="jeproLabFeedBackProblemSupportColumn" />
+            <TableColumn resizable="false" editable="false" fx:id="jeproLabFeedBackTeamAvailabilitiesColumn" />
+            <TableColumn resizable="false" editable="false" fx:id="jeproLabFeedBackRecommendOurServicesColumn"/>
+            <TableColumn resizable="false" editable="false" fx:id="jeproLabFeedBackReuseOurServicesColumn"/>
+            <TableColumn resizable="false" editable="false" fx:id="jeproLabFeedBackServiceSpeedColumn"/>
+            <TableColumn resizable="false" editable="false" fx:id="jeproLabFeedBackSampleDeliveryColumn"/>
+            <TableColumn resizable="false" editable="false" fx:id="jeproLabFeedBackSubmissionColumn" />
+            <TableColumn resizable="false" editable="false" fx:id="jeproLabFeedBackReportsQualityColumn"/>
+            <TableColumn resizable="false" editable="false" fx:id="jeproLabFeedBackAnalyseSpeedColumn"/>
+            <TableColumn resizable="false" editable="false" fx:id="jeproLabFeedBackOnlineServicesColumn"/>
+            <TableColumn resizable="false" editable="false" fx:id="jeproLabFeedBackGlobalQualityColumn"/>
+        </columns>
+    </TableView>
+</JeproFormPanel>

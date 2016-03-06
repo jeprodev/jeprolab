@@ -2048,7 +2048,7 @@ public class JeproLabCategoryModel extends JeproLabModel {
      * checkAccess return true if id_customer is in a group allowed to see this category.
      *
      * @param employeeId employee id
-     * @access public
+     *
      * @return boolean true if access allowed for customer $id_customer
      */
     public boolean checkAccess(int employeeId){

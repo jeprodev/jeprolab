@@ -1,5 +1,7 @@
 package com.jeprolab.models;
 
+import com.jeprolab.JeproLab;
+import com.jeprolab.assets.tools.JeproLabContext;
 import com.jeprolab.models.core.JeproLabFactory;
 
 import java.sql.ResultSet;
@@ -199,40 +201,46 @@ public class JeproLabTaxRulesGroupModel  extends JeproLabModel {
     /**
      * Returns the tax rules group id corresponding to the name
      *
-     * @param string $name
+     * @param name name of the tax to be retrieved
      * @return int id of the tax rules
-     * /
-    public static function getIdByName($name)
-    {
-        return Db::getInstance()->getValue(
-            'SELECT `id_tax_rules_group`
-            FROM `'._DB_PREFIX_.'tax_rules_group` rg
-        WHERE `name` = \''.pSQL($name).'\''
-        );
+     */
+    public static int getIdByName(String name){
+        if(staticDataBaseObject == null){
+            staticDataBaseObject = JeproLabFactory.getDataBaseConnector();
+        }
+        String query = "SELECT " + staticDataBaseObject.quoteName("tax_rules_group_id") + " FROM " + staticDataBaseObject.quoteName("#__jeprolab_tax_rules_groups");
+        query += " WHERE " + staticDataBaseObject.quoteName("name") + " = " + staticDataBaseObject.quote(name);
+        staticDataBaseObject.setQuery(query);
+        return (int)staticDataBaseObject.loadValue("tax_rules_group_id");
     }
 
-    public function hasUniqueTaxRuleForCountry($id_country, $id_state, $id_tax_rule = false)
-    {
-        $rules = TaxRule::getTaxRulesByGroupId((int)Context::getContext()->language->id, (int)$this->id);
-        foreach ($rules as $rule) {
-        if ($rule['id_country'] == $id_country && $id_state == $rule['id_state'] && !$rule['behavior'] && (int)$id_tax_rule != $rule['id_tax_rule']) {
-            return true;
-        }
+    public boolean hasUniqueTaxRuleForCountry(int countryId, int stateId){
+        return hasUniqueTaxRuleForCountry(countryId, stateId, 0);
     }
+
+    public boolean hasUniqueTaxRuleForCountry(int countryId, int stateId, int taxRuleId){
+        List<JeproLabTaxRuleModel> taxRules = JeproLabTaxRuleModel.getTaxRulesByGroupId(JeproLabContext.getContext().language.language_id, this.tax_rules_group_id);
+        for(JeproLabTaxRuleModel rule : taxRules) {
+            if (rule.country_id == countryId && stateId == rule.state_id && rule.behavior <= 0 && taxRuleId != rule.tax_rule_id) {
+                return true;
+            }
+        }
 
         return false;
     }
 
-    public function isUsed()
-    {
-        return Db::getInstance()->getValue('
-            SELECT `id_tax_rules_group`
-            FROM `'._DB_PREFIX_.'order_detail`
-        WHERE `id_tax_rules_group` = '.(int)$this->id
-        );
+    public boolean isUsed(){
+        if(dataBaseObject == null){
+            dataBaseObject = JeproLabFactory.getDataBaseConnector();
+        }
+        String query = "SELECT " + dataBaseObject.quoteName("tax_rules_group_id") +  " FROM " + dataBaseObject.quoteName("#__jeprolab_request_detail");
+        query += " WHERE " +  dataBaseObject.quoteName("tax_rules_group_id") + " = " + this.tax_rules_group_id;
+
+        dataBaseObject.setQuery(query);
+        return ((int)dataBaseObject.loadValue("tax_rules_group_id") > 0);
     }
 
-    /**
+    /*
      * @deprecated since 1.5
      * /
     public static function getTaxesRate($id_tax_rules_group, $id_country, $id_state, $zipcode)
