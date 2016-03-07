@@ -54,6 +54,7 @@ public class JeproLabCategoryAddController extends JeproLabController{
 
     public JeproImageChooser jeproLabCategoryImageChooser;
 
+    @Override
     public void initialize(URL location, ResourceBundle resource){
         super.initialize(location, resource);
         double labelColumnWidth = 150;
@@ -158,6 +159,7 @@ public class JeproLabCategoryAddController extends JeproLabController{
         JeproLabGroupModel customerGroup = new JeproLabGroupModel(JeproLabSettingModel.getIntValue("customer_group"));
 
         List<JeproLabGroupModel> groups = JeproLabGroupModel.getGroups(context.language.language_id);
+        updateToolBar();
     }
 
     @Override
