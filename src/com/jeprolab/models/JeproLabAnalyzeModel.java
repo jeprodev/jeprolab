@@ -3298,7 +3298,7 @@ public class JeproLabAnalyzeModel extends JeproLabModel {
     }
 
     public static float getStaticPrice(int analyzeId, boolean useTax, int analyzeAttributeId, int decimals, boolean onlyReduction,  boolean useReduction, int quantity, boolean forceAssociatedTax, int customerId, int cartId, int addressId, boolean withEcoTax, boolean useGroupReduction, JeproLabContext context){
-        return getStaticPrice(analyzeId, useTax, analyzeAttributeId, decimals, onlyReduction, useReduction , quantity, forceAssociatedTax, customerId, cartId, addressId, withEcoTax, useGroupReduction, context, true);
+        return getStaticPrice(analyzeId, useTax, analyzeAttributeId, decimals, onlyReduction, useReduction, quantity, forceAssociatedTax, customerId, cartId, addressId, withEcoTax, useGroupReduction, context, true);
     }
 
     /**
@@ -6579,16 +6579,14 @@ public static function usesAdvancedStockManagement($id_product)
         return (bool)Db::getInstance()->getValue($query);
         }
 
-/**
- * This method allows to flush price cache
- *
- * @since 1.5.0
- * /
-public static function flushPriceCache()
-        {
-        JeproLabAnalyzeModel.$_prices = array();
-        JeproLabAnalyzeModel.$_pricesLevel2 = array();
-        }
+    /**
+     * This method allows to flush price cache
+     *
+     */
+    public static void flushPriceCache() {
+        JeproLabAnalyzeModel._prices =  new HashMap<>();
+        JeproLabAnalyzeModel._pricesLevel2 =  new HashMap<>();
+    }
 
 /*
  * Get list of parent categories

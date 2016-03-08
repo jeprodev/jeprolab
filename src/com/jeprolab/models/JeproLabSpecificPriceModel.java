@@ -85,15 +85,15 @@ public class JeproLabSpecificPriceModel extends JeproLabModel{
 
     /*
      * Flush local cache
-     * /
-    protected function flushCache() {
-        SpecificPrice::$_specificPriceCache = array();
-        SpecificPrice::$_filterOutCache = array();
-        SpecificPrice::$_cache_priorities = array();
-        SpecificPrice::$_no_specific_values = array();
-        Product::flushPriceCache();
+     */
+    protected void flushCache() {
+        JeproLabSpecificPriceModel._specificPriceCache = new HashMap<>();
+        JeproLabSpecificPriceModel._filterOutCache = new HashMap<>();
+        JeproLabSpecificPriceModel._cache_priorities = new HashMap<>();
+        JeproLabSpecificPriceModel._no_specific_values = new HashMap<>();
+        JeproLabAnalyzeModel.flushPriceCache();
     }
-
+/*
     public function add($autodate = true, $nullValues = false)
     {
         if (parent::add($autodate, $nullValues)) {
@@ -170,8 +170,6 @@ public class JeproLabSpecificPriceModel extends JeproLabModel{
                     specificPrice.reduction_type = specificSet.getString("reduction_type");
                     specificPrice.from = specificSet.getDate("from");
                     specificPrice.to = specificSet.getDate("to");
-                    //specificPrice = specificSet.get("");
-                    //specificPrice = specificSet.get("");
                     specificList.add(specificPrice);
                 }
             }catch (SQLException ignored){
@@ -181,23 +179,56 @@ public class JeproLabSpecificPriceModel extends JeproLabModel{
 
         return specificList;
     }
-/*
-    public static function deleteByIdCart($id_cart, $id_product = false, $id_product_attribute = false)
-    {
-        return Db::getInstance()->execute('
-            DELETE FROM `'._DB_PREFIX_.'specific_price`
-        WHERE id_cart='.(int)$id_cart.
-        ($id_product ? ' AND id_product='.(int)$id_product.' AND id_product_attribute='.(int)$id_product_attribute : ''));
+
+    public boolean deleteByCartId(int cartId){
+        return deleteByCartId(cartId, 0, 0);
     }
 
-    public static function getIdsByProductId($id_product, $id_product_attribute = false, $id_cart = 0)
-    {
-        return Db::getInstance(_PS_USE_SQL_SLAVE_)->executeS('
-            SELECT `id_specific_price`
-            FROM `'._DB_PREFIX_.'specific_price`
-        WHERE `id_product` = '.(int)$id_product.'
-        AND id_product_attribute='.(int)$id_product_attribute.'
-        AND id_cart='.(int)$id_cart);
+    public boolean deleteByCartId(int cartId, int analyzeId){
+        return deleteByCartId(cartId, analyzeId, 0);
+    }
+
+    public boolean deleteByCartId(int cartId, int analyzeId, int analyzeAttributeId){
+        if(dataBaseObject == null){
+            dataBaseObject = JeproLabFactory.getDataBaseConnector();
+        }
+        String query = "DELETE FROM " + dataBaseObject.quoteName("#__jeprolab_specific_price") + " WHERE cart_id = " + cartId;
+        query += ( analyzeId > 0 ? " AND analyze_id = " + analyzeId + " AND analyze_attribute_id = " + analyzeAttributeId : "");
+
+        dataBaseObject.setQuery(query);
+        return dataBaseObject.query(false);
+    }
+
+    public static List<Integer> getIdsByAnalyzeId(int analyzeId){
+        return getIdsByAnalyzeId(analyzeId, 0, 0);
+    }
+
+    public static List<Integer> getIdsByAnalyzeId(int analyzeId, int analyzeAttributeId){
+        return getIdsByAnalyzeId(analyzeId, analyzeAttributeId, 0);
+    }
+
+    public static List<Integer> getIdsByAnalyzeId(int analyzeId, int analyzeAttributeId, int cartId){
+        if(staticDataBaseObject == null){
+            staticDataBaseObject = JeproLabFactory.getDataBaseConnector();
+        }
+
+        String query = "SELECT " + staticDataBaseObject.quoteName("specific_price_id") + " FROM " + staticDataBaseObject.quoteName("#__jeprolab_specific_price");
+        query += " WHERE " + staticDataBaseObject.quoteName("analyze_id") + " = " + analyzeId + " AND " + staticDataBaseObject.quoteName("analyze_attribute_id");
+        query += " = " + analyzeAttributeId + " AND " + staticDataBaseObject.quoteName("cart_id") + " = " + cartId;
+
+        staticDataBaseObject.setQuery(query);
+        ResultSet resultSet = staticDataBaseObject.loadObject();
+        List<Integer> specificPriceIds = new ArrayList<>();
+        if(resultSet != null){
+            try{
+                while (resultSet.next()){
+                    specificPriceIds.add(resultSet.getInt("specific_price_id"));
+                }
+            }catch(SQLException ignored){
+
+            }
+        }
+        return specificPriceIds;
     }
 
     /**
@@ -339,11 +370,11 @@ public class JeproLabSpecificPriceModel extends JeproLabModel{
     /**
      * Remove or add useless fields value depending on the values in the database (cache friendly)
      *
-     * @param analyzeId
-     * @param analyzeAttributeId
-     * @param cartId
-     * @param beginning
-     * @param ending
+     * @param analyzeId analyze id
+     * @param analyzeAttributeId analyze attribute id
+     * @param cartId cart id
+     * @param beginning beginning
+     * @param ending period ending
      * @return string
      */
     protected static String  computeExtraConditions(int analyzeId, int analyzeAttributeId, int customerId, int cartId, Date beginning, Date ending){
@@ -476,152 +507,227 @@ public class JeproLabSpecificPriceModel extends JeproLabModel{
 
             JeproLabSpecificPriceModel._specificPriceCache.put(cacheKey, specificPrice);
         }
-        return (JeproLabSpecificPriceModel)JeproLabSpecificPriceModel._specificPriceCache.get(cacheKey);
+        return JeproLabSpecificPriceModel._specificPriceCache.get(cacheKey);
     }
-/*
-    public static function setPriorities($priorities)
-    {
-        $value = '';
-        if (is_array($priorities)) {
-            foreach ($priorities as $priority) {
-                $value .= pSQL($priority).';';
+
+    public static function setPriorities(String[] priorities){
+        if(staticDataBaseObject == null){
+            staticDataBaseObject = JeproLabFactory.getDataBaseConnector();
+        }
+        String value = "";
+        for (String priority : priorities){
+            value += staticDataBaseObject.quoteName(priority) + ";";
+        }
+        JeproLabSpecificPriceModel.deletePriorities();
+
+        return JeproLabSettingModel.updateValue("specific_prices", rtrim($value, ';'));
+    }
+
+    public static boolean deletePriorities(){
+        if(staticDataBaseObject == null){
+            staticDataBaseObject = JeproLabFactory.getDataBaseConnector();
+        }
+        String query = "TRUNCATE " + staticDataBaseObject.quoteName("#__jeprolab_specific_price_priority");
+        staticDataBaseObject.setQuery(query);
+        return staticDataBaseObject.query(false);
+    }
+
+    public static boolean setSpecificPriority(int analyzeId, String[] priorities){
+        if(staticDataBaseObject == null){
+            staticDataBaseObject = JeproLabFactory.getDataBaseConnector();
+        }
+        String value = "";
+        for(String priority : priorities) {
+            value += staticDataBaseObject.quote(priority) + ";";
+        }
+        String query = "INSERT INTO " + staticDataBaseObject.quoteName("#__jeprolab_specific_price_priority") + "(" + staticDataBaseObject.quoteName("analyze_id");
+        query += ", " + staticDataBaseObject.quoteName("priority") + ") VALUES (" + analyzeId + ", " + staticDataBaseObject.quote(value) + ")";
+        query += " ON DUPLICATE KEY UPDATE " + staticDataBaseObject.quoteName("priority") + " = " + pSQL(rtrim($value, ';')).'\';
+
+        staticDataBaseObject.setQuery(query);
+        return staticDataBaseObject.query(false);
+    }
+
+    public static List<JeproLabSpecificPriceModel> getQuantityDiscounts(int analyzeId, int labId, int currencyId, int countryId, int groupId){
+        return  getQuantityDiscounts(analyzeId, labId, currencyId, countryId, groupId, 0, false, 0);
+    }
+
+    public static List<JeproLabSpecificPriceModel> getQuantityDiscounts(int analyzeId, int labId, int currencyId, int countryId, int groupId, int analyzeAttributeId){
+        return  getQuantityDiscounts(analyzeId, labId, currencyId, countryId, groupId, analyzeAttributeId, false, 0);
+    }
+
+    public static List<JeproLabSpecificPriceModel> getQuantityDiscounts(int analyzeId, int labId, int currencyId, int countryId, int groupId, int analyzeAttributeId, boolean allCombinations){
+        return  getQuantityDiscounts(analyzeId, labId, currencyId, countryId, groupId, 0, allCombinations, 0);
+    }
+
+    public static List<JeproLabSpecificPriceModel> getQuantityDiscounts(int analyzeId, int labId, int currencyId, int countryId, int groupId, int analyzeAttributeId, boolean allCombinations, int customerId){
+        if (!JeproLabSpecificPriceModel.isFeaturePublished()) {
+            return new ArrayList<>();
+        }
+
+        String extraQuery = JeproLabSpecificPriceModel.computeExtraConditions(analyzeId, ((!allCombinations) ? analyzeAttributeId  : 0), customerId, 0);
+        String query = "SELECT *, " + JeproLabSpecificPriceModel.getScoreQuery(analyzeId, labId, currencyId, countryId, groupId, customerId) + " FROM " ;
+        query += staticDataBaseObject.quoteName("#__jeprolab_specific_price") + " WHERE " + staticDataBaseObject.quoteName("lab_id");
+        query += JeproLabSpecificPriceModel.formatIntInQuery(0, labId) + " AND " + staticDataBaseObject.quoteName("currency_id");
+        query += JeproLabSpecificPriceModel.formatIntInQuery(0, currencyId) + " AND " + staticDataBaseObject.quoteName("country_id");
+        query += JeproLabSpecificPriceModel.formatIntInQuery(0, countryId) + " AND " + staticDataBaseObject.quoteName("group_id") ;
+        query += JeproLabSpecificPriceModel.formatIntInQuery(0, groupId) + " " + extraQuery + " ORDER BY " + staticDataBaseObject.quoteName("from_quantity");
+        query += " ASC, " + staticDataBaseObject.quoteName("specific_price_rule_id") + " ASC, " + staticDataBaseObject.quoteName("score") + " DESC, ";
+        query += staticDataBaseObject.quoteName("to") + " DESC, " + staticDataBaseObject.quoteName("from") + " DESC";
+
+        staticDataBaseObject.setQuery(query);
+        ResultSet resultSet = staticDataBaseObject.loadObject();
+
+        List<JeproLabSpecificPriceModel> targetedPrices = new ArrayList<>();
+        Map<Integer, Integer> lastQuantity = new HashMap<>();
+        if(resultSet != null) {
+            try {
+                JeproLabSpecificPriceModel specificPrice;
+                while (resultSet.next()){
+                    specificPrice = new JeproLabSpecificPriceModel();
+                    specificPrice.specific_price_id = resultSet.getInt("specific_price_id");
+                    specificPrice.specific_price_rule_id = resultSet.getInt("specific_price_rule_id");
+                    specificPrice.cart_id = resultSet.getInt("lab_id");
+                    specificPrice.currency_id = resultSet.getInt("currency_id");
+                    specificPrice.laboratory_id = resultSet.getInt("lab_id");
+                    specificPrice.laboratory_group_id = resultSet.getInt("lab_group_id");
+                    specificPrice.country_id = resultSet.getInt("country_id");
+                    specificPrice.group_id = resultSet.getInt("group_id");
+                    specificPrice.customer_id = resultSet.getInt("customer_id");
+                    specificPrice.price = resultSet.getFloat("price");
+                    specificPrice.reduction = resultSet.getFloat("reduction");
+                    specificPrice.reduction_type = resultSet.getString("reduction_type");
+                    specificPrice.from = resultSet.getDate("from");
+                    specificPrice.to = resultSet.getDate("to");
+                    specificPrice.analyze_attribute_id = resultSet.getInt("analyze_attribute_id");
+                    specificPrice.from_quantity  = resultSet.getInt("from_quantity");
+
+                    if (!lastQuantity.containsKey(specificPrice.analyze_attribute_id)) {
+                        lastQuantity.put(specificPrice.analyze_attribute_id, specificPrice.from_quantity);
+                    }else if(lastQuantity.get(specificPrice.analyze_attribute_id) == specificPrice.from_quantity){
+                        continue;
+                    }
+
+                    lastQuantity.put(specificPrice.analyze_attribute_id,  specificPrice.from_quantity);
+                    if (specificPrice.from_quantity > 1) {
+                        targetedPrices.add(specificPrice);
+                    }
+                }
+            }catch (SQLException ignored){
+
             }
         }
 
-        SpecificPrice::deletePriorities();
-
-        return Configuration::updateValue('PS_SPECIFIC_PRICE_PRIORITIES', rtrim($value, ';'));
+        return targetedPrices;
     }
 
-    public static function deletePriorities()
-    {
-        return Db::getInstance()->execute('
-            TRUNCATE `'._DB_PREFIX_.'specific_price_priority`
-        ');
+    public static int getQuantityDiscount(int analyzeId, int labId, int currencyId, int countryId, int groupId, int quantity){
+        return getQuantityDiscount(analyzeId, labId, currencyId, countryId, groupId, quantity, 0, 0);
     }
-
-    public static function setSpecificPriority($id_product, $priorities)
-    {
-        $value = '';
-        foreach ($priorities as $priority) {
-        $value .= pSQL($priority).';';
+    public static int getQuantityDiscount(int analyzeId, int labId, int currencyId, int countryId, int groupId, int quantity, int analyzeAttributeId){
+        return getQuantityDiscount(analyzeId, labId, currencyId, countryId, groupId, quantity, analyzeAttributeId, 0);
     }
-
-        return Db::getInstance()->execute('
-            INSERT INTO `'._DB_PREFIX_.'specific_price_priority` (`id_product`, `priority`)
-        VALUES ('.(int)$id_product.',\''.pSQL(rtrim($value, ';')).'\')
-        ON DUPLICATE KEY UPDATE `priority` = \''.pSQL(rtrim($value, ';')).'\'
-        ');
-    }
-
-    public static function getQuantityDiscounts($id_product, $id_shop, $id_currency, $id_country, $id_group, $id_product_attribute = null, $all_combinations = false, $id_customer = 0)
-    {
-        if (!SpecificPrice::isFeatureActive()) {
-        return array();
-    }
-
-        $query_extra = JeproLabSpecificPriceModel.computeExtraConditions($id_product, ((!$all_combinations)?$id_product_attribute:null), $id_customer, null);
-        $result = Db::getInstance(_PS_USE_SQL_SLAVE_)->executeS('
-            SELECT *,
-            '.SpecificPrice::_getScoreQuery($id_product, $id_shop, $id_currency, $id_country, $id_group, $id_customer).'
-            FROM `'._DB_PREFIX_.'specific_price`
-        WHERE
-        `id_shop` '.JeproLabSpecificPriceModel.formatIntInQuery(0, $id_shop).' AND
-        `id_currency` '.JeproLabSpecificPriceModel.formatIntInQuery(0, $id_currency).' AND
-        `id_country` '.JeproLabSpecificPriceModel.formatIntInQuery(0, $id_country).' AND
-        `id_group` '.JeproLabSpecificPriceModel.formatIntInQuery(0, $id_group).' '.$query_extra.'
-        ORDER BY `from_quantity` ASC, `id_specific_price_rule` ASC, `score` DESC, `to` DESC, `from` DESC
-        ', false, false);
-
-        $targeted_prices = array();
-        $last_quantity = array();
-
-        while ($specific_price = Db::getInstance()->nextRow($result)) {
-        if (!isset($last_quantity[(int)$specific_price['id_product_attribute']])) {
-            $last_quantity[(int)$specific_price['id_product_attribute']] = $specific_price['from_quantity'];
-        } elseif ($last_quantity[(int)$specific_price['id_product_attribute']] == $specific_price['from_quantity']) {
-            continue;
+    public static int getQuantityDiscount(int analyzeId, int labId, int currencyId, int countryId, int groupId, int quantity, int analyzeAttributeId, int customerId){
+        if (!JeproLabSpecificPriceModel.isFeaturePublished()) {
+            return 0;
+        }
+        if(staticDataBaseObject == null){
+            staticDataBaseObject = JeproLabFactory.getDataBaseConnector();
         }
 
-        $last_quantity[(int)$specific_price['id_product_attribute']] = $specific_price['from_quantity'];
-        if ($specific_price['from_quantity'] > 1) {
-            $targeted_prices[] = $specific_price;
+        String extraQuery = JeproLabSpecificPriceModel.computeExtraConditions(analyzeId, analyzeAttributeId, customerId, 0);
+        String query = "SELECT *," + JeproLabSpecificPriceModel.getScoreQuery(analyzeId, labId, currencyId, countryId, groupId, customerId);
+        query += " FROM " + staticDataBaseObject.quoteName("#__jeprolab_specific_price") + " WHERE " + staticDataBaseObject.quoteName("lab_id");
+        query += JeproLabSpecificPriceModel.formatIntInQuery(0, labId)+ " AND " + staticDataBaseObject.quoteName("currency_id");
+        query += JeproLabSpecificPriceModel.formatIntInQuery(0, currencyId) + " AND " + staticDataBaseObject.quoteName("country_id");
+        query += JeproLabSpecificPriceModel.formatIntInQuery(0, countryId) + " AND " + staticDataBaseObject.quoteName("group_id");
+        query += JeproLabSpecificPriceModel.formatIntInQuery(0, groupId) + " AND " + staticDataBaseObject.quoteName("from_quantity");
+        query += " >= " + quantity + " " + extraQuery + " ORDER BY " + staticDataBaseObject.quoteName("from_quantity") + " DESC, ";
+        query += staticDataBaseObject.quoteName("score") + " DESC, " + staticDataBaseObject.quoteName("to") + " DESC, ";
+        query += staticDataBaseObject.quoteName("from") + " DESC ";
+
+        staticDataBaseObject.setQuery(query);
+        /*return Db::getInstance(_PS_USE_SQL_SLAVE_)->getRow('
+
+        ');*/
+        return 0;
+    }
+
+    public static List<Map<String, Integer>> getAnalyzeIdByDate(int labId,  int currencyId, int countryId, int groupId, Date beginning, Date ending) {
+        return getAnalyzeIdByDate(labId, currencyId, countryId, groupId, beginning, ending, 0, false);
+    }
+
+    public static List<Map<String, Integer>> getAnalyzeIdByDate(int labId,  int currencyId, int countryId, int groupId, Date beginning, Date ending, int customerId) {
+        return getAnalyzeIdByDate(labId, currencyId, countryId, groupId, beginning, ending, customerId, false);
+    }
+
+    public static List<Map<String, Integer>> getAnalyzeIdByDate(int labId,  int currencyId, int countryId, int groupId, Date beginning, Date ending, int customerId, boolean withCombinationId) {
+        if (!JeproLabSpecificPriceModel.isFeaturePublished()){
+            return new ArrayList<>();
         }
+        if(staticDataBaseObject == null){
+            staticDataBaseObject = JeproLabFactory.getDataBaseConnector();
+        }
+
+        String query = "SELECT " + staticDataBaseObject.quoteName("analyze_id") + ", " + staticDataBaseObject.quoteName("analyze_attribute_id") + " FROM ";
+        query += staticDataBaseObject.quoteName("#__jeprolab_specific_price") + " WHERE	" + staticDataBaseObject.quoteName("lab_id");
+        query += JeproLabSpecificPriceModel.formatIntInQuery(0, labId) + " AND " + staticDataBaseObject.quoteName("currency");
+        query += JeproLabSpecificPriceModel.formatIntInQuery(0, currencyId) + " AND " + staticDataBaseObject.quoteName("country_id");
+        query += JeproLabSpecificPriceModel.formatIntInQuery(0, countryId) + " AND " + staticDataBaseObject.quoteName("group_id");
+        query += JeproLabSpecificPriceModel.formatIntInQuery(0, groupId) + " AND " + staticDataBaseObject.quoteName("from_quantity") + " = 1 AND ";
+        query += staticDataBaseObject.quoteName("reduction") + " > 0 " + JeproLabSpecificPriceModel.computeExtraConditions(0, 0, customerId, 0, beginning, ending);
+
+        staticDataBaseObject.setQuery(query);
+        ResultSet resultSet = staticDataBaseObject.loadObject();
+        List<Map<String, Integer>> analyzeIds = new ArrayList<>();
+        if(resultSet != null) {
+            try {
+                Map<String, Integer> ids;
+                while(resultSet.next()) {
+                    ids = new HashMap<>();
+                    ids.put("analyze_id", resultSet.getInt("analyze_id"));
+                    if(withCombinationId){
+                        ids.put("analyze_attribute_id", resultSet.getInt("analyze_attribute")) ;
+                    }
+                    analyzeIds.add(ids);
+                }
+            }catch (SQLException ignored){
+
+            }
+        }
+
+        return analyzeIds;
     }
 
-        return $targeted_prices;
-    }
-
-    public static function getQuantityDiscount($id_product, $id_shop, $id_currency, $id_country, $id_group, $quantity, $id_product_attribute = null, $id_customer = 0)
-    {
-        if (!SpecificPrice::isFeatureActive()) {
-        return array();
-    }
-
-
-
-        $query_extra = JeproLabSpecificPriceModel.computeExtraConditions($id_product, $id_product_attribute, $id_customer, null);
-        return Db::getInstance(_PS_USE_SQL_SLAVE_)->getRow('
-            SELECT *,
-            '.SpecificPrice::_getScoreQuery($id_product, $id_shop, $id_currency, $id_country, $id_group, $id_customer).'
-            FROM `'._DB_PREFIX_.'specific_price`
-        WHERE
-        `id_shop` '.JeproLabSpecificPriceModel.formatIntInQuery(0, $id_shop).' AND
-        `id_currency` '.JeproLabSpecificPriceModel.formatIntInQuery(0, $id_currency).' AND
-        `id_country` '.JeproLabSpecificPriceModel.formatIntInQuery(0, $id_country).' AND
-        `id_group` '.JeproLabSpecificPriceModel.formatIntInQuery(0, $id_group).' AND
-        `from_quantity` >= '.(int)$quantity.' '.$query_extra.'
-        ORDER BY `from_quantity` DESC, `score` DESC, `to` DESC, `from` DESC
-        ');
-    }
-
-    public static function getProductIdByDate($id_shop, $id_currency, $id_country, $id_group, $beginning, $ending, $id_customer = 0, $with_combination_id = false)
-    {
-        if (!SpecificPrice::isFeatureActive()) {
-        return array();
-    }
-
-        $query_extra = JeproLabSpecificPriceModel.computeExtraConditions(null, null, $id_customer, null, $beginning, $ending);
-        $results = Db::getInstance(_PS_USE_SQL_SLAVE_)->executeS('
-            SELECT `id_product`, `id_product_attribute`
-            FROM `'._DB_PREFIX_.'specific_price`
-        WHERE	`id_shop` '.JeproLabSpecificPriceModel.formatIntInQuery(0, $id_shop).' AND
-        `id_currency` '.JeproLabSpecificPriceModel.formatIntInQuery(0, $id_currency).' AND
-        `id_country` '.JeproLabSpecificPriceModel.formatIntInQuery(0, $id_country).' AND
-        `id_group` '.JeproLabSpecificPriceModel.formatIntInQuery(0, $id_group).' AND
-        `from_quantity` = 1 AND
-        `reduction` > 0
-        '.$query_extra);
-        $ids_product = array();
-        foreach($results as $key => $value) {
-        $ids_product[] = $with_combination_id ? array('id_product' => (int)$value['id_product'], 'id_product_attribute' => (int)$value['id_product_attribute']) : (int)$value['id_product'];
-    }
-
-        return $ids_product;
-    }
-
-    public static function deleteByProductId($id_product)
-    {
-        if (Db::getInstance()->execute('DELETE FROM `'._DB_PREFIX_.'specific_price` WHERE `id_product` = '.(int)$id_product)) {
-        // Refresh cache of feature detachable
-        Configuration::updateGlobalValue('PS_SPECIFIC_PRICE_FEATURE_ACTIVE', SpecificPrice::isCurrentlyUsed('specific_price'));
-        return true;
-    }
+    public static boolean deleteByAnalyzeId(int analyzeId){
+        if(staticDataBaseObject == null){
+            staticDataBaseObject = JeproLabFactory.getDataBaseConnector();
+        }
+        String query = "DELETE FROM " + staticDataBaseObject.quoteName("#__jeprolab_specific_price") + " WHERE " + staticDataBaseObject.quoteName("analyze_id") + " = " + analyzeId;
+        staticDataBaseObject.setQuery(query);
+        if(staticDataBaseObject.query(false)){
+            JeproLabSettingModel.updateValue("specific_price_active", JeproLabSpecificPriceModel.isCurrentlyUsed("specific_price"));
+            return true;
+        }
         return false;
     }
 
-    public function duplicate($id_product = false)
-    {
-        if ($id_product) {
-            $this->id_product = (int)$id_product;
+
+    public boolean duplicate(){
+        return duplicate(0);
+    }
+
+    public boolean duplicate(int analyzeId){
+        if (analyzeId > 0) {
+            this.analyze_id = analyzeId;
         }
-        unset($this->id);
-        return $this->add();
+        this.specific_price_id = 0;
+        return this.selfAdd();
     }
 
     /**
      * This method is allow to know if a feature is used or active
-     * @since 1.5.0.1
+     *
      * @return bool
      */
     public static boolean isFeaturePublished(){
@@ -630,23 +736,29 @@ public class JeproLabSpecificPriceModel extends JeproLabModel{
         }
         return feature_active;
     }
-/*
-    public static function exists($id_product, $id_product_attribute, $id_shop, $id_group, $id_country, $id_currency, $id_customer, $from_quantity, $from, $to, $rule = false)
-    {
-        $rule = ' AND `id_specific_price_rule`'.(!$rule ? '=0' : '!=0');
-        return (int)Db::getInstance()->getValue('SELECT `id_specific_price`
-            FROM '._DB_PREFIX_.'specific_price
-        WHERE `id_product`='.(int)$id_product.' AND
-        `id_product_attribute`='.(int)$id_product_attribute.' AND
-        `id_shop`='.(int)$id_shop.' AND
-        `id_group`='.(int)$id_group.' AND
-        `id_country`='.(int)$id_country.' AND
-        `id_currency`='.(int)$id_currency.' AND
-        `id_customer`='.(int)$id_customer.' AND
-        `from_quantity`='.(int)$from_quantity.' AND
-        `from` >= \''.pSQL($from).'\' AND
-        `to` <= \''.pSQL($to).'\''.$rule);
-    } */
+
+    public static boolean exists(int analyzeId, int analyzeAttributeId, int labId, int groupId, int countryId, int currencyId, int customerId, int fromQuantity, Date from, Date to) {
+        return exists(analyzeId, analyzeAttributeId, labId, groupId, countryId, currencyId, customerId, fromQuantity, from, to, false);
+    }
+
+    public static boolean exists(int analyzeId, int analyzeAttributeId, int labId, int groupId, int countryId, int currencyId, int customerId, int fromQuantity, Date from, Date to, boolean rule) {
+        if(staticDataBaseObject == null){
+            staticDataBaseObject = JeproLabFactory.getDataBaseConnector();
+        }
+        String ruleQuery = " AND " + staticDataBaseObject.quoteName("specific_price_rule_id") + (!rule ? " = 0"  : " != 0");
+
+        String query = "SELECT " + staticDataBaseObject.quoteName("specific_price_id") + " FROM " + staticDataBaseObject.quoteName("#__jeprolab_specific_price") ;
+        query += " WHERE " + staticDataBaseObject.quoteName("analyze_id") + " = " + analyzeId + " AND " + staticDataBaseObject.quoteName("analyze_attribute_id");
+        query += " = " + analyzeAttributeId + " AND " + staticDataBaseObject.quoteName("lab_id") + " = " + labId + " AND " + staticDataBaseObject.quoteName("group_id");
+        query += " = " + groupId + " AND " + staticDataBaseObject.quoteName("country_id") + " = " + countryId + " AND " + staticDataBaseObject.quoteName("currency_id");
+        query += " = " + currencyId + " AND " + staticDataBaseObject.quoteName("customer_id") + " = " + customerId + " AND " + staticDataBaseObject.quoteName("from_quantity");
+        query += " = " + fromQuantity + " AND " + staticDataBaseObject.quoteName("from") + " >= " + staticDataBaseObject.quote(from.toString()) + " AND ";
+        query += staticDataBaseObject.quoteName("to") + " <= " + staticDataBaseObject.quote(to.toString()) + ruleQuery;
+
+        staticDataBaseObject.setQuery(query);
+
+        return (int)staticDataBaseObject.loadValue("specific_price_id") > 0;
+    }
 
     public boolean selfAdd(){
         if(dataBaseObject == null){
