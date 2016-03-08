@@ -277,6 +277,10 @@ public class JeproLabTools {
         return value.substring(value.indexOf(regex), value.length() - 1);
     }
 
+    public static String rightTrim(String param, String regex){
+        return  param;
+    }
+
     public static boolean fileExistsInCache(String filePath){
         return true;
     }

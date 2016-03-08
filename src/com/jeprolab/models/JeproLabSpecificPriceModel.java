@@ -1,6 +1,7 @@
 package com.jeprolab.models;
 
 import com.jeprolab.assets.tools.JeproLabContext;
+import com.jeprolab.assets.tools.JeproLabTools;
 import com.jeprolab.models.core.JeproLabFactory;
 
 import java.sql.ResultSet;
@@ -510,7 +511,7 @@ public class JeproLabSpecificPriceModel extends JeproLabModel{
         return JeproLabSpecificPriceModel._specificPriceCache.get(cacheKey);
     }
 
-    public static function setPriorities(String[] priorities){
+    public static boolean setPriorities(String[] priorities){
         if(staticDataBaseObject == null){
             staticDataBaseObject = JeproLabFactory.getDataBaseConnector();
         }
@@ -520,7 +521,7 @@ public class JeproLabSpecificPriceModel extends JeproLabModel{
         }
         JeproLabSpecificPriceModel.deletePriorities();
 
-        return JeproLabSettingModel.updateValue("specific_prices", rtrim($value, ';'));
+        return JeproLabSettingModel.updateValue("specific_prices", JeproLabTools.rightTrim(value, ";"));
     }
 
     public static boolean deletePriorities(){
@@ -542,7 +543,7 @@ public class JeproLabSpecificPriceModel extends JeproLabModel{
         }
         String query = "INSERT INTO " + staticDataBaseObject.quoteName("#__jeprolab_specific_price_priority") + "(" + staticDataBaseObject.quoteName("analyze_id");
         query += ", " + staticDataBaseObject.quoteName("priority") + ") VALUES (" + analyzeId + ", " + staticDataBaseObject.quote(value) + ")";
-        query += " ON DUPLICATE KEY UPDATE " + staticDataBaseObject.quoteName("priority") + " = " + pSQL(rtrim($value, ';')).'\';
+        query += " ON DUPLICATE KEY UPDATE " + staticDataBaseObject.quoteName("priority") + " = " + staticDataBaseObject.quote(JeproLabTools.rightTrim(value, ";"));
 
         staticDataBaseObject.setQuery(query);
         return staticDataBaseObject.query(false);
@@ -624,9 +625,11 @@ public class JeproLabSpecificPriceModel extends JeproLabModel{
     public static int getQuantityDiscount(int analyzeId, int labId, int currencyId, int countryId, int groupId, int quantity){
         return getQuantityDiscount(analyzeId, labId, currencyId, countryId, groupId, quantity, 0, 0);
     }
+
     public static int getQuantityDiscount(int analyzeId, int labId, int currencyId, int countryId, int groupId, int quantity, int analyzeAttributeId){
         return getQuantityDiscount(analyzeId, labId, currencyId, countryId, groupId, quantity, analyzeAttributeId, 0);
     }
+
     public static int getQuantityDiscount(int analyzeId, int labId, int currencyId, int countryId, int groupId, int quantity, int analyzeAttributeId, int customerId){
         if (!JeproLabSpecificPriceModel.isFeaturePublished()) {
             return 0;
@@ -853,18 +856,16 @@ public class JeproLabSpecificPriceModel extends JeproLabModel{
                 }
             }
         }
-
-        public static function disableAnyApplication()
-        {
-            SpecificPriceRule::$rules_application_enable = false;
+*/
+        public static void disableAnyApplication(){
+            JeproLabSpecificPriceRuleModel.rules_application_enable = false;
         }
 
-        public static function enableAnyApplication()
-        {
-            SpecificPriceRule::$rules_application_enable = true;
+        public static void enableAnyApplication(){
+            JeproLabSpecificPriceRuleModel.rules_application_enable = true;
         }
-
-        public function addConditions($conditions)
+/*
+        public boolean addConditions($conditions)
         {
             if (!is_array($conditions)) {
                 return;
