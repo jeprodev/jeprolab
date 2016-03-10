@@ -78,36 +78,33 @@ public class JeproLabAnalyzePackModel extends JeproLabAnalyzeModel {
         }
         return JeproLabAnalyzePackModel.cacheIsPacked.get(cacheKey);
     }
-/*
-    public static function noPackPrice($id_product)
-    {
-        $sum = 0;
-        $price_display_method = !JeproLabAnalyzePackModel._taxCalculationMethod;
-        $items = JeproLabAnalyzePackModel.getItems($id_product, JeproLabSettingModel.getInt('PS_LANG_DEFAULT'));
-        foreach ($items as $item) {
-        /** @var Product $item * /
-        $sum += $item->getPrice($price_display_method) * $item->pack_quantity;
+
+    public static float noPackPrice(int analyzeId){
+        float sum = 0;
+        boolean priceDisplayMethod = JeproLabAnalyzePackModel._taxCalculationMethod == 0;
+        List<JeproLabAnalyzeModel> items = JeproLabAnalyzePackModel.getItems(analyzeId, JeproLabSettingModel.getIntValue("default_lang"));
+        for(JeproLabAnalyzeModel item : items) {
+            /** @var Analyze $item */
+            sum += item.getPrice(priceDisplayMethod) * item.pack_quantity;
+        }
+        return sum;
     }
 
-        return $sum;
+    public static float noPackWholesalePrice(int analyzeId){
+        float sum = 0;
+        List<JeproLabAnalyzeModel> items = JeproLabAnalyzePackModel.getItems(analyzeId, JeproLabSettingModel.getIntValue("default_lang"));
+        for(JeproLabAnalyzeModel item : items) {
+            sum += item.wholesale_price * item.pack_quantity;
+        }
+        return sum;
     }
 
-    public static function noPackWholesalePrice($id_product)
-    {
-        $sum = 0;
-        $items = JeproLabAnalyzePackModel.getItems($id_product, JeproLabSettingModel.get('PS_LANG_DEFAULT'));
-        foreach ($items as $item) {
-        $sum += $item->wholesale_price * $item->pack_quantity;
-    }
-        return $sum;
-    }
-*/
 
     /**
      *
      * @param analyzeId analyze id
      * @param langId laboratory id
-     * @return
+     * @return List of items
      */
     public static List<JeproLabAnalyzeModel> getItems(int analyzeId, int langId){
         if (!JeproLabAnalyzePackModel.isFeaturePublished()){
@@ -171,25 +168,23 @@ public class JeproLabAnalyzePackModel extends JeproLabAnalyzeModel {
         JeproLabAnalyzePackModel.cachePackItems.put(analyzeId, items);// = $array_result;
         return JeproLabAnalyzePackModel.cachePackItems.get(analyzeId);
     }
-/*
-    public static function isInStock($id_product)
-    {
-        if (!JeproLabAnalyzePackModel.isFeatureActive()) {
-        return true;
-    }
 
-        $items = JeproLabAnalyzePackModel.getItems((int)$id_product, JeproLabSettingsModel.get('PS_LANG_DEFAULT'));
-
-        foreach ($items as $item) {
-        /** @var Product $item * /
-        // Updated for 1.5.0
-        if (Product::getQuantity($item->id) < $item->pack_quantity && !$item->isAvailableWhenOutOfStock((int)$item->out_of_stock)) {
-            return false;
+    public static boolean isInStock(int analyzeId){
+        if (!JeproLabAnalyzePackModel.isFeaturePublished()) {
+            return true;
         }
-    }
+
+        List<JeproLabAnalyzeModel> items = JeproLabAnalyzePackModel.getItems(analyzeId, JeproLabSettingModel.getIntValue("default_lang"));
+
+        for(JeproLabAnalyzeModel item : items) {
+            /** @var JeproLabAnalyzeModel $item */
+            if (JeproLabAnalyzeModel.getQuantity(item.analyze_id) < item.pack_quantity && !item.isAvailableWhenOutOfStock(item.out_of_stock)) {
+                return false;
+            }
+        }
         return true;
     }
-
+/*
     public static function getItemTable($id_product, $id_lang, $full = false)
     {
         if (!JeproLabAnalyzePackModel.isFeatureActive()) {

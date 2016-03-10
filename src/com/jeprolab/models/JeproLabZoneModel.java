@@ -123,7 +123,7 @@ public class JeproLabZoneModel extends JeproLabModel{
      * @param allow_delivery boolean
      * @return type
      */
-    public static List getZones(boolean allow_delivery){
+    public static List<JeproLabZoneModel> getZones(boolean allow_delivery){
         String cacheKey = "jeprolab_zone_model_get_zones_" +  (allow_delivery ? 1 : 0);
         List<JeproLabZoneModel> zones = new ArrayList<>();
         if(!JeproLabCache.getInstance().isStored(cacheKey)) {

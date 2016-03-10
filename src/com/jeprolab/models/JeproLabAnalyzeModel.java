@@ -81,8 +81,8 @@ public class JeproLabAnalyzeModel extends JeproLabModel {
     /** @var float Additional shipping cost */
     public float additional_shipping_cost = 0;
 
-    /** @var float Wholesale Price in euros * /
-    public $wholesale_price = 0;
+    /** @var float Wholesale Price in euros */
+    public float wholesale_price = 0;
 
     /** @var bool on_sale */
     public boolean on_sale = false;
@@ -244,6 +244,9 @@ public class JeproLabAnalyzeModel extends JeproLabModel {
     //protected static $_incat = array();
 
     protected static Map<Integer, Map<Integer, Integer>> combinations = new HashMap<>();
+
+    protected static boolean stock_management = false;
+    protected static boolean order_out_of_stock = false;
 
     private static JeproLabSpecificPriceModel static_specific_price;
     /**
@@ -3721,24 +3724,46 @@ public class JeproLabAnalyzeModel extends JeproLabModel {
         $ids = Address::getCountryAndState((int)context.cart->{JeproLabSettingModel.get('PS_TAX_ADDRESS_TYPE')});
         $id_country = $ids['id_country'] ? (int)$ids['id_country'] : (int)JeproLabSettingModel.get('PS_COUNTRY_DEFAULT');
         return (bool)SpecificPrice::getSpecificPrice((int)$id_product, context.lab->id, $id_currency, $id_country, $id_group, $quantity, null, 0, 0, $quantity);
+    }*/
+
+    public float getPrice(){
+        return  getPrice(true, 0, 6, false, true, 1);
+    }
+
+    public float getPrice(boolean useTax){
+        return  getPrice(useTax, 0, 6, false, true, 1);
+    }
+
+    public float getPrice(boolean useTax, int analyzeAttributeId){
+        return  getPrice(useTax, analyzeAttributeId, 6, false, true, 1);
+    }
+
+    public float getPrice(boolean useTax, int analyzeAttributeId, int decimals){
+        return  getPrice(useTax, analyzeAttributeId, decimals, false, true, 1);
+    }
+
+    public float getPrice(boolean useTax, int analyzeAttributeId, int decimals, boolean onlyReduction){
+        return  getPrice(useTax, analyzeAttributeId, decimals, onlyReduction, true, 1);
+    }
+
+    public float getPrice(boolean useTax, int analyzeAttributeId, int decimals, boolean onlyReduction, boolean useReduction){
+        return  getPrice(useTax, analyzeAttributeId, decimals, onlyReduction, useReduction, 1);
     }
 
     /**
      * Get product price
      * Same as static function getPriceStatic, no need to specify product id
      *
-     * @param bool $JeproLabTaxManagerFactory With taxes or not (optional)
-     * @param int $id_product_attribute Product attribute id (optional)
-     * @param int $decimals Number of decimals (optional)
-     * @param int $divisor Util when paying many time without fees (optional)
+     * @param useTax With taxes or not (optional)
+     * @param analyzeAttributeId Product attribute id (optional)
+     * @param decimals Number of decimals (optional)
+     * @param onlyReduction
      * @return float Product price in euros
-     * /
-    public function getPrice($JeproLabTaxManagerFactory = true, $id_product_attribute = null, $decimals = 6,
-                             $divisor = null, $only_reduc = false, $usereduc = true, $quantity = 1)
-    {
-        return JeproLabAnalyzeModel.getPriceStatic((int)this.id, $JeproLabTaxManagerFactory, $id_product_attribute, $decimals, $divisor, $only_reduc, $usereduc, $quantity);
+     */
+    public float getPrice(boolean useTax, int analyzeAttributeId, int decimals, boolean onlyReduction, boolean useReduction, int quantity){
+        return JeproLabAnalyzeModel.getStaticPrice(this.analyze_id, useTax,analyzeAttributeId, decimals, onlyReduction, useReduction, quantity);
     }
-
+/*
     public function getPublicPrice($JeproLabTaxManagerFactory = true, $id_product_attribute = null, $decimals = 6,
                                    $divisor = null, $only_reduc = false, $usereduc = true, $quantity = 1)
     {
@@ -3781,7 +3806,7 @@ public class JeproLabAnalyzeModel extends JeproLabModel {
         return JeproLabAnalyzeModel.getPriceStatic((int)this.id, !$notax, $id_product_attribute, $decimals, null, false, false);
     }
 
-    /**
+    /*
      * Display price with right format and currency
      *
      * @param array $params Params
@@ -3822,24 +3847,31 @@ public class JeproLabAnalyzeModel extends JeproLabModel {
         return Tools::displayPrice($params['price'], $params['currency'], false);
     }
 
+    */
+    public static int getQuantity(int analyzeId){
+        return getQuantity(analyzeId, 0, false);
+    }
+
+    public static int getQuantity(int analyzeId, int analyzeAttributeId){
+        return getQuantity(analyzeId, analyzeAttributeId, false);
+    }
+
     /**
      * Get available product quantities
      *
-     * @param int $id_product Product id
-     * @param int $id_product_attribute Product attribute id (optional)
+     * @param analyzeId Product id
+     * @param analyzeAttributeId Product attribute id (optional)
      * @return int Available quantities
-     * /
-    public static function getQuantity($id_product, $id_product_attribute = null, $cache_is_pack = null)
-    {
-        if ((int)$cache_is_pack || ($cache_is_pack === null && JeproLabAnalyzePackModel.isPack((int)$id_product))) {
-        if (!JeproLabAnalyzePackModel.isInStock((int)$id_product)) {
-            return 0;
+     */
+    public static int getQuantity(int analyzeId, int analyzeAttributeId, boolean cacheIsPack){
+        if (cacheIsPack || (JeproLabAnalyzePackModel.isPack(analyzeId))) {
+            if (!JeproLabAnalyzePackModel.isInStock(analyzeId)) {
+                return 0;
+            }
         }
-    }
 
-        // @since 1.5.0
-        return (StockAvailable::getQuantityAvailableByProduct($id_product, $id_product_attribute));
-    } */
+        return (JeproLabStockAvailableModel.getQuantityAvailableByAnalyzeId(analyzeId, analyzeAttributeId));
+    }
 
     public static String queryStock(String analyzeAlias){
         return queryStock(analyzeAlias, null, false, null);
@@ -4057,56 +4089,48 @@ public class JeproLabAnalyzeModel extends JeproLabModel {
      * @see StockAvailable if you want to manage available quantities for sale on your lab(s)
      * @return false
      * /
-    public static function reinjectQuantities()
+    public static function reInjectQuantities()
     {
         Tools::displayAsDeprecated();
 
         return false;
     }
-
-    public static function isAvailableWhenOutOfStock($out_of_stock)
-    {
-        // @TODO 1.5.0 Update of STOCK_MANAGEMENT & ORDER_OUT_OF_STOCK
-        static $ps_stock_management = null;
-        if ($ps_stock_management === null) {
-            $ps_stock_management = JeproLabSettingModel.get('PS_STOCK_MANAGEMENT');
+*/
+    public static boolean isAvailableWhenOutOfStock(boolean outOfStock){
+        if (!stock_management) {
+            stock_management = JeproLabSettingModel.getIntValue("stock_management") > 0;
         }
 
-        if (!$ps_stock_management) {
+        if (!stock_management) {
             return true;
         } else {
-            static $ps_order_out_of_stock = null;
-            if ($ps_order_out_of_stock === null) {
-                $ps_order_out_of_stock = JeproLabSettingModel.get('PS_ORDER_OUT_OF_STOCK');
+            if (!order_out_of_stock) {
+                order_out_of_stock = JeproLabSettingModel.getIntValue("order_out_of_stock") > 0;
             }
 
-            return (int)$out_of_stock == 2 ? (int)$ps_order_out_of_stock : (int)$out_of_stock;
+            return outOfStock ? order_out_of_stock : outOfStock;
         }
     }
 
     /**
      * Check product availability
      *
-     * @param int $qty Quantity desired
+     * @param quantity Desired quantity
      * @return bool True if product is available with this quantity
-     * /
-    public function checkQty($qty)
-    {
-        if (JeproLabAnalyzePackModel.isPack((int)this.id) && !JeproLabAnalyzePackModel.isInStock((int)this.id)) {
-        return false;
-    }
-
-        if (this.isAvailableWhenOutOfStock(StockAvailable::outOfStock(this.id))) {
-        return true;
-    }
-
-        if (isset(this.id_product_attribute)) {
-            $id_product_attribute = this.id_product_attribute;
-        } else {
-            $id_product_attribute = 0;
+     */
+    public boolean checkQuantity(int quantity){
+        if (JeproLabAnalyzePackModel.isPack(this.analyze_id) && !JeproLabAnalyzePackModel.isInStock(this.analyze_id)) {
+            return false;
         }
 
-        return ($qty <= StockAvailable::getQuantityAvailableByProduct(this.id, $id_product_attribute));
+        if (JeproLabAnalyzeModel.isAvailableWhenOutOfStock(JeproLabStockAvailableModel.outOfStock(this.analyze_id))) {
+            return true;
+        }
+        int analyzeAttributeId = 0;
+        if (this.analyze_attribute_id > 0) {
+            analyzeAttributeId = this.analyze_attribute_id;
+        }
+        return (quantity <= JeproLabStockAvailableModel.getQuantityAvailableByAnalyzeId(this.analyze_id, analyzeAttributeId));
     }
 
     /**

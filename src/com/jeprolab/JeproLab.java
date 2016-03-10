@@ -82,6 +82,7 @@ public class JeproLab extends Application {
 
         appProps = ResourceBundle.getBundle("com.jeprolab.resources.props.installer");
 
+        applicationToolBarCommandWrapper = new HBox();
 
         /**
          * check if configuration file exist, if not means that the application is not installed so start installer gui
@@ -100,7 +101,7 @@ public class JeproLab extends Application {
 
             Region toolBarSpacer = new Region();
             HBox.setHgrow(toolBarSpacer, Priority.ALWAYS);
-            applicationToolBarCommandWrapper = new HBox();
+
             applicationToolBarCommandWrapper.getStyleClass().setAll("segmented-command-wrapper");
             applicationToolBar = new ToolBar();
             applicationToolBar.getStyleClass().add("jeprolab-toolbar");
@@ -140,7 +141,7 @@ public class JeproLab extends Application {
                 //menuBar.setFormVisible(false);
                 //applicationToolBar.setVisible(false);
                 //goToForm(applicationForms.loginForm);
-                goToForm(applicationForms.addAddressForm);
+                goToForm(applicationForms.addressesForm);
             }else{
                 //redirect user to the dashboard
                 menuBar.setFormVisible(true);

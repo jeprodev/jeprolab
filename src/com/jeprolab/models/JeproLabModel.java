@@ -43,4 +43,19 @@ public class JeproLabModel {
         return ((int)staticDataBaseObject.loadValue(table + "_id") > 0 );
     }
 
+    public boolean updateField(String table, String field, String value, String condition, String type){
+        if(dataBaseObject == null){
+            dataBaseObject = JeproLabFactory.getDataBaseConnector();
+        }
+        String query = "UPDATE " + dataBaseObject.quoteName("#__jeprolab_" + table) + " SET " + dataBaseObject.quoteName(field);
+        switch(type){
+            case "int" :
+                query +=  " = " + Integer.parseInt(value);
+                break;
+        }
+
+        dataBaseObject.setQuery(query + condition);
+        return dataBaseObject.query(false);
+    }
+
 }

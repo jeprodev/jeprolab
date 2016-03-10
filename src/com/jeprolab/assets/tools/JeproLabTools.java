@@ -85,6 +85,8 @@ public class JeproLabTools {
     public static boolean isOrderWay(String way){
         return (way.toLowerCase().equals("asc") | way.toLowerCase().equals("desc"));
     }
+
+
     public static String date(String format){
         Calendar calendar = Calendar.getInstance();
         calendar.add(Calendar.DATE, 1);

@@ -4,15 +4,19 @@ package com.jeprolab.controllers;
 import com.jeprolab.JeproLab;
 import com.jeprolab.assets.extend.controls.*;
 import com.jeprolab.assets.tools.JeproLabContext;
+import com.jeprolab.models.JeproLabAddressModel;
 import com.jeprolab.models.JeproLabCountryModel;
 import com.jeprolab.models.JeproLabZoneModel;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
+import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.geometry.Insets;
 import javafx.geometry.VPos;
-import javafx.scene.control.ComboBox;
-import javafx.scene.control.Label;
-import javafx.scene.control.TextArea;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
@@ -24,6 +28,8 @@ import java.util.List;
 import java.util.ResourceBundle;
 
 public class JeproLabAddressAddController extends JeproLabController{
+    private Button cancelBtn, saveAddressBtn;
+    private JeproLabAddressModel address;
     @FXML
     public JeproFormPanelTitle jeproLabAddAddressFormTitleWrapper;
     public JeproFormPanelContainer jeproLabAddAddressFormContainerWrapper;
@@ -34,7 +40,7 @@ public class JeproLabAddressAddController extends JeproLabController{
     public Label jeproLabAddressFormTitle, jeproLabAddressCustomerLabel, jeproLabAddressCompanyLabel, jeproLabAddressLastNameLabel;
     public Label jeproLabAddressFirstNameLabel, jeproLabAddressVatNumberLabel, jeproLabAddressAddressLabel, jeproLabAddressAddress1Label;
     public Label jeproLabAddressPostCodeLabel, jeproLabAddressCityLabel, jeproLabAddressCountryLabel, jeproLabAddressOtherLabel;
-    public Label jeproLabAddressMobilePhoneLabel, jeproLabAddressPhoneLabel;
+    public Label jeproLabAddressMobilePhoneLabel, jeproLabAddressPhoneLabel;// jeproLabAddressLabel, jeproLabAddressLabel;
 
     public TextField jeproLabAddressCompany, jeproLabAddressLastName, jeproLabAddressFirstName, jeproLabAddressVatNumber;
     public TextField jeproLabAddressAddress1, jeproLabAddressAddress, jeproLabAddressPostCode, jeproLabAddressCity;
@@ -45,7 +51,7 @@ public class JeproLabAddressAddController extends JeproLabController{
 
     public HBox jeproLabAddressCountryWrapper;
 
-    public ComboBox jeproLabAddressCountryZone, jeproLabAddressCountry;
+    public ComboBox<String> jeproLabAddressCountryZone, jeproLabAddressCountry;
 
     public void initialize(URL location, ResourceBundle resource){
         bundle = resource;
@@ -135,21 +141,107 @@ public class JeproLabAddressAddController extends JeproLabController{
     @Override
     public void initializeContent(){
         JeproLabContext context = JeproLabContext.getContext();
-
+        loadAddress(true);
         List<JeproLabCountryModel> countries = JeproLabCountryModel.getCountries(context.language.language_id, true);
         List<JeproLabZoneModel> zones = JeproLabZoneModel.getZones(true);
         jeproLabAddressCountry.setPromptText(JeproLab.getBundle().getString("JEPROLAB_SELECT_LABEL"));
+        int zoneId = 0;
         for(JeproLabCountryModel country : countries){
-            jeproLabAddressCountry.getItems().add(country.name.get("lang_1"));
+            jeproLabAddressCountry.getItems().add(country.name.get("lang_" + context.language.language_id));
+            if(address.country_id == country.country_id){
+                zoneId = country.zone_id;
+                jeproLabAddressCountry.setValue(country.name.get("lang_" + context.language.language_id));
+            }
         }
 
         jeproLabAddressCountryZone.setPrefWidth(120);
         jeproLabAddressCountryZone.setPromptText(JeproLab.getBundle().getString("JEPROLAB_SELECT_LABEL"));
         for(JeproLabZoneModel zone : zones) {
             jeproLabAddressCountryZone.getItems().add(zone.name);
+            if(zone.zone_id == zoneId){
+                jeproLabAddressCountryZone.setValue(zone.name);
+            }
         }
+
+        if(address.address_id > 0){
+            jeproLabAddressCompany.setText(address.company);
+            jeproLabAddressLastName.setText(address.lastname);
+            jeproLabAddressFirstName.setText(address.firstname);
+            jeproLabAddressVatNumber.setText(address.vat_number);
+            jeproLabAddressAddress1.setText(address.address2);
+            jeproLabAddressAddress.setText(address.address1);
+            jeproLabAddressPostCode.setText(address.postcode);
+            jeproLabAddressCity.setText(address.city);
+            jeproLabAddressPhone.setText(address.phone);
+            jeproLabAddressMobilePhone.setText(address.mobile_phone);
+            jeproLabAddressOther.setText(address.other);
+        }
+
+        updateToolBar();
     }
 
     @Override
-    public void updateToolBar(){}
+    public void updateToolBar(){
+        HBox commandWrapper = JeproLab.getInstance().getApplicationToolBarCommandWrapper();
+        commandWrapper.getChildren().clear();
+        commandWrapper.setSpacing(4);
+        saveAddressBtn = new Button("", new ImageView(new Image(JeproLab.class.getResourceAsStream("resources/images/floppy-icon.png"))));
+        if (address.address_id > 0) {
+            saveAddressBtn.setText(bundle.getString("JEPROLAB_UPDATE_LABEL"));
+        } else {
+            saveAddressBtn.setText(bundle.getString("JEPROLAB_SAVE_LABEL"));
+        }
+        cancelBtn = new Button(bundle.getString("JEPROLAB_CANCEL_LABEL"), new ImageView(new Image(JeproLab.class.getResourceAsStream("resources/images/unpublished.png"))));
+        commandWrapper.getChildren().addAll(saveAddressBtn, cancelBtn);
+        addCommandListener();
+    }
+
+    private void addCommandListener(){
+        saveAddressBtn.setOnMouseClicked(evt -> {
+            int countryId = JeproLabCountryModel.getIdByName(jeproLabAddressCountry.getValue());
+            String request = "company=" + jeproLabAddressCompany.getText() + "&lastname=" + jeproLabAddressLastName.getText() + "&firstname=" + jeproLabAddressFirstName.getText();
+            request += "&vatnumber=" + jeproLabAddressVatNumber.getText() + "&country_id=" + countryId ;
+
+            JeproLab.request.setPost(request);
+
+            //label.setText("Selected: " + listView.getSelectionModel().getSelectedItems());
+            if(address.address_id > 0){
+                boolean isUpdated = address.update();
+            }else{
+                boolean isAdded = address.add();
+            }
+        });
+
+        cancelBtn.setOnMouseClicked(evt -> {
+            /*label.setText("Selected: " +
+                listView.getSelectionModel().getSelectedItems()); */
+        });
+
+        jeproLabAddressCountryZone.valueProperty().addListener((observable, oldValue, newValue) -> {
+            int zoneId = JeproLabZoneModel.getIdByName(newValue);
+            if(context == null){
+                context = JeproLabContext.getContext();
+            }
+            List<JeproLabCountryModel> countries = JeproLabCountryModel.getCountriesByZoneId(zoneId, context.language.language_id);
+            jeproLabAddressCountry.getItems().clear();
+            for(JeproLabCountryModel country : countries){
+                jeproLabAddressCountry.getItems().addAll(country.name.get("lang_" + context.language.language_id));
+            }
+        });
+    }
+
+    private void loadAddress(boolean option){
+        int addressId = JeproLab.request.getRequest().containsKey("address_id") ? Integer.parseInt(JeproLab.request.getRequest().get("address_id")) : 0;
+        if(addressId > 0){
+            if(this.address == null){
+                this.address = new JeproLabAddressModel(addressId);
+            }
+        }else if(option){
+            if(this.address == null){
+                this.address = new JeproLabAddressModel();
+            }
+        }else{
+            this.address = new JeproLabAddressModel();
+        }
+    }
 }

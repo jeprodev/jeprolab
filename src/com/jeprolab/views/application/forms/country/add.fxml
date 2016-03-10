@@ -39,10 +39,7 @@
             <JeproSwitchButton GridPane.columnIndex="1" GridPane.rowIndex="7" fx:id="needIdentificationNumber" />
             <Label GridPane.columnIndex="2" GridPane.rowIndex="7"  fx:id="displayTaxLabelLabel" />
             <JeproSwitchButton GridPane.columnIndex="3" GridPane.rowIndex="7"  fx:id="displayTaxLabel" />
-            <HBox  GridPane.columnIndex="0" GridPane.rowIndex="13" GridPane.columnSpan="2" alignment="CENTER" spacing="50">
-                <Button fx:id="saveButton" />
-                <Button fx:id="cancelButton" />
-            </HBox>
+
         </GridPane>
     </JeproFormPanelContainer>
 </JeproFormPanel>

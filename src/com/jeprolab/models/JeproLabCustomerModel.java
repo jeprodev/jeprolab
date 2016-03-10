@@ -58,6 +58,7 @@ public class JeproLabCustomerModel  extends JeproLabModel{
     protected static int customer_group = 0;
 
     protected static Map<Integer, Integer> _defaultGroupId = new HashMap<>();
+    protected static Map<Integer, Boolean> _customerHasAddress = new HashMap<>();
 
     public JeproLabCustomerModel(){
         this(0);
@@ -318,17 +319,16 @@ public class JeproLabCustomerModel  extends JeproLabModel{
             AND `deleted` = 0');
         }
         return self::$_customerHasAddress[$key];
-    }
+    } */
 
-    public static function resetAddressCache($id_customer, $id_address)
-    {
-        $key = (int)$id_customer.'-'.(int)$id_address;
-        if (array_key_exists($key, self::$_customerHasAddress)) {
-            unset(self::$_customerHasAddress[$key]);
+    public static void resetAddressCache(int customerId, int addressId){
+        String cacheKey = customerId + "_" + addressId;
+        if (JeproLabCustomerModel._customerHasAddress.containsKey(cacheKey)) {
+            JeproLabCustomerModel._customerHasAddress.remove(cacheKey);
         }
     }
 
-    /**
+    /*
      * Return customer addresses
      *
      * @param int $id_lang Language ID

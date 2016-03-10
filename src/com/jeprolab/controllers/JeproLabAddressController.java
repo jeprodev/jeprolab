@@ -100,7 +100,7 @@ public class JeproLabAddressController extends JeproLabController {
 
     @Override
     public void initializeContent(){
-        updateToolBar();
+        //updateToolBar();
     }
 
     @Override

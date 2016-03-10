@@ -97,8 +97,8 @@ public class JeproLabAddressModel extends JeproLabModel {
 
     public boolean published = false;
 
-    //protected static $_idZones = array();
-    protected static Map<Integer, ResultSet> _idCountries = new HashMap<>();
+    protected static Map<Integer, ResultSet> zones_ids  = new HashMap<>();
+    protected static Map<Integer, ResultSet> countries_ids = new HashMap<>();
 
     private static Pagination pagination;
 
@@ -273,28 +273,28 @@ public class JeproLabAddressModel extends JeproLabModel {
             'table' => 'address',
                     'primary' => 'id_address',
                     'fields' => array(
-                    'id_customer' =>        array('type' => self::TYPE_INT, 'validate' => 'isNullOrUnsignedId', 'copy_post' => false),
-    'id_manufacturer' =>    array('type' => self::TYPE_INT, 'validate' => 'isNullOrUnsignedId', 'copy_post' => false),
-    'id_supplier' =>        array('type' => self::TYPE_INT, 'validate' => 'isNullOrUnsignedId', 'copy_post' => false),
-    'id_warehouse' =>        array('type' => self::TYPE_INT, 'validate' => 'isNullOrUnsignedId', 'copy_post' => false),
-    'id_country' =>        array('type' => self::TYPE_INT, 'validate' => 'isUnsignedId', 'required' => true),
-    'id_state' =>            array('type' => self::TYPE_INT, 'validate' => 'isNullOrUnsignedId'),
-    'alias' =>                array('type' => self::TYPE_STRING, 'validate' => 'isGenericName', 'required' => true, 'size' => 32),
-    'company' =>            array('type' => self::TYPE_STRING, 'validate' => 'isGenericName', 'size' => 64),
-    'lastname' =>            array('type' => self::TYPE_STRING, 'validate' => 'isName', 'required' => true, 'size' => 32),
-    'firstname' =>            array('type' => self::TYPE_STRING, 'validate' => 'isName', 'required' => true, 'size' => 32),
-    'vat_number' =>            array('type' => self::TYPE_STRING, 'validate' => 'isGenericName'),
-    'address1' =>            array('type' => self::TYPE_STRING, 'validate' => 'isAddress', 'required' => true, 'size' => 128),
-    'address2' =>            array('type' => self::TYPE_STRING, 'validate' => 'isAddress', 'size' => 128),
-    'postcode' =>            array('type' => self::TYPE_STRING, 'validate' => 'isPostCode', 'size' => 12),
-    'city' =>                array('type' => self::TYPE_STRING, 'validate' => 'isCityName', 'required' => true, 'size' => 64),
-    'other' =>                array('type' => self::TYPE_STRING, 'validate' => 'isMessage', 'size' => 300),
-    'phone' =>                array('type' => self::TYPE_STRING, 'validate' => 'isPhoneNumber', 'size' => 32),
-    'phone_mobile' =>        array('type' => self::TYPE_STRING, 'validate' => 'isPhoneNumber', 'size' => 32),
-    'dni' =>                array('type' => self::TYPE_STRING, 'validate' => 'isDniLite', 'size' => 16),
-    'deleted' =>            array('type' => self::TYPE_BOOL, 'validate' => 'isBool', 'copy_post' => false),
-    'date_add' =>            array('type' => self::TYPE_DATE, 'validate' => 'isDate', 'copy_post' => false),
-    'date_upd' =>            array('type' => self::TYPE_DATE, 'validate' => 'isDate', 'copy_post' => false),
+                    'id_customer' =>        array('type' => JeproLabAddressModel.TYPE_INT, 'validate' => 'isNullOrUnsignedId', 'copy_post' => false),
+    'id_manufacturer' =>    array('type' => JeproLabAddressModel.TYPE_INT, 'validate' => 'isNullOrUnsignedId', 'copy_post' => false),
+    'id_supplier' =>        array('type' => JeproLabAddressModel.TYPE_INT, 'validate' => 'isNullOrUnsignedId', 'copy_post' => false),
+    'id_warehouse' =>        array('type' => JeproLabAddressModel.TYPE_INT, 'validate' => 'isNullOrUnsignedId', 'copy_post' => false),
+    'id_country' =>        array('type' => JeproLabAddressModel.TYPE_INT, 'validate' => 'isUnsignedId', 'required' => true),
+    'id_state' =>            array('type' => JeproLabAddressModel.TYPE_INT, 'validate' => 'isNullOrUnsignedId'),
+    'alias' =>                array('type' => JeproLabAddressModel.TYPE_STRING, 'validate' => 'isGenericName', 'required' => true, 'size' => 32),
+    'company' =>            array('type' => JeproLabAddressModel.TYPE_STRING, 'validate' => 'isGenericName', 'size' => 64),
+    'lastname' =>            array('type' => JeproLabAddressModel.TYPE_STRING, 'validate' => 'isName', 'required' => true, 'size' => 32),
+    'firstname' =>            array('type' => JeproLabAddressModel.TYPE_STRING, 'validate' => 'isName', 'required' => true, 'size' => 32),
+    'vat_number' =>            array('type' => JeproLabAddressModel.TYPE_STRING, 'validate' => 'isGenericName'),
+    'address1' =>            array('type' => JeproLabAddressModel.TYPE_STRING, 'validate' => 'isAddress', 'required' => true, 'size' => 128),
+    'address2' =>            array('type' => JeproLabAddressModel.TYPE_STRING, 'validate' => 'isAddress', 'size' => 128),
+    'postcode' =>            array('type' => JeproLabAddressModel.TYPE_STRING, 'validate' => 'isPostCode', 'size' => 12),
+    'city' =>                array('type' => JeproLabAddressModel.TYPE_STRING, 'validate' => 'isCityName', 'required' => true, 'size' => 64),
+    'other' =>                array('type' => JeproLabAddressModel.TYPE_STRING, 'validate' => 'isMessage', 'size' => 300),
+    'phone' =>                array('type' => JeproLabAddressModel.TYPE_STRING, 'validate' => 'isPhoneNumber', 'size' => 32),
+    'phone_mobile' =>        array('type' => JeproLabAddressModel.TYPE_STRING, 'validate' => 'isPhoneNumber', 'size' => 32),
+    'dni' =>                array('type' => JeproLabAddressModel.TYPE_STRING, 'validate' => 'isDniLite', 'size' => 16),
+    'deleted' =>            array('type' => JeproLabAddressModel.TYPE_BOOL, 'validate' => 'isBool', 'copy_post' => false),
+    'date_add' =>            array('type' => JeproLabAddressModel.TYPE_DATE, 'validate' => 'isDate', 'copy_post' => false),
+    'date_upd' =>            array('type' => JeproLabAddressModel.TYPE_DATE, 'validate' => 'isDate', 'copy_post' => false),
     ),
             );
 
@@ -317,50 +317,124 @@ public class JeproLabAddressModel extends JeproLabModel {
 
     /**
      * @see ObjectModel::add()
-     * /
-    public function add($autodate = true, $null_values = false)
-    {
-        if (!parent::add($autodate, $null_values)) {
-        return false;
-    }
+     */
+    public boolean add(){
+        if(dataBaseObject == null){
+            dataBaseObject = JeproLabFactory.getDataBaseConnector();
+        }
+        Map<String, String> addressPost = JeproLab.request.getPost();
+        int countryId = addressPost.containsKey("country_id") ? Integer.parseInt(addressPost.get("country_id")) : 0 ;
+        int stateId = addressPost.containsKey("") ? Integer.parseInt(addressPost.get("")) : 0 ;
+        int customerId = addressPost.containsKey("") ? Integer.parseInt(addressPost.get("")) : 0 ;
+        int manufacturerId = addressPost.containsKey("") ? Integer.parseInt(addressPost.get("")) : 0 ;
+        int supplierId = addressPost.containsKey("") ? Integer.parseInt(addressPost.get("")) : 0 ;
+        int warehouseId = addressPost.containsKey("") ? Integer.parseInt(addressPost.get("")) : 0 ;
+        String localAlias = addressPost.containsKey("alias") ? addressPost.get("alias") : "" ;
+        String localCompany = addressPost.containsKey("company") ? addressPost.get("company") : "";
+        String localLastName = addressPost.containsKey("lastname") ? addressPost.get("lastname") : "";
+        String localFirstName = addressPost.containsKey("firstname") ? addressPost.get("firstname") : "";
+        String localAddress1 = addressPost.containsKey("address_1") ? addressPost.get("address_1") : "";
+        String localAddress2 = addressPost.containsKey("address_2") ? addressPost.get("address_2") : "";
+        String localPostCode = addressPost.containsKey("post_code") ? addressPost.get("post_code") : "";
+        String localCity = addressPost.containsKey("city") ? addressPost.get("city") : "";
+        String localOther = addressPost.containsKey("other") ? addressPost.get("other") : "";
+        String localPhone = addressPost.containsKey("phone") ? addressPost.get("phone") : "";
+        String localMobilePhone = addressPost.containsKey("mobile_phone") ? addressPost.get("mobile_phone") : "";
+        String vatNumber = addressPost.containsKey("vat_number") ? addressPost.get("vat_number") : "";
+        String currentDate = dataBaseObject.quote(JeproLabTools.date("yyyy-MM-dd hh:mm:ss"));
 
-        if (Validate::isUnsignedId($this->id_customer)) {
-        Customer::resetAddressCache($this->id_customer, $this->id);
-    }
+        String query = "INSERT INTO " + dataBaseObject.quoteName("#__jeprolab_address") + "(" + dataBaseObject.quoteName("country_id") + ", ";
+        query += dataBaseObject.quoteName("state_id") + ", " + dataBaseObject.quoteName("customer_id") + ", " + dataBaseObject.quoteName("manufacturer_id");
+        query += ", " + dataBaseObject.quoteName("supplier_id") +  ", " + dataBaseObject.quoteName("warehouse_id") + ", " ;
+        query += dataBaseObject.quoteName("alias") + ", " + dataBaseObject.quoteName("company") + ", " + dataBaseObject.quoteName("lastname") + ", " + dataBaseObject.quoteName("firstname");
+        query += ", " + dataBaseObject.quoteName("address1") + ", " + dataBaseObject.quoteName("address2") + ", " + dataBaseObject.quoteName("postcode");
+        query += ", " + dataBaseObject.quoteName("city") + ", " + dataBaseObject.quoteName("other") + ", " + dataBaseObject.quoteName("phone");
+        query += ", " + dataBaseObject.quoteName("phone_mobile") + ", " + dataBaseObject.quoteName("vat_number") + ", " + dataBaseObject.quoteName("date_add");
+        query += ", " + dataBaseObject.quoteName("date_upd") + ") VALUES (" + countryId + ", " + stateId + ", " + customerId  + ", " + manufacturerId + ", " + supplierId + ", " + warehouseId + ", ";
+        query += dataBaseObject.quote(localAlias) + ", " + dataBaseObject.quote(localCompany) + ", " + dataBaseObject.quote(localLastName) + ", ";
+        query += dataBaseObject.quote(localFirstName) + ", " + dataBaseObject.quote(localAddress1) + ", " + dataBaseObject.quote(localAddress2) + ", ";
+        query += dataBaseObject.quote(localPostCode) + ", " + dataBaseObject.quote(localCity) + ", " + dataBaseObject.quote(localOther) + ", ";
+        query += dataBaseObject.quote(localPhone) + ", " + dataBaseObject.quote(localMobilePhone) + ", " + dataBaseObject.quote(vatNumber) + "," + currentDate + ", " + currentDate + ")";
+
+        dataBaseObject.setQuery(query);
+        if (!dataBaseObject.query(true)) {
+            return false;
+        }
+
+        if (customerId > 0) {
+            JeproLabCustomerModel.resetAddressCache(customerId, dataBaseObject.getGeneratedKey());
+        }
         return true;
     }
 
-    public function update($null_values = false)
-    {
+    public boolean update(){
         // Empty related caches
-        if (isset(self::$_idCountries[$this->id])) {
-        unset(self::$_idCountries[$this->id]);
-    }
-        if (isset(self::$_idZones[$this->id])) {
-        unset(self::$_idZones[$this->id]);
+        if (JeproLabAddressModel.countries_ids.containsKey(this.address_id)) {
+            JeproLabAddressModel.countries_ids.remove(this.address_id);
+        }
+        if (JeproLabAddressModel.zones_ids.containsKey(this.address_id)) {
+            JeproLabAddressModel.zones_ids.remove(this.address_id);
+        }
+
+        if (this.customer_id > 0){
+            JeproLabCustomerModel.resetAddressCache(this.customer_id, this.address_id);
+        }
+
+        if(dataBaseObject == null){
+            dataBaseObject = JeproLabFactory.getDataBaseConnector();
+        }
+        Map<String, String> addressPost = JeproLab.request.getPost();
+        int countryId = addressPost.containsKey("country_id") ? Integer.parseInt(addressPost.get("country_id")) : 0 ;
+        int stateId = addressPost.containsKey("") ? Integer.parseInt(addressPost.get("")) : 0 ;
+        int customerId = addressPost.containsKey("") ? Integer.parseInt(addressPost.get("")) : 0 ;
+        int manufacturerId = addressPost.containsKey("") ? Integer.parseInt(addressPost.get("")) : 0 ;
+        int supplierId = addressPost.containsKey("") ? Integer.parseInt(addressPost.get("")) : 0 ;
+        int warehouseId = addressPost.containsKey("") ? Integer.parseInt(addressPost.get("")) : 0 ;
+        String localAlias = addressPost.containsKey("alias") ? addressPost.get("alias") : "" ;
+        String localCompany = addressPost.containsKey("company") ? addressPost.get("company") : "";
+        String localLastName = addressPost.containsKey("lastname") ? addressPost.get("lastname") : "";
+        String localFirstName = addressPost.containsKey("firstname") ? addressPost.get("firstname") : "";
+        String localAddress1 = addressPost.containsKey("address_1") ? addressPost.get("address_1") : "";
+        String localAddress2 = addressPost.containsKey("address_2") ? addressPost.get("address_2") : "";
+        String localPostCode = addressPost.containsKey("post_code") ? addressPost.get("post_code") : "";
+        String localCity = addressPost.containsKey("city") ? addressPost.get("city") : "";
+        String localOther = addressPost.containsKey("other") ? addressPost.get("other") : "";
+        String localPhone = addressPost.containsKey("phone") ? addressPost.get("phone") : "";
+        String localMobilePhone = addressPost.containsKey("mobile_phone") ? addressPost.get("mobile_phone") : "";
+        String vatNumber = addressPost.containsKey("vat_number") ? addressPost.get("vat_number") : "";
+        String currentDate = dataBaseObject.quote(JeproLabTools.date("yyyy-MM-dd hh:mm:ss"));
+
+        String query = "UPDATE " + dataBaseObject.quoteName("#__jeprolab_address") + " SET " + dataBaseObject.quoteName("country_id") + " = ";
+        query += countryId + ", " + dataBaseObject.quoteName("state_id") + " = " + stateId + ", " + dataBaseObject.quoteName("customer_id") + " = ";
+        query += customerId + ", " + dataBaseObject.quoteName("manufacturer_id") + " = " + manufacturerId + ", " + dataBaseObject.quoteName("supplier_id");
+        query += " = " + supplierId + ", " + dataBaseObject.quoteName("warehouse_id") + " = " + warehouseId + ", " + dataBaseObject.quoteName("alias");
+        query += " = " + dataBaseObject.quote(localAlias) + ", " + dataBaseObject.quoteName("company") + " = " + dataBaseObject.quote(localCompany) + ", ";
+        query += dataBaseObject.quoteName("lastname") + " = " + dataBaseObject.quote(localLastName) + ", " + dataBaseObject.quoteName("address1") + " = ";
+        query += dataBaseObject.quote(localAddress1) + ", " + dataBaseObject.quoteName("address2") + " = " + dataBaseObject.quote(localAddress2) + ", ";
+        query += dataBaseObject.quoteName("postcode") + " = " + dataBaseObject.quote(localPostCode) + ", " + dataBaseObject.quoteName("city") + " = ";
+        query += dataBaseObject.quote(localCity) +  ", " + dataBaseObject.quoteName("other") + " = " + dataBaseObject.quote(localOther) + ", ";
+        query += dataBaseObject.quoteName("phone") + " = " + dataBaseObject.quote(localPhone) + ", " + dataBaseObject.quoteName("phone_mobile") + " = ";
+        query += dataBaseObject.quote(localMobilePhone) + ", " + dataBaseObject.quoteName("firstname") + " = " + dataBaseObject.quote(localFirstName) + ", ";
+        query += dataBaseObject.quoteName("vat_number") + " = " + dataBaseObject.quote(vatNumber) + ", " + dataBaseObject.quoteName("date_upd")+ "  = ";
+        query += currentDate + " WHERE " + dataBaseObject.quoteName("address_id") + " = " + this.address_id;
+        dataBaseObject.setQuery(query);
+        return dataBaseObject.query(false);
     }
 
-        if (Validate::isUnsignedId($this->id_customer)) {
-        Customer::resetAddressCache($this->id_customer, $this->id);
-    }
-
-        return parent::update($null_values);
-    }
-
-    /**
+    /*
      * @see ObjectModel::delete()
      * /
     public function delete()
     {
-        if (Validate::isUnsignedId($this->id_customer)) {
-        Customer::resetAddressCache($this->id_customer, $this->id);
+        if (Validate::isUnsignedId(this.id_customer)) {
+        Customer::resetAddressCache(this.id_customer, this.id);
     }
 
-        if (!$this->isUsed()) {
+        if (!this.isUsed()) {
             return parent::delete();
         } else {
-            $this->deleted = true;
-            return $this->update();
+            this.deleted = true;
+            return this.update();
         }
     }
 
@@ -388,7 +462,7 @@ public class JeproLabAddressModel extends JeproLabModel {
     }
         include_once(_PS_MODULE_DIR_.'vatnumber/vatnumber.php');
         if (class_exists('VatNumber', false)) {
-            return array_merge($errors, VatNumber::WebServiceCheck($this->vat_number));
+            return array_merge($errors, VatNumber::WebServiceCheck(this.vat_number));
         }
         return $errors;
     }
@@ -404,15 +478,15 @@ public class JeproLabAddressModel extends JeproLabModel {
             return false;
         }
 
-        if (isset(self::$_idZones[$id_address])) {
-        return self::$_idZones[$id_address];
+        if (isset(JeproLabAddressModel.$_idZones[$id_address])) {
+        return JeproLabAddressModel.$_idZones[$id_address];
     }
 
         $id_zone = Hook::exec('actionGetIDZoneByAddressID', array('id_address' => $id_address));
 
         if (is_numeric($id_zone)) {
-            self::$_idZones[$id_address] = (int)$id_zone;
-            return self::$_idZones[$id_address];
+            JeproLabAddressModel.$_idZones[$id_address] = (int)$id_zone;
+            return JeproLabAddressModel.$_idZones[$id_address];
         }
 
         $result = Db::getInstance(_PS_USE_SQL_SLAVE_)->getRow('
@@ -422,8 +496,8 @@ public class JeproLabAddressModel extends JeproLabModel {
         LEFT JOIN `'._DB_PREFIX_.'state` s ON s.`id_state` = a.`id_state`
         WHERE a.`id_address` = '.(int)$id_address);
 
-        self::$_idZones[$id_address] = (int)((int)$result['id_zone_state'] ? $result['id_zone_state'] : $result['id_zone']);
-        return self::$_idZones[$id_address];
+        JeproLabAddressModel.$_idZones[$id_address] = (int)((int)$result['id_zone_state'] ? $result['id_zone_state'] : $result['id_zone']);
+        return JeproLabAddressModel.$_idZones[$id_address];
     }
 
     /**
@@ -461,15 +535,15 @@ public class JeproLabAddressModel extends JeproLabModel {
         $result = (int)Db::getInstance(_PS_USE_SQL_SLAVE_)->getValue('
             SELECT COUNT(`id_order`) AS used
             FROM `'._DB_PREFIX_.'orders`
-        WHERE `id_address_delivery` = '.(int)$this->id.'
-        OR `id_address_invoice` = '.(int)$this->id);
+        WHERE `id_address_delivery` = '.(int)this.id.'
+        OR `id_address_invoice` = '.(int)this.id);
 
         return $result > 0 ? (int)$result : false;
     }
 */
     public static ResultSet getCountryAndState(int addressId){
-        if (JeproLabAddressModel._idCountries.containsKey(addressId)){
-            return JeproLabAddressModel._idCountries.get(addressId);
+        if (JeproLabAddressModel.countries_ids.containsKey(addressId)){
+            return JeproLabAddressModel.countries_ids.get(addressId);
         }
         ResultSet  result;
         if (addressId > 0) {
@@ -482,7 +556,7 @@ public class JeproLabAddressModel extends JeproLabModel {
 
             staticDataBaseObject.setQuery(query);
             result = staticDataBaseObject.loadObject();
-            JeproLabAddressModel._idCountries.put(addressId, result);
+            JeproLabAddressModel.countries_ids.put(addressId, result);
         } else {
             result = null;
         }
@@ -538,8 +612,8 @@ public class JeproLabAddressModel extends JeproLabModel {
      * Initialize an address corresponding to the specified id address or if empty to the
      * default shop configuration
      *
-     * @param addressId
-     * @param withGeolocation
+     * @param addressId address id
+     * @param withGeolocation with geolocation
      * @return JeproLabAddressModel address
      *
      */
@@ -618,9 +692,9 @@ public class JeproLabAddressModel extends JeproLabModel {
 
     public function getFieldsRequiredDB()
     {
-        $this->cacheFieldsRequiredDatabase(false);
-        if (isset(self::$fieldsRequiredDatabase['Address'])) {
-        return self::$fieldsRequiredDatabase['Address'];
+        this.cacheFieldsRequiredDatabase(false);
+        if (isset(JeproLabAddressModel.$fieldsRequiredDatabase['Address'])) {
+        return JeproLabAddressModel.$fieldsRequiredDatabase['Address'];
     }
         return array();
     } */
