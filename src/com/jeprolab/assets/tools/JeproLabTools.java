@@ -196,6 +196,98 @@ public class JeproLabTools {
         return (float)(Math.floor(tmp) / precisionFactor);
     }
 
+    public static String displayPrice(float price){
+        return displayPrice(price, null, false, null);
+    }
+
+    public static String displayPrice(float price, JeproLabCurrencyModel currency){
+        return displayPrice(price, currency, false, null);
+    }
+
+    public static String displayPrice(float price, JeproLabCurrencyModel currency, boolean noUtf8){
+        return displayPrice(price, currency, noUtf8, null);
+    }
+
+    /**
+     * Return price with currency sign for a given product
+     *
+     * @param price analyze price
+     * @param currency Current currency (object, id_currency, NULL => context currency)
+     * @return string Price correctly formatted (sign, decimal separator...)
+     */
+    public static String displayPrice(float price, JeproLabCurrencyModel currency, boolean noUtf8, JeproLabContext context){
+        if (context == null){ context = JeproLabContext.getContext(); }
+        if (currency == null){
+            currency = context.currency;
+        }/*elseif (is_int($currency)){
+            // if you modified this function, don't forget to modify the Javascript function formatCurrency (in Tools.js)
+            currency = JeproLabCurrencyModel.getCurrencyInstance(currency.currency_id);
+        }*/
+
+        /*if (is_object($currency)){
+            $c_char = $currency->sign;
+            $c_format = $currency->format;
+
+            $c_blank = $currency->blank;
+        }else{
+            return false;
+        }*/
+        String currencyBlank = (currency.blank ? " " : "");
+        float currencyDecimals = currency.decimals * JeproLabConfigurationSettings.JEPROLAB_PRICE_DISPLAY_PRECISION;
+        String ret = "0";
+        boolean isNegative = price < 0;
+        if (isNegative){ price *= -1; }
+
+        price = JeproLabTools.roundPrice(price, currency.decimals);
+
+		/*
+		 * If the language is RTL and the selected currency format contains spaces as thousands separator
+		* then the number will be printed in reverse since the space is interpreted as separating words.
+		* To avoid this we replace the currency format containing a space with the one containing a comma (,) as thousand
+		* separator when the language is RTL.
+		*
+		* TODO: This is not ideal, a currency format should probably be tied to a language, not to a currency.
+		*/
+        if((currency.format == 2) && (context.language.is_rtl)){
+            currency.format = 4;
+        }
+
+        switch (currency.format){
+			/* X 0,000.00 */
+            case 1:
+                //todo ret = currency.sign + currencyBlank + numberFormat(price, currencyDecimals, ".", ","); en
+                break;
+				/* 0 000,00 X*/
+            case 2:
+                //ret = numberFormat(price, currencyDecimals, ",", " ") + currencyBlank + currency.sign;
+                break;
+				/* X 0.000,00 */
+            case 3:
+                //todo +ret = currency.sign + currencyBlank + numberFormat(price, currencyDecimals, ",", ".");
+                break;
+				/* 0,000.00 X */
+            case 4:
+                //todo ret = numberFormat(price, currencyDecimals, ".", ",") + currencyBlank + currency.sign;
+                break;
+				/* X 0'000.00  Added for the switzerland currency */
+            case 5:
+                //todo ret = currency.sign + currencyBlank + numberFormat(price, currencyDecimals, ".", " ");
+                break;
+        }
+        if (isNegative){
+            ret = "-" + ret;
+        }
+
+        if (noUtf8){
+            //todo return strReplace(ret, '?', chr(128));
+        }
+        return ret;
+    }
+
+    /*private static String numberFormat(float price, float decimals, String separator1, String separator2){
+        re
+    }
+
     /*public static List orderbyPrice(List items, String orderWay) {
         /*foreach($array as & $row) {
             $row['price_tmp'] = Product::getPriceStatic

@@ -1,12 +1,21 @@
 package com.jeprolab.models;
 
+import com.jeprolab.models.core.JeproLabFactory;
+
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 /**
+ *
  * Created by jeprodev on 06/02/16.
  */
-public class JeproLabCombinationModel {
+public class JeproLabCombinationModel extends JeproLabModel{
     public int analyze_id;
+
+    public int analyze_attribute_id;
 
     public String reference;
 
@@ -76,6 +85,12 @@ public class JeproLabCombinationModel {
             );
 */
     private static boolean feature_active = false;
+
+    public JeproLabCombinationModel(){
+        this(0);
+    }
+
+    public JeproLabCombinationModel(int analyzeAttributeId){}
     /*
     public function delete()
     {
@@ -239,14 +254,32 @@ public class JeproLabCombinationModel {
     }
         return $this->setImages($ids_images);
     }
+*/
+    public List<JeproLabAttributeModel> getAttributesName(int langId){
+        if(dataBaseObject == null){
+            dataBaseObject = JeproLabFactory.getDataBaseConnector();
+        }
+        String query = "SELECT attribute_lang.* FROM " + dataBaseObject.quoteName("#__jeprolab_analyze_attribute_combination");
+        query += " AS analyze_combination JOIN " + dataBaseObject.quoteName("#__jeprolab_attribute_lang") + " AS attribute_lang";
+        query += " ON (analyze_combination.attribute_id = attribute_lang.attribute_id AND attribute_lang.lang_id = " + langId;
+        query += ") WHERE analyze_combination.analyze_attribute_id = " + this.analyze_attribute_id;
 
-    public function getAttributesName($id_lang)
-    {
-        return Db::getInstance(_PS_USE_SQL_SLAVE_)->executeS('
-            SELECT al.*
-                    FROM '._DB_PREFIX_.'product_attribute_combination pac
-        JOIN '._DB_PREFIX_.'attribute_lang al ON (pac.id_attribute = al.id_attribute AND al.id_lang='.(int)$id_lang.')
-        WHERE pac.id_product_attribute='.(int)$this->id);
+        dataBaseObject.setQuery(query);
+        ResultSet attributeSet = dataBaseObject.loadObject();
+        List<JeproLabAttributeModel> attributeList = new ArrayList<>();
+        if(attributeSet != null){
+            try{
+                JeproLabAttributeModel attribute;
+                while(attributeSet.next()){
+                    attribute = new JeproLabAttributeModel();
+                    attribute.name.put("lang_" + langId, attributeSet.getString("name"));
+                    attributeList.add(attribute);
+                }
+            }catch (SQLException ignored){
+
+            }
+        }
+        return attributeList;
     }
 
     /**
@@ -261,7 +294,7 @@ public class JeproLabCombinationModel {
         return feature_active;
     }
 
-    /**
+    /*
      * This method is allow to know if a Combination entity is currently used
      * @since 1.5.0.1
      * @param $table

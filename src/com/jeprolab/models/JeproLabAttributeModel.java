@@ -7,6 +7,7 @@ import java.util.Map;
  * Created by jeprodev on 15/02/2014.
  */
 public class JeproLabAttributeModel {
+    public int attribute_id;
     /** @var int Group id which attribute belongs */
     public int attribute_group_id;
 

@@ -11,6 +11,8 @@ public class JeproLabConfigurationSettings {
     public static final int JEPROLAB_TAX_EXCLUDED = 3;
     public static final int JEPROLAB_TAX_INCLUDED = 7;
 
+    public static int JEPROLAB_PRICE_DISPLAY_PRECISION = 2;
+
 
     public static String JEPROLAB_CATEGORY_IMAGE_DIRECTORY = "";
     public static String JEPROLAB_ANALYZE_IMAGE_DIRECTORY = "";

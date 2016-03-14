@@ -10,6 +10,8 @@ public class JeproLabCookie {
 
     public int customer_id;
 
+    public int analyzes_filter_category_id = 0;
+
     public boolean secure = false;
 
     public String path = "";

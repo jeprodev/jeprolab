@@ -25,6 +25,8 @@ public class JeproLabLanguageModel extends JeproLabModel{
 
     public boolean published;
 
+    public boolean is_rtl = true;
+
     public static Map<Integer, JeproLabLanguageModel> LANGUAGES;
 
     public JeproLabLanguageModel(){

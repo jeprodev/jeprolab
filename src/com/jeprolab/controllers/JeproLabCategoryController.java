@@ -20,6 +20,7 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
+import javafx.geometry.Pos;
 import javafx.scene.Cursor;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
@@ -47,7 +48,8 @@ public class JeproLabCategoryController extends JeproLabController {
     @FXML
     public TableView<JeproLabCategory> categoryTableView;
     public TableColumn categoryIndexColumn, categoryCheckBoxColumn, categoryStatusColumn, categoryNameColumn;
-    public TableColumn categoryDescriptionColumn, categoryPositionColumn, categoryActionColumn;
+    public TableColumn categoryDescriptionColumn, categoryPositionColumn;
+    public TableColumn<JeproLabCategory, HBox> categoryActionColumn;
     public Pagination pagination;
 
 
@@ -107,7 +109,7 @@ public class JeproLabCategoryController extends JeproLabController {
         categoryPositionColumn.setCellValueFactory(new PropertyValueFactory<JeproLabCategory, Integer>("categoryPosition"));
         categoryActionColumn.setText(bundle.getString("JEPROLAB_ACTIONS_LABEL"));
         categoryActionColumn.setPrefWidth(0.09 * remainingWidth);
-        Callback<TableColumn, TableCell> actionFactory = param -> new JeproLabCategoryActionCell();
+        Callback<TableColumn<JeproLabCategory, HBox>, TableCell<JeproLabCategory, HBox>> actionFactory = param -> new JeproLabCategoryActionCell();
         categoryActionColumn.setCellFactory(actionFactory);
 
         initializeContent();
@@ -135,7 +137,7 @@ public class JeproLabCategoryController extends JeproLabController {
         /** getting and showing items list **/
         List<JeproLabCategoryModel> categoryTree ;
         if(!JeproLabLaboratoryModel.isFeaturePublished() || JeproLabCategoryModel.getCategoriesWithoutParent().size() > 1 && context.category_id > 0){
-            JeproLabCategoryModel categoryTr = this.category.getTopCategory();
+            JeproLabCategoryModel categoryTr = JeproLabCategoryModel.getTopCategory();
             categoryTree = new ArrayList<>();
             categoryTree.add(categoryTr);
         }else{
@@ -158,7 +160,7 @@ public class JeproLabCategoryController extends JeproLabController {
         if(categories.isEmpty()){
 
         }else{
-            ObservableList categoryList = FXCollections.observableArrayList();
+            ObservableList<JeproLabCategory> categoryList = FXCollections.observableArrayList();
             for(JeproLabCategoryModel category : categories) {
                 categoryList.add(new JeproLabCategory(category));
             }
@@ -387,7 +389,7 @@ public class JeproLabCategoryController extends JeproLabController {
         public JeproLabCategoryStatusCell(){
             statusButton = new Button("", new ImageView(new Image(JeproLab.class.getResourceAsStream("resources/images/unpublished.png"))));
             statusButton.getStyleClass().add("icon-btn");
-            statusButton.setMinSize(22, 22);
+            statusButton.setMinSize(18, 18);
             //statusButton.focusedProperty().addListener();
         }
 
@@ -404,6 +406,7 @@ public class JeproLabCategoryController extends JeproLabController {
             final ObservableList<JeproLabCategory> items = this.getTableView().getItems();
             if((items != null) && (getIndex() < items.size())){
                 setGraphic(statusButton);
+                setAlignment(Pos.CENTER);
             }
         }
     }

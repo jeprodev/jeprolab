@@ -173,4 +173,6 @@ public class JeproLabEmployeeModel  extends JeproLabModel{
     public boolean canEdit(String table, int objectId){
         return true;
     }
+
+    public boolean isSuperAdmin(){ return true;}
 }

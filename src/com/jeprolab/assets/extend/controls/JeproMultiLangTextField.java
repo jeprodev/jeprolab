@@ -60,12 +60,11 @@ public class JeproMultiLangTextField extends Pane{
         if(languages == null){
             languages = JeproLabLanguageModel.getLanguages();
         }
-        Iterator langIt = languages.entrySet().iterator();
-        while(langIt.hasNext()){
-            Map.Entry lang = (Map.Entry)langIt.next();
-            JeproLabLanguageModel language = (JeproLabLanguageModel)lang.getValue();
+        for (Object o : languages.entrySet()) {
+            Map.Entry lang = (Map.Entry) o;
+            JeproLabLanguageModel language = (JeproLabLanguageModel) lang.getValue();
             for (TextField field : fields) {
-                if(field.getId().equals("language_" + language.language_id )) {
+                if (field.getId().equals("language_" + language.language_id) && value != null) {
                     field.setText(value.containsKey("lang_" + language.language_id) ? value.get("lang_" + language.language_id) : "");
                 }
             }

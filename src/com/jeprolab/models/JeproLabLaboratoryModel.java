@@ -425,9 +425,17 @@ public class JeproLabLaboratoryModel  extends JeproLabModel{
             table = table.substring(table.indexOf("."), table.length() - 1);
         }
 
-        if(table.equals("group")){ outputAlias = "grp"; }
-        else if(table.equals("analyze")){ outputAlias = "analze"; }
-        else{ outputAlias = table; }
+        switch (table) {
+            case "group":
+                outputAlias = "group_item";
+                break;
+            case "analyze":
+                outputAlias = "analyze_item";
+                break;
+            default:
+                outputAlias = table;
+                break;
+        }
 
         boolean isAssociatedToTable = JeproLabLaboratoryModel.getAssociatedTable(table);
         if(!isAssociatedToTable){ return ""; }
@@ -491,7 +499,7 @@ public class JeproLabLaboratoryModel  extends JeproLabModel{
     public static List<Integer> getLaboratoryIds(boolean published, int labGroupId){
         JeproLabLaboratoryModel.cacheLaboratories();
 
-        List results = new ArrayList();
+        List<Integer> results = new ArrayList<>();
         for(JeproLabLaboratoryGroupModel labGroup : JeproLabLaboratoryGroupModel.getLaboratoryGroups()){
             for(JeproLabLaboratoryModel lab : labGroup.laboratories){
                 if ((!published || lab.published) && (labGroup.laboratory_group_id < 0 || labGroup.laboratory_group_id == labGroupId)) {
@@ -518,7 +526,7 @@ public class JeproLabLaboratoryModel  extends JeproLabModel{
     public static List<JeproLabLaboratoryModel> getLaboratories(boolean published, int labGroupId, boolean getAsListIds){
         JeproLabLaboratoryModel.cacheLaboratories();
 
-        List<JeproLabLaboratoryModel> results = new ArrayList();
+        List<JeproLabLaboratoryModel> results = new ArrayList<>();
         /*todo foreach (JeproLabLaboratoryModel.labs as $group_id => $group_data){
             foreach ($group_data['labs'] as $lab_id => $lab_data){
                 if((!$published || $lab_data->published) && (!$lab_group_id || $lab_group_id == $group_id)){
@@ -553,7 +561,7 @@ public class JeproLabLaboratoryModel  extends JeproLabModel{
 
     public static void cacheLaboratories(boolean refresh){
         if(JeproLabLaboratoryModel.labGroups == null){
-            JeproLabLaboratoryModel.labGroups = new ArrayList();
+            JeproLabLaboratoryModel.labGroups = new ArrayList<>();
         }
         if((JeproLabLaboratoryModel.labGroups.isEmpty())  || refresh) {
 

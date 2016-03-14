@@ -295,7 +295,7 @@ public class JeproLabTaxModel extends JeproLabModel {
      *
      * @deprecated since 1.5
      * /
-    public static function getProductTaxRateViaRules(int analyzeId, int countryIdy, int stateId, String zipCode){
+    public static function getAnalyzeTaxRateThroughRules(int analyzeId, int countryIdy, int stateId, String zipCode){
         Tools::displayAsDeprecated();
 
         if (!isset(self::$_product_tax_via_rules[$id_product.'-'.$id_country.'-'.$id_state.'-'.$zipcode])) {

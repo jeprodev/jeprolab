@@ -7,9 +7,7 @@ import com.jeprolab.models.core.JeproLabFactory;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 /**
  *
@@ -72,14 +70,14 @@ public class JeproLabCartModel extends JeproLabModel{
 */
     public String delivery_option;
 
-    /** @var bool Allow to seperate order in multiple package in order to recieve as soon as possible the available products * /
-    public boolean allow_seperated_package = false;
+    /** @var bool Allow to separate order in multiple package in order to receive as soon as possible the available products * /
+    public boolean allow_separated_package = false;
 */
-    protected static Map<Integer, JeproLabAnalyzeModel>nbAnalyzes = new HashMap<>();
+    protected static Map<Integer, JeproLabAnalyzeModel>_number_of_analyzes = new HashMap<>();
   /*  protected static $_isVirtualCart = array();
-
-    protected $_products = null;
-    protected static $_totalWeight = array(); */
+*/
+    //protected $_analyzes = null;
+    protected static Map<Integer, Float>_total_weight = new HashMap<>();
     protected int tax_calculation_method = JeproLabConfigurationSettings.JEPROLAB_TAX_EXCLUDED;
     /*protected static $_carriers = null;
     protected static $_taxes_rate = null;
@@ -95,24 +93,24 @@ public class JeproLabCartModel extends JeproLabModel{
             'table' => 'cart',
                     'primary' => 'id_cart',
                     'fields' => array(
-                    'id_shop_group' =>            array('type' => self::TYPE_INT, 'validate' => 'isUnsignedId'),
-    'id_shop' =>                array('type' => self::TYPE_INT, 'validate' => 'isUnsignedId'),
-    'id_address_delivery' =>    array('type' => self::TYPE_INT, 'validate' => 'isUnsignedId'),
-    'id_address_invoice' =>    array('type' => self::TYPE_INT, 'validate' => 'isUnsignedId'),
-    'id_carrier' =>            array('type' => self::TYPE_INT, 'validate' => 'isUnsignedId'),
-    'id_currency' =>            array('type' => self::TYPE_INT, 'validate' => 'isUnsignedId', 'required' => true),
-    'id_customer' =>            array('type' => self::TYPE_INT, 'validate' => 'isUnsignedId'),
-    'id_guest' =>                array('type' => self::TYPE_INT, 'validate' => 'isUnsignedId'),
-    'id_lang' =>                array('type' => self::TYPE_INT, 'validate' => 'isUnsignedId', 'required' => true),
-    'recyclable' =>            array('type' => self::TYPE_BOOL, 'validate' => 'isBool'),
-    'gift' =>                    array('type' => self::TYPE_BOOL, 'validate' => 'isBool'),
-    'gift_message' =>            array('type' => self::TYPE_STRING, 'validate' => 'isMessage'),
-    'mobile_theme' =>            array('type' => self::TYPE_BOOL, 'validate' => 'isBool'),
-    'delivery_option' =>        array('type' => self::TYPE_STRING),
-    'secure_key' =>            array('type' => self::TYPE_STRING, 'size' => 32),
-    'allow_seperated_package' =>array('type' => self::TYPE_BOOL, 'validate' => 'isBool'),
-    'date_add' =>                array('type' => self::TYPE_DATE, 'validate' => 'isDate'),
-    'date_upd' =>                array('type' => self::TYPE_DATE, 'validate' => 'isDate'),
+                    'id_shop_group' =>            array('type' => JeproLabCartModel.TYPE_INT, 'validate' => 'isUnsignedId'),
+    'id_shop' =>                array('type' => JeproLabCartModel.TYPE_INT, 'validate' => 'isUnsignedId'),
+    'id_address_delivery' =>    array('type' => JeproLabCartModel.TYPE_INT, 'validate' => 'isUnsignedId'),
+    'id_address_invoice' =>    array('type' => JeproLabCartModel.TYPE_INT, 'validate' => 'isUnsignedId'),
+    'id_carrier' =>            array('type' => JeproLabCartModel.TYPE_INT, 'validate' => 'isUnsignedId'),
+    'id_currency' =>            array('type' => JeproLabCartModel.TYPE_INT, 'validate' => 'isUnsignedId', 'required' => true),
+    'id_customer' =>            array('type' => JeproLabCartModel.TYPE_INT, 'validate' => 'isUnsignedId'),
+    'id_guest' =>                array('type' => JeproLabCartModel.TYPE_INT, 'validate' => 'isUnsignedId'),
+    'id_lang' =>                array('type' => JeproLabCartModel.TYPE_INT, 'validate' => 'isUnsignedId', 'required' => true),
+    'recyclable' =>            array('type' => JeproLabCartModel.TYPE_BOOL, 'validate' => 'isBool'),
+    'gift' =>                    array('type' => JeproLabCartModel.TYPE_BOOL, 'validate' => 'isBool'),
+    'gift_message' =>            array('type' => JeproLabCartModel.TYPE_STRING, 'validate' => 'isMessage'),
+    'mobile_theme' =>            array('type' => JeproLabCartModel.TYPE_BOOL, 'validate' => 'isBool'),
+    'delivery_option' =>        array('type' => JeproLabCartModel.TYPE_STRING),
+    'secure_key' =>            array('type' => JeproLabCartModel.TYPE_STRING, 'size' => 32),
+    'allow_seperated_package' =>array('type' => JeproLabCartModel.TYPE_BOOL, 'validate' => 'isBool'),
+    'date_add' =>                array('type' => JeproLabCartModel.TYPE_DATE, 'validate' => 'isDate'),
+    'date_upd' =>                array('type' => JeproLabCartModel.TYPE_DATE, 'validate' => 'isDate'),
     ),
             );
 
@@ -136,7 +134,7 @@ public class JeproLabCartModel extends JeproLabModel{
             ),
             );
 */
-    public final static int ONLY_PRODUCTS = 1;
+    public final static int ONLY_ANALYZES = 1;
     public final static int ONLY_DISCOUNTS = 2;
     public final static int BOTH = 3;
     public final static int BOTH_WITHOUT_SHIPPING = 4;
@@ -261,33 +259,33 @@ public class JeproLabCartModel extends JeproLabModel{
 
         /*$return = parent::add($autodate, $null_values);
         Hook::exec('actionCartSave'); */
-//todo edit edit adding
+        //todo edit edit adding
         return true;
     }
 
     public boolean updateCart(){
-        /*if (isset(self::$_nbProducts[this.id])) {
-        unset(self::$_nbProducts[this.id]);
-    }
+        if (JeproLabCartModel._number_of_analyzes.containsKey(this.cart_id)) {
+            JeproLabCartModel._number_of_analyzes.remove(this.cart_id);
+        }
 
-        if (isset(self::$_totalWeight[this.id])) {
-        unset(self::$_totalWeight[this.id]);
-    }
+        if (JeproLabCartModel._total_weight.containsKey(this.cart_id)) {
+            JeproLabCartModel._total_weight.remove(this.cart_id);
+        }
 
-        this._products = null;
+        /*this._analyzes = null;
         $return = parent::update($null_values);
         Hook::exec('actionCartSave');*/
-    //todo
+        //todo
         return true;
     }
 
     /*
      * Update the address id of the cart
      *
-     * @param int $id_address Current address id to change
-     * @param int $id_address_new New address id
+     * @param addressId Current address id to change
+     * @param newAddressId New address id
      * /
-    public function updateAddressId($id_address, $id_address_new)
+    public function updateAddressId(int addressId, int newAddressId )
     {
         $to_update = false;
         if (!isset(this.id_address_invoice) || this.id_address_invoice == $id_address) {
@@ -367,7 +365,7 @@ public class JeproLabCartModel extends JeproLabModel{
     }
 
         $products = $cart->getProducts();
-        $total_products_moy = 0;
+        $total_analyzes_moy = 0;
         $ratio_tax = 0;
 
         if (!count($products)) {
@@ -386,15 +384,15 @@ public class JeproLabCartModel extends JeproLabModel{
             $address_id = null;
         }
 
-        $total_products_moy += $product['total_wt'];
+        $total_analyzes_moy += $product['total_wt'];
         $ratio_tax += $product['total_wt'] * Tax::getProductTaxRate(
                 (int)$product['id_product'],
                 (int)$address_id
         );
     }
 
-        if ($total_products_moy > 0) {
-            return $ratio_tax / $total_products_moy;
+        if ($total_analyzes_moy > 0) {
+            return $ratio_tax / $total_analyzes_moy;
         }
 
         return 0;
@@ -475,7 +473,7 @@ public class JeproLabCartModel extends JeproLabModel{
      * @param $filter
      * @return array
      * @throws PrestaShopDatabaseException
-     * /
+      /
     public function getOrderedCartRulesIds($filter = CartRule::FILTER_ACTION_ALL)
     {
         $cache_key = 'Cart::getOrderedCartRulesIds_'.this.id.'-'.$filter.'-ids';
@@ -548,23 +546,22 @@ public class JeproLabCartModel extends JeproLabModel{
      *
      * @result array Products
      * /
-    public function getProducts($refresh = false, $id_product = false, $id_country = null)
-    {
-        if (!this.id) {
-            return array();
+    public List<JeproLabAnalyzeModel> getAnalyzes($refresh = false, $id_product = false, $id_country = null){
+        if (this.cart_id <= 0) {
+            return new ArrayList<>();
         }
         // Product cache must be strictly compared to NULL, or else an empty cart will add dozens of queries
-        if (this._products !== null && !$refresh) {
+        if (this._analyzes != null && !$refresh) {
             // Return product row with specified ID if it exists
             if (is_int($id_product)) {
-                foreach (this._products as $product) {
+                foreach (this._analyzes as $product) {
                     if ($product['id_product'] == $id_product) {
                         return array($product);
                     }
                 }
                 return array();
             }
-            return this._products;
+            return this._analyzes;
         }
 
         // Build query
@@ -667,7 +664,7 @@ public class JeproLabCartModel extends JeproLabModel{
         Product::cacheProductsFeatures($products_ids);
         Cart::cacheSomeAttributesLists($pa_ids, this.id_lang);
 
-        this._products = array();
+        this._analyzes = array();
         if (empty($result)) {
             return array();
         }
@@ -797,16 +794,16 @@ public class JeproLabCartModel extends JeproLabModel{
         $row['allow_oosp'] = Product::isAvailableWhenOutOfStock($row['out_of_stock']);
         $row['features'] = Product::getFeaturesStatic((int)$row['id_product']);
 
-        if (array_key_exists($row['id_product_attribute'].'-'.this.id_lang, self::$_attributesLists)) {
-            $row = array_merge($row, self::$_attributesLists[$row['id_product_attribute'].'-'.this.id_lang]);
+        if (array_key_exists($row['id_product_attribute'].'-'.this.id_lang, JeproLabCartModel.$_attributesLists)) {
+            $row = array_merge($row, JeproLabCartModel.$_attributesLists[$row['id_product_attribute'].'-'.this.id_lang]);
         }
 
         $row = Product::getTaxesInformations($row, $cart_shop_context);
 
-        this._products[] = $row;
+        this._analyzes[] = $row;
     }
 
-        return this._products;
+        return this._analyzes;
     }
 
     public static function cacheSomeAttributesLists($ipa_list, $id_lang)
@@ -818,9 +815,9 @@ public class JeproLabCartModel extends JeproLabModel{
         $pa_implode = array();
 
         foreach ($ipa_list as $id_product_attribute) {
-        if ((int)$id_product_attribute && !array_key_exists($id_product_attribute.'-'.$id_lang, self::$_attributesLists)) {
+        if ((int)$id_product_attribute && !array_key_exists($id_product_attribute.'-'.$id_lang, JeproLabCartModel.$_attributesLists)) {
             $pa_implode[] = (int)$id_product_attribute;
-            self::$_attributesLists[(int)$id_product_attribute.'-'.$id_lang] = array('attributes' => '', 'attributes_small' => '');
+            JeproLabCartModel.$_attributesLists[(int)$id_product_attribute.'-'.$id_lang] = array('attributes' => '', 'attributes_small' => '');
         }
     }
 
@@ -846,18 +843,18 @@ public class JeproLabCartModel extends JeproLabModel{
         );
 
         foreach ($result as $row) {
-        self::$_attributesLists[$row['id_product_attribute'].'-'.$id_lang]['attributes'] .= $row['public_group_name'].' : '.$row['attribute_name'].', ';
-        self::$_attributesLists[$row['id_product_attribute'].'-'.$id_lang]['attributes_small'] .= $row['attribute_name'].', ';
+        JeproLabCartModel.$_attributesLists[$row['id_product_attribute'].'-'.$id_lang]['attributes'] .= $row['public_group_name'].' : '.$row['attribute_name'].', ';
+        JeproLabCartModel.$_attributesLists[$row['id_product_attribute'].'-'.$id_lang]['attributes_small'] .= $row['attribute_name'].', ';
     }
 
         foreach ($pa_implode as $id_product_attribute) {
-        self::$_attributesLists[$id_product_attribute.'-'.$id_lang]['attributes'] = rtrim(
-                self::$_attributesLists[$id_product_attribute.'-'.$id_lang]['attributes'],
+        JeproLabCartModel.$_attributesLists[$id_product_attribute.'-'.$id_lang]['attributes'] = rtrim(
+                JeproLabCartModel.$_attributesLists[$id_product_attribute.'-'.$id_lang]['attributes'],
         ', '
         );
 
-        self::$_attributesLists[$id_product_attribute.'-'.$id_lang]['attributes_small'] = rtrim(
-                self::$_attributesLists[$id_product_attribute.'-'.$id_lang]['attributes_small'],
+        JeproLabCartModel.$_attributesLists[$id_product_attribute.'-'.$id_lang]['attributes_small'] = rtrim(
+                JeproLabCartModel.$_attributesLists[$id_product_attribute.'-'.$id_lang]['attributes_small'],
         ', '
         );
     }
@@ -880,17 +877,17 @@ public class JeproLabCartModel extends JeproLabModel{
     public static function getNbProducts($id)
     {
         // Must be strictly compared to NULL, or else an empty cart will bypass the cache and add dozens of queries
-        if (isset(self::$_nbProducts[$id]) && self::$_nbProducts[$id] !== null) {
-        return self::$_nbProducts[$id];
+        if (isset(JeproLabCartModel._number_of_analyzes[$id]) && JeproLabCartModel._number_of_analyzes[$id] !== null) {
+        return JeproLabCartModel._number_of_analyzes[$id];
     }
 
-        self::$_nbProducts[$id] = (int)Db::getInstance()->getValue('
+        JeproLabCartModel._number_of_analyzes[$id] = (int)Db::getInstance()->getValue('
             SELECT SUM(`quantity`)
             FROM `'._DB_PREFIX_.'cart_product`
         WHERE `id_cart` = '.(int)$id
         );
 
-        return self::$_nbProducts[$id];
+        return JeproLabCartModel._number_of_analyzes[$id];
     }
 
     /**
@@ -1015,12 +1012,12 @@ public class JeproLabCartModel extends JeproLabModel{
         die(Tools::displayError());
     }
 
-        if (isset(self::$_nbProducts[this.id])) {
-        unset(self::$_nbProducts[this.id]);
+        if (isset(JeproLabCartModel._number_of_analyzes[this.id])) {
+        unset(JeproLabCartModel._number_of_analyzes[this.id]);
     }
 
-        if (isset(self::$_totalWeight[this.id])) {
-        unset(self::$_totalWeight[this.id]);
+        if (isset(JeproLabCartModel.$_totalWeight[this.id])) {
+        unset(JeproLabCartModel.$_totalWeight[this.id]);
     }
 
         Hook::exec('actionBeforeCartUpdateQty', array(
@@ -1131,8 +1128,8 @@ public class JeproLabCartModel extends JeproLabModel{
         }
     }
 
-        // refresh cache of self::_products
-        this._products = this.getProducts(true);
+        // refresh cache of JeproLabCartModel._analyzes
+        this._analyzes = this.getProducts(true);
         this.update();
         $context = JeproLabContext.getContext()->cloneContext();
         $context->cart = $this;
@@ -1197,8 +1194,8 @@ public class JeproLabCartModel extends JeproLabModel{
                 WHERE `id_customization` = '.(int)$id_customization);
             }
         }
-        // refresh cache of self::_products
-        this._products = this.getProducts(true);
+        // refresh cache of JeproLabCartModel._analyzes
+        this._analyzes = this.getProducts(true);
         this.update();
         return true;
     }
@@ -1316,12 +1313,12 @@ public class JeproLabCartModel extends JeproLabModel{
      * /
     public function deleteProduct($id_product, $id_product_attribute = null, $id_customization = null, $id_address_delivery = 0)
     {
-        if (isset(self::$_nbProducts[this.id])) {
-        unset(self::$_nbProducts[this.id]);
+        if (isset(JeproLabCartModel._number_of_analyzes[this.id])) {
+        unset(JeproLabCartModel._number_of_analyzes[this.id]);
     }
 
-        if (isset(self::$_totalWeight[this.id])) {
-        unset(self::$_totalWeight[this.id]);
+        if (isset(JeproLabCartModel.$_totalWeight[this.id])) {
+        unset(JeproLabCartModel.$_totalWeight[this.id]);
     }
 
         if ((int)$id_customization) {
@@ -1344,8 +1341,8 @@ public class JeproLabCartModel extends JeproLabModel{
                 return false;
             }
 
-            // refresh cache of self::_products
-            this._products = this.getProducts(true);
+            // refresh cache of JeproLabCartModel._analyzes
+            this._analyzes = this.getProducts(true);
             return ($customization_quantity == $product_total_quantity && this.deleteProduct((int)$id_product, (int)$id_product_attribute, null, (int)$id_address_delivery));
         }
 
@@ -1382,8 +1379,8 @@ public class JeproLabCartModel extends JeproLabModel{
 
         if ($result) {
             $return = this.update();
-            // refresh cache of self::_products
-            this._products = this.getProducts(true);
+            // refresh cache of JeproLabCartModel._analyzes
+            this._analyzes = this.getProducts(true);
             CartRule::autoRemoveFromCart();
             CartRule::autoAddToCart();
 
@@ -1654,7 +1651,7 @@ public class JeproLabCartModel extends JeproLabModel{
         $order_total += $price;
     }
 
-        $order_total_products = $order_total;
+        $order_total_analyzes = $order_total;
 
         if ($type == Cart::ONLY_DISCOUNTS) {
             $order_total = 0;
@@ -1733,7 +1730,7 @@ public class JeproLabCartModel extends JeproLabModel{
                 $order_total_discount += Tools::ps_round($cart_rule['obj']->getContextualValue($with_taxes, $virtual_context, CartRule::FILTER_ACTION_REDUCTION, $package, $use_cache), $compute_precision);
             }
         }
-        $order_total_discount = min(Tools::ps_round($order_total_discount, 2), (float)$order_total_products) + (float)$order_shipping_discount;
+        $order_total_discount = min(Tools::ps_round($order_total_discount, 2), (float)$order_total_analyzes) + (float)$order_shipping_discount;
         $order_total -= $order_total_discount;
     }
 
@@ -2322,14 +2319,14 @@ public class JeproLabCartModel extends JeproLabModel{
             }
         }
 
-        $total_products_wt = this.getOrderTotal(true, Cart::ONLY_PRODUCTS);
-        $total_products = this.getOrderTotal(false, Cart::ONLY_PRODUCTS);
+        $total_analyzes_wt = this.getOrderTotal(true, Cart::ONLY_PRODUCTS);
+        $total_analyzes = this.getOrderTotal(false, Cart::ONLY_PRODUCTS);
 
         $free_carriers_rules = array();
 
         $context = JeproLabContext.getContext();
         foreach ($cart_rules as $cart_rule) {
-        $total_price = $cart_rule['minimum_amount_tax'] ? $total_products_wt : $total_products;
+        $total_price = $cart_rule['minimum_amount_tax'] ? $total_analyzes_wt : $total_analyzes;
         $total_price += $cart_rule['minimum_amount_tax'] && $cart_rule['minimum_amount_shipping'] ? $real_best_price : 0;
         $total_price += !$cart_rule['minimum_amount_tax'] && $cart_rule['minimum_amount_shipping'] ? $real_best_price_wt : 0;
         if ($cart_rule['free_shipping'] && $cart_rule['carrier_restriction']
@@ -2896,12 +2893,12 @@ public class JeproLabCartModel extends JeproLabModel{
                     continue;
                 }
 
-                if (!isset(self::$_carriers[$row['id_carrier']])) {
-                    self::$_carriers[$row['id_carrier']] = new Carrier((int)$row['id_carrier']);
+                if (!isset(JeproLabCartModel.$_carriers[$row['id_carrier']])) {
+                    JeproLabCartModel.$_carriers[$row['id_carrier']] = new Carrier((int)$row['id_carrier']);
                 }
 
                 /** @var Carrier $carrier * /
-                $carrier = self::$_carriers[$row['id_carrier']];
+                $carrier = JeproLabCartModel.$_carriers[$row['id_carrier']];
 
                 $shipping_method = $carrier->getShippingMethod();
                 // Get only carriers that are compliant with shipping method
@@ -2947,11 +2944,11 @@ public class JeproLabCartModel extends JeproLabModel{
             $id_carrier = Configuration::get('PS_CARRIER_DEFAULT');
         }
 
-        if (!isset(self::$_carriers[$id_carrier])) {
-        self::$_carriers[$id_carrier] = new Carrier((int)$id_carrier, Configuration::get('PS_LANG_DEFAULT'));
+        if (!isset(JeproLabCartModel.$_carriers[$id_carrier])) {
+        JeproLabCartModel.$_carriers[$id_carrier] = new Carrier((int)$id_carrier, Configuration::get('PS_LANG_DEFAULT'));
     }
 
-        $carrier = self::$_carriers[$id_carrier];
+        $carrier = JeproLabCartModel.$_carriers[$id_carrier];
 
         // No valid Carrier or $id_carrier <= 0 ?
         if (!Validate::isLoadedObject($carrier)) {
@@ -3124,7 +3121,7 @@ public class JeproLabCartModel extends JeproLabModel{
             return $total_weight;
         }
 
-        if (!isset(self::$_totalWeight[this.id])) {
+        if (!isset(JeproLabCartModel.$_totalWeight[this.id])) {
         if (Combination::isFeatureActive()) {
             $weight_product_with_attribute = Db::getInstance()->getValue('
                     SELECT SUM((p.`weight` + pa.`weight`) * cp.`quantity`) as nb
@@ -3144,10 +3141,10 @@ public class JeproLabCartModel extends JeproLabModel{
         WHERE (cp.`id_product_attribute` IS NULL OR cp.`id_product_attribute` = 0)
         AND cp.`id_cart` = '.(int)this.id);
 
-        self::$_totalWeight[this.id] = round((float)$weight_product_with_attribute + (float)$weight_product_without_attribute, 6);
+        JeproLabCartModel.$_totalWeight[this.id] = round((float)$weight_product_with_attribute + (float)$weight_product_without_attribute, 6);
     }
 
-        return self::$_totalWeight[this.id];
+        return JeproLabCartModel.$_totalWeight[this.id];
     }
 
     /**
@@ -3215,12 +3212,12 @@ public class JeproLabCartModel extends JeproLabModel{
         }
     }
 
-        $gift_products = array();
+        $gift_analyzes = array();
         $cart_rules = this.getCartRules();
         $total_shipping = this.getTotalShippingCost();
         $total_shipping_tax_exc = this.getTotalShippingCost(null, false);
-        $total_products_wt = this.getOrderTotal(true, Cart::ONLY_PRODUCTS);
-        $total_products = this.getOrderTotal(false, Cart::ONLY_PRODUCTS);
+        $total_analyzes_wt = this.getOrderTotal(true, Cart::ONLY_PRODUCTS);
+        $total_analyzes = this.getOrderTotal(false, Cart::ONLY_PRODUCTS);
         $total_discounts = this.getOrderTotal(true, Cart::ONLY_DISCOUNTS);
         $total_discounts_tax_exc = this.getOrderTotal(false, Cart::ONLY_DISCOUNTS);
 
@@ -3249,8 +3246,8 @@ public class JeproLabCartModel extends JeproLabModel{
             foreach ($products as $key => &$product) {
                 if (empty($product['gift']) && $product['id_product'] == $cart_rule['gift_product'] && $product['id_product_attribute'] == $cart_rule['gift_product_attribute']) {
                     // Update total products
-                    $total_products_wt = Tools::ps_round($total_products_wt - $product['price_wt'], (int)$context->currency->decimals * _PS_PRICE_COMPUTE_PRECISION_);
-                    $total_products = Tools::ps_round($total_products - $product['price'], (int)$context->currency->decimals * _PS_PRICE_COMPUTE_PRECISION_);
+                    $total_analyzes_wt = Tools::ps_round($total_analyzes_wt - $product['price_wt'], (int)$context->currency->decimals * _PS_PRICE_COMPUTE_PRECISION_);
+                    $total_analyzes = Tools::ps_round($total_analyzes - $product['price'], (int)$context->currency->decimals * _PS_PRICE_COMPUTE_PRECISION_);
 
                     // Update total discounts
                     $total_discounts = Tools::ps_round($total_discounts - $product['price_wt'], (int)$context->currency->decimals * _PS_PRICE_COMPUTE_PRECISION_);
@@ -3277,7 +3274,7 @@ public class JeproLabCartModel extends JeproLabModel{
                     $gift_product['total_wt'] = 0;
                     $gift_product['total'] = 0;
                     $gift_product['gift'] = true;
-                    $gift_products[] = $gift_product;
+                    $gift_analyzes[] = $gift_product;
 
                     break; // One gift product per cart rule
                 }
@@ -3298,7 +3295,7 @@ public class JeproLabCartModel extends JeproLabModel{
             'invoice_state' => State::getNameById($invoice->id_state),
             'formattedAddresses' => $formatted_addresses,
             'products' => array_values($products),
-            'gift_products' => $gift_products,
+            'gift_analyzes' => $gift_analyzes,
             'discounts' => array_values($cart_rules),
             'is_virtual_cart' => (int)this.isVirtualCart(),
             'total_discounts' => $total_discounts,
@@ -3307,8 +3304,8 @@ public class JeproLabCartModel extends JeproLabModel{
             'total_wrapping_tax_exc' => this.getOrderTotal(false, Cart::ONLY_WRAPPING),
             'total_shipping' => $total_shipping,
             'total_shipping_tax_exc' => $total_shipping_tax_exc,
-            'total_products_wt' => $total_products_wt,
-            'total_products' => $total_products,
+            'total_analyzes_wt' => $total_analyzes_wt,
+            'total_analyzes' => $total_analyzes,
             'total_price' => $base_total_tax_inc,
             'total_tax' => $total_tax,
             'total_price_without_tax' => $base_total_tax_exc,
@@ -3389,7 +3386,7 @@ public class JeproLabCartModel extends JeproLabModel{
         return false;
     }
 
-        if (!isset(self::$_isVirtualCart[this.id])) {
+        if (!isset(JeproLabCartModel.$_isVirtualCart[this.id])) {
         $products = this.getProducts();
         if (!count($products)) {
             return false;
@@ -3401,10 +3398,10 @@ public class JeproLabCartModel extends JeproLabModel{
                 $is_virtual = 0;
             }
         }
-        self::$_isVirtualCart[this.id] = (int)$is_virtual;
+        JeproLabCartModel.$_isVirtualCart[this.id] = (int)$is_virtual;
     }
 
-        return self::$_isVirtualCart[this.id];
+        return JeproLabCartModel.$_isVirtualCart[this.id];
     }
 
     /**
@@ -3938,7 +3935,7 @@ public class JeproLabCartModel extends JeproLabModel{
     }
 
         if ($emptyCache) {
-            this._products = null;
+            this._analyzes = null;
         }
     }
 

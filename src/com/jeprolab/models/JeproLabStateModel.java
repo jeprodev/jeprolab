@@ -19,9 +19,11 @@ public class JeproLabStateModel extends JeproLabModel{
 
     public int zone_id = 0;
 
-    public char[] isoCode = new char[2];
+    public char[] iso_code = new char[2];
 
     public String name;
+
+    public int tax_behavior;
 
     public boolean published = false;
 
@@ -40,7 +42,7 @@ public class JeproLabStateModel extends JeproLabModel{
      *
      * @param stateId Country ID
      * @return string State name
-     * /
+     */
     public static String getNameById(int stateId){
         if (stateId <= 0) {
             return "";
@@ -55,13 +57,14 @@ public class JeproLabStateModel extends JeproLabModel{
             query += " WHERE " + staticDataBaseObject.quoteName("state_id") + " = " + stateId;
 
             staticDataBaseObject.setQuery(query);
-            ResultSet result = staticDataBaseObject.loadResult();
-            JeproLabCache.getInstance().store(cacheKey, $result);
+            String result = staticDataBaseObject.loadStringValue("name");
+
+            JeproLabCache.getInstance().store(cacheKey, result);
         }
-        return JeproLabCache.getInstance().retrieve(cacheKey);
+        return(String)JeproLabCache.getInstance().retrieve(cacheKey);
     }
 
-    public boolean isMultiLab(){
+   /* public boolean isMultiLab(){
         return (JeproLabLaboratoryModel.isTableAssociated("state") || !JeproLabStateModel.multiLangLab);
     }
 
@@ -75,7 +78,7 @@ public class JeproLabStateModel extends JeproLabModel{
 
         //if(!$context){ $context = JeproLabContext::getContext(); }
     }
-
+*/
     public static List<JeproLabStateModel> getStates(){
         return getStates(0, false);
     }
@@ -110,7 +113,7 @@ public class JeproLabStateModel extends JeproLabModel{
                 state.state_id = results.getInt("state_id");
                 state.country_id = results.getInt("country_id");
                 state.zone_id = results.getInt("zone_id");
-                state.isoCode = results.getString("iso_code").toCharArray();
+                state.iso_code = results.getString("iso_code").toCharArray();
                 state.name = results.getString("name");
                 state.published = results.getInt("published") > 0;
                 states.add(state);
@@ -126,22 +129,22 @@ public class JeproLabStateModel extends JeproLabModel{
      *
      * @param stateName State name
      * @return integer state id
-     * /
+     */
     public static int getStateIdByName(String stateName){
         if (stateName == null || stateName.equals("")) {
             return 0;
         }
-        String cacheKey = "jeprolab_State_getNameById_" + JeproLabTools.secureData(stateName);
+        String cacheKey = "jeprolab_State_getNameById_" + staticDataBaseObject.quote(stateName);
         if (!JeproLabCache.getInstance().isStored(cacheKey)){
             if(staticDataBaseObject == null){
                 staticDataBaseObject = JeproLabFactory.getDataBaseConnector();
             }
 
             String query = "SELECT " + staticDataBaseObject.quoteName("state_id") + " FROM " + staticDataBaseObject.quoteName("#__jeprolab_state");
-            query += " WHERE " + staticDataBaseObject.quoteName("name") + " LIKE " + staticDataBaseObject.secureData(stateName);
+            query += " WHERE " + staticDataBaseObject.quoteName("name") + " LIKE " + staticDataBaseObject.quote(stateName);
 
             staticDataBaseObject.setQuery(query);
-            int result = (int)staticDataBaseObject.loadValue();
+            int result = (int)staticDataBaseObject.loadValue("state_id");
 
             JeproLabCache.getInstance().store(cacheKey, result);
         }
@@ -156,26 +159,26 @@ public class JeproLabStateModel extends JeproLabModel{
      * Get a state id with its iso code
      *
      * @param isoCode Iso code
-     * @param countryId
+     * @param countryId country id
      * @return integer state id
-     * /
+     */
     public static int getStateIdByIsoCode(String isoCode, int countryId){
         if(staticDataBaseObject == null){
             staticDataBaseObject = JeproLabFactory.getDataBaseConnector();
         }
         String query = "SELECT " + staticDataBaseObject.quoteName("state_id") + " FROM " + staticDataBaseObject.quoteName("#__jeprolab_state");
-        query += " WHERE " + staticDataBaseObject.quoteName("iso_code") + " = " + staticDataBaseObject.secureData(isoCode);
+        query += " WHERE " + staticDataBaseObject.quoteName("iso_code") + " = " + staticDataBaseObject.quote(isoCode);
         query += (countryId > 0) ? " AND " + staticDataBaseObject.quoteName("country_id") + " = " + countryId : "";
 
         staticDataBaseObject.setQuery(query);
-        return (int)staticDataBaseObject.loadValue();
+        return (int)staticDataBaseObject.loadValue("state_id");
     }
 
     /**
      * Delete a state only if is not in use
      *
      * @return boolean
-     * /
+     */
     public boolean delete(){
         if (!this.isUsed()){
             if(dataBaseObject == null){
@@ -184,15 +187,16 @@ public class JeproLabStateModel extends JeproLabModel{
             // Database deletion
             String query = "DELETE FROM " + dataBaseObject.quoteName("#__jeprolab_state") + " WHERE " + dataBaseObject.quoteName("state_id") + " = " + this.state_id;
             dataBaseObject.setQuery(query);
-            boolean result = dataBaseObject.query();
+            boolean result = dataBaseObject.query(false);
             if (!result)
                 return false;
 
-            // Database deletion for multilingual fields related to the object
+            /*/ Database deletion for multilingual fields related to the object
             if (!JeproLabStateModel.multiLang) {
-                Db::getInstance () -> delete(bqSQL($this -> def['table']). '_lang', '`'.$this->def['primary']. '` = '.
-                (int) $this -> id);
-            }
+                query = "DELETE FROM " + dataBaseObject.quoteName("#__jeprolab_state_lang") + " WHERE " + dataBaseObject.quoteName("state_id") + " = " + this.state_id;
+                dataBaseObject.setQuery(query);
+                result &= dataBaseObject.query(false);
+            }*/
             return result;
         }else {
             return false;
@@ -229,50 +233,69 @@ public class JeproLabStateModel extends JeproLabModel{
         }catch (SQLException ignored){}
         return result;
     }
-/*
+
     public static List<JeproLabStateModel> getStatesByCountryId(int countryId){
         if (countryId <= 0) {
-            JeproLabTools.displayError();
+            JeproLabTools.displayError(500, "");
         }
 
-        String query = "SELECT * FROM " + staticDataBaseObject.quoteName("#__jeprolab_state") + " AS state WHERE"
-        return Db::getInstance()->executeS('
-            SELECT *
-                    FROM `'._DB_PREFIX_.'state` s
-        WHERE s.`id_country` = '.(int)$id_country
-        );
-    }
+        String query = "SELECT * FROM " + staticDataBaseObject.quoteName("#__jeprolab_state") + " AS state WHERE state.";
+        query += staticDataBaseObject.quoteName("country_id") + " = " + countryId;
 
+        staticDataBaseObject.setQuery(query);
+        ResultSet resultSet = staticDataBaseObject.loadObject();
+        List<JeproLabStateModel> states = new ArrayList<>();
+        if(resultSet != null){
+            try{
+                JeproLabStateModel state;
+                while(resultSet.next()){
+                    state = new JeproLabStateModel();
+                    state.state_id = resultSet.getInt("state_id");
+                    state.country_id = resultSet.getInt("country_id");
+                    state.zone_id = resultSet.getInt("zone_id");
+                    state.name = resultSet.getString("name");
+                    state.iso_code = resultSet.getString("iso_code").toCharArray();
+                    state.tax_behavior = resultSet.getInt("tax_behavior");
+                    state.published = resultSet.getInt("published") > 0;
+                    states.add(state);
+                }
+            }catch(SQLException ignored){
+
+            }
+        }
+        return states;
+    }
+/*
     public static boolean hasCounties( int stateId){
         return JeproLabCountyModel.getCounties(stateId).size() > 0;
     }
-
+*/
     public static int getZoneId(int stateId){
         if (stateId <= 0) {
-            die(Tools::displayError ());
+            JeproLabTools.displayError(500, "");
         }
-        return Db::getInstance(_PS_USE_SQL_SLAVE_)->getValue('
-            SELECT `id_zone`
-            FROM `'._DB_PREFIX_.'state`
-        WHERE `id_state` = '.(int)$id_state
-        );
+        String query = "SELECT " + staticDataBaseObject.quoteName("zone_id") + " FROM " + staticDataBaseObject.quoteName("#__jeprolab_state");
+        query += " WHERE " +  staticDataBaseObject.quoteName("state_id") + " = " + stateId;
+
+        staticDataBaseObject.setQuery(query);
+        return (int)staticDataBaseObject.loadValue("zone_id");
     }
 
     /**
      * @param statesIds
      * @param zoneId
      * @return bool
-     * /
+     */
     public boolean affectZoneToSelection(int statesIds[], int zoneId){
         // cast every array values to int (security)
-        $ids_states = array_map('intval', $ids_states);
+        //String stateIds = array_map('intval', $ids_states);
         String query = "UPDATE " + dataBaseObject.quoteName("#__jeprolab_state") + " SET " + dataBaseObject.quoteName("state_id");
         query += " = " + zoneId + " WHERE " + dataBaseObject.quoteName("state_id") + " IN (" + statesIds.toString() + ")";
 
         dataBaseObject.setQuery(query);
         /*return Db::getInstance()->execute('
            = '.(int)$id_zone.' WHERE `id_state` IN ('.implode(',', $ids_states).')
-        '); * /
-        return dataBaseObject.query();
-    } */
+        '); */
+        return dataBaseObject.query(false);
+    }
 }

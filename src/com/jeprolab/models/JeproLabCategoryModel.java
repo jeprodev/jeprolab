@@ -1703,7 +1703,7 @@ public class JeproLabCategoryModel extends JeproLabModel {
     /**
      * check if a given laboratory is associated with this category
      * @param labId laboratory id
-     * @return boolean vakue
+     * @return boolean value
      */
     public boolean existsInLaboratories(int labId){
         if(dataBaseObject == null){

@@ -54,13 +54,13 @@ public class JeproLabZoneModel extends JeproLabModel{
             }
         }
     }
-
-    /*public function saveZone(){
+/*
+    public function saveZone(){
         $db = JFactory::getDBO();
 
         $input_data = '';
 
-        $query = "INSERT INTO " . $db->quoteName("#__jeprolab_zone') . "(";
+        $query = "INSERT INTO " . $db->quoteName("#__jeprolab_zone") + "(";
     }
 
     public List getZoneList(){
@@ -72,7 +72,6 @@ public class JeproLabZoneModel extends JeproLabModel{
         $option = $app->input->get('option');
         $view = $app->input->get('view');
 
-        if(!$context){ $context = JeprolabContext::getContext(); }
 
         $limit = $app->getUserStateFromRequest('global.list.limit', 'limit', $app->getCfg('list_limit'), 'int');
         $limit_start = $app->getUserStateFromRequest($option. $view. '.limit_start', 'limit_start', 0, 'int');
@@ -108,9 +107,9 @@ public class JeproLabZoneModel extends JeproLabModel{
         $this->pagination = new JPagination($total, $limit_start, $limit);
         return $zones;
     }
-
-    public function getPagination(){
-        return $this->pagination;
+*/
+    public Pagination getPagination(){
+        return this.pagination;
     }
 
     public static List<JeproLabZoneModel> getZones(){
@@ -171,41 +170,41 @@ public class JeproLabZoneModel extends JeproLabModel{
         return (int)staticDataBaseObject.loadValue("zone_id");
     }
 
-
-
     /**
      * Delete a zone
      *
      * @return boolean Deletion result
-     * /
+     */
     public boolean delete() {
         if(dataBaseObject == null){
             dataBaseObject = JeproLabFactory.getDataBaseConnector();
         }
 
-        String query = "";
-        if (parent::delete()) {
+        String query = "DELETE FROM " + dataBaseObject.quoteName("#__jeprolab_zone") + " WHERE "  + dataBaseObject.quoteName("zone_id") + " = " + this.zone_id;
+        dataBaseObject.setQuery(query);
+        if (dataBaseObject.query(false)) {
             // Delete regarding delivery preferences
             query = "DELETE FROM " + dataBaseObject.quoteName("#__jeprolab_carrier_zone") + " WHERE "  + dataBaseObject.quoteName("zone_id") + " = " + this.zone_id;
 
             dataBaseObject.setQuery(query);
-            $result = $db->query();
+            boolean result = dataBaseObject.query(false);
+
             query = "DELETE FROM " + dataBaseObject.quoteName("#__jeprolab_delivery") + " WHERE "  + dataBaseObject.quoteName("zone_id") + " = " + this.zone_id;
             dataBaseObject.setQuery(query);
-            $result &= $db->query();
+            //result &= $db->query();
 
             // Update Country & state zone with 0
             query = "UPDATE "  + dataBaseObject.quoteName("#__jeprolab_country") + " SET "  + dataBaseObject.quoteName("zone_id") + " = 0 WHERE "  + dataBaseObject.quoteName("zone_id") + " = " + this.zone_id;
             dataBaseObject.setQuery(query);
-            ResultSet values = dataBaseObject.query();
-            result &= $db->query();
+            result &= dataBaseObject.query(false);
+
             query = "UPDATE "  + dataBaseObject.quoteName("#__jeprolab_state") + " SET "  + dataBaseObject.quoteName("zone_id") + " = 0 WHERE "  + dataBaseObject.quoteName("zone_id") + " = " + this.zone_id;
             dataBaseObject.setQuery(query);
-            $result &= $db->query();
+            result &= dataBaseObject.query(false);
 
-            return $result;
+            return result;
         }
 
         return false;
-    } */
+    }
 }
