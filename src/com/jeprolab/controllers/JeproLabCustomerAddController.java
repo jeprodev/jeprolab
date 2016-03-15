@@ -47,7 +47,7 @@ public class JeproLabCustomerAddController extends JeproLabController {
 
 
     public void initialize(URL location , ResourceBundle resource){
-        super.initialize(location, resource);
+        super.initialize(location, resource);bundle = resource;
         double labelColumnWidth = 180;
         double inputColumnWidth = 250;
         double formWidth = 2 *(labelColumnWidth + inputColumnWidth) + 30;

@@ -5,7 +5,6 @@ import com.jeprolab.assets.config.JeproLabConfig;
 import com.jeprolab.assets.tools.JeproLabCache;
 import com.jeprolab.assets.tools.JeproLabContext;
 import com.jeprolab.assets.tools.JeproLabTools;
-import com.jeprolab.assets.tools.db.JeproLabDataBaseConnector;
 import com.jeprolab.models.core.JeproLabFactory;
 import javafx.scene.control.Pagination;
 
@@ -424,7 +423,7 @@ public class JeproLabAddressModel extends JeproLabModel {
     /*
      * @see ObjectModel::delete()
      * /
-    public function delete()
+    public boolean delete()
     {
         if (Validate::isUnsignedId(this.id_customer)) {
         Customer::resetAddressCache(this.id_customer, this.id);
