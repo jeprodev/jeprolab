@@ -104,7 +104,7 @@ public class JeproLabAnalyzeController extends JeproLabController {
     @Override
     protected void initializeContent(){
         List<JeproLabAnalyzeModel> analyzes = JeproLabAnalyzeModel.getAnalyzeList();
-        ObservableList<JeproLabAnalyzeRecord> analyzeList = FXCollections.observableArrayList(); System.out.println(analyzes.size());
+        ObservableList<JeproLabAnalyzeRecord> analyzeList = FXCollections.observableArrayList();
         if(!analyzes.isEmpty()){
             analyzeList.addAll(analyzes.stream().map(JeproLabAnalyzeRecord::new).collect(Collectors.toList()));
             jeproLabAnalyzeTableView.setItems(analyzeList);
@@ -226,7 +226,7 @@ public class JeproLabAnalyzeController extends JeproLabController {
             super.updateItem(item, empty);
             final ObservableList<JeproLabAnalyzeRecord> items = getTableView().getItems();
             int ind = getIndex();
-            if((items != null) && (ind < items.size())){ System.out.println(ind);
+            if((items != null) && (ind >= 0 && ind < items.size())){
                 if(items.get(ind).getAnalyzePublished()) {
                     analyzeStatus.setGraphic(new ImageView(new Image(JeproLab.class.getResourceAsStream("resources/images/published.png"))));
                 }else{
@@ -320,7 +320,7 @@ public class JeproLabAnalyzeController extends JeproLabController {
         public void updateItem(HBox item, boolean empty){
             super.updateItem(item, empty);
             final ObservableList<JeproLabAnalyzeRecord> items = getTableView().getItems();
-            if((items != null) && (getIndex() < items.size())){
+            if((items != null) && (getIndex() >= 0 && getIndex() < items.size())){
                 setGraphic(commandContainer);
                 setAlignment(Pos.CENTER);
             }

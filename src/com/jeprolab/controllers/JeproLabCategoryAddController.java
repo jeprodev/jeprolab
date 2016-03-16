@@ -127,7 +127,7 @@ public class JeproLabCategoryAddController extends JeproLabController{
         GridPane.setMargin(jeproLabCategoryDescription, new Insets(10, 0, 15, 0));
 
         initializeContent();
-        updateToolBar();
+        /*updateToolBar();*/
     }
 
     @Override
@@ -177,7 +177,9 @@ public class JeproLabCategoryAddController extends JeproLabController{
     }
 
     private JeproLabCategoryModel loadCategory(){
-        int categoryId = JeproLab.request.getIntValue("category_id");
+        int categoryId = JeproLab.request.getRequest().containsKey("category_id") ? Integer.parseInt(JeproLab.request.getRequest().get("category_id")) : 0;
+        String task = JeproLab.request.getRequest().containsKey("task") ? JeproLab.request.getRequest().get("task") :  "add";
+
         if(context == null) {
             context = JeproLabContext.getContext();
         }
@@ -186,13 +188,20 @@ public class JeproLabCategoryAddController extends JeproLabController{
         if(categoryId > 0){
             category = new JeproLabCategoryModel(categoryId);
             if(category.category_id <= 0){
+                if(task.equals("add")){
+                    return new JeproLabCategoryModel();
+                }
                 JeproLabTools.displayError(500, bundle.getString("JEPROLAB_CATEGORY_NOT_FOUND_MESSAGE"));
                 return null;
             }
             return category;
         }else{
-            JeproLabTools.displayError(500, bundle.getString("JEPROLAB_CATEGORY_DOES_NOT_EXIST_MESSAGE"));
-            return null;
+            if(task.equals("add")){
+                return new JeproLabCategoryModel();
+            }else {
+                JeproLabTools.displayError(500, bundle.getString("JEPROLAB_CATEGORY_DOES_NOT_EXIST_MESSAGE"));
+                return null;
+            }
         }
     }
 }

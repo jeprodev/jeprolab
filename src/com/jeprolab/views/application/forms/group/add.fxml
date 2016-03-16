@@ -5,98 +5,118 @@
 <?import javafx.scene.control.ComboBox?>
 <?import com.jeprolab.assets.extend.controls.switchbutton.JeproSwitchButton?>
 <?import com.jeprolab.assets.extend.controls.JeproAppendButton?>
-<VBox xmlns:fx="http://javafx.com/fxml" fx:controller="com.jeprolab.controllers.JeproLabGroupAddController" spacing="20">
-    <children>
+<?import com.jeprolab.assets.extend.controls.JeproFormPanel?>
+<?import com.jeprolab.assets.extend.controls.JeproFormPanelContainer?>
+<?import com.jeprolab.assets.extend.controls.JeproFormPanelTitle?>
+<JeproFormPanel xmlns:fx="http://javafx.com/fxml" fx:controller="com.jeprolab.controllers.JeproLabGroupAddController" fx:id="jeproLabGroupFormWrapper">
+    <JeproFormPanelTitle fx:id="jeproLabGroupFormTitleWrapper" />
+    <JeproFormPanelContainer fx:id="jeproLabGroupFormContainerWrapper">
+        <VBox spacing="5" >
         <GridPane fx:id="groupInformationWrapper" alignment="CENTER">
-            <Label  GridPane.columnIndex="0" GridPane.rowIndex="0" GridPane.columnSpan="2" fx:id="createNewGroupFormTitleLabel" />
-            <Label GridPane.columnIndex="0" GridPane.rowIndex="1" />
-            <JeproMultiLangTextField  GridPane.columnIndex="1" GridPane.rowIndex="1" />
-            <Label GridPane.columnIndex="0" GridPane.rowIndex="2" />
-            <JeproAppendButton  GridPane.columnIndex="1" GridPane.rowIndex="2" />
-            <Label GridPane.columnIndex="0" GridPane.rowIndex="3" />
-            <ComboBox  GridPane.columnIndex="1" GridPane.rowIndex="3" />
-            <Label GridPane.columnIndex="0" GridPane.rowIndex="4" />
-            <JeproSwitchButton GridPane.columnIndex="1" GridPane.rowIndex="4" />
+            <Label GridPane.columnIndex="0" GridPane.rowIndex="0" fx:id="jeproLabGroupNameLabel"  />
+            <JeproMultiLangTextField  GridPane.columnIndex="1" GridPane.rowIndex="0" fx:id="jeproLabGroupName" />
+            <Label GridPane.columnIndex="2" GridPane.rowIndex="0"  fx:id="jeproLabGroupReductionLabel" />
+            <JeproAppendButton  GridPane.columnIndex="3" GridPane.rowIndex="0"  fx:id="jeproLabGroupReduction" />
+            <Label GridPane.columnIndex="0" GridPane.rowIndex="1"  fx:id="jeproLabGroupPriceDisplayMethodLabel" />
+            <ComboBox  GridPane.columnIndex="1" GridPane.rowIndex="1" fx:id="jeproLabGroupPriceDisplayMethod" />
+            <Label GridPane.columnIndex="2" GridPane.rowIndex="1" fx:id="jeproLabGroupShowPricesLabel" />
+            <JeproSwitchButton GridPane.columnIndex="3" GridPane.rowIndex="1" fx:id="jeproLabGroupShowPrices" />
             <Label GridPane.columnIndex="0" GridPane.rowIndex="5" />
         </GridPane>
         <GridPane fx:id="groupModulesWrapper" alignment="CENTER">
             <Label  GridPane.columnIndex="0" GridPane.rowIndex="0" GridPane.columnSpan="4" />
+
             <Label GridPane.columnIndex="0" GridPane.rowIndex="1" />
             <JeproSwitchButton GridPane.columnIndex="1" GridPane.rowIndex="1" />
             <Label GridPane.columnIndex="2" GridPane.rowIndex="1" />
             <JeproSwitchButton GridPane.columnIndex="3" GridPane.rowIndex="1" />
-            <Label GridPane.columnIndex="0" GridPane.rowIndex="2" />
+            <Label GridPane.columnIndex="4" GridPane.rowIndex="1" />
+            <JeproSwitchButton GridPane.columnIndex="5" GridPane.rowIndex="1" />
+
+            <Label GridPane.columnIndex="0" GridPane.rowIndex="1" />
             <JeproSwitchButton GridPane.columnIndex="1" GridPane.rowIndex="2" />
-            <Label GridPane.columnIndex="2" GridPane.rowIndex="2" />
+            <Label GridPane.columnIndex="2" GridPane.rowIndex="3" />
             <JeproSwitchButton GridPane.columnIndex="3" GridPane.rowIndex="2" />
+            <Label GridPane.columnIndex="4" GridPane.rowIndex="3" />
+            <JeproSwitchButton GridPane.columnIndex="5" GridPane.rowIndex="2" />
+
             <Label GridPane.columnIndex="0" GridPane.rowIndex="3" />
             <JeproSwitchButton GridPane.columnIndex="1" GridPane.rowIndex="3" />
             <Label GridPane.columnIndex="2" GridPane.rowIndex="3" />
             <JeproSwitchButton GridPane.columnIndex="3" GridPane.rowIndex="3" />
+            <Label GridPane.columnIndex="4" GridPane.rowIndex="3" />
+            <JeproSwitchButton GridPane.columnIndex="5" GridPane.rowIndex="3" />
+
             <Label GridPane.columnIndex="0" GridPane.rowIndex="4" />
             <JeproSwitchButton GridPane.columnIndex="1" GridPane.rowIndex="4" />
             <Label GridPane.columnIndex="2" GridPane.rowIndex="4" />
             <JeproSwitchButton GridPane.columnIndex="3" GridPane.rowIndex="4" />
+            <Label GridPane.columnIndex="4" GridPane.rowIndex="4" />
+            <JeproSwitchButton GridPane.columnIndex="5" GridPane.rowIndex="4" />
+
             <Label GridPane.columnIndex="0" GridPane.rowIndex="5" />
             <JeproSwitchButton GridPane.columnIndex="1" GridPane.rowIndex="5" />
             <Label GridPane.columnIndex="2" GridPane.rowIndex="5" />
             <JeproSwitchButton GridPane.columnIndex="3" GridPane.rowIndex="5" />
+            <Label GridPane.columnIndex="4" GridPane.rowIndex="5" />
+            <JeproSwitchButton GridPane.columnIndex="5" GridPane.rowIndex="5" />
+
             <Label GridPane.columnIndex="0" GridPane.rowIndex="6" />
             <JeproSwitchButton GridPane.columnIndex="1" GridPane.rowIndex="6" />
             <Label GridPane.columnIndex="2" GridPane.rowIndex="6" />
             <JeproSwitchButton GridPane.columnIndex="3" GridPane.rowIndex="6" />
+            <Label GridPane.columnIndex="4" GridPane.rowIndex="6" />
+            <JeproSwitchButton GridPane.columnIndex="5" GridPane.rowIndex="6" />
+
             <Label GridPane.columnIndex="0" GridPane.rowIndex="7" />
             <JeproSwitchButton GridPane.columnIndex="1" GridPane.rowIndex="7" />
             <Label GridPane.columnIndex="2" GridPane.rowIndex="7" />
             <JeproSwitchButton GridPane.columnIndex="3" GridPane.rowIndex="7" />
+            <Label GridPane.columnIndex="4" GridPane.rowIndex="7" />
+            <JeproSwitchButton GridPane.columnIndex="5" GridPane.rowIndex="7" />
+
             <Label GridPane.columnIndex="0" GridPane.rowIndex="8" />
             <JeproSwitchButton GridPane.columnIndex="1" GridPane.rowIndex="8" />
             <Label GridPane.columnIndex="2" GridPane.rowIndex="8" />
             <JeproSwitchButton GridPane.columnIndex="3" GridPane.rowIndex="8" />
+            <Label GridPane.columnIndex="4" GridPane.rowIndex="8" />
+            <JeproSwitchButton GridPane.columnIndex="5" GridPane.rowIndex="8" />
+
             <Label GridPane.columnIndex="0" GridPane.rowIndex="9" />
             <JeproSwitchButton GridPane.columnIndex="1" GridPane.rowIndex="9" />
             <Label GridPane.columnIndex="2" GridPane.rowIndex="9" />
             <JeproSwitchButton GridPane.columnIndex="3" GridPane.rowIndex="9" />
+            <Label GridPane.columnIndex="4" GridPane.rowIndex="9" />
+            <JeproSwitchButton GridPane.columnIndex="5" GridPane.rowIndex="9" />
+
             <Label GridPane.columnIndex="0" GridPane.rowIndex="10" />
             <JeproSwitchButton GridPane.columnIndex="1" GridPane.rowIndex="10" />
             <Label GridPane.columnIndex="2" GridPane.rowIndex="10" />
             <JeproSwitchButton GridPane.columnIndex="3" GridPane.rowIndex="10" />
+            <Label GridPane.columnIndex="4" GridPane.rowIndex="10" />
+            <JeproSwitchButton GridPane.columnIndex="5" GridPane.rowIndex="10" />
+
             <Label GridPane.columnIndex="0" GridPane.rowIndex="11" />
             <JeproSwitchButton GridPane.columnIndex="1" GridPane.rowIndex="11" />
             <Label GridPane.columnIndex="2" GridPane.rowIndex="11" />
             <JeproSwitchButton GridPane.columnIndex="3" GridPane.rowIndex="11" />
+            <Label GridPane.columnIndex="4" GridPane.rowIndex="11" />
+            <JeproSwitchButton GridPane.columnIndex="5" GridPane.rowIndex="11" />
+
             <Label GridPane.columnIndex="0" GridPane.rowIndex="12" />
             <JeproSwitchButton GridPane.columnIndex="1" GridPane.rowIndex="12" />
             <Label GridPane.columnIndex="2" GridPane.rowIndex="12" />
             <JeproSwitchButton GridPane.columnIndex="3" GridPane.rowIndex="12" />
+            <Label GridPane.columnIndex="4" GridPane.rowIndex="12" />
+            <JeproSwitchButton GridPane.columnIndex="5" GridPane.rowIndex="12" />
+
             <Label GridPane.columnIndex="0" GridPane.rowIndex="13" />
             <JeproSwitchButton GridPane.columnIndex="1" GridPane.rowIndex="13" />
             <Label GridPane.columnIndex="2" GridPane.rowIndex="13" />
             <JeproSwitchButton GridPane.columnIndex="3" GridPane.rowIndex="13" />
-            <Label GridPane.columnIndex="0" GridPane.rowIndex="14" />
-            <JeproSwitchButton GridPane.columnIndex="1" GridPane.rowIndex="14" />
-            <Label GridPane.columnIndex="2" GridPane.rowIndex="14" />
-            <JeproSwitchButton GridPane.columnIndex="3" GridPane.rowIndex="14" />
-            <Label GridPane.columnIndex="0" GridPane.rowIndex="15" />
-            <JeproSwitchButton GridPane.columnIndex="1" GridPane.rowIndex="15" />
-            <Label GridPane.columnIndex="2" GridPane.rowIndex="15" />
-            <JeproSwitchButton GridPane.columnIndex="3" GridPane.rowIndex="15" />
-            <Label GridPane.columnIndex="0" GridPane.rowIndex="16" />
-            <JeproSwitchButton GridPane.columnIndex="1" GridPane.rowIndex="16" />
-            <Label GridPane.columnIndex="2" GridPane.rowIndex="16" />
-            <JeproSwitchButton GridPane.columnIndex="3" GridPane.rowIndex="16" />
-            <Label GridPane.columnIndex="0" GridPane.rowIndex="17" />
-            <JeproSwitchButton GridPane.columnIndex="1" GridPane.rowIndex="17" />
-            <Label GridPane.columnIndex="2" GridPane.rowIndex="17" />
-            <JeproSwitchButton GridPane.columnIndex="3" GridPane.rowIndex="17" />
-            <Label GridPane.columnIndex="0" GridPane.rowIndex="18" />
-            <JeproSwitchButton GridPane.columnIndex="1" GridPane.rowIndex="18" />
-            <Label GridPane.columnIndex="2" GridPane.rowIndex="18" />
-            <JeproSwitchButton GridPane.columnIndex="3" GridPane.rowIndex="18" />
-            <Label GridPane.columnIndex="0" GridPane.rowIndex="19" />
-            <JeproSwitchButton GridPane.columnIndex="1" GridPane.rowIndex="19" />
-            <Label GridPane.columnIndex="2" GridPane.rowIndex="19" />
-            <JeproSwitchButton GridPane.columnIndex="3" GridPane.rowIndex="19" />
+            <Label GridPane.columnIndex="4" GridPane.rowIndex="13" />
+            <JeproSwitchButton GridPane.columnIndex="5" GridPane.rowIndex="13" />
         </GridPane>
-    </children>
-</VBox>
+        </VBox>
+    </JeproFormPanelContainer>
+</JeproFormPanel>

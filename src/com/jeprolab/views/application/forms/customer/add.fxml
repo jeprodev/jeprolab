@@ -1,5 +1,4 @@
 <?import javafx.scene.layout.GridPane?>
-<?import javafx.scene.layout.HBox?>
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.TextField?>
@@ -13,43 +12,37 @@
 <?import com.jeprolab.assets.extend.controls.JeproFormPanel?>
 <?import com.jeprolab.assets.extend.controls.JeproFormPanelTitle?>
 <?import com.jeprolab.assets.extend.controls.JeproFormPanelContainer?>
+<?import javafx.scene.layout.Pane?>
 <JeproFormPanel xmlns:fx="http://javafx.com/fxml" fx:id="jeproLabAddCustomerFormWrapper" fx:controller="com.jeprolab.controllers.JeproLabCustomerAddController"  >
     <JeproFormPanelTitle fx:id="jeproLabAddCustomerFormTitleWrapper" />
     <JeproFormPanelContainer fx:id="jeproLabAddCustomerFormContainerWrapper">
         <GridPane  alignment="center" fx:id="jeproLabAddCustomerFormLayout" >
-            <Label GridPane.columnIndex="0" GridPane.rowIndex="0" GridPane.columnSpan="2"/>
-            <HBox GridPane.columnIndex="0" GridPane.rowIndex="1" GridPane.columnSpan="2" >
-                <GridPane hgap="10" vgap="10" >
-                    <Label GridPane.columnIndex="0" GridPane.rowIndex="0" fx:id="customerTitleLabel" />
-                    <ComboBox GridPane.columnIndex="1" GridPane.rowIndex="0" fx:id="customerTitle" />
-                    <Label GridPane.columnIndex="0" GridPane.rowIndex="1" fx:id="customerFirstNameLabel" />
-                    <TextField GridPane.columnIndex="1" GridPane.rowIndex="1" fx:id="customerFirstName" />
-                    <Label GridPane.columnIndex="0" GridPane.rowIndex="2" fx:id="customerLastNameLabel"/>
-                    <TextField GridPane.columnIndex="1" GridPane.rowIndex="2" fx:id="customerLastName"/>
-                </GridPane>
-                <ImageView fx:id="customerImageView" >
-                    <!--Image /-->
-                </ImageView>
-            </HBox>
-            <CheckBox GridPane.columnIndex="1" GridPane.rowIndex="2" fx:id="customerNewsLetter" />
-            <CheckBox GridPane.columnIndex="1" GridPane.rowIndex="3" fx:id="customerAllowAds" />
-            <Label GridPane.columnIndex="0" GridPane.rowIndex="4" GridPane.columnSpan="2" />
-            <Label GridPane.columnIndex="0" GridPane.rowIndex="5" fx:id="customerZoneLabel" />
-            <ComboBox GridPane.columnIndex="1" GridPane.rowIndex="5" fx:id="customerZone" />
-            <Label GridPane.columnIndex="2" GridPane.rowIndex="5" fx:id="customerCountryLabel" />
-            <ComboBox GridPane.columnIndex="3" GridPane.rowIndex="5" fx:id="customerCountry" />
-            <Label GridPane.columnIndex="0" GridPane.rowIndex="6" fx:id="customerStateLabel"/>
-            <TextField GridPane.columnIndex="1" GridPane.rowIndex="6" fx:id="customerState" />
-            <Label GridPane.columnIndex="2" GridPane.rowIndex="6" fx:id="customerCityLabel" />
-            <TextField GridPane.columnIndex="3" GridPane.rowIndex="6" fx:id="customerCity" />
-            <Label GridPane.columnIndex="0" GridPane.rowIndex="8" fx:id="customerAddressDetailLabel" />
-            <HBox spacing="25" GridPane.columnIndex="1" GridPane.rowIndex="8" GridPane.columnSpan="3" >
-                <ComboBox fx:id="customerStreetType" />
-                <Label fx:id="customerAddressNumberLabel" />
-                <TextField fx:id="customerAddressNumber" />
-                <Label fx:id="customerAddressStreetNameLabel" />
-                <TextField fx:id="customerAddressStreetName" />
-            </HBox>
+            <Label GridPane.columnIndex="0" GridPane.rowIndex="0" fx:id="customerTitleLabel" />
+            <ComboBox GridPane.columnIndex="1" GridPane.rowIndex="0" fx:id="customerTitle" />
+            <Label GridPane.columnIndex="0" GridPane.rowIndex="1" fx:id="customerFirstNameLabel" />
+            <TextField GridPane.columnIndex="1" GridPane.rowIndex="1" fx:id="customerFirstName" />
+            <Label GridPane.columnIndex="0" GridPane.rowIndex="2" fx:id="customerLastNameLabel"/>
+            <TextField GridPane.columnIndex="1" GridPane.rowIndex="2" fx:id="customerLastName"/>
+            <Pane fx:id="customerImageViewWrapper" GridPane.rowIndex="0" GridPane.columnIndex="3" GridPane.rowSpan="3" />
+
+            <CheckBox GridPane.columnIndex="1" GridPane.rowIndex="4" GridPane.columnSpan="3" fx:id="customerNewsLetter" />
+            <CheckBox GridPane.columnIndex="1" GridPane.rowIndex="5" GridPane.columnSpan="3" fx:id="customerAllowAds" />
+            <Label GridPane.columnIndex="0" GridPane.rowIndex="6" GridPane.columnSpan="2" />
+            <Label GridPane.columnIndex="0" GridPane.rowIndex="7" fx:id="customerZoneLabel" />
+            <ComboBox GridPane.columnIndex="1" GridPane.rowIndex="7" fx:id="customerZone" />
+            <Label GridPane.columnIndex="2" GridPane.rowIndex="7" fx:id="customerCountryLabel" />
+            <ComboBox GridPane.columnIndex="3" GridPane.rowIndex="7" fx:id="customerCountry" />
+            <Label GridPane.columnIndex="0" GridPane.rowIndex="8" fx:id="customerStateLabel"/>
+            <TextField GridPane.columnIndex="1" GridPane.rowIndex="8" fx:id="customerState" />
+            <Label GridPane.columnIndex="2" GridPane.rowIndex="8" fx:id="customerCityLabel" />
+            <TextField GridPane.columnIndex="3" GridPane.rowIndex="8" fx:id="customerCity" />
+            <Label GridPane.columnIndex="0" GridPane.rowIndex="9" fx:id="customerAddressDetailLabel" />
+            <ComboBox GridPane.columnIndex="1" GridPane.rowIndex="9" fx:id="customerStreetType" />
+            <Label GridPane.columnIndex="2" GridPane.rowIndex="9" fx:id="customerAddressNumberLabel" />
+            <TextField GridPane.columnIndex="3" GridPane.rowIndex="9" fx:id="customerAddressNumber" />
+            <Label GridPane.columnIndex="0" GridPane.rowIndex="10" fx:id="customerAddressStreetNameLabel" />
+            <TextField GridPane.columnIndex="1" GridPane.rowIndex="10" fx:id="customerAddressStreetName" />
+
             <Label GridPane.columnIndex="0" GridPane.rowIndex="9" GridPane.columnSpan="2" />
             <!--TableView GridPane.columnIndex="0" GridPane.rowIndex="10" GridPane.columnSpan="2" ></TableView -->
             <Label GridPane.columnIndex="0" GridPane.rowIndex="11" GridPane.columnSpan="2" fx:id="customerBusinessPhoneLabel" />

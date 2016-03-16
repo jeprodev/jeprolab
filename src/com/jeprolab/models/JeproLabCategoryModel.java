@@ -163,11 +163,10 @@ public class JeproLabCategoryModel extends JeproLabModel {
                                 String metaTitle = categoryLangData.getString("meta_title");
                                 String metaKeywords = categoryLangData.getString("meta_keywords");
                                 String metaDescription = categoryLangData.getString("meta_description");
-                                Iterator langIt = languages.entrySet().iterator();
-                                while(langIt.hasNext()){
-                                    Map.Entry lang = (Map.Entry)langIt.next();
-                                    JeproLabLanguageModel language = (JeproLabLanguageModel)lang.getValue();
-                                    if(langId == language.language_id){
+                                for (Object o : languages.entrySet()) {
+                                    Map.Entry lang = (Map.Entry) o;
+                                    JeproLabLanguageModel language = (JeproLabLanguageModel) lang.getValue();
+                                    if (langId == language.language_id) {
                                         this.name.put("lang_" + languageId, categoryName);
                                         this.description.put("lang_" + languageId, categoryDescription);
                                         this.link_rewrite.put("lang_" + languageId, linkRewrite);

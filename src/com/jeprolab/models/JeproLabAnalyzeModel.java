@@ -1893,9 +1893,9 @@ public class JeproLabAnalyzeModel extends JeproLabModel {
         selectFilter += ", IF(stock_available." + staticDataBaseObject.quoteName("quantity") + " <= 0, 1, 0) badge_danger";
 
         if(joinCategory){
-            joinFilter += " INNER JOIN " + staticDataBaseObject.quoteName("#__jeprolab_category_analyze") + " analyze_category ON (analyze_category." +  staticDataBaseObject.quoteName("analyze_id") + " = analyze_item";
+            joinFilter += " INNER JOIN " + staticDataBaseObject.quoteName("#__jeprolab_analyze_category") + " analyze_category ON (analyze_category." +  staticDataBaseObject.quoteName("analyze_id") + " = analyze_item.";
             joinFilter +=  staticDataBaseObject.quoteName("analyze_id") + " AND analyze_category." + staticDataBaseObject.quoteName("category_id") + " = " + category.category_id + ") ";
-            selectFilter = " , analyze_category." + staticDataBaseObject.quoteName("position") + ", ";
+            selectFilter += " , analyze_category." + staticDataBaseObject.quoteName("position");
         }
 
         String groupFilter = " GROUP BY analyze_lab." + staticDataBaseObject.quoteName("analyze_id");
@@ -1963,12 +1963,14 @@ public class JeproLabAnalyzeModel extends JeproLabModel {
         }*/
         List<JeproLabAnalyzeModel> analyzes = new ArrayList<>();
         int total = 0;
+        System.out.println(selectFilter);
+        System.out.println(selectLabFilter);
         do{
             String query = "SELECT analyze_item." + staticDataBaseObject.quoteName("analyze_id") + ", analyze_lang." + staticDataBaseObject.quoteName("name") + ", analyze_item.";
             query += staticDataBaseObject.quoteName("reference") + selectFilter + selectLabFilter + " FROM " + staticDataBaseObject.quoteName("#__jeprolab_analyze") + " AS analyze_item ";
             query += langJoinFilter + joinFilter + joinLabFilter + " WHERE 1 " + whereFilter + filter + whereLabFilter +  groupFilter + havingClauseFilter + " ORDER BY ";
             query += (JeproLabTools.strReplace(orderBy, "`", "").equals("analyze_id") ? "analyze_item." : " analyze_item.") + staticDataBaseObject.quoteName(orderBy) + " " + orderWay;
-
+System.out.println(query);
             staticDataBaseObject.setQuery(query);
             total = 0;
 
