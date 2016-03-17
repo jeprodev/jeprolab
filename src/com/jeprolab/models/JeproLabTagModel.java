@@ -17,10 +17,10 @@ public class JeproLabTagModel extends JeproLabModel{
     /** @var int Language id */
     public int language_id;
 
-    /* @var string Name * /
-    public $name;
+    /** @var string Name */
+    public Map<String, String> name;
 
-    /**
+    /*
      * @see ObjectModel::$definition
      * /
     public static $definition = array(
@@ -38,10 +38,20 @@ public class JeproLabTagModel extends JeproLabModel{
             'id_lang' => array('xlink_resource' => 'languages'),
     ),
             );
+*/
+    public JeproLabTagModel(){
+        this(0, null, 0);
+    }
 
-    public function __construct($id = null, $name = null, $id_lang = null)
-    {
-        $this->def = Tag::getDefinition($this);
+    public JeproLabTagModel(int tagId){
+        this(tagId, null, 0);
+    }
+
+    public JeproLabTagModel(int tagId, Map<String, String> tagName){
+        this(tagId, tagName, 0);
+    }
+    public JeproLabTagModel(int tagId, Map<String, String> tagName, int langId){
+        /*$this->def = Tag::getDefinition($this);
         $this->setDefinitionRetrocompatibility();
 
         if ($id) {
@@ -67,10 +77,10 @@ public class JeproLabTagModel extends JeproLabModel{
     } elseif (isset($_POST['products'])) {
         return $this->setProducts(Tools::getValue('products'));
     }
-        return true;
+        return true; */
     }
 
-    /**
+    /*
      * Add several tags in database and link it to a product
      *
      * @param int $id_lang Language id

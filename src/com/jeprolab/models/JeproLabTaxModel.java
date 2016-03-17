@@ -1,5 +1,6 @@
 package com.jeprolab.models;
 
+import com.jeprolab.assets.tools.JeproLabCache;
 import com.jeprolab.assets.tools.JeproLabContext;
 import com.jeprolab.models.core.JeproLabFactory;
 import com.jeprolab.models.tax.JeproLabTaxCalculator;
@@ -14,6 +15,8 @@ import java.sql.ResultSet;
  */
 public class JeproLabTaxModel extends JeproLabModel {
     public int tax_id;
+
+
     /** @var string Name */
     public String name;
 
@@ -64,7 +67,26 @@ public class JeproLabTaxModel extends JeproLabModel {
     }
 
     public JeproLabTaxModel(int taxId, int langId, int labId){
+        if(langId > 0){
 
+        }
+
+        if(taxId > 0){
+            if(dataBaseObject == null){
+                dataBaseObject = JeproLabFactory.getDataBaseConnector();
+            }
+
+            String cacheKey = "jeprolab_tax_model_" + taxId + "_" + langId + "_" + labId;
+            if(!JeproLabCache.getInstance().isStored(cacheKey)){
+
+            }else{
+                JeproLabTaxModel taxModel = (JeproLabTaxModel)JeproLabCache.getInstance().retrieve(cacheKey);
+                this.tax_id = taxModel.tax_id;
+                this.published = taxModel.deleted;
+                this.published = taxModel.published;
+                this.rate = taxModel.rate;
+            }
+        }
     }
 
     public boolean delete(){
@@ -113,7 +135,7 @@ public class JeproLabTaxModel extends JeproLabModel {
 
         dataBaseObject.setQuery(query);
 
-        if (dataBaseObject.query(false)){
+        if(dataBaseObject.query(false)){
             return this.onStatusChange();
         }
         return false;
@@ -142,8 +164,8 @@ public class JeproLabTaxModel extends JeproLabModel {
             // change tax id in the tax rule table
             res &= JeproLabTaxRuleModel.swapTaxId(historizedTax.tax_id, this.tax_id);
             return res;
-        } else{
-            if(dataBaseObject == null){
+        } else {
+            if (dataBaseObject == null) {
                 dataBaseObject = JeproLabFactory.getDataBaseConnector();
             }
             String query = "UPDATE " + dataBaseObject.quoteName("#__jeprolab_tax") + " SET " + staticDataBaseObject.quoteName("published");
@@ -151,18 +173,12 @@ public class JeproLabTaxModel extends JeproLabModel {
             query += " WHERE " + staticDataBaseObject.quoteName("tax_id") + " = " + this.tax_id;
 
             dataBaseObject.setQuery(query);
-            if (dataBaseObject.query(false)){
-                return this.onStatusChange();
-            }
-            return false;
+            return dataBaseObject.query(false) && this.onStatusChange();
         }
     }
 
-    protected boolean onStatusChange(){
-        if (!this.published) {
-            return JeproLabTaxRuleModel.deleteTaxRuleByTaxId(this.tax_id);
-        }
-        return true;
+    protected boolean onStatusChange() {
+        return this.published || JeproLabTaxRuleModel.deleteTaxRuleByTaxId(this.tax_id);
     }
 
     /**
@@ -246,8 +262,8 @@ public class JeproLabTaxModel extends JeproLabModel {
         return (int)staticDataBaseObject.loadValue("tax_id");
     }
 
-    public static float getAnalyzeEcotaxRate(){
-        return getAnalyzeEcotaxRate(0);
+    public static float getAnalyzeEcoTaxRate(){
+        return getAnalyzeEcoTaxRate(0);
     }
 
     /**
@@ -256,7 +272,7 @@ public class JeproLabTaxModel extends JeproLabModel {
      * @param addressId address id
      * @return float $tax_rate
      */
-    public static float getAnalyzeEcotaxRate(int addressId){
+    public static float getAnalyzeEcoTaxRate(int addressId){
         JeproLabAddressModel address = JeproLabAddressModel.initialize(addressId);
 
         JeproLabTaxRulesManager taxManager = JeproLabTaxManagerFactory.getManager(address, JeproLabSettingModel.getIntValue("ecotax_tax_rules_group_id"));
