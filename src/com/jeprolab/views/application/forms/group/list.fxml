@@ -2,16 +2,16 @@
 <?import javafx.scene.control.TableColumn?>
 <?import com.jeprolab.assets.extend.controls.JeproFormPanel?>
 <JeproFormPanel  xmlns:fx="http://javafx.com/fxml" fx:controller="com.jeprolab.controllers.JeproLabGroupController" >
-    <TableView>
+    <TableView fx:id="jeproLabGroupTableView">
         <columns>
-            <TableColumn resizable="false" editable="false" fx:id="groupIndexColumn" />
-            <TableColumn resizable="false" editable="false" fx:id="groupCheckBoxColumn" />
-            <TableColumn resizable="false" editable="false" fx:id="groupNameColumn" />
-            <TableColumn resizable="false" editable="false" fx:id="groupReductionColumn" />
-            <TableColumn resizable="false" editable="false" fx:id="groupMembersColumn" />
-            <TableColumn resizable="false" editable="false" fx:id="groupDisplayPricesColumn" />
-            <TableColumn resizable="false" editable="false" fx:id="groupCreatedDateColumn" />
-            <TableColumn resizable="false" editable="false" fx:id="groupActionColumn" />
+            <TableColumn resizable="false" editable="false" fx:id="jeproLabGroupIndexColumn" />
+            <TableColumn resizable="false" editable="false" fx:id="jeproLabGroupCheckBoxColumn" />
+            <TableColumn resizable="false" editable="false" fx:id="jeproLabGroupNameColumn" />
+            <TableColumn resizable="false" editable="false" fx:id="jeproLabGroupReductionColumn" />
+            <TableColumn resizable="false" editable="false" fx:id="jeproLabGroupMembersColumn" />
+            <TableColumn resizable="false" editable="false" fx:id="jeproLabGroupDisplayPricesColumn" />
+            <TableColumn resizable="false" editable="false" fx:id="jeproLabGroupCreatedDateColumn" />
+            <TableColumn resizable="false" editable="false" fx:id="jeproLabGroupActionColumn" />
         </columns>
     </TableView>
 </JeproFormPanel>

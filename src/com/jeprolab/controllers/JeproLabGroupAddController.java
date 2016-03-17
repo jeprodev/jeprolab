@@ -5,6 +5,7 @@ import com.jeprolab.JeproLab;
 import com.jeprolab.assets.extend.controls.*;
 import com.jeprolab.assets.extend.controls.switchbutton.JeproSwitchButton;
 import javafx.fxml.FXML;
+import javafx.geometry.Insets;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.layout.ColumnConstraints;
@@ -20,7 +21,12 @@ public class JeproLabGroupAddController extends JeproLabController{
     public JeproFormPanelContainer jeproLabGroupFormContainerWrapper;
     public GridPane groupInformationWrapper, groupModulesWrapper;
     public Label createNewGroupFormTitleLabel, jeproLabGroupNameLabel, jeproLabGroupReductionLabel, jeproLabGroupPriceDisplayMethodLabel;
-    public Label jeproLabGroupShowPricesLabel;
+    public Label jeproLabGroupShowPricesLabel, jeproLabGroupSocialNetworkSharingLabel, jeproLabGroupBannersBlockLabel, jeproLabGroupBankWireLabel;
+    public Label jeproLabGroupBestSalesLabel, jeproLabGroupCartBlockLabel, jeproLabGroupStatisticsBlockLabel, jeproLabGroupCurrenciesLabel;
+    public Label jeproLabGroupCategoryBlockLabel, jeproLabGroupBrowserAndOperatingSystemLabel, jeproLabGroupDashBoardStatisticsLabel;
+    public Label jeproLabGroupOnlineVisitorsLabel, jeproLabGroupInformationLetterLabel, jeproLabGroupAffiliatedWebSiteLabel;
+    public Label jeproLabGroupCustomerDetailsLabel, jeproLabGroupAnalyzeDetailsLabel, jeproLabGroupRequestsLabel, jeproLabGroupLaboratorySearchLabel;
+    public Label jeproLabGroupAvailabilitiesLabel;
     public JeproMultiLangTextField jeproLabGroupName;
     public JeproAppendButton jeproLabGroupReduction;
     public ComboBox jeproLabGroupPriceDisplayMethod;
@@ -48,11 +54,53 @@ public class JeproLabGroupAddController extends JeproLabController{
                 new ColumnConstraints(labelColumnWidth -25), new ColumnConstraints(inputColumnWidth -25)
         );
 
+        jeproLabGroupNameLabel.setText(bundle.getString("JEPROLAB_NAME_LABEL"));
+        jeproLabGroupNameLabel.getStyleClass().add("input-label");
+        jeproLabGroupReductionLabel.setText(bundle.getString("JEPROLAB_REDUCTION_LABEL"));
+        jeproLabGroupReductionLabel.getStyleClass().add("input-label");
+        jeproLabGroupPriceDisplayMethodLabel.setText(bundle.getString("JEPROLAB_PRICE_DISPLAY_METHOD_LABEL"));
+        jeproLabGroupPriceDisplayMethodLabel.getStyleClass().add("input-label");
+        jeproLabGroupShowPricesLabel.setText(bundle.getString("JEPROLAB_DISPLAY_PRICES_LABEL"));
+        jeproLabGroupShowPricesLabel.getStyleClass().add("input-label");
+
+        GridPane.setMargin(jeproLabGroupNameLabel, new Insets(10, 10, 10, 20));
+        GridPane.setMargin(jeproLabGroupName, new Insets(10, 10, 10, 0));
+        GridPane.setMargin(jeproLabGroupReductionLabel, new Insets(10, 10, 10, 20));
+        GridPane.setMargin(jeproLabGroupReduction, new Insets(10, 10, 10, 0));
+        GridPane.setMargin(jeproLabGroupPriceDisplayMethodLabel, new Insets(10, 10, 10, 20));
+        GridPane.setMargin(jeproLabGroupPriceDisplayMethod, new Insets(10, 10, 10, 0));
+        GridPane.setMargin(jeproLabGroupShowPricesLabel, new Insets(10, 10, 10, 20));
+        GridPane.setMargin(jeproLabGroupShowPrices, new Insets(10, 10, 10, 0));
+
         groupModulesWrapper.getColumnConstraints().addAll(
                 new ColumnConstraints(labelColumnWidth -25), new ColumnConstraints(80),
                 new ColumnConstraints(labelColumnWidth -25), new ColumnConstraints(80),
                 new ColumnConstraints(labelColumnWidth -25), new ColumnConstraints(80)
         );
+
+        jeproLabGroupSocialNetworSharinLabel.setText(bundle.getString("JEPROLAB_SOCIAL_NETWORK_SHARING_LABEL"));
+        jeproLabGroupSocialNetworkSharingLabel.getStyleClass().add("input-label");
+        jeproLabGroupLabel.setText(bundle.getString("JEPROLAB_LABEL"));
+        jeproLabGroupLabel.getStyleClass().add("input-label");
+        jeproLabGroupLabel.setText(bundle.getString("JEPROLAB_LABEL"));
+        jeproLabGroupLabel.getStyleClass().add("input-label");
+        jeproLabGroupLabel.setText(bundle.getString("JEPROLAB_LABEL"));
+        jeproLabGroupLabel.getStyleClass().add("input-label");
+        jeproLabGroupLabel.setText(bundle.getString("JEPROLAB_LABEL"));
+        jeproLabGroupLabel.getStyleClass().add("input-label");
+        jeproLabGroupLabel.setText(bundle.getString("JEPROLAB_LABEL"));
+        jeproLabGroupLabel.getStyleClass().add("input-label");
+        jeproLabGroupLabel.setText(bundle.getString("JEPROLAB_LABEL"));
+        jeproLabGroupLabel.getStyleClass().add("input-label");
+
+        GridPane.setMargin(jeproLabGroupLabel, new Insets(10, 10, 5, 20));
+        GridPane.setMargin(jeproLabGroupLabel, new Insets(10, 10, 5, 20));
+        GridPane.setMargin(jeproLabGroupLabel, new Insets(10, 10, 5, 20));
+        GridPane.setMargin(jeproLabGroupLabel, new Insets(10, 10, 5, 20));
+        GridPane.setMargin(jeproLabGroupLabel, new Insets(10, 10, 5, 20));
+        GridPane.setMargin(jeproLabGroupLabel, new Insets(10, 10, 5, 20));
+        GridPane.setMargin(jeproLabGroupLabel, new Insets(10, 10, 5, 20));
+        GridPane.setMargin(jeproLabGroupLabel, new Insets(10, 10, 5, 20));
     }
 
     @Override
