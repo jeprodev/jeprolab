@@ -1,5 +1,6 @@
 package com.jeprolab.models;
 
+import com.jeprolab.assets.tools.db.JeproLabDataBaseConnector;
 import com.jeprolab.models.core.JeproLabFactory;
 
 import java.sql.ResultSet;
@@ -293,7 +294,13 @@ public class JeproLabTagModel extends JeproLabModel{
                     tagList.add(tagsSet.getInt("tag_id"));
                 }
             }catch(SQLException ignored){
-
+                ignored.printStackTrace();
+            }finally {
+                try {
+                    JeproLabDataBaseConnector.getInstance().closeConnexion();
+                }catch (Exception e) {
+                    e.printStackTrace();
+                }
             }
         }
 

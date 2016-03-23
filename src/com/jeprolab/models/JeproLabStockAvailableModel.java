@@ -2,6 +2,7 @@ package com.jeprolab.models;
 
 import com.jeprolab.assets.tools.JeproLabCache;
 import com.jeprolab.assets.tools.JeproLabContext;
+import com.jeprolab.assets.tools.db.JeproLabDataBaseConnector;
 import com.jeprolab.models.core.JeproLabFactory;
 import com.jeprolab.models.stock.JeproLabStockManager;
 import com.jeprolab.models.stock.JeproLabStockManagerFactory;
@@ -148,7 +149,13 @@ public class JeproLabStockAvailableModel extends  JeproLabModel{
                             orderWarehouses.add(warehouses.getInt("warehouse_id"));
                         }
                     }catch(SQLException ignored){
-
+                        ignored.printStackTrace();
+                    }finally {
+                        try {
+                            JeproLabDataBaseConnector.getInstance().closeConnexion();
+                        }catch (Exception e) {
+                            e.printStackTrace();
+                        }
                     }
                 }
             }

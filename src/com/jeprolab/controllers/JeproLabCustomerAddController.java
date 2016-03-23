@@ -145,7 +145,7 @@ public class JeproLabCustomerAddController extends JeproLabController {
     }
 
     @Override
-    protected void initializeContent(){
+    public void initializeContent(){
 
     }
 

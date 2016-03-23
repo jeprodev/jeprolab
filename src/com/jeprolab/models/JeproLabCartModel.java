@@ -3,6 +3,7 @@ package com.jeprolab.models;
 import com.jeprolab.assets.tools.JeproLabCache;
 import com.jeprolab.assets.tools.JeproLabConfigurationSettings;
 import com.jeprolab.assets.tools.JeproLabContext;
+import com.jeprolab.assets.tools.db.JeproLabDataBaseConnector;
 import com.jeprolab.models.core.JeproLabFactory;
 
 import java.sql.ResultSet;
@@ -191,7 +192,13 @@ public class JeproLabCartModel extends JeproLabModel{
                         JeproLabCache.getInstance().store(cacheKey, this);
                     }
                 }catch(SQLException ignored){
-
+                    ignored.printStackTrace();
+                }finally {
+                    try {
+                        JeproLabDataBaseConnector.getInstance().closeConnexion();
+                    }catch (Exception e) {
+                        e.printStackTrace();
+                    }
                 }
             }else{
                 JeproLabCartModel cart = (JeproLabCartModel)JeproLabCache.getInstance().retrieve(cacheKey);

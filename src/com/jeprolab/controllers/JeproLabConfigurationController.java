@@ -1,7 +1,7 @@
 package com.jeprolab.controllers;
 
 /**
- * Created by jeproQxT on 24/01/2016.
+ * Created by jeprodev on 24/01/2016.
  */
-public class JeproLabConfigurationController {
+public class JeproLabConfigurationController extends JeproLabController {
 }

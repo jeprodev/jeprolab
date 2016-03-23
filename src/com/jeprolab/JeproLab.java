@@ -84,6 +84,7 @@ public class JeproLab extends Application {
 
         applicationToolBarCommandWrapper = new HBox();
 
+
         /**
          * check if configuration file exist, if not means that the application is not installed so start installer gui
          */
@@ -148,7 +149,7 @@ public class JeproLab extends Application {
                 applicationToolBar.setVisible(true);
             }
             Parent root = formsContainer;
-
+            context.employee = new JeproLabEmployeeModel();
             scene = new Scene(root, APP_WIDTH, APP_HEIGHT);
             scene.getStylesheets().setAll(JeproLab.class.getResource("assets/css/jeprolab.css").toExternalForm());
         }
@@ -238,8 +239,10 @@ public class JeproLab extends Application {
                 forwardHistory.clear();
             }
             //update info
-            currentForm.updateFormCommand();
+            //currentForm.updateFormCommand();
             changingForm = false;
+        }else{
+            JeproLabContext.getContext().controller.initializeContent();
         }
     }
 

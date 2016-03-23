@@ -1,5 +1,6 @@
 package com.jeprolab.models;
 
+import com.jeprolab.assets.tools.db.JeproLabDataBaseConnector;
 import com.jeprolab.models.core.JeproLabFactory;
 
 import java.sql.ResultSet;
@@ -146,7 +147,13 @@ public class JeproLabTaxRulesGroupModel  extends JeproLabModel {
                 taxRulesList.add(taxRulesGroupModel);
             }
         }catch (SQLException ignored){
-
+            ignored.printStackTrace();
+        }finally {
+            try {
+                JeproLabDataBaseConnector.getInstance().closeConnexion();
+            }catch (Exception e) {
+                e.printStackTrace();
+            }
         }
         return taxRulesList;
     }
@@ -190,7 +197,13 @@ public class JeproLabTaxRulesGroupModel  extends JeproLabModel {
                 taxRates.put(rows.getInt("tax_rules_group_id"), rows.getFloat("rate"));
             }
         }catch(SQLException ignored){
-
+            ignored.printStackTrace();
+        }finally {
+            try {
+                JeproLabDataBaseConnector.getInstance().closeConnexion();
+            }catch (Exception e) {
+                e.printStackTrace();
+            }
         }
 
         return taxRates;

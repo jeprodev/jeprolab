@@ -5,6 +5,7 @@ import com.jeprolab.assets.config.JeproLabConfig;
 import com.jeprolab.assets.tools.JeproLabCache;
 import com.jeprolab.assets.tools.JeproLabContext;
 import com.jeprolab.assets.tools.JeproLabTools;
+import com.jeprolab.assets.tools.db.JeproLabDataBaseConnector;
 import com.jeprolab.models.core.JeproLabFactory;
 import javafx.scene.control.Pagination;
 
@@ -155,6 +156,12 @@ public class JeproLabAddressModel extends JeproLabModel {
                     }
                 }catch (SQLException ignored){
 
+                }finally {
+                    try {
+                        JeproLabDataBaseConnector.getInstance().closeConnexion();
+                    }catch (Exception e) {
+                        e.printStackTrace();
+                    }
                 }
             }else{
                 JeproLabAddressModel addressModel = (JeproLabAddressModel)JeproLabCache.getInstance().retrieve(cacheKey);
@@ -259,6 +266,12 @@ public class JeproLabAddressModel extends JeproLabModel {
 
         }catch (SQLException ignored){
             ignored.printStackTrace();
+        }finally {
+            try {
+                JeproLabDataBaseConnector.getInstance().closeConnexion();
+            }catch (Exception e) {
+                e.printStackTrace();
+            }
         }
         return  addresses;
     }

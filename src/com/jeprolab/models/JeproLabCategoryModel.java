@@ -3,6 +3,7 @@ package com.jeprolab.models;
 
 import com.jeprolab.JeproLab;
 import com.jeprolab.assets.tools.*;
+import com.jeprolab.assets.tools.db.JeproLabDataBaseConnector;
 import com.jeprolab.models.core.JeproLabFactory;
 import javafx.scene.control.Pagination;
 
@@ -23,6 +24,7 @@ public class JeproLabCategoryModel extends JeproLabModel {
     public Map<String, String> name;
 
     public boolean published = true;
+    public boolean disabled = false;
 
     public int position;
 
@@ -36,7 +38,10 @@ public class JeproLabCategoryModel extends JeproLabModel {
 
     public int n_right;
 
+    public int selected_children;
+
     public List<Integer> laboratory_list_ids = new ArrayList<>();
+    public List<JeproLabCategoryModel> children = new ArrayList<>();
 
     private int totalAnalyzes;
 
@@ -166,7 +171,7 @@ public class JeproLabCategoryModel extends JeproLabModel {
                                 for (Object o : languages.entrySet()) {
                                     Map.Entry lang = (Map.Entry) o;
                                     JeproLabLanguageModel language = (JeproLabLanguageModel) lang.getValue();
-                                    if (langId == language.language_id) {
+                                    if (languageId == language.language_id) {
                                         this.name.put("lang_" + languageId, categoryName);
                                         this.description.put("lang_" + languageId, categoryDescription);
                                         this.link_rewrite.put("lang_" + languageId, linkRewrite);
@@ -175,26 +180,27 @@ public class JeproLabCategoryModel extends JeproLabModel {
                                         this.meta_description.put("lang_" + languageId, metaDescription);
                                     }
                                 }
-                                /*foreach($category_lang_data as $row){
-                                    foreach ($row as $key => $value){
-                                        if(array_key_exists($key, $this) && $key != "category_id"){
-                                            if(!isset($category_data->{$key}) || !is_array($category_data->{$key})){
-                                                $category_data->{$key} = array();
-                                            }
-                                            $category_data->{$key}[$row->lang_id] = $value;
-                                        }
-                                    }
-                                }*/
                             }
                         }else {
                             /** set data for a given  language **/
-
+                            this.name.put("lang_" + langId, categoryData.getString("name"));
+                            this.description.put("lang_" + langId, categoryData.getString("description"));
+                            this.link_rewrite.put("lang_" + langId, categoryData.getString("link_rewrite"));
+                            this.meta_title.put("lang_" + langId, categoryData.getString("meta_title"));
+                            this.meta_keywords.put("lang_" + langId, categoryData.getString("meta_keywords"));
+                            this.meta_description.put("lang_" + langId, categoryData.getString("meta_description"));
                         }
 
                     }
                     JeproLabCache.getInstance().store(cacheKey, this);
                 }catch (SQLException ignored){
                     ignored.printStackTrace();
+                }finally {
+                    try {
+                        JeproLabDataBaseConnector.getInstance().closeConnexion();
+                    }catch (Exception e) {
+                        e.printStackTrace();
+                    }
                 }
             }else{
                 JeproLabCategoryModel category = (JeproLabCategoryModel)JeproLabCache.getInstance().retrieve(cacheKey);
@@ -241,7 +247,7 @@ public class JeproLabCategoryModel extends JeproLabModel {
         /*int limit = context.listLimit;
         limit_start = context.listLimitStart; */
         int langId = context.language.language_id;
-        boolean categoryPublished = false; //$app->getUserStateFromRequest($option. $view. ".published", "published", 0, "string");
+        boolean categoryPublished = JeproLab.request.getRequest().containsKey("published") && (Integer.parseInt(JeproLab.request.getRequest().get("published")) > 0);
 
         String query = "SELECT * FROM " + staticDataBaseObject.quoteName("#__jeprolab_category") + " AS category " + JeproLabLaboratoryModel.addSqlAssociation("category");
         query += " LEFT JOIN " + staticDataBaseObject.quoteName("#__jeprolab_category_lang") + " AS category_lang ON (category." + staticDataBaseObject.quoteName("category_id");
@@ -286,39 +292,39 @@ public class JeproLabCategoryModel extends JeproLabModel {
         return category;
     }
 
-    public static List getNestedCategories(){
+    public static List<JeproLabCategoryModel> getNestedCategories(){
         return getNestedCategories(0, 0, false);
     }
 
-    public static List getNestedCategories(int rootCategoryId){
+    public static List<JeproLabCategoryModel> getNestedCategories(int rootCategoryId){
         return getNestedCategories(rootCategoryId, 0, false);
     }
 
-    public static List getNestedCategories(int rootCategoryId, int langId){
+    public static List<JeproLabCategoryModel> getNestedCategories(int rootCategoryId, int langId){
         return getNestedCategories(rootCategoryId, langId, false);
     }
 
-    public static List getNestedCategories(int rootCategoryId, int langId, boolean published){
+    public static List<JeproLabCategoryModel> getNestedCategories(int rootCategoryId, int langId, boolean published){
         return getNestedCategories(rootCategoryId, langId, published, null);
     }
 
-    public static List getNestedCategories(int rootCategoryId, int langId, boolean published, int groups[]){
+    public static List<JeproLabCategoryModel> getNestedCategories(int rootCategoryId, int langId, boolean published, int groups[]){
         return getNestedCategories(rootCategoryId, langId, published, groups, true);
     }
 
-    public static List getNestedCategories(int rootCategoryId, int langId, boolean published, int groups[], boolean useLabRestriction){
+    public static List<JeproLabCategoryModel> getNestedCategories(int rootCategoryId, int langId, boolean published, int groups[], boolean useLabRestriction){
         return getNestedCategories(rootCategoryId, langId, published, groups, useLabRestriction, "");
     }
 
-    public static List getNestedCategories(int rootCategoryId, int langId, boolean published, int groups[], boolean useLabRestriction, String sqlFilter){
+    public static List<JeproLabCategoryModel> getNestedCategories(int rootCategoryId, int langId, boolean published, int groups[], boolean useLabRestriction, String sqlFilter){
         return getNestedCategories(rootCategoryId, langId, published, groups, useLabRestriction, sqlFilter, "");
     }
 
-    public static List getNestedCategories(int rootCategoryId, int langId, boolean published, int groups[], boolean useLabRestriction, String sqlFilter, String sqlSort){
+    public static List<JeproLabCategoryModel> getNestedCategories(int rootCategoryId, int langId, boolean published, int groups[], boolean useLabRestriction, String sqlFilter, String sqlSort){
         return getNestedCategories(rootCategoryId, langId, published, groups, useLabRestriction, sqlFilter, sqlSort, "");
     }
 
-    public static List getNestedCategories(int rootCategoryId, int langId, boolean categoryPublished, int groups[], boolean useLabRestriction, String sqlFilter, String sqlSort, String sqlLimit){
+    public static List<JeproLabCategoryModel> getNestedCategories(int rootCategoryId, int langId, boolean categoryPublished, int groups[], boolean useLabRestriction, String sqlFilter, String sqlSort, String sqlLimit){
             if(staticDataBaseObject == null){
             staticDataBaseObject = JeproLabFactory.getDataBaseConnector();
         }
@@ -389,6 +395,12 @@ public class JeproLabCategoryModel extends JeproLabModel {
                     }
                 }catch(SQLException ignored){
 
+                }finally {
+                    try {
+                        JeproLabDataBaseConnector.getInstance().closeConnexion();
+                    }catch (Exception e) {
+                        e.printStackTrace();
+                    }
                 }
                 /*foreach($result as $row) {
                     $current =&$buff[$row -> category_id];
@@ -471,6 +483,12 @@ public class JeproLabCategoryModel extends JeproLabModel {
                 }
             }catch (SQLException ignored){
                 ignored.printStackTrace();
+            }finally {
+                try {
+                    JeproLabDataBaseConnector.getInstance().closeConnexion();
+                }catch (Exception e) {
+                    e.printStackTrace();
+                }
             }
             JeproLabCache.getInstance().store(cacheKey, categories);
         }
@@ -530,6 +548,12 @@ public class JeproLabCategoryModel extends JeproLabModel {
             }
         }catch(SQLException ignored){
             ignored.printStackTrace();
+        }finally {
+            try {
+                JeproLabDataBaseConnector.getInstance().closeConnexion();
+            }catch (Exception e) {
+                e.printStackTrace();
+            }
         }
         return categories;
     }
@@ -552,7 +576,6 @@ public class JeproLabCategoryModel extends JeproLabModel {
         query += " AND category." + dataBaseObject.quoteName("parent_id") + " = " + this.parent_id;
 
         dataBaseObject.setQuery(query);
-        //ResultSet result = dataBaseObject.loadObject();
         return dataBaseObject.loadValue("category_id") > 0;
     }
 
@@ -575,6 +598,12 @@ public class JeproLabCategoryModel extends JeproLabModel {
                     }
                 }catch(SQLException ignored){
 
+                }finally {
+                    try {
+                        JeproLabDataBaseConnector.getInstance().closeConnexion();
+                    }catch (Exception e) {
+                        e.printStackTrace();
+                    }
                 }
             }
 
@@ -613,6 +642,12 @@ public class JeproLabCategoryModel extends JeproLabModel {
                 }
             }catch(SQLException ignored){
                 ignored.printStackTrace();
+            }finally {
+                try {
+                    JeproLabDataBaseConnector.getInstance().closeConnexion();
+                }catch (Exception e) {
+                    e.printStackTrace();
+                }
             }
 
             JeproLabCache.getInstance().store(cacheKey, isAssociated);
@@ -649,6 +684,12 @@ public class JeproLabCategoryModel extends JeproLabModel {
                 }
             }catch (SQLException ignored){
                 ignored.printStackTrace();
+            }finally {
+                try {
+                    JeproLabDataBaseConnector.getInstance().closeConnexion();
+                }catch (Exception e) {
+                    e.printStackTrace();
+                }
             }
             JeproLabCache.getInstance().store(cacheKey, new JeproLabCategoryModel(categoryId, langId));
         }
@@ -837,7 +878,13 @@ public class JeproLabCategoryModel extends JeproLabModel {
                     categories.add(category);
                 }
             }catch (SQLException ignored){
-
+                ignored.printStackTrace();
+            }finally {
+                try {
+                    JeproLabDataBaseConnector.getInstance().closeConnexion();
+                }catch (Exception e) {
+                    e.printStackTrace();
+                }
             }
 
             if (useLimit){
@@ -941,7 +988,13 @@ public class JeproLabCategoryModel extends JeproLabModel {
                     categories.add(category);
                 }
             }catch(SQLException ignored){
-
+                ignored.printStackTrace();
+            }finally {
+                try {
+                    JeproLabDataBaseConnector.getInstance().closeConnexion();
+                }catch (Exception e) {
+                    e.printStackTrace();
+                }
             }
             /*if ($result)
                 $categories[] = $result;
@@ -1216,7 +1269,13 @@ public class JeproLabCategoryModel extends JeproLabModel {
                     JeproLabCategoryModel.subTree(categoriesArray, categoriesArray.get(0).get("subcategories").get(0), 1);
                 }
             }catch (SQLException ignored){
-
+                ignored.printStackTrace();
+            }finally {
+                try {
+                    JeproLabDataBaseConnector.getInstance().closeConnexion();
+                }catch (Exception e) {
+                    e.printStackTrace();
+                }
             }
         }
     }
@@ -1280,7 +1339,13 @@ public class JeproLabCategoryModel extends JeproLabModel {
                 this.reCalculateDepthLevel(subCategoryId);
             }
         }catch (SQLException ignored){
-
+            ignored.printStackTrace();
+        }finally {
+            try {
+                JeproLabDataBaseConnector.getInstance().closeConnexion();
+            }catch (Exception e) {
+                e.printStackTrace();
+            }
         }
     }
 
@@ -1600,7 +1665,13 @@ public class JeproLabCategoryModel extends JeproLabModel {
                     result &= staticDataBaseObject.query(false);
                 }
             }catch(SQLException ignored){
-
+                ignored.printStackTrace();
+            }finally {
+                try {
+                    JeproLabDataBaseConnector.getInstance().closeConnexion();
+                }catch (Exception e) {
+                    e.printStackTrace();
+                }
             }
         }
         return result;
@@ -1741,7 +1812,13 @@ public class JeproLabCategoryModel extends JeproLabModel {
                 labIds.add(resultSet.getInt("lab_id"));
             }
         }catch(SQLException ignored){
-
+            ignored.printStackTrace();
+        }finally {
+            try {
+                JeproLabDataBaseConnector.getInstance().closeConnexion();
+            }catch (Exception e) {
+                e.printStackTrace();
+            }
         }
         return labIds;
     }
@@ -1803,6 +1880,12 @@ public class JeproLabCategoryModel extends JeproLabModel {
                 }
             }catch (SQLException ignored){
                 return false;
+            }finally {
+                try {
+                    JeproLabDataBaseConnector.getInstance().closeConnexion();
+                }catch (Exception e) {
+                    e.printStackTrace();
+                }
             }
         }
         return false;
@@ -1894,7 +1977,13 @@ public class JeproLabCategoryModel extends JeproLabModel {
                                 category = new JeproLabCategoryModel(categorySet.getInt("category_id"));
                             }
                         }catch (SQLException ignored){
-
+                            ignored.printStackTrace();
+                        }finally {
+                            try {
+                                JeproLabDataBaseConnector.getInstance().closeConnexion();
+                            }catch (Exception e) {
+                                e.printStackTrace();
+                            }
                         }
                     }
                 }
@@ -1934,6 +2023,12 @@ public class JeproLabCategoryModel extends JeproLabModel {
             }
         }catch (SQLException ignored){
             catId = 0;
+        }finally {
+            try {
+                JeproLabDataBaseConnector.getInstance().closeConnexion();
+            }catch (Exception e) {
+                e.printStackTrace();
+            }
         }
 
         return catId > 0;
@@ -2036,7 +2131,13 @@ public class JeproLabCategoryModel extends JeproLabModel {
                 }
                 return null;
             }catch (SQLException ignored){
-
+                ignored.printStackTrace();
+            }finally {
+                try {
+                    JeproLabDataBaseConnector.getInstance().closeConnexion();
+                }catch (Exception e) {
+                    e.printStackTrace();
+                }
             }
         }
 
@@ -2047,7 +2148,7 @@ public class JeproLabCategoryModel extends JeproLabModel {
      * checkAccess return true if id_customer is in a group allowed to see this category.
      *
      * @param employeeId employee id
-     * @access public
+     *
      * @return boolean true if access allowed for customer $id_customer
      */
     public boolean checkAccess(int employeeId){
@@ -2083,7 +2184,6 @@ public class JeproLabCategoryModel extends JeproLabModel {
         query += ", " + staticDataBaseObject.quoteName("group_id") + ") VALUES(" + JeproLabContext.getContext().laboratory.getCategoryId() + ", " + groupId + ")";
 
         staticDataBaseObject.setQuery(query);
-
         return staticDataBaseObject.query(false);
     }
 /*
@@ -2228,7 +2328,13 @@ public class JeproLabCategoryModel extends JeproLabModel {
                         id = catParentId;
                     }
                 }catch (SQLException ignored){
-
+                    ignored.printStackTrace();
+                }finally {
+                    try {
+                        JeproLabDataBaseConnector.getInstance().closeConnexion();
+                    }catch (Exception e) {
+                        e.printStackTrace();
+                    }
                 }
             }
         }
@@ -2292,7 +2398,13 @@ public class JeproLabCategoryModel extends JeproLabModel {
                     categories.add(category);
                 }
             }catch (SQLException ignored){
-ignored.printStackTrace();
+                ignored.printStackTrace();
+            }finally {
+                try {
+                    JeproLabDataBaseConnector.getInstance().closeConnexion();
+                }catch (Exception e) {
+                    e.printStackTrace();
+                }
             }
         }
 
@@ -2344,7 +2456,13 @@ ignored.printStackTrace();
                     categories.add(category);
                 }
             }catch (SQLException ignored){
-
+                ignored.printStackTrace();
+            }finally {
+                try {
+                    JeproLabDataBaseConnector.getInstance().closeConnexion();
+                }catch (Exception e) {
+                    e.printStackTrace();
+                }
             }
         }
 
@@ -2521,6 +2639,12 @@ ignored.printStackTrace();
             }
         }catch (SQLException ignored){
             return analyzes;
+        }finally {
+            try {
+                JeproLabDataBaseConnector.getInstance().closeConnexion();
+            }catch (Exception e) {
+                e.printStackTrace();
+            }
         }
         if (orderBy.equals("order_price")) {
             //JeproLabTools.orderByPrice(analyzes, orderWay);
@@ -2580,7 +2704,13 @@ ignored.printStackTrace();
                 this.recursiveDelete(toDelete, category.category_id);
             }
         }catch(SQLException ignored){
-
+            ignored.printStackTrace();
+        }finally {
+            try {
+                JeproLabDataBaseConnector.getInstance().closeConnexion();
+            }catch (Exception e) {
+                e.printStackTrace();
+            }
         }
     }
 
@@ -2694,19 +2824,33 @@ ignored.printStackTrace();
         return result;
     }
 
-    /*
-     * @see ObjectModel.toggleStatus()
-     */
+
     public boolean toggleStatus(){
+        return toggleStatus(0, 0);
+    }
+
+    public boolean toggleStatus(int langId) {
+        return toggleStatus(langId, 0);
+    }
+
+    public boolean toggleStatus(int langId, int labId){
         if(dataBaseObject == null){
             dataBaseObject = JeproLabFactory.getDataBaseConnector();
         }
 
-        String query = "UPDATE " + dataBaseObject.quote("#__jeprolab_category") + " SET " + dataBaseObject.quoteName("published");
+        String query = "UPDATE " + dataBaseObject.quoteName("#__jeprolab_category") + " SET " + dataBaseObject.quoteName("published");
         query += " = " + (this.published ? 0 : 1) + " WHERE " + dataBaseObject.quoteName("category_id") + " = " + this.category_id;
 
-        dataBaseObject.setQuery(query);
 
+        dataBaseObject.setQuery(query);
+        this.published = !this.published;
+        /** load category from data base if id provided **/
+        String cacheKey = "jeprolab_model_category_" + this.category_id + "_" + langId + "_" + labId;
+        if(JeproLabCache.getInstance().isStored(cacheKey)){
+            JeproLabCategoryModel cat = (JeproLabCategoryModel)JeproLabCache.getInstance().retrieve(cacheKey);
+            cat.published = this.published;
+            JeproLabCache.getInstance().update(cacheKey, cat);
+        }
         return dataBaseObject.query(false);
     }
 
@@ -2833,7 +2977,13 @@ ignored.printStackTrace();
                     categoryList.add(category);
                 }
             }catch(SQLException ignored){
-
+                ignored.printStackTrace();
+            }finally {
+                try {
+                    JeproLabDataBaseConnector.getInstance().closeConnexion();
+                }catch (Exception e) {
+                    e.printStackTrace();
+                }
             }
         }
         return categoryList;

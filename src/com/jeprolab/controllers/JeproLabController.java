@@ -52,7 +52,7 @@ public class JeproLabController implements Initializable {
         return false;
     }
 
-    protected void initializeContent() {
+    public void initializeContent() {
         if (!this.viewAccess()) {
             JeproLabTools.displayError(500, JeproLab.getBundle().getString("JEPROLAB_YOU_DO_NOT_HAVE_PERMISSION_TO_VIEW_THIS_PAGE_MESSAGE"));
         }

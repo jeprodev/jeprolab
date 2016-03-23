@@ -78,7 +78,7 @@ public class JeproLabCountryAddZoneController extends JeproLabController{
     }
 
     @Override
-    protected void initializeContent(){
+    public void initializeContent(){
         this.loadZone(false);
         if(zone != null && zone.zone_id > 0){
             jeproLabZoneName.setText(zone.name);

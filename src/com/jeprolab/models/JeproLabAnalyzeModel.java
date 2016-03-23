@@ -5,6 +5,7 @@ import com.jeprolab.assets.tools.JeproLabCache;
 import com.jeprolab.assets.tools.JeproLabConfigurationSettings;
 import com.jeprolab.assets.tools.JeproLabContext;
 import com.jeprolab.assets.tools.JeproLabTools;
+import com.jeprolab.assets.tools.db.JeproLabDataBaseConnector;
 import com.jeprolab.controllers.JeproLabCategoryController;
 import com.jeprolab.models.core.JeproLabFactory;
 import com.jeprolab.models.tax.JeproLabTaxCalculator;
@@ -617,6 +618,12 @@ public class JeproLabAnalyzeModel extends JeproLabModel {
                     }
                 }catch(SQLException ignored){
                     ignored.printStackTrace();
+                }finally {
+                    try {
+                        JeproLabDataBaseConnector.getInstance().closeConnexion();
+                    }catch (Exception e) {
+                        e.printStackTrace();
+                    }
                 }
             }else{
                 JeproLabAnalyzeModel analyzeModel = (JeproLabAnalyzeModel)JeproLabCache.getInstance().retrieve(cacheKey);
@@ -724,7 +731,7 @@ public class JeproLabAnalyzeModel extends JeproLabModel {
     protected void removeTaxFromEcoTax(){
         Float ecoTax = JeproLab.request.getPost().containsKey("ecotax") ? Float.parseFloat(JeproLab.request.getPost().get("ecotax")) : 0;
         if (ecoTax > 0) {
-            ecoTax = JeproLabTools.roundPrice(ecoTax/(1 + JeproLabTaxModel.getAnalyzeEcotaxRate()/100), 6);
+            ecoTax = JeproLabTools.roundPrice(ecoTax/(1 + JeproLabTaxModel.getAnalyzeEcoTaxRate()/100), 6);
             JeproLab.request.getPost().put("ecotax", ecoTax.toString());
         }
     }
@@ -991,7 +998,13 @@ public class JeproLabAnalyzeModel extends JeproLabModel {
                         countryId = addressInfo.getInt("country_id");
                     }
                 }catch(SQLException ignored){
-
+                    ignored.printStackTrace();
+                }finally {
+                    try {
+                        JeproLabDataBaseConnector.getInstance().closeConnexion();
+                    }catch (Exception e) {
+                        e.printStackTrace();
+                    }
                 }
             }
 
@@ -1604,7 +1617,13 @@ public class JeproLabAnalyzeModel extends JeproLabModel {
                     JeproLabAnalyzeModel.cleanPositions(resultSet.getInt("category_id"), resultSet.getInt("position"));
                 }
             }catch(SQLException ignored){
-
+                ignored.printStackTrace();
+            }finally {
+                try {
+                    JeproLabDataBaseConnector.getInstance().closeConnexion();
+                }catch (Exception e) {
+                    e.printStackTrace();
+                }
             }
         }
         JeproLabSpecificPriceModel.JeproLabSpecificPriceRuleModel.applyAllRules(this.analyze_id);
@@ -1644,7 +1663,13 @@ public class JeproLabAnalyzeModel extends JeproLabModel {
                     result &= cleanPositions(resultSet.getInt("category_id"), resultSet.getInt("position"));
                 }
             }catch(SQLException ignored){
-
+                ignored.printStackTrace();
+            }finally {
+                try {
+                    JeproLabDataBaseConnector.getInstance().closeConnexion();
+                }catch (Exception e) {
+                    e.printStackTrace();
+                }
             }
         }
 
@@ -2022,6 +2047,12 @@ System.out.println(query);
                     }
                 }catch(SQLException ignored){
                     ignored.printStackTrace();
+                }finally {
+                    try {
+                        JeproLabDataBaseConnector.getInstance().closeConnexion();
+                    }catch (Exception e) {
+                        e.printStackTrace();
+                    }
                 }
             }
 
@@ -3413,7 +3444,13 @@ System.out.println(query);
                         categoryIds.add(categorySet.getInt("category_id"));
                     }
                 }catch(SQLException ignored){
-
+                    ignored.printStackTrace();
+                }finally {
+                    try {
+                        JeproLabDataBaseConnector.getInstance().closeConnexion();
+                    }catch (Exception e) {
+                        e.printStackTrace();
+                    }
                 }
             }
             JeproLabCache.getInstance().store(cacheKey, categoryIds);
@@ -3866,7 +3903,13 @@ System.out.println(query);
                 }
                 JeproLabAnalyzeModel._pricesLevel2.put(cacheKey_2, resultList);
             }catch(SQLException ignored){
-
+                ignored.printStackTrace();
+            }finally {
+                try {
+                    JeproLabDataBaseConnector.getInstance().closeConnexion();
+                }catch (Exception e) {
+                    e.printStackTrace();
+                }
             }
         }
 
@@ -6557,7 +6600,13 @@ public function existsRefInDatabase($reference)
                     analyzeIds.add(attributeList.getInt("analyze_attribute_id"));
                 }
             }catch (SQLException ignored){
-
+                ignored.printStackTrace();
+            }finally {
+                try {
+                    JeproLabDataBaseConnector.getInstance().closeConnexion();
+                }catch (Exception e) {
+                    e.printStackTrace();
+                }
             }
         }
         return analyzeIds;

@@ -126,7 +126,13 @@ public class JeproLabLaboratoryModel  extends JeproLabModel{
                     }
                     JeproLabCache.getInstance().store(cacheKey, this);
                 }catch(SQLException ignored){
-
+                    ignored.printStackTrace();
+                }finally {
+                    try {
+                        JeproLabDataBaseConnector.getInstance().closeConnexion();
+                    }catch (Exception e) {
+                        e.printStackTrace();
+                    }
                 }
             }else{
                 JeproLabLaboratoryModel laboratory = (JeproLabLaboratoryModel)JeproLabCache.getInstance().retrieve(cacheKey);
@@ -189,7 +195,13 @@ public class JeproLabLaboratoryModel  extends JeproLabModel{
                     //}
                 }
             }catch(SQLException ignored){
-
+                ignored.printStackTrace();
+            }finally {
+                try {
+                    JeproLabDataBaseConnector.getInstance().closeConnexion();
+                }catch (Exception e) {
+                    e.printStackTrace();
+                }
             }
             /** If an URL was found and it's not the main URL, redirect to main url  **/
             /* if (through && labId > 0 && !isMainUri) {
@@ -334,9 +346,15 @@ public class JeproLabLaboratoryModel  extends JeproLabModel{
                 while (data.next()) {
                     nbObject++;
                 }
-            }catch (SQLException sqlE){sqlE.printStackTrace();}
+            }catch (SQLException ignored){ignored.printStackTrace();}finally {
+                try {
+                    JeproLabDataBaseConnector.getInstance().closeConnexion();
+                }catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
 
-            feature_published = (JeproLabSettingModel.getIntValue("multilab_feature_active") > 0) && (nbObject > 1);
+            feature_published = (JeproLabSettingModel.getIntValue("multi_lab_feature_active") > 0) && (nbObject > 1);
         }
 
         return feature_published;
@@ -596,9 +614,10 @@ public class JeproLabLaboratoryModel  extends JeproLabModel{
                         labGroup = new JeproLabLaboratoryGroupModel();
                         labGroup.laboratory_group_id = results.getInt("lab_group_id");
                         labGroup.name = results.getString("group_name");
-                        labGroup.share_customers = results.getInt("share_customer") > 0;
+                        labGroup.share_customers = results.getInt("share_customers") > 0;
                         labGroup.share_results = results.getInt("share_results") > 0;
-                        labGroup.share_requests = results.getInt("share_request") > 0;
+                        labGroup.share_requests = results.getInt("share_requests") > 0;
+                        labGroup.share_stocks = results.getInt("share_stocks") > 0;
                         labGroup.laboratories = new ArrayList<>();
                         labGroups.add(labGroupId, labGroup);
                     }
@@ -639,7 +658,15 @@ public class JeproLabLaboratoryModel  extends JeproLabModel{
                         }
                     }*/
                 }
-            }catch (SQLException ignored){}
+            }catch (SQLException ignored){
+                ignored.printStackTrace();
+            }finally {
+                try {
+                    JeproLabDataBaseConnector.getInstance().closeConnexion();
+                }catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
         }
     }
 

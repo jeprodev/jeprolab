@@ -1,5 +1,6 @@
 package com.jeprolab.models;
 
+import com.jeprolab.assets.tools.db.JeproLabDataBaseConnector;
 import com.jeprolab.models.core.JeproLabFactory;
 
 import java.sql.ResultSet;
@@ -70,7 +71,13 @@ public class JeproLabThemeModel extends JeproLabModel{
                     themeList.add(theme);
                 }
             }catch (SQLException ignored){
-ignored.printStackTrace();
+                ignored.printStackTrace();
+            }finally {
+                try {
+                    JeproLabDataBaseConnector.getInstance().closeConnexion();
+                }catch (Exception e) {
+                    e.printStackTrace();
+                }
             }
         }
         return themeList;

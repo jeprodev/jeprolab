@@ -1,6 +1,7 @@
 package com.jeprolab.models;
 
 import com.jeprolab.assets.tools.JeproLabContext;
+import com.jeprolab.assets.tools.db.JeproLabDataBaseConnector;
 import com.jeprolab.models.core.JeproLabFactory;
 
 import java.sql.ResultSet;
@@ -162,7 +163,13 @@ public class JeproLabAnalyzePackModel extends JeproLabAnalyzeModel {
                     items.add(analyze);
                 }
             }catch(SQLException ignored){
-
+                ignored.printStackTrace();
+            }finally {
+                try {
+                    JeproLabDataBaseConnector.getInstance().closeConnexion();
+                }catch (Exception e) {
+                    e.printStackTrace();
+                }
             }
         }
         JeproLabAnalyzePackModel.cachePackItems.put(analyzeId, items);// = $array_result;

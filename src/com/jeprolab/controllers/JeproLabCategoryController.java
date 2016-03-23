@@ -116,11 +116,11 @@ public class JeproLabCategoryController extends JeproLabController {
                 }*/
             }
         }
-        initializeContent();
+        //initializeContent();
     }
 
     @Override
-    protected void initializeContent(){
+    public void initializeContent(){
         int categoryId = JeproLab.request.getIntValue("category_id");
 
         if(categoryId > 0){
@@ -240,9 +240,9 @@ public class JeproLabCategoryController extends JeproLabController {
             categorySelected.set(selected);
         }
 
-        /*public void setCategoryStatus(boolean status){
+        public void setCategoryStatus(boolean status){
             categoryStatus.set(status);
-        }*/
+        }
 
         public void setCategoryName(String name){
             categoryName.set(name);
@@ -306,6 +306,7 @@ public class JeproLabCategoryController extends JeproLabController {
                     JeproLab.request.setRequest("category_id=" + categoryId + "&task=edit&" + JeproLabTools.getCountryToken() + "=1");
                     try {
                         JeproLab.getInstance().goToForm(JeproLab.getInstance().getApplicationForms().addCategoryForm);
+                        JeproLabContext.getContext().controller.initializeContent();
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
@@ -384,7 +385,6 @@ public class JeproLabCategoryController extends JeproLabController {
             statusButton = new Button("");
             statusButton.getStyleClass().add("icon-btn");
             statusButton.setMinSize(18, 18);
-            //statusButton.focusedProperty().addListener();
         }
 
         @Override
@@ -406,7 +406,19 @@ public class JeproLabCategoryController extends JeproLabController {
                 }
                 setGraphic(statusButton);
                 setAlignment(Pos.CENTER);
+                statusButton.setOnMouseClicked(evt -> {
+                    JeproLabCategoryModel cat = new JeproLabCategoryModel(items.get(getIndex()).getCategoryIndex());
+                    cat.toggleStatus();
+
+                    items.get(getIndex()).setCategoryStatus(cat.published);
+                    if (items.get(getIndex()).getCategoryStatus()) {
+                        statusButton.setGraphic(new ImageView(new Image(JeproLab.class.getResourceAsStream("resources/images/published.png"))));
+                    } else {
+                        statusButton.setGraphic(new ImageView(new Image(JeproLab.class.getResourceAsStream("resources/images/unpublished.png"))));
+                    }
+                });
             }
         }
+
     }
 }

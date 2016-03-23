@@ -2,6 +2,7 @@ package com.jeprolab.controllers;
 
 
 import com.jeprolab.JeproLab;
+import com.jeprolab.assets.extend.controls.JeproFormPanel;
 import javafx.fxml.FXML;
 
 //import javafx.scene.control.Label;
@@ -22,7 +23,7 @@ public class JeproLabCustomerController extends JeproLabController{
     private Button addCustomerBtn;
 
     @FXML
-    public VBox jeproLabCustomerListWrapper;
+    public JeproFormPanel jeproLabCustomerListWrapper;
     public Button addNewCustomerButton;
     public TextField customerSearchBox;
     public TableView customersTableView;
@@ -35,6 +36,7 @@ public class JeproLabCustomerController extends JeproLabController{
         double tableWidth = .98 * JeproLab.APP_WIDTH;
         customersTableView.setPrefWidth(.98 * JeproLab.APP_WIDTH);
         customersTableView.setLayoutX(.01 * JeproLab.APP_WIDTH);
+        customersTableView.setLayoutY(10);
         customerListNumberColumn.setText("#");
         customerListNumberColumn.setPrefWidth(30);
         customerCheckBoxColumn.setText("");

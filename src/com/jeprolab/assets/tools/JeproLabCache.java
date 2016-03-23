@@ -5,6 +5,7 @@ import org.apache.commons.collections4.MapIterator;
 import org.apache.commons.collections4.map.LRUMap;
 
 import java.util.ArrayList;
+import java.util.List;
 
 
 public class JeproLabCache<K, D> {
@@ -80,6 +81,13 @@ public class JeproLabCache<K, D> {
     public void remove(K key){
         synchronized (jeproCacheMap){
             jeproCacheMap.remove(key);
+        }
+    }
+
+    public void update(K key, D value){
+        synchronized(jeproCacheMap){
+            jeproCacheMap.remove(key);
+            jeproCacheMap.put(key, new JeproLabCacheObject(value));
         }
     }
 

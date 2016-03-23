@@ -1,6 +1,7 @@
 package com.jeprolab.controllers;
 
 
+import com.jeprolab.assets.tools.JeproLabContext;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Menu;
@@ -142,16 +143,21 @@ public class JeproLabMenuController extends JeproLabController {
 
     public void handleCategoriesMenuEvent(ActionEvent event) throws IOException {
         JeproLab.getInstance().goToForm(JeproLab.getInstance().getApplicationForms().categoryForm);
+        JeproLabContext.getContext().controller.initializeContent();
     }
 
 
     public void handleAddCategoryMenuEvent(ActionEvent event) throws IOException {
+        JeproLab.request.getRequest().clear();
         JeproLab.getInstance().goToForm(JeproLab.getInstance().getApplicationForms().addCategoryForm);
+        JeproLabContext.getContext().controller.initializeContent();
     }
 
 
     public void handleAnalyzesMenuEvent(ActionEvent event) throws IOException {
+        JeproLab.request.getRequest().clear();
         JeproLab.getInstance().goToForm(JeproLab.getInstance().getApplicationForms().analyzeForm);
+        JeproLabContext.getContext().controller.initializeContent();
     }
 
 

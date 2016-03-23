@@ -114,7 +114,7 @@ public class JeproLabGroupAddController extends JeproLabController{
         jeproLabGroupInformationLetterLabel.getStyleClass().add("input-label");
         jeproLabGroupOnlineVisitorsLabel.setText(bundle.getString("JEPROLAB_LABEL"));
         jeproLabGroupOnlineVisitorsLabel.getStyleClass().add("input-label");
-        jeproLabGroupCustomerDetailsLabel.setText(bundle.getString("JEPROLAB_LABEL"));
+        jeproLabGroupCustomerDetailsLabel.setText(bundle.getString("JEPROLAB_ONLINE_VISITORS_LABEL"));
         jeproLabGroupCustomerDetailsLabel.getStyleClass().add("input-label");
         jeproLabGroupAnalyzeDetailsLabel.setText(bundle.getString("JEPROLAB_ANALYZE_DETAILS_LABEL"));
         jeproLabGroupAnalyzeDetailsLabel.getStyleClass().add("input-label");
@@ -125,6 +125,7 @@ public class JeproLabGroupAddController extends JeproLabController{
         jeproLabGroupAvailabilitiesLabel.setText(bundle.getString("JEPROLAB_AVAILABILITIES_LABEL"));
         jeproLabGroupAvailabilitiesLabel.getStyleClass().add("input-label");
 
+        GridPane.setMargin(jeproLabGroupBrowserAndOperatingSystemLabel, new Insets(10, 10, 5, 20));
         GridPane.setMargin(jeproLabGroupAffiliatedWebSiteLabel, new Insets(10, 10, 5, 20));
         GridPane.setMargin(jeproLabGroupInformationLetterLabel, new Insets(10, 10, 5, 20));
         GridPane.setMargin(jeproLabGroupOnlineVisitorsLabel, new Insets(10, 10, 5, 20));
@@ -142,6 +143,8 @@ public class JeproLabGroupAddController extends JeproLabController{
         GridPane.setMargin(jeproLabGroupBankWireLabel, new Insets(10, 10, 5, 20));
         GridPane.setMargin(jeproLabGroupBannersBlockLabel, new Insets(10, 10, 5, 20));
         GridPane.setMargin(jeproLabGroupSocialNetworkSharingLabel, new Insets(10, 10, 5, 20));
+
+        initializeContent();
     }
 
     @Override
@@ -153,14 +156,14 @@ public class JeproLabGroupAddController extends JeproLabController{
                 )
         );
         
-        if(group.group_id > 0) {
+        //if(group.group_id > 0) {
             /*jeproLabGroupSocialNetworkSharing, jeproLabGroupBannersBlock, jeproLabGroupBankWire;
             jeproLabGroupBestSales, jeproLabGroupCartBlock, jeproLabGroupStatisticsBlock, jeproLabGroupCurrencies;
             jeproLabGroupCategoryBlock, jeproLabGroupBrowserAndOperatingSystem, jeproLabGroupDashBoardStatistics;
             jeproLabGroupOnlineVisitors, jeproLabGroupInformationLetter, jeproLabGroupAffiliatedWebSite;
             jeproLabGroupCustomerDetails, jeproLabGroupAnalyzeDetails, jeproLabGroupRequests, jeproLabGroupLaboratorySearch;
             jeproLabGroupAvailabilities;*/
-        }
+        //}
     }
 
     @Override

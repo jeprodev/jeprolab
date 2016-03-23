@@ -4,6 +4,7 @@ package com.jeprolab.models;
 import com.jeprolab.assets.tools.JeproLabCache;
 import com.jeprolab.assets.tools.JeproLabContext;
 import com.jeprolab.assets.tools.JeproLabTools;
+import com.jeprolab.assets.tools.db.JeproLabDataBaseConnector;
 import com.jeprolab.models.core.JeproLabFactory;
 import javafx.scene.control.Pagination;
 
@@ -119,7 +120,13 @@ public class JeproLabStateModel extends JeproLabModel{
                 states.add(state);
             }
         }catch (SQLException ignored){
-
+            ignored.printStackTrace();
+        }finally {
+            try {
+                JeproLabDataBaseConnector.getInstance().closeConnexion();
+            }catch (Exception e) {
+                e.printStackTrace();
+            }
         }
         return states;
     }
@@ -230,7 +237,15 @@ public class JeproLabStateModel extends JeproLabModel{
         ResultSet resultSet = dataBaseObject.loadObject();
         try{
             while(resultSet.next()){ result += 1; }
-        }catch (SQLException ignored){}
+        }catch (SQLException ignored){
+            ignored.printStackTrace();
+        }finally {
+            try {
+                JeproLabDataBaseConnector.getInstance().closeConnexion();
+            }catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
         return result;
     }
 
@@ -260,7 +275,13 @@ public class JeproLabStateModel extends JeproLabModel{
                     states.add(state);
                 }
             }catch(SQLException ignored){
-
+                ignored.printStackTrace();
+            }finally {
+                try {
+                    JeproLabDataBaseConnector.getInstance().closeConnexion();
+                }catch (Exception e) {
+                    e.printStackTrace();
+                }
             }
         }
         return states;
@@ -282,8 +303,8 @@ public class JeproLabStateModel extends JeproLabModel{
     }
 
     /**
-     * @param statesIds
-     * @param zoneId
+     * @param statesIds state ids
+     * @param zoneId zone id
      * @return bool
      */
     public boolean affectZoneToSelection(int statesIds[], int zoneId){

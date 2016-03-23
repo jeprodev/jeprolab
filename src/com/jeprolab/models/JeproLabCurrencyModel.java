@@ -4,6 +4,7 @@ package com.jeprolab.models;
 import com.jeprolab.JeproLab;
 import com.jeprolab.assets.tools.JeproLabCache;
 import com.jeprolab.assets.tools.JeproLabContext;
+import com.jeprolab.assets.tools.db.JeproLabDataBaseConnector;
 import com.jeprolab.models.core.JeproLabFactory;
 
 import java.sql.ResultSet;
@@ -96,7 +97,13 @@ public class JeproLabCurrencyModel extends JeproLabModel {
                             this.published = resultSet.getInt("published") > 0;
                         }
                     }catch(SQLException ignored){
-
+                        ignored.printStackTrace();
+                    }finally {
+                        try {
+                            JeproLabDataBaseConnector.getInstance().closeConnexion();
+                        }catch (Exception e) {
+                            e.printStackTrace();
+                        }
                     }
                 }
             }
@@ -203,6 +210,12 @@ public class JeproLabCurrencyModel extends JeproLabModel {
                 }
             }catch (SQLException ignored){
                 currencyId = 0;
+            }finally {
+                try {
+                    JeproLabDataBaseConnector.getInstance().closeConnexion();
+                }catch (Exception e) {
+                    e.printStackTrace();
+                }
             }
 
             if (currencyId <= 0) {
@@ -308,7 +321,13 @@ public class JeproLabCurrencyModel extends JeproLabModel {
                 currencies.add(currency);
             }
         }catch (SQLException ignored){
-
+            ignored.printStackTrace();
+        }finally {
+            try {
+                JeproLabDataBaseConnector.getInstance().closeConnexion();
+            }catch (Exception e) {
+                e.printStackTrace();
+            }
         }
         return currencies;
     }
@@ -348,7 +367,13 @@ public class JeproLabCurrencyModel extends JeproLabModel {
                 currencies.add(currency);
             }
         }catch (SQLException ignored){
-
+            ignored.printStackTrace();
+        }finally {
+            try {
+                JeproLabDataBaseConnector.getInstance().closeConnexion();
+            }catch (Exception e) {
+                e.printStackTrace();
+            }
         }
         return currencies;
     }
@@ -421,7 +446,13 @@ public class JeproLabCurrencyModel extends JeproLabModel {
             }
         }catch (SQLException ignored){
             ignored.printStackTrace();
-        }
+        }finally {
+                try {
+                    JeproLabDataBaseConnector.getInstance().closeConnexion();
+                }catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
         return currency;
     }
 

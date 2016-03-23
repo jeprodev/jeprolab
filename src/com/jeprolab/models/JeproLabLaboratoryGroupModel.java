@@ -1,6 +1,7 @@
 package com.jeprolab.models;
 
 
+import com.jeprolab.assets.tools.db.JeproLabDataBaseConnector;
 import com.jeprolab.models.core.JeproLabFactory;
 
 import java.sql.ResultSet;
@@ -20,7 +21,7 @@ public class JeproLabLaboratoryGroupModel extends JeproLabModel {
     public List<JeproLabLaboratoryModel> laboratories;
 
     public JeproLabLaboratoryGroupModel(){
-
+        this(0);
     }
 
     public JeproLabLaboratoryGroupModel(int labGroupId){
@@ -38,7 +39,7 @@ public class JeproLabLaboratoryGroupModel extends JeproLabModel {
 
         String query = "SELECT * FROM " + staticDataBaseObject.quoteName("#__jeprolab_lab_group") + " WHERE 1 ";
         if(activated){
-            query += " AND " + staticDataBaseObject.quoteName("published") + " = " + (activated ? 1 : 0);
+            query += " AND " + staticDataBaseObject.quoteName("published") + " = 1 ";
         }
         List<JeproLabLaboratoryGroupModel> laboratoryGroups = new ArrayList<>();
         staticDataBaseObject.setQuery(query);
@@ -57,8 +58,14 @@ public class JeproLabLaboratoryGroupModel extends JeproLabModel {
                 laboratoryGroup.deleted = results.getInt("deleted") > 0;
                 laboratoryGroups.add(laboratoryGroup);
             }
-        } catch (SQLException e) {
-            e.printStackTrace();
+        } catch (SQLException ignored) {
+            ignored.printStackTrace();
+        }finally {
+            try {
+                JeproLabDataBaseConnector.getInstance().closeConnexion();
+            }catch (Exception e) {
+                e.printStackTrace();
+            }
         }
         return laboratoryGroups;
     }

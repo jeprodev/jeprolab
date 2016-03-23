@@ -1,6 +1,7 @@
 package com.jeprolab.models;
 
 
+import com.jeprolab.assets.tools.db.JeproLabDataBaseConnector;
 import com.jeprolab.models.core.JeproLabFactory;
 import org.apache.commons.collections4.map.HashedMap;
 
@@ -56,7 +57,13 @@ public class JeproLabSettingModel extends JeproLabModel{
                 SETTINGS.put(key, value);
             }
         }catch (SQLException ignored){
-
+            ignored.printStackTrace();
+        }finally {
+            try {
+                JeproLabDataBaseConnector.getInstance().closeConnexion();
+            }catch (Exception e) {
+                e.printStackTrace();
+            }
         }
         /*if(!$settings = $db->loadObjectList()){ return; }
 
@@ -120,7 +127,7 @@ public class JeproLabSettingModel extends JeproLabModel{
         }
     }
 
-    /**
+    /*
      * Update configuration key and value into database (automatically insert if key does not exist)
      *
      * Values are inserted/updated directly using SQL, because using (Configuration) ObjectModel

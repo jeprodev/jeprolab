@@ -61,7 +61,7 @@ public class JeproLabGroupController extends JeproLabController{
     }
 
     @Override
-    protected void initializeContent(){
+    public void initializeContent(){
         updateToolBar();
     }
 

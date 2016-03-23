@@ -4,6 +4,7 @@ package com.jeprolab.models;
 import com.jeprolab.assets.tools.JeproLabCache;
 import com.jeprolab.assets.tools.JeproLabContext;
 import com.jeprolab.assets.tools.JeproLabTools;
+import com.jeprolab.assets.tools.db.JeproLabDataBaseConnector;
 import com.jeprolab.models.core.JeproLabFactory;
 import javafx.scene.control.Pagination;
 
@@ -139,12 +140,29 @@ public class JeproLabCountryModel  extends JeproLabModel{
                         JeproLabCache.getInstance().store(cacheKey, this);
                     }
                 }catch (SQLException ignored){
-
+                    ignored.printStackTrace();
+                }finally {
+                    try {
+                        JeproLabDataBaseConnector.getInstance().closeConnexion();
+                    }catch (Exception e) {
+                        e.printStackTrace();
+                    }
                 }
             }else{
-                JeproLabCountryModel country = (JeproLabCountryModel) JeproLabCache.getInstance().retrieve(cacheKey);
+                JeproLabCountryModel country = (JeproLabCountryModel)JeproLabCache.getInstance().retrieve(cacheKey);
+                this.country_id = country.country_id;
+                this.zone_id = country.country_id;
+                this.currency_id = country.currency_id;
+                this.iso_code = country.iso_code;
+                this.call_prefix = country.call_prefix;
+                this.published = country.published;
+                this.contains_states = country.contains_states;
+                this.need_zip_code = country.need_zip_code;
+                this.need_identification_number = country.need_identification_number;
+                this.zip_code_format = country.zip_code_format;
+                this.display_tax_label = country.display_tax_label;
+                this.name = country.name;
             }
-            //this = country;
         }
     }
 
@@ -251,7 +269,15 @@ public class JeproLabCountryModel  extends JeproLabModel{
                     countries.add(country);
                 }
 
-            }catch (SQLException igno){ igno.printStackTrace();}
+            }catch (SQLException ignored){
+                ignored.printStackTrace();
+            }finally {
+                try {
+                    JeproLabDataBaseConnector.getInstance().closeConnexion();
+                }catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
 
 
             if(use_limit){
@@ -448,7 +474,13 @@ public static function getByIso($iso_code, $active = false)
                     return resultSet.getInt("country_id");
                 }
             }catch (SQLException ignored){
-
+                ignored.printStackTrace();
+            }finally {
+                try {
+                    JeproLabDataBaseConnector.getInstance().closeConnexion();
+                }catch (Exception e) {
+                    e.printStackTrace();
+                }
             }
         }
         return 0;
@@ -522,7 +554,13 @@ public static function getByIso($iso_code, $active = false)
                     countries.add(country);
                 }
             }catch (SQLException ignored){
-
+                ignored.printStackTrace();
+            }finally {
+                try {
+                    JeproLabDataBaseConnector.getInstance().closeConnexion();
+                }catch (Exception e) {
+                    e.printStackTrace();
+                }
             }
         }
         return countries;

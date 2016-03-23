@@ -1,13 +1,9 @@
-<?import javafx.scene.layout.VBox?>
+
 <?import javafx.scene.control.TableColumn?>
 <?import javafx.scene.control.TableView?>
-<?import javafx.scene.layout.AnchorPane?>
-<?import javafx.geometry.Insets?>
-<VBox xmlns:fx="http://javafx.com/fxml" fx:id="jeproLabCustomerListWrapper" fx:controller="com.jeprolab.controllers.JeproLabCustomerController" >
-    <children>
-        <AnchorPane fx:id="jeproLabCustomerContainer" >
-            <padding><Insets top="5.0" right="4.0" bottom="10.0" left="5.0" /></padding>
-            <children>
+<?import com.jeprolab.assets.extend.controls.JeproFormPanel?>
+<JeproFormPanel xmlns:fx="http://javafx.com/fxml" fx:id="jeproLabCustomerListWrapper" fx:controller="com.jeprolab.controllers.JeproLabCustomerController" >
+
                 <TableView fx:id="customersTableView">
                     <columns>
                         <TableColumn resizable="false" editable="false" fx:id="customerListNumberColumn" />
@@ -25,7 +21,5 @@
                         <TableColumn resizable="false" editable="false" fx:id="customerActionsColumn" />
                     </columns>
                 </TableView>
-            </children>
-        </AnchorPane>
-    </children>
-</VBox>
+
+</JeproFormPanel>

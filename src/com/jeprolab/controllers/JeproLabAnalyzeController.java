@@ -98,11 +98,11 @@ public class JeproLabAnalyzeController extends JeproLabController {
         jeproLabAnalyzeActionsColumn.setPrefWidth(70);
         Callback<TableColumn<JeproLabAnalyzeRecord, HBox>, TableCell<JeproLabAnalyzeRecord, HBox>> actionsCellFactory = param -> new JeproLabAnalyzeActionCell();
         jeproLabAnalyzeActionsColumn.setCellFactory(actionsCellFactory);
-        initializeContent();
+        context.controller = this;
     }
 
     @Override
-    protected void initializeContent(){
+    public void initializeContent(){
         List<JeproLabAnalyzeModel> analyzes = JeproLabAnalyzeModel.getAnalyzeList();
         ObservableList<JeproLabAnalyzeRecord> analyzeList = FXCollections.observableArrayList();
         if(!analyzes.isEmpty()){

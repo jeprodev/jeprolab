@@ -13,6 +13,7 @@ import com.jeprolab.models.JeproLabSettingModel;
 import com.jeprolab.models.image.JeproLabImageManager;
 import javafx.fxml.FXML;
 import javafx.geometry.Insets;
+import javafx.geometry.VPos;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.Tab;
@@ -25,6 +26,7 @@ import javafx.scene.layout.HBox;
 
 import java.io.File;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.ResourceBundle;
 
@@ -115,6 +117,9 @@ public class JeproLabCategoryAddController extends JeproLabController{
         GridPane.setMargin(jeproLabPublishedCategoryLabel, new Insets(5, 0, 15, 20));
         GridPane.setMargin(jeproLabCategoryParentLabel, new Insets(5, 0, 15, 10));
         GridPane.setMargin(jeproLabCategoryDescriptionLabel, new Insets(5, 0, 15, 10));
+        GridPane.setValignment(jeproLabCategoryDescriptionLabel, VPos.TOP);
+        GridPane.setValignment(jeproLabCategoryParentLabel, VPos.TOP);
+        GridPane.setMargin(jeproLabCategoryParent, new Insets(5, 0, 15, 0));
         GridPane.setMargin(jeproLabCategoryImageChooserLabel, new Insets(5, 0, 15, 10));
         GridPane.setMargin(jeproLabCategoryMetaTileLabel, new Insets(5, 0, 15, 10));
         GridPane.setMargin(jeproLabCategoryMetaDescriptionLabel, new Insets(5, 0, 15, 20));
@@ -125,16 +130,17 @@ public class JeproLabCategoryAddController extends JeproLabController{
         GridPane.setMargin(jeproLabCategoryAllowedGroupLabel, new Insets(5, 0, 15, 10));
         GridPane.setMargin(jeproLabCategoryLabel, new Insets(5, 0, 15, 0));
         GridPane.setMargin(jeproLabCategoryDescription, new Insets(10, 0, 15, 0));
+        if(context == null) {
+            context = JeproLabContext.getContext();
+        }
+        context.controller = this;
 
-        initializeContent();
+        //initializeContent();
         /*updateToolBar();*/
     }
 
     @Override
-    protected void initializeContent(){
-        if(context == null) {
-            context = JeproLabContext.getContext();
-        }
+    public void initializeContent(){
         int labId = context.laboratory.laboratory_id;
         JeproLabCategoryModel category = this.loadCategory();
         if(category != null){
@@ -158,7 +164,48 @@ public class JeproLabCategoryAddController extends JeproLabController{
         JeproLabGroupModel customerGroup = new JeproLabGroupModel(JeproLabSettingModel.getIntValue("customer_group"));
 
         List<JeproLabGroupModel> groups = JeproLabGroupModel.getGroups(context.language.language_id);
+        //JeproCategoryTree categoryTree = new JeproCategoryTree();
+        List<Integer> selectedCategories = new ArrayList<>();
+        if(category.parent_id > 0 && category.isParentCategoryAvailable(labId)){
+            selectedCategories.add(category.parent_id);
+        }else{
+            int parentId = JeproLab.request.getRequest().containsKey("parent_id") ? Integer.parseInt(JeproLab.request.getRequest().get("parent_id")) : JeproLabCategoryModel.getRootCategory().category_id;
+            selectedCategories.add(parentId);
+        }
+        jeproLabCategoryParent.setTreeTemplate("associated_categories").setSelectedCategories(selectedCategories).setUseCheckBox(true);
+        jeproLabCategoryParent.setTreeTitle(bundle.getString("JEPROLAB_PARENT_CATEGORY_LABEL")).setTreeWidth(750).render();
+
+        if(category.category_id > 0){
+            jeproLabCategoryName.setText(category.name);
+            //jeproLabCategoryParent.setSelectedCategories(category.parent_id);
+            jeproLabCategoryDescription.setText(category.description);
+            jeproLabPublishedCategory.setSelected(category.published);
+            jeproLabCategoryIsRoot.setSelected(category.is_root_category);
+            if(!category.is_root_category){
+                jeproLabCategoryIsRoot.setVisible(false);
+            }
+            jeproLabCategoryMetaDescription.setText(category.meta_description);
+            jeproLabCategoryMetaKeyWord.setText(category.meta_keywords);
+            jeproLabCategoryMetaTile.setText(category.meta_title);
+            jeproLabCategoryLinkRewrite.setText(category.link_rewrite);
+        }else{
+            jeproLabCategoryName.clearFields();
+            //jeproLabCategoryParent.setSelectedCategories(category.parent_id);
+            jeproLabCategoryDescription.clearFields();
+            jeproLabPublishedCategory.setSelected(false);
+            jeproLabCategoryIsRoot.setSelected(false);
+            if(!category.is_root_category){
+                jeproLabCategoryIsRoot.setVisible(false);
+            }
+            jeproLabCategoryMetaDescription.clearFields();
+            jeproLabCategoryMetaKeyWord.clearFields();
+            jeproLabCategoryMetaTile.clearFields();
+            jeproLabCategoryLinkRewrite.clearFields();
+        }
+        updateToolBar();
     }
+
+
 
     @Override
     public void updateToolBar(){

@@ -2,6 +2,7 @@ package com.jeprolab.controllers;
 
 import com.jeprolab.JeproLab;
 import com.jeprolab.assets.extend.controls.JeproFormPanel;
+import com.jeprolab.assets.tools.db.JeproLabDataBaseConnector;
 import com.jeprolab.models.JeproLabAddressModel;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleStringProperty;
@@ -74,6 +75,11 @@ public class JeproLabAddressController extends JeproLabController {
 
         addressList = FXCollections.observableArrayList();
 
+
+    }
+
+    @Override
+    public void initializeContent(){
         /**
          * add list command in toolBar
          */
@@ -92,15 +98,16 @@ public class JeproLabAddressController extends JeproLabController {
                 index++;
             }
         }catch (SQLException ignored){
-
+            ignored.printStackTrace();
+        }finally {
+            try {
+                JeproLabDataBaseConnector.getInstance().closeConnexion();
+            }catch (Exception e) {
+                e.printStackTrace();
+            }
         }
-        initializeContent();
-        //this.jeproLabAddressesList.setItems(addressList);
-    }
 
-    @Override
-    public void initializeContent(){
-        //updateToolBar();
+        //this.jeproLabAddressesList.setItems(addressList); //updateToolBar();
     }
 
     @Override
@@ -125,8 +132,14 @@ public class JeproLabAddressController extends JeproLabController {
                 this.addressCity = new SimpleStringProperty(addressItem.getString("city"));
                 this.addressZipCode = new SimpleStringProperty(addressItem.getString("postcode"));
                 this.addressCountry = new SimpleStringProperty(addressItem.getString("country"));
-            }catch(SQLException err){
-
+            }catch(SQLException ignored){
+                ignored.printStackTrace();
+            }finally {
+                try {
+                    JeproLabDataBaseConnector.getInstance().closeConnexion();
+                }catch (Exception e) {
+                    e.printStackTrace();
+                }
             }
         }
 

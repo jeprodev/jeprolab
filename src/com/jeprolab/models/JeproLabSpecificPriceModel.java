@@ -2,6 +2,7 @@ package com.jeprolab.models;
 
 import com.jeprolab.assets.tools.JeproLabContext;
 import com.jeprolab.assets.tools.JeproLabTools;
+import com.jeprolab.assets.tools.db.JeproLabDataBaseConnector;
 import com.jeprolab.models.core.JeproLabFactory;
 
 import java.sql.ResultSet;
@@ -174,7 +175,13 @@ public class JeproLabSpecificPriceModel extends JeproLabModel{
                     specificList.add(specificPrice);
                 }
             }catch (SQLException ignored){
-
+                ignored.printStackTrace();
+            }finally {
+                try {
+                    JeproLabDataBaseConnector.getInstance().closeConnexion();
+                }catch (Exception e) {
+                    e.printStackTrace();
+                }
             }
         }
 
@@ -226,7 +233,13 @@ public class JeproLabSpecificPriceModel extends JeproLabModel{
                     specificPriceIds.add(resultSet.getInt("specific_price_id"));
                 }
             }catch(SQLException ignored){
-
+                ignored.printStackTrace();
+            }finally {
+                try {
+                    JeproLabDataBaseConnector.getInstance().closeConnexion();
+                }catch (Exception e) {
+                    e.printStackTrace();
+                }
             }
         }
         return specificPriceIds;
@@ -343,7 +356,13 @@ public class JeproLabSpecificPriceModel extends JeproLabModel{
                         specificList.add(tmpSpecificSet.getInt(fieldName));
                     }
                 }catch (SQLException ignored){
-
+                    ignored.printStackTrace();
+                }finally {
+                    try {
+                        JeproLabDataBaseConnector.getInstance().closeConnexion();
+                    }catch (Exception e) {
+                        e.printStackTrace();
+                    }
                 }
             }
             JeproLabSpecificPriceModel._filterOutCache.put(cacheKey, specificList);
@@ -503,7 +522,13 @@ public class JeproLabSpecificPriceModel extends JeproLabModel{
                     //todo set fields
                 }
             }catch (SQLException ignored){
-
+                ignored.printStackTrace();
+            }finally {
+                try {
+                    JeproLabDataBaseConnector.getInstance().closeConnexion();
+                }catch (Exception e) {
+                    e.printStackTrace();
+                }
             }
 
             JeproLabSpecificPriceModel._specificPriceCache.put(cacheKey, specificPrice);
@@ -615,7 +640,13 @@ public class JeproLabSpecificPriceModel extends JeproLabModel{
                     }
                 }
             }catch (SQLException ignored){
-
+                ignored.printStackTrace();
+            }finally {
+                try {
+                    JeproLabDataBaseConnector.getInstance().closeConnexion();
+                }catch (Exception e) {
+                    e.printStackTrace();
+                }
             }
         }
 
@@ -695,7 +726,13 @@ public class JeproLabSpecificPriceModel extends JeproLabModel{
                     analyzeIds.add(ids);
                 }
             }catch (SQLException ignored){
-
+                ignored.printStackTrace();
+            }finally {
+                try {
+                    JeproLabDataBaseConnector.getInstance().closeConnexion();
+                }catch (Exception e) {
+                    e.printStackTrace();
+                }
             }
         }
 
@@ -950,7 +987,13 @@ public class JeproLabSpecificPriceModel extends JeproLabModel{
                             priceRule.apply(analyzeList);
                         }
                     }catch (SQLException ignored){
-
+                        ignored.printStackTrace();
+                    }finally {
+                        try {
+                            JeproLabDataBaseConnector.getInstance().closeConnexion();
+                        }catch (Exception e) {
+                            e.printStackTrace();
+                        }
                     }
                 }
             }
@@ -991,7 +1034,13 @@ public class JeproLabSpecificPriceModel extends JeproLabModel{
                         conditionsGroup.put(condition.specific_price_rule_condition_group_id , condition);
                     }
                 }catch (SQLException ignored){
-
+                    ignored.printStackTrace();
+                }finally {
+                    try {
+                        JeproLabDataBaseConnector.getInstance().closeConnexion();
+                    }catch (Exception e) {
+                        e.printStackTrace();
+                    }
                 }
             }
             return conditionsGroup;

@@ -129,11 +129,11 @@ public class JeproLabLaboratoryAddController extends JeproLabController {
         GridPane.setMargin(jeproLabLaboratoryMainUrl, new Insets(10, 10, 10, 10));
         GridPane.setMargin(jeproLabLaboratoryUrlsTableView, new Insets(10, 10, 10, 10));
 
-        initializeContent();
+        //initializeContent();
     }
 
     @Override
-    protected void initializeContent() {
+    public void initializeContent() {
         super.initializeContent();
         if(this.context == null){
             this.context = JeproLabContext.getContext();

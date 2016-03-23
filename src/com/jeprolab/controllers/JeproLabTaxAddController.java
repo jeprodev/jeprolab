@@ -66,7 +66,7 @@ public class JeproLabTaxAddController extends JeproLabController{
     }
 
     @Override
-    protected void initializeContent(){
+    public void initializeContent(){
         updateToolBar();
     }
 

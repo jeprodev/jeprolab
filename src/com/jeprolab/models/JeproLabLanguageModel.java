@@ -82,6 +82,7 @@ public class JeproLabLanguageModel extends JeproLabModel{
         ResultSet languages = staticDataBaseObject.loadObject();
 
         String default_language = JeproLabLanguageModel.getDefaultLanguage().language_code;
+        //if(languages)
         try{
             while(languages.next()){
                 JeproLabLanguageModel lang = new JeproLabLanguageModel();
@@ -96,7 +97,7 @@ public class JeproLabLanguageModel extends JeproLabModel{
                 JeproLabLanguageModel.LANGUAGES.put(lang.language_id, lang);
             }
         }catch (SQLException ignored){
-
+            ignored.printStackTrace();
         }
     }
 

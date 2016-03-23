@@ -1083,7 +1083,7 @@ public class JeproLabAnalyzeAddController extends JeproLabController {
         //$this->assignRef('tax_rules_groups', $tax_rules_groups);
         Map<Integer, Float> taxesRatesByGroup = JeproLabTaxRulesGroupModel.getAssociatedTaxRatesByCountryId(context.country.country_id);
         //$this->assignRef('taxesRatesByGroup', $taxesRatesByGroup);
-        float ecotaxTaxRate = JeproLabTaxModel.getAnalyzeEcotaxRate();
+        float ecotaxTaxRate = JeproLabTaxModel.getAnalyzeEcoTaxRate();
         //$this->assignRef('ecotaxTaxRate', $ecotaxTaxRate);
         boolean taxExcludeTaxOption = JeproLabTaxModel.excludeTaxOption();
         //$this->assignRef('tax_exclude_tax_option', $tax_exclude_tax_option);
@@ -1446,7 +1446,7 @@ public class JeproLabAnalyzeAddController extends JeproLabController {
 
     private void applyTaxToEcoTax(){
         if(analyze.eco_tax > 0){
-            analyze.eco_tax = JeproLabTools.roundPrice(analyze.eco_tax * (1 + JeproLabTaxModel.getAnalyzeEcotaxRate()/ 100), 2);
+            analyze.eco_tax = JeproLabTools.roundPrice(analyze.eco_tax * (1 + JeproLabTaxModel.getAnalyzeEcoTaxRate()/ 100), 2);
         }
     }
 

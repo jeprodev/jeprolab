@@ -70,6 +70,12 @@ public class JeproMultiLangTextArea extends Pane {
         }
     }
 
+    public void clearFields(){
+        for (TextArea field : fields) {
+            field.setText("");
+        }
+    }
+
     public String getFieldContent(int langId){
         for(TextArea field : fields){
             if(field.getId().equals("language_" + langId)){

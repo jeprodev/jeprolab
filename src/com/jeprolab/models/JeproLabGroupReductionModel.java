@@ -1,5 +1,6 @@
 package com.jeprolab.models;
 
+import com.jeprolab.assets.tools.db.JeproLabDataBaseConnector;
 import com.jeprolab.models.core.JeproLabFactory;
 
 import java.sql.ResultSet;
@@ -95,7 +96,13 @@ public class JeproLabGroupReductionModel extends JeproLabModel{
                 }
                 return result;
             }catch(SQLException ignored){
-
+                ignored.printStackTrace();
+            }finally {
+                try {
+                    JeproLabDataBaseConnector.getInstance().closeConnexion();
+                }catch (Exception e) {
+                    e.printStackTrace();
+                }
             }
         }
         return true;
@@ -235,7 +242,13 @@ public class JeproLabGroupReductionModel extends JeproLabModel{
                             result &= currentGroupReduction.setCache();
                         }
                     }catch (SQLException ignored){
-
+                        ignored.printStackTrace();
+                    }finally {
+                        try {
+                            JeproLabDataBaseConnector.getInstance().closeConnexion();
+                        }catch (Exception e) {
+                            e.printStackTrace();
+                        }
                     }
                 }
             }

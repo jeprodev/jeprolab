@@ -5,6 +5,7 @@ import com.jeprolab.assets.tools.JeproLabCache;
 import com.jeprolab.assets.tools.JeproLabConfigurationSettings;
 import com.jeprolab.assets.tools.JeproLabContext;
 import com.jeprolab.assets.tools.JeproLabTools;
+import com.jeprolab.assets.tools.db.JeproLabDataBaseConnector;
 import com.jeprolab.models.core.JeproLabFactory;
 
 import java.sql.ResultSet;
@@ -126,7 +127,13 @@ public class JeproLabImageModel extends JeproLabModel {
                         JeproLabCache.getInstance().store(cacheKey, this);
                     }
                 }catch (SQLException ignored){
-
+                    ignored.printStackTrace();
+                }finally {
+                    try {
+                        JeproLabDataBaseConnector.getInstance().closeConnexion();
+                    }catch (Exception e) {
+                        e.printStackTrace();
+                    }
                 }
             }else {
                 JeproLabImageModel image = (JeproLabImageModel)JeproLabCache.getInstance().retrieve(cacheKey);
@@ -207,7 +214,13 @@ public class JeproLabImageModel extends JeproLabModel {
                     //todo retrieve fie
                 }
             }catch(SQLException ignored){
-
+                ignored.printStackTrace();
+            }finally {
+                try {
+                    JeproLabDataBaseConnector.getInstance().closeConnexion();
+                }catch (Exception e) {
+                    e.printStackTrace();
+                }
             }
 
             JeproLabCache.getInstance().store(cacheKey, $row);
@@ -1019,7 +1032,13 @@ public class JeproLabImageModel extends JeproLabModel {
                         list.add(imageType);
                     }
                 }catch (SQLException ignored){
-
+                    ignored.printStackTrace();
+                }finally {
+                    try {
+                        JeproLabDataBaseConnector.getInstance().closeConnexion();
+                    }catch (Exception e) {
+                        e.printStackTrace();
+                    }
                 }
 
                 JeproLabImageTypeModel.images_types_cache.put(type, list);
@@ -1104,7 +1123,13 @@ public class JeproLabImageModel extends JeproLabModel {
                             //}
                         }
                     }catch(SQLException ignored){
-
+                        ignored.printStackTrace();
+                    }finally {
+                        try {
+                            JeproLabDataBaseConnector.getInstance().closeConnexion();
+                        }catch (Exception e) {
+                            e.printStackTrace();
+                        }
                     }
                 }
                 is_passed = true;

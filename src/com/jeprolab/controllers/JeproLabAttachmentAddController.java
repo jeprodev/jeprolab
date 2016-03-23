@@ -18,4 +18,5 @@ public class JeproLabAttachmentAddController extends JeproLabController{
     public void initialize(URL location, ResourceBundle resource){
         bundle  = resource;
     }
+
 }

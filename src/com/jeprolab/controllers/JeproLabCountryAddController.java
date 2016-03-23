@@ -112,11 +112,11 @@ public class JeproLabCountryAddController extends JeproLabController{
         GridPane.setMargin(needZipCodeLabel, new Insets(5, 0, 10, 15));
         GridPane.setValignment(addressLayoutFormatLabel, VPos.TOP);
 
-        initializeContent();
+        //initializeContent();
     }
 
     @Override
-    protected void initializeContent(){
+    public void initializeContent(){
         loadCountry(false);
         List<JeproLabZoneModel> zones = JeproLabZoneModel.getZones(true);
         countryZone.setPrefWidth(120);

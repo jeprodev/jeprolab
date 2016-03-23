@@ -52,10 +52,6 @@ public class JeproLabEmployeeModel  extends JeproLabModel{
     }
 
     public JeproLabEmployeeModel(int employeeId, int langId, int labId){
-        if(dataBaseObject == null){
-            dataBaseObject = JeproLabFactory.getDataBaseConnector();
-        }
-
         if(langId > 0){
             this.language_id = JeproLabLanguageModel.checkLanguage(langId) ? langId : JeproLabSettingModel.getIntValue("default_lang");
         }
@@ -68,6 +64,10 @@ public class JeproLabEmployeeModel  extends JeproLabModel{
         if(employeeId > 0){
             /** loading employee from database given it id **/
             String cacheKey = "jeprolab_employee_model_" + employeeId + "_" + langId + "_" + labId;
+            if(dataBaseObject == null){
+                dataBaseObject = JeproLabFactory.getDataBaseConnector();
+            }
+
             if(!JeproLabCache.getInstance().isStored(cacheKey)){
                 String query = "SELECT * FROM " + dataBaseObject.quoteName("#__users") + " AS employee ";
                 String where = "";

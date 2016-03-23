@@ -2,6 +2,7 @@ package com.jeprolab.models;
 
 import com.jeprolab.assets.tools.JeproLabCache;
 import com.jeprolab.assets.tools.JeproLabContext;
+import com.jeprolab.assets.tools.db.JeproLabDataBaseConnector;
 import com.jeprolab.models.core.JeproLabFactory;
 import javafx.scene.control.Pagination;
 
@@ -42,7 +43,13 @@ public class JeproLabZoneModel extends JeproLabModel{
                             this.allow_delivery = zoneData.getInt("allow_delivery") > 0;
                         }
                     }catch (SQLException ignored){
-
+                        ignored.printStackTrace();
+                    }finally {
+                        try {
+                            JeproLabDataBaseConnector.getInstance().closeConnexion();
+                        }catch (Exception e) {
+                            e.printStackTrace();
+                        }
                     }
                 }
                 JeproLabCache.getInstance().store(cacheKey, this);
@@ -145,7 +152,13 @@ public class JeproLabZoneModel extends JeproLabModel{
                     zones.add(zone);
                 }
             }catch (SQLException ignored){
-
+                ignored.printStackTrace();
+            }finally {
+                try {
+                    JeproLabDataBaseConnector.getInstance().closeConnexion();
+                }catch (Exception e) {
+                    e.printStackTrace();
+                }
             }
             JeproLabCache.getInstance().store(cacheKey, zones);
         }

@@ -97,7 +97,7 @@ public class JeproLabCurrencyAddController extends JeproLabController {
     }
 
     @Override
-    protected void initializeContent(){
+    public void initializeContent(){
         loadObject(false);
         updateToolBar();
     }
