@@ -1,0 +1,15 @@
+<?import com.jeprolab.assets.extend.controls.JeproFormPanel?>
+<?import com.jeprolab.assets.extend.controls.JeproFormPanelTitle?>
+<?import com.jeprolab.assets.extend.controls.JeproFormPanelContainer?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TextField?>
+<JeproFormPanel xmlns:fx="http://javafx.com/fxml" fx:id="jeproLabSampleMatrixFormWrapper" fx:controller="com.jeprolab.controllers.JeproLabMatrixController" >
+    <JeproFormPanelTitle fx:id="jeproLabSampleMatrixFormTitleWrapper" />
+    <JeproFormPanelContainer fx:id="jeproLabSampleMatrixContainerWrapper" >
+        <GridPane fx:id="" >
+            <Label fx:id="jeproLabMatrixNameLabel" GridPane.columnIndex="0" GridPane.rowIndex="0" />
+            <TextField fx:id="jeproLabMatrixName" GridPane.columnIndex="1" GridPane.rowIndex="0"/>
+        </GridPane>
+    </JeproFormPanelContainer>
+</JeproFormPanel>

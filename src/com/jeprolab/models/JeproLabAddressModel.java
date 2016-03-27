@@ -266,12 +266,6 @@ public class JeproLabAddressModel extends JeproLabModel {
 
         }catch (SQLException ignored){
             ignored.printStackTrace();
-        }finally {
-            try {
-                JeproLabDataBaseConnector.getInstance().closeConnexion();
-            }catch (Exception e) {
-                e.printStackTrace();
-            }
         }
         return  addresses;
     }

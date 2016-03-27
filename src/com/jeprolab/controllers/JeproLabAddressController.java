@@ -2,6 +2,7 @@ package com.jeprolab.controllers;
 
 import com.jeprolab.JeproLab;
 import com.jeprolab.assets.extend.controls.JeproFormPanel;
+import com.jeprolab.assets.tools.JeproLabContext;
 import com.jeprolab.assets.tools.db.JeproLabDataBaseConnector;
 import com.jeprolab.models.JeproLabAddressModel;
 import javafx.beans.property.SimpleIntegerProperty;
@@ -39,6 +40,9 @@ public class JeproLabAddressController extends JeproLabController {
 
 
     public void initialize(URL location, ResourceBundle resourceBundle){
+        if(context == null){
+            context = JeproLabContext.getContext();
+        }
         bundle = resourceBundle;
         double padding = 0.01 * JeproLab.APP_WIDTH;
         double layoutWidth = (0.98 * JeproLab.APP_WIDTH) - 60;
@@ -75,7 +79,7 @@ public class JeproLabAddressController extends JeproLabController {
 
         addressList = FXCollections.observableArrayList();
 
-
+        context.controller = this;
     }
 
     @Override
@@ -86,7 +90,7 @@ public class JeproLabAddressController extends JeproLabController {
 
         /**
          * Retrieve items for the list
-         */
+         * /
         ResultSet results = JeproLabAddressModel.getAddressList();
         try{
             int index = 0;
@@ -107,7 +111,7 @@ public class JeproLabAddressController extends JeproLabController {
             }
         }
 
-        //this.jeproLabAddressesList.setItems(addressList); //updateToolBar();
+        //this.jeproLabAddressesList.setItems(addressList); //updateToolBar(); **/
     }
 
     @Override

@@ -2,6 +2,7 @@ package com.jeprolab.controllers;
 
 
 import com.jeprolab.assets.tools.JeproLabContext;
+import com.jeprolab.views.application.JeproLabApplicationForm;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Menu;
@@ -18,16 +19,17 @@ public class JeproLabMenuController extends JeproLabController {
     @FXML
     public VBox jeproLabMenuBarWrapper;
     public MenuBar jeproLabMenuBar;
-    public Menu dashBoardMenu, catalogMenu, customerMenu, helpMenu, feedsMenu, settingMenu;
+    public Menu dashBoardMenu, catalogMenu, customerMenu, helpMenu, feedsMenu, settingMenu, requestMenu, requestBillsMenu;
     public Menu categorySubMenu, customersSubMenu, addressesSubMenu, groupsSubMenu, currentSubRequestMenu, threadsSubMenu, contactsSubMenu;
     public Menu analyzeSubMenu, attachmentsSubMenu, feedsSubMenu, feedBackSubMenu, laboratorySubMenu, laboratoryGroupSubMenu;
     public Menu localisationSubMenu, taxesSubMenu, countriesSubMenu, zonesSubMenu, statesSubMenu, currenciesSubMenu;
+    public Menu requestComplaintMenu, requestRefundMenu, requestStatusMenu, requestMessageMenu;
     public MenuItem addAnalyseSubMenuItem, dashBoardMenuItem;
     public MenuItem addCustomerMenuItem, customersSubMenuItem;
     public MenuItem addAttachmentSubMenuItem, attachmentSubMenuItem;
     public MenuItem addCategoryMenuItem, categorySubMenuItem, addFeedMenuItem, feedBackMenuItem, customersMenuItem;
     public MenuItem aboutJeproLabMenuItem, checkForJeproLabUpdate;
-    public MenuItem addLaboratorySubMenuItem, addLaboratoryGroupSubMenuItem;
+    public MenuItem addLaboratorySubMenuItem, addLaboratoryGroupSubMenuItem, laboratorySubMenuItem;
     public MenuItem analyzeSubMenuItem;
     public MenuItem addressesSubMenuItem, addAddressMenuItem;
     public MenuItem groupsSubMenuItem, addGroupMenuItem, currentRequestMenuItem;
@@ -36,6 +38,9 @@ public class JeproLabMenuController extends JeproLabController {
     public MenuItem zoneListSubMenuItem;
     public MenuItem addTaxSubMenuItem, addTaxGroupSubMenuItem, taxesGroupSubMenuItem, taxesSubMenuItem;
     public MenuItem addCountrySubMenu, editZoneSubMenu, addStateSubMenu, addCurrencySubMenu;
+    public MenuItem requestListMenuItem, requestAddNewMenuItem, requestBillsMenuItem, requestAddBillMenuItem;
+    public MenuItem requestComplaintMenuItem, requestAddNewComplaintMenuItem, requestRefundsMenuItem, requestAddNewRefundsMenuItem;
+    public MenuItem requestStatusMenuItem, requestAddStatusMenuItem, requestMessagesMenuItem, requestAddMessageMenuItem;
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
@@ -99,6 +104,7 @@ public class JeproLabMenuController extends JeproLabController {
          */
         settingMenu.setText(bundle.getString("JEPROLAB_SETTINGS_LABEL"));
         laboratorySubMenu.setText(bundle.getString("JEPROLAB_LABORATORIES_LABEL"));
+        laboratorySubMenuItem.setText(bundle.getString("JEPROLAB_LIST_OF_LABEL") + " " + bundle.getString("JEPROLAB_LABORATORIES_LABEL"));
         addLaboratorySubMenuItem.setText(bundle.getString("JEPROLAB_ADD_NEW_LABEL") + " " + bundle.getString("JEPROLAB_LABORATORY_LABEL"));
         laboratoryGroupSubMenu.setText(bundle.getString("JEPROLAB_LABORATORIES_GROUPS_LABEL"));
         addLaboratoryGroupSubMenuItem.setText(bundle.getString("JEPROLAB_ADD_NEW_LABEL") + " " + bundle.getString("JEPROLAB_LABORATORY_GROUP_LABEL"));
@@ -115,6 +121,28 @@ public class JeproLabMenuController extends JeproLabController {
         currentRequestMenuItem
         threadsMenuItem
         contactsMenuItem */
+
+        /**
+         *
+         */
+        requestMenu.setText(bundle.getString("JEPROLAB_REQUESTS_LABEL"));
+        requestBillsMenu.setText(bundle.getString("JEPROLAB_REQUEST_LABEL") + " " + bundle.getString("JEPROLAB_BILLS_LABEL"));
+        requestComplaintMenu.setText(bundle.getString("JEPROLAB_REQUEST_LABEL") + " " + bundle.getString("JEPROLAB_COMPLAINTS_LABEL"));
+        requestRefundMenu.setText(bundle.getString("JEPROLAB_REQUEST_LABEL") + " " + bundle.getString("JEPROLAB_REFUNDS_LABEL"));
+        requestStatusMenu.setText(bundle.getString("JEPROLAB_REQUEST_LABEL") + " " + bundle.getString("JEPROLAB_STATUS_LABEL"));
+        requestMessageMenu.setText(bundle.getString("JEPROLAB_REQUEST_LABEL") + " " + bundle.getString("JEPROLAB_MESSAGES_LABEL"));
+        requestListMenuItem.setText(bundle.getString("JEPROLAB_LIST_OF_LABEL") + " " + bundle.getString("JEPROLAB_REQUESTS_LABEL"));
+        requestAddNewMenuItem.setText(bundle.getString("JEPROLAB_ADD_NEW_LABEL") + " " + bundle.getString("JEPROLAB_REQUEST_LABEL"));
+        requestBillsMenuItem.setText(bundle.getString("JEPROLAB_LIST_OF_LABEL") + " " + bundle.getString("JEPROLAB_BILLS_LABEL"));
+        requestAddBillMenuItem.setText(bundle.getString("JEPROLAB_ADD_NEW_LABEL") + " " + bundle.getString("JEPROLAB_BILL_LABEL"));
+        requestStatusMenuItem.setText(bundle.getString("JEPROLAB_LIST_OF_LABEL") + " " + bundle.getString("JEPROLAB_STATUS_LABEL"));
+        requestAddStatusMenuItem.setText(bundle.getString("JEPROLAB_ADD_NEW_LABEL") + " " + bundle.getString("JEPROLAB_STATUS_LABEL"));
+        requestMessagesMenuItem.setText(bundle.getString("JEPROLAB_LIST_OF_LABEL") + " " + bundle.getString("JEPROLAB_MESSAGES_LABEL"));
+        requestAddMessageMenuItem.setText(bundle.getString("JEPROLAB_ADD_NEW_LABEL") + " " + bundle.getString("JEPROLAB_MESSAGE_LABEL"));
+        requestComplaintMenuItem.setText(bundle.getString("JEPROLAB_LIST_OF_LABEL") + " " + bundle.getString("JEPROLAB_COMPLAINTS_LABEL"));
+        requestAddNewComplaintMenuItem.setText(bundle.getString("JEPROLAB_ADD_NEW_LABEL") + " " + bundle.getString("JEPROLAB_COMPLAINT_LABEL") + " " + bundle.getString("JEPROLAB__LABEL"));
+        requestRefundsMenuItem.setText(bundle.getString("JEPROLAB_LIST_OF_LABEL") + " " + bundle.getString("JEPROLAB_REFUNDS_LABEL"));
+        requestAddNewRefundsMenuItem.setText(bundle.getString("JEPROLAB_ADD_NEW_LABEL") + " " + bundle.getString("JEPROLAB_REFUND_LABEL"));
 
         /**
          *
@@ -138,7 +166,9 @@ public class JeproLabMenuController extends JeproLabController {
     }
 
     public void handleDashBoardMenuEvent(ActionEvent event)throws IOException{
+        JeproLab.request.getRequest().clear();
         JeproLab.getInstance().goToForm(JeproLab.getInstance().getApplicationForms().dashBoardForm);
+        JeproLabContext.getContext().controller.initializeContent();
     }
 
     public void handleCategoriesMenuEvent(ActionEvent event) throws IOException {
@@ -146,13 +176,11 @@ public class JeproLabMenuController extends JeproLabController {
         JeproLabContext.getContext().controller.initializeContent();
     }
 
-
     public void handleAddCategoryMenuEvent(ActionEvent event) throws IOException {
         JeproLab.request.getRequest().clear();
         JeproLab.getInstance().goToForm(JeproLab.getInstance().getApplicationForms().addCategoryForm);
         JeproLabContext.getContext().controller.initializeContent();
     }
-
 
     public void handleAnalyzesMenuEvent(ActionEvent event) throws IOException {
         JeproLab.request.getRequest().clear();
@@ -160,147 +188,202 @@ public class JeproLabMenuController extends JeproLabController {
         JeproLabContext.getContext().controller.initializeContent();
     }
 
-
     public void handleAddAnalyseMenuEvent(ActionEvent event) throws IOException {
+        JeproLab.request.getRequest().clear();
         JeproLab.getInstance().goToForm(JeproLab.getInstance().getApplicationForms().addAnalyzeForm);
+        JeproLabContext.getContext().controller.initializeContent();
     }
-
 
     public void handleAttachmentsMenuEvent(ActionEvent event) throws IOException {
         JeproLab.getInstance().goToForm(JeproLab.getInstance().getApplicationForms().attachmentForm);
+        JeproLabContext.getContext().controller.initializeContent();
     }
 
     public void handleAddAttachmentMenuEvent(ActionEvent event) throws IOException{
+        JeproLab.request.getRequest().clear();
         JeproLab.getInstance().goToForm(JeproLab.getInstance().getApplicationForms().addAttachmentForm);
+        JeproLabContext.getContext().controller.initializeContent();
     }
-
 
     public void handleCustomersMenuEvent(ActionEvent event) throws IOException {
+        JeproLab.request.getRequest().clear();
         JeproLab.getInstance().goToForm(JeproLab.getInstance().getApplicationForms().customersForm);
+        JeproLabContext.getContext().controller.initializeContent();
     }
-
 
     public void handleAddNewCustomerMenuEvent(ActionEvent event) throws IOException {
+        JeproLab.request.getRequest().clear();
         JeproLab.getInstance().goToForm(JeproLab.getInstance().getApplicationForms().addCustomerForm);
+        JeproLabContext.getContext().controller.initializeContent();
     }
-
 
     public void handleAddressesMenuEvent(ActionEvent event) throws IOException {
+        JeproLab.request.getRequest().clear();
         JeproLab.getInstance().goToForm(JeproLab.getInstance().getApplicationForms().addressesForm);
+        JeproLabContext.getContext().controller.initializeContent();
     }
-
 
     public void handleAddNewAddressMenuEvent(ActionEvent event) throws IOException {
+        JeproLab.request.getRequest().clear();
         JeproLab.getInstance().goToForm(JeproLab.getInstance().getApplicationForms().addAddressForm);
+        JeproLabContext.getContext().controller.initializeContent();
     }
-
 
     public void handleGroupsMenuEvent(ActionEvent event) throws IOException {
         JeproLab.getInstance().goToForm(JeproLab.getInstance().getApplicationForms().groupsForm);
+        JeproLabContext.getContext().controller.initializeContent();
     }
-
 
     public void handleAddGroupMenuEvent(ActionEvent event) throws IOException {
+        JeproLab.request.getRequest().clear();
         JeproLab.getInstance().goToForm(JeproLab.getInstance().getApplicationForms().addGroupForm);
+        JeproLabContext.getContext().controller.initializeContent();
     }
-
 
     public void handleRequestsMenuEvent(ActionEvent event) throws IOException {
         JeproLab.getInstance().goToForm(JeproLab.getInstance().getApplicationForms().requestForm);
+        JeproLabContext.getContext().controller.initializeContent();
     }
-
 
     public void handleCustomerThreadsMenuEvent(ActionEvent event) throws IOException {
         JeproLab.getInstance().goToForm(JeproLab.getInstance().getApplicationForms().requestForm);
+        JeproLabContext.getContext().controller.initializeContent();
     }
-
 
     public void handleContactsMenuEvents(ActionEvent event) throws IOException {
         JeproLab.getInstance().goToForm(JeproLab.getInstance().getApplicationForms().requestForm);
+        JeproLabContext.getContext().controller.initializeContent();
     }
-
 
     public void handleFeedsMenuEvent(ActionEvent event) throws IOException {
         JeproLab.getInstance().goToForm(JeproLab.getInstance().getApplicationForms().feedsForm);
+        JeproLabContext.getContext().controller.initializeContent();
     }
 
     public void handleAddFeedMenuEvent(ActionEvent event) throws IOException {
+        JeproLab.request.getRequest().clear();
         JeproLab.getInstance().goToForm(JeproLab.getInstance().getApplicationForms().addFeedForm);
+        JeproLabContext.getContext().controller.initializeContent();
     }
 
     public void handleFeedBackMenuEvent(ActionEvent event) throws IOException {
         JeproLab.getInstance().goToForm(JeproLab.getInstance().getApplicationForms().feedBackForm);
+        JeproLabContext.getContext().controller.initializeContent();
     }
 
     public void handleViewFeedBackMenuEvent(ActionEvent event) throws IOException {
         JeproLab.getInstance().goToForm(JeproLab.getInstance().getApplicationForms().viewFeedBackForm);
+        JeproLabContext.getContext().controller.initializeContent();
     }
-
 
     public void handleLaboratoriesMenuEvent(ActionEvent evt) throws IOException{
         JeproLab.getInstance().goToForm(JeproLab.getInstance().getApplicationForms().laboratoriesForm);
+        JeproLabContext.getContext().controller.initializeContent();
     }
 
     public void handleAddNewLaboratoryMenuEvent(ActionEvent evt) throws IOException{
+        JeproLab.request.getRequest().clear();
         JeproLab.getInstance().goToForm(JeproLab.getInstance().getApplicationForms().addLaboratoryForm);
+        JeproLabContext.getContext().controller.initializeContent();
     }
 
     public void handleLaboratoryGroupsMenuEvent(ActionEvent evt) throws IOException{
         JeproLab.getInstance().goToForm(JeproLab.getInstance().getApplicationForms().laboratoriesGroupsForm);
+        JeproLabContext.getContext().controller.initializeContent();
     }
 
     public void handleAddNewLaboratoryGroupMenuEvent(ActionEvent evt) throws IOException{
+        JeproLab.request.getRequest().clear();
         JeproLab.getInstance().goToForm(JeproLab.getInstance().getApplicationForms().addLaboratoriesGroupForm);
+        JeproLabContext.getContext().controller.initializeContent();
     }
-
 
     public void handleCustomerMenuEvent(ActionEvent event) throws IOException {
         JeproLab.getInstance().goToForm(JeproLab.getInstance().getApplicationForms().requestForm);
+        JeproLabContext.getContext().controller.initializeContent();
     }
 
 
     public void handleHelpMenuEvent(ActionEvent event) throws IOException {
         JeproLab.getInstance().goToForm(JeproLab.getInstance().getApplicationForms().requestForm);
+        JeproLabContext.getContext().controller.initializeContent();
     }
 
     public void handleAddNewZoneMenuEvent(ActionEvent event) throws IOException {
+        JeproLab.request.getRequest().clear();
         JeproLab.getInstance().goToForm(JeproLab.getInstance().getApplicationForms().addZoneForm);
+        JeproLabContext.getContext().controller.initializeContent();
     }
 
     public void handleAddNewCountryMenuEvent(ActionEvent event) throws IOException {
+        JeproLab.request.getRequest().clear();
         JeproLab.getInstance().goToForm(JeproLab.getInstance().getApplicationForms().addCountryForm);
+        JeproLabContext.getContext().controller.initializeContent();
     }
 
     public void handleAddNewStateMenuEvent(ActionEvent event) throws IOException {
+        JeproLab.request.getRequest().clear();
         JeproLab.getInstance().goToForm(JeproLab.getInstance().getApplicationForms().addStateForm);
+        JeproLabContext.getContext().controller.initializeContent();
     }
 
     public void handleAddNewCurrencyMenuEvent(ActionEvent event) throws IOException {
+        JeproLab.request.getRequest().clear();
         JeproLab.getInstance().goToForm(JeproLab.getInstance().getApplicationForms().addCurrencyForm);
+        JeproLabContext.getContext().controller.initializeContent();
     }
 
     public void handleAddNewTaxMenuEvent(ActionEvent event) throws IOException {
+        JeproLab.request.getRequest().clear();
         JeproLab.getInstance().goToForm(JeproLab.getInstance().getApplicationForms().addTaxForm);
+        JeproLabContext.getContext().controller.initializeContent();
     }
 
     public void handleAddNewTaxGroupMenuEvent(ActionEvent event) throws IOException {
+        JeproLab.request.getRequest().clear();
         JeproLab.getInstance().goToForm(JeproLab.getInstance().getApplicationForms().addTaxGroupForm);
+        JeproLabContext.getContext().controller.initializeContent();
     }
 
     public void handleZoneListMenuEvent(ActionEvent event) throws IOException {
         JeproLab.getInstance().goToForm(JeproLab.getInstance().getApplicationForms().zonesForm);
+        JeproLabContext.getContext().controller.initializeContent();
     }
 
     public void handleTaxesMenuEvent(ActionEvent event) throws IOException{
         JeproLab.getInstance().goToForm(JeproLab.getInstance().getApplicationForms().taxesForm);
+        JeproLabContext.getContext().controller.initializeContent();
     }
 
     public void handleTaxesGroupMenuEvent(ActionEvent event) throws IOException{
         JeproLab.getInstance().goToForm(JeproLab.getInstance().getApplicationForms().taxGroupForm);
+        JeproLabContext.getContext().controller.initializeContent();
     }
 
     public void handleCheckForJeproLabUpdate(ActionEvent event) throws IOException {
         JeproLab.getInstance().goToForm(JeproLab.getInstance().getApplicationForms().updaterForm);
+        JeproLabContext.getContext().controller.initializeContent();
+    }
+
+    public void handleRequestAddNewMenuEvent(ActionEvent event) throws  IOException {
+        processAddEvent(JeproLab.getInstance().getApplicationForms().addRequestForm);
+    }
+
+    public void handleRequestBillsMenuEvent(ActionEvent event) throws  IOException {}
+    public void handleRequestAddBillMenuEvent(ActionEvent event) throws  IOException {}
+    public void handleRequestComplaintsMenuEvent(ActionEvent event) throws  IOException {}
+    public void handleRequestAddNewComplaintMenuEvent(ActionEvent event) throws  IOException {}
+    public void handleRequestRefundsMenuEvent(ActionEvent event) throws  IOException {}
+    public void handleRequestAddRefundMenuEvent(ActionEvent event) throws  IOException {}
+    public void handleRequestStatusMenuEvent(ActionEvent event) throws  IOException {}
+    public void handleRequestAddStatusMenuEvent(ActionEvent event) throws  IOException {}
+    public void handleRequestMessagesMenuEvent(ActionEvent event) throws  IOException {}
+    public void handleRequestAddMessageMenuEvent(ActionEvent event) throws  IOException {}
+
+    private void processAddEvent(JeproLabApplicationForm form) throws IOException{
+        JeproLab.request.getRequest().clear();
+        JeproLab.getInstance().goToForm(form);
+        JeproLabContext.getContext().controller.initializeContent();
     }
 
     @Override

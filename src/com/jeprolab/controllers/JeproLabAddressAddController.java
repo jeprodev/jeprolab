@@ -54,6 +54,9 @@ public class JeproLabAddressAddController extends JeproLabController{
     public ComboBox<String> jeproLabAddressCountryZone, jeproLabAddressCountry;
 
     public void initialize(URL location, ResourceBundle resource){
+        if(context == null){
+            context = JeproLabContext.getContext();
+        }
         bundle = resource;
         double labelColumnWidth = 150;
         double inputColumnWidth = 300;
@@ -133,9 +136,7 @@ public class JeproLabAddressAddController extends JeproLabController{
         jeproLabAddressMobilePhoneLabel.getStyleClass().add("input-label");
         jeproLabAddressPhoneLabel.setText(bundle.getString("JEPROLAB_PHONE_LABEL"));
         jeproLabAddressPhoneLabel.getStyleClass().add("input-label");
-        //jeproLabAddressCustomer);
-
-        initializeContent();
+        context.controller = this;
     }
 
     @Override

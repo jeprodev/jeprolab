@@ -82,22 +82,29 @@ public class JeproLabLanguageModel extends JeproLabModel{
         ResultSet languages = staticDataBaseObject.loadObject();
 
         String default_language = JeproLabLanguageModel.getDefaultLanguage().language_code;
-        //if(languages)
-        try{
-            while(languages.next()){
-                JeproLabLanguageModel lang = new JeproLabLanguageModel();
-                lang.language_id =  languages.getInt("lang_id");
-                lang.language_code = languages.getString("lang_code");
-                lang.name = languages.getString("title");
-                lang.iso_code = languages.getString("sef");
+        if(languages != null) {
+            try {
+                while (languages.next()) {
+                    JeproLabLanguageModel lang = new JeproLabLanguageModel();
+                    lang.language_id = languages.getInt("lang_id");
+                    lang.language_code = languages.getString("lang_code");
+                    lang.name = languages.getString("title");
+                    lang.iso_code = languages.getString("sef");
 
-                lang.published = (languages.getInt("published") > 0) ;
-                lang.is_default = lang.language_code.equals(default_language);
+                    lang.published = (languages.getInt("published") > 0);
+                    lang.is_default = lang.language_code.equals(default_language);
 
-                JeproLabLanguageModel.LANGUAGES.put(lang.language_id, lang);
+                    JeproLabLanguageModel.LANGUAGES.put(lang.language_id, lang);
+                }
+            } catch (SQLException ignored) {
+                ignored.printStackTrace();
+            }finally {
+                try {
+                    JeproLabDataBaseConnector.getInstance().closeConnexion();
+                }catch (Exception e) {
+                    e.printStackTrace();
+                }
             }
-        }catch (SQLException ignored){
-            ignored.printStackTrace();
         }
     }
 

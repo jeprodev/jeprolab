@@ -132,7 +132,6 @@ public class JeproLabCountryModel  extends JeproLabModel{
                                         name.put("lang_" + languageId, countryName);
                                     }
                                 }
-
                             }
                         }else{
                             name.put("lang_" + langId, countryData.getString("name"));

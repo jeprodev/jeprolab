@@ -6883,15 +6883,15 @@ public function getAnchor($id_analyze_attribute, $with_id = false)
         staticDataBaseObject.setQuery(select + from + leftJoin + innerJoin + where);
         return staticDataBaseObject.loadStringValue("name");
     }
-/*
-public function addWs($autodate = true, $null_values = false)
-        {
-        $success = this.add($autodate, $null_values);
-        if ($success && JeproLabSettingModel.get('PS_SEARCH_INDEXATION')) {
-        Search::indexation(false, this.id);
-        }
-        return $success;
-        }
+    /*
+    public function addWs($autodate = true, $null_values = false)
+            {
+            $success = this.add($autodate, $null_values);
+            if ($success && JeproLabSettingModel.get('PS_SEARCH_INDEXATION')) {
+            Search::indexation(false, this.id);
+            }
+            return $success;
+     }
 
 public function updateWs($null_values = false)
         {

@@ -1,0 +1,51 @@
+<?import com.jeprolab.assets.extend.controls.JeproFormPanel?>
+<?import com.jeprolab.assets.extend.controls.JeproFormPanelTitle?>
+<?import com.jeprolab.assets.extend.controls.JeproFormPanelContainer?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.layout.Pane?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.layout.HBox?>
+<?import com.jeprolab.assets.extend.controls.JeproPhoneField?>
+
+<JeproFormPanel xmlns:fx="http://javafx.com/fxml" fx:id="jeproLabRequestFormWrapper" fx:controller="com.jeprolab.controllers.JeproLabAddRequestController" >
+    <JeproFormPanelTitle fx:id="jeproLabRequestFormTitleWrapper" />
+    <JeproFormPanelContainer fx:id="jeproLabRequestContentWrapper" >
+        <VBox>
+            <Pane fx:id="jeproLabCustomerInformationWrapper" >
+                <Pane fx:id="jeproLabCustomerInformationTitleWrapper" />
+                <Pane fx:id="jeproLabCustomerInformationContentWrapper" >
+                    <GridPane >
+                        <Label GridPane.columnIndex="0" GridPane.rowIndex="0" fx:id="jeproLabCustomerCompanyNameLabel" />
+                        <TextField GridPane.columnIndex="1" GridPane.rowIndex="0" fx:id="jeproLabCustomerCompanyName" />
+                        <Label GridPane.columnIndex="3" GridPane.rowIndex="0" GridPane.columnSpan="2" fx:id="jeproLabResultTransmissionLabel" />
+
+                        <Label GridPane.columnIndex="0" GridPane.rowIndex="1" fx:id="jeproLabCustomerCompanyAddressLabel" />
+                        <TextField GridPane.columnIndex="1" GridPane.rowIndex="1" fx:id="jeproLabCustomerCompanyAddress" />
+                        <Label GridPane.rowIndex="1" GridPane.columnIndex="3" fx:id="jeproLabRequestFirstContactLabel" />
+                        <ComboBox GridPane.rowIndex="1" GridPane.columnIndex="4" fx:id="jeproLabRequestFirstContact" />
+
+                        <TextField GridPane.columnIndex="1" GridPane.rowIndex="2" fx:id="jeproLabCustomerCompanyAddressDetails" />
+                        <Label GridPane.rowIndex="2" GridPane.columnIndex="3" fx:id="jeproLabRequestSecondContactLabel" />
+                        <ComboBox GridPane.rowIndex="2" GridPane.columnIndex="4" fx:id="jeproLabRequestSecondContact" />
+                        <Label GridPane.columnIndex="0" GridPane.rowIndex="3" fx:id="jeproLabCustomerCompanyPhoneLabel" />
+                        <HBox GridPane.columnIndex="1" GridPane.rowIndex="3" fx:id="jeproLabCustomerCompanyPhoneWrapper" spacing="5" >
+                            <JeproPhoneField fx:id="jeproLabCustomerCompanyPhone" />
+                            <Label fx:id="jeproLabCustomerCompanyFaxLabel" />
+                            <JeproPhoneField fx:id="jeproLabCustomerCompanyFax" />
+                        </HBox>
+                        <Label GridPane.columnIndex="0" GridPane.rowIndex="4" fx:id="jeproLabRequestRequestMainContactInfoLabel" />
+                        <TextField GridPane.columnIndex="1" GridPane.rowIndex="4" fx:id="jeproLabRequestRequestReference" />
+                        <Label GridPane.columnIndex="0" GridPane.rowIndex="4" fx:id="jeproLabRequestRequestReferenceLabel" />
+                        <Label GridPane.rowIndex="3" GridPane.columnIndex="3" fx:id="jeproLabRequestThirdContactLabel" />
+                        <ComboBox GridPane.rowIndex="3" GridPane.columnIndex="4" fx:id="jeproLabRequestThirdContact" />
+                        <Label GridPane.rowIndex="4" GridPane.columnIndex="3" fx:id="jeproLabRequestFourthContactLabel" />
+                        <ComboBox GridPane.rowIndex="4" GridPane.columnIndex="4" fx:id="jeproLabRequestFourthContact" />
+                    </GridPane>
+                </Pane>
+            </Pane>
+        </VBox>
+    </JeproFormPanelContainer>
+</JeproFormPanel>

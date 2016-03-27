@@ -212,10 +212,7 @@ public class JeproLabAnalyzeAddController extends JeproLabController {
         jeproLabAnalyzeAttachedFileTabForm.setText(bundle.getString("JEPROLAB_ATTACHED_FILES_LABEL"));
         jeproLabAnalyzeAttachedFileTabForm.setClosable(false);
 
-
-        initializeContent();
-        addEventListener();
-        updateToolBar();
+        context.controller = this;
     }
 
     @Override
@@ -225,7 +222,8 @@ public class JeproLabAnalyzeAddController extends JeproLabController {
         }
         JeproLabRequest request = JeproLab.request;
         this.loadAnalyze(true);
-
+        addEventListener();
+        updateToolBar();
 
         int multiLabCheck = 0;
         if (JeproLabLaboratoryModel.isFeaturePublished()) {

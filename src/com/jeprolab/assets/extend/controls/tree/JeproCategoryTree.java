@@ -238,7 +238,7 @@ public class JeproCategoryTree extends JeproTree {
                 }else if(templateNodeItem.equals("tree_node_item_radio")){
 
                 }
-            }System.out.println(templateNodeFolder + " " + templateNodeItem + " " + category.name.get("lang_" + langId));
+            }
         }
 
         if(this.getTreeTemplate().equals("associated_categories")){

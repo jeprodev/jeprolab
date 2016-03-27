@@ -10,10 +10,8 @@ import com.jeprolab.models.core.JeproLabFactory;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.ListIterator;
+import java.util.*;
+import java.util.stream.Collectors;
 
 public class JeproLabLaboratoryModel  extends JeproLabModel{
     public int laboratory_id = 0;
@@ -48,7 +46,7 @@ public class JeproLabLaboratoryModel  extends JeproLabModel{
 
     public boolean deleted;
 
-    protected static ArrayList<JeproLabLaboratoryGroupModel> labGroups;
+    protected static Map<Integer, JeproLabLaboratoryGroupModel> labGroups = new HashMap<>();
 
     protected static boolean isInitialized = false;
 
@@ -262,9 +260,7 @@ public class JeproLabLaboratoryModel  extends JeproLabModel{
         associatedTables.add("zone");
         associatedTables.add("technician");
 
-        for(String associatedTable : associatedTables){
-            JeproLabLaboratoryModel.addTableAssociation(associatedTable);
-        }
+        associatedTables.forEach(JeproLabLaboratoryModel::addTableAssociation);
 
         JeproLabLaboratoryModel.isInitialized = true;
     }
@@ -519,12 +515,7 @@ public class JeproLabLaboratoryModel  extends JeproLabModel{
 
         List<Integer> results = new ArrayList<>();
         for(JeproLabLaboratoryGroupModel labGroup : JeproLabLaboratoryGroupModel.getLaboratoryGroups()){
-            for(JeproLabLaboratoryModel lab : labGroup.laboratories){
-                if ((!published || lab.published) && (labGroup.laboratory_group_id < 0 || labGroup.laboratory_group_id == labGroupId)) {
-                    results.add(lab.laboratory_id);
-
-                }
-            }
+            results.addAll(labGroup.laboratories.stream().filter(lab -> (!published || lab.published) && (labGroup.laboratory_group_id < 0 || labGroup.laboratory_group_id == labGroupId)).map(lab -> lab.laboratory_id).collect(Collectors.toList()));
         }
         return results;
     }
@@ -565,11 +556,11 @@ public class JeproLabLaboratoryModel  extends JeproLabModel{
         }
 
         JeproLabLaboratoryModel.cacheLaboratories();
-        for(JeproLabLaboratoryGroupModel laboratoryGroup : JeproLabLaboratoryModel.labGroups){
+        /*for(JeproLabLaboratoryGroupModel laboratoryGroup : JeproLabLaboratoryModel.labGroups){
             /* todo if (array_key_exists($lab_id, $group_data['labs']) && $group_data[$type]){
                 return array_keys($group_data['labs']);
-            }*/
-        }
+            }* /
+        }*/
         return new ArrayList<>(labId);
     }
 
@@ -579,7 +570,7 @@ public class JeproLabLaboratoryModel  extends JeproLabModel{
 
     public static void cacheLaboratories(boolean refresh){
         if(JeproLabLaboratoryModel.labGroups == null){
-            JeproLabLaboratoryModel.labGroups = new ArrayList<>();
+            JeproLabLaboratoryModel.labGroups = new HashMap<>();
         }
         if((JeproLabLaboratoryModel.labGroups.isEmpty())  || refresh) {
 
@@ -610,7 +601,7 @@ public class JeproLabLaboratoryModel  extends JeproLabModel{
                 JeproLabLaboratoryGroupModel labGroup;
                 while(results.next()){
                     int labGroupId = results.getInt("lab_group_id");
-                    if(!JeproLabLaboratoryModel.labGroups.contains(labGroupId)){
+                    if(!JeproLabLaboratoryModel.labGroups.containsKey(labGroupId)){
                         labGroup = new JeproLabLaboratoryGroupModel();
                         labGroup.laboratory_group_id = results.getInt("lab_group_id");
                         labGroup.name = results.getString("group_name");
@@ -619,7 +610,7 @@ public class JeproLabLaboratoryModel  extends JeproLabModel{
                         labGroup.share_requests = results.getInt("share_requests") > 0;
                         labGroup.share_stocks = results.getInt("share_stocks") > 0;
                         labGroup.laboratories = new ArrayList<>();
-                        labGroups.add(labGroupId, labGroup);
+                        labGroups.put(labGroupId, labGroup);
                     }
 
                     JeproLabLaboratoryGroupModel labGroupModel = labGroups.get(labGroupId);
@@ -676,8 +667,11 @@ public class JeproLabLaboratoryModel  extends JeproLabModel{
 
     public static JeproLabLaboratoryGroupModel getLaboratoryGroupFromLaboratory(int labId){
         JeproLabLaboratoryModel.cacheLaboratories();
-        for(JeproLabLaboratoryGroupModel labGroup : JeproLabLaboratoryModel.labGroups){
-            if(labGroup.laboratories.contains(labId)){
+
+        for(Object labGroupObject : labGroups.entrySet()) {
+            Map.Entry labGroupEntry = (Map.Entry)labGroupObject;
+            JeproLabLaboratoryGroupModel labGroup = (JeproLabLaboratoryGroupModel)labGroupEntry.getValue();
+            if (labGroup.laboratories.contains(labId)) {
                 return labGroup;
             }
         }

@@ -36,8 +36,35 @@
                 <MenuItem fx:id="groupsSubMenuItem" onAction="#handleGroupsMenuEvent" />
                 <MenuItem fx:id="addGroupMenuItem" onAction="#handleAddGroupMenuEvent" />
             </Menu>
-            <Menu fx:id="currentSubRequestMenu" onAction="#handleRequestsMenuEvent" >
-
+            <Menu fx:id="currentSubRequestMenu" >
+                <Menu fx:id="requestMenu" >
+                    <MenuItem fx:id="requestListMenuItem"  onAction="#handleRequestsMenuEvent" />
+                    <MenuItem fx:id="requestAddNewMenuItem"  onAction="#handleRequestAddNewMenuEvent" />
+                </Menu>
+                <Menu fx:id="requestBillsMenu" >
+                    <MenuItem fx:id="requestBillsMenuItem"  onAction="#handleRequestBillsMenuEvent" />
+                    <MenuItem fx:id="requestAddBillMenuItem"  onAction="#handleRequestAddBillMenuEvent" />
+                </Menu>
+                <Menu fx:id="requestComplaintMenu" >
+                    <MenuItem fx:id="requestComplaintMenuItem"  onAction="#handleRequestComplaintsMenuEvent" />
+                    <MenuItem fx:id="requestAddNewComplaintMenuItem"  onAction="#handleRequestAddNewComplaintMenuEvent" />
+                </Menu>
+                <!--Menu fx:id="requestDeliveryMenu" >
+                    <MenuItem fx:id="requestMenuItem"  onAction="#handleRequestsMenuEvent" />
+                    <MenuItem fx:id="requestMenuItem"  onAction="#handleRequestsMenuEvent" />
+                </Menu-->
+                <Menu fx:id="requestRefundMenu" >
+                    <MenuItem fx:id="requestRefundsMenuItem"  onAction="#handleRequestRefundsMenuEvent" />
+                    <MenuItem fx:id="requestAddNewRefundsMenuItem"  onAction="#handleRequestAddRefundMenuEvent" />
+                </Menu>
+                <Menu fx:id="requestStatusMenu" >
+                    <MenuItem fx:id="requestStatusMenuItem"  onAction="#handleRequestStatusMenuEvent" />
+                    <MenuItem fx:id="requestAddStatusMenuItem"  onAction="#handleRequestAddStatusMenuEvent" />
+                </Menu>
+                <Menu fx:id="requestMessageMenu" >
+                    <MenuItem fx:id="requestMessagesMenuItem"  onAction="#handleRequestMessagesMenuEvent" />
+                    <MenuItem fx:id="requestAddMessageMenuItem"  onAction="#handleRequestAddMessageMenuEvent" />
+                </Menu>
             </Menu>
             <Menu fx:id="threadsSubMenu" onAction="#handleCustomerThreadsMenuEvent" >
 
@@ -58,7 +85,8 @@
             </MenuItem>
         </Menu>
         <Menu fx:id="settingMenu" >
-            <Menu fx:id="laboratorySubMenu" onAction="#handleLaboratoriesMenuEvent" >
+            <Menu fx:id="laboratorySubMenu" >
+                <MenuItem  fx:id="laboratorySubMenuItem" onAction="#handleLaboratoriesMenuEvent" />
                 <MenuItem fx:id="addLaboratorySubMenuItem" onAction="#handleAddNewLaboratoryMenuEvent" />
             </Menu>
             <Menu fx:id="laboratoryGroupSubMenu" onAction="#handleLaboratoryGroupsMenuEvent" >
