@@ -1,15 +1,21 @@
 package com.jeprolab.controllers;
 
+import com.jeprolab.JeproLab;
 import com.jeprolab.assets.extend.controls.JeproFormPanel;
 import com.jeprolab.assets.extend.controls.JeproFormPanelContainer;
 import com.jeprolab.assets.extend.controls.JeproFormPanelTitle;
+import com.jeprolab.assets.extend.controls.JeproPhoneField;
 import javafx.fxml.FXML;
-import javafx.scene.control.ComboBox;
-import javafx.scene.control.Label;
-import javafx.scene.control.TextField;
-import javafx.scene.layout.Pane;
+import javafx.geometry.Insets;
+import javafx.geometry.Pos;
+import javafx.scene.control.*;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
+import javafx.scene.layout.*;
 
 import java.net.URL;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.ResourceBundle;
 
 /**
@@ -17,17 +23,236 @@ import java.util.ResourceBundle;
  * Created by jeprodev on 27/03/2014.
  */
 public class JeproLabAddRequestController extends JeproLabController {
+    private Map<Integer, String> sample_matrix = new HashMap<>();
+    private double fourthColumnWidth = 280;
+    private final double formWidth = 0.98 * JeproLab.APP_WIDTH;
+    private final double subFormWidth = 0.96 * JeproLab.APP_WIDTH;
     @FXML
     public JeproFormPanel jeproLabRequestFormWrapper;
     public JeproFormPanelTitle jeproLabRequestFormTitleWrapper;
     public JeproFormPanelContainer jeproLabRequestContentWrapper;
     public Label jeproLabCustomerCompanyNameLabel, jeproLabResultTransmissionLabel, jeproLabRequestFirstContactLabel, jeproLabRequestSecondContactLabel;
-    public Label jeproLabRequestThirdContactLabel, jeproLabRequestFourthContactLabel;
-    public ComboBox <String> jeproLabRequestFirstContact, jeproLabRequestSecondContact, jeproLabRequestThirdContact, jeproLabRequestFourthContact;
-    public TextField jeproLabCustomerCompanyName;
+    public Label jeproLabRequestThirdContactLabel, jeproLabRequestFourthContactLabel, jeproLabSampleReferenceLabel;
+    public Label jeproLabSampleDesignationLabel, jeproLabSampleMatrixLabel, jeproLabSampleTestDateLabel, jeproLabSampleAnalyzeSelectorLabel;
+    public Label jeproLabCustomerCompanyAddressLabel, jeproLabCustomerCompanyPhoneLabel, jeproLabCustomerCompanyFaxLabel, jeproLabRequestMainContactInfoLabel;
+    public Label jeproLabRequestReferenceLabel, jeproLabRequestDelayLabel, jeproLabRequestMainContactInfoNameLabel, jeproLabRequestMainContactInfoMailLabel;
+    public ComboBox <String> jeproLabRequestFirstContact, jeproLabRequestSecondContact, jeproLabRequestThirdContact, jeproLabRequestFourthContact, jeproLabRequestDelay;
+    public TextField jeproLabCustomerCompanyName, jeproLabSampleDesignation, jeproLabCustomerCompanyAddress, jeproLabCustomerCompanyAddressDetails;
+    public TextField jeproLabRequestReference, jeproLabRequestMainContactInfoMail, jeproLabRequestMainContactInfoName;
+    public TextField jeproLabSampleReference;
+    public JeproPhoneField jeproLabCustomerCompanyPhone, jeproLabCustomerCompanyFax;
+    public ComboBox jeproLabSampleMatrix;
+    public DatePicker jeproLabSampleTestDate;
+    public GridPane jeproLabSampleAnalyzeSelector, jeproLabCustomerInformationLayout, jeproLabCustomerContactLayout, jeproLabSampleAddFormLayout;
+    public HBox jeproLabCustomerCompanyPhoneWrapper;
     public Pane jeproLabCustomerInformationWrapper, jeproLabCustomerInformationTitleWrapper, jeproLabCustomerInformationContentWrapper;
+    public Pane jeproLabRequestMainContactInfo, jeproLabSampleAddFormTitleWrapper;
+    public ScrollPane jeproLabSampleFormWrapper;
+    public TableView<JeproLabSampleRecord> jeproLabSampleRecordTableView;
+    public TableColumn<JeproLabSampleRecord, Boolean> jeproLabSampleCheckBoxColumn;
+    public TableColumn<JeproLabSampleRecord, String> jeproLabSampleReferenceColumn;
+    public TableColumn<JeproLabSampleRecord, String> jeproLabSampleDesignationColumn;
+    public TableColumn<JeproLabSampleRecord, HBox> jeproLabSampleActionColumn;
+    public Button jeproLabSaveSampleBtn, jeproLabCancelSampleBtn;
 
-    public void initialize(URL location, ResourceBundle resource){
+    public void initialize(URL location, ResourceBundle resource) {
         super.initialize(location, resource);
+
+        jeproLabRequestFormWrapper.setPrefWidth(formWidth);
+        jeproLabRequestFormWrapper.setLayoutX(0.01 * JeproLab.APP_WIDTH);
+        jeproLabRequestFormWrapper.setLayoutY(10);
+        jeproLabRequestFormTitleWrapper.setPrefSize(formWidth, 40);
+        jeproLabRequestContentWrapper.setPrefWidth(formWidth);
+        jeproLabRequestContentWrapper.setLayoutY(40);
+
+        VBox.setMargin(jeproLabCustomerInformationWrapper, new Insets(10, 0, 10, 0.01 * JeproLab.APP_WIDTH));
+
+        jeproLabCustomerInformationWrapper.setPrefWidth(subFormWidth);
+        jeproLabCustomerInformationWrapper.setLayoutX(0.02 * JeproLab.APP_WIDTH);
+        jeproLabCustomerInformationTitleWrapper.setPrefSize(subFormWidth, 30);
+        jeproLabCustomerInformationTitleWrapper.getStyleClass().add("form-panel-title-gray");
+
+        jeproLabRequestMainContactInfo.getStyleClass().add("form-panel-title-gray");
+        jeproLabRequestMainContactInfo.setPrefSize(500, 30);
+
+        jeproLabCustomerInformationContentWrapper.setPrefWidth(subFormWidth);
+        jeproLabCustomerInformationContentWrapper.setLayoutY(30);
+
+        jeproLabRequestFirstContact.setPrefWidth(fourthColumnWidth);
+        jeproLabRequestSecondContact.setPrefWidth(fourthColumnWidth);
+        jeproLabRequestThirdContact.setPrefWidth(fourthColumnWidth);
+        jeproLabRequestFourthContact.setPrefWidth(fourthColumnWidth);
+
+        jeproLabSampleFormWrapper.setPrefSize(subFormWidth, 260);
+        VBox.setMargin(jeproLabSampleFormWrapper, new Insets(0, 0, 10, 0.01 * JeproLab.APP_WIDTH));
+
+        renderCompanyForm();
+        renderContactForm();
+        renderSampleForm();
+        renderSampleListForm();
+        setFormLabels();
+    }
+
+    private void renderCompanyForm(){
+        jeproLabCustomerInformationLayout.getColumnConstraints().addAll(
+                new ColumnConstraints(150), new ColumnConstraints(350)
+        );
+
+        GridPane.setMargin(jeproLabCustomerCompanyNameLabel, new Insets(5, 0, 5, 10));
+        GridPane.setMargin(jeproLabCustomerCompanyName, new Insets(5, 0, 5, 0));
+        GridPane.setMargin(jeproLabCustomerCompanyAddressLabel, new Insets(5, 0, 5, 10));
+        GridPane.setMargin(jeproLabCustomerCompanyAddress, new Insets(5, 0, 5, 0));
+        GridPane.setMargin(jeproLabCustomerCompanyAddressDetails, new Insets(5, 0, 5, 0));
+        GridPane.setMargin(jeproLabCustomerCompanyPhoneLabel, new Insets(5, 0, 5, 10));
+        GridPane.setMargin(jeproLabCustomerCompanyPhoneWrapper, new Insets(5, 0, 5, 0));
+        GridPane.setMargin(jeproLabRequestMainContactInfo, new Insets(5, 0, 5, 0));
+        GridPane.setMargin(jeproLabRequestMainContactInfoNameLabel, new Insets(5, 0, 5, 10));
+        GridPane.setMargin(jeproLabRequestMainContactInfoName, new Insets(5, 0, 5, 0));
+        GridPane.setMargin(jeproLabRequestMainContactInfoMailLabel, new Insets(5, 0, 5, 10));
+        GridPane.setMargin(jeproLabRequestMainContactInfoMail, new Insets(5, 0, 5, 0));
+        GridPane.setMargin(jeproLabRequestReferenceLabel, new Insets(5, 0, 5, 10));
+        GridPane.setMargin(jeproLabRequestReference, new Insets(5, 0, 5, 0));
+        HBox.setMargin(jeproLabCustomerCompanyFaxLabel, new Insets(5, 0, 0, 10));
+        HBox.setMargin(jeproLabCustomerCompanyFax, new Insets(0, 0, 0, 10));
+
+        jeproLabRequestReference.setDisable(true);
+    }
+
+    private void renderContactForm(){
+        jeproLabCustomerContactLayout.getColumnConstraints().addAll(
+                new ColumnConstraints(30), new ColumnConstraints(fourthColumnWidth)
+        );
+
+        GridPane.setMargin(jeproLabResultTransmissionLabel, new Insets(7, 0, 8, 10));
+        GridPane.setMargin(jeproLabRequestFirstContactLabel, new Insets(5, 0, 5, 10));
+        GridPane.setMargin(jeproLabRequestFirstContact, new Insets(5, 0, 5, 0));
+        GridPane.setMargin(jeproLabRequestSecondContactLabel, new Insets(5, 0, 5, 10));
+        GridPane.setMargin(jeproLabRequestSecondContact, new Insets(5, 0, 5, 0));
+        GridPane.setMargin(jeproLabRequestThirdContactLabel, new Insets(5, 0, 5, 10));
+        GridPane.setMargin(jeproLabRequestThirdContact, new Insets(5, 0, 5, 0));
+        GridPane.setMargin(jeproLabRequestFourthContactLabel, new Insets(5, 0, 5, 10));
+        GridPane.setMargin(jeproLabRequestFourthContact, new Insets(5, 0, 5, 0));
+        GridPane.setMargin(jeproLabRequestDelayLabel, new Insets(10, 0, 5, 10));
+        GridPane.setMargin(jeproLabRequestDelay, new Insets(5, 0, 5, 0));
+
+        jeproLabResultTransmissionLabel.setPrefWidth(subFormWidth - 520);
+        jeproLabResultTransmissionLabel.setAlignment(Pos.CENTER);
+
+        jeproLabRequestDelayLabel.setPrefWidth(subFormWidth - 520);
+        jeproLabRequestDelayLabel.setAlignment(Pos.CENTER);
+
+        jeproLabRequestDelay.setPrefWidth(fourthColumnWidth);
+    }
+
+    private void renderSampleForm(){
+        Label mainFormLabel = new Label(bundle.getString("JEPROLAB_CUSTOMER_INFORMATION_LABEL"));
+        Label mainContactFormLabel = new Label(bundle.getString("JEPROLAB_MAIN_CONTACT_INFO_LABEL"));
+        Label sampleFormLabel = new Label(bundle.getString("JEPROLAB_SAMPLE_IDENTIFICATION_LABEL"));
+
+        mainFormLabel.setPrefWidth(subFormWidth);
+        mainFormLabel.setAlignment(Pos.CENTER);
+        mainFormLabel.getStyleClass().add("input-label");
+        mainFormLabel.setLayoutY(4);
+        mainContactFormLabel.setPrefWidth(500);
+        mainContactFormLabel.setAlignment(Pos.CENTER);
+        mainContactFormLabel.getStyleClass().add("input-label");
+        mainContactFormLabel.setLayoutY(4);
+        sampleFormLabel.setPrefWidth(subFormWidth);
+        sampleFormLabel.setAlignment(Pos.CENTER);
+        sampleFormLabel.getStyleClass().add("input-label");
+        sampleFormLabel.setLayoutY(4);
+
+        jeproLabCustomerInformationTitleWrapper.getChildren().addAll(mainFormLabel);
+        jeproLabRequestMainContactInfo.getChildren().addAll(mainContactFormLabel);
+        jeproLabSampleAddFormTitleWrapper.getChildren().addAll(sampleFormLabel);
+
+        jeproLabSampleAddFormLayout.getColumnConstraints().addAll(new ColumnConstraints(140), new ColumnConstraints(240));
+        jeproLabSampleAddFormTitleWrapper.setPrefSize(subFormWidth, 30);
+        jeproLabSampleAddFormTitleWrapper.getStyleClass().add("form-panel-title-gray");
+        VBox.setMargin(jeproLabSampleAddFormTitleWrapper, new Insets(0, 0, 0, 0.01 * JeproLab.APP_WIDTH));
+        GridPane.setMargin(jeproLabSampleReferenceLabel, new Insets(5, 0, 5, 10));
+        GridPane.setMargin(jeproLabSampleReference, new Insets(5, 0, 5, 0));
+        GridPane.setMargin(jeproLabSampleDesignationLabel, new Insets(5, 0, 5, 10));
+        GridPane.setMargin(jeproLabSampleDesignation, new Insets(5, 0, 5, 0));
+        GridPane.setMargin(jeproLabSampleMatrixLabel, new Insets(5, 0, 5, 10));
+        GridPane.setMargin(jeproLabSampleMatrix, new Insets(5, 0, 5, 0));
+        GridPane.setMargin(jeproLabSampleTestDateLabel, new Insets(5, 0, 5, 10));
+        GridPane.setMargin(jeproLabSampleTestDate, new Insets(5, 0, 5, 0));
+        GridPane.setMargin(jeproLabSampleAnalyzeSelectorLabel, new Insets(5, 0, 5, 10));
+        GridPane.setMargin(jeproLabSampleAnalyzeSelector, new Insets(5, 0, 5, 0));
+        jeproLabSampleAnalyzeSelectorLabel.setPrefWidth(380);
+        jeproLabSampleAnalyzeSelectorLabel.setAlignment(Pos.CENTER);
+        jeproLabSampleReference.setDisable(true);
+
+        jeproLabSaveSampleBtn.setText(bundle.getString("JEPROLAB_ADD_LABEL"));
+        jeproLabSaveSampleBtn.setGraphic(new ImageView(new Image(JeproLab.class.getResourceAsStream("resources/images/floppy-icon.png"))));
+        jeproLabCancelSampleBtn.setText(bundle.getString("JEPROLAB_CANCEL_LABEL"));
+        jeproLabCancelSampleBtn.setGraphic(new ImageView(new Image(JeproLab.class.getResourceAsStream("resources/images/unpublished.png"))));
+    }
+
+    private void renderSampleListForm(){
+        CheckBox checkAll = new CheckBox();
+        jeproLabSampleRecordTableView.setPrefSize(formWidth - 440, 250);
+        double remainingWidth = formWidth - 520;
+        jeproLabSampleCheckBoxColumn.setGraphic(checkAll);
+
+        jeproLabSampleCheckBoxColumn.setPrefWidth(20);
+        jeproLabSampleReferenceColumn.setText(bundle.getString("JEPROLAB_REFERENCE_LABEL"));
+        jeproLabSampleReferenceColumn.setPrefWidth(0.30 * remainingWidth);
+        jeproLabSampleDesignationColumn.setText(bundle.getString("JEPROLAB_DESIGNATION_LABEL"));
+        jeproLabSampleDesignationColumn.setPrefWidth(0.7 * remainingWidth);
+        jeproLabSampleActionColumn.setText(bundle.getString("JEPROLAB_ACTIONS_LABEL"));
+        jeproLabSampleActionColumn.setPrefWidth(60);
+    }
+
+    private void setFormLabels(){
+        /** Label setting **/
+        jeproLabCustomerCompanyNameLabel.setText(bundle.getString("JEPROLAB_COMPANY_NAME_LABEL"));
+        jeproLabCustomerCompanyNameLabel.getStyleClass().add("input-label");
+        jeproLabResultTransmissionLabel.setText(bundle.getString("JEPROLAB_RESULT_TRANSMISSION_LABEL"));
+        jeproLabResultTransmissionLabel.getStyleClass().add("input-label");
+        jeproLabRequestFirstContactLabel.setText("1 ");
+        jeproLabRequestFirstContactLabel.getStyleClass().add("input-label");
+        jeproLabRequestSecondContactLabel.setText("2 ");
+        jeproLabRequestSecondContactLabel.getStyleClass().add("input-label");
+        jeproLabRequestThirdContactLabel.setText("3 ");
+        jeproLabRequestThirdContactLabel.getStyleClass().add("input-label");
+        jeproLabRequestFourthContactLabel.setText("4 ");
+        jeproLabRequestFourthContactLabel.getStyleClass().add("input-label");
+        jeproLabSampleReferenceLabel.setText(bundle.getString("JEPROLAB_REFERENCE_LABEL"));
+        jeproLabSampleReferenceLabel.getStyleClass().add("input-label");
+        //jeproLabSampleReference.setText(bundle.getString("JEPROLAB_LABEL"));
+        jeproLabSampleReference.getStyleClass().add("input-label");
+        jeproLabSampleDesignationLabel.setText(bundle.getString("JEPROLAB_DESIGNATION_LABEL"));
+        jeproLabSampleDesignationLabel.getStyleClass().add("input-label");
+        jeproLabSampleMatrixLabel.setText(bundle.getString("JEPROLAB_MATRIX_LABEL"));
+        jeproLabSampleMatrixLabel.getStyleClass().add("input-label");
+        jeproLabSampleTestDateLabel.setText(bundle.getString("JEPROLAB_REMOVAL_DATE_LABEL"));
+        jeproLabSampleTestDateLabel.getStyleClass().add("input-label");
+        jeproLabSampleAnalyzeSelectorLabel.setText(bundle.getString("JEPROLAB_SELECT_ANALYZES_LABEL"));
+        jeproLabSampleAnalyzeSelectorLabel.getStyleClass().add("input-label");
+        jeproLabRequestReferenceLabel.setText(bundle.getString("JEPROLAB_REFERENCE_LABEL"));
+        jeproLabRequestReferenceLabel.getStyleClass().add("input-label");
+        jeproLabRequestDelayLabel.setText(bundle.getString("JEPROLAB_REQUEST_DELAY_LABEL"));
+        jeproLabRequestDelayLabel.getStyleClass().add("input-label");
+        jeproLabCustomerCompanyPhoneLabel.setText(bundle.getString("JEPROLAB_PHONE_LABEL"));
+        jeproLabCustomerCompanyPhoneLabel.getStyleClass().add("input-label");
+        jeproLabCustomerCompanyFaxLabel.setText(bundle.getString("JEPROLAB_FAX_LABEL"));
+        jeproLabCustomerCompanyFaxLabel.getStyleClass().add("input-label");
+        jeproLabCustomerCompanyAddressLabel.setText(bundle.getString("JEPROLAB_ADDRESS_LABEL"));
+        jeproLabCustomerCompanyAddressLabel.getStyleClass().add("input-label");
+        jeproLabRequestMainContactInfoNameLabel.setText(bundle.getString("JEPROLAB_NAME_LABEL"));
+        jeproLabRequestMainContactInfoNameLabel.getStyleClass().add("input-label");
+        jeproLabRequestMainContactInfoMailLabel.setText(bundle.getString("JEPROLAB_EMAIL_LABEL"));
+        jeproLabRequestMainContactInfoMailLabel.getStyleClass().add("input-label");
+    }
+
+    @Override
+    public void initializeContent(){
+
+    }
+
+    public static class JeproLabSampleRecord {
+
     }
 }

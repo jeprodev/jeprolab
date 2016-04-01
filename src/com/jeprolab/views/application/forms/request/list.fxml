@@ -1,25 +1,18 @@
-<?import javafx.scene.layout.VBox?>
-<?import javafx.scene.layout.AnchorPane?>
-<?import javafx.geometry.Insets?>
 <?import javafx.scene.control.TableView?>
 <?import javafx.scene.control.TableColumn?>
-<VBox xmlns:fx="http://javafx.com/fxml" fx:controller="com.jeprolab.controllers.JeproLabRequestController" >
-    <children>
-        <AnchorPane>
-            <padding><Insets left="5.0" top="4.0" right="5.0" bottom="10.0" /></padding>
-            <TableView>
-                <columns>
-                    <TableColumn resizable="false" editable="false" fx:id="requestIndexColumns" />
-                    <TableColumn resizable="false" editable="false" fx:id="requestCheckBoxColumns" />
-                    <TableColumn resizable="false" editable="false" fx:id="requestOrderIdColumns" />
-                    <TableColumn resizable="false" editable="false" fx:id="requestCustomerColumns" />
-                    <TableColumn resizable="false" editable="false" fx:id="requestTotalColumns" />
-                    <TableColumn resizable="false" editable="false" fx:id="requestCarrierColumns" />
-                    <TableColumn resizable="false" editable="false" fx:id="requestCreationDateColumns" />
-                    <TableColumn resizable="false" editable="false" fx:id="requestOnlineColumns" />
-                    <TableColumn resizable="false" editable="false" fx:id="requestActionsColumns" />
-                </columns>
-            </TableView>
-        </AnchorPane>
-    </children>
-</VBox>
+<?import com.jeprolab.assets.extend.controls.JeproFormPanel?>
+<JeproFormPanel xmlns:fx="http://javafx.com/fxml" fx:controller="com.jeprolab.controllers.JeproLabRequestController" >
+    <TableView>
+        <columns>
+            <TableColumn resizable="false" editable="false" fx:id="requestIndexTableColumn" />
+            <TableColumn resizable="false" editable="false" fx:id="requestCheckBoxTableColumn" />
+            <TableColumn resizable="false" editable="false" fx:id="requestOrderIdTableColumn" />
+            <TableColumn resizable="false" editable="false" fx:id="requestCustomerTableColumn" />
+            <TableColumn resizable="false" editable="false" fx:id="requestTotalTableColumn" />
+            <TableColumn resizable="false" editable="false" fx:id="requestCarrierColumn" />
+            <TableColumn resizable="false" editable="false" fx:id="requestCreationDateColumn" />
+            <TableColumn resizable="false" editable="false" fx:id="requestOnlineColumn" />
+            <TableColumn resizable="false" editable="false" fx:id="requestActionColumn" />
+        </columns>
+    </TableView>
+</JeproFormPanel>

@@ -10,7 +10,7 @@ import java.util.Map;
  * Created by jeprodev on 02/02/2014.
  */
 public class JeproLabRequest {
-    private static Map<String, String> request, post;
+    private static volatile Map<String, String> request, post;
     private static JeproLabRequest instance = null;
 
     private JeproLabRequest(){
