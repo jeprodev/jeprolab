@@ -10,7 +10,10 @@ import com.jeprolab.models.*;
 import javafx.fxml.FXML;
 import javafx.geometry.Insets;
 import javafx.scene.control.*;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.GridPane;
+import javafx.scene.layout.HBox;
 
 import java.net.URL;
 import java.util.List;
@@ -43,6 +46,8 @@ public class JeproLabLaboratoryAddController extends JeproLabController {
     public TableView jeproLabLaboratoryUrlsTableView;
     public TableColumn jeproLabUrlIndexColumn, jeproLabUrlCheckBoxColumn, jeproLabUrlDomainColumn, jeproLabUrlSslDomainColumn, jeproLabUrlPhysicalUriColumn;
     public TableColumn jeproLabUrlVirtualUriColumn, jeproLabUrlMainColumn, jeproLabUrlActionColumn;
+    public HBox jeproLabLaboratoryUrlCommandWrapper;
+    public Button jeproLabLaboratoryUrlSaveButton, jeproLabLaboratoryUrlCancelButton;
 
     public void initialize(URL location, ResourceBundle resource){
         bundle = resource;
@@ -127,7 +132,13 @@ public class JeproLabLaboratoryAddController extends JeproLabController {
         GridPane.setMargin(jeproLabLaboratoryVirtualUri, new Insets(10, 10, 10, 10));
         GridPane.setMargin(jeproLabLaboratoryMainUrlLabel, new Insets(10, 10, 10, 10));
         GridPane.setMargin(jeproLabLaboratoryMainUrl, new Insets(10, 10, 10, 10));
+        GridPane.setMargin(jeproLabLaboratoryUrlCommandWrapper, new Insets(10, 10, 10, 10));
         GridPane.setMargin(jeproLabLaboratoryUrlsTableView, new Insets(10, 10, 10, 10));
+
+        jeproLabLaboratoryUrlSaveButton.setText(bundle.getString("JEPROLAB_SAVE_LABEL"));;
+        jeproLabLaboratoryUrlSaveButton.setGraphic(new ImageView(new Image(JeproLab.class.getResourceAsStream("resources/images/floppy-icon.png"))));;
+        jeproLabLaboratoryUrlCancelButton.setText(bundle.getString("JEPROLAB_CANCEL_LABEL"));;
+        jeproLabLaboratoryUrlCancelButton.setGraphic(new ImageView(new Image(JeproLab.class.getResourceAsStream("resources/images/unpublished.png"))));;
 
         //initializeContent();
     }

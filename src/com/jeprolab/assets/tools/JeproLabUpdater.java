@@ -8,8 +8,8 @@ import java.net.URL;
  * Created by jeprodev on 02/05/2014.
  */
 public class JeproLabUpdater {
-    private final static String versionUrl = "http://localhost/jeprodev/index.php?option=com_jeproshop&view=product&task=view&product_id=51";
-    private final static String historyUrl = "http://localhost/jeprodev/index.php?option=com_jeproshop&view=product&task=view&product_id=51";
+    private final static String versionUrl = "http://localhost/jeprotest/product.html"; //index.php?option=com_jeproshop&view=product&task=view&product_id=1";
+    private final static String historyUrl = "https://localhost/jeprotest/product.html"; //index.php?option=com_jeproshop&view=product&task=view&product_id=1";
 
     public static String getLatestVersion() throws Exception{
         String data = getData(versionUrl);
@@ -36,5 +36,14 @@ public class JeproLabUpdater {
             builder.append((char)c);
         }
         return builder.toString();
+    }
+
+    public static void checkForNewVersion(String currentVersion){
+        try {
+            String lastVersion = getLatestVersion();
+            System.out.println(lastVersion);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 }

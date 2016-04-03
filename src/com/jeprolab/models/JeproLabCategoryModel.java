@@ -330,7 +330,8 @@ public class JeproLabCategoryModel extends JeproLabModel {
         }
 
         if(rootCategoryId <= 0) {
-            JeproLabTools.displayError(500, JeproLab.getBundle().getString("JEPROLAB_THE_ROOT_CATEGORY_ID_MUST_BE_GREATER_THAN_0_LABEL"));
+            rootCategoryId = JeproLabSettingModel.getIntValue("root_category"); System.out.println(rootCategoryId);
+            //JeproLabTools.displayError(500, JeproLab.getBundle().getString("JEPROLAB_THE_ROOT_CATEGORY_ID_MUST_BE_GREATER_THAN_0_LABEL"));
         }
 
         String cacheGroupKey = "";
@@ -1074,7 +1075,7 @@ public class JeproLabCategoryModel extends JeproLabModel {
      */
     public int calculateDepthLevel(){
         /* Root category */
-        if (this.parent_id < 0) {
+        if (this.parent_id <= 1) {
             return 0;
         }
         JeproLabCategoryModel parentCategory = new JeproLabCategoryModel(this.parent_id);

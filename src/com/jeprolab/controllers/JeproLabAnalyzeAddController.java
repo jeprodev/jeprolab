@@ -9,6 +9,7 @@ import com.jeprolab.models.*;
 import com.jeprolab.models.core.JeproLabRequest;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleIntegerProperty;
+import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -49,6 +50,7 @@ public class JeproLabAnalyzeAddController extends JeproLabController {
     private final double posY = 15;
     private JeproLabAnalyzeModel analyze;
     private int defaultLanguageId;
+    private JeproLabRequest request;
     private Button saveAnalyzeBtn, cancelBtn;
     private Map<Integer, JeproLabLanguageModel> languages;
     public JeproLabPriceBox jeproLabAnalyzeUnitPrice;
@@ -68,6 +70,7 @@ public class JeproLabAnalyzeAddController extends JeproLabController {
     public Tab jeproLabAnalyzeTechnicianTabForm, jeproLabAnalyzeSpecificPriceTabForm;
 
     public HBox jeproLabAnalyzeSpecificPriceLabIdWrapper, jeproLabAnalyzeDelayWrapper, jeproLabSpecificPricePriorityWrapper;
+    public HBox jeproLabAnalyzeSpecificPriceModificationCommandWrapper;
 
     public Label jeproLabAnalyzeNameLabel, jeproLabAnalyzePublishedLabel, jeproLabAnalyzeReferenceLabel, jeproLabAnalyzeImageChooserLabel;
     public Label jeproLabAnalyzeShortDescriptionLabel, jeproLabAnalyzeDescriptionLabel, jeproLabAnalyzeImagesLabel, jeproLabAnalyzeTagLabel;
@@ -77,7 +80,7 @@ public class JeproLabAnalyzeAddController extends JeproLabController {
     public Label jeproLabAnalyzeFinalPriceWithoutTaxLabel, jeproLabAnalyzeSpecificPriceLabIdLabel, jeproLabAnalyzeSpecificPriceCustomerIdLabel;
     public Label jeproLabAnalyzeSpecificPriceCombinationLabel, jeproLabAnalyzeApplyDiscountOfLabel, jeproLabAnalyzeSpecificPriceFromLabel;
     public Label jeproLabAnalyzeFinalPriceWithoutTax, jeproLabAnalyzeSpecificPriceToLabel, jeproLabAnalyzeStartingAtLabel, jeproLabAnalyzeSpecificPriceLabel;
-    public Label jeproLabAnalyzeDelayLabel, jeproLabDaysLabel;
+    public Label jeproLabAnalyzeDelayLabel, jeproLabDaysLabel, jeproLabAnalyzeSpecificPricePriorityLabel;
     public TextField jeproLabAnalyzeReference, jeproLabAnalyzeEan13, jeproLabAnalyzeUpc, jeproLabAnalyzeStartingAt, jeproLabAnalyzeDelay;
     public ComboBox<String> jeproLabAnalyzeRedirect, jeproLabAnalyzeVisibility, jeproLabAnalyzeApplyDiscountOf;
     public JeproMultiLangTextArea jeproLabAnalyzeShortDescription, jeproLabAnalyzeDescription;
@@ -90,6 +93,7 @@ public class JeproLabAnalyzeAddController extends JeproLabController {
     public HBox jeproLabAnalyzeSpecificPriceCustomerIdWrapper;
     public JeproLabPriceBox jeproLabAnalyzeWholeSalePrice, jeproLabAnalyzePriceTaxExcluded, jeproLabAnalyzePriceUseEcoTax, jeproLabAnalyzePriceTaxIncluded;
     public JeproLabPriceBox jeproLabAnalyzeSpecificPrice;
+    public Button jeproLabAnalyzeSpecificPriceModificationCommandSaveButton, jeproLabAnalyzeSpecificPriceModificationCommandCancelButton;
 
     public void initialize(URL location, ResourceBundle resource) {
         super.initialize(location, resource);
@@ -101,7 +105,7 @@ public class JeproLabAnalyzeAddController extends JeproLabController {
 
         jeproLabAddAnalyseFormWrapper.setPrefWidth(0.96 * JeproLab.APP_WIDTH);
         jeproLabAddAnalyseFormWrapper.setLayoutX(.02 * JeproLab.APP_WIDTH);
-        jeproLabAddAnalyseFormWrapper.setLayoutY(20);
+        jeproLabAddAnalyseFormWrapper.setLayoutY(10);
         jeproLabAddAnalyseFormTitleWrapper.setPrefSize(0.96 * JeproLab.APP_WIDTH, 35);
         jeproLabAddAnalyseFormTitleWrapper.getChildren().add(jeproLabFormTitle);
         jeproLabAddAnalyseFormContainerWrapper.setPrefWidth(0.96 * JeproLab.APP_WIDTH);
@@ -115,6 +119,67 @@ public class JeproLabAnalyzeAddController extends JeproLabController {
         renderSpecificPriceTab();
 
         context.controller = this;
+    }
+
+    @Override
+    public void initializeContent() {
+        if (context == null) {
+            context = JeproLabContext.getContext();
+        }
+        request = JeproLab.request;
+        this.loadAnalyze(true);
+        updateToolBar();
+        addEventListener();
+        if(analyze.analyze_id > 0){
+            updateContent();
+        }
+    }
+
+    public void updateContent(){
+        /** info data setting **/
+        jeproLabAnalyzeReference.setText(analyze.reference);
+        jeproLabAnalyzeUpc.setText(analyze.upc);
+        jeproLabAnalyzeEan13.setText(analyze.ean13);
+        jeproLabAnalyzePublished.setSelected(analyze.published);
+        jeproLabAnalyzeOnSale.setSelected(analyze.on_sale);
+        jeproLabAnalyzeAvailableForOrder.setSelected(analyze.available_for_order);
+        jeproLabAnalyzeShowPrice.setSelected(analyze.show_price);
+        jeproLabAnalyzeName.setText(analyze.name);
+        jeproLabAnalyzeShortDescription.setText(analyze.short_description);
+        jeproLabAnalyzeDescription.setText(analyze.description);
+        //jeproLabAnalyzeSlider.setImages();
+        jeproLabAnalyzeDelay.setText(String.valueOf(analyze.delay));
+        analyze.tags = JeproLabTagModel.getAnalyzeTags(analyze.analyze_id);
+
+        switch (analyze.redirect_type) {
+            case "301":
+                jeproLabAnalyzeRedirect.setValue(bundle.getString("JEPROLAB_301_LABEL"));
+                break;
+            case "302":
+                jeproLabAnalyzeRedirect.setValue(bundle.getString("JEPROLAB_302_LABEL"));
+                break;
+            case "404":
+            default:
+                jeproLabAnalyzeRedirect.setValue(bundle.getString("JEPROLAB_302_LABEL"));
+                break;
+        }
+
+        switch (analyze.visibility) {
+            case "catalog":
+                jeproLabAnalyzeVisibility.setValue(bundle.getString("JEPROLAB_CATALOG_LABEL"));
+                break;
+            case "both":
+                jeproLabAnalyzeVisibility.setValue(bundle.getString("JEPROLAB_BOTH_LABEL"));
+                break;
+            case "search":
+                jeproLabAnalyzeVisibility.setValue(bundle.getString("JEPROLAB_SEARCH_LABEL"));
+                break;
+            case "none":
+                jeproLabAnalyzeVisibility.setValue(bundle.getString("JEPROLAB_NONE_LABEL"));
+                break;
+        }
+
+
     }
 
     private void renderInformationTab(){
@@ -171,6 +236,17 @@ public class JeproLabAnalyzeAddController extends JeproLabController {
         GridPane.setMargin(jeproLabAnalyzeSlider, new Insets(15, 0, 10, 0));
         jeproLabAnalyzeSlider.setSliderPrefHeight(100);
         jeproLabAnalyzeSlider.setSliderPrefWidth(JeproLab.APP_WIDTH - 200);
+
+        jeproLabAnalyzeRedirect.getItems().add(bundle.getString("JEPROLAB_404_LABEL"));
+        jeproLabAnalyzeRedirect.getItems().add(bundle.getString("JEPROLAB_301_LABEL"));
+        jeproLabAnalyzeRedirect.getItems().add(bundle.getString("JEPROLAB_302_LABEL"));
+
+        jeproLabAnalyzeVisibility.getItems().add(bundle.getString("JEPROLAB_BOTH_LABEL"));
+        jeproLabAnalyzeVisibility.getItems().add(bundle.getString("JEPROLAB_CATALOG_LABEL"));
+        jeproLabAnalyzeVisibility.getItems().add(bundle.getString("JEPROLAB_SEARCH_LABEL"));
+        jeproLabAnalyzeVisibility.getItems().add(bundle.getString("JEPROLAB_NONE_LABEL"));
+
+
     }
 
     private void renderPriceTab(){
@@ -229,6 +305,7 @@ public class JeproLabAnalyzeAddController extends JeproLabController {
         specificPriceTableView.getColumns().addAll(rulesColumn, combinationColumn, labsColumn);
 
         if (multiLab) {
+            //labsColumn.ge
             specificPriceTableView.getColumns().add(labsColumn);
         }
         specificPriceTableView.getColumns().addAll(currenciesColumn, countriesColumn, groupsColumn, customerColumn);
@@ -267,14 +344,25 @@ public class JeproLabAnalyzeAddController extends JeproLabController {
         GridPane.setMargin(jeproLabAnalyzeFinalPriceWithoutTax, new Insets(5, 10, 5, 0));
         GridPane.setMargin(jeproLabAnalyzeIsOnSale, new Insets(5, 10, 5, 0));
         GridPane.setMargin(jeproLabAnalyzeSpecificPriceLabel, new Insets(5, 10, 5, 10));
+        GridPane.setMargin(jeproLabAnalyzeSpecificPricePriorityLabel, new Insets(5, 10, 5, 10));
         GridPane.setMargin(jeproLabAnalyzeSpecificPrice, new Insets(5, 10, 5, 0));
         GridPane.setMargin(jeproLabAnalyzeLeaveBasePrice, new Insets(5, 10, 5, 0));
         GridPane.setMargin(jeproLabAnalyzeIsOnSale, new Insets(5, 10, 5, 0));
+        GridPane.setMargin(jeproLabAnalyzeSpecificPriceModificationCommandWrapper, new Insets(15, 0, 15, 0));
+        GridPane.setMargin(jeproLabSpecificPricePriorityWrapper, new Insets(8, 0, 10, 0));
+
+        jeproLabAnalyzeSpecificPriceModificationCommandSaveButton.setText(bundle.getString("JEPROLAB_SAVE_LABEL"));
+        jeproLabAnalyzeSpecificPriceModificationCommandSaveButton.setGraphic(new ImageView(new Image(JeproLab.class.getResourceAsStream("resources/images/floppy-icon.png"))));
+        jeproLabAnalyzeSpecificPriceModificationCommandCancelButton.setText(bundle.getString("JEPROLAB_CANCEL_LABEL"));
+        jeproLabAnalyzeSpecificPriceModificationCommandCancelButton.setGraphic(new ImageView(new Image(JeproLab.class.getResourceAsStream("resources/images/unpublished.png"))));
+
+        jeproLabAnalyzeApplyDiscountOf.getItems().addAll(bundle.getString("JEPROLAB_PERCENTAGE_LABEL"), bundle.getString("JEPROLAB_AMOUNT_LABEL"));
 
         jeproLabAnalyzeSpecificPriceModificationLabel.setText(bundle.getString("JEPROLAB_SPECIFIC_PRICE_LABEL"));
         jeproLabAnalyzeSpecificPriceTabForm.setText(bundle.getString("JEPROLAB_SPECIFIC_PRICE_LABEL"));
 
         jeproLabAnalyzeSpecificPriceModification.getChildren().add(specificPriceTableView);
+        jeproLabSpecificPricePriorityWrapper.getChildren().addAll(priorFirst, priorSecond, priorThird, priorFourth);
     }
 
     //private void renderTab(){}
@@ -291,6 +379,50 @@ public class JeproLabAnalyzeAddController extends JeproLabController {
         jeproLabAnalyzeDelay.addEventFilter(KeyEvent.KEY_TYPED , JeproLabTools.numericValidation(2));
         jeproLabAnalyzeEan13.addEventFilter(KeyEvent.KEY_TYPED, JeproLabTools.codeValidation(13));
         jeproLabAnalyzeUpc.addEventFilter(KeyEvent.KEY_TYPED, JeproLabTools.codeValidation(12));
+
+        saveAnalyzeBtn.setOnMouseClicked(evt -> {
+            String analyzeVisibility;
+            if (jeproLabAnalyzeVisibility.getValue().equals(bundle.getString("JEPROLAB_CATALOG_LABEL"))) {
+                analyzeVisibility = "catalog";
+            } else if (jeproLabAnalyzeVisibility.getValue().equals(bundle.getString("JEPROLAB_SEARCH_LABEL"))) {
+                analyzeVisibility = "search";
+            } else if (jeproLabAnalyzeVisibility.getValue().equals(bundle.getString("JEPROLAB_NONE_LABEL"))) {
+                analyzeVisibility = "none";
+            } else {
+                analyzeVisibility = "both";
+            }
+
+            String analyzeRedirect;
+            if (jeproLabAnalyzeRedirect.getValue().equals(bundle.getString("JEPROLAB_301_LABEL"))) {
+                analyzeRedirect = "301";
+            } else if (jeproLabAnalyzeRedirect.getValue().equals(bundle.getString("JEPROLAB_302_LABEL"))) {
+                analyzeRedirect = "302";
+            }else{
+                analyzeRedirect = "404";
+            }
+
+            String post = "reference=" + jeproLabAnalyzeReference.getText() + "&ean13=" + jeproLabAnalyzeEan13.getText() + "&upc=" + jeproLabAnalyzeUpc.getText();
+            post += "&published=" + (jeproLabAnalyzePublished.isSelected() ? "1" : "0") + "&redirect_type=" + analyzeRedirect + "&available_for_order=";
+            post += (jeproLabAnalyzeAvailableForOrder.isSelected() ? "1" : "0") + "&show_price=" + (jeproLabAnalyzeShowPrice.isSelected() ? "1" : "0") + "&visibility=";
+            post += analyzeVisibility + "&delay=" + (jeproLabAnalyzeDelay.getText().equals("") ? 1 : jeproLabAnalyzeDelay.getText());
+            for (Object o : languages.entrySet()) {
+                Map.Entry lang = (Map.Entry) o;
+                JeproLabLanguageModel language = (JeproLabLanguageModel) lang.getValue();
+                post += "&name_" + language.language_id + "=" + jeproLabAnalyzeName.getFieldContent(language.language_id);
+                post += "&description_" + language.language_id + "=" + jeproLabAnalyzeDescription.getFieldContent(language.language_id);
+                post += "&short_description_" + language.language_id + "=" + jeproLabAnalyzeShortDescription.getFieldContent(language.language_id);
+                post += "&tag_" + language.language_id + "=" + jeproLabAnalyzeTags.getFieldContent(language.language_id);
+            }
+            JeproLab.request.setPost(post);
+
+            if (analyze.analyze_id > 0) {
+                analyze.update();
+            } else {
+                //JeproLabAnalyzeModel
+                analyze = analyze.save();
+
+            }
+        });
     }
 
     private void setFormsLabel(){
@@ -361,6 +493,8 @@ public class JeproLabAnalyzeAddController extends JeproLabController {
         jeproLabAnalyzeLeaveBasePrice.getStyleClass().add("input-label");
         jeproLabAnalyzeApplyDiscountOfLabel.setText(bundle.getString("JEPROLAB_APPLY_DISCOUNT_OF_LABEL"));
         jeproLabAnalyzeApplyDiscountOfLabel.getStyleClass().add("input-label");
+        jeproLabAnalyzeSpecificPricePriorityLabel.setText(bundle.getString("JEPROLAB_PRIORITY_LABEL"));
+        jeproLabAnalyzeSpecificPricePriorityLabel.getStyleClass().add("input-label");
         //todo jeproLabAnalyzeApplyDiscountOfLabel;
         jeproLabAnalyzeSpecificPriceLabIdLabel.setText(bundle.getString("JEPROLAB_APPLY_DISCOUNT_OF_LABEL"));
         jeproLabAnalyzeSpecificPriceLabIdLabel.getStyleClass().add("input-label");
@@ -382,9 +516,121 @@ public class JeproLabAnalyzeAddController extends JeproLabController {
         jeproLabAnalyzeTechnicianTabForm.setText(bundle.getString("JEPROLAB_PRICE_LABEL")); */
     }
 
-    private static class JeproLabSpecificPriceRecord {
-        public JeproLabSpecificPriceRecord(JeproLabSpecificPriceModel specificPrice){
+    @Override
+    public void updateToolBar(){
+        HBox commandWrapper = JeproLab.getInstance().getApplicationToolBarCommandWrapper();
+        commandWrapper.getChildren().clear();
+        commandWrapper.setSpacing(4);
+        saveAnalyzeBtn = new Button("", new ImageView(new Image(JeproLab.class.getResourceAsStream("resources/images/floppy-icon.png"))));
+        if (analyze.analyze_id > 0) {
+            saveAnalyzeBtn.setText(bundle.getString("JEPROLAB_UPDATE_LABEL"));
+        } else {
+            saveAnalyzeBtn.setText(bundle.getString("JEPROLAB_SAVE_LABEL"));
+        }
+        cancelBtn = new Button(bundle.getString("JEPROLAB_CANCEL_LABEL"), new ImageView(new Image(JeproLab.class.getResourceAsStream("resources/images/unpublished.png"))));
 
+        commandWrapper.getChildren().addAll(saveAnalyzeBtn, cancelBtn);
+    }
+
+    private void loadAnalyze(boolean option) {
+        int analyzeId = JeproLab.request.getRequest().containsKey("analyze_id") ? Integer.parseInt(JeproLab.request.getRequest().get("analyze_id")) : 0;
+        analyzeId = 11;
+        boolean isLoaded = false;
+        if (analyzeId > 0) {
+            if (analyze == null) {
+                analyze = new JeproLabAnalyzeModel(analyzeId);
+            }
+
+            if (analyze.analyze_id <= 0) {
+                JeproLabTools.displayError(500, bundle.getString("JEPROLAB_ANALYZE_NOT_FOUND_MESSAGE"));
+                isLoaded = false;
+            } else {
+                isLoaded = true;
+            }
+        } else if (option) {
+            if (analyze == null) {
+                analyze = new JeproLabAnalyzeModel();
+            }
+        } else {
+            JeproLabTools.displayError(500, bundle.getString("JEPROSHOP_ANALYZE_DOES_NOT_EXIST_MESSAGE"));
+            isLoaded = false;
+        }
+
+        //specified
+        if (isLoaded && analyze.analyze_id > 0) {
+            if (JeproLabLaboratoryModel.getLabContext() == JeproLabLaboratoryModel.LAB_CONTEXT && JeproLabLaboratoryModel.isFeaturePublished() && !analyze.isAssociatedToLaboratory()) {
+                analyze = new JeproLabAnalyzeModel(analyze.analyze_id, false, 0, analyze.default_laboratory_id);
+            }
+            analyze.loadStockData();
+        }
+    }
+
+    private static class JeproLabSpecificPriceRecord {
+        private SimpleStringProperty ruleColumn, impactColumn, attributeNameColumn;
+        private SimpleStringProperty periodColumn;
+        private boolean can_delete_specific_prices = true;
+        private static List<JeproLabCurrencyModel> currencies;
+        private SimpleObjectProperty<HBox> actionColumn;
+
+        public JeproLabSpecificPriceRecord(JeproLabSpecificPriceModel specificPrice){
+            JeproLabSpecificPriceModel.JeproLabSpecificPriceRuleModel specificPriceRule = new JeproLabSpecificPriceModel.JeproLabSpecificPriceRuleModel(specificPrice.specific_price_id);
+            String ruleName = (specificPriceRule.specific_price_rule_id > 0 ? specificPriceRule.name : "--");
+            ruleColumn= new SimpleStringProperty(ruleName);
+
+            JeproLabCurrencyModel currentCurrency = new JeproLabCurrencyModel();
+            for(JeproLabCurrencyModel currency : currencies){
+                if(currency.currency_id == specificPrice.currency_id){
+                    currentCurrency = currency;
+                }
+            }
+
+            if(specificPrice.reduction_type.equals("percentage")){
+                impactColumn = new SimpleStringProperty("- " + specificPrice.reduction * 100 + " %");
+            }else if(specificPrice.reduction > 0){
+                impactColumn = new SimpleStringProperty("- " + JeproLabTools.displayPrice(JeproLabTools.roundPrice(specificPrice.reduction, 2), currentCurrency));
+            }else{
+                impactColumn = new SimpleStringProperty("--");
+            }
+
+            if(specificPrice.from.toString().equals("0000-00-00 00:00:00") && specificPrice.to.toString().equals("0000-00-00 00:00:00")){
+                periodColumn = new SimpleStringProperty(JeproLab.getBundle().getString("JEPROLAB_UNLIMITED_LABEL"));
+            }else{
+                periodColumn = new SimpleStringProperty(
+                        JeproLab.getBundle().getString("JEPROLAB_FROM_LABEL") + " " + (!specificPrice.from.toString().equals("0000-00-00 00:00:00") ? specificPrice.from.toString() : "0000-00-00 00:00:00" ) + "\n"
+                                + JeproLab.getBundle().getString("JEPROLAB_TO_LABEL") + " " + (!specificPrice.to.toString().equals("0000-00-00 00:00:00") ? specificPrice.to.toString() : "0000-00-00 00:00:00" )
+                );
+            }
+
+            if(specificPrice.analyze_attribute_id > 0){
+                JeproLabCombinationModel combination = new JeproLabCombinationModel(specificPrice.analyze_attribute_id);
+                List<JeproLabAttributeModel> attributes = combination.getAttributesName(JeproLabContext.getContext().language.language_id);
+                String attributeName = "";
+                for(JeproLabAttributeModel attribute : attributes){
+                    attributeName += attribute.name.get("lang_" + JeproLabContext.getContext().language.language_id) + " - ";
+                }
+                attributeName = attributeName.endsWith(" - ") ? attributeName.substring(0, attributeName.length() - 3) : attributeName;
+                attributeNameColumn = new SimpleStringProperty(attributeName);
+            }else{
+                attributeNameColumn = new SimpleStringProperty(JeproLab.getBundle().getString("JEPROLAB_ALL_COMBINATION_LABEL"));
+            }
+
+            if(specificPrice.customer_id > 0){
+                JeproLabCustomerModel customer = new JeproLabCustomerModel(specificPrice.customer_id);
+                String customerFullName = customer.firstname + " " + customer.lastname;
+            }
+
+            //if(specificPrice.laboratory_id <= 0 || JeproLabLaboratoryModel.getContextListLaboratoryIds().contains(specificPrice.laboratory_id))
+            if(JeproLabLaboratoryModel.isFeaturePublished()){
+                can_delete_specific_prices = ((JeproLabContext.getContext().employee.getAssociatedLaboratories().size() > 1 && specificPrice.laboratory_id <= 0) || specificPrice.laboratory_id > 0);
+            }
+        }
+
+        public String getRuleColumn(){
+            return ruleColumn.get();
+        }
+
+        public static void setCurrencies(List<JeproLabCurrencyModel> currencyList){
+            currencies = currencyList;
         }
     }
 }

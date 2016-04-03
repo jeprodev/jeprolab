@@ -1,9 +1,7 @@
 package com.jeprolab;
 
 import com.jeprolab.assets.config.JeproLabConfig;
-import com.jeprolab.assets.tools.JeproLabContext;
-import com.jeprolab.assets.tools.JeproLabCookie;
-import com.jeprolab.assets.tools.JeproLabWindowsButtons;
+import com.jeprolab.assets.tools.*;
 import com.jeprolab.models.*;
 import com.jeprolab.models.core.JeproLabRequest;
 import com.jeprolab.views.application.JeproLabApplicationForm;
@@ -160,7 +158,9 @@ public class JeproLab extends Application {
 
     private void initialize() {
         JeproLabLanguageModel language = null;
+
         JeproLabConfig.initialize();
+        JeproLabUpdater.checkForNewVersion(JeproLabConfigurationSettings.JEPROLAB_CURRENT_VERSION);
         context = JeproLabContext.getContext();
         context.laboratory = JeproLabLaboratoryModel.initialize();
 

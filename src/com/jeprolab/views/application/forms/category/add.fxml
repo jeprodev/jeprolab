@@ -11,13 +11,15 @@
 <?import com.jeprolab.assets.extend.controls.tree.JeproCategoryTree?>
 <?import javafx.scene.control.Tab?>
 <?import javafx.scene.control.TabPane?>
+<?import javafx.scene.layout.VBox?>
 <JeproFormPanel xmlns:fx="http://javafx.com/fxml" fx:id="jeproLabCategoryFormWrapper" fx:controller="com.jeprolab.controllers.JeproLabCategoryAddController">
     <JeproFormPanelTitle fx:id="jeproLabCategoryFormTitleWrapper" />
     <JeproFormPanelContainer fx:id="jeproLabCategoryFormContainerWrapper" >
         <TabPane fx:id="jeproLabCategoryTabPane">
             <Tab closable="false" fx:id="jeproLabCategoryInformationTab">
+                <VBox spacing="5" >
+                <Label  fx:id="jeproLabCategoryInformationLabel" />
                 <GridPane fx:id="jeproLabCategoryFormLayout">
-                    <Label GridPane.columnIndex="0" GridPane.rowIndex="0" GridPane.columnSpan="4" fx:id="jeproLabCategoryInformationLabel" />
                     <Label GridPane.columnIndex="0" GridPane.rowIndex="1" fx:id="jeproLabCategoryNameLabel" />
                     <JeproMultiLangTextField GridPane.columnIndex="1" GridPane.rowIndex="1" fx:id="jeproLabCategoryName" />
                     <Label GridPane.columnIndex="2" GridPane.rowIndex="1" fx:id="jeproLabPublishedCategoryLabel" />
@@ -44,16 +46,23 @@
 
                     <Label GridPane.columnIndex="0" GridPane.rowIndex="12" fx:id="jeproLabCategoryLabel" />
                 </GridPane>
+                </VBox>
             </Tab>
             <Tab closable="false" fx:id="jeproLabCategoryAssociatedLaboratoriesTab">
-                <GridPane fx:id="jeproLabCategoryAssociatedLaboratoriesLayout" >
-                    <Label GridPane.columnIndex="0" GridPane.rowIndex="6" GridPane.columnSpan="4" GridPane.rowSpan="2" fx:id="jeproLabCategoryAssociatedLabsLabel" />
-                </GridPane>
+                <VBox>
+                    <Label  fx:id="jeproLabCategoryAssociatedLabsLabel" />
+                    <GridPane fx:id="jeproLabCategoryAssociatedLaboratoriesLayout" >
+
+                    </GridPane>
+                </VBox>
             </Tab>
             <Tab closable="false" fx:id="jeproLabCategoryAssociatedGroupTab">
-                <GridPane fx:id="jeproLabCategoryAssociatedGroupLayout" >
-                    <Label GridPane.columnIndex="0" GridPane.rowIndex="11" GridPane.columnSpan="4" GridPane.rowSpan="2"  fx:id="jeproLabCategoryAllowedGroupLabel" />
-                </GridPane>
+                <VBox>
+                    <Label fx:id="jeproLabCategoryAllowedGroupLabel" />
+                    <GridPane fx:id="jeproLabCategoryAssociatedGroupLayout" >
+
+                    </GridPane>
+                </VBox>
             </Tab>
         </TabPane>
     </JeproFormPanelContainer>

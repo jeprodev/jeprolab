@@ -21,6 +21,7 @@
 <?import com.jeprolab.assets.extend.controls.JeproLabPriceBox?>
 <?import javafx.scene.layout.VBox?>
 <?import com.jeprolab.assets.extend.controls.JeproMultiLangTextArea?>
+<?import javafx.scene.control.Button?>
 <JeproFormPanel  xmlns:fx="http://javafx.com/fxml" fx:id="jeproLabAddAnalyseFormWrapper" fx:controller="com.jeprolab.controllers.JeproLabAnalyzeAddController">
     <JeproFormPanelTitle fx:id="jeproLabAddAnalyseFormTitleWrapper" />
     <JeproFormPanelContainer fx:id="jeproLabAddAnalyseFormContainerWrapper"  >
@@ -115,9 +116,14 @@
                         <CheckBox GridPane.columnIndex="1" GridPane.rowIndex="6" GridPane.columnSpan="3" fx:id="jeproLabAnalyzeLeaveBasePrice" />
                         <Label GridPane.columnIndex="2" GridPane.rowIndex="5" fx:id="jeproLabAnalyzeApplyDiscountOfLabel" />
                         <ComboBox GridPane.columnIndex="3" GridPane.rowIndex="5" fx:id="jeproLabAnalyzeApplyDiscountOf" />
-                        <Label GridPane.columnIndex="0" GridPane.rowIndex="7" GridPane.columnSpan="4" fx:id="jeproLabAnalyzeSpecificPriceModificationLabel" />
-                        <Pane GridPane.columnIndex="0" GridPane.rowIndex="8" GridPane.columnSpan="4" fx:id="jeproLabAnalyzeSpecificPriceModification" />
-                        <HBox fx:id="jeproLabSpecificPricePriorityWrapper" spacing="5" />
+                        <HBox GridPane.columnIndex="0" GridPane.rowIndex="7" GridPane.columnSpan="4" alignment="CENTER" spacing="40" fx:id="jeproLabAnalyzeSpecificPriceModificationCommandWrapper" >
+                            <Button fx:id="jeproLabAnalyzeSpecificPriceModificationCommandSaveButton" />
+                            <Button fx:id="jeproLabAnalyzeSpecificPriceModificationCommandCancelButton" />
+                        </HBox>
+                        <Label GridPane.columnIndex="0" GridPane.rowIndex="8" GridPane.columnSpan="4" fx:id="jeproLabAnalyzeSpecificPriceModificationLabel" />
+                        <Pane GridPane.columnIndex="0" GridPane.rowIndex="9" GridPane.columnSpan="4" fx:id="jeproLabAnalyzeSpecificPriceModification" />
+                        <Label GridPane.columnIndex="0" GridPane.rowIndex="10" fx:id="jeproLabAnalyzeSpecificPricePriorityLabel" />
+                        <HBox GridPane.columnIndex="1" GridPane.rowIndex="10" GridPane.columnSpan="3" fx:id="jeproLabSpecificPricePriorityWrapper" spacing="5" />
                     </GridPane>
                 </Pane>
             </Tab>

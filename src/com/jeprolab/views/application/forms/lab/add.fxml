@@ -11,6 +11,8 @@
 <?import javafx.scene.control.TableView?>
 <?import javafx.scene.layout.Pane?>
 <?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.control.Button?>
 <JeproFormPanel xmlns:fx="http://javafx.com/fxml" fx:id="jeproLabLaboratoryPanelWrapper" fx:controller="com.jeprolab.controllers.JeproLabLaboratoryAddController" >
     <JeproFormPanelTitle fx:id="jeproLabLaboratoryPanelTitleWrapper" />
     <JeproFormPanelContainer fx:id="jeproLabLaboratoryPanelContainerWrapper" >
@@ -41,6 +43,10 @@
                     <TextField GridPane.columnIndex="1" GridPane.rowIndex="3" fx:id="jeproLabLaboratoryVirtualUri" />
                     <Label GridPane.columnIndex="0" GridPane.rowIndex="4" fx:id="jeproLabLaboratoryMainUrlLabel" />
                     <JeproSwitchButton GridPane.columnIndex="1" GridPane.rowIndex="4" fx:id="jeproLabLaboratoryMainUrl" />
+                    <HBox GridPane.columnIndex="0" GridPane.rowIndex="5" GridPane.columnSpan="2" alignment="CENTER" spacing="40" fx:id="jeproLabLaboratoryUrlCommandWrapper" >
+                        <Button fx:id="jeproLabLaboratoryUrlSaveButton" />
+                        <Button fx:id="jeproLabLaboratoryUrlCancelButton" />
+                    </HBox>
                     <TableView GridPane.columnIndex="0" GridPane.rowIndex="6" GridPane.columnSpan="2" fx:id="jeproLabLaboratoryUrlsTableView">
                         <columns>
                             <TableColumn editable="false" resizable="false" fx:id="jeproLabUrlIndexColumn" />
