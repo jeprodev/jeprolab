@@ -5,6 +5,10 @@ import com.jeprolab.assets.extend.controls.JeproFormPanel;
 import com.jeprolab.assets.extend.controls.JeproFormPanelContainer;
 import com.jeprolab.assets.extend.controls.JeproFormPanelTitle;
 import com.jeprolab.assets.extend.controls.JeproPhoneField;
+import com.jeprolab.assets.tools.JeproLabContext;
+import com.jeprolab.models.JeproLabAddressModel;
+import com.jeprolab.models.JeproLabCustomerModel;
+import com.jeprolab.models.JeproLabRequestModel;
 import javafx.fxml.FXML;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -22,7 +26,8 @@ import java.util.ResourceBundle;
  *
  * Created by jeprodev on 27/03/2014.
  */
-public class JeproLabAddRequestController extends JeproLabController {
+public class JeproLabRequestAddController extends JeproLabController {
+    private JeproLabRequestModel request;
     private Map<Integer, String> sample_matrix = new HashMap<>();
     private double fourthColumnWidth = 280;
     private final double formWidth = 0.98 * JeproLab.APP_WIDTH;
@@ -36,7 +41,7 @@ public class JeproLabAddRequestController extends JeproLabController {
     public Label jeproLabSampleDesignationLabel, jeproLabSampleMatrixLabel, jeproLabSampleTestDateLabel, jeproLabSampleAnalyzeSelectorLabel;
     public Label jeproLabCustomerCompanyAddressLabel, jeproLabCustomerCompanyPhoneLabel, jeproLabCustomerCompanyFaxLabel, jeproLabRequestMainContactInfoLabel;
     public Label jeproLabRequestReferenceLabel, jeproLabRequestDelayLabel, jeproLabRequestMainContactInfoNameLabel, jeproLabRequestMainContactInfoMailLabel;
-    public ComboBox <String> jeproLabRequestFirstContact, jeproLabRequestSecondContact, jeproLabRequestThirdContact, jeproLabRequestFourthContact, jeproLabRequestDelay;
+    public ComboBox<String> jeproLabRequestFirstContact, jeproLabRequestSecondContact, jeproLabRequestThirdContact, jeproLabRequestFourthContact, jeproLabRequestDelay;
     public TextField jeproLabCustomerCompanyName, jeproLabSampleDesignation, jeproLabCustomerCompanyAddress, jeproLabCustomerCompanyAddressDetails;
     public TextField jeproLabRequestReference, jeproLabRequestMainContactInfoMail, jeproLabRequestMainContactInfoName;
     public TextField jeproLabSampleReference;
@@ -55,6 +60,7 @@ public class JeproLabAddRequestController extends JeproLabController {
     public TableColumn<JeproLabSampleRecord, HBox> jeproLabSampleActionColumn;
     public Button jeproLabSaveSampleBtn, jeproLabCancelSampleBtn;
 
+    @Override
     public void initialize(URL location, ResourceBundle resource) {
         super.initialize(location, resource);
 
@@ -132,7 +138,7 @@ public class JeproLabAddRequestController extends JeproLabController {
         GridPane.setMargin(jeproLabRequestThirdContact, new Insets(5, 0, 5, 0));
         GridPane.setMargin(jeproLabRequestFourthContactLabel, new Insets(5, 0, 5, 10));
         GridPane.setMargin(jeproLabRequestFourthContact, new Insets(5, 0, 5, 0));
-        GridPane.setMargin(jeproLabRequestDelayLabel, new Insets(10, 0, 5, 10));
+        GridPane.setMargin(jeproLabRequestDelayLabel, new Insets(10, 0, 9, 10));
         GridPane.setMargin(jeproLabRequestDelay, new Insets(5, 0, 5, 0));
 
         jeproLabResultTransmissionLabel.setPrefWidth(subFormWidth - 520);
@@ -192,7 +198,7 @@ public class JeproLabAddRequestController extends JeproLabController {
 
     private void renderSampleListForm(){
         CheckBox checkAll = new CheckBox();
-        jeproLabSampleRecordTableView.setPrefSize(formWidth - 440, 250);
+        jeproLabSampleRecordTableView.setPrefWidth(formWidth - 440);
         double remainingWidth = formWidth - 520;
         jeproLabSampleCheckBoxColumn.setGraphic(checkAll);
 
@@ -203,6 +209,8 @@ public class JeproLabAddRequestController extends JeproLabController {
         jeproLabSampleDesignationColumn.setPrefWidth(0.7 * remainingWidth);
         jeproLabSampleActionColumn.setText(bundle.getString("JEPROLAB_ACTIONS_LABEL"));
         jeproLabSampleActionColumn.setPrefWidth(60);
+
+
     }
 
     private void setFormLabels(){
@@ -249,7 +257,27 @@ public class JeproLabAddRequestController extends JeproLabController {
 
     @Override
     public void initializeContent(){
+        if(request.request_id > 0){
+            jeproLabCustomerCompanyName.setText(JeproLabCustomerModel.getCompanyByCustomerId(request.customer_id));
+            JeproLabAddressModel address = JeproLabAddressModel.getAddressByCustomerId(request.customer_id, true);
+            jeproLabCustomerCompanyAddress.setText(address.address1);
+            jeproLabCustomerCompanyAddressDetails.setText(address.address2);
+            jeproLabRequestReference.setText(request.reference);
+            jeproLabRequestMainContactInfoMail.setText(JeproLabCustomerModel.getEmailByCustomerId(request.main_contact_id));
+            jeproLabRequestMainContactInfoName.setText(JeproLabCustomerModel.getNameByCustomerId(request.main_contact_id));
 
+            List<JeproLabCustomerModel> customerContact = JeproLabCustomerModel.getCustomerByCompany(request.main_customer.company);
+            jeproLabRequestFirstContact.getItems().clear();
+            jeproLabRequestSecondContact.getItems().clear();
+            jeproLabRequestThirdContact.getItems().clear();
+            jeproLabRequestFourthContact.getItems().clear();
+
+            jeproLabRequestFirstContact.getItems().clear();
+            jeproLabRequestFirstContact.getItems().clear();
+            jeproLabRequestFirstContact.getItems().clear();
+        }else{
+
+        }
     }
 
     public static class JeproLabSampleRecord {

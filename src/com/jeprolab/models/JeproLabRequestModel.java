@@ -16,6 +16,8 @@ public class JeproLabRequestModel extends JeproLabModel{
 
     public int main_contact_id;
 
+    public String reference;
+
     public static class JeproLabSampleModel extends JeproLabModel {
         public int sample_id;
 

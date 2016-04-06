@@ -15,7 +15,7 @@
 <?import javafx.scene.control.DatePicker?>
 <?import javafx.scene.control.ScrollPane?>
 <?import javafx.scene.control.Button?>
-<JeproFormPanel xmlns:fx="http://javafx.com/fxml" fx:id="jeproLabRequestFormWrapper" fx:controller="com.jeprolab.controllers.JeproLabAddRequestController" >
+<JeproFormPanel xmlns:fx="http://javafx.com/fxml" fx:id="jeproLabRequestFormWrapper" fx:controller="com.jeprolab.controllers.JeproLabRequestAddController" >
     <JeproFormPanelTitle fx:id="jeproLabRequestFormTitleWrapper" />
     <JeproFormPanelContainer fx:id="jeproLabRequestContentWrapper" >
         <VBox >
