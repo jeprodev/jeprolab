@@ -1,13 +1,14 @@
 package com.jeprolab.models;
 
+import com.jeprolab.JeproLab;
+import com.jeprolab.assets.tools.JeproLabTools;
 import com.jeprolab.assets.tools.db.JeproLabDataBaseConnector;
 import com.jeprolab.controllers.JeproLabCustomerController;
 import com.jeprolab.models.core.JeproLabFactory;
 
 import java.sql.ResultSet;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
+import java.sql.SQLException;
+import java.util.*;
 
 public class JeproLabCustomerModel  extends JeproLabModel{
     public int customer_id;
@@ -22,7 +23,7 @@ public class JeproLabCustomerModel  extends JeproLabModel{
 
     public int default_group_id;
 
-    public int lang_id;
+    public int language_id;
 
     public String title;
 
@@ -238,15 +239,60 @@ public class JeproLabCustomerModel  extends JeproLabModel{
      *
      * @param $email
      * @return array
-     * /
-    public static function getCustomersByEmail($email)
-    {
-        $sql = 'SELECT *
-        FROM `'._DB_PREFIX_.'customer`
-        WHERE `email` = \''.pSQL($email).'\'
-        '.Shop::addSqlRestriction(Shop::SHARE_CUSTOMER);
+     */
+    public static List<JeproLabCustomerModel> getCustomersByEmail(String email){
+        if(staticDataBaseObject == null){
+            staticDataBaseObject = JeproLabFactory.getDataBaseConnector();
+        }
+        List<JeproLabCustomerModel> customers = new ArrayList<>();
+        String query = "SELECT * FROM " + staticDataBaseObject.quoteName("#__jeprolab_customer") + " WHERE ";
+        query += staticDataBaseObject.quoteName("email") + " = " + staticDataBaseObject.quote(email);
+        query += JeproLabLaboratoryModel.addSqlRestriction(JeproLabLaboratoryModel.SHARE_CUSTOMER);
 
-        return Db::getInstance()->ExecuteS($sql);
+        staticDataBaseObject.setQuery(query);
+        ResultSet customersSet = staticDataBaseObject.loadObject();
+
+        if(customersSet != null){
+            try{
+                JeproLabCustomerModel customer;
+                while(customersSet.next()){
+                    customer = new JeproLabCustomerModel();
+                    customer.customer_id = customersSet.getInt("customer_id");
+                    customer.laboratory_id = customersSet.getInt("lang_id");
+                    customer.laboratory_group_id = customersSet.getInt("lab_group_id");
+                    customer.secure_key = customersSet.getString("secure_key");
+                    customer.note = customersSet.;
+                    customer.default_group_id = customersSet.getInt("default_group_id");
+                    customer.language_id = customersSet.getInt("lang_id");
+                    customer.title = customersSet.;
+                    customer.lastname = customersSet.getString("lastname");
+                    customer.firstname = customersSet.getString("firstname");
+                    customer.birthday = JeproLabTools.getDate(customersSet.getString("birthday"));
+                    customer.optin = customersSet.;
+                    customer.is_guest = customersSet.;
+                    customer.website = customersSet.getString("website");
+                    customer.company = customersSet.getString("company");
+                    customer.siret = customersSet.getString("siret");
+                    customer.ape = customersSet.;
+                    customer.published = customersSet.getInt("published") > 0;
+                    customer.state_id = customersSet.getInt("state_id");
+                    customer.postcode = customersSet.getString("postcode");
+                    customer.geolocation_country_id = customersSet.;
+                    customer.date_add = JeproLabTools.getDate(customersSet.getString("date_add"));
+                    customer.date_upd = JeproLabTools.getDate(customersSet.getString("date_upd"));
+                    customers.add(customer);
+                }
+            }catch (SQLException ignored){
+                ignored.printStackTrace();
+            }finally {
+                try {
+                    JeproLabDataBaseConnector.getInstance().closeConnexion();
+                }catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+        return customers;
     }
 
 
