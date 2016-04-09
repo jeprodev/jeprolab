@@ -275,12 +275,9 @@ public class JeproLabAnalyzeController extends JeproLabController {
             deleteAnalyze.setMinSize(btnSize, btnSize);
             deleteAnalyze.getStyleClass().add("icon-btn");
             deleteAnalyze.setTooltip(tooltip);
-            deleteAnalyze.setOnMouseClicked(new EventHandler<MouseEvent>() {
-                @Override
-                public void handle(MouseEvent event) {
-                    JeproLabTools.displayWarning(300, JeproLab.getBundle().getString("JEPROLAB_DELETE_CATEGORY_LABEL"));
-                    System.out.println("edit it function");
-                }
+            deleteAnalyze.setOnMouseClicked(event -> {
+                JeproLabTools.displayWarning(300, JeproLab.getBundle().getString("JEPROLAB_DELETE_CATEGORY_LABEL"));
+                System.out.println("edit it function");
             });
             deleteAnalyze.setOnMouseEntered(new EventHandler<MouseEvent>() {
                 @Override

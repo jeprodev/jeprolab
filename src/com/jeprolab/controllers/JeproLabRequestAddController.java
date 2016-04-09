@@ -6,7 +6,9 @@ import com.jeprolab.assets.extend.controls.JeproFormPanelContainer;
 import com.jeprolab.assets.extend.controls.JeproFormPanelTitle;
 import com.jeprolab.assets.extend.controls.JeproPhoneField;
 import com.jeprolab.assets.tools.JeproLabContext;
+import com.jeprolab.assets.tools.JeproLabTools;
 import com.jeprolab.models.JeproLabAddressModel;
+import com.jeprolab.models.JeproLabAnalyzeModel;
 import com.jeprolab.models.JeproLabCustomerModel;
 import com.jeprolab.models.JeproLabRequestModel;
 import javafx.fxml.FXML;
@@ -19,6 +21,7 @@ import javafx.scene.layout.*;
 
 import java.net.URL;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.ResourceBundle;
 
@@ -148,6 +151,13 @@ public class JeproLabRequestAddController extends JeproLabController {
         jeproLabRequestDelayLabel.setAlignment(Pos.CENTER);
 
         jeproLabRequestDelay.setPrefWidth(fourthColumnWidth);
+        jeproLabRequestDelay.getItems().addAll(
+                bundle.getString("JEPROLAB_ANALYZE_REGULAR_DELAY_LABEL"),
+                bundle.getString("JEPROLAB_ANALYZE_EXPRESS_DELAY_12_HOURS_LABEL"),
+                bundle.getString("JEPROLAB_ANALYZE_EXPRESS_DELAY_24_HOURS_LABEL"),
+                bundle.getString("JEPROLAB_ANALYZE_EXPRESS_DELAY_48_HOURS_LABEL")
+        );
+        jeproLabRequestDelay.setValue(bundle.getString("JEPROLAB_ANALYZE_REGULAR_DELAY_LABEL"));
     }
 
     private void renderSampleForm(){
@@ -185,10 +195,31 @@ public class JeproLabRequestAddController extends JeproLabController {
         GridPane.setMargin(jeproLabSampleTestDateLabel, new Insets(5, 0, 5, 10));
         GridPane.setMargin(jeproLabSampleTestDate, new Insets(5, 0, 5, 0));
         GridPane.setMargin(jeproLabSampleAnalyzeSelectorLabel, new Insets(5, 0, 5, 10));
-        GridPane.setMargin(jeproLabSampleAnalyzeSelector, new Insets(5, 0, 5, 0));
+        GridPane.setMargin(jeproLabSampleAnalyzeSelector, new Insets(5, 0, 15, 5));
         jeproLabSampleAnalyzeSelectorLabel.setPrefWidth(380);
         jeproLabSampleAnalyzeSelectorLabel.setAlignment(Pos.CENTER);
         jeproLabSampleReference.setDisable(true);
+
+        Map<Integer, String> matrices = JeproLabRequestModel.JeproLabMatrixModel.getMatrices();
+        jeproLabSampleMatrix.setPromptText(bundle.getString("JEPROLAB_SELECT_MATRIX_LABEL"));
+        for(Map.Entry<Integer, String> matrix : matrices.entrySet()){
+            jeproLabSampleMatrix.getItems().add(matrix.getValue());
+        }
+        List<JeproLabAnalyzeModel> analyzesList = JeproLabAnalyzeModel.getAnalyzeList();
+        jeproLabSampleAnalyzeSelector.getColumnConstraints().addAll(
+                new ColumnConstraints(120),
+                new ColumnConstraints(120),
+                new ColumnConstraints(120)
+        );
+        int analyzeIndex = 0;
+        int analyzeRow = 0;
+        for(JeproLabAnalyzeModel analyze : analyzesList){
+            CheckBox analyzeCheck = new CheckBox(analyze.name.get("lang_" + context.language.language_id));
+            jeproLabSampleAnalyzeSelector.add(analyzeCheck, analyzeIndex % 3, analyzeRow);
+            GridPane.setMargin(analyzeCheck, new Insets(4,2,4,4));
+            analyzeIndex++;
+            if((analyzeIndex % 3) == 0){ analyzeRow++; }
+        }
 
         jeproLabSaveSampleBtn.setText(bundle.getString("JEPROLAB_ADD_LABEL"));
         jeproLabSaveSampleBtn.setGraphic(new ImageView(new Image(JeproLab.class.getResourceAsStream("resources/images/floppy-icon.png"))));
@@ -209,7 +240,6 @@ public class JeproLabRequestAddController extends JeproLabController {
         jeproLabSampleDesignationColumn.setPrefWidth(0.7 * remainingWidth);
         jeproLabSampleActionColumn.setText(bundle.getString("JEPROLAB_ACTIONS_LABEL"));
         jeproLabSampleActionColumn.setPrefWidth(60);
-
 
     }
 
@@ -257,6 +287,8 @@ public class JeproLabRequestAddController extends JeproLabController {
 
     @Override
     public void initializeContent(){
+        loadRequest();
+        List<JeproLabCustomerModel> customersContact;
         if(request.request_id > 0){
             jeproLabCustomerCompanyName.setText(JeproLabCustomerModel.getCompanyByCustomerId(request.customer_id));
             JeproLabAddressModel address = JeproLabAddressModel.getAddressByCustomerId(request.customer_id, true);
@@ -266,17 +298,56 @@ public class JeproLabRequestAddController extends JeproLabController {
             jeproLabRequestMainContactInfoMail.setText(JeproLabCustomerModel.getEmailByCustomerId(request.main_contact_id));
             jeproLabRequestMainContactInfoName.setText(JeproLabCustomerModel.getNameByCustomerId(request.main_contact_id));
 
-            List<JeproLabCustomerModel> customerContact = JeproLabCustomerModel.getCustomerByCompany(request.main_customer.company);
+            customersContact = JeproLabCustomerModel.getCustomersByCompany(request.main_customer.company);
+
+        }else{
+            jeproLabRequestReference.setText(JeproLabTools.createRequestReference());
+            customersContact = JeproLabCustomerModel.getCustomersByCompany("jeprodesign");
+
+        }
+
+        if(customersContact.size()> 0){
             jeproLabRequestFirstContact.getItems().clear();
             jeproLabRequestSecondContact.getItems().clear();
             jeproLabRequestThirdContact.getItems().clear();
             jeproLabRequestFourthContact.getItems().clear();
 
-            jeproLabRequestFirstContact.getItems().clear();
-            jeproLabRequestFirstContact.getItems().clear();
-            jeproLabRequestFirstContact.getItems().clear();
-        }else{
+            for(JeproLabCustomerModel customer : customersContact) {
+                jeproLabRequestFirstContact.getItems().add(customer.firstname + " " + customer.lastname.toUpperCase());
+                jeproLabRequestSecondContact.getItems().add(customer.firstname + " " + customer.lastname.toUpperCase());
+                jeproLabRequestThirdContact.getItems().add(customer.firstname + " " + customer.lastname.toUpperCase());
+                jeproLabRequestFourthContact.getItems().add(customer.firstname + " " + customer.lastname.toUpperCase());
 
+                if(request.request_id > 0){
+                    if(request.first_contact_id == customer.customer_id) {
+                        jeproLabRequestFirstContact.setValue(customer.firstname + " " + customer.lastname.toUpperCase());
+                    }else if(request.second_contact_id == customer.customer_id){
+                        jeproLabRequestSecondContact.setValue(customer.firstname + " " + customer.lastname.toUpperCase());
+                    }else if(request.third_contact_id == customer.customer_id){
+                        jeproLabRequestThirdContact.setValue(customer.firstname + " " + customer.lastname.toUpperCase());
+                    }else if(request.fourth_contact_id == customer.customer_id){
+                        jeproLabRequestFourthContact.setValue(customer.firstname + " " + customer.lastname.toUpperCase());
+                    }
+                }
+            }
+        }
+    }
+
+    private void loadRequest(){
+        int requestId = JeproLab.request.getRequest().containsKey("request_id") ? Integer.parseInt(JeproLab.request.getRequest().get("request_id")) : 0;
+
+        if(context == null) {
+            context = JeproLabContext.getContext();
+        }
+
+        if(requestId > 0){
+            request = new JeproLabRequestModel(requestId);
+            if(request.request_id <= 0){
+                request = new JeproLabRequestModel();
+            }
+
+        }else{
+            request = new  JeproLabRequestModel();
         }
     }
 

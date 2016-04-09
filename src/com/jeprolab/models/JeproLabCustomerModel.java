@@ -1,6 +1,7 @@
 package com.jeprolab.models;
 
 import com.jeprolab.JeproLab;
+import com.jeprolab.assets.tools.JeproLabCache;
 import com.jeprolab.assets.tools.JeproLabTools;
 import com.jeprolab.assets.tools.db.JeproLabDataBaseConnector;
 import com.jeprolab.controllers.JeproLabCustomerController;
@@ -59,7 +60,7 @@ public class JeproLabCustomerModel  extends JeproLabModel{
     protected static int customer_group = 0;
 
     protected static Map<Integer, Integer> _defaultGroupId = new HashMap<>();
-    protected static Map<Integer, Boolean> _customerHasAddress = new HashMap<>();
+    protected static Map<String, Boolean> _customerHasAddress = new HashMap<>();
 
     public JeproLabCustomerModel(){
         this(0);
@@ -68,7 +69,7 @@ public class JeproLabCustomerModel  extends JeproLabModel{
     public JeproLabCustomerModel(int customerId){
         if(customerId > 0) {
             ResultSet results = null;
-            String query = "";
+
             String cache_id = "jeprolab_customer_model_" + customerId + ((this.laboratory_id != 0) ? "_" + this.laboratory_id : "");
             if (!JeproLabCustomerController.isStored(cache_id)) {
                 try {
@@ -77,7 +78,7 @@ public class JeproLabCustomerModel  extends JeproLabModel{
                     e.printStackTrace();
                 }
 
-                query += "SELECT * FROM " + dataBaseObject.quoteName("#__jeprolab_customer") + " AS customer ";
+                String query = "SELECT * FROM " + dataBaseObject.quoteName("#__jeprolab_customer") + " AS customer ";
 
                 /** Get customer lab information  **/
                 if (JeproLabLaboratoryModel.isTableAssociated("customer")) {
@@ -237,8 +238,8 @@ public class JeproLabCustomerModel  extends JeproLabModel{
     /**
      * Retrieve customers by email address
      *
-     * @param $email
-     * @return array
+     * @param email customer email address
+     * @return List
      */
     public static List<JeproLabCustomerModel> getCustomersByEmail(String email){
         if(staticDataBaseObject == null){
@@ -261,23 +262,23 @@ public class JeproLabCustomerModel  extends JeproLabModel{
                     customer.laboratory_id = customersSet.getInt("lang_id");
                     customer.laboratory_group_id = customersSet.getInt("lab_group_id");
                     customer.secure_key = customersSet.getString("secure_key");
-                    customer.note = customersSet.;
+                    customer.note = customersSet.getString("note");
                     customer.default_group_id = customersSet.getInt("default_group_id");
                     customer.language_id = customersSet.getInt("lang_id");
-                    customer.title = customersSet.;
+                    customer.title = customersSet.getString("title");
                     customer.lastname = customersSet.getString("lastname");
                     customer.firstname = customersSet.getString("firstname");
                     customer.birthday = JeproLabTools.getDate(customersSet.getString("birthday"));
-                    customer.optin = customersSet.;
-                    customer.is_guest = customersSet.;
+                    customer.optin = customersSet.getInt("optin") > 0;
+                    customer.is_guest = customersSet.getInt("is_guest") == 2;
                     customer.website = customersSet.getString("website");
                     customer.company = customersSet.getString("company");
                     customer.siret = customersSet.getString("siret");
-                    customer.ape = customersSet.;
+                    customer.ape = customersSet.getString("ape");
                     customer.published = customersSet.getInt("published") > 0;
                     customer.state_id = customersSet.getInt("state_id");
                     customer.postcode = customersSet.getString("postcode");
-                    customer.geolocation_country_id = customersSet.;
+                    //customer.geolocation_country_id = customersSet.;
                     customer.date_add = JeproLabTools.getDate(customersSet.getString("date_add"));
                     customer.date_upd = JeproLabTools.getDate(customersSet.getString("date_upd"));
                     customers.add(customer);
@@ -295,77 +296,176 @@ public class JeproLabCustomerModel  extends JeproLabModel{
         return customers;
     }
 
+    /**
+     * Retrieve customers by company
+     *
+     * @param company customer company name
+     * @return array
+     */
+    public static List<JeproLabCustomerModel> getCustomersByCompany(String company){
+        if(staticDataBaseObject == null){
+            staticDataBaseObject = JeproLabFactory.getDataBaseConnector();
+        }
+        List<JeproLabCustomerModel> customers = new ArrayList<>();
+        String query = "SELECT * FROM " + staticDataBaseObject.quoteName("#__jeprolab_customer") + " WHERE ";
+        query += staticDataBaseObject.quoteName("company") + " = " + staticDataBaseObject.quote(company);
+        query += JeproLabLaboratoryModel.addSqlRestriction(JeproLabLaboratoryModel.SHARE_CUSTOMER);
+
+        staticDataBaseObject.setQuery(query);
+        ResultSet customersSet = staticDataBaseObject.loadObject();
+
+        if(customersSet != null){
+            try{
+                JeproLabCustomerModel customer;
+                while(customersSet.next()){
+                    customer = new JeproLabCustomerModel();
+                    customer.customer_id = customersSet.getInt("customer_id");
+                    customer.laboratory_id = customersSet.getInt("lang_id");
+                    customer.laboratory_group_id = customersSet.getInt("lab_group_id");
+                    customer.secure_key = customersSet.getString("secure_key");
+                    customer.note = customersSet.getString("note");
+                    customer.default_group_id = customersSet.getInt("default_group_id");
+                    customer.language_id = customersSet.getInt("lang_id");
+                    customer.title = customersSet.getString("title");
+                    customer.lastname = customersSet.getString("lastname");
+                    customer.firstname = customersSet.getString("firstname");
+                    //customer.birthday = JeproLabTools.getDate(customersSet.getString("birthday"));
+                    customer.optin = customersSet.getInt("optin") > 0;
+                    customer.is_guest = customersSet.getInt("is_guest") == 2;
+                    customer.website = customersSet.getString("website");
+                    customer.company = customersSet.getString("company");
+                    customer.siret = customersSet.getString("siret");
+                    customer.ape = customersSet.getString("ape");
+                    customer.published = customersSet.getInt("published") > 0;
+                    /*customer.state_id = customersSet.getInt("state_id");
+                    customer.postcode = customersSet.getString("postcode");
+                    /*customer.geolocation_country_id = customersSet.;
+                    customer.date_add = JeproLabTools.getDate(customersSet.getString("date_add"));
+                    customer.date_upd = JeproLabTools.getDate(customersSet.getString("date_upd")); */
+                    customers.add(customer);
+                }
+            }catch (SQLException ignored){
+                ignored.printStackTrace();
+            }finally {
+                try {
+                    JeproLabDataBaseConnector.getInstance().closeConnexion();
+                }catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+        return customers;
+    }
 
     /**
      * Check id the customer is active or not
      *
      * @return bool customer validity
-     * /
-    public static function isBanned($id_customer)
-    {
-        if (!Validate::isUnsignedId($id_customer)) {
-        return true;
-    }
-        $cache_id = 'Customer::isBanned_'.(int)$id_customer;
-        if (!Cache::isStored($cache_id)) {
-        $result = (bool)!Db::getInstance(_PS_USE_SQL_SLAVE_)->getRow('
-                SELECT `id_customer`
-                FROM `'._DB_PREFIX_.'customer`
-        WHERE `id_customer` = \''.(int)$id_customer.'\'
-        AND active = 1
-        AND `deleted` = 0');
-        Cache::store($cache_id, $result);
-        return $result;
-    }
-        return Cache::retrieve($cache_id);
+     */
+    public static boolean isBanned(int customerId){
+        if (customerId <= 0) {
+            return true;
+        }
+        String cacheKey = "jeprolab_customer_isBanned_" + customerId;
+        if (!JeproLabCache.getInstance().isStored(cacheKey)) {
+            if(staticDataBaseObject == null){
+                staticDataBaseObject = JeproLabFactory.getDataBaseConnector();
+            }
+            String query = "SELECT " + staticDataBaseObject.quoteName("customer_id") + " FROM " + staticDataBaseObject.quoteName("#__jeprolab_customer");
+            query += " WHERE " + staticDataBaseObject.quoteName("customer_id") + " = " + customerId + " AND " + staticDataBaseObject.quoteName("published");
+            query += " = 1 AND " + staticDataBaseObject.quoteName("deleted") + " = 0 ";
+
+            staticDataBaseObject.setQuery(query);
+            boolean result = !((int)staticDataBaseObject.loadValue("customer_id") > 0);
+            JeproLabCache.getInstance().store(cacheKey, result);
+            return result;
+        }
+        return (boolean)JeproLabCache.getInstance().retrieve(cacheKey);
     }
 
     /**
      * Check if e-mail is already registered in database
      *
-     * @param string $email e-mail
-     * @param $return_id boolean
-     * @param $ignore_guest boolean, to exclude guest customer
+     * @param email e-mail
      * @return Customer ID if found, false otherwise
-     * /
-    public static function customerExists($email, $return_id = false, $ignore_guest = true)
-    {
-        if (!Validate::isEmail($email)) {
-        if (defined('_PS_MODE_DEV_') && _PS_MODE_DEV_) {
-            die(Tools::displayError('Invalid email'));
-        }
-        return false;
+     */
+    public static int customerExists(String email){
+        return customerExists(email, true);
     }
 
-        $result = Db::getInstance()->getValue('
-            SELECT `id_customer`
-            FROM `'._DB_PREFIX_.'customer`
-        WHERE `email` = \''.pSQL($email).'\'
-        '.Shop::addSqlRestriction(Shop::SHARE_CUSTOMER).'
-        '.($ignore_guest ? ' AND `is_guest` = 0' : ''));
-        return ($return_id ? (int)$result : (bool)$result);
+    /**
+     * Check if e-mail is already registered in database
+     *
+     * @param email e-mail
+     * @return Customer ID if found, false otherwise
+     */
+    public static boolean doesCustomerExist(String email){
+        return (customerExists(email, true) > 0);
+    }
+
+    /*
+     * Check if e-mail is already registered in database
+     *
+     * @param email e-mail
+     * @param ignoreGuest boolean
+     * @return Customer ID if found, false otherwise
+     * /
+    public static boolean customerExists(String email, boolean ignoreGuest){
+        return (customerExists(email, true) > 0);
+    }
+
+    /**
+     * Check if e-mail is already registered in database
+     *
+     * @param email e-mail
+     * @param ignoreGuest boolean, to exclude guest customer
+     * @return Customer ID if found, false otherwise
+     */
+    public static int customerExists(String email, boolean ignoreGuest){
+        if (!JeproLabTools.isEmail(email)) {
+            /*if (defined('_PS_MODE_DEV_') && _PS_MODE_DEV_) {
+                die(Tools::displayError('Invalid email'));
+            }*/
+            return 0;
+        }
+
+        if (staticDataBaseObject == null){
+            staticDataBaseObject = JeproLabFactory.getDataBaseConnector();
+        }
+
+        String query = "SELECT " + staticDataBaseObject.quoteName("customer_id") + " FROM " + staticDataBaseObject.quoteName("#__jeprolab_customer");
+        query += " WHERE " + staticDataBaseObject.quoteName("email") + " = " + staticDataBaseObject.quote(email) ;
+        query += JeproLabLaboratoryModel.addSqlRestriction(JeproLabLaboratoryModel.SHARE_CUSTOMER);
+        query += (ignoreGuest ? " AND " + staticDataBaseObject.quoteName("is_guest") + " = 0 " : "");
+
+        staticDataBaseObject.setQuery(query);
+        return (int)staticDataBaseObject.loadValue("customer_id");
     }
 
     /**
      * Check if an address is owned by a customer
      *
-     * @param int $id_customer Customer ID
-     * @param int $id_address Address ID
+     * @param customerId Customer ID
+     * @param addressId Address ID
      * @return bool result
-     * /
-    public static function customerHasAddress($id_customer, $id_address)
-    {
-        $key = (int)$id_customer.'-'.(int)$id_address;
-        if (!array_key_exists($key, self::$_customerHasAddress)) {
-            self::$_customerHasAddress[$key] = (bool)Db::getInstance(_PS_USE_SQL_SLAVE_)->getValue('
-                    SELECT `id_address`
-                    FROM `'._DB_PREFIX_.'address`
-            WHERE `id_customer` = '.(int)$id_customer.'
-            AND `id_address` = '.(int)$id_address.'
-            AND `deleted` = 0');
+     */
+    public static boolean customerHasAddress(int customerId, int addressId){
+        String cacheKey = customerId + "_" + addressId;
+        if (staticDataBaseObject == null){
+            staticDataBaseObject = JeproLabFactory.getDataBaseConnector();
         }
-        return self::$_customerHasAddress[$key];
-    } */
+        if (!JeproLabCustomerModel._customerHasAddress.containsKey(cacheKey)) {
+            String query = "SELECT " + staticDataBaseObject.quoteName("address_id") + " FROM " + staticDataBaseObject.quoteName("#__jeprolab_address");
+            query += " WHERE " + staticDataBaseObject.quoteName("customer_id") + " = " + customerId + " AND " + staticDataBaseObject.quoteName("address_id");
+            query += " = " + addressId + " AND "  + staticDataBaseObject.quoteName("deleted") + " = 0 ";
+
+            staticDataBaseObject.setQuery(query);
+
+            JeproLabCustomerModel._customerHasAddress.put(cacheKey, staticDataBaseObject.loadValue("address_id") > 0);
+
+        }
+        return JeproLabCustomerModel._customerHasAddress.containsKey(cacheKey);
+    }
 
     public static void resetAddressCache(int customerId, int addressId){
         String cacheKey = customerId + "_" + addressId;
@@ -406,7 +506,7 @@ public class JeproLabCustomerModel  extends JeproLabModel{
      * @param int $id_customer Customer ID
      * @return int Number of addresses
      * /
-    public static function getAddressesTotalById($id_customer)
+    public static function getAddressesTotalByCustomerId(int customerId)
     {
         return Db::getInstance(_PS_USE_SQL_SLAVE_)->getValue('
             SELECT COUNT(`id_address`)
@@ -658,6 +758,18 @@ public class JeproLabCustomerModel  extends JeproLabModel{
             JeproLabCustomerModel._defaultGroupId.put(customerId, (int)staticDataBaseObject.loadValue("default_group_id"));
         }
         return JeproLabCustomerModel._defaultGroupId.get(customerId);
+    }
+
+    public static String getCompanyByCustomerId(int customerId) {
+        return "";
+    }
+
+    public static String getEmailByCustomerId(int customerId) {
+        return "";
+    }
+
+    public static String getNameByCustomerId(int customerId) {
+        return  "";
     }
 /*
     public static function getCurrentCountry($id_customer, Cart $cart = null)

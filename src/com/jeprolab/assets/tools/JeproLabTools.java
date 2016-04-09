@@ -11,6 +11,9 @@ import javafx.scene.control.TextField;
 import javafx.scene.input.KeyEvent;
 
 import java.io.*;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.security.SecureRandom;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -82,6 +85,11 @@ public class JeproLabTools {
         return true; //order.matches(pattern);
     }
 
+    public static boolean isEmail(String email){
+        String pattern = "/^[a-zA-Z0-9._-]+$/";
+        return true; //order.matches(pattern);
+    }
+
     public static boolean isOrderWay(String way){
         return (way.toLowerCase().equals("asc") | way.toLowerCase().equals("desc"));
     }
@@ -104,6 +112,33 @@ public class JeproLabTools {
         }
         return null;
     }
+
+    public static synchronized String createRequestReference(){
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTimeInMillis(System.currentTimeMillis());
+        try{
+            SecureRandom secure = SecureRandom.getInstance("SHA1PRNG");
+            String randomValue = Integer.toString(secure.nextInt());
+            MessageDigest sha = MessageDigest.getInstance("SHA-1");
+            byte[] result = sha.digest(randomValue.getBytes());
+            String encode = hexEncode(result);
+            return "REQ" + calendar.get(Calendar.YEAR) + encode.substring(0, 3) + (calendar.get(Calendar.MONTH) + 1) + encode.substring(4, 6);
+        }catch(NoSuchAlgorithmException ex){
+            ex.printStackTrace();
+        }
+        return "";
+    }
+
+    private static String hexEncode(byte[] input){
+        StringBuilder result = new StringBuilder();
+        char[] digits = {'a','b','c','d','e','f', '0', '1', '2', '3', '4','5','6','7','8','9'};
+        for(byte b : input) {
+            result.append(digits[(b & 0xf0) >> 4]);
+            result.append(digits[b & 0x0f]);
+        }
+        return result.toString().toUpperCase();
+    }
+
     /*public static boolean (){}*/
 
     public static float convertPrice(float price){
@@ -113,6 +148,7 @@ public class JeproLabTools {
     public static float convertPrice(float price, int currencyId){
         return convertPrice(price, currencyId, true, null);
     }
+
     public static float convertPrice(float price, int currencyId, boolean toCurrency){
         return convertPrice(price, currencyId, toCurrency, null);
     }

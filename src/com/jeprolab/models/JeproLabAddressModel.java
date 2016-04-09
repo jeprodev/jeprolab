@@ -664,6 +664,10 @@ public class JeproLabAddressModel extends JeproLabModel {
         return (JeproLabAddressModel)JeproLabCache.getInstance().retrieve(cacheKey);
     }
 
+    public static JeproLabAddressModel getAddressByCustomerId(int customerId, boolean main) {
+        return new JeproLabAddressModel();
+    }
+
     /**
      * Returns id_address for a given id_supplier
      * @since 1.5.0

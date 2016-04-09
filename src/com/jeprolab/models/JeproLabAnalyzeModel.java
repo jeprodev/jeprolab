@@ -1898,17 +1898,23 @@ public class JeproLabAnalyzeModel extends JeproLabModel {
             joinCategory = true;
         }
         //String groupFilter = ""; //, selectFilter = "";
-        labId = (JeproLabLaboratoryModel.isFeaturePublished() && JeproLabLaboratoryModel.getLabContext() == JeproLabLaboratoryModel.LAB_CONTEXT) ? context.laboratory.laboratory_id  : 0; //"analyze." . staticDataBaseObject.quoteName("default_lab_id");
+        if(JeproLabLaboratoryModel.isFeaturePublished() && JeproLabLaboratoryModel.getLabContext() == JeproLabLaboratoryModel.LAB_CONTEXT){
+            labId = context.laboratory.laboratory_id;
+        }else{
+            labId = JeproLabSettingModel.getIntValue("default_lab");
+        }
 
-        String joinFilter = " LEFT JOIN " + staticDataBaseObject.quoteName("#__jeprolab_image") + " AS image ON (image." + staticDataBaseObject.quoteName("analyze_id") + " = analyze_item.";
-        joinFilter += staticDataBaseObject.quoteName("analyze_id") + ") LEFT JOIN " + staticDataBaseObject.quoteName("#__jeprolab_stock_available") + " AS stock_available ON (stock_available.";
-        joinFilter += staticDataBaseObject.quoteName("analyze_id") + " = analyze_item." + staticDataBaseObject.quoteName("analyze_id") + " AND stock_available." + staticDataBaseObject.quoteName("analyze_attribute_id");
+        String joinFilter = " LEFT JOIN " + staticDataBaseObject.quoteName("#__jeprolab_image") + " AS image ON (image.";
+        joinFilter += staticDataBaseObject.quoteName("analyze_id") + " = analyze_item." + staticDataBaseObject.quoteName("analyze_id");
+        joinFilter += ") LEFT JOIN " + staticDataBaseObject.quoteName("#__jeprolab_stock_available") + " AS stock_available ON (stock_available.";
+        joinFilter += staticDataBaseObject.quoteName("analyze_id") + " = analyze_item." + staticDataBaseObject.quoteName("analyze_id") ;
+        joinFilter += " AND stock_available." + staticDataBaseObject.quoteName("analyze_attribute_id");
         joinFilter += " = 0 " + JeproLabStockAvailableModel.addSqlLaboratoryRestriction(null, "stock_available") + ") LEFT JOIN " + staticDataBaseObject.quoteName("#__jeprolab_analyze_lab");
         joinFilter += " AS analyze_lab ON (analyze_item." + staticDataBaseObject.quoteName("analyze_id") + " = analyze_lab." + staticDataBaseObject.quoteName("analyze_id")+ " AND analyze_lab." + staticDataBaseObject.quoteName("lab_id");
-        joinFilter += " = " + labId + ") LEFT JOIN " + staticDataBaseObject.quoteName("#__jeprolab_category_lang") + " AS category_lang ON (analyze_lab." + staticDataBaseObject.quoteName("default_category_id");
-        joinFilter += " = category_lang." + staticDataBaseObject.quoteName("category_id") + " AND analyze_lang." + staticDataBaseObject.quoteName("lang_id") + " = category_lang." + staticDataBaseObject.quoteName("lang_id") + " AND category_lang.";
+        joinFilter += " = " + labId + ") LEFT JOIN " + staticDataBaseObject.quoteName("#__jeprolab_category_lang") + " AS category_lang ON (";
+        joinFilter += " analyze_lang." + staticDataBaseObject.quoteName("lang_id") + " = category_lang." + staticDataBaseObject.quoteName("lang_id") + " AND category_lang.";
         joinFilter += staticDataBaseObject.quoteName("lab_id") + " = " + labId + ") LEFT JOIN  " + staticDataBaseObject.quoteName("#__jeprolab_lab") + " AS lab ON (lab." + staticDataBaseObject.quoteName("lab_id") + " = " + labId;
-        joinFilter += ")	LEFT JOIN  " + staticDataBaseObject.quoteName("#__jeprolab_image_lab") + " AS image_lab ON (image_lab." + staticDataBaseObject.quoteName("image_id") + " = image." + staticDataBaseObject.quoteName("image_id");
+        joinFilter += ") LEFT JOIN " + staticDataBaseObject.quoteName("#__jeprolab_image_lab") + " AS image_lab ON (image_lab." + staticDataBaseObject.quoteName("image_id") + " = image." + staticDataBaseObject.quoteName("image_id");
         joinFilter += " AND image_lab." + staticDataBaseObject.quoteName("cover") + " = 1 AND image_lab." + staticDataBaseObject.quoteName("lab_id") + " = " + labId + ") LEFT JOIN  " + staticDataBaseObject.quoteName("#__jeprolab_analyze_download");
         joinFilter += " AS analyze_download ON (analyze_download." + staticDataBaseObject.quoteName("analyze_id") + " = analyze_item." + staticDataBaseObject.quoteName("analyze_id") + ") ";
 
@@ -1988,14 +1994,13 @@ public class JeproLabAnalyzeModel extends JeproLabModel {
         }*/
         List<JeproLabAnalyzeModel> analyzes = new ArrayList<>();
         int total = 0;
-        System.out.println(selectFilter);
-        System.out.println(selectLabFilter);
+
         do{
             String query = "SELECT analyze_item." + staticDataBaseObject.quoteName("analyze_id") + ", analyze_lang." + staticDataBaseObject.quoteName("name") + ", analyze_item.";
             query += staticDataBaseObject.quoteName("reference") + selectFilter + selectLabFilter + " FROM " + staticDataBaseObject.quoteName("#__jeprolab_analyze") + " AS analyze_item ";
             query += langJoinFilter + joinFilter + joinLabFilter + " WHERE 1 " + whereFilter + filter + whereLabFilter +  groupFilter + havingClauseFilter + " ORDER BY ";
             query += (JeproLabTools.strReplace(orderBy, "`", "").equals("analyze_id") ? "analyze_item." : " analyze_item.") + staticDataBaseObject.quoteName(orderBy) + " " + orderWay;
-System.out.println(query);
+
             staticDataBaseObject.setQuery(query);
             total = 0;
 
@@ -3957,7 +3962,7 @@ System.out.println(query);
 
         // Eco Tax
         float ecoTax;
-        if (((result.get("ecotax") != null && result.get("ecotax") > 0) || result.get("attribute_ecotax") != null) && withEcoTax) {
+        if (result != null && ((result.get("ecotax") != null && result.get("ecotax") > 0) || result.get("attribute_ecotax") != null) && withEcoTax) {
             ecoTax = result.get("ecotax");
             if (result.get("attribute_ecotax") != null && result.get("attribute_ecotax") > 0) {
                 ecoTax = result.get("attribute_ecotax");
@@ -6102,6 +6107,7 @@ public static function getUrlRewriteInformations($id_analyze)
     public static int getTaxRulesGroupIdByAnalyzeId(int analyzeId){
         return getTaxRulesGroupIdByAnalyzeId(analyzeId, null);
     }
+
     public static int getTaxRulesGroupIdByAnalyzeId(int analyzeId, JeproLabContext context){
         if (context == null) {
             context = JeproLabContext.getContext();
@@ -6833,10 +6839,11 @@ public function getAnchor($id_analyze_attribute, $with_id = false)
     public static String getAnalyzeName(int analyzeId, int analyzeAttributeId){
         return getAnalyzeName(analyzeId, analyzeAttributeId, 0);
     }
+
     /**
      * Gets the name of a given analyze, in the given lang
      *
-     * @param analyzeId
+     * @param analyzeId analyze Id
      * @param analyzeAttributeId Optional
      * @param langId Optional
      * @return string
