@@ -1,7 +1,11 @@
 package com.jeprolab.models;
 
 import com.jeprolab.JeproLab;
+import com.jeprolab.assets.tools.JeproLabCache;
 import com.jeprolab.assets.tools.JeproLabContext;
+import com.jeprolab.assets.tools.JeproLabTools;
+import com.jeprolab.assets.tools.db.JeproLabDataBaseConnector;
+import com.jeprolab.models.core.JeproLabFactory;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -35,18 +39,76 @@ public class JeproLabRequestModel extends JeproLabModel{
 
     public Date date_add;
 
-    public Date adte_upd;
+    public Date date_upd;
 
     public static Map<Integer, String> sample_matrix = new HashMap<>();
 
     public JeproLabRequestModel(){
-
+        this(0);
     }
 
     public JeproLabRequestModel(int requestId){
         if(sample_matrix == null || sample_matrix.isEmpty()) {
             sample_matrix = JeproLabMatrixModel.getMatrices();
         }
+
+        if(dataBaseObject == null){
+            dataBaseObject = JeproLabFactory.getDataBaseConnector();
+        }
+
+        if(requestId > 0){
+            String cacheKey = "jeprolab_request_model_"  + requestId;
+            if(!JeproLabCache.getInstance().isStored(cacheKey)){
+                String query = "SELECT * FROM " + dataBaseObject.quoteName("#__jeprolab_request") + " AS request WHERE request." + dataBaseObject.quoteName("request_id") + " = " + requestId;
+
+                dataBaseObject.setQuery(query);
+                ResultSet requestSet = dataBaseObject.loadObject();
+
+                if(requestSet != null){
+                    try{
+                        if (requestSet.next()){
+                            this.request_id = requestSet.getInt("request_id");
+                            this.customer_id = requestSet.getInt("customer_id");
+                            this.main_contact_id = requestSet.getInt("main_contact_id");
+                            this.first_contact_id = requestSet.getInt("first_contact_id");
+                            this.third_contact_id = requestSet.getInt("second_contact_id");
+                            this.first_contact_id = requestSet.getInt("third_contact_id");
+                            this.fourth_contact_id = requestSet.getInt("fourth_contact_id");
+                            this.reference = requestSet.getString("reference");
+                            this.main_customer = new JeproLabCustomerModel(this.customer_id);
+                            this.date_add = JeproLabTools.getDate(requestSet.getString("date_add"));
+                            this.date_upd = JeproLabTools.getDate(requestSet.getString("date_upd"));
+                        }
+                        JeproLabCache.getInstance().store(cacheKey, this);
+                    }catch(SQLException ignored){
+                        ignored.printStackTrace();
+                    }finally{
+                        try {
+                            JeproLabDataBaseConnector.getInstance().closeConnexion();
+                        }catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }
+            }else{
+                JeproLabRequestModel requestModel = (JeproLabRequestModel)JeproLabCache.getInstance().retrieve(cacheKey);
+                this.request_id = requestModel.request_id;
+                this.customer_id = requestModel.customer_id;
+                this.main_contact_id = requestModel.main_contact_id;
+                this.first_contact_id = requestModel.first_contact_id;
+                this.second_contact_id = requestModel.second_contact_id;
+                this.third_contact_id = requestModel.third_contact_id;
+                this.fourth_contact_id = requestModel.fourth_contact_id;
+                this.reference = requestModel.reference;
+                this.main_customer = requestModel.main_customer;
+                this.date_add = requestModel.date_add;
+                this.date_upd = requestModel.date_upd;
+            }
+        }
+    }
+
+    public void update(){
+
     }
 
     public static class JeproLabSampleModel extends JeproLabModel {
@@ -64,6 +126,24 @@ public class JeproLabRequestModel extends JeproLabModel{
 
         public Date removal_date;
 
+        public JeproLabSampleModel(){
+            this(0);
+        }
+
+        public JeproLabSampleModel(int sampleId){
+
+
+            if(sampleId > 0){
+                if(dataBaseObject == null){
+                    dataBaseObject = JeproLabFactory.getDataBaseConnector();
+                }
+                String cacheKey = "jeprolab_sample_model_" + sampleId;
+                if(!JeproLabCache.getInstance().isStored(cacheKey)){
+                    String query = "SELECT * FROM " + dataBaseObject.quoteName("#__jeprolab_sample") + " AS sample WHERE sample." + dataBaseObject.quoteName("sample_id") + " = " + sampleId;
+                }
+
+            }
+        }
     }
 
     public static class JeproLabMatrixModel extends JeproLabModel{
@@ -74,6 +154,20 @@ public class JeproLabRequestModel extends JeproLabModel{
         public boolean published;
 
         public Map<String, String> name, description;
+
+        public JeproLabMatrixModel(){
+            this(0);
+        }
+
+        public JeproLabMatrixModel(int matrixId){
+            if(dataBaseObject == null){
+                dataBaseObject = JeproLabFactory.getDataBaseConnector();
+            }
+
+            if(matrixId > 0){
+
+            }
+        }
 
         public static Map<Integer,String> getMatrices() {
             Map<Integer,String> matrices = new HashMap<>();

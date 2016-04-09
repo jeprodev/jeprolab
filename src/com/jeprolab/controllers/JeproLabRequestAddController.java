@@ -11,6 +11,7 @@ import com.jeprolab.models.JeproLabAddressModel;
 import com.jeprolab.models.JeproLabAnalyzeModel;
 import com.jeprolab.models.JeproLabCustomerModel;
 import com.jeprolab.models.JeproLabRequestModel;
+import javafx.beans.property.SimpleObjectProperty;
 import javafx.fxml.FXML;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -32,9 +33,11 @@ import java.util.ResourceBundle;
 public class JeproLabRequestAddController extends JeproLabController {
     private JeproLabRequestModel request;
     private Map<Integer, String> sample_matrix = new HashMap<>();
+    private Button saveRequestBtn, cancelBtn;
     private double fourthColumnWidth = 280;
     private final double formWidth = 0.98 * JeproLab.APP_WIDTH;
     private final double subFormWidth = 0.96 * JeproLab.APP_WIDTH;
+    private int firstContactId, secondContactId, thirdContactId, fourthContactId;
     @FXML
     public JeproFormPanel jeproLabRequestFormWrapper;
     public JeproFormPanelTitle jeproLabRequestFormTitleWrapper;
@@ -290,51 +293,54 @@ public class JeproLabRequestAddController extends JeproLabController {
         loadRequest();
         List<JeproLabCustomerModel> customersContact;
         if(request.request_id > 0){
-            jeproLabCustomerCompanyName.setText(JeproLabCustomerModel.getCompanyByCustomerId(request.customer_id));
+            jeproLabCustomerCompanyName.setText(request.main_customer.company);
             JeproLabAddressModel address = JeproLabAddressModel.getAddressByCustomerId(request.customer_id, true);
             jeproLabCustomerCompanyAddress.setText(address.address1);
             jeproLabCustomerCompanyAddressDetails.setText(address.address2);
             jeproLabRequestReference.setText(request.reference);
-            jeproLabRequestMainContactInfoMail.setText(JeproLabCustomerModel.getEmailByCustomerId(request.main_contact_id));
-            jeproLabRequestMainContactInfoName.setText(JeproLabCustomerModel.getNameByCustomerId(request.main_contact_id));
+            jeproLabRequestMainContactInfoMail.setText(request.main_customer.email);
+            jeproLabRequestMainContactInfoName.setText(request.main_customer.firstname + " " + request.main_customer.lastname);
 
             customersContact = JeproLabCustomerModel.getCustomersByCompany(request.main_customer.company);
-
-        }else{
-            jeproLabRequestReference.setText(JeproLabTools.createRequestReference());
-            customersContact = JeproLabCustomerModel.getCustomersByCompany("jeprodesign");
-
-        }
-
-        if(customersContact.size()> 0){
             jeproLabRequestFirstContact.getItems().clear();
             jeproLabRequestSecondContact.getItems().clear();
             jeproLabRequestThirdContact.getItems().clear();
             jeproLabRequestFourthContact.getItems().clear();
+            firstContactId = request.first_contact_id;
+            secondContactId = request.second_contact_id;
+            thirdContactId = request.third_contact_id;
+            fourthContactId = request.fourth_contact_id;
 
             for(JeproLabCustomerModel customer : customersContact) {
                 jeproLabRequestFirstContact.getItems().add(customer.firstname + " " + customer.lastname.toUpperCase());
                 jeproLabRequestSecondContact.getItems().add(customer.firstname + " " + customer.lastname.toUpperCase());
                 jeproLabRequestThirdContact.getItems().add(customer.firstname + " " + customer.lastname.toUpperCase());
                 jeproLabRequestFourthContact.getItems().add(customer.firstname + " " + customer.lastname.toUpperCase());
+System.out.println(request.first_contact_id);
 
-                if(request.request_id > 0){
-                    if(request.first_contact_id == customer.customer_id) {
-                        jeproLabRequestFirstContact.setValue(customer.firstname + " " + customer.lastname.toUpperCase());
-                    }else if(request.second_contact_id == customer.customer_id){
-                        jeproLabRequestSecondContact.setValue(customer.firstname + " " + customer.lastname.toUpperCase());
-                    }else if(request.third_contact_id == customer.customer_id){
-                        jeproLabRequestThirdContact.setValue(customer.firstname + " " + customer.lastname.toUpperCase());
-                    }else if(request.fourth_contact_id == customer.customer_id){
-                        jeproLabRequestFourthContact.setValue(customer.firstname + " " + customer.lastname.toUpperCase());
-                    }
+                if(request.first_contact_id == customer.customer_id) {
+                    jeproLabRequestFirstContact.setValue(customer.firstname + " " + customer.lastname.toUpperCase());
+                }else if(request.second_contact_id == customer.customer_id){
+                    jeproLabRequestSecondContact.setValue(customer.firstname + " " + customer.lastname.toUpperCase());
+                }else if(request.third_contact_id == customer.customer_id){
+                    jeproLabRequestThirdContact.setValue(customer.firstname + " " + customer.lastname.toUpperCase());
+                }else if(request.fourth_contact_id == customer.customer_id) {
+                    jeproLabRequestFourthContact.setValue(customer.firstname + " " + customer.lastname.toUpperCase());
                 }
+
             }
+
+        }else{
+            jeproLabRequestReference.setText(JeproLabTools.createRequestReference());
+            //customersContact = JeproLabCustomerModel.getCustomersByCompany("jeprodesign");
+
         }
+        this.updateToolBar();
+
     }
 
     private void loadRequest(){
-        int requestId = JeproLab.request.getRequest().containsKey("request_id") ? Integer.parseInt(JeproLab.request.getRequest().get("request_id")) : 0;
+        int requestId = 1; //JeproLab.request.getRequest().containsKey("request_id") ? Integer.parseInt(JeproLab.request.getRequest().get("request_id")) : 0;
 
         if(context == null) {
             context = JeproLabContext.getContext();
@@ -351,7 +357,32 @@ public class JeproLabRequestAddController extends JeproLabController {
         }
     }
 
+    @Override
+    public void updateToolBar(){
+        HBox commandWrapper = JeproLab.getInstance().getApplicationToolBarCommandWrapper();
+        commandWrapper.getChildren().clear();
+        commandWrapper.setSpacing(4);
+        saveRequestBtn = new Button("", new ImageView(new Image(JeproLab.class.getResourceAsStream("resources/images/floppy-icon.png"))));
+        if (request.request_id > 0) {
+            saveRequestBtn.setText(bundle.getString("JEPROLAB_UPDATE_LABEL"));
+        } else {
+            saveRequestBtn.setText(bundle.getString("JEPROLAB_SAVE_LABEL"));
+            saveRequestBtn.setOnMouseClicked(evt -> {
+                String requestParams = "first_contact_id=" + firstContactId + "&second_contact_id=" + secondContactId + "&third_contact_id=";
+                requestParams += thirdContactId + "&fourth_contact_id=" + fourthContactId + "&c";
+
+                JeproLab.request.setRequest(requestParams);
+                request.update();
+            });
+        }
+        cancelBtn = new Button(bundle.getString("JEPROLAB_CANCEL_LABEL"), new ImageView(new Image(JeproLab.class.getResourceAsStream("resources/images/unpublished.png"))));
+
+        commandWrapper.getChildren().addAll(saveRequestBtn, cancelBtn);
+    }
+
     public static class JeproLabSampleRecord {
+        private SimpleObjectProperty<HBox> actionWrapper;
+
 
     }
 }

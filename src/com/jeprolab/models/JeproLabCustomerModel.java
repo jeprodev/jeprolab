@@ -34,7 +34,9 @@ public class JeproLabCustomerModel  extends JeproLabModel{
 
     public Date birthday = null;
 
-    public boolean  optin;
+    public String email;
+
+    public boolean optin;
 
     public boolean is_guest;
 
@@ -68,28 +70,90 @@ public class JeproLabCustomerModel  extends JeproLabModel{
 
     public JeproLabCustomerModel(int customerId){
         if(customerId > 0) {
-            ResultSet results = null;
 
-            String cache_id = "jeprolab_customer_model_" + customerId + ((this.laboratory_id != 0) ? "_" + this.laboratory_id : "");
-            if (!JeproLabCustomerController.isStored(cache_id)) {
-                try {
-                    dataBaseObject = JeproLabDataBaseConnector.getInstance();
-                } catch (Exception e) {
-                    e.printStackTrace();
+            String cacheKey = "jeprolab_customer_model_" + customerId + ((this.laboratory_id != 0) ? "_" + this.laboratory_id : "");
+            if (!JeproLabCustomerController.isStored(cacheKey)) {
+                if(dataBaseObject == null) {
+                    dataBaseObject = JeproLabFactory.getDataBaseConnector();
                 }
-
                 String query = "SELECT * FROM " + dataBaseObject.quoteName("#__jeprolab_customer") + " AS customer ";
 
-                /** Get customer lab information  **/
+                /** Get customer lab information  ** /
                 if (JeproLabLaboratoryModel.isTableAssociated("customer")) {
-                    query += " LEFT JOIN " + dataBaseObject.quoteName("#__jeprolab_customer_lab") + " AS customer_lab ON (customer";
-                    query += " = customer";
-                }
+                    query += " LEFT JOIN " + dataBaseObject.quoteName("#__jeprolab_customer_lab") + " AS customer_lab ON (customer_lab.";
+                    query += dataBaseObject.quoteName("customer_id") + " = customer." + dataBaseObject.quoteName("customer_id") + " AND customer_lab.";
+                    query += dataBaseObject.quoteName("lab_id") + " = " +
+                } */
 
                 query += " WHERE customer." + dataBaseObject.quoteName("customer_id") + " = " + customerId;
-                /*dataBaseObject.setQuery(query);
-                dataBaseObject.query();
-                results = dataBaseObject.getResultSet(); */
+                dataBaseObject.setQuery(query);
+                //dataBaseObject.loadObject();
+                ResultSet customerSet = dataBaseObject.loadObject();
+                if(customerSet != null){
+                    try{
+                        if(customerSet.next()){
+                            this.customer_id = customerSet.getInt("customer_id");
+                            this.laboratory_id = customerSet.getInt("lang_id");
+                            this.laboratory_group_id = customerSet.getInt("lab_group_id");
+                            this.secure_key = customerSet.getString("secure_key");
+                            this.note = customerSet.getString("note");
+                            this.default_group_id = customerSet.getInt("default_group_id");
+                            this.language_id = customerSet.getInt("lang_id");
+                            this.title = customerSet.getString("title");
+                            this.lastname = customerSet.getString("lastname");
+                            this.firstname = customerSet.getString("firstname");
+                            this.email = customerSet.getString("email");
+                            //customer.birthday = JeproLabTools.getDate(customersSet.getString("birthday"));
+                            this.optin = customerSet.getInt("optin") > 0;
+                            this.is_guest = customerSet.getInt("is_guest") == 2;
+                            this.website = customerSet.getString("website");
+                            this.company = customerSet.getString("company");
+                            this.siret = customerSet.getString("siret");
+                            this.ape = customerSet.getString("ape");
+                            this.published = customerSet.getInt("published") > 0;
+                            /*customer.state_id = customersSet.getInt("state_id");
+                            customer.postcode = customersSet.getString("postcode");
+                            /*customer.geolocation_country_id = customersSet.;
+                            customer.date_add = JeproLabTools.getDate(customersSet.getString("date_add"));
+                            customer.date_upd = JeproLabTools.getDate(customersSet.getString("date_upd")); */
+                        }
+                    }catch (SQLException ignored){
+                        ignored.printStackTrace();
+                    }finally {
+                        try {
+                            JeproLabDataBaseConnector.getInstance().closeConnexion();
+                        }catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                    }
+                    JeproLabCache.getInstance().store(cacheKey, this);
+                }
+            }else{
+                JeproLabCustomerModel customer = (JeproLabCustomerModel)JeproLabCache.getInstance().retrieve(cacheKey);
+                this.customer_id = customer.customer_id;
+                this.laboratory_id = customer.laboratory_id;
+                this.laboratory_group_id = customer.laboratory_group_id;
+                this.secure_key = customer.secure_key;
+                this.note = customer.note;
+                this.default_group_id = customer.default_group_id;
+                this.language_id = customer.language_id;
+                this.title = customer.title;
+                this.lastname = customer.lastname;
+                this.firstname = customer.firstname;
+                this.email = customer.email;
+                //customer.birthday = JeproLabTools.getDate(customersSet.getString("birthday"));
+                this.optin =customer.optin;
+                this.is_guest = customer.is_guest;
+                this.website = customer.website;
+                this.company = customer.company;
+                this.siret = customer.siret;
+                this.ape = customer.ape;
+                this.published = customer.published;
+                    /*customer.state_id = customersSet.getInt("state_id");
+                    customer.postcode = customersSet.getString("postcode");
+                    /*customer.geolocation_country_id = customersSet.;
+                    customer.date_add = JeproLabTools.getDate(customersSet.getString("date_add"));
+                    customer.date_upd = JeproLabTools.getDate(customersSet.getString("date_upd")); */
             }
         }
         this.default_group_id = JeproLabSettingModel.getIntValue("customer_group");

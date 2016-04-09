@@ -103,7 +103,7 @@ public class JeproLabAddressModel extends JeproLabModel {
     private static Pagination pagination;
 
     public JeproLabAddressModel(){
-
+        this(0, 0);
     }
 
     public JeproLabAddressModel(int addressId){
