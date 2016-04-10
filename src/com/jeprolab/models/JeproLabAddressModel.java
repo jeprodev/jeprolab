@@ -427,24 +427,30 @@ public class JeproLabAddressModel extends JeproLabModel {
         return dataBaseObject.query(false);
     }
 
-    /*
-     * @see ObjectModel::delete()
-     * /
-    public boolean delete()
-    {
-        if (Validate::isUnsignedId(this.id_customer)) {
-        Customer::resetAddressCache(this.id_customer, this.id);
-    }
+    /**
+     *
+     */
+    public boolean delete(){
+        if (this.customer_id > 0) {
+            JeproLabCustomerModel.resetAddressCache(this.customer_id, this.address_id);
+        }
 
         if (!this.isUsed()) {
-            return parent::delete();
+            if(dataBaseObject == null){
+                dataBaseObject = JeproLabFactory.getDataBaseConnector();
+            }
+            String query = "DELETE FROM " + dataBaseObject.quoteName("#__jeprolab_address") + " WHERE ";
+            query += dataBaseObject.quoteName("address_id") + " = " + this.address_id;
+
+            dataBaseObject.setQuery(query);
+            return dataBaseObject.query(false);
         } else {
             this.deleted = true;
             return this.update();
         }
     }
 
-    /**
+    /*
      * Returns fields required for an address in an array hash
      * @return array hash values
      * /
@@ -535,18 +541,20 @@ public class JeproLabAddressModel extends JeproLabModel {
      * Check if address is used (at least one order placed)
      *
      * @return int Order count for this address
-     * /
-    public function isUsed()
-    {
-        $result = (int)Db::getInstance(_PS_USE_SQL_SLAVE_)->getValue('
-            SELECT COUNT(`id_order`) AS used
-            FROM `'._DB_PREFIX_.'orders`
-        WHERE `id_address_delivery` = '.(int)this.id.'
-        OR `id_address_invoice` = '.(int)this.id);
+     */
+    public boolean isUsed(){
+        if(dataBaseObject == null){
+            dataBaseObject = JeproLabFactory.getDataBaseConnector();
+        }
+        String query = "ELECT COUNT(" + dataBaseObject.quoteName("request_id") + ") AS used FROM " + dataBaseObject.quoteName("#__jeprolab_request");
+        query += " WHERE "  + dataBaseObject.quoteName("delivery_address_id") + " = " + this.address_id + " OR " + dataBaseObject.quoteName("invoice_addres_id");
+        query += " = " + this.address_id;
 
-        return $result > 0 ? (int)$result : false;
+        dataBaseObject.setQuery(query);
+
+        return dataBaseObject.loadValue("used") > 0;
     }
-*/
+
     public static ResultSet getCountryAndState(int addressId){
         if (JeproLabAddressModel.countries_ids.containsKey(addressId)){
             return JeproLabAddressModel.countries_ids.get(addressId);

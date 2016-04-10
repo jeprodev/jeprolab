@@ -2,8 +2,10 @@ package com.jeprolab.models;
 
 import com.jeprolab.JeproLab;
 import com.jeprolab.assets.tools.JeproLabCache;
+import com.jeprolab.assets.tools.JeproLabContext;
 import com.jeprolab.assets.tools.JeproLabTools;
 import com.jeprolab.assets.tools.db.JeproLabDataBaseConnector;
+import com.jeprolab.controllers.JeproLabCategoryController;
 import com.jeprolab.controllers.JeproLabCustomerController;
 import com.jeprolab.models.core.JeproLabFactory;
 
@@ -48,7 +50,11 @@ public class JeproLabCustomerModel  extends JeproLabModel{
 
     public String ape;
 
+    public boolean news_letter;
+
     public boolean published;
+
+    public boolean deleted;
 
     public int state_id;
 
@@ -56,13 +62,21 @@ public class JeproLabCustomerModel  extends JeproLabModel{
 
     public int geolocation_country_id;
 
+    public List<Integer> group_box = new ArrayList<>();
+
+    private int years, months, days;
+
+    private Date last_passwd_gen;
+
     public Date date_add;
     public Date date_upd;
+    public Date news_letter_date_add;
 
     protected static int customer_group = 0;
 
     protected static Map<Integer, Integer> _defaultGroupId = new HashMap<>();
     protected static Map<String, Boolean> _customerHasAddress = new HashMap<>();
+    protected static Map<Integer, List<Integer>> _customer_groups = new HashMap<>();
 
     public JeproLabCustomerModel(){
         this(0);
@@ -158,98 +172,140 @@ public class JeproLabCustomerModel  extends JeproLabModel{
         }
         this.default_group_id = JeproLabSettingModel.getIntValue("customer_group");
     }
-/*
-    public function add($autodate = true, $null_values = true)
-    {
-        $this->id_shop = ($this->id_shop) ? $this->id_shop : Context::getContext()->shop->id;
-        $this->id_shop_group = ($this->id_shop_group) ? $this->id_shop_group : Context::getContext()->shop->id_shop_group;
-        $this->id_lang = ($this->id_lang) ? $this->id_lang : Context::getContext()->language->id;
-        $this->birthday = (empty($this->years) ? $this->birthday : (int)$this->years.'-'.(int)$this->months.'-'.(int)$this->days);
-        $this->secure_key = md5(uniqid(rand(), true));
-        $this->last_passwd_gen = date('Y-m-d H:i:s', strtotime('-'.Configuration::get('PS_PASSWD_TIME_FRONT').'minutes'));
 
-        if ($this->newsletter && !Validate::isDate($this->newsletter_date_add)) {
-        $this->newsletter_date_add = date('Y-m-d H:i:s');
-    }
+    public boolean add(){
+        this.laboratory_id = this.laboratory_id > 0 ? this.laboratory_id : JeproLabContext.getContext().laboratory.laboratory_id;
+        this.laboratory_group_id = (this.laboratory_group_id > 0) ? this.laboratory_group_id : JeproLabContext.getContext().laboratory.laboratory_group_id;
+        this.language_id = (this.language_id > 0) ? this.language_id : JeproLabContext.getContext().language.language_id;
+        this.birthday = ((this.years == 0) ? this.birthday : JeproLabTools.getDate(this.years + "-" + this.months + "-" + this.days));
+        this.secure_key = JeproLabTools.md5(JeproLabTools.uniqid(Math.random(), true));
+        this.last_passwd_gen = JeproLabTools.getDate("Y-m-d H:i:s", strtotime("-" + JeproLabSettingModel.getStringValue("password_front_time") + "minutes"));
 
-        if ($this->id_default_group == Configuration::get('PS_CUSTOMER_GROUP')) {
-        if ($this->is_guest) {
-            $this->id_default_group = (int)Configuration::get('PS_GUEST_GROUP');
-        } else {
-            $this->id_default_group = (int)Configuration::get('PS_CUSTOMER_GROUP');
+        if (this.news_letter && !JeproLabTools.isDate(this.news_letter_date_add)) {
+            this.news_letter_date_add = JeproLabTools.getDate("Y-m-d H:i:s");
         }
-    }
 
-        /* Can't create a guest customer, if this feature is disabled * /
-        if ($this->is_guest && !Configuration::get('PS_GUEST_CHECKOUT_ENABLED')) {
-        return false;
-    }
-        $success = parent::add($autodate, $null_values);
-        $this->updateGroup($this->groupBox);
-        return $success;
-    }
-
-    public function update($nullValues = false)
-    {
-        $this->birthday = (empty($this->years) ? $this->birthday : (int)$this->years.'-'.(int)$this->months.'-'.(int)$this->days);
-
-        if ($this->newsletter && !Validate::isDate($this->newsletter_date_add)) {
-        $this->newsletter_date_add = date('Y-m-d H:i:s');
-    }
-        if (isset(Context::getContext()->controller) && Context::getContext()->controller->controller_type == 'admin') {
-        $this->updateGroup($this->groupBox);
-    }
-
-        if ($this->deleted) {
-            $addresses = $this->getAddresses((int)Configuration::get('PS_LANG_DEFAULT'));
-            foreach ($addresses as $address) {
-                $obj = new Address((int)$address['id_address']);
-                $obj->delete();
+        if (this.default_group_id == JeproLabSettingModel.getIntValue("customer_group")){
+            if (this.is_guest) {
+                this.default_group_id = JeproLabSettingModel.getIntValue("guest_group");
+            } else {
+                this.default_group_id = JeproLabSettingModel.getIntValue("customer_group");
             }
+        }
+
+        /* Can't create a guest customer, if this feature is disabled */
+        if (this.is_guest && !(JeproLabSettingModel.getIntValue("guest_checkout_enabled") > 0)){
+            return false;
+        }
+        boolean success = parent::add($autodate, $null_values);
+        this.updateGroup(this.group_box);
+        return success;
+    }
+
+    public boolean update(){
+        this.birthday = ((this.years == 0) ? this.birthday : JeproLabTools.getDate(this.years + "-" + this.months + "-" + this.days));
+
+        if (this.news_letter && !JeproLabTools.isDate(this.news_letter_date_add)) {
+            this.news_letter_date_add = JeproLabTools.getDate("Y-m-d H:i:s");
+        }
+        this.updateGroup(this.group_box);
+
+
+        if (this.deleted) {
+            List<JeproLabAddressModel> addresses = this.getAddresses(JeproLabSettingModel.getIntValue("default_lang"));
+            addresses.forEach(com.jeprolab.models.JeproLabAddressModel::delete);
         }
 
         return parent::update(true);
     }
 
-    public function delete()
-    {
-        if (!count(Order::getCustomerOrders((int)$this->id))) {
-        $addresses = $this->getAddresses((int)Configuration::get('PS_LANG_DEFAULT'));
-        foreach ($addresses as $address) {
-            $obj = new Address((int)$address['id_address']);
-            $obj->delete();
+    public void delete() {
+        if (!(JeproLabRequestModel.getRequestsByCustomerId(this.customer_id))) {
+            List<JeproLabAddressModel> addresses = this.getAddresses(JeproLabSettingModel.getIntValue("default_lang"));
+            addresses.forEach(com.jeprolab.models.JeproLabAddressModel::delete);
         }
-    }
-        Db::getInstance()->execute('DELETE FROM `'._DB_PREFIX_.'customer_group` WHERE `id_customer` = '.(int)$this->id);
-        Db::getInstance()->execute('DELETE FROM '._DB_PREFIX_.'message WHERE id_customer='.(int)$this->id);
-        Db::getInstance()->execute('DELETE FROM '._DB_PREFIX_.'specific_price WHERE id_customer='.(int)$this->id);
-        Db::getInstance()->execute('DELETE FROM '._DB_PREFIX_.'compare WHERE id_customer='.(int)$this->id);
 
-        $carts = Db::getInstance()->executes('SELECT id_cart
-            FROM '._DB_PREFIX_.'cart
-        WHERE id_customer='.(int)$this->id);
-        if ($carts) {
-            foreach ($carts as $cart) {
-                Db::getInstance()->execute('DELETE FROM '._DB_PREFIX_.'cart WHERE id_cart='.(int)$cart['id_cart']);
-                Db::getInstance()->execute('DELETE FROM '._DB_PREFIX_.'cart_product WHERE id_cart='.(int)$cart['id_cart']);
+        if(dataBaseObject == null){ dataBaseObject = JeproLabFactory.getDataBaseConnector(); }
+        String query = "DELETE FROM " + dataBaseObject.quoteName("#__jeprolab_customer_group") + " WHERE " + dataBaseObject.quoteName("customer_id") + " = " + this.customer_id;
+        dataBaseObject.setQuery(query);
+        dataBaseObject.query(false);
+
+        query = "DELETE FROM " + dataBaseObject.quoteName("#__jeprolab_message") + " WHERE " + dataBaseObject.quoteName("customer_id") + " = " + this.customer_id;
+        dataBaseObject.setQuery(query);
+        dataBaseObject.query(false);
+
+        query = "DELETE FROM " + dataBaseObject.quoteName("#__jeprolab_specific_price") + " WHERE customer_id = " + this.customer_id;
+        dataBaseObject.setQuery(query);
+        dataBaseObject.query(false);
+
+        query = "DELETE FROM " + dataBaseObject.quoteName("#__jeprolab_compare") + " WHERE " + dataBaseObject.quoteName("customer_id") + " = " + this.customer_id;
+        dataBaseObject.setQuery(query);
+        dataBaseObject.query(false);
+
+        query = "SELECT cart_id FROM " + dataBaseObject.quoteName("#__jeprolab_cart") + " WHERE " + dataBaseObject.quoteName("customer_id") + " = " + this.customer_id;
+        dataBaseObject.setQuery(query);
+
+        ResultSet cartSet = dataBaseObject.loadObject();
+        if (cartSet != null) {
+            try {
+                int cartId;
+                while (cartSet.next()) {
+                    cartId = cartSet.getInt("cart_id");
+                    query = "DELETE FROM " + dataBaseObject.quoteName("#__jeprolab_cart") + " WHERE " + dataBaseObject.quoteName("cart_id") + " = " + cartId;
+                    dataBaseObject.setQuery(query);
+                    dataBaseObject.query(false);
+
+                    query = "DELETE FROM " + dataBaseObject.quoteName("#__jeprolab_cart_product") + " WHERE cart_id = " + cartId;
+                    dataBaseObject.setQuery(query);
+                    dataBaseObject.query(false);
+                }
+            } catch (SQLException ignored) {
+                ignored.printStackTrace();
+            } finally {
+                try {
+                    JeproLabDataBaseConnector.getInstance().closeConnexion();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
             }
         }
 
-        $cts = Db::getInstance()->executes('SELECT id_customer_thread
-            FROM '._DB_PREFIX_.'customer_thread
-        WHERE id_customer='.(int)$this->id);
-        if ($cts) {
-            foreach ($cts as $ct) {
-                Db::getInstance()->execute('DELETE FROM '._DB_PREFIX_.'customer_thread WHERE id_customer_thread='.(int)$ct['id_customer_thread']);
-                Db::getInstance()->execute('DELETE FROM '._DB_PREFIX_.'customer_message WHERE id_customer_thread='.(int)$ct['id_customer_thread']);
+        query = "SELECT customer_thread_id FROM " + dataBaseObject.quoteName("#__jeprolab_customer_thread") + " WHERE customer_id = " + this.customer_id;
+        dataBaseObject.setQuery(query);
+
+        ResultSet threadIdsSet = dataBaseObject.loadObject();
+        if(threadIdsSet != null) {
+            try {
+                int customerThreadId;
+                while (threadIdsSet.next()) {
+                    customerThreadId = threadIdsSet.getInt("customer_thread_id");
+                    query = "DELETE FROM " + dataBaseObject.quoteName("#__jeprolab_customer_thread") + " WHERE customer_thread_id = " + customerThreadId;
+                    dataBaseObject.setQuery(query);
+                    dataBaseObject.query(false);
+
+                    query = "DELETE FROM " + dataBaseObject.quoteName("#__jeprolab_customer_message") + " WHERE customer_thread_id = " + customerThreadId;
+                    dataBaseObject.setQuery(query);
+                    dataBaseObject.query(false);
+                }
+            } catch (SQLException ignored) {
+                ignored.printStackTrace();
+            } finally {
+                try {
+                    JeproLabDataBaseConnector.getInstance().closeConnexion();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
             }
         }
+        JeproLabCartRuleModel.deleteByCustomerId(this.customer_id);
+        query = "DELETE FROM " + dataBaseObject.quoteName("#__jeprolab_customer");
+        query += " WHERE " + dataBaseObject.quoteName("customer_id") + " = " + this.customer_id;
 
-        CartRule::deleteByIdCustomer((int)$this->id);
-        return parent::delete();
+        dataBaseObject.setQuery(query);
+        dataBaseObject.query(false);
     }
 
-    /**
+    /*
      * Return customers list
      *
      * @param null|bool $only_active Returns only active customers when true
@@ -290,10 +346,10 @@ public class JeproLabCustomerModel  extends JeproLabModel{
         if (!$result) {
             return false;
         }
-        $this->id = $result['id_customer'];
+        this.id = $result['id_customer'];
         foreach ($result as $key => $value) {
         if (property_exists($this, $key)) {
-            $this->{$key} = $value;
+            this.{$key} = $value;
         }
     }
         return $this;
@@ -538,33 +594,53 @@ public class JeproLabCustomerModel  extends JeproLabModel{
         }
     }
 
-    /*
+    /**
      * Return customer addresses
      *
-     * @param int $id_lang Language ID
+     * @param langId Language ID
      * @return array Addresses
-     * /
-    public function getAddresses($id_lang)
-    {
-        $share_order = (bool)Context::getContext()->shop->getGroup()->share_order;
-        $cache_id = 'Customer::getAddresses'.(int)$this->id.'-'.(int)$id_lang.'-'.$share_order;
-        if (!Cache::isStored($cache_id)) {
-        $sql = 'SELECT DISTINCT a.*, cl.`name` AS country, s.name AS state, s.iso_code AS state_iso
-        FROM `'._DB_PREFIX_.'address` a
-        LEFT JOIN `'._DB_PREFIX_.'country` c ON (a.`id_country` = c.`id_country`)
-        LEFT JOIN `'._DB_PREFIX_.'country_lang` cl ON (c.`id_country` = cl.`id_country`)
-        LEFT JOIN `'._DB_PREFIX_.'state` s ON (s.`id_state` = a.`id_state`)
-        '.($share_order ? '' : Shop::addSqlAssociation('country', 'c')).'
-        WHERE `id_lang` = '.(int)$id_lang.' AND `id_customer` = '.(int)$this->id.' AND a.`deleted` = 0';
+     */
+    public List<JeproLabAddressModel> getAddresses(int langId){
+        boolean shareRequest = JeproLabContext.getContext().laboratory.getLaboratoryGroup().share_requests;
+        String cacheKey = "jeprolab_customer_model_get_addresses_" + this.customer_id + "_" + langId + "_"  + (shareRequest ? 1 : 0);
+        if (!JeproLabCache.getInstance().isStored(cacheKey)) {
+            String query = "SELECT DISTINCT address.*, country_lang." + dataBaseObject.quoteName("name") + " AS country, state.name AS state_name,";
+            query += " state.iso_code AS state_iso FROM " + dataBaseObject.quoteName("#__jeprolab_address") + " AS address LEFT JOIN ";
+            query += dataBaseObject.quoteName("#__jeprolab_country")  + " AS country ON (address." + dataBaseObject.quoteName("country_id");
+            query += " = country." + dataBaseObject.quoteName("country_id") + ") LEFT JOIN " + dataBaseObject.quoteName("#__jeprolab_country_lang");
+            query += " AS country_lang ON (country." + dataBaseObject.quoteName("country_id") + " = country_lang." + dataBaseObject.quoteName("country_id");
+            query += ") LEFT JOIN " + dataBaseObject.quoteName("#__jeprolab_state") + " AS state ON (state." + dataBaseObject.quoteName("state_id") ;
+            query += " = address." + dataBaseObject.quoteName("state_id") + (shareRequest ? "" : JeproLabLaboratoryModel.addSqlAssociation("country"));
+            query += " WHERE " + dataBaseObject.quoteName("lang_id") + " = " + langId + " AND " + dataBaseObject.quoteName("customer_id") + " = ";
+            query += this.customer_id + " AND address." + dataBaseObject.quoteName("deleted") + " = 0";
 
-        $result = Db::getInstance(_PS_USE_SQL_SLAVE_)->executeS($sql);
-        Cache::store($cache_id, $result);
-        return $result;
-    }
-        return Cache::retrieve($cache_id);
+            dataBaseObject.setQuery(query);
+            ResultSet resultSet = dataBaseObject.loadObject();
+            List<JeproLabAddressModel> addressList = new ArrayList<>();
+
+            if(resultSet != null){
+                try {
+                    JeproLabAddressModel address;
+                    while(resultSet.next()){
+                        address = new JeproLabAddressModel();
+                        address.address_id = resultSet.getInt("address_id");
+                        addressList.add(address);
+                    }
+                }catch (SQLException ignored){
+                    ignored.printStackTrace();
+                }finally {
+                    try {
+                        JeproLabDataBaseConnector.getInstance().closeConnexion();
+                    }catch (Exception e){ e.printStackTrace(); }
+                }
+            }
+            JeproLabCache.getInstance().store(cacheKey, addressList);
+            return addressList;
+        }
+        return (List<JeproLabAddressModel>)JeproLabCache.getInstance().retrieve(cacheKey);
     }
 
-    /**
+    /*
      * Count the number of addresses for a customer
      *
      * @param int $id_customer Customer ID
@@ -654,19 +730,19 @@ public class JeproLabCustomerModel  extends JeproLabModel{
         $result = Db::getInstance()->getRow('
             SELECT COUNT(`id_order`) AS nb_orders, SUM(`total_paid` / o.`conversion_rate`) AS total_orders
         FROM `'._DB_PREFIX_.'orders` o
-        WHERE o.`id_customer` = '.(int)$this->id.'
+        WHERE o.`id_customer` = '.(int)this.id.'
         AND o.valid = 1');
 
         $result2 = Db::getInstance(_PS_USE_SQL_SLAVE_)->getRow('
             SELECT MAX(c.`date_add`) AS last_visit
             FROM `'._DB_PREFIX_.'guest` g
         LEFT JOIN `'._DB_PREFIX_.'connections` c ON c.id_guest = g.id_guest
-        WHERE g.`id_customer` = '.(int)$this->id);
+        WHERE g.`id_customer` = '.(int)this.id);
 
         $result3 = Db::getInstance(_PS_USE_SQL_SLAVE_)->getRow('
             SELECT (YEAR(CURRENT_DATE)-YEAR(c.`birthday`)) - (RIGHT(CURRENT_DATE, 5)<RIGHT(c.`birthday`, 5)) AS age
             FROM `'._DB_PREFIX_.'customer` c
-        WHERE c.`id_customer` = '.(int)$this->id);
+        WHERE c.`id_customer` = '.(int)this.id);
 
         $result['last_visit'] = $result2['last_visit'];
         $result['age'] = ($result3['age'] != date('Y') ? $result3['age'] : '--');
@@ -675,21 +751,21 @@ public class JeproLabCustomerModel  extends JeproLabModel{
 
     public function getLastEmails()
     {
-        if (!$this->id) {
+        if (!this.id) {
             return array();
         }
         return Db::getInstance(_PS_USE_SQL_SLAVE_)->executeS('
             SELECT m.*, l.name as language
             FROM `'._DB_PREFIX_.'mail` m
         LEFT JOIN `'._DB_PREFIX_.'lang` l ON m.id_lang = l.id_lang
-        WHERE `recipient` = "'.pSQL($this->email).'"
+        WHERE `recipient` = "'.pSQL(this.email).'"
         ORDER BY m.date_add DESC
         LIMIT 10');
     }
 
     public function getLastConnections()
     {
-        if (!$this->id) {
+        if (!this.id) {
             return array();
         }
         return Db::getInstance(_PS_USE_SQL_SLAVE_)->executeS('
@@ -697,7 +773,7 @@ public class JeproLabCustomerModel  extends JeproLabModel{
             FROM `'._DB_PREFIX_.'guest` g
         LEFT JOIN `'._DB_PREFIX_.'connections` c ON c.id_guest = g.id_guest
         LEFT JOIN `'._DB_PREFIX_.'connections_page` cp ON c.id_connections = cp.id_connections
-        WHERE g.`id_customer` = '.(int)$this->id.'
+        WHERE g.`id_customer` = '.(int)this.id.'
         GROUP BY c.`id_connections`
         ORDER BY c.date_add DESC
         LIMIT 10');
@@ -733,56 +809,89 @@ public class JeproLabCustomerModel  extends JeproLabModel{
      * Update customer groups associated to the object
      *
      * @param array $list groups
-     * /
-    public function updateGroup($list)
-    {
-        if ($list && !empty($list)) {
-            $this->cleanGroups();
-            $this->addGroups($list);
+     */
+    public void updateGroup(List<Integer> list){
+        if (list != null && !list.isEmpty()) {
+            this.cleanGroups();
+            this.addGroups(list);
         } else {
-            $this->addGroups(array($this->id_default_group));
+            list = new ArrayList<>();
+            list.add(this.default_group_id);
+            this.addGroups(list);
         }
     }
 
-    public function cleanGroups()
-    {
-        return Db::getInstance()->delete('customer_group', 'id_customer = '.(int)$this->id);
-    }
-
-    public function addGroups($groups)
-    {
-        foreach ($groups as $group) {
-        $row = array('id_customer' => (int)$this->id, 'id_group' => (int)$group);
-        Db::getInstance()->insert('customer_group', $row, false, true, Db::INSERT_IGNORE);
-    }
-    }
-
-    public static function getGroupsStatic($id_customer)
-    {
-        if (!Group::isFeatureActive()) {
-        return array(Configuration::get('PS_CUSTOMER_GROUP'));
-    }
-
-        if ($id_customer == 0) {
-            self::$_customer_groups[$id_customer] = array((int)Configuration::get('PS_UNIDENTIFIED_GROUP'));
+    public void cleanGroups(){
+        if(dataBaseObject == null){
+            dataBaseObject = JeproLabFactory.getDataBaseConnector();
         }
+        String query = "DELETE FROM " + dataBaseObject.quoteName("#__jeprolab_customer_group") + " WHERE ";
+        query += dataBaseObject.quoteName("customer_id") + " = " + this.customer_id;
 
-        if (!isset(self::$_customer_groups[$id_customer])) {
-        self::$_customer_groups[$id_customer] = array();
-        $result = Db::getInstance()->executeS('
-                SELECT cg.`id_group`
-                FROM '._DB_PREFIX_.'customer_group cg
-        WHERE cg.`id_customer` = '.(int)$id_customer);
-        foreach ($result as $group) {
-            self::$_customer_groups[$id_customer][] = (int)$group['id_group'];
+        dataBaseObject.setQuery(query);
+        dataBaseObject.query(false);
+    }
+
+    public void addGroups(List<Integer> groups){
+        String query;
+        for(Integer groupId : groups) {
+            if(dataBaseObject == null){
+                dataBaseObject = JeproLabFactory.getDataBaseConnector();  //$row = array('id_customer' => (int)this.id, 'id_group' => (int)$group);
+            }
+            query = "INSERT INTO " + dataBaseObject.quoteName("#__jeprolab_customer_group") + "(" + dataBaseObject.quoteName("customer_id");
+            query += ", " + dataBaseObject.quoteName("group_id") + ") VALUES (" + this.customer_id + ", " + groupId + ")";
+            dataBaseObject.setQuery(query);
+            dataBaseObject.query(false);
         }
     }
-        return self::$_customer_groups[$id_customer];
+
+    public static List<Integer> getStaticGroups(int customerId){
+        List<Integer> groups;
+        if (!JeproLabGroupModel.isFeaturePublished()) {
+            groups = new ArrayList<>();
+            groups.add(JeproLabSettingModel.getIntValue("customer_group"));
+            return groups;
+        }
+
+        if (customerId == 0) {
+            groups = new ArrayList<>();
+            groups.add(JeproLabSettingModel.getIntValue("unidentified_group"));
+            JeproLabCustomerModel._customer_groups.put(customerId, groups);
+        }
+
+        if (!JeproLabCustomerModel._customer_groups.containsKey(customerId)){
+            if(staticDataBaseObject == null){
+                staticDataBaseObject = JeproLabFactory.getDataBaseConnector();
+            }
+            String query = "SELECT customer_group." + staticDataBaseObject.quoteName("group_id") + " FROM " + staticDataBaseObject.quoteName("#__jeprolab_customer_group");
+            query += " AS customer_group WHERE customer_group." + staticDataBaseObject.quoteName("customer_id") + " = " + customerId;
+
+            staticDataBaseObject.setQuery(query);
+            ResultSet groupSet = staticDataBaseObject.loadObject();
+            if(groupSet != null){
+                try{
+                    groups = new ArrayList<>();
+                    while (groupSet.next()){
+                        groups.add(groupSet.getInt("group_id"));
+                    }
+                    JeproLabCustomerModel._customer_groups.put(customerId, groups);
+                    return groups;
+                }catch (SQLException ignored){
+                    ignored.printStackTrace();
+                }finally {
+                    try{
+                        JeproLabDataBaseConnector.getInstance().closeConnexion();
+                    }catch (Exception exc){
+                        exc.printStackTrace();
+                    }
+                }
+            }
+        }
+        return JeproLabCustomerModel._customer_groups.get(customerId);
     }
 
-    public function getGroups()
-    {
-        return Customer::getGroupsStatic((int)$this->id);
+    public List<Integer> getGroups(){
+        return JeproLabCustomerModel.getStaticGroups(this.customer_id);
     }
 
     /**
@@ -799,7 +908,7 @@ public class JeproLabCustomerModel  extends JeproLabModel{
         return Db::getInstance(_PS_USE_SQL_SLAVE_)->executeS('
             SELECT * FROM `'._DB_PREFIX_.'orders` o
         LEFT JOIN `'._DB_PREFIX_.'order_detail` od ON o.id_order = od.id_order
-        WHERE o.valid = 1 AND o.`id_customer` = '.(int)$this->id);
+        WHERE o.valid = 1 AND o.`id_customer` = '.(int)this.id);
     }
 */
     public static int getDefaultGroupId(int customerId) {
@@ -861,20 +970,20 @@ public class JeproLabCustomerModel  extends JeproLabModel{
 
         /* Change status to active/inactive * /
         return Db::getInstance()->execute('
-            UPDATE `'._DB_PREFIX_.bqSQL($this->def['table']).'`
+            UPDATE `'._DB_PREFIX_.bqSQL(this.def['table']).'`
         SET `date_upd` = NOW()
-        WHERE `'.bqSQL($this->def['primary']).'` = '.(int)$this->id);
+        WHERE `'.bqSQL(this.def['primary']).'` = '.(int)this.id);
     }
 
 
     public function isGuest()
     {
-        return (bool)$this->is_guest;
+        return (bool)this.is_guest;
     }
 
     public function transformToCustomer($id_lang, $password = null)
     {
-        if (!$this->isGuest()) {
+        if (!this.isGuest()) {
             return false;
         }
         if (empty($password)) {
@@ -884,15 +993,15 @@ public class JeproLabCustomerModel  extends JeproLabModel{
         return false;
     }
 
-        $this->is_guest = 0;
-        $this->passwd = Tools::encrypt($password);
-        $this->cleanGroups();
-        $this->addGroups(array(Configuration::get('PS_CUSTOMER_GROUP'))); // add default customer group
-        if ($this->update()) {
+        this.is_guest = 0;
+        this.passwd = Tools::encrypt($password);
+        this.cleanGroups();
+        this.addGroups(array(Configuration::get('PS_CUSTOMER_GROUP'))); // add default customer group
+        if (this.update()) {
             $vars = array(
-                    '{firstname}' => $this->firstname,
-                    '{lastname}' => $this->lastname,
-                    '{email}' => $this->email,
+                    '{firstname}' => this.firstname,
+                    '{lastname}' => this.lastname,
+                    '{email}' => this.email,
                     '{passwd}' => $password
             );
 
@@ -901,15 +1010,15 @@ public class JeproLabCustomerModel  extends JeproLabModel{
                     'guest_to_customer',
                     Mail::l('Your guest account has been transformed into a customer account', (int)$id_lang),
             $vars,
-                    $this->email,
-                    $this->firstname.' '.$this->lastname,
+                    this.email,
+                    this.firstname.' '.this.lastname,
                     null,
                     null,
                     null,
                     null,
                     _PS_MAIL_DIR_,
                     false,
-                    (int)$this->id_shop
+                    (int)this.id_shop
             );
             return true;
         }
@@ -918,14 +1027,14 @@ public class JeproLabCustomerModel  extends JeproLabModel{
 
     public function setWsPasswd($passwd)
     {
-        if ($this->id == 0 || $this->passwd != $passwd) {
-            $this->passwd = Tools::encrypt($passwd);
+        if (this.id == 0 || this.passwd != $passwd) {
+            this.passwd = Tools::encrypt($passwd);
         }
         return true;
     }
 
     /**
-     * Check customer informations and return customer validity
+     * Check customer information and return customer validity
      *
      * @since 1.5.0
      * @param bool $with_guest
@@ -933,12 +1042,12 @@ public class JeproLabCustomerModel  extends JeproLabModel{
      * /
     public function isLogged($with_guest = false)
     {
-        if (!$with_guest && $this->is_guest == 1) {
+        if (!$with_guest && this.is_guest == 1) {
             return false;
         }
 
         /* Customer is valid only if it can be load and if object password is the same as database one * /
-        return ($this->logged == 1 && $this->id && Validate::isUnsignedId($this->id) && Customer::checkPassword($this->id, $this->passwd));
+        return (this.logged == 1 && this.id && Validate::isUnsignedId(this.id) && Customer::checkPassword(this.id, this.passwd));
     }
 
     /**
@@ -954,7 +1063,7 @@ public class JeproLabCustomerModel  extends JeproLabModel{
         Context::getContext()->cookie->logout();
     }
 
-        $this->logged = 0;
+        this.logged = 0;
 
         Hook::exec('actionCustomerLogoutAfter', array('customer' => $this));
     }
@@ -973,14 +1082,14 @@ public class JeproLabCustomerModel  extends JeproLabModel{
         Context::getContext()->cookie->mylogout();
     }
 
-        $this->logged = 0;
+        this.logged = 0;
 
         Hook::exec('actionCustomerLogoutAfter', array('customer' => $this));
     }
 
     public function getLastCart($with_order = true)
     {
-        $carts = Cart::getCustomerCarts((int)$this->id, $with_order);
+        $carts = Cart::getCustomerCarts((int)this.id, $with_order);
         if (!count($carts)) {
             return false;
         }
@@ -996,7 +1105,7 @@ public class JeproLabCustomerModel  extends JeproLabModel{
         $query->from('order_invoice', 'oi');
         $query->leftJoin('orders', 'o', 'oi.id_order = o.id_order');
         $query->groupBy('o.id_customer');
-        $query->where('o.id_customer = '.(int)$this->id);
+        $query->where('o.id_customer = '.(int)this.id);
         $total_paid = (float)Db::getInstance()->getValue($query->build());
 
         $query = new DbQuery();
@@ -1005,7 +1114,7 @@ public class JeproLabCustomerModel  extends JeproLabModel{
         $query->leftJoin('order_invoice_payment', 'oip', 'op.id_order_payment = oip.id_order_payment');
         $query->leftJoin('orders', 'o', 'oip.id_order = o.id_order');
         $query->groupBy('o.id_customer');
-        $query->where('o.id_customer = '.(int)$this->id);
+        $query->where('o.id_customer = '.(int)this.id);
         $total_rest = (float)Db::getInstance()->getValue($query->build());
 
         return $total_paid - $total_rest;
@@ -1017,7 +1126,7 @@ public class JeproLabCustomerModel  extends JeproLabModel{
             SELECT cg.`id_group` as id
             FROM '._DB_PREFIX_.'customer_group cg
         '.Shop::addSqlAssociation('group', 'cg').'
-        WHERE cg.`id_customer` = '.(int)$this->id
+        WHERE cg.`id_customer` = '.(int)this.id
         );
     }
 
@@ -1027,8 +1136,8 @@ public class JeproLabCustomerModel  extends JeproLabModel{
         foreach ($result as $row) {
         $groups[] = $row['id'];
     }
-        $this->cleanGroups();
-        $this->addGroups($groups);
+        this.cleanGroups();
+        this.addGroups($groups);
         return true;
     }
 

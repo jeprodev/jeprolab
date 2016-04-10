@@ -113,6 +113,136 @@ public class JeproLabTools {
         return null;
     }
 
+    public static boolean isDate(){
+
+    }
+
+    /**
+     * Random password generator
+     *
+     * @param length Desired length (optional)
+     * @param flag Output type (NUMERIC, ALPHANUMERIC, NO_NUMERIC, RANDOM)
+     * @return bool|string Password
+     */
+    public static String passwordGenerator(int length = 8, String flag = 'ALPHANUMERIC'){
+        if (length <= 0) {
+            return "";
+        }
+        byte[] bytes;
+        String str;
+        switch (flag) {
+            case "NUMERIC":
+                str = "0123456789";
+                break;
+            case "NO_NUMERIC":
+                str = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+                break;
+            case "RANDOM":
+                int numBytes = (int) Math.ceil(length * 0.75);
+                bytes = JeproLabTools.getBytes(numBytes);
+                return substr(rtrim(base64_encode(bytes), '='), 0, length);
+            case "ALPHANUMERIC":
+            default:
+                str = "abcdefghijkmnopqrstuvwxyz0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+                break;
+        }
+
+        bytes = JeproLabTools.getBytes(length);
+        int position = 0;
+        String result = "";
+
+        for (int i = 0; i < length; i++) {
+            position = (position + ord(bytes[i])) % (str.length());
+            result += str.charAt(position);
+        }
+
+        return result;
+    }
+
+    /**
+     * Random bytes generator
+     *
+     * Thanks to Zend for entropy
+     *
+     * @param length Desired length of random bytes
+     * @return bool|string Random bytes
+     */
+    public static byte[] getBytes(int length){
+        if (length <= 0) {
+            return "".getBytes();
+        }
+
+        if (function_exists('openssl_random_pseudo_bytes')) {
+            $bytes = openssl_random_pseudo_bytes(length, $cryptoStrong);
+
+            if ($crypto_strong === true) {
+                return $bytes;
+            }
+        }
+
+        if (function_exists('mcrypt_create_iv')) {
+            $bytes = mcrypt_create_iv($length, MCRYPT_DEV_URANDOM);
+
+            if ($bytes !== false && strlen($bytes) === $length) {
+                return $bytes;
+            }
+        }
+
+        // Else try to get $length bytes of entropy.
+        // Thanks to Zend
+
+        String result = "";
+        String entropy = "";
+        int msecPerRound = 400;
+        int bitsPerRound = 2;
+        int total = length;
+        int hashLength    = 20;
+        int rounds, iteration, div;
+
+        while (result.length() < length) {
+            $bytes  = (total > hashLength) ? hashLength : total;
+            $total -= $bytes;
+
+            for (int i=1; i < 3; i++) {
+                $t1 = microtime(true);
+                $seed = mt_rand();
+
+                for (int j=1; j < 50; j++) {
+                    $seed = sha1($seed);
+                }
+
+                t2 = microtime(true);
+                entropy += $t1 . $t2;
+            }
+
+            div = (int) ((t2 - t1) * 1000000);
+
+            if (div <= 0) {
+                div = 400;
+            }
+
+            rounds = (msecPerRound * 50 / div);
+            iteration = $bytes * (int) (Math.ceil(8 / bitsPerRound));
+
+            for (int i = 0; i < iteration; i ++) {
+                $t1 = microtime();
+                $seed = sha1(mt_rand());
+
+                for (int j = 0; j < rounds; j++) {
+                    $seed = sha1($seed);
+                }
+
+                $t2 = microtime();
+                entropy += t1 + t2;
+            }
+
+            $result += sha1(entropy, true);
+        }
+
+        return result.substring(0, length).getBytes();
+    }
+
+
     public static synchronized String createRequestReference(){
         Calendar calendar = Calendar.getInstance();
         calendar.setTimeInMillis(System.currentTimeMillis());

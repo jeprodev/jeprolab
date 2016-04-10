@@ -1,5 +1,7 @@
 package com.jeprolab.models;
 
+import com.jeprolab.models.core.JeproLabFactory;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
@@ -416,19 +418,22 @@ public class JeproLabCartRuleModel extends JeproLabModel {
     /**
      * @param $id_customer
      * @return bool
-     * /
-    public static function deleteByIdCustomer($id_customer)
-    {
-        $return = true;
-        $cart_rules = new PrestaShopCollection('CartRule');
-        $cart_rules->where('id_customer', '=', $id_customer);
-        foreach ($cart_rules as $cart_rule) {
-        $return &= $cart_rule->delete();
-    }
-        return $return;
+     */
+    public static boolean deleteByCustomerId(int customerId){
+        boolean result = true;
+        if(staticDataBaseObject == null){
+            staticDataBaseObject = JeproLabFactory.getDataBaseConnector();
+        }
+        String query = "DELETE FROM " + staticDataBaseObject.quoteName("#__jeprolab_cart_rule") + " AS cart_rule ";
+        query += " WHERE " + staticDataBaseObject.quoteName("customer_id") + " = " + customerId;
+
+        staticDataBaseObject.setQuery(query);
+        result &= staticDataBaseObject.query(false);
+
+        return result;
     }
 
-    /**
+    /*
      * @return array
      * /
     public function getProductRuleGroups()
