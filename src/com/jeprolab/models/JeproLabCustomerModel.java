@@ -178,8 +178,8 @@ public class JeproLabCustomerModel  extends JeproLabModel{
         this.laboratory_group_id = (this.laboratory_group_id > 0) ? this.laboratory_group_id : JeproLabContext.getContext().laboratory.laboratory_group_id;
         this.language_id = (this.language_id > 0) ? this.language_id : JeproLabContext.getContext().language.language_id;
         this.birthday = ((this.years == 0) ? this.birthday : JeproLabTools.getDate(this.years + "-" + this.months + "-" + this.days));
-        this.secure_key = JeproLabTools.md5(JeproLabTools.uniqid(Math.random(), true));
-        this.last_passwd_gen = JeproLabTools.getDate("Y-m-d H:i:s", strtotime("-" + JeproLabSettingModel.getStringValue("password_front_time") + "minutes"));
+        //this.secure_key = JeproLabTools.md5(JeproLabTools.uniqid(Math.random(), true));
+        //this.last_passwd_gen = JeproLabTools.getDate("Y-m-d H:i:s", strtotime("-" + JeproLabSettingModel.getStringValue("password_front_time") + "minutes"));
 
         if (this.news_letter && !JeproLabTools.isDate(this.news_letter_date_add)) {
             this.news_letter_date_add = JeproLabTools.getDate("Y-m-d H:i:s");
@@ -197,9 +197,11 @@ public class JeproLabCustomerModel  extends JeproLabModel{
         if (this.is_guest && !(JeproLabSettingModel.getIntValue("guest_checkout_enabled") > 0)){
             return false;
         }
-        boolean success = parent::add($autodate, $null_values);
+
+        String query = "INSERT INTO " + dataBaseObject.quoteName("#__jeprolab_customer") + "(" + dataBaseObject.quoteName("");
+        //boolean success = parent::add($autodate, $null_values);
         this.updateGroup(this.group_box);
-        return success;
+        return true;
     }
 
     public boolean update(){
@@ -216,11 +218,12 @@ public class JeproLabCustomerModel  extends JeproLabModel{
             addresses.forEach(com.jeprolab.models.JeproLabAddressModel::delete);
         }
 
-        return parent::update(true);
+        //return parent::update(true);
+        return true;
     }
 
     public void delete() {
-        if (!(JeproLabRequestModel.getRequestsByCustomerId(this.customer_id))) {
+        if (!(JeproLabRequestModel.getRequestsByCustomerId(this.customer_id).size() > 0)) {
             List<JeproLabAddressModel> addresses = this.getAddresses(JeproLabSettingModel.getIntValue("default_lang"));
             addresses.forEach(com.jeprolab.models.JeproLabAddressModel::delete);
         }
@@ -297,7 +300,7 @@ public class JeproLabCustomerModel  extends JeproLabModel{
                 }
             }
         }
-        JeproLabCartRuleModel.deleteByCustomerId(this.customer_id);
+        //JeproLabCartRuleModel.deleteByCustomerId(this.customer_id);
         query = "DELETE FROM " + dataBaseObject.quoteName("#__jeprolab_customer");
         query += " WHERE " + dataBaseObject.quoteName("customer_id") + " = " + this.customer_id;
 

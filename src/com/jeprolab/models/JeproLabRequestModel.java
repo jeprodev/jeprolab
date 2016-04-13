@@ -9,10 +9,7 @@ import com.jeprolab.models.core.JeproLabFactory;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  *
@@ -109,6 +106,14 @@ public class JeproLabRequestModel extends JeproLabModel{
 
     public void update(){
 
+    }
+
+    public static List<Integer> getRequestsByCustomerId(int customerId) {
+        List<Integer> orderIds = new ArrayList<>();
+        if(staticDataBaseObject == null){
+            staticDataBaseObject = JeproLabFactory.getDataBaseConnector();
+        }
+        return orderIds;
     }
 
     public static class JeproLabSampleModel extends JeproLabModel {

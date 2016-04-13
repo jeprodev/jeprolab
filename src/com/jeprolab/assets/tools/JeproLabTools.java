@@ -20,6 +20,8 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class JeproLabTools {
     private static int default_currency_id = 0;
@@ -113,8 +115,31 @@ public class JeproLabTools {
         return null;
     }
 
-    public static boolean isDate(){
+    public static boolean isDate(Date date){
+        String pattern = "/^([0-9]{4})-((?:0?[0-9])|(?:1[0-2]))-((?:0?[0-9])|(?:[1-2][0-9])|(?:3[01]))( [0-9]{2}:[0-9]{2}:[0-9]{2})?$/";
 
+        if (!JeproLabTools.pregMatch(date.toString(), pattern)) {
+            return false;
+        }else{
+            return true;
+        }
+
+
+        //return checkdate((int)$matches[2], (int)$matches[3], (int)$matches[1]);
+    }
+
+    public static boolean pregMatch(String search, String pattern){
+        Pattern regex = Pattern.compile(pattern);
+        Matcher matcher = regex.matcher(search);
+        return matcher.matches();
+    }
+/*
+    public static String passwordGenerator(){
+        return passwordGenerator(8, "ALPHANUMERIC");
+    }
+
+    public static String passwordGenerator(int length){
+        return passwordGenerator(length, "ALPHANUMERIC");
     }
 
     /**
@@ -123,8 +148,8 @@ public class JeproLabTools {
      * @param length Desired length (optional)
      * @param flag Output type (NUMERIC, ALPHANUMERIC, NO_NUMERIC, RANDOM)
      * @return bool|string Password
-     */
-    public static String passwordGenerator(int length = 8, String flag = 'ALPHANUMERIC'){
+     * /
+    public static String passwordGenerator(int length, String flag){
         if (length <= 0) {
             return "";
         }
@@ -166,7 +191,7 @@ public class JeproLabTools {
      *
      * @param length Desired length of random bytes
      * @return bool|string Random bytes
-     */
+     * /
     public static byte[] getBytes(int length){
         if (length <= 0) {
             return "".getBytes();
@@ -242,7 +267,7 @@ public class JeproLabTools {
         return result.substring(0, length).getBytes();
     }
 
-
+*/
     public static synchronized String createRequestReference(){
         Calendar calendar = Calendar.getInstance();
         calendar.setTimeInMillis(System.currentTimeMillis());

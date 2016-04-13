@@ -316,7 +316,6 @@ public class JeproLabRequestAddController extends JeproLabController {
                 jeproLabRequestSecondContact.getItems().add(customer.firstname + " " + customer.lastname.toUpperCase());
                 jeproLabRequestThirdContact.getItems().add(customer.firstname + " " + customer.lastname.toUpperCase());
                 jeproLabRequestFourthContact.getItems().add(customer.firstname + " " + customer.lastname.toUpperCase());
-System.out.println(request.first_contact_id);
 
                 if(request.first_contact_id == customer.customer_id) {
                     jeproLabRequestFirstContact.setValue(customer.firstname + " " + customer.lastname.toUpperCase());
@@ -340,7 +339,7 @@ System.out.println(request.first_contact_id);
     }
 
     private void loadRequest(){
-        int requestId = 1; //JeproLab.request.getRequest().containsKey("request_id") ? Integer.parseInt(JeproLab.request.getRequest().get("request_id")) : 0;
+        int requestId = JeproLab.request.getRequest().containsKey("request_id") ? Integer.parseInt(JeproLab.request.getRequest().get("request_id")) : 0;
 
         if(context == null) {
             context = JeproLabContext.getContext();
