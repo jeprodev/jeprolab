@@ -32,6 +32,7 @@ import java.util.ResourceBundle;
  */
 public class JeproLabRequestAddController extends JeproLabController {
     private JeproLabRequestModel request;
+    private JeproLabRequestModel.JeproLabSampleModel sample;
     private Map<Integer, String> sample_matrix = new HashMap<>();
     private Button saveRequestBtn, cancelBtn;
     private double fourthColumnWidth = 280;
@@ -224,7 +225,12 @@ public class JeproLabRequestAddController extends JeproLabController {
             if((analyzeIndex % 3) == 0){ analyzeRow++; }
         }
 
-        jeproLabSaveSampleBtn.setText(bundle.getString("JEPROLAB_ADD_LABEL"));
+        if(sample != null && sample.sample_id > 0) {
+            jeproLabSaveSampleBtn.setText(bundle.getString("JEPROLAB_UPDATE_LABEL"));
+        }else{
+            jeproLabSaveSampleBtn.setText(bundle.getString("JEPROLAB_ADD_LABEL"));
+            jeproLabSaveSampleBtn.setDisable(true);
+        }
         jeproLabSaveSampleBtn.setGraphic(new ImageView(new Image(JeproLab.class.getResourceAsStream("resources/images/floppy-icon.png"))));
         jeproLabCancelSampleBtn.setText(bundle.getString("JEPROLAB_CANCEL_LABEL"));
         jeproLabCancelSampleBtn.setGraphic(new ImageView(new Image(JeproLab.class.getResourceAsStream("resources/images/unpublished.png"))));
@@ -332,10 +338,9 @@ public class JeproLabRequestAddController extends JeproLabController {
         }else{
             jeproLabRequestReference.setText(JeproLabTools.createRequestReference());
             //customersContact = JeproLabCustomerModel.getCustomersByCompany("jeprodesign");
-
         }
         this.updateToolBar();
-
+        this.addEventListeners();
     }
 
     private void loadRequest(){
@@ -356,6 +361,10 @@ public class JeproLabRequestAddController extends JeproLabController {
         }
     }
 
+    private void addEventListeners(){
+
+    }
+
     @Override
     public void updateToolBar(){
         HBox commandWrapper = JeproLab.getInstance().getApplicationToolBarCommandWrapper();
@@ -368,7 +377,7 @@ public class JeproLabRequestAddController extends JeproLabController {
             saveRequestBtn.setText(bundle.getString("JEPROLAB_SAVE_LABEL"));
             saveRequestBtn.setOnMouseClicked(evt -> {
                 String requestParams = "first_contact_id=" + firstContactId + "&second_contact_id=" + secondContactId + "&third_contact_id=";
-                requestParams += thirdContactId + "&fourth_contact_id=" + fourthContactId + "&c";
+                requestParams += thirdContactId + "&fourth_contact_id=" + fourthContactId + "";
 
                 JeproLab.request.setRequest(requestParams);
                 request.update();
