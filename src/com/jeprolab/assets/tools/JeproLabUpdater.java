@@ -1,13 +1,25 @@
 package com.jeprolab.assets.tools;
 
-import java.io.InputStream;
+import jdk.internal.org.xml.sax.Attributes;
+import org.xml.sax.helpers.DefaultHandler;
+import org.xml.sax.InputSource;
+import org.xml.sax.SAXException;
+import org.xml.sax.XMLReader;
+import org.xml.sax.helpers.XMLReaderFactory;
+
+import java.io.*;
 import java.net.URL;
+import java.net.URLConnection;
+import java.util.ArrayList;
+import java.util.Iterator;
 
 /**
  *
  * Created by jeprodev on 02/05/2014.
  */
 public class JeproLabUpdater {
+    public enum Mode {FILE, URL}
+    public enum Action {MOVE, DELETE, EXECUTE}
     private final static String versionUrl = "http://localhost/jeprotest/product.html"; //index.php?option=com_jeproshop&view=product&task=view&product_id=1";
     private final static String historyUrl = "https://localhost/jeprotest/product.html"; //index.php?option=com_jeproshop&view=product&task=view&product_id=1";
 
@@ -45,5 +57,199 @@ public class JeproLabUpdater {
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    public static void update(String xmlInstructionPath, String tmp, Mode mode){
+        Iterator parserIterator;
+        parserIterator = parse(tmp + File.separator + xmlInstructionPath, mode).iterator();
+        JeproLabUpdaterInstruction instruction;
+
+        while(parserIterator.hasNext()){
+            instruction = (JeproLabUpdaterInstruction)parserIterator.next();
+            switch (instruction.getAction()){
+                case MOVE:
+                    copy(tmp + File.separator + instruction.getFileName(), instruction.getTargetPath());
+                    break;
+                case DELETE:
+                    delete(instruction.getTargetPath());
+                    break;
+                case EXECUTE:
+                    try {
+                        Runtime.getRuntime().exec("java -jar " + tmp + File.separator + instruction.getFileName());
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                    break;
+            }
+        }
+    }
+
+    public static void update(String xmlInstructions, String tmp, String targetDirectory, Mode mode){
+        Iterator parserIterator = parse(tmp + File.separator + xmlInstructions, mode).iterator();
+        JeproLabUpdaterInstruction instruction;
+        while(parserIterator.hasNext()){
+            instruction = (JeproLabUpdaterInstruction) parserIterator.next();
+            switch (instruction.getAction()){
+                case MOVE:
+                    copy(tmp + File.separator + instruction.getFileName(), targetDirectory + File.separator + instruction.getTargetPath());
+                    break;
+                case DELETE:
+                    delete(targetDirectory + File.separator + instruction.getTargetPath());
+                    break;
+                case EXECUTE:
+                    try {
+                        Runtime.getRuntime().exec("java -jar " + tmp + File.separator + instruction.getFileName());
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                    break;
+            }
+        }
+    }
+
+    private static void copy(String sourcePath, String destinationPath){
+        File sourceFile = new File(sourcePath);
+        File destinationFile = new File(destinationPath);
+
+        try {
+            InputStream inputStream = new FileInputStream(sourceFile);
+            OutputStream outputStream = new FileOutputStream(destinationFile);
+
+            byte[] buffer = new byte[512];
+            int length;
+
+            while((length = inputStream.read(buffer)) > 0){
+                outputStream.write(buffer, 0, length);
+            }
+            inputStream.close();
+            outputStream.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private static void delete(String filePath){
+        File targetFile = new File(filePath);
+        targetFile.deleteOnExit();
+    }
+
+    private static ArrayList<JeproLabUpdaterInstruction> parse(String fileName, Mode mode){
+        try {
+            XMLReader reader = XMLReaderFactory.createXMLReader();
+            JeproLabUpdaterParserHandler handler = new JeproLabUpdaterParserHandler();
+            reader.setContentHandler(handler);
+            reader.setErrorHandler(handler);
+
+            if(mode == Mode.FILE){
+                try {
+                    reader.parse(new InputSource(new FileReader(new File(fileName))));
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }else{
+                try {
+                    URL url = new URL(fileName);
+                    URLConnection connection = url.openConnection();
+                    InputStream inputStream = connection.getInputStream();
+                    reader.parse(new InputSource(inputStream));
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+            return handler.getInstructions();
+        } catch (SAXException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    private static class JeproLabUpdaterParserHandler extends DefaultHandler{
+        private String currentElement = "";
+        private ArrayList<JeproLabUpdaterInstruction> instructions = new ArrayList<>();
+        private JeproLabUpdaterInstruction instruction = new JeproLabUpdaterInstruction();
+        private boolean inInstruction =  false;
+
+        public JeproLabUpdaterParserHandler(){
+            super();
+        }
+
+
+        public void startElement(String uri, String localName, String qName, Attributes attributes){
+            currentElement = qName;
+            inInstruction = true;
+        }
+
+        @Override
+        public void endElement(String nameSpaceUri, String localName, String qName){
+            inInstruction = false;
+
+            if(qName.equals("instruction")){
+                instructions.add(instruction);
+                instruction = new JeproLabUpdaterInstruction();
+                currentElement = "";
+            }
+        }
+
+        @Override
+        public void characters(char ch[], int start, int length){
+            String value = "";
+            if(!currentElement.equals("")){
+                value = String.copyValueOf(ch, start, length).trim();
+            }
+
+            if(inInstruction){
+                if(currentElement.equals("action")){
+                    instruction.setAction(value);
+                }else if(currentElement.equals("destination")){
+                    instruction.setDestination(value);
+                }else if(currentElement.equals("file")){
+                    instruction.setFileName(value);
+                }
+                currentElement = "";
+            }
+        }
+        public ArrayList<JeproLabUpdaterInstruction> getInstructions(){
+            return instructions;
+        }
+    }
+
+    private static class JeproLabUpdaterInstruction{
+        private Action action;
+        private String targetPath, fileName;
+
+        public Action getAction(){
+            return action;
+        }
+
+        public String getTargetPath(){
+            return targetPath;
+        }
+
+        public String getFileName(){
+            return fileName;
+        }
+
+        public void setAction(Action action) {
+            this.action = action;
+        }
+
+        public void setAction(String value) {
+            if (value.equalsIgnoreCase("MOVE")) {
+                this.action = Action.MOVE;
+            } else if (value.equalsIgnoreCase("DELETE")) {
+                this.action = Action.DELETE;
+            } else if (value.equalsIgnoreCase("EXECUTE")) {
+                this.action = Action.EXECUTE;
+            }
+        }
+
+        public void setDestination(String target) {
+            this.targetPath = target;
+        }
+
+        public void setFileName(String filename) {
+            this.fileName = filename;
+        }
+
     }
 }
