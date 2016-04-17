@@ -1,6 +1,7 @@
 package com.jeprolab.models;
 
 
+import com.jeprolab.JeproLab;
 import com.jeprolab.assets.tools.JeproLabCache;
 import com.jeprolab.assets.tools.JeproLabContext;
 import com.jeprolab.assets.tools.JeproLabTools;
@@ -49,6 +50,8 @@ public class JeproLabCountryModel  extends JeproLabModel{
 
     private static Pagination pagination = null;
 
+    protected static Map<Integer, Integer> zonesId = new HashMap<>();
+    protected static Map<Integer, String> cache_iso_by_id = new HashMap<>();
 
 
     public JeproLabCountryModel(){
@@ -318,11 +321,11 @@ public class JeproLabCountryModel  extends JeproLabModel{
     public boolean isMultiLab(){
         return JeproLabLaboratoryModel.isTableAssociated("country") || !this.multi_lang_lab;
     }
-
-    public List getCountryList(){
-        List countries = new ArrayList<>();
+/*
+    public List<JeproLabCountryModel> getCountryList(){
+        List<JeproLabCountryModel> countries = new ArrayList<>();
         return countries;
-    }
+    }*/
 
     public Pagination getPagination(){
         return pagination;
@@ -336,65 +339,92 @@ public class JeproLabCountryModel  extends JeproLabModel{
     }
         return Db::getInstance()->execute('DELETE FROM '._staticDataBaseObject.quoteName("#__jeprolab_.'cart_rule_country WHERE id_country = '.(int)$this->id);
     }
+*/
+    public static List<JeproLabCountryModel> getCountriesByLaboratoryId(int labId, int langId){
+        if(staticDataBaseObject == null){
+            staticDataBaseObject = JeproLabFactory.getDataBaseConnector();
+        }
+		String query = "SELECT * FROM " + staticDataBaseObject.quoteName("#__jeprolab_country") + " AS country LEFT JOIN ";
+        query += staticDataBaseObject.quoteName("#__jeprolab_country_lab") + " AS country_lab ON (country_lab." + staticDataBaseObject.quoteName("country_id");
+        query += " = country." + staticDataBaseObject.quoteName("country_id") + ") LEFT JOIN " + staticDataBaseObject.quoteName("#__jeprolab_country_lang");
+        query += " AS country_lang ON (country." + staticDataBaseObject.quoteName("country_id") + " = country_lang.";
+        query += staticDataBaseObject.quoteName("country_id") + " AND country_lang." + staticDataBaseObject.quoteName("lang_id") + " = " + langId;
+        query += ") WHERE " + staticDataBaseObject.quoteName("lab_id") + " = " + labId;
 
-    public static function getCountriesByIdShop($id_lab, $id_lang)
-    {
-        return Db::getInstance(_PS_USE_SQL_SLAVE_)->ExecuteS('
-		SELECT *
-		FROM `'._staticDataBaseObject.quoteName("#__jeprolab_.'country` c
-		LEFT JOIN `'._staticDataBaseObject.quoteName("#__jeprolab_.'country_lab` cs ON (cs.`id_country`= c.`id_country`)
-		LEFT JOIN `'._staticDataBaseObject.quoteName("#__jeprolab_.'country_lang` cl ON (c.`id_country` = cl.`id_country` AND cl.`id_lang` = '.(int)$id_lang.')
-		WHERE `id_lab` = '.(int)$id_lab);
+        staticDataBaseObject.setQuery(query);
+        ResultSet countrySet = staticDataBaseObject.loadObject();
+        List<JeproLabCountryModel> countries = new ArrayList<>();
+        if(countrySet != null){
+            try{
+                JeproLabCountryModel country;
+                while(countrySet.next()){
+                    country = new JeproLabCountryModel();
+                    //todo
+                    countries.add(country);
+                }
+            }catch (SQLException ignored){
+                ignored.printStackTrace();
+            }finally {
+                try {
+                    JeproLabDataBaseConnector.getInstance().closeConnexion();
+                }catch (Exception ignored){
+                    ignored.printStackTrace();
+                }
+            }
+        }
+        return countries;
+    }
+
+    public static int getByIso(String isoCode){
+        return getCountryIdByIso(isoCode, false);
     }
 
     /**
      * Get a country ID with its iso code
      *
-     * @param string $iso_code Country iso code
-     * @param bool $active return only active coutries
+     * @param isoCode Country iso code
+     * @param active return only active countries
      * @return int Country ID
-     * /
-public static function getByIso($iso_code, $active = false)
-{
-    if (!Validate::isLanguageIsoCode($iso_code)) {
-    die(Tools::displayError());
-}
-    $result = Db::getInstance(_PS_USE_SQL_SLAVE_)->getRow('
-        SELECT `id_country`
-        FROM `'._staticDataBaseObject.quoteName("#__jeprolab_.'country`
-    WHERE `iso_code` = \''.pSQL(strtoupper($iso_code)).'\''
-        .($active ? ' AND active = 1' : '')
-    );
-
-    if (isset($result['id_country']))
-    {
-        return (int)$result['id_country'];
-    }
-    return false;
-}
-
-    public static function getZoneId(int countryId){
-        if (!Validate::isUnsignedId($id_country)) {
-        die(Tools::displayError());
-    }
-
-        if (isset(self::$_idZones[$id_country])) {
-        return (int)self::$_idZones[$id_country];
-    }
-
-        $result = Db::getInstance(_PS_USE_SQL_SLAVE_)->getRow('
-            SELECT `id_zone`
-            FROM `'._staticDataBaseObject.quoteName("#__jeprolab_.'country`
-        WHERE `id_country` = '.(int)$id_country);
-
-        if (isset($result['id_zone']))
-        {
-            self::$_idZones[$id_country] = (int)$result['id_zone'];
-            return (int)$result['id_zone'];
+     */
+    public static int getCountryIdByIso(String isoCode, boolean active) {
+        if (!JeproLabTools.isLanguageIsoCode(isoCode)) {
+            JeproLabTools.displayError(500, JeproLab.getBundle().getString("JEPROLAB_MESSAGE")); //die(Tools::displayError());
         }
-        return false;
+        if (staticDataBaseObject == null) {
+            staticDataBaseObject = JeproLabFactory.getDataBaseConnector();
+        }
+
+        String query = "SELECT " + staticDataBaseObject.quoteName("country_id") + " FROM ";
+        query += staticDataBaseObject.quoteName("#__jeprolab_country") + " WHERE " + staticDataBaseObject.quoteName("iso_code");
+        query += "= " + staticDataBaseObject.quote(isoCode.toUpperCase()) + (active ? " AND published = 1" : "");
+
+        staticDataBaseObject.setQuery(query);
+        return (int) staticDataBaseObject.loadValue("country_id");
     }
-*/
+
+    public static int getZoneId(int countryId){
+        if (countryId <= 0){
+            JeproLabTools.displayError(500, "");
+        }
+
+        if (JeproLabCountryModel.zonesId.containsKey(countryId)) {
+            return JeproLabCountryModel.zonesId.get(countryId);
+        }
+
+        if(staticDataBaseObject == null){
+            staticDataBaseObject = JeproLabFactory.getDataBaseConnector();
+        }
+
+        String query = "SELECT " + staticDataBaseObject.quoteName("zone_id") + " FROM " + staticDataBaseObject.quoteName("#__jeprolab_country");
+        query += " WHERE " + staticDataBaseObject.quoteName("country_id") + " = " + countryId;
+
+        staticDataBaseObject.setQuery(query);
+        int result = (int)staticDataBaseObject.loadValue("zone_id");
+        JeproLabCountryModel.zonesId.put(countryId, result);
+
+        return result;
+    }
+
     /**
      * Get a country name with its ID
      *
@@ -422,26 +452,25 @@ public static function getByIso($iso_code, $active = false)
         return (String)JeproLabCache.getInstance().retrieve(cacheKey);
     }
 
-    /*
+    /**
      * Get a country iso with its ID
      *
-     * @param int $id_country Country ID
+     * @param countryId Country ID
      * @return string Country iso
-     * /
-    public static function getIsoById($id_country)
-    {
-        if (!isset(Country::$cache_iso_by_id[$id_country])) {
-        Country::$cache_iso_by_id[$id_country] = Db::getInstance(_PS_USE_SQL_SLAVE_)->getValue('
-                SELECT `iso_code`
-                FROM `'._staticDataBaseObject.quoteName("#__jeprolab_.'country`
-        WHERE `id_country` = '.(int)$id_country);
-    }
-        if (isset(Country::$cache_iso_by_id[$id_country]))
-        {
-            return Country::$cache_iso_by_id[$id_country];
+     */
+    public static String getIsoByCountryId(int countryId){
+        if (!JeproLabCountryModel.cache_iso_by_id.containsKey(countryId)) {
+            String query = "SELECT " + staticDataBaseObject.quoteName("iso_code") + " FROM " + staticDataBaseObject.quoteName("#__jeprolab_country");
+            query += " WHERE " + staticDataBaseObject.quoteName("country_id") + " = " + countryId ;
+
+            staticDataBaseObject.setQuery(query);
+            JeproLabCountryModel.cache_iso_by_id.put(countryId, staticDataBaseObject.loadStringValue("iso_code"));
         }
-        return false;
-    }*/
+        if (JeproLabCountryModel.cache_iso_by_id.containsKey(countryId)){
+            return JeproLabCountryModel.cache_iso_by_id.get(countryId);
+        }
+        return null;
+    }
 
     public static int getIdByName(String countryName){
         return getIdByName(countryName, JeproLabContext.getContext().language.language_id);
@@ -484,49 +513,38 @@ public static function getByIso($iso_code, $active = false)
         }
         return 0;
     }
-/*
-    public static function getNeedZipCode($id_country)
-    {
-        if (!(int)$id_country) {
+
+    public static boolean getNeedZipCode(int countryId){
+        if (countryId <= 0) {
             return false;
         }
 
-        return (bool)Db::getInstance(_PS_USE_SQL_SLAVE_)->getValue('
-            SELECT `need_zip_code`
-            FROM `'._staticDataBaseObject.quoteName("#__jeprolab_.'country`
-        WHERE `id_country` = '.(int)$id_country);
-    }
-
-    public static function getZipCodeFormat($id_country)
-    {
-        if (!(int)$id_country) {
-            return false;
+        if(staticDataBaseObject == null){
+            staticDataBaseObject = JeproLabFactory.getDataBaseConnector();
         }
+        String query = "SELECT " + staticDataBaseObject.quoteName("need_zip_code") + " FROM " + staticDataBaseObject.quoteName("#__jeprolab_country");
+        query += " WHERE " + staticDataBaseObject.quoteName("country_id") + " = " + countryId;
 
-        $zip_code_format = Db::getInstance(_PS_USE_SQL_SLAVE_)->getValue('
-            SELECT `zip_code_format`
-            FROM `'._staticDataBaseObject.quoteName("#__jeprolab_.'country`
-        WHERE `id_country` = '.(int)$id_country);
+        staticDataBaseObject.setQuery(query);
 
-        if (isset($zip_code_format) && $zip_code_format)
-        {
-            return $zip_code_format;
+        return staticDataBaseObject.loadValue("need_zip_code") > 0;
+    }
+
+    public static String getZipCodeFormat(int countryId){
+        if (countryId <= 0) {
+            return null;
         }
-        return false;
+        if(staticDataBaseObject == null){
+            staticDataBaseObject = JeproLabFactory.getDataBaseConnector();
+        }
+        String query = "SELECT " + staticDataBaseObject.quoteName("zip_code_format") + " FROM " + staticDataBaseObject.quoteName("#__jeprolab_country");
+        query += " WHERE " + staticDataBaseObject.quoteName("country_id") + " = " + countryId;
+
+        staticDataBaseObject.setQuery(query);
+
+        return staticDataBaseObject.loadStringValue("zip_code_format");
     }
 
-    /**
-     * Returns the default country Id
-     *
-     * @deprecated as of 1.5 use $context->country->id instead
-     * @return int default country id
-     *
-    public static function getDefaultCountryId()
-    {
-        Tools::displayAsDeprecated();
-        return Context::getContext()->country->id;
-    }
-*/
     public static List<JeproLabCountryModel> getCountriesByZoneId(int zoneId, int langId){
         if (zoneId <= 0  || langId <= 0){
             JeproLabTools.displayError(500, "");
@@ -564,59 +582,73 @@ public static function getByIso($iso_code, $active = false)
         }
         return countries;
     }
-/*
-    public function isNeedDni()
-    {
-        return Country::isNeedDniByCountryId($this->id);
+
+    public boolean needDni(){
+        return JeproLabCountryModel.needDniByCountryId(this.country_id);
     }
 
-    public static function isNeedDniByCountryId($id_country)
-    {
-        return (bool)Db::getInstance()->getValue('
-            SELECT `need_identification_number`
-            FROM `'._staticDataBaseObject.quoteName("#__jeprolab_.'country`
-        WHERE `id_country` = '.(int)$id_country);
+    public static boolean needDniByCountryId(int countryId){
+        if(staticDataBaseObject == null){
+            staticDataBaseObject = JeproLabFactory.getDataBaseConnector();
+        }
+
+        String query = "SELECT " + staticDataBaseObject.quoteName("need_identification_number") + " FROM " + staticDataBaseObject.quoteName("#__jeprolab_country");
+        query += " WHERE " + staticDataBaseObject.quoteName("country_id") + " = " + countryId;
+
+        staticDataBaseObject.setQuery(query);
+        return staticDataBaseObject.loadValue("need_identification_number") > 0;
     }
 
-    public static function containsStates($id_country)
-    {
-        return (bool)Db::getInstance()->getValue('
-            SELECT `contains_states`
-            FROM `'._staticDataBaseObject.quoteName("#__jeprolab_.'country`
-        WHERE `id_country` = '.(int)$id_country);
+    public static boolean containsStates(int countryId){
+        if(staticDataBaseObject == null){
+            staticDataBaseObject = JeproLabFactory.getDataBaseConnector();
+        }
+
+        String query = "SELECT " + staticDataBaseObject.quoteName("contains_states") + " FROM " + staticDataBaseObject.quoteName("#__jeprolab_country");
+        query += " WHERE " + staticDataBaseObject.quoteName("country_id") + " = " + countryId;
+
+        staticDataBaseObject.setQuery(query);
+        return staticDataBaseObject.loadValue("contains_states") > 0;
     }
 
     /**
-     * @param $ids_countries
-     * @param $id_zone
-     * @return bool
-     * /
-    public function affectZoneToSelection($ids_countries, $id_zone)
-    {
+     * @param countriesId list county id
+     * @param zoneId zone id
+     */
+    public void affectZoneToSelection(List<Integer> countriesId, int zoneId){
         // cast every array values to int (security)
-        $ids_countries = array_map('intval', $ids_countries);
-        return Db::getInstance()->execute('
-            UPDATE `'._staticDataBaseObject.quoteName("#__jeprolab_.'country` SET `id_zone` = '.(int)$id_zone.' WHERE `id_country` IN ('.implode(',', $ids_countries).')
-        ');
+        if(countriesId.size() > 0) {
+            String countriesIds = "";
+            for (Integer id : countriesId){
+                countriesIds += id + ", ";
+            }
+            countriesIds = countriesIds.endsWith(", ") ? countriesIds.substring(0, countriesIds.length() - 2) : countriesIds;
+
+            String query = "UPDATE " + dataBaseObject.quoteName("#__jeprolab_country") + " SET " + dataBaseObject.quoteName("zone_id");
+            query += " = " + zoneId + " WHERE " + dataBaseObject.quoteName("country_id") + " IN (" + countriesIds + ")";
+
+            dataBaseObject.setQuery(query);
+
+            dataBaseObject.query(false);
+        }
     }
 
     /*
      * Replace letters of zip code format And check this format on the zip code
-     * @param $zip_code
+     * @param zipCode
      * @return (bool)
      * /
-    public function checkZipCode($zip_code)
-    {
-        $zip_regexp = '/^'.$this->zip_code_format.'$/ui';
-        $zip_regexp = str_replace(' ', '( |)', $zip_regexp);
-        $zip_regexp = str_replace('-', '(-|)', $zip_regexp);
-        $zip_regexp = str_replace('N', '[0-9]', $zip_regexp);
-        $zip_regexp = str_replace('L', '[a-zA-Z]', $zip_regexp);
-        $zip_regexp = str_replace('C', $this->iso_code, $zip_regexp);
+    public boolean checkZipCode(String zipCode){
+        String zipRegexp = "/^" + this.zip_code_format + "$/ui";
+        zipRegexp = str_replace(' ', '( |)', zipRegexp);
+        zipRegexp = str_replace('-', '(-|)', zipRegexp);
+        zipRegexp = str_replace('N', '[0-9]', zipRegexp);
+        zipRegexp = str_replace('L', '[a-zA-Z]', zipRegexp);
+        zipRegexp = str_replace('C', this.iso_code, zipRegexp);
 
-        return (bool)preg_match($zip_regexp, $zip_code);
+        return (bool)preg_match(zipRegexp, zipCode);
     }
-
+/*
     public static function addModuleRestrictions(array $labs = array(), array $countries = array(), array $modules = array())
     {
         if (!count($labs)) {
@@ -647,7 +679,7 @@ public static function getByIso($iso_code, $active = false)
             return true;
         }
     }
-
+/*
     public function add($autodate = true, $null_values = false)
     {
         $return = parent::add($autodate, $null_values) && self::addModuleRestrictions(array(), array(array('id_country' => $this->id)), array());

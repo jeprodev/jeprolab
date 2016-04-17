@@ -683,4 +683,9 @@ public class JeproLabTools {
     public static boolean checkTaxToken(){
         return true;
     }
+
+    public static boolean isLanguageIsoCode(String isoCode) {
+        //return preg_match('/^[a-zA-Z]{2,3}$/', $iso_code);
+        return true;
+    }
 }

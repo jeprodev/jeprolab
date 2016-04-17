@@ -1,11 +1,10 @@
 package com.jeprolab.models;
 
-import com.jeprolab.JeproLab;
+
 import com.jeprolab.assets.tools.JeproLabCache;
 import com.jeprolab.assets.tools.JeproLabContext;
 import com.jeprolab.assets.tools.JeproLabTools;
 import com.jeprolab.assets.tools.db.JeproLabDataBaseConnector;
-import com.jeprolab.controllers.JeproLabCategoryController;
 import com.jeprolab.controllers.JeproLabCustomerController;
 import com.jeprolab.models.core.JeproLabFactory;
 
@@ -308,23 +307,56 @@ public class JeproLabCustomerModel  extends JeproLabModel{
         dataBaseObject.query(false);
     }
 
-    /*
-     * Return customers list
-     *
-     * @param null|bool $only_active Returns only active customers when true
-     * @return array Customers
-     * /
-    public static function getCustomers($only_active = null)
-    {
-        $sql = 'SELECT `id_customer`, `email`, `firstname`, `lastname`
-        FROM `'._DB_PREFIX_.'customer`
-        WHERE 1 '.Shop::addSqlRestriction(Shop::SHARE_CUSTOMER).
-        ($only_active ? ' AND `active` = 1' : '').'
-        ORDER BY `id_customer` ASC';
-        return Db::getInstance(_PS_USE_SQL_SLAVE_)->executeS($sql);
+    public static List<JeproLabCustomerModel> getCustomers(){
+        return getCustomers(false);
     }
 
     /**
+     * Return customers list
+     *
+     * @param onlyActive Returns only active customers when true
+     * @return array Customers
+     */
+    public static List<JeproLabCustomerModel> getCustomers(boolean onlyActive){
+        if(staticDataBaseObject == null){
+            staticDataBaseObject = JeproLabFactory.getDataBaseConnector();
+        }
+        List<JeproLabCustomerModel> customers = new ArrayList<>();
+
+        String query = "SELECT " + staticDataBaseObject.quoteName("customer_id") + ", " + staticDataBaseObject.quoteName("email");
+        query += ", " + staticDataBaseObject.quoteName("firstname") + ", " + staticDataBaseObject.quoteName("lastname") + " FROM ";
+        query += staticDataBaseObject.quoteName("#__jeprolab_customer") + " WHERE 1 " + JeproLabLaboratoryModel.addSqlRestriction(JeproLabLaboratoryModel.SHARE_CUSTOMER);
+        query += (onlyActive ? " AND " + staticDataBaseObject.quoteName("published") + " = 1" : "") + " ORDER BY ";
+        query += staticDataBaseObject.quoteName("customer_id") + " ASC";
+
+        staticDataBaseObject.setQuery(query);
+        ResultSet customerSet = staticDataBaseObject.loadObject();
+
+        if(customerSet != null){
+            try{
+                JeproLabCustomerModel customer;
+                while(customerSet.next()){
+                    customer = new JeproLabCustomerModel();
+                    customer.customer_id = customerSet.getInt("customer_id");
+                    customer.email = customerSet.getString("email");
+                    customer.firstname = customerSet.getString("firstname");
+                    customer.lastname = customerSet.getString("lastname");
+                    customers.add(customer);
+                }
+            }catch (SQLException ignored){
+                ignored.printStackTrace();
+            }finally {
+                try{
+                    JeproLabDataBaseConnector.getInstance().closeConnexion();
+                }catch (Exception ignored){
+                    ignored.printStackTrace();
+                }
+            }
+        }
+        return  customers;
+    }
+
+    /*
      * Return customer instance from its e-mail (optionnaly check password)
      *
      * @param string $email e-mail

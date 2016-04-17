@@ -61,60 +61,7 @@ public class JeproLabZoneModel extends JeproLabModel{
             }
         }
     }
-/*
-    public function saveZone(){
-        $db = JFactory::getDBO();
 
-        $input_data = '';
-
-        $query = "INSERT INTO " . $db->quoteName("#__jeprolab_zone") + "(";
-    }
-
-    public List getZoneList(){
-        if(dataBaseObject == null){
-            dataBaseObject = JeproLabFactory.getDataBaseConnector();
-        }
-        JeproLabContext context = JeproLabContext.getContext();
-        $app = JFactory::getApplication();
-        $option = $app->input->get('option');
-        $view = $app->input->get('view');
-
-
-        $limit = $app->getUserStateFromRequest('global.list.limit', 'limit', $app->getCfg('list_limit'), 'int');
-        $limit_start = $app->getUserStateFromRequest($option. $view. '.limit_start', 'limit_start', 0, 'int');
-        $lang_id = $app->getUserStateFromRequest($option. $view. '.lang_id', 'lang_id', $context->language->lang_id, 'int');
-        $lab_id = $app->getUserStateFromRequest($option. $view. '.lab_id', 'lab_id', $context->lab->lab_id, 'int');
-        $lab_group_id = $app->getUserStateFromRequest($option. $view. '.lab_group_id', 'lab_group_id', $context->lab->lab_group_id, 'int');
-        $allow_delivery = $app->getUserStateFromRequest($option. $view. '.allow_delivery', 'allow_delivery', 0, 'int');
-
-        $use_limit = true;
-        if ($limit === false)
-            $use_limit = false;
-
-        String query;
-        do{
-            query = "SELECT SQL_CALC_FOUND_ROWS zone." +  dataBaseObject.quoteName("zone_id") + ", zone." +  dataBaseObject.quoteName("name");
-            query += " AS zone_name, zone." +  dataBaseObject.quoteName("allow_delivery") + " FROM " + dataBaseObject.quoteName("#__jeprolab_zone");
-            query += (allow_delivery ? " WHERE zone.allow_delivery = 1 " : "") + " AS zone ORDER BY " + dataBaseObject.quoteName("name") + " ASC ";
-
-            dataBaseObject.setQuery(query);
-            $total = count($db->loadObjectList());
-
-            $query .= (($use_limit === true) ? " LIMIT " .(int)$limit_start . ", " .(int)$limit : "");
-
-            $db->setQuery($query);
-            $zones = $db->loadObjectList();
-
-            if($use_limit == true){
-                $limit_start = (int)$limit_start -(int)$limit;
-                if($limit_start < 0){ break; }
-            }else{ break; }
-        }while(empty($zones));
-
-        $this->pagination = new JPagination($total, $limit_start, $limit);
-        return $zones;
-    }
-*/
     public Pagination getPagination(){
         return this.pagination;
     }
@@ -204,7 +151,7 @@ public class JeproLabZoneModel extends JeproLabModel{
 
             query = "DELETE FROM " + dataBaseObject.quoteName("#__jeprolab_delivery") + " WHERE "  + dataBaseObject.quoteName("zone_id") + " = " + this.zone_id;
             dataBaseObject.setQuery(query);
-            //result &= $db->query();
+            //todo result &= $db->query();
 
             // Update Country & state zone with 0
             query = "UPDATE "  + dataBaseObject.quoteName("#__jeprolab_country") + " SET "  + dataBaseObject.quoteName("zone_id") + " = 0 WHERE "  + dataBaseObject.quoteName("zone_id") + " = " + this.zone_id;
