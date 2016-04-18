@@ -1,6 +1,7 @@
 package com.jeprolab.assets.tools;
 
 import jdk.internal.org.xml.sax.Attributes;
+import org.w3c.dom.Attr;
 import org.xml.sax.helpers.DefaultHandler;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
@@ -8,6 +9,7 @@ import org.xml.sax.XMLReader;
 import org.xml.sax.helpers.XMLReaderFactory;
 
 import java.io.*;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.ArrayList;
@@ -34,20 +36,23 @@ public class JeproLabUpdater {
         return data.substring(data.indexOf("[history]") + 9, data.indexOf("[/history]"));
     }
 
-    public static String getData(String address) throws Exception{
-        URL appUrl = new URL(address);
+    public static String getData(String address){
+        try {
+            URL appUrl = new URL(address);
 
-        InputStream html = null;
-        html = appUrl.openStream();
+            InputStream html = appUrl.openStream();
 
-        int c = 0;
-        StringBuilder builder = new StringBuilder("");
+            int c = 0;
+            StringBuilder builder = new StringBuilder("");
 
-        while (c != -1){
-            c = html.read();
-            builder.append((char)c);
+            while (c != -1) {
+                c = html.read();
+                builder.append((char) c);
+            }
+            return builder.toString();
+        }catch (IOException ex){
+            return "";
         }
-        return builder.toString();
     }
 
     public static void checkForNewVersion(String currentVersion){
@@ -133,7 +138,7 @@ public class JeproLabUpdater {
         targetFile.deleteOnExit();
     }
 
-    private static ArrayList<JeproLabUpdaterInstruction> parse(String fileName, Mode mode){
+    public static ArrayList<JeproLabUpdaterInstruction> parse(String fileName, Mode mode){
         try {
             XMLReader reader = XMLReaderFactory.createXMLReader();
             JeproLabUpdaterParserHandler handler = new JeproLabUpdaterParserHandler();
@@ -251,5 +256,104 @@ public class JeproLabUpdater {
             this.fileName = filename;
         }
 
+    }
+
+    /**
+     * JeproLabDownloader
+     */
+    public class JeproLabDownLoader {
+        public void download(String xmlFiles, String targetDirectory, Mode mode){
+            //JeproLabXmlDownLoaderParser parser = new JeproLabXmlDownLoaderParser();
+            Iterator iterator = downloaderParse(xmlFiles, mode).iterator();
+            URL url;
+            File dir = new File(targetDirectory);
+            if(!dir.exists()){
+                dir.mkdir();
+            }
+            try {
+                while (iterator.hasNext()) {
+                    url = new URL((String) iterator.next());
+                    browseAndGet(url, targetDirectory + File.separator + new File(url.getFile()).getName());
+                }
+            } catch(IOException ex){
+                ex.printStackTrace();
+            }
+        }
+
+        private void browseAndGet(URL url, String target){
+            try {
+                URLConnection connection = url.openConnection();
+                InputStream inputStream = connection.getInputStream();
+                File targetFile = new File(target);
+                OutputStream targetOutputStream = new FileOutputStream(targetFile);
+
+                byte[] buffer = new byte[512];
+                int length;
+                while ((length = inputStream.read(buffer)) > 0) {
+                    targetOutputStream.write(buffer, 0, length);
+                }
+                inputStream.close();
+                targetOutputStream.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+
+        private ArrayList<String> downloaderParse(String fileName, Mode mode){
+            try {
+                XMLReader reader = XMLReaderFactory.createXMLReader();
+                JeproLabXmlDownLoaderParserHandler handler = new JeproLabXmlDownLoaderParserHandler();
+                reader.setContentHandler(handler);
+                reader.setErrorHandler(handler);
+
+                if (mode == Mode.FILE) {
+                    reader.parse(new InputSource(new FileReader(new File(fileName))));
+                } else {
+                    URL url = new URL(fileName);
+                    URLConnection connection = url.openConnection();
+                    InputStream inputStream = connection.getInputStream();
+                    reader.parse(new InputSource(inputStream));
+                }
+
+                return handler.getFiles();
+            }catch (SAXException e) {
+                e.printStackTrace();
+                return null;
+            } catch (IOException e) {
+                e.printStackTrace();
+                return null;
+            }
+        }
+    }
+
+    private class JeproLabXmlDownLoaderParserHandler extends DefaultHandler{
+        private String currentElement = "";
+        private ArrayList<String> files = new ArrayList<>();
+
+        public JeproLabXmlDownLoaderParserHandler(){
+            super();
+        }
+
+
+        public void startElement(String uri, String name, String qName, Attributes attributes){
+            currentElement = qName;
+        }
+
+        @Override
+        public void characters(char ch[], int start, int length){
+            String value = null;
+            if(!currentElement.equals("")){
+                value = String.copyValueOf(ch, start, length).trim();
+            }
+
+            if(currentElement.equals("file")){
+                files.add(value);
+            }
+            currentElement = "";
+        }
+
+        public ArrayList<String> getFiles(){
+            return files;
+        }
     }
 }

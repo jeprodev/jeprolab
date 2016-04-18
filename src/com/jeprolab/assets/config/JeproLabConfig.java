@@ -1,6 +1,7 @@
 package com.jeprolab.assets.config;
 
 import com.jeprolab.JeproLab;
+import com.jeprolab.controllers.JeproLabController;
 
 
 import java.io.File;
@@ -11,6 +12,7 @@ import java.util.Properties;
 
 
 public class JeproLabConfig {
+    private static JeproLabConfig instance = null;
     public static String dataBaseHost;
     public static String dataBaseName;
     public static String dataBaseManager;
@@ -19,7 +21,11 @@ public class JeproLabConfig {
     public static String dataBaseUserName;
     public static String dataBasePassword;
     public static String appInstallDirectory;
-    //public static String e;
+    public static String appUpdateUrl;
+    public static String installedAppVesion;
+    public static String installedAppPackage;
+    //public static String installedAppPackage
+    //public static String installedAppPackage
 
     public static void initialize(){
         Properties configProp = new Properties();
@@ -36,6 +42,10 @@ public class JeproLabConfig {
             dataBaseUserName = configProp.getProperty("DATA_BASE_USER_NAME");
             dataBasePassword = configProp.getProperty("DATA_BASE_PASSWORD");
             appInstallDirectory = configProp.getProperty("APPLICATION_INSTALL_DIRECTORY");
+            appUpdateUrl = configProp.getProperty("APPLICATION_UPDATE_URL");
+            installedAppVesion = configProp.getProperty("APPLICATION_INSTALLED_VERSION");
+            installedAppPackage = configProp.getProperty("APPLICATION_INSTALLED_PACKAGE");
+            //appUpdateUrl = configProp.getProperty("");
         }catch (IOException | URISyntaxException excpt){
             excpt.printStackTrace();
         } finally {
@@ -62,8 +72,32 @@ public class JeproLabConfig {
 
     }
 
+    public static void updateConfigProperty(String key, String value){
+        Properties configProp = new Properties();
+        FileInputStream inputStream = null;
+
+        try{
+            inputStream = new FileInputStream(new File(JeproLab.class.getResource("assets/config/config.properties").toURI()));
+            configProp.load(inputStream);
+            configProp.setProperty(key, value);
+        }catch (IOException | URISyntaxException excpt) {
+            excpt.printStackTrace();
+        } finally {
+            if (inputStream != null) {
+                try {
+                    inputStream.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+    }
+
     public static JeproLabConfig getConfiguration(){
-        return new JeproLabConfig();
+        if(instance == null) {
+            instance = new JeproLabConfig();
+        }
+        return instance;
     }
 
     public int getLifeTime(){
