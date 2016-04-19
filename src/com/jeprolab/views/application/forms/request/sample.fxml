@@ -1,12 +1,47 @@
 <?import com.jeprolab.assets.extend.controls.JeproFormPanel?>
 <?import com.jeprolab.assets.extend.controls.JeproFormPanelTitle?>
 <?import com.jeprolab.assets.extend.controls.JeproFormPanelContainer?>
-<?import javafx.scene.layout.VBox?>
-<JeproFormPanel xmlns:fx="http://javafx.com/fxml" fx:id="jeproLabSampleFormWrapper" fx:controller="com.jeprolab.controllers.JeproLabRequestAddController" >
-    <JeproFormPanelTitle />
+<?import javafx.scene.control.TabPane?>
+<?import javafx.scene.control.Tab?>
+<?import javafx.scene.layout.Pane?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.DatePicker?>
+<?import javafx.scene.control.ScrollPane?>
+<JeproFormPanel xmlns:fx="http://javafx.com/fxml" fx:id="jeproLabSampleFormWrapper" fx:controller="com.jeprolab.controllers.JeproLabRequestAddSampleController" >
+    <JeproFormPanelTitle fx:id="jeproLabSampleFormTitleWrapper" />
     <JeproFormPanelContainer fx:id="jeproLabSampleContentWrapper" >
-        <VBox>
-
-        </VBox>
+        <TabPane fx:id="jeproLabSampleTabPane">
+            <Tab fx:id="jeproLabSampleInfoTab" closable="false">
+                <Pane>
+                    <GridPane fx:id="jeproLabSampleInfoLayout" alignment="CENTER" >
+                        <Label GridPane.columnIndex="0" GridPane.rowIndex="0"  fx:id="jeproLabSampleRequestReferenceLabel" styleClass="input-label" />
+                        <Label GridPane.columnIndex="1" GridPane.rowIndex="0"  fx:id="jeproLabSampleRequestReference" styleClass="input-label" />
+                        <Label GridPane.columnIndex="0" GridPane.rowIndex="1"  fx:id="jeproLabSampleDesignationLabel" styleClass="input-label"/>
+                        <TextField GridPane.columnIndex="1" GridPane.rowIndex="1"  fx:id="jeproLabSampleDesignation" />
+                        <Label GridPane.columnIndex="0" GridPane.rowIndex="2" fx:id="jeproLabSampleReferenceLabel" styleClass="input-label" />
+                        <TextField GridPane.columnIndex="1" GridPane.rowIndex="2" fx:id="jeproLabSampleReference" />
+                        <Label GridPane.columnIndex="0" GridPane.rowIndex="3" fx:id="jeproLabSampleMatrixLabel" styleClass="input-label" />
+                        <ComboBox GridPane.columnIndex="1" GridPane.rowIndex="3" fx:id="jeproLabSampleMatrix" />
+                        <Label GridPane.columnIndex="0" GridPane.rowIndex="4" fx:id="jeproLabSampleTestDateLabel" styleClass="input-label" />
+                        <DatePicker GridPane.columnIndex="1" GridPane.rowIndex="4" fx:id="jeproLabSampleTestDate" />
+                        <Label GridPane.columnIndex="0" GridPane.rowIndex="0"  fx:id="jeproLabSampleLabel" styleClass="input-label" />
+                    </GridPane>
+                </Pane>
+            </Tab>
+            <Tab fx:id="jeproLabSampleResultTab" closable="false">
+                <Pane>
+                    <GridPane fx:id="jeproLabSampleResultTabLayout" >
+                        <Label GridPane.columnIndex="0" GridPane.rowIndex="0"  fx:id="jeproLabSampleAnalyzeSelectorLabel"  styleClass="input-label" />
+                        <ScrollPane GridPane.columnIndex="1" GridPane.rowIndex="0"  fx:id="jeproLabSampleAnalyzeSelectorContainer">
+                            <GridPane fx:id="jeproLabSampleAnalyzeSelector" />
+                        </ScrollPane>
+                    </GridPane>
+                </Pane>
+            </Tab>
+            <Tab></Tab>
+        </TabPane>
     </JeproFormPanelContainer>
 </JeproFormPanel>

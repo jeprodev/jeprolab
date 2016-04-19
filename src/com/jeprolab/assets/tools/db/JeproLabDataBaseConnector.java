@@ -38,7 +38,7 @@ public class JeproLabDataBaseConnector {
         switch(driver){
             case "mysql" :
                 driverName = "com.mysql.jdbc.Driver";
-                dataBaseUrl = "jdbc:mysql://" + hostName + "/" + dataBaseName;
+                dataBaseUrl = "jdbc:mysql://" + hostName + ":" + portNumber + "/" + dataBaseName;
                 break;
             case "oracle" :
                 driverName = "oracle.jdbc.driver.OracleDriver";

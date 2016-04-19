@@ -37,6 +37,10 @@
                 <MenuItem fx:id="addGroupMenuItem" onAction="#handleAddGroupMenuEvent" />
             </Menu>
             <Menu fx:id="currentSubRequestMenu" >
+                <Menu fx:id="requestSampleMenu" >
+                    <MenuItem fx:id="sampleListMenuItem"  onAction="#handleSampleMenuEvent" />
+                    <MenuItem fx:id="sampleAddNewMenuItem"  onAction="#handleAddSampleMenuEvent" />
+                </Menu>
                 <Menu fx:id="requestMenu" >
                     <MenuItem fx:id="requestListMenuItem"  onAction="#handleRequestsMenuEvent" />
                     <MenuItem fx:id="requestAddNewMenuItem"  onAction="#handleRequestAddNewMenuEvent" />
@@ -49,10 +53,6 @@
                     <MenuItem fx:id="requestComplaintMenuItem"  onAction="#handleRequestComplaintsMenuEvent" />
                     <MenuItem fx:id="requestAddNewComplaintMenuItem"  onAction="#handleRequestAddNewComplaintMenuEvent" />
                 </Menu>
-                <!--Menu fx:id="requestDeliveryMenu" >
-                    <MenuItem fx:id="requestMenuItem"  onAction="#handleRequestsMenuEvent" />
-                    <MenuItem fx:id="requestMenuItem"  onAction="#handleRequestsMenuEvent" />
-                </Menu-->
                 <Menu fx:id="requestRefundMenu" >
                     <MenuItem fx:id="requestRefundsMenuItem"  onAction="#handleRequestRefundsMenuEvent" />
                     <MenuItem fx:id="requestAddNewRefundsMenuItem"  onAction="#handleRequestAddRefundMenuEvent" />

@@ -22,13 +22,13 @@ import java.util.Iterator;
 public class JeproLabUpdater {
     public enum Mode {FILE, URL}
     public enum Action {MOVE, DELETE, EXECUTE}
-    private final static String versionUrl = "http://localhost/jeprotest/product.html"; //index.php?option=com_jeproshop&view=product&task=view&product_id=1";
+    private final static String versionUrl = "http://localhost/jeprotest/index.php?option=com_jeproshop&view=product&task=view&product_id=1";
     private final static String historyUrl = "https://localhost/jeprotest/product.html"; //index.php?option=com_jeproshop&view=product&task=view&product_id=1";
 
     public static String getLatestVersion() throws Exception{
-        String data = getData(versionUrl);
+        //String data = getData(versionUrl);
 
-        return data.substring(data.indexOf("[version]") + 9, data.indexOf("[/version]"));
+        return ""; //data.substring(data.indexOf("[version]") + 9, data.indexOf("[/version]"));
     }
 
     public static String getWhatsNew() throws Exception{
@@ -37,7 +37,7 @@ public class JeproLabUpdater {
     }
 
     public static String getData(String address){
-        try {
+        try {System.out.println(address + "jeff");
             URL appUrl = new URL(address);
 
             InputStream html = appUrl.openStream();
