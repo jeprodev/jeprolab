@@ -12,8 +12,12 @@
             <Label fx:id="jeproLabInstalledVersion" GridPane.columnIndex="1" GridPane.rowIndex="0" />
             <Label fx:id="jeproLabAvailableVersionLabel" GridPane.columnIndex="2" GridPane.rowIndex="0" styleClass="input-label" />
             <Label fx:id="jeproLabAvailableVersion" GridPane.columnIndex="3" GridPane.rowIndex="0" />
-            <Label fx:id="jeproLabNewFeaturesLabel" GridPane.columnIndex="0" GridPane.rowIndex="1"  styleClass="input-label" />
-            <Text fx:id="jeproLabNewFeatures" GridPane.columnIndex="1" GridPane.rowIndex="1" GridPane.columnSpan="3" />
+            <Label fx:id="jeproLabReleaseDateLabel" GridPane.columnIndex="2" GridPane.rowIndex="1" styleClass="input-label" />
+            <Label fx:id="jeproLabReleaseDate" GridPane.columnIndex="3" GridPane.rowIndex="1" />
+            <Label fx:id="jeproLabMessageLabel" GridPane.columnIndex="0" GridPane.rowIndex="2"  styleClass="input-label" />
+            <Text fx:id="jeproLabMessage" GridPane.columnIndex="1" GridPane.rowIndex="2" GridPane.columnSpan="3" styleClass="message" />
+            <Label fx:id="jeproLabNewFeaturesLabel" GridPane.columnIndex="0" GridPane.rowIndex="3"  styleClass="input-label" />
+            <Text fx:id="jeproLabNewFeatures" GridPane.columnIndex="1" GridPane.rowIndex="3" GridPane.columnSpan="3" />
             <!-- Label fx:id="jeproLabInstalledVersion" GridPane.columnIndex="" GridPane.rowIndex="" / -->
             <HBox GridPane.columnIndex="0" GridPane.rowIndex="4" GridPane.columnSpan="4" alignment="CENTER" spacing="20" >
                 <Button fx:id="jeproLabIgnoreUpdateButton" />

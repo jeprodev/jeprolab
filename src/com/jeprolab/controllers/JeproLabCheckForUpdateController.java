@@ -3,7 +3,9 @@ package com.jeprolab.controllers;
 import com.jeprolab.JeproLab;
 import com.jeprolab.assets.config.JeproLabConfig;
 import com.jeprolab.assets.extend.controls.JeproFormPanel;
+import com.jeprolab.assets.tools.JeproLabDownLoader;
 import com.jeprolab.assets.tools.JeproLabUpdater;
+import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
@@ -34,7 +36,8 @@ public class JeproLabCheckForUpdateController extends JeproLabController{
     public Pane jeproLabCheckForUpdateContainerWrapper;
     public GridPane jeproLabCheckForUpdateLayout;
     public Label jeproLabInstalledVersionLabel, jeproLabInstalledVersion, jeproLabAvailableVersionLabel, jeproLabAvailableVersion, jeproLabNewFeaturesLabel;
-    public Text jeproLabNewFeatures;
+    public Label jeproLabMessageLabel, jeproLabReleaseDateLabel, jeproLabReleaseDate;
+    public Text jeproLabNewFeatures, jeproLabMessage;
     public Button jeproLabIgnoreUpdateButton, jeproLabUpdateButton;
 
     @Override
@@ -52,6 +55,8 @@ public class JeproLabCheckForUpdateController extends JeproLabController{
         jeproLabAvailableVersionLabel.setText(bundle.getString("JEPROLAB_LATEST_VERSION_LABEL"));
         jeproLabNewFeaturesLabel.setText(bundle.getString("JEPROLAB_NEW_FEATURES_LABEL"));
         jeproLabIgnoreUpdateButton.setText(bundle.getString("JEPROLAB_IGNORE_UPDATE_LABEL"));
+        jeproLabMessageLabel.setText(bundle.getString("JEPROLAB_MESSAGE_LABEL"));
+        jeproLabReleaseDateLabel.setText(bundle.getString("JEPROLAB_RELEASE_DATE_LABEL"));
         jeproLabUpdateButton.setText(bundle.getString("JEPROLAB_UPDATE_LABEL"));
 
         Text versionWrapper = new Text();
@@ -74,14 +79,34 @@ public class JeproLabCheckForUpdateController extends JeproLabController{
         installed.setReleasePackage(JeproLabConfig.installedAppPackage);
         jeproLabInstalledVersion.setText(JeproLabConfig.installedAppVesion);
 
-        JeproLabRelease release = JeproLabRelease.getRelease(JeproLabUpdater.getData(JeproLabConfig.appUpdateUrl));
+        JeproLabRelease release = JeproLabRelease.getRelease(JeproLabUpdater.getData(JeproLabConfig.appUpdateUrl + "&task=version"));
         int answer = installed.compareTo(release);
         if(answer > 0){
             jeproLabAvailableVersion.setText(release.getReleaseVersion());
             jeproLabAvailableVersion.getStyleClass().add("success-label");
+            jeproLabMessage.setText(release.getReleaseMessage());
+            jeproLabMessage.getStyleClass().add("message");
+            jeproLabReleaseDate.setText(release.getReleaseDate());
+            jeproLabUpdateButton.setOnMouseClicked( evt -> JeproLabCheckForUpdateController.startUpdate());
         }else{
             jeproLabInstalledVersion.getStyleClass().add("success-label");
+            jeproLabUpdateButton.setDisable(true);
+            jeproLabMessage.setText(bundle.getString("JEPROLAB_UP_TO_DATE_MESSAGE"));
         }
+    }
+
+    public static void startUpdate(){
+        Platform.runLater(
+                () -> {
+                    String filePath = JeproLabUpdater.getData(JeproLabConfig.appUpdateUrl + "&task=files");
+                    //filePath = filePath.contains("?") ? filePath.substring(0, filePath.length() - 1) : filePath;
+                    filePath = filePath.substring(0, filePath.length() - 1);
+                    System.out.println(filePath);
+                    /** Start by downloading updated files list **/
+                    JeproLabDownLoader downLoader = new JeproLabDownLoader();
+                    downLoader.download(filePath, System.getProperty("user.home") + File.separator + "jeprolab"  , JeproLabUpdater.Mode.URL);
+                }
+        );
     }
 
     private static class JeproLabRelease implements Comparable{
