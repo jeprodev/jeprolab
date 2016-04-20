@@ -1,5 +1,4 @@
-<?import javafx.scene.layout.HBox?>
-<?import javafx.scene.layout.Pane?>
-<Pane xmlns:fx="http://javafx.com/fxml" fx:id="dashboardPageWrapper" fx:controller="com.jeprolab.controllers.JeproLabDashboardController">
+<?import com.jeprolab.assets.extend.controls.JeproFormPanel?>
+<JeproFormPanel xmlns:fx="http://javafx.com/fxml" fx:id="dashboardPageWrapper" fx:controller="com.jeprolab.controllers.JeproLabDashboardController">
 
-</Pane>
+</JeproFormPanel>

@@ -2,24 +2,29 @@
 <?import javafx.scene.control.TableColumn?>
 <?import javafx.scene.control.TableView?>
 <?import com.jeprolab.assets.extend.controls.JeproFormPanel?>
+<?import javafx.scene.control.ToolBar?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.TextField?>
 <JeproFormPanel xmlns:fx="http://javafx.com/fxml" fx:id="jeproLabCustomerListWrapper" fx:controller="com.jeprolab.controllers.JeproLabCustomerController" >
-
-                <TableView fx:id="customersTableView">
-                    <columns>
-                        <TableColumn resizable="false" editable="false" fx:id="customerListNumberColumn" />
-                        <TableColumn resizable="false" editable="false" fx:id="customerCheckBoxColumn" />
-                        <TableColumn resizable="false" editable="false" fx:id="customerTitleColumn" />
-                        <TableColumn resizable="false" editable="false" fx:id="customerNameColumn" />
-                        <TableColumn resizable="false" editable="false" fx:id="customerFistNameColumn" />
-                        <TableColumn resizable="false" editable="false" fx:id="customerLastVisitColumn" />
-                        <TableColumn resizable="false" editable="false" fx:id="customerDateAddColumn" />
-                        <TableColumn resizable="false" editable="false" fx:id="customerAllowAdsColumn" />
-                        <TableColumn resizable="false" editable="false" fx:id="customerActiveColumn" />
-                        <TableColumn resizable="false" editable="false" fx:id="customerCompanyColumn" />
-                        <TableColumn resizable="false" editable="false" fx:id="customerEmailAddressColumn" />
-                        <TableColumn resizable="false" editable="false" fx:id="customerReportColumn" />
-                        <TableColumn resizable="false" editable="false" fx:id="customerActionsColumn" />
-                    </columns>
-                </TableView>
-
+    <ToolBar fx:id="jeproLabCustomerSearchToolBar">
+        <TextField fx:id="customerSearchBox"/>
+        <Button fx:id="searchCustomerButton"/>
+    </ToolBar>
+    <TableView fx:id="customersTableView">
+        <columns>
+            <TableColumn resizable="false" editable="false" fx:id="customerListNumberColumn" />
+            <TableColumn resizable="false" editable="false" fx:id="customerCheckBoxColumn" />
+            <TableColumn resizable="false" editable="false" fx:id="customerTitleColumn" />
+            <TableColumn resizable="false" editable="false" fx:id="customerNameColumn" />
+            <TableColumn resizable="false" editable="false" fx:id="customerFistNameColumn" />
+            <TableColumn resizable="false" editable="false" fx:id="customerLastVisitColumn" />
+            <TableColumn resizable="false" editable="false" fx:id="customerDateAddColumn" />
+            <TableColumn resizable="false" editable="false" fx:id="customerAllowAdsColumn" />
+            <TableColumn resizable="false" editable="false" fx:id="customerActiveColumn" />
+            <TableColumn resizable="false" editable="false" fx:id="customerCompanyColumn" />
+            <TableColumn resizable="false" editable="false" fx:id="customerEmailAddressColumn" />
+            <TableColumn resizable="false" editable="false" fx:id="customerReportColumn" />
+            <TableColumn resizable="false" editable="false" fx:id="customerActionsColumn" />
+        </columns>
+    </TableView>
 </JeproFormPanel>

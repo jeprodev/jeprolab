@@ -1,8 +1,8 @@
 <?import javafx.scene.control.TableView?>
 <?import javafx.scene.control.TableColumn?>
 <?import com.jeprolab.assets.extend.controls.JeproFormPanel?>
-<JeproFormPanel xmlns:fx="http://javafx.com/fxml" fx:controller="com.jeprolab.controllers.JeproLabRequestController" >
-    <TableView>
+<JeproFormPanel xmlns:fx="http://javafx.com/fxml" fx:controller="com.jeprolab.controllers.JeproLabRequestController" fx:id="jeproLabFormPanelWrapper">
+    <TableView fx:id="requestTableView">
         <columns>
             <TableColumn resizable="false" editable="false" fx:id="requestIndexTableColumn" />
             <TableColumn resizable="false" editable="false" fx:id="requestCheckBoxTableColumn" />

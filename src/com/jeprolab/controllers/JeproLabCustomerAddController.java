@@ -8,6 +8,7 @@ import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.geometry.Insets;
+import javafx.geometry.Pos;
 import javafx.scene.control.*;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
@@ -59,8 +60,8 @@ public class JeproLabCustomerAddController extends JeproLabController {
 
         jeproLabAddCustomerFormTitle = new Label(bundle.getString("JEPROLAB_ADD_NEW_CUSTOMER_LABEL"));
         jeproLabAddCustomerFormTitle.getStyleClass().add("form-title");
-        jeproLabAddCustomerFormTitle.setPrefWidth(formWidth);
-        jeproLabAddCustomerFormTitle.setTextAlignment(TextAlignment.CENTER);
+        jeproLabAddCustomerFormTitle.setPrefSize(formWidth, 35);
+        jeproLabAddCustomerFormTitle.setAlignment(Pos.CENTER);
         jeproLabAddCustomerFormTitleWrapper.getChildren().add(jeproLabAddCustomerFormTitle);
         jeproLabAddCustomerFormTitleWrapper.setPrefSize(formWidth, 40);
         //jeproLabAddCustomerFormTitleWrapper
@@ -74,8 +75,8 @@ public class JeproLabCustomerAddController extends JeproLabController {
         jeproLabAddCustomerFormWrapper.setLayoutY(posY);
 
         jeproLabAddCustomerFormLayout.getColumnConstraints().addAll(
-                new ColumnConstraints(labelColumnWidth -25), new ColumnConstraints(inputColumnWidth -25),
-                new ColumnConstraints(labelColumnWidth -25), new ColumnConstraints(inputColumnWidth -25)
+                new ColumnConstraints(labelColumnWidth - 25), new ColumnConstraints(inputColumnWidth - 25),
+                new ColumnConstraints(labelColumnWidth - 15), new ColumnConstraints(inputColumnWidth - 25)
         );
         jeproLabAddCustomerFormLayout.setLayoutX(20);
 
@@ -83,7 +84,7 @@ public class JeproLabCustomerAddController extends JeproLabController {
         customerTitleLabel.setText(bundle.getString("JEPROLAB_TITLE_LABEL"));
         customerTitleLabel.getStyleClass().add("input-label");
         customerTitle.getItems().addAll(
-             bundle.getString("JEPROLAB_MR_LABEL"), bundle.getString("JEPROLAB_MRS_LABEL"), bundle.getString("JEPROLAB_MISS_LABEL")
+                bundle.getString("JEPROLAB_MR_LABEL"), bundle.getString("JEPROLAB_MRS_LABEL"), bundle.getString("JEPROLAB_MISS_LABEL")
         );
 
         customerFirstNameLabel.setText(bundle.getString("JEPROLAB_FIRST_NAME_LABEL"));
@@ -92,8 +93,12 @@ public class JeproLabCustomerAddController extends JeproLabController {
         customerLastNameLabel.getStyleClass().add("input-label");
         customerBusinessInternetLabel.setText(bundle.getString("JEPROLAB_BUSINESS_INTERNET_LABEL"));
         customerBusinessInternetLabel.getStyleClass().add("input-label");
+        customerBusinessInternetLabel.setAlignment(Pos.CENTER);
+        customerBusinessInternetLabel.setPrefSize(JeproLab.APP_WIDTH - 50, 30);
         customerBusinessPhoneLabel.setText(bundle.getString("JEPROLAB_BUSINESS_PHONE_LABEL"));
         customerBusinessPhoneLabel.getStyleClass().add("input-label");
+        customerBusinessPhoneLabel.setAlignment(Pos.CENTER);
+        customerBusinessPhoneLabel.setPrefSize(JeproLab.APP_WIDTH - 50, 30);;
         customerPhoneLabel.setText(bundle.getString("JEPROLAB_PHONE_LABEL"));
         customerPhoneLabel.getStyleClass().add("input-label");
         customerMobilePhoneLabel.setText(bundle.getString("JEPROLAB_MOBILE_PHONE_LABEL"));

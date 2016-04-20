@@ -22,7 +22,7 @@
             <Label GridPane.columnIndex="0" GridPane.rowIndex="1" fx:id="customerFirstNameLabel" />
             <TextField GridPane.columnIndex="1" GridPane.rowIndex="1" fx:id="customerFirstName" />
             <Label GridPane.columnIndex="0" GridPane.rowIndex="2" fx:id="customerLastNameLabel"/>
-            <TextField GridPane.columnIndex="1" GridPane.rowIndex="2" fx:id="customerLastName"/>
+            <TextField GridPane.columnIndex="1" GridPane.rowIndex="2" fx:id="customerLastName" />
             <Pane fx:id="customerImageViewWrapper" GridPane.rowIndex="0" GridPane.columnIndex="3" GridPane.rowSpan="3" />
 
             <CheckBox GridPane.columnIndex="1" GridPane.rowIndex="4" GridPane.columnSpan="3" fx:id="customerNewsLetter" />
@@ -45,13 +45,13 @@
 
             <Label GridPane.columnIndex="0" GridPane.rowIndex="9" GridPane.columnSpan="2" />
             <!--TableView GridPane.columnIndex="0" GridPane.rowIndex="10" GridPane.columnSpan="2" ></TableView -->
-            <Label GridPane.columnIndex="0" GridPane.rowIndex="11" GridPane.columnSpan="2" fx:id="customerBusinessPhoneLabel" />
+            <Label GridPane.columnIndex="0" GridPane.rowIndex="11" GridPane.columnSpan="4" fx:id="customerBusinessPhoneLabel" styleClass="form-panel-title-gray" />
             <Label GridPane.columnIndex="0" GridPane.rowIndex="12" fx:id="customerPhoneLabel" />
             <JeproPhoneField GridPane.columnIndex="1" GridPane.rowIndex="12" fx:id="customerPhone" />
             <Label GridPane.columnIndex="2" GridPane.rowIndex="12" fx:id="customerMobilePhoneLabel"  />
             <JeproPhoneField GridPane.columnIndex="3" GridPane.rowIndex="12" fx:id="customerMobilePhone"/>
             <Label GridPane.columnIndex="0" GridPane.rowIndex="14"/>
-            <Label GridPane.columnIndex="0" GridPane.rowIndex="14" GridPane.columnSpan="2"  fx:id="customerBusinessInternetLabel" />
+            <Label GridPane.columnIndex="0" GridPane.rowIndex="14" GridPane.columnSpan="4"  fx:id="customerBusinessInternetLabel" styleClass="form-panel-title-gray" />
             <Label GridPane.columnIndex="0" GridPane.rowIndex="15" fx:id="customerEmailLabel"/>
             <JeproEmailField GridPane.ColumnIndex="1" GridPane.rowIndex="15" fx:id="customerEmail" />
             <Label GridPane.columnIndex="2" GridPane.rowIndex="15" fx:id="customerWebsiteLabel"/>

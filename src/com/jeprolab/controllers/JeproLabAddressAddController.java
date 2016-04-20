@@ -46,11 +46,8 @@ public class JeproLabAddressAddController extends JeproLabController{
     public TextField jeproLabAddressAddress1, jeproLabAddressAddress, jeproLabAddressPostCode, jeproLabAddressCity;
 
     public TextArea jeproLabAddressOther;
-
     public JeproPhoneField jeproLabAddressPhone, jeproLabAddressMobilePhone;
-
     public HBox jeproLabAddressCountryWrapper;
-
     public ComboBox<String> jeproLabAddressCountryZone, jeproLabAddressCountry;
 
     public void initialize(URL location, ResourceBundle resource){
@@ -76,9 +73,12 @@ public class JeproLabAddressAddController extends JeproLabController{
         jeproLabAddAddressFormContainerWrapper.setPrefWidth(formWidth);
         jeproLabAddAddressFormContainerWrapper.setLayoutY(40);
         jeproLabAddAddressFormLayout.getColumnConstraints().addAll(
-                new ColumnConstraints(labelColumnWidth -25), new ColumnConstraints(inputColumnWidth -25),
-                new ColumnConstraints(labelColumnWidth -25), new ColumnConstraints(inputColumnWidth -25)
+                new ColumnConstraints(labelColumnWidth - 25), new ColumnConstraints(inputColumnWidth - 25),
+                new ColumnConstraints(labelColumnWidth - 25), new ColumnConstraints(inputColumnWidth - 25)
         );
+
+        jeproLabAddressCountryZone.setMinWidth(150);
+        jeproLabAddressCountry.setMinWidth(270);
 
         /**
          * GridPane styling

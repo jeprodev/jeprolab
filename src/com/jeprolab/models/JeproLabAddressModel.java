@@ -6,6 +6,7 @@ import com.jeprolab.assets.tools.JeproLabCache;
 import com.jeprolab.assets.tools.JeproLabContext;
 import com.jeprolab.assets.tools.JeproLabTools;
 import com.jeprolab.assets.tools.db.JeproLabDataBaseConnector;
+import com.jeprolab.controllers.JeproLabCategoryController;
 import com.jeprolab.models.core.JeproLabFactory;
 import javafx.scene.control.Pagination;
 
@@ -515,26 +516,30 @@ public class JeproLabAddressModel extends JeproLabModel {
     /**
      * Check if country is active for a given address
      *
-     * @param int $id_address Address id for which we want to get country status
+     * @param addressId Address id for which we want to get country status
      * @return int Country status
-     * /
-    public static function isCountryActiveById($id_address)
-    {
-        if (!isset($id_address) || empty($id_address)) {
+     */
+    public static boolean isCountryActiveByAddressId(int addressId){
+        if (addressId <= 0) {
             return false;
         }
 
-        $cache_id = 'Address::isCountryActiveById_'.(int)$id_address;
-        if (!Cache::isStored($cache_id)) {
-        $result = (bool)Db::getInstance(_PS_USE_SQL_SLAVE_)->getvalue('
-                SELECT c.`active`
-                FROM `'._DB_PREFIX_.'address` a
-        LEFT JOIN `'._DB_PREFIX_.'country` c ON c.`id_country` = a.`id_country`
-        WHERE a.`id_address` = '.(int)$id_address);
-        Cache::store($cache_id, $result);
-        return $result;
-    }
-        return Cache::retrieve($cache_id);
+        String cacheKey = "jeprolab_address_isCountryActiveById_" + addressId;
+        if (!JeproLabCache.getInstance().isStored(cacheKey)) {
+            if(staticDataBaseObject == null){
+                staticDataBaseObject = JeproLabFactory.getDataBaseConnector();
+            }
+            String query = "SELECT country." + staticDataBaseObject.quoteName("published") + " FROM " + staticDataBaseObject.quoteName("#__jeprolab_address");
+            query += " AS address LEFT JOIN " + staticDataBaseObject.quoteName("#__jeprolab_country") + " AS country ON country.";
+            query += staticDataBaseObject.quoteName("country_id") + " = address." + staticDataBaseObject.quoteName("country_id") + " WHERE address.";
+            query += staticDataBaseObject.quoteName("address_id") + " = " + addressId;
+
+            staticDataBaseObject.setQuery(query);
+            boolean result = staticDataBaseObject.loadValue("published") > 0;
+            JeproLabCache.getInstance().store(cacheKey, result);
+            return result;
+        }
+        return (boolean)JeproLabCache.getInstance().retrieve(cacheKey);
     }
 
     /**
@@ -578,41 +583,55 @@ public class JeproLabAddressModel extends JeproLabModel {
         return result;
     }
 
-    /*
+    /**
      * Specify if an address is already in base
      *
-     * @param int $id_address Address id
+     * @param addressId Address id
      * @return bool
-     * /
-    public static function addressExists($id_address)
-    {
-        $key = 'address_exists_'.(int)$id_address;
-        if (!Cache::isStored($key)) {
-        $id_address = Db::getInstance(_PS_USE_SQL_SLAVE_)->getValue('SELECT `id_address` FROM '._DB_PREFIX_.'address a WHERE a.`id_address` = '.(int)$id_address);
-        Cache::store($key, (bool)$id_address);
-        return (bool)$id_address;
-    }
-        return Cache::retrieve($key);
+     */
+    public static boolean addressExists(int addressId){
+        String cacheKey = "jeprolab_address_exists_" + addressId;
+        if (!JeproLabCache.getInstance().isStored(cacheKey)) {
+            if(staticDataBaseObject == null){
+                staticDataBaseObject = JeproLabFactory.getDataBaseConnector();
+            }
+            String query = "SELECT " + staticDataBaseObject.quoteName("address_id") + " FROM " + staticDataBaseObject.quoteName("#__jeprolab_address");
+            query += " AS address WHERE " + staticDataBaseObject.quoteName("address_id") + " = " + addressId;
+
+            staticDataBaseObject.setQuery(query);
+            boolean addressExists = (int)staticDataBaseObject.loadValue("address_id") > 0;
+            JeproLabCache.getInstance().store(cacheKey, addressExists);
+
+            return addressExists;
+        }
+        return (boolean)JeproLabCache.getInstance().retrieve(cacheKey);
     }
 
-    public static function getFirstCustomerAddressId($id_customer, $active = true)
-    {
-        if (!$id_customer) {
-            return false;
+    public static int getFirstCustomerAddressId(int customerId){
+        return getFirstCustomerAddressId(customerId, true);
+    }
+
+    public static int getFirstCustomerAddressId(int customerId, boolean active){
+        if (customerId <= 0) {
+            return 0;
         }
-        $cache_id = 'Address::getFirstCustomerAddressId_'.(int)$id_customer.'-'.(bool)$active;
-        if (!Cache::isStored($cache_id)) {
-        $result = (int)Db::getInstance(_PS_USE_SQL_SLAVE_)->getValue('
-                SELECT `id_address`
-                FROM `'._DB_PREFIX_.'address`
-        WHERE `id_customer` = '.(int)$id_customer.' AND `deleted` = 0'.($active ? ' AND `active` = 1' : '')
-        );
-        Cache::store($cache_id, $result);
-        return $result;
+        String cacheKey = "jeprolab_address_getFirstCustomerAddressId_" + customerId + "_" + (active ? 1 : 0);
+        if (!JeproLabCache.getInstance().isStored(cacheKey)) {
+            if(staticDataBaseObject == null){
+                staticDataBaseObject = JeproLabFactory.getDataBaseConnector();
+            }
+
+            String query = "SELECT " + staticDataBaseObject.quoteName("address_id") + " FROM " + staticDataBaseObject.quoteName("#__jeprolab_address");
+            query += " WHERE " + staticDataBaseObject.quoteName("customer_id") + " = " + customerId + " AND " + staticDataBaseObject.quoteName("deleted");
+            query += " = 0 " + (active ? " AND " + staticDataBaseObject.quoteName("active") + " = 1" : "");
+
+            staticDataBaseObject.setQuery(query);
+            int result = (int)staticDataBaseObject.loadValue("address_id");
+            JeproLabCache.getInstance().store(cacheKey, result);
+            return result;
+        }
+        return (int)JeproLabCache.getInstance().retrieve(cacheKey);
     }
-        return Cache::retrieve($cache_id);
-    }
-    */
 
     public static JeproLabAddressModel initialize() {
         return initialize(0, false);
@@ -677,37 +696,38 @@ public class JeproLabAddressModel extends JeproLabModel {
     }
 
     /**
-     * Returns id_address for a given id_supplier
-     * @since 1.5.0
-     * @param int $id_supplier
-     * @return int $id_address
-     * /
-    public static function getAddressIdBySupplierId($id_supplier)
-    {
-        $query = new DbQuery();
-        $query->select('id_address');
-        $query->from('address');
-        $query->where('id_supplier = '.(int)$id_supplier);
-        $query->where('deleted = 0');
-        $query->where('id_customer = 0');
-        $query->where('id_manufacturer = 0');
-        $query->where('id_warehouse = 0');
-        return Db::getInstance(_PS_USE_SQL_SLAVE_)->getValue($query);
+     * Returns address id for a given supplier id
+     *
+     * @param supplierId supplier id
+     * @return int address id
+     */
+    public static int getAddressIdBySupplierId(int supplierId){
+        if(staticDataBaseObject == null){
+            staticDataBaseObject = JeproLabFactory.getDataBaseConnector();
+        }
+        String query = "SELECT " + staticDataBaseObject.quoteName("address_id") + " FROM " + staticDataBaseObject.quoteName("#__jeprolab_address");
+        query += " WHERE " + staticDataBaseObject.quoteName("supplier_id") + " = " + supplierId + " AND " + staticDataBaseObject.quoteName("deleted");
+        query += " = 0 AND " + staticDataBaseObject.quoteName("deleted") + " = 0 AND " + staticDataBaseObject.quoteName("customer_id") + " = 0 AND ";
+        query += staticDataBaseObject.quoteName("manufacturer_id") + " = 0 AND " + staticDataBaseObject.quoteName("warehouse_id") + " = 0";
+        staticDataBaseObject.setQuery(query);
+        return (int)staticDataBaseObject.loadValue("address_id");
+
     }
 
-    public static function aliasExist($alias, $id_address, $id_customer)
-    {
-        $query = new DbQuery();
-        $query->select('count(*)');
-        $query->from('address');
-        $query->where('alias = \''.pSQL($alias).'\'');
-        $query->where('id_address != '.(int)$id_address);
-        $query->where('id_customer = '.(int)$id_customer);
-        $query->where('deleted = 0');
+    public static boolean aliasExist(String alias, int addressId, int customerId){
+        if(staticDataBaseObject == null){
+            staticDataBaseObject = JeproLabFactory.getDataBaseConnector();
+        }
+        String query = "SELECT COUNT(*) AS address FROM " + staticDataBaseObject.quoteName("#__jeprolab_address") + " WHERE ";
+        query += staticDataBaseObject.quoteName("alias") + " = " + staticDataBaseObject.quote(alias) + " AND " ;
+        query += staticDataBaseObject.quoteName("address_id") + " = " + addressId + " AND " + staticDataBaseObject.quoteName("customer_id");
+        query += " = " + customerId + " AND " + staticDataBaseObject.quoteName("deleted") + " = 0";
 
-        return Db::getInstance(_PS_USE_SQL_SLAVE_)->getValue($query);
+        staticDataBaseObject.setQuery(query);
+        return staticDataBaseObject.loadValue("address") > 0;
+
     }
-
+/*
     public function getFieldsRequiredDB()
     {
         this.cacheFieldsRequiredDatabase(false);
