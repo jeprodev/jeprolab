@@ -1,5 +1,4 @@
 package com.jeprolab.models.core;
-
 import com.jeprolab.JeproLab;
 
 import java.util.HashMap;

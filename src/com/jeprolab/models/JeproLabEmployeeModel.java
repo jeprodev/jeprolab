@@ -1,22 +1,19 @@
 package com.jeprolab.models;
 
-
-
-import com.jeprolab.JeproLab;
 import com.jeprolab.assets.tools.JeproLabCache;
 import com.jeprolab.assets.tools.db.JeproLabDataBaseConnector;
-
-import com.jeprolab.assets.tools.JeproLabContext;
 import com.jeprolab.models.core.JeproLabFactory;
 
-import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 
-public class JeproLabEmployeeModel  extends JeproLabModel{
+/**
+ *
+ * Created by jeprodev on 02/02/2014.
+ */
+public class JeproLabEmployeeModel extends JeproLabModel {
     public boolean isLogged = false;
 
     public int employee_id ;
@@ -86,7 +83,7 @@ public class JeproLabEmployeeModel  extends JeproLabModel{
                 }
                 query += " WHERE employee.id = " + employeeId + where;
                 dataBaseObject.setQuery(query);
-                ResultSet result = dataBaseObject.loadObject();
+                ResultSet result = dataBaseObject.loadObjectList();
                 try{
                     while(result.next()){
                         this.employee_id = result.getInt("id");
@@ -97,10 +94,16 @@ public class JeproLabEmployeeModel  extends JeproLabModel{
                         JeproLabCache.getInstance().store(cacheKey, this);
                     }
                 }catch (SQLException ignored){
-
+                    ignored.printStackTrace();
+                }finally {
+                    try {
+                        JeproLabDataBaseConnector.getInstance().closeConnexion();
+                    }catch (Exception ignored) {
+                        ignored.printStackTrace();
+                    }
                 }
             }else{
-                JeproLabEmployeeModel employee = (JeproLabEmployeeModel)JeproLabCache.getInstance().retrieve(cacheKey);
+                JeproLabEmployeeModel employee = (JeproLabEmployeeModel) JeproLabCache.getInstance().retrieve(cacheKey);
                 this.employee_id = employee.employee_id;
                 //this = employee;
                 this.name = employee.name;
@@ -109,32 +112,6 @@ public class JeproLabEmployeeModel  extends JeproLabModel{
                 this.email = employee.email;
             }
         }
-    }
-
-    public static JeproLabEmployeeModel getEmployeeFromLogin(String userName, String password){
-        if(staticDataBaseObject == null){
-            staticDataBaseObject = JeproLabFactory.getDataBaseConnector();
-        }
-
-        /*String query = "SELECT * FROM users  WHERE username = " + staticDataBaseObject.quote(userName)
-        try {
-            if(conn != null) {
-                JeproLabDataBaseConnector dbManager = JeproLabDataBaseConnector.getInstance();
-                Statement stmt = conn.createStatement();
-                //String query = + JeproLabDataBaseConnector.quote(userName) + " AND password = ";
-                //query += dbManager.quote(password);
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        JeproLabEmployeeModel employee;
-        if(conn != null){
-
-
-            return null; //employee;
-        }else{ */
-            return null;
-        //}
     }
 
     public List<Integer> getAssociatedLaboratories(){
@@ -148,7 +125,7 @@ public class JeproLabEmployeeModel  extends JeproLabModel{
         }
         String query = "SELECT lab_id FROM " + staticDataBaseObject.quoteName("#__jeproLab_employee_shop") + " WHERE employee_id = " + this.employee_id;
         dataBaseObject.setQuery(query);
-        ResultSet labSet = staticDataBaseObject.loadObject();
+        ResultSet labSet = staticDataBaseObject.loadObjectList();
         if(labSet != null){
             try{
                 while(labSet.next()){
@@ -175,4 +152,6 @@ public class JeproLabEmployeeModel  extends JeproLabModel{
     }
 
     public boolean isSuperAdmin(){ return true;}
+
+
 }

@@ -1,5 +1,4 @@
 package com.jeprolab.models.core;
-
 /**
  *
  * Created by jeprodev on 06/06/2014.

@@ -1,6 +1,5 @@
 package com.jeprolab.models;
 
-
 import com.jeprolab.JeproLab;
 import com.jeprolab.assets.tools.JeproLabCache;
 import com.jeprolab.assets.tools.JeproLabContext;
@@ -11,14 +10,21 @@ import javafx.scene.control.Pagination;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
-public class JeproLabCountryModel  extends JeproLabModel{
+/**
+ *
+ * Created by jeprodev on 02/02/2014.
+ */
+public class JeproLabCountryModel extends JeproLabModel{
     public int country_id = 0;
 
-    public int lang_id = 0;
+    public int language_id = 0;
 
-    public int lab_id = 0;
+    public int laboratory_id = 0;
 
     public int zone_id = 0;
 
@@ -53,7 +59,6 @@ public class JeproLabCountryModel  extends JeproLabModel{
     protected static Map<Integer, Integer> zonesId = new HashMap<>();
     protected static Map<Integer, String> cache_iso_by_id = new HashMap<>();
 
-
     public JeproLabCountryModel(){
         this(0, 0, 0);
     }
@@ -68,16 +73,16 @@ public class JeproLabCountryModel  extends JeproLabModel{
 
     public JeproLabCountryModel(int countryId, int langId, int labId){
         if(langId > 0){
-            this.lang_id = (JeproLabLanguageModel.checkLanguage(langId) ? langId : JeproLabSettingModel.getIntValue("default_lang"));
+            this.language_id = (JeproLabLanguageModel.checkLanguage(langId) ? langId : JeproLabSettingModel.getIntValue("default_lang"));
         }
 
         if(labId > 0  && this.isMultiLab()){
-            this.lab_id = labId;
+            this.laboratory_id = labId;
             this.get_lab_from_context = false;
         }
 
-        if(this.isMultiLab() && this.lab_id <= 0){
-            this.lab_id = JeproLabContext.getContext().laboratory.laboratory_id;
+        if(this.isMultiLab() && this.laboratory_id <= 0){
+            this.laboratory_id = JeproLabContext.getContext().laboratory.laboratory_id;
         }
 
         name = new HashMap<>();
@@ -103,7 +108,7 @@ public class JeproLabCountryModel  extends JeproLabModel{
                 query += " WHERE country.country_id = " + countryId;
 
                 dataBaseObject.setQuery(query);
-                ResultSet countryData = dataBaseObject.loadObject();
+                ResultSet countryData = dataBaseObject.loadObjectList();
 
                 try {
                     while(countryData.next()) {
@@ -124,7 +129,7 @@ public class JeproLabCountryModel  extends JeproLabModel{
                             query += " WHERE " + dataBaseObject.quoteName("country_id") + " = " + country_id;
 
                             dataBaseObject.setQuery(query);
-                            ResultSet countryLangData = dataBaseObject.loadObject();
+                            ResultSet countryLangData = dataBaseObject.loadObjectList();
                             while(countryLangData.next()) {
                                 int languageId = countryLangData.getInt("lang_id");
                                 String countryName = countryLangData.getString("name");
@@ -146,12 +151,12 @@ public class JeproLabCountryModel  extends JeproLabModel{
                 }finally {
                     try {
                         JeproLabDataBaseConnector.getInstance().closeConnexion();
-                    }catch (Exception e) {
-                        e.printStackTrace();
+                    }catch (Exception ignored) {
+                        ignored.printStackTrace();
                     }
                 }
             }else{
-                JeproLabCountryModel country = (JeproLabCountryModel)JeproLabCache.getInstance().retrieve(cacheKey);
+                JeproLabCountryModel country = (JeproLabCountryModel) JeproLabCache.getInstance().retrieve(cacheKey);
                 this.country_id = country.country_id;
                 this.zone_id = country.country_id;
                 this.currency_id = country.currency_id;
@@ -206,8 +211,8 @@ public class JeproLabCountryModel  extends JeproLabModel{
 
         JeproLabContext context = JeproLabContext.getContext();
 
-        int limit = context.listLimit;
-        int limit_start = context.listLimitStart;
+        int limit = context.list_limit;
+        int limit_start = context.list_limit_start;
         langId = langId <= 0 ? context.language.language_id : langId;
         /*int lab_id = context.laboratory.laboratory_id;
         int lab_group_id = context.laboratory.laboratory_group_id;
@@ -234,13 +239,13 @@ public class JeproLabCountryModel  extends JeproLabModel{
 
             staticDataBaseObject.setQuery(query);
             total = 0;
-            ResultSet result = staticDataBaseObject.loadObject();
+            ResultSet result = staticDataBaseObject.loadObjectList();
             try{
                 while(result.next()){ total += 1; }
                 query += (use_limit ? " LIMIT " + limit_start + ", " + limit : "");
 
                 staticDataBaseObject.setQuery(query);
-                ResultSet countriesResultSet = staticDataBaseObject.loadObject();
+                ResultSet countriesResultSet = staticDataBaseObject.loadObjectList();
                 JeproLabCountryModel country;
                 while (countriesResultSet.next()){
                     country = new JeproLabCountryModel();
@@ -261,13 +266,13 @@ public class JeproLabCountryModel  extends JeproLabModel{
                     /**
                      * Language management
                      *  /
-                    Map<Integer, JeproLabLanguageModel> languages = JeproLabLanguageModel.getLanguages();
-                    Iterator langIt = languages.entrySet().iterator();
-                    while(langIt.hasNext()) {
-                        Map.Entry lang = (Map.Entry) langIt.next();
-                        JeproLabLanguageModel language = (JeproLabLanguageModel) lang.getValue();
+                     Map<Integer, JeproLabLanguageModel> languages = JeproLabLanguageModel.getLanguages();
+                     Iterator langIt = languages.entrySet().iterator();
+                     while(langIt.hasNext()) {
+                     Map.Entry lang = (Map.Entry) langIt.next();
+                     JeproLabLanguageModel language = (JeproLabLanguageModel) lang.getValue();
 
-                    } */
+                     } */
                     countries.add(country);
                 }
 
@@ -321,30 +326,16 @@ public class JeproLabCountryModel  extends JeproLabModel{
     public boolean isMultiLab(){
         return JeproLabLaboratoryModel.isTableAssociated("country") || !this.multi_lang_lab;
     }
-/*
-    public List<JeproLabCountryModel> getCountryList(){
-        List<JeproLabCountryModel> countries = new ArrayList<>();
-        return countries;
-    }*/
 
     public Pagination getPagination(){
         return pagination;
     }
 
-/*
-    public function delete()
-    {
-        if (!parent::delete()) {
-        return false;
-    }
-        return Db::getInstance()->execute('DELETE FROM '._staticDataBaseObject.quoteName("#__jeprolab_.'cart_rule_country WHERE id_country = '.(int)$this->id);
-    }
-*/
     public static List<JeproLabCountryModel> getCountriesByLaboratoryId(int labId, int langId){
         if(staticDataBaseObject == null){
             staticDataBaseObject = JeproLabFactory.getDataBaseConnector();
         }
-		String query = "SELECT * FROM " + staticDataBaseObject.quoteName("#__jeprolab_country") + " AS country LEFT JOIN ";
+        String query = "SELECT * FROM " + staticDataBaseObject.quoteName("#__jeprolab_country") + " AS country LEFT JOIN ";
         query += staticDataBaseObject.quoteName("#__jeprolab_country_lab") + " AS country_lab ON (country_lab." + staticDataBaseObject.quoteName("country_id");
         query += " = country." + staticDataBaseObject.quoteName("country_id") + ") LEFT JOIN " + staticDataBaseObject.quoteName("#__jeprolab_country_lang");
         query += " AS country_lang ON (country." + staticDataBaseObject.quoteName("country_id") + " = country_lang.";
@@ -352,7 +343,7 @@ public class JeproLabCountryModel  extends JeproLabModel{
         query += ") WHERE " + staticDataBaseObject.quoteName("lab_id") + " = " + labId;
 
         staticDataBaseObject.setQuery(query);
-        ResultSet countrySet = staticDataBaseObject.loadObject();
+        ResultSet countrySet = staticDataBaseObject.loadObjectList();
         List<JeproLabCountryModel> countries = new ArrayList<>();
         if(countrySet != null){
             try{
@@ -494,7 +485,7 @@ public class JeproLabCountryModel  extends JeproLabModel{
         }
 
         staticDataBaseObject.setQuery(query);
-        ResultSet resultSet = staticDataBaseObject.loadObject();
+        ResultSet resultSet = staticDataBaseObject.loadObjectList();
 
         if(resultSet != null) {
             try {
@@ -559,7 +550,7 @@ public class JeproLabCountryModel  extends JeproLabModel{
         query += " = " + langId;
 
         staticDataBaseObject.setQuery(query);
-        ResultSet resultSet = staticDataBaseObject.loadObject();
+        ResultSet resultSet = staticDataBaseObject.loadObjectList();
         List<JeproLabCountryModel> countries = new ArrayList<>();
         if(resultSet != null){
             try{
@@ -633,58 +624,4 @@ public class JeproLabCountryModel  extends JeproLabModel{
         }
     }
 
-    /*
-     * Replace letters of zip code format And check this format on the zip code
-     * @param zipCode
-     * @return (bool)
-     * /
-    public boolean checkZipCode(String zipCode){
-        String zipRegexp = "/^" + this.zip_code_format + "$/ui";
-        zipRegexp = str_replace(' ', '( |)', zipRegexp);
-        zipRegexp = str_replace('-', '(-|)', zipRegexp);
-        zipRegexp = str_replace('N', '[0-9]', zipRegexp);
-        zipRegexp = str_replace('L', '[a-zA-Z]', zipRegexp);
-        zipRegexp = str_replace('C', this.iso_code, zipRegexp);
-
-        return (bool)preg_match(zipRegexp, zipCode);
-    }
-/*
-    public static function addModuleRestrictions(array $labs = array(), array $countries = array(), array $modules = array())
-    {
-        if (!count($labs)) {
-            $labs = Shop::getShops(true, null, true);
-        }
-
-        if (!count($countries)) {
-            $countries = Country::getCountries((int)Context::getContext()->cookie->id_lang);
-        }
-
-        if (!count($modules)) {
-            $modules = Module::getPaymentModules();
-        }
-
-        $sql = false;
-        foreach ($labs as $id_lab) {
-        foreach ($countries as $country) {
-            foreach ($modules as $module) {
-                $sql .= '('.(int)$module['id_module'].', '.(int)$id_lab.', '.(int)$country['id_country'].'),';
-            }
-        }
-    }
-
-        if ($sql) {
-            $sql = 'INSERT IGNORE INTO `'._staticDataBaseObject.quoteName("#__jeprolab_.'module_country` (`id_module`, `id_lab`, `id_country`) VALUES '.rtrim($sql, ',');
-            return Db::getInstance()->execute($sql);
-        } else {
-            return true;
-        }
-    }
-/*
-    public function add($autodate = true, $null_values = false)
-    {
-        $return = parent::add($autodate, $null_values) && self::addModuleRestrictions(array(), array(array('id_country' => $this->id)), array());
-        return $return;
-    }
-
-    */
 }

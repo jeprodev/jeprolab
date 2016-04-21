@@ -1,8 +1,6 @@
 package com.jeprolab.assets.config;
 
 import com.jeprolab.JeproLab;
-import com.jeprolab.controllers.JeproLabController;
-
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -10,7 +8,10 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.Properties;
 
-
+/**
+ *
+ * Created by jeprodev on 02/02/2014.
+ */
 public class JeproLabConfig {
     private static JeproLabConfig instance = null;
     public static String dataBaseHost;
@@ -22,10 +23,8 @@ public class JeproLabConfig {
     public static String dataBasePassword;
     public static String appInstallDirectory;
     public static String appUpdateUrl;
-    public static String installedAppVesion;
+    public static String installedAppVersion;
     public static String installedAppPackage;
-    //public static String installedAppPackage
-    //public static String installedAppPackage
 
     public static void initialize(){
         Properties configProp = new Properties();
@@ -43,7 +42,7 @@ public class JeproLabConfig {
             dataBasePassword = configProp.getProperty("DATA_BASE_PASSWORD");
             appInstallDirectory = configProp.getProperty("APPLICATION_INSTALL_DIRECTORY");
             appUpdateUrl = configProp.getProperty("APPLICATION_UPDATE_URL");
-            installedAppVesion = configProp.getProperty("APPLICATION_INSTALLED_VERSION");
+            installedAppVersion = configProp.getProperty("APPLICATION_INSTALLED_VERSION");
             installedAppPackage = configProp.getProperty("APPLICATION_INSTALLED_PACKAGE");
             //appUpdateUrl = configProp.getProperty("");
         }catch (IOException | URISyntaxException excpt){
@@ -68,8 +67,27 @@ public class JeproLabConfig {
         return "";
     }
 
+    public String getSessionHandler(){
+        return "";
+    }
+
+    /*public static int getListLimit(){
+        return 20;
+    }*/
+
+    public static JeproLabConfig getConfiguration(){
+        if(instance == null) {
+            instance = new JeproLabConfig();
+        }
+        return instance;
+    }
+
     public static void setConfig(String configFilePath){
 
+    }
+
+    public int getLifeTime(){
+        return 0;
     }
 
     public static void updateConfigProperty(String key, String value){
@@ -91,24 +109,5 @@ public class JeproLabConfig {
                 }
             }
         }
-    }
-
-    public static JeproLabConfig getConfiguration(){
-        if(instance == null) {
-            instance = new JeproLabConfig();
-        }
-        return instance;
-    }
-
-    public int getLifeTime(){
-        return 0;
-    }
-
-    public String getSessionHandler(){
-        return "";
-    }
-
-    public static int getListLimit(){
-        return 20;
     }
 }

@@ -1,12 +1,13 @@
 package com.jeprolab;
 
 import com.jeprolab.assets.config.JeproLabConfig;
+import com.jeprolab.assets.config.JeproLabConfigurationSettings;
 import com.jeprolab.assets.tools.*;
 import com.jeprolab.models.*;
 import com.jeprolab.models.core.JeproLabRequest;
-import com.jeprolab.views.application.JeproLabApplicationForm;
-import com.jeprolab.views.application.JeproLabApplicationForms;
-import com.jeprolab.views.installer.JeproLabInstallerForms;
+import com.jeprolab.views.JeproLabApplicationForm;
+import com.jeprolab.views.JeproLabApplicationForms;
+//import com.jeprolab.views.installer.JeproLabInstallerForms;
 import javafx.application.Application;
 import javafx.scene.Node;
 import javafx.scene.Parent;
@@ -88,69 +89,70 @@ public class JeproLab extends Application {
          */
         configurationFile = new File(JeproLab.class.getResource("assets/config/config.properties").toURI());
 
-        if(!(configurationFile.isFile())){
+
+        /*if(configurationFile == null || (!configurationFile.isFile())){
             Parent root = new JeproLabInstallerForms();
             scene = new Scene(root, APP_INSTALLER_WIDTH, APP_INSTALLER_HEIGHT);
             scene.getStylesheets().setAll(JeproLab.class.getResource("assets/css/jeprolab.css").toExternalForm());
-        }else{
-            appStage = primaryStage;
-            request = JeproLabRequest.getInstance();
-            initialize();
-            menuBar = new JeproLabApplicationForm("menu/menu.fxml");
+        }else{ */
+        appStage = primaryStage;
+        request = JeproLabRequest.getInstance();
+        initialize();
+        menuBar = new JeproLabApplicationForm("menu/menu.fxml");
 
-            Region toolBarSpacer = new Region();
-            HBox.setHgrow(toolBarSpacer, Priority.ALWAYS);
+        Region toolBarSpacer = new Region();
+        HBox.setHgrow(toolBarSpacer, Priority.ALWAYS);
 
-            applicationToolBarCommandWrapper.getStyleClass().setAll("segmented-command-wrapper");
-            applicationToolBar = new ToolBar();
-            applicationToolBar.getStyleClass().add("jeprolab-toolbar");
-            userInfoWrapper = new HBox();
-            userInfoWrapper.getStyleClass().setAll("segmented-command-wrapper");
-            userInfoBtn = new Button();
-            userInfoBtn.getStyleClass().addAll("first");
-            userLogOutBtn = new Button("", new ImageView(new Image(JeproLab.class.getResourceAsStream("resources/images/logout.png"))));
-            userLogOutBtn.getStyleClass().addAll("last", "capsule", "logout");
-            userInfoWrapper.getChildren().addAll(userInfoBtn, userLogOutBtn);
-            applicationToolBar.getItems().addAll(applicationToolBarCommandWrapper, toolBarSpacer, userInfoWrapper);
+        applicationToolBarCommandWrapper.getStyleClass().setAll("segmented-command-wrapper");
+        applicationToolBar = new ToolBar();
+        applicationToolBar.getStyleClass().add("jeprolab-toolbar");
+        userInfoWrapper = new HBox();
+        userInfoWrapper.getStyleClass().setAll("segmented-command-wrapper");
+        userInfoBtn = new Button();
+        userInfoBtn.getStyleClass().addAll("first");
+        userLogOutBtn = new Button("", new ImageView(new Image(JeproLab.class.getResourceAsStream("resources/images/logout.png"))));
+        userLogOutBtn.getStyleClass().addAll("last", "capsule", "logout");
+        userInfoWrapper.getChildren().addAll(userInfoBtn, userLogOutBtn);
+        applicationToolBar.getItems().addAll(applicationToolBarCommandWrapper, toolBarSpacer, userInfoWrapper);
 
 
-            formWrapper = new Pane();
-            primaryStage.initStyle(StageStyle.UNDECORATED);
-            windowsBar = new ToolBar();
+        formWrapper = new Pane();
+        primaryStage.initStyle(StageStyle.UNDECORATED);
+        windowsBar = new ToolBar();
 
-            //setting windows toolbar items
-            final JeproLabWindowsButtons windowsButtons = new JeproLabWindowsButtons(primaryStage);
-            windowsBar.setId("windows-bar");
+        //setting windows toolbar items
+        final JeproWindowsButtons windowsButtons = new JeproWindowsButtons(primaryStage);
+        windowsBar.setId("windows-bar");
 
-            Region spacer = new Region();
-            HBox.setHgrow(spacer, Priority.ALWAYS);
-            Region spacer2 = new Region();
-            HBox.setHgrow(spacer2, Priority.ALWAYS);
-            Label jeproLabApplicationTitle = new Label(bundle.getString("JEPROLAB_SITE_MANAGER_TITLE"));
-            jeproLabApplicationTitle.setId("application-title");
-            windowsBar.getItems().addAll(windowsButtons, spacer, jeproLabApplicationTitle, spacer2);
+        Region spacer = new Region();
+        HBox.setHgrow(spacer, Priority.ALWAYS);
+        Region spacer2 = new Region();
+        HBox.setHgrow(spacer2, Priority.ALWAYS);
+        Label jeproLabApplicationTitle = new Label(bundle.getString("JEPROLAB_SITE_MANAGER_TITLE"));
+        jeproLabApplicationTitle.setId("application-title");
+        windowsBar.getItems().addAll(windowsButtons, spacer, jeproLabApplicationTitle, spacer2);
 
-            formsContainer = new VBox(0);
+        formsContainer = new VBox(0);
 
-            formsContainer.getChildren().addAll(windowsBar, menuBar.createView(), applicationToolBar, formWrapper);
-            applicationForms = new JeproLabApplicationForms();
+        formsContainer.getChildren().addAll(windowsBar, menuBar.createView(), applicationToolBar, formWrapper);
+        applicationForms = new JeproLabApplicationForms();
 
-            if(context.employee == null || !context.employee.isLogged){
-                //redirect user to the login form
-                //menuBar.setFormVisible(false);
-                //applicationToolBar.setVisible(false);
-                //goToForm(applicationForms.loginForm);
-                goToForm(applicationForms.addressesForm);
-            }else{
-                //redirect user to the dashboard
-                menuBar.setFormVisible(true);
-                applicationToolBar.setVisible(true);
-            }
-            Parent root = formsContainer;
-            context.employee = new JeproLabEmployeeModel();
-            scene = new Scene(root, APP_WIDTH, APP_HEIGHT);
-            scene.getStylesheets().setAll(JeproLab.class.getResource("assets/css/jeprolab.css").toExternalForm());
+        if (context.employee == null || !context.employee.isLogged) {
+            //redirect user to the login form
+            //menuBar.setFormVisible(false);
+            //applicationToolBar.setVisible(false);
+            //goToForm(applicationForms.loginForm);
+            goToForm(applicationForms.addressesForm);
+        } else {
+            //redirect user to the dashboard
+            menuBar.setFormVisible(true);
+            applicationToolBar.setVisible(true);
         }
+        Parent root = formsContainer;
+        context.employee = new JeproLabEmployeeModel();
+        scene = new Scene(root, APP_WIDTH, APP_HEIGHT);
+        scene.getStylesheets().setAll(JeproLab.class.getResource("assets/css/jeprolab.css").toExternalForm());
+
         instance = this;
         primaryStage.setScene(scene);
         primaryStage.show();
@@ -160,7 +162,7 @@ public class JeproLab extends Application {
         JeproLabLanguageModel language = null;
 
         JeproLabConfig.initialize();
-        JeproLabUpdater.checkForNewVersion(JeproLabConfigurationSettings.JEPROLAB_CURRENT_VERSION);
+        JeproLabUpdater.checkForNewVersion(JeproLabConfig.installedAppVersion);
         context = JeproLabContext.getContext();
         context.laboratory = JeproLabLaboratoryModel.initialize();
 
@@ -175,8 +177,8 @@ public class JeproLab extends Application {
         /** setting default country **/
         context.country = new JeproLabCountryModel(JeproLabSettingModel.getIntValue("default_country"), JeproLabSettingModel.getIntValue("default_lang"));
 
-        if(context.cookie.lang_id > 0){
-            language = new JeproLabLanguageModel(context.cookie.lang_id);
+        if(context.cookie.language_id > 0){
+            language = new JeproLabLanguageModel(context.cookie.language_id);
         }
 
         if(language == null || language.language_id <= 0){
@@ -184,8 +186,8 @@ public class JeproLab extends Application {
         }
 
         context.language = language;
-        int currency_id = (context.cookie.currency_id > 0) ? context.cookie.currency_id : JeproLabSettingModel.getIntValue("default_currency_id");
-        context.currency = new JeproLabCurrencyModel(currency_id);
+        int currencyId = (context.cookie.currency_id > 0) ? context.cookie.currency_id : JeproLabSettingModel.getIntValue("default_currency_id");
+        context.currency = new JeproLabCurrencyModel(currencyId);
     }
 
     public Scene getScene(){ return scene; }

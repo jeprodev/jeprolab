@@ -1,9 +1,12 @@
 package com.jeprolab.models;
 
-
 import com.jeprolab.assets.tools.db.JeproLabDataBaseConnector;
 import com.jeprolab.models.core.JeproLabFactory;
 
+/**
+ *
+ * Created by jeprodev on 18/06/2014.
+ */
 public class JeproLabModel {
     protected JeproLabDataBaseConnector dataBaseObject;
     protected static JeproLabDataBaseConnector staticDataBaseObject;
@@ -20,7 +23,6 @@ public class JeproLabModel {
     public static boolean isCurrentlyUsed(String table){
         return isCurrentlyUsed(table, false);
     }
-
 
     /**
      * Checks if an object type exists in the database.
@@ -57,5 +59,4 @@ public class JeproLabModel {
         dataBaseObject.setQuery(query + condition);
         return dataBaseObject.query(false);
     }
-
 }

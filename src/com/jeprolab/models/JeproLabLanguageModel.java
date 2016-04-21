@@ -7,12 +7,14 @@ import com.jeprolab.models.core.JeproLabFactory;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
-public class JeproLabLanguageModel extends JeproLabModel{
+/**
+ *
+ * Created by jeprodev on 02/02/2014.
+ */
+public class JeproLabLanguageModel extends JeproLabModel {
     public int language_id;
 
     public String name;
@@ -42,16 +44,17 @@ public class JeproLabLanguageModel extends JeproLabModel{
                 query += lang_id ;
 
                 dataBaseObject.setQuery(query);
-                ResultSet language_data = dataBaseObject.loadObject();
+                ResultSet languageDataSet = dataBaseObject.loadObjectList();
                 //String default_language = JeproLabLanguageModel.getDefaultLanguage().language_code;
+                int defaultLangId = JeproLabSettingModel.getIntValue("default_lang");
                 try{
-                    while(language_data.next()){
-                        this.language_id = language_data.getInt("lang_id");
-                        this.language_code = language_data.getString("lang_code");
-                        this.name = language_data.getString("title");
-                        this.iso_code = language_data.getString("sef");
-                        this.is_default = this.language_id == JeproLabSettingModel.getIntValue("default_lang");
-                        this.published = (language_data.getInt("published") > 0) ;
+                    while(languageDataSet.next()){
+                        this.language_id = languageDataSet.getInt("lang_id");
+                        this.language_code = languageDataSet.getString("lang_code");
+                        this.name = languageDataSet.getString("title");
+                        this.iso_code = languageDataSet.getString("sef");
+                        this.is_default = this.language_id == defaultLangId;
+                        this.published = (languageDataSet.getInt("published") > 0) ;
                     }
 
                     JeproLabCache.getInstance().store(cacheKey, this);
@@ -79,7 +82,7 @@ public class JeproLabLanguageModel extends JeproLabModel{
         String query = " SELECT * FROM " + staticDataBaseObject.quoteName("#__languages") ;
 
         staticDataBaseObject.setQuery(query);
-        ResultSet languages = staticDataBaseObject.loadObject();
+        ResultSet languages = staticDataBaseObject.loadObjectList();
 
         String default_language = JeproLabLanguageModel.getDefaultLanguage().language_code;
         if(languages != null) {
@@ -119,6 +122,38 @@ public class JeproLabLanguageModel extends JeproLabModel{
         return false;
     }
 
+    public boolean isAssociatedToLab(){
+        return  isAssociatedToLab(0);
+    }
+
+    public boolean isAssociatedToLab(int labId){
+        if(labId == 0){
+            labId = JeproLabContext.getContext().laboratory.laboratory_id;
+        }
+        boolean isAssociated = false;
+
+        String cacheId =  "jeprolab_model_lab_language_" + this.language_id + "_" + labId;
+        if(!JeproLabCache.getInstance().isStored(cacheId)){
+            JeproLabDataBaseConnector dataBaseConnector = JeproLabFactory.getDataBaseConnector();
+            String query = "SELECT lab_id FROM " + dataBaseConnector.quoteName("#__jeprolab_language_lab") + " WHERE ";
+            query += dataBaseConnector.quoteName("lang_id") + " = " + this.language_id + " AND " + dataBaseConnector.quoteName("lab_id") + labId;
+
+            dataBaseConnector.setQuery(query);
+            ResultSet object = dataBaseConnector.loadObjectList();
+            try{
+                while(object.next()){
+                    isAssociated = object.getInt("lab_id") > 0;
+                }
+            }catch(SQLException exc){
+                isAssociated = false;
+            }
+            JeproLabCache.getInstance().store(cacheId, isAssociated);
+        }else{
+            isAssociated = (boolean)JeproLabCache.getInstance().retrieve(cacheId);
+        }
+        return isAssociated;
+    }
+
     public static Map<Integer, JeproLabLanguageModel> getLanguages(){
         if(!LANGUAGES.isEmpty()){
             JeproLabLanguageModel.loadLanguages();
@@ -138,66 +173,4 @@ public class JeproLabLanguageModel extends JeproLabModel{
         return LANGUAGES;
     }
 
-    public boolean isAssociatedToLab(){
-        return  isAssociatedToLab(0);
-    }
-
-    public boolean isAssociatedToLab(int labId){
-        if(labId == 0){
-            labId = JeproLabContext.getContext().laboratory.laboratory_id;
-        }
-        boolean isAssociated = false;
-
-        String cacheId =  "jeprolab_model_lab_language_" + this.language_id + "_" + labId;
-        if(!JeproLabCache.getInstance().isStored(cacheId)){
-            JeproLabDataBaseConnector dataBaseConnector = JeproLabFactory.getDataBaseConnector();
-            String query = "SELECT lab_id FROM " + dataBaseConnector.quoteName("#__jeprolab_language_lab") + " WHERE ";
-            query += dataBaseConnector.quoteName("lang_id") + " = " + this.language_id + " AND " + dataBaseConnector.quoteName("lab_id") + labId;
-
-            dataBaseConnector.setQuery(query);
-            ResultSet object = dataBaseConnector.loadObject();
-            try{
-                while(object.next()){
-                    isAssociated = object.getInt("lab_id") > 0;
-                }
-            }catch(SQLException exc){
-                isAssociated = false;
-            }
-            JeproLabCache.getInstance().store(cacheId, isAssociated);
-        }else{
-            isAssociated = (boolean)JeproLabCache.getInstance().retrieve(cacheId);
-        }
-        return isAssociated;
-    }
-
-
-    public static class JeproLabLanguage{
-        private int language_id;
-        private String language_name;
-
-        public JeproLabLanguage(JeproLabLanguageModel language){
-            this(language.language_id, language.name);
-        }
-
-        public JeproLabLanguage(int id, String name){
-            language_id = id;
-            language_name = name;
-        }
-
-        public String getName(){
-            return this.language_name;
-        }
-
-        /*public void setLanguageName(String name){
-            this.language_name = name;
-        }*/
-
-        public int getLanguageId(){
-            return this.language_id;
-        }
-
-        /*public void setLanguangeI(int lang_id){
-            this.language_id = lang_id;
-        }*/
-    }
 }

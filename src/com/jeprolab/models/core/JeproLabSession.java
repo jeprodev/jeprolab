@@ -7,7 +7,7 @@ import com.jeprolab.models.JeproLabEmployeeModel;
 
 /**
  *
- * Created by jeprodev on 06/06/2014.
+ * Created by jeprodev on 18/06/2014.
  */
 public class JeproLabSession {
     /**
@@ -155,14 +155,12 @@ public class JeproLabSession {
             this.setCounter();
         }
     }
-//todo edit us
+    //todo edit us
     protected static boolean sessionId(){
         return true;
     }
 
     protected static void unsetSession(){}
-
-
 
     protected String getSessionName(){
         return "";

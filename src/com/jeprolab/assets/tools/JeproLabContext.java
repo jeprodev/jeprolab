@@ -1,11 +1,14 @@
 package com.jeprolab.assets.tools;
 
+//import java.sql.Connection;
 
 import com.jeprolab.controllers.JeproLabController;
 import com.jeprolab.models.*;
 
-import java.sql.Connection;
-
+/**
+ *
+ * Created by jeprodev on 02/02/2014.
+ */
 public class JeproLabContext implements Cloneable {
     private static JeproLabContext instance;
 
@@ -27,11 +30,11 @@ public class JeproLabContext implements Cloneable {
 
     public JeproLabController controller;
 
-    public Connection connection = null;
+    //public Connection connection = null;
 
-    public int listLimit = 20;
+    public int list_limit = 20;
 
-    public int listLimitStart = 0;
+    public int list_limit_start = 0;
 
     public int category_id = 0;
 

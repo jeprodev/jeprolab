@@ -1,17 +1,14 @@
 package com.jeprolab.assets.tools.db;
 
-
 import com.jeprolab.assets.config.JeproLabConfig;
 
-import java.io.InputStream;
-import java.io.Reader;
-import java.math.BigDecimal;
-import java.net.URL;
 import java.sql.*;
 import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Map;
 
+/**
+ *
+ * Created by jeprodev on 18/06/2014.
+ */
 public class JeproLabDataBaseConnector {
     private String dataBaseUserName;
     private String dataBasePassWord;
@@ -27,7 +24,7 @@ public class JeproLabDataBaseConnector {
 
     private String queryRequest;
 
-    public JeproLabDataBaseConnector(String server, String driver, String dataBase){
+    public JeproLabDataBaseConnector(String server, String driver, String dataBase) {
         hostName = server;
         dataBaseName = dataBase;
         setDriverManager(driver, dataBase, dataBasePortNumber);
@@ -58,29 +55,13 @@ public class JeproLabDataBaseConnector {
         }
     }
 
-    /*public boolean createConnexion(String userName, String passWord){
-        this.dataBaseUserName = userName;
-        this.dataBasePassWord = passWord;
-        try{
-            Class.forName(driverName);
-            connection = DriverManager.getConnection(dataBaseUrl, dataBaseUserName, dataBasePassWord);
-        }catch(ClassNotFoundException expt){
-            System.out.println("ClassNotFoundException : " + expt.getMessage());
-            return false;
-        }catch(SQLException e){
-            System.out.println(e.getMessage());
-            return false;
-        }
-        return true;
-    }*/
-
     public Connection getConnexion(){
         if(connection == null){
             try {
                 /** JDBC Registration **/
                 Class.forName(driverName);
 
-                connection = DriverManager.getConnection(dataBaseUrl, JeproLabConfig.dataBaseUserName , JeproLabConfig.dataBasePassword);
+                connection = DriverManager.getConnection(dataBaseUrl, JeproLabConfig.dataBaseUserName, JeproLabConfig.dataBasePassword);
 
                 return connection;
             } catch (SQLException e) {
@@ -132,7 +113,7 @@ public class JeproLabDataBaseConnector {
         String quoted = "`" + msg + "`";
         String quotedAs = "";
         //if(setAs != null && !setAs.equals("")){
-            quotedAs += " AS "; // + this.quoteNameStr();
+        quotedAs += " AS "; // + this.quoteNameStr();
         //}
         return quoted + quotedAs;
     }
@@ -176,7 +157,7 @@ public class JeproLabDataBaseConnector {
         }
     }
 
-    public ResultSet loadObject(){
+    public ResultSet loadObjectList(){
         ResultSet results;
         try {
             /** JDBC Registration **/
@@ -223,7 +204,7 @@ public class JeproLabDataBaseConnector {
     }
 
     public double loadValue(String key){
-        ResultSet result = loadObject();
+        ResultSet result = loadObjectList();
         try{
             if(result.next()){
                 return result.getDouble(key);
@@ -235,7 +216,7 @@ public class JeproLabDataBaseConnector {
     }
 
     public String loadStringValue(String key){
-        ResultSet result = loadObject();
+        ResultSet result = loadObjectList();
         try{
             if(result.next()){
                 return result.getString(key);
@@ -247,10 +228,6 @@ public class JeproLabDataBaseConnector {
         }
         return "";
     }
-
-    /*public String secureData(String data){ //todo
-        return data;
-    }*/
 
     public void closeConnexion(){
         try {
@@ -265,4 +242,6 @@ public class JeproLabDataBaseConnector {
     public int getGeneratedKey(){
         return generatedKey;
     }
+
+
 }

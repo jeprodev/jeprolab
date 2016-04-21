@@ -2,9 +2,9 @@ package com.jeprolab.models.core;
 
 /**
  *
- * Created by jeprodev on 19/12/2015.
+ * Created by jeprodev on 18/06/2014.
  */
-public abstract class JeproLabSessionStorage {
+public class JeproLabSessionStorage {
     /**
      *
      */

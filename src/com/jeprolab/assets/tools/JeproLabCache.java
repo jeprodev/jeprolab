@@ -1,13 +1,14 @@
 package com.jeprolab.assets.tools;
 
-
 import org.apache.commons.collections4.MapIterator;
 import org.apache.commons.collections4.map.LRUMap;
 
 import java.util.ArrayList;
-import java.util.List;
 
-
+/**
+ *
+ * Created by jeprodev on 18/06/2014.
+ */
 public class JeproLabCache<K, D> {
     private long timeToLive;
     private final LRUMap jeproCacheMap;
@@ -118,5 +119,4 @@ public class JeproLabCache<K, D> {
             this.objectValue = value;
         }
     }
-
 }

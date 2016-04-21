@@ -1,15 +1,13 @@
 package com.jeprolab.models.core;
 
-import com.jeprolab.JeproLab;
 import com.jeprolab.controllers.JeproLabLoginController;
 import com.jeprolab.models.JeproLabEmployeeModel;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
  *
- * Created by jeprodev on 19/06/2014.
+ * Created by jeprodev on 18/06/2014.
  */
 public class JeproLabApplication {
     private static JeproLabAuthentication authenticate;
@@ -24,9 +22,9 @@ public class JeproLabApplication {
      * @param passWord
      * @return boolean true on success
      */
-    public static boolean login(String userName, String passWord, JeproLabAuthenticationOption loginOptions){
+    public static boolean login(String userName, String passWord, JeproLabAuthentication.JeproLabAuthenticationOption loginOptions){
         JeproLabAuthentication authenticator = JeproLabAuthentication.getInstance();
-        JeproLabAuthenticationResponse response = authenticator.authenticate(userName, passWord, loginOptions);
+        JeproLabAuthentication.JeproLabAuthenticationResponse response = authenticator.authenticate(userName, passWord, loginOptions);
 
         if(response.status == JeproLabAuthentication.SUCCESS_STATUS){
             /**
@@ -78,7 +76,7 @@ public class JeproLabApplication {
 
                 loginOptions.length = response.length;
                 loginOptions.secure = response.secure;
-                loginOptions.lifeTime = response.lifeTime;
+                loginOptions.lifeTime = response.life_time;
 
                 /**
                  * The user is successfully logged in. Run the next step

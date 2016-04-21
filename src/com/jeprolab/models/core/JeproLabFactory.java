@@ -6,7 +6,7 @@ import com.jeprolab.models.JeproLabEmployeeModel;
 
 /**
  *
- * Created by jeprodev on 19/06/2014.
+ * Created by jeprodev on 18/06/2014.
  */
 public abstract class JeproLabFactory {
     private static JeproLabDataBaseConnector dataBaseConnector;

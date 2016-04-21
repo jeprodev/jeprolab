@@ -1,8 +1,11 @@
 package com.jeprolab.assets.tools;
 
-
+/**
+ *
+ * Created by jeprodev on 02/02/2014.
+ */
 public class JeproLabCookie {
-    public int lang_id;
+    public int language_id;
 
     public int employee_id;
 

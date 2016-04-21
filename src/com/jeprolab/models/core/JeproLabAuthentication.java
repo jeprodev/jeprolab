@@ -12,7 +12,7 @@ import java.util.List;
 
 /**
  *
- * Created by jeprodev on 06/06/2014.
+ * Created by jeprodev on 18/06/2014.
  */
 public class JeproLabAuthentication {
     public static final int SUCCESS_STATUS = 1;
@@ -45,12 +45,12 @@ public class JeproLabAuthentication {
             }
         }
 
-        if(response.userName.equals("")){
-            response.userName = userName;
+        if(response.user_name.equals("")){
+            response.user_name = userName;
         }
 
-        if(response.fullName.equals("")){
-            response.fullName = userName;
+        if(response.full_name.equals("")){
+            response.full_name = userName;
         }
         if(response.password.equals("") && passWord != null && passWord.equals("")){
             response.password = passWord;
@@ -73,7 +73,7 @@ public class JeproLabAuthentication {
         query += " WHERE " + dbc.quoteName("username") + " = " + dbc.quote(userName) + ";";
 
         dbc.setQuery(query);
-        ResultSet result = dbc.loadObject();
+        ResultSet result = dbc.loadObjectList();
         try {
             while (result.next()) {
                 String retrievedUserPassWord = result.getString("password");
@@ -93,6 +93,12 @@ public class JeproLabAuthentication {
         }catch (SQLException sqlExcpt){
             response.status = JeproLabAuthentication.FAILURE_STATUS;
             response.errorMessage = JeproLab.getBundle().getString("JEPROLAB_AUTHENTICATION_NO_USER");
+        }finally {
+            try{
+                JeproLabDataBaseConnector.getInstance().closeConnexion();
+            }catch (Exception ignored){
+                ignored.printStackTrace();
+            }
         }
         /* if(result != null){
             try{
@@ -109,21 +115,20 @@ public class JeproLabAuthentication {
         }*/
 
         /** check the to factor
-        if(response.status == JeproLabAuthentication.SUCCESS_STATUS){
-            if(!check){
-                if(){
-                    optionConfig.otep = ;
-                    check = true;
-                }
-            }
+         if(response.status == JeproLabAuthentication.SUCCESS_STATUS){
+         if(!check){
+         if(){
+         optionConfig.otep = ;
+         check = true;
+         }
+         }
 
-            if(!check){
-                response.status = JeproLabAuthentication.FAILURE_STATUS;
-                response.errorMessage = JeproLab.getBundle().getString("JEPROLAB_AUTHENTICATION_INVALID_SECRET_KEY");
-            }
-        } */
+         if(!check){
+         response.status = JeproLabAuthentication.FAILURE_STATUS;
+         response.errorMessage = JeproLab.getBundle().getString("JEPROLAB_AUTHENTICATION_INVALID_SECRET_KEY");
+         }
+         } */
         return  response;
-
     }
 
     public List authorise(JeproLabAuthenticationResponse response, JeproLabAuthenticationOption loginOptions){
@@ -253,7 +258,7 @@ public class JeproLabAuthentication {
             case "crypt" :
             case "crypt-des" :
                 if(!seed.equals("")){
-                   // encrypted
+                    // encrypted
                 }else{
                     //encrypted
                 }
@@ -313,11 +318,70 @@ public class JeproLabAuthentication {
         return JeproLabAuthentication.generateRandomPassWord(8);
     }
 
-
     public static String generateRandomPassWord(int length){
         String salt = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
         int base = salt.length();
         String makePass = "";
         return makePass;
+    }
+
+    /**
+     *
+     * Created by jeprodev on 06/06/2014.
+     */
+    public static class JeproLabAuthenticationResponse {
+        public int status = JeproLabAuthentication.FAILURE_STATUS;
+
+        public String type = "";
+
+        public String errorMessage = "";
+
+        public String user_name = "";
+
+        public String password = "";
+
+        public String full_name = "";
+
+        public String email = "";
+
+        public String birth_date = "";
+
+        public String gender = "";
+
+        public String post_code = "";
+
+        public String country = "";
+
+        public String language = "";
+
+        public String time_zone = "";
+
+        public int life_time = 0;
+
+        public int length  = 0;
+
+        public boolean secure = false;
+    }
+
+    /**
+     *
+     * Created by jeprodev on 09/06/2014.
+     */
+    public static class JeproLabAuthenticationOption {
+        public JeproLabEmployeeModel employee = null;
+
+        public boolean remember = false;
+
+        public String responseType = null;
+
+        public boolean silent = false;
+
+        public boolean secure = false;
+
+        //public boolean silent = false;
+
+        public int lifeTime = 0;
+
+        public int length = 0;
     }
 }

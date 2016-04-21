@@ -1,10 +1,16 @@
 package com.jeprolab.controllers;
 
-
+import com.jeprolab.JeproLab;
+import com.jeprolab.assets.extend.controls.JeproFormPanel;
+import com.jeprolab.assets.extend.controls.JeproFormPanelContainer;
+import com.jeprolab.assets.extend.controls.JeproFormPanelTitle;
+import com.jeprolab.assets.tools.JeproLabContext;
+import com.jeprolab.models.core.JeproLabApplication;
+import com.jeprolab.models.core.JeproLabAuthentication;
+import com.jeprolab.models.core.JeproLabFactory;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.fxml.Initializable;
 import javafx.geometry.HPos;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -15,22 +21,16 @@ import javafx.scene.control.TextField;
 import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
-import javafx.scene.text.TextAlignment;
-import com.jeprolab.JeproLab;
-import com.jeprolab.assets.extend.controls.JeproFormPanel;
-import com.jeprolab.assets.extend.controls.JeproFormPanelContainer;
-import com.jeprolab.assets.extend.controls.JeproFormPanelTitle;
-import com.jeprolab.assets.tools.JeproLabContext;
-import com.jeprolab.models.core.JeproLabApplication;
-import com.jeprolab.models.core.JeproLabAuthenticationOption;
-import com.jeprolab.models.core.JeproLabAuthenticationResponse;
-import com.jeprolab.models.core.JeproLabFactory;
 
 import java.io.IOException;
 import java.net.URL;
 import java.util.ResourceBundle;
 
-public class JeproLabLoginController implements Initializable{
+/**
+ *
+ * Created by jeprodev on 18/06/2014.
+ */
+public class JeproLabLoginController extends JeproLabController {
     private ResourceBundle bundle;
     private Label loginTitleLabel;
 
@@ -49,11 +49,12 @@ public class JeproLabLoginController implements Initializable{
     public void initialize(URL location , ResourceBundle resource){
         double labelColumnWidth = 150;
         double inputColumnWidth = 200;
+        double formWidth = labelColumnWidth + inputColumnWidth;
         bundle = resource;
         loginTitleLabel = new Label(bundle.getString("JEPROLAB_LOGIN_PANEL_TITLE"));
-        loginTitleLabel.setPrefWidth(labelColumnWidth + inputColumnWidth);
-        loginTitleLabel.setAlignment(Pos.BASELINE_CENTER);
-        jeprolabLoginFormTitleWrapper.setPrefSize(labelColumnWidth + inputColumnWidth, 40);
+        loginTitleLabel.setPrefWidth(formWidth);
+        loginTitleLabel.setPrefSize(formWidth, 40);
+        jeprolabLoginFormTitleWrapper.setPrefSize(formWidth, 40);
         loginTitleLabel.setLayoutY(8);
         jeprolabLoginFormTitleWrapper.getChildren().add(loginTitleLabel);
         jeproLabLoginGridPane.getColumnConstraints().addAll(
@@ -65,7 +66,8 @@ public class JeproLabLoginController implements Initializable{
         jeprolabLoginFormWrapper.setLayoutY(posY);
 
         loginTitleLabel.getStyleClass().add("form-title");
-        loginTitleLabel.setTextAlignment(TextAlignment.CENTER);
+        loginTitleLabel.setAlignment(Pos.CENTER);
+
         GridPane.setMargin(userNameLabel, new Insets(5, 0, 15, 0));
         GridPane.setMargin(userName, new Insets(5, 0, 15, 0));
         GridPane.setMargin(userPasswordLabel, new Insets(5, 0, 15, 0));
@@ -88,7 +90,7 @@ public class JeproLabLoginController implements Initializable{
 
     @FXML
     protected void handleSubmitButton(ActionEvent evt) throws IOException {
-        JeproLabAuthenticationOption loginOptions = new JeproLabAuthenticationOption();
+        JeproLabAuthentication.JeproLabAuthenticationOption loginOptions = new JeproLabAuthentication.JeproLabAuthenticationOption();
         boolean login = JeproLabApplication.login(userName.getText(), password.getText(), loginOptions);
         if(login){
             JeproLabContext context = JeproLabContext.getContext();
@@ -107,19 +109,19 @@ public class JeproLabLoginController implements Initializable{
     }
 
     //todo code me
-    public static boolean onUserLogin(JeproLabAuthenticationResponse response, JeproLabAuthenticationOption loginOptions){
+    public static boolean onUserLogin(JeproLabAuthentication.JeproLabAuthenticationResponse response, JeproLabAuthentication.JeproLabAuthenticationOption loginOptions){
         return true;
     }
 
-    public static void loginFailed(JeproLabAuthenticationResponse response){
+    public static void loginFailed(JeproLabAuthentication.JeproLabAuthenticationResponse response){
 
     }
 
-    public static void onUserLogged(JeproLabAuthenticationOption loginOptions){
+    public static void onUserLogged(JeproLabAuthentication.JeproLabAuthenticationOption loginOptions){
 
     }
 
-    public static void onUserLoginFailure(JeproLabAuthenticationResponse response){
+    public static void onUserLoginFailure(JeproLabAuthentication.JeproLabAuthenticationResponse response){
 
     }
 }

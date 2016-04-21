@@ -1,15 +1,13 @@
 package com.jeprolab.assets.tools;
 
-import jdk.internal.org.xml.sax.Attributes;
-import org.w3c.dom.Attr;
-import org.xml.sax.helpers.DefaultHandler;
+import org.xml.sax.Attributes;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 import org.xml.sax.XMLReader;
+import org.xml.sax.helpers.DefaultHandler;
 import org.xml.sax.helpers.XMLReaderFactory;
 
 import java.io.*;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.ArrayList;
@@ -17,27 +15,33 @@ import java.util.Iterator;
 
 /**
  *
- * Created by jeprodev on 02/05/2014.
+ * Created by jeprodev on 18/06/2014.
  */
 public class JeproLabUpdater {
     public enum Mode {FILE, URL}
     public enum Action {MOVE, DELETE, EXECUTE}
-    private final static String versionUrl = "http://localhost/jeprotest/index.php?option=com_jeproshop&view=product&task=view&product_id=1";
-    private final static String historyUrl = "https://localhost/jeprotest/product.html"; //index.php?option=com_jeproshop&view=product&task=view&product_id=1";
 
     public static String getLatestVersion() throws Exception{
         //String data = getData(versionUrl);
 
         return ""; //data.substring(data.indexOf("[version]") + 9, data.indexOf("[/version]"));
     }
-
+    public static void checkForNewVersion(String currentVersion){
+        try {
+            String lastVersion = getLatestVersion();
+            System.out.println(lastVersion);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+/*
     public static String getWhatsNew() throws Exception{
         String data = getData(historyUrl);
         return data.substring(data.indexOf("[history]") + 9, data.indexOf("[/history]"));
-    }
+    }*/
 
     public static String getData(String address){
-        try {System.out.println(address + "jeff");
+        try {
             URL appUrl = new URL(address);
 
             InputStream html = appUrl.openStream();
@@ -52,15 +56,6 @@ public class JeproLabUpdater {
             return builder.toString();
         }catch (IOException ex){
             return "";
-        }
-    }
-
-    public static void checkForNewVersion(String currentVersion){
-        try {
-            String lastVersion = getLatestVersion();
-            System.out.println(lastVersion);
-        } catch (Exception e) {
-            e.printStackTrace();
         }
     }
 
@@ -168,7 +163,7 @@ public class JeproLabUpdater {
         }
     }
 
-    private static class JeproLabUpdaterParserHandler extends DefaultHandler{
+    private static class JeproLabUpdaterParserHandler extends DefaultHandler {
         private String currentElement = "";
         private ArrayList<JeproLabUpdaterInstruction> instructions = new ArrayList<>();
         private JeproLabUpdaterInstruction instruction = new JeproLabUpdaterInstruction();

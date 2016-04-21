@@ -1,21 +1,24 @@
 package com.jeprolab.controllers;
 
-
+import com.jeprolab.JeproLab;
 import com.jeprolab.assets.tools.JeproLabContext;
-import com.jeprolab.views.application.JeproLabApplicationForm;
+import com.jeprolab.views.JeproLabApplicationForm;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuBar;
 import javafx.scene.control.MenuItem;
 import javafx.scene.layout.VBox;
-import com.jeprolab.JeproLab;
 
 import java.io.IOException;
 import java.net.URL;
 import java.util.ResourceBundle;
 
-public class JeproLabMenuController extends JeproLabController {
+/**
+ *
+ * Created by jeprodev on 18/06/2014.
+ */
+public class JeproLabMenuController extends JeproLabController{
     @FXML
     public VBox jeproLabMenuBarWrapper;
     public MenuBar jeproLabMenuBar;
@@ -43,8 +46,9 @@ public class JeproLabMenuController extends JeproLabController {
     public MenuItem requestStatusMenuItem, requestAddStatusMenuItem, requestMessagesMenuItem, requestAddMessageMenuItem;
 
     @Override
-    public void initialize(URL location, ResourceBundle resources) {
-        bundle = resources;
+    public void initialize(URL location, ResourceBundle resource) {
+        super.initialize(location, resource);
+
         jeproLabMenuBar.setPrefWidth(JeproLab.APP_WIDTH);
         dashBoardMenu.setText(bundle.getString("JEPROLAB_DASHBOARD_LABEL"));
         dashBoardMenuItem.setText(bundle.getString("JEPROLAB_DASHBOARD_LABEL"));
@@ -109,19 +113,6 @@ public class JeproLabMenuController extends JeproLabController {
         laboratoryGroupSubMenu.setText(bundle.getString("JEPROLAB_LABORATORIES_GROUPS_LABEL"));
         addLaboratoryGroupSubMenuItem.setText(bundle.getString("JEPROLAB_ADD_NEW_LABEL") + " " + bundle.getString("JEPROLAB_LABORATORY_GROUP_LABEL"));
 
-        /*categoryMenuItem.setText(bundle.getString("JEPROLAB_CATEGORIES_LABEL"));
-        aboutJeproLabMenuItem.setText(bundle.getString("JEPROLAB_ABOUT_JEPROLAB_LABEL"));
-        feedsMenuItem.setText(bundle.getString("JEPROLAB_FEEDS_LABEL"));
-        feedBackMenuItem.setText(bundle.getString("JEPROLAB_FEEDBACK_LABEL"));
-        customersMenuItem
-        analyzeMenuItem.setText(bundle.getString("JEPROLAB_ANALYSES_LABEL"));
-        attachmentMenuItem.setText(bundle.getString("JEPROLAB_ATTACHMENTS_LABEL"));
-        addressesMenuItem
-        groupsMenuItem
-        currentRequestMenuItem
-        threadsMenuItem
-        contactsMenuItem */
-
         /**
          *
          */
@@ -144,9 +135,6 @@ public class JeproLabMenuController extends JeproLabController {
         requestRefundsMenuItem.setText(bundle.getString("JEPROLAB_LIST_OF_LABEL") + " " + bundle.getString("JEPROLAB_REFUNDS_LABEL"));
         requestAddNewRefundsMenuItem.setText(bundle.getString("JEPROLAB_ADD_NEW_LABEL") + " " + bundle.getString("JEPROLAB_REFUND_LABEL"));
 
-        /**
-         * Sample Menu
-         */
         requestSampleMenu.setText(bundle.getString("JEPROLAB_SAMPLES_LABEL"));
         sampleListMenuItem.setText(bundle.getString("JEPROLAB_LIST_OF_LABEL") + " " + bundle.getString("JEPROLAB_SAMPLES_LABEL"));
         sampleAddNewMenuItem.setText(bundle.getString("JEPROLAB_ADD_NEW_LABEL") + " " + bundle.getString("JEPROLAB_SAMPLE_LABEL"));
@@ -167,8 +155,6 @@ public class JeproLabMenuController extends JeproLabController {
         editZoneSubMenu.setText(bundle.getString("JEPROLAB_ADD_NEW_LABEL") + " " + bundle.getString("JEPROLAB_ZONE_LABEL"));
         addStateSubMenu.setText(bundle.getString("JEPROLAB_ADD_NEW_LABEL") + " " + bundle.getString("JEPROLAB_STATE_LABEL"));
         addCurrencySubMenu.setText(bundle.getString("JEPROLAB_ADD_NEW_LABEL") + " " + bundle.getString("JEPROLAB_CURRENCY_LABEL"));
-
-        updateToolBar();
     }
 
     public void handleDashBoardMenuEvent(ActionEvent event)throws IOException{
@@ -383,27 +369,28 @@ public class JeproLabMenuController extends JeproLabController {
         JeproLabContext.getContext().controller.initializeContent();
     }
 
-    public void handleRequestAddNewMenuEvent(ActionEvent event) throws  IOException {
+    public void handleRequestAddNewMenuEvent(ActionEvent event) {
         processAddEvent(JeproLab.getInstance().getApplicationForms().addRequestForm);
     }
 
-    public void handleRequestBillsMenuEvent(ActionEvent event) throws  IOException {}
-    public void handleRequestAddBillMenuEvent(ActionEvent event) throws  IOException {}
-    public void handleRequestComplaintsMenuEvent(ActionEvent event) throws  IOException {}
-    public void handleRequestAddNewComplaintMenuEvent(ActionEvent event) throws  IOException {}
-    public void handleRequestRefundsMenuEvent(ActionEvent event) throws  IOException {}
-    public void handleRequestAddRefundMenuEvent(ActionEvent event) throws  IOException {}
-    public void handleRequestStatusMenuEvent(ActionEvent event) throws  IOException {}
-    public void handleRequestAddStatusMenuEvent(ActionEvent event) throws  IOException {}
-    public void handleRequestMessagesMenuEvent(ActionEvent event) throws  IOException {}
-    public void handleRequestAddMessageMenuEvent(ActionEvent event) throws  IOException {}
+    public void handleRequestBillsMenuEvent(ActionEvent event){}
+    public void handleRequestAddBillMenuEvent(ActionEvent event){}
+    public void handleRequestComplaintsMenuEvent(ActionEvent event){}
+    public void handleRequestAddNewComplaintMenuEvent(ActionEvent event){}
+    public void handleRequestRefundsMenuEvent(ActionEvent event){}
+    public void handleRequestAddRefundMenuEvent(ActionEvent event){}
+    public void handleRequestStatusMenuEvent(ActionEvent event){}
+    public void handleRequestAddStatusMenuEvent(ActionEvent event){}
+    public void handleRequestMessagesMenuEvent(ActionEvent event){}
+    public void handleRequestAddMessageMenuEvent(ActionEvent event){}
 
-    private void processAddEvent(JeproLabApplicationForm form) throws IOException{
-        JeproLab.request.getRequest().clear();
-        JeproLab.getInstance().goToForm(form);
-        JeproLabContext.getContext().controller.initializeContent();
+    private void processAddEvent(JeproLabApplicationForm form){
+        try {
+            JeproLab.request.getRequest().clear();
+            JeproLab.getInstance().goToForm(form);
+            JeproLabContext.getContext().controller.initializeContent();
+        }catch (IOException  ignored){
+            ignored.printStackTrace();
+        }
     }
-
-    @Override
-    public void updateToolBar(){}
 }
