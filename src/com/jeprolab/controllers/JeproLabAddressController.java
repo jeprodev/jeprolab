@@ -31,8 +31,11 @@ public class JeproLabAddressController extends JeproLabController{
     public Button jeproLabAddAddressButton, jeproLabDeleteAddressesButton;
     public TableView<JeproLabAddressRecord> jeproLabAddressesList;
     public TableColumn<JeproLabAddressRecord, String> addressIndexColumn;
-    public TableColumn addressCheckBoxColumn, addressLastColumn, addressActionColumn, addressCountryColumn;
-    public TableColumn addressFirstNameColumn, addressDetailColumn, addressZipCodeColumn, addressCityColumn;
+    public TableColumn<JeproLabAddressRecord, Boolean> addressCheckBoxColumn;
+    public TableColumn<JeproLabAddressRecord, String> addressLastNameColumn;
+    public TableColumn<JeproLabAddressRecord, HBox> addressActionColumn, addressCountryColumn;
+    public TableColumn<JeproLabAddressRecord, String> addressFirstNameColumn;
+    public TableColumn<JeproLabAddressRecord, String> addressDetailColumn, addressZipCodeColumn, addressCityColumn;
     public JeproFormPanel jeproLabAddressContainer;
 
     @Override
@@ -54,9 +57,9 @@ public class JeproLabAddressController extends JeproLabController{
         addressCheckBoxColumn.setPrefWidth(22);
         addressCheckBoxColumn.setGraphic(selectAll);
 
-        addressLastColumn.setText(bundle.getString("JEPROLAB_LAST_NAME_LABEL"));
-        addressLastColumn.setPrefWidth(0.14 * layoutWidth);
-        tableCellAlign(addressLastColumn, Pos.CENTER_LEFT);
+        addressLastNameColumn.setText(bundle.getString("JEPROLAB_LAST_NAME_LABEL"));
+        addressLastNameColumn.setPrefWidth(0.14 * layoutWidth);
+        tableCellAlign(addressLastNameColumn, Pos.CENTER_LEFT);
         addressActionColumn.setText(bundle.getString("JEPROLAB_ACTIONS_LABEL"));
         addressActionColumn.setPrefWidth(0.08 * layoutWidth);
         addressCountryColumn.setText(bundle.getString("JEPROLAB_COUNTRY_LABEL"));

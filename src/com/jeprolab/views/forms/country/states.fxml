@@ -1,5 +1,27 @@
 <?import javafx.scene.layout.GridPane?>
 <?import javafx.scene.control.Label?>
-<GridPane >
-    <Label GridPane.columnIndex="0" fx:id=""/>
-</GridPane>
+<?import com.jeprolab.assets.extend.controls.JeproFormPanel?>
+<?import com.jeprolab.assets.extend.controls.JeproFormPanelTitle?>
+<?import com.jeprolab.assets.extend.controls.JeproFormPanelContainer?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.TableColumn?>
+<JeproFormPanel xmlns:fx="http://javafx.com/fxml" fx:controller="com.jeprolab.controllers.JeproLabCountryStatesController" >
+    <VBox spacing="5" >
+        <HBox fx:id="jeproLabState" />
+        <TableView fx:id="jeproLabStateTableView" >
+            <columns >
+                <TableColumn resizable="false" editable="false" fx:id="jeproLabStateIndexColumn" />
+                <TableColumn resizable="false" editable="false" fx:id="jeproLabStateCheckBoxColumn" />
+                <TableColumn resizable="false" editable="false" fx:id="jeproLabStateStatusColumn" />
+                <TableColumn resizable="false" editable="false" fx:id="jeproLabStateNameColumn" />
+                <TableColumn resizable="false" editable="false" fx:id="jeproLabStateIsoCodeColumn" />
+                <TableColumn resizable="false" editable="false" fx:id="jeproLabStateCountryNameColumn" />
+                <TableColumn resizable="false" editable="false" fx:id="jeproLabStateZoneNameColumn" />
+                <TableColumn resizable="false" editable="false" fx:id="jeproLabStateTaxBehaviorColumn" />
+                <TableColumn resizable="false" editable="false" fx:id="jeproLabStateActionsColumn" />
+            </columns>
+        </TableView>
+    </VBox>
+</JeproFormPanel>

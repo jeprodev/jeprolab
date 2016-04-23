@@ -7,7 +7,7 @@
         <columns>
             <TableColumn resizable="false" editable="false" fx:id="addressIndexColumn" />
             <TableColumn resizable="false" editable="false" fx:id="addressCheckBoxColumn" />
-            <TableColumn resizable="false" editable="false" fx:id="addressLastColumn" />
+            <TableColumn resizable="false" editable="false" fx:id="addressLastNameColumn" />
             <TableColumn resizable="false" editable="false" fx:id="addressFirstNameColumn" />
             <TableColumn resizable="false" editable="false" fx:id="addressDetailColumn" />
             <TableColumn resizable="false" editable="false" fx:id="addressZipCodeColumn" />

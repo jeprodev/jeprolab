@@ -624,6 +624,10 @@ public class JeproLabCountryModel extends JeproLabModel{
         }
     }
 
+    public static class JeproLabStateModel extends JeproLabModel{
+
+    }
+
 
     public static class JeproLabZoneModel extends JeproLabModel{
         public int zone_id = 0;

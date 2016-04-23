@@ -36,41 +36,41 @@
                 <MenuItem fx:id="groupsSubMenuItem" onAction="#handleGroupsMenuEvent" />
                 <MenuItem fx:id="addGroupMenuItem" onAction="#handleAddGroupMenuEvent" />
             </Menu>
-            <Menu fx:id="currentSubRequestMenu" >
-                <Menu fx:id="requestSampleMenu" >
-                    <MenuItem fx:id="sampleListMenuItem"  onAction="#handleSampleMenuEvent" />
-                    <MenuItem fx:id="sampleAddNewMenuItem"  onAction="#handleAddSampleMenuEvent" />
-                </Menu>
-                <Menu fx:id="requestMenu" >
-                    <MenuItem fx:id="requestListMenuItem"  onAction="#handleRequestsMenuEvent" />
-                    <MenuItem fx:id="requestAddNewMenuItem"  onAction="#handleRequestAddNewMenuEvent" />
-                </Menu>
-                <Menu fx:id="requestBillsMenu" >
-                    <MenuItem fx:id="requestBillsMenuItem"  onAction="#handleRequestBillsMenuEvent" />
-                    <MenuItem fx:id="requestAddBillMenuItem"  onAction="#handleRequestAddBillMenuEvent" />
-                </Menu>
-                <Menu fx:id="requestComplaintMenu" >
-                    <MenuItem fx:id="requestComplaintMenuItem"  onAction="#handleRequestComplaintsMenuEvent" />
-                    <MenuItem fx:id="requestAddNewComplaintMenuItem"  onAction="#handleRequestAddNewComplaintMenuEvent" />
-                </Menu>
-                <Menu fx:id="requestRefundMenu" >
-                    <MenuItem fx:id="requestRefundsMenuItem"  onAction="#handleRequestRefundsMenuEvent" />
-                    <MenuItem fx:id="requestAddNewRefundsMenuItem"  onAction="#handleRequestAddRefundMenuEvent" />
-                </Menu>
-                <Menu fx:id="requestStatusMenu" >
-                    <MenuItem fx:id="requestStatusMenuItem"  onAction="#handleRequestStatusMenuEvent" />
-                    <MenuItem fx:id="requestAddStatusMenuItem"  onAction="#handleRequestAddStatusMenuEvent" />
-                </Menu>
-                <Menu fx:id="requestMessageMenu" >
-                    <MenuItem fx:id="requestMessagesMenuItem"  onAction="#handleRequestMessagesMenuEvent" />
-                    <MenuItem fx:id="requestAddMessageMenuItem"  onAction="#handleRequestAddMessageMenuEvent" />
-                </Menu>
-            </Menu>
             <Menu fx:id="threadsSubMenu" onAction="#handleCustomerThreadsMenuEvent" >
 
             </Menu>
             <Menu fx:id="contactsSubMenu">
                 <MenuItem fx:id="contactsSubMenuItem" onAction="#handleContactsMenuEvents" />
+            </Menu>
+        </Menu>
+        <Menu fx:id="currentSubRequestMenu" >
+            <Menu fx:id="requestSampleMenu" >
+                <MenuItem fx:id="sampleListMenuItem"  onAction="#handleSampleMenuEvent" />
+                <MenuItem fx:id="sampleAddNewMenuItem"  onAction="#handleAddSampleMenuEvent" />
+            </Menu>
+            <Menu fx:id="requestMenu" >
+                <MenuItem fx:id="requestListMenuItem"  onAction="#handleRequestsMenuEvent" />
+                <MenuItem fx:id="requestAddNewMenuItem"  onAction="#handleRequestAddNewMenuEvent" />
+            </Menu>
+            <Menu fx:id="requestBillsMenu" >
+                <MenuItem fx:id="requestBillsMenuItem"  onAction="#handleRequestBillsMenuEvent" />
+                <MenuItem fx:id="requestAddBillMenuItem"  onAction="#handleRequestAddBillMenuEvent" />
+            </Menu>
+            <Menu fx:id="requestComplaintMenu" >
+                <MenuItem fx:id="requestComplaintMenuItem"  onAction="#handleRequestComplaintsMenuEvent" />
+                <MenuItem fx:id="requestAddNewComplaintMenuItem"  onAction="#handleRequestAddNewComplaintMenuEvent" />
+            </Menu>
+            <Menu fx:id="requestRefundMenu" >
+                <MenuItem fx:id="requestRefundsMenuItem"  onAction="#handleRequestRefundsMenuEvent" />
+                <MenuItem fx:id="requestAddNewRefundsMenuItem"  onAction="#handleRequestAddRefundMenuEvent" />
+            </Menu>
+            <Menu fx:id="requestStatusMenu" >
+                <MenuItem fx:id="requestStatusMenuItem"  onAction="#handleRequestStatusMenuEvent" />
+                <MenuItem fx:id="requestAddStatusMenuItem"  onAction="#handleRequestAddStatusMenuEvent" />
+            </Menu>
+            <Menu fx:id="requestMessageMenu" >
+                <MenuItem fx:id="requestMessagesMenuItem"  onAction="#handleRequestMessagesMenuEvent" />
+                <MenuItem fx:id="requestAddMessageMenuItem"  onAction="#handleRequestAddMessageMenuEvent" />
             </Menu>
         </Menu>
         <Menu fx:id="feedsMenu" >

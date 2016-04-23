@@ -24,6 +24,12 @@ public class JeproLabController implements Initializable {
     protected Label formTitleLabel;
     public static final double rowHeight = 25;
 
+    public boolean multi_laboratory_context;
+
+    public String laboratory_link_type = "";
+
+    protected static boolean isInitialized = false;
+
     public final double btnSize = 22;
 
     @Override

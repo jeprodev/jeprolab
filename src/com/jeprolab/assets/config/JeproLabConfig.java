@@ -71,9 +71,9 @@ public class JeproLabConfig {
         return "";
     }
 
-    /*public static int getListLimit(){
+    public static int getListLimit(){
         return 20;
-    }*/
+    }
 
     public static JeproLabConfig getConfiguration(){
         if(instance == null) {

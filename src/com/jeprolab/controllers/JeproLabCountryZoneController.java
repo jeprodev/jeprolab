@@ -149,7 +149,7 @@ public class JeproLabCountryZoneController extends JeproLabController{
         }
     }
 
-    public class JeproLabCheckBoxCell extends TableCell<JeproLabZoneRecord, Boolean>{
+    private class JeproLabCheckBoxCell extends TableCell<JeproLabZoneRecord, Boolean>{
         private CheckBox zoneCheckBox;
 
         public JeproLabCheckBoxCell(){

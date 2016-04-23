@@ -3,22 +3,28 @@
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.control.ComboBox?>
 <?import com.jeprolab.assets.extend.controls.switchbutton.JeproSwitchButton?>
-<?import javafx.scene.layout.HBox?>
-<?import javafx.scene.control.Button?>
-<GridPane xmlns:fx="http://javafx.com/fxml" fx:controller="com.jeprolab.controllers.JeproLabStateAddController" alignment="CENTER" hgap="10" vgap="10" >
-    <Label GridPane.columnIndex="0" GridPane.rowIndex="0" fx:id="formTitleLabel" />
-    <Label GridPane.columnIndex="0" GridPane.rowIndex="1" fx:id="stateNameLabel" />
-    <TextField GridPane.columnIndex="1" GridPane.rowIndex="1" fx:id="stateName" />
-    <Label GridPane.columnIndex="0" GridPane.rowIndex="2" fx:id="isoCodeLabel"/>
-    <TextField GridPane.columnIndex="1" GridPane.rowIndex="2" fx:id="isoCode"/>
-    <Label GridPane.columnIndex="0" GridPane.rowIndex="3" fx:id="countryZoneLabel"/>
-    <ComboBox GridPane.columnIndex="1" GridPane.rowIndex="3" fx:id="countryZone"/>
-    <Label GridPane.columnIndex="0" GridPane.rowIndex="4" fx:id="countryLabel"/>
-    <ComboBox GridPane.columnIndex="1" GridPane.rowIndex="4" fx:id="country"/>
-    <Label GridPane.columnIndex="0" GridPane.rowIndex="5" fx:id="publishedLabel"/>
-    <JeproSwitchButton GridPane.columnIndex="1" GridPane.rowIndex="5" fx:id="published"/>
-    <HBox GridPane.columnIndex="0" GridPane.rowIndex="6" GridPane.columnSpan="2" spacing="50" alignment="CENTER">
-        <Button fx:id="saveButton" />
-        <Button fx:id="cancelButton" />
-    </HBox>
-</GridPane>
+
+<?import com.jeprolab.assets.extend.controls.JeproFormPanel?>
+<?import com.jeprolab.assets.extend.controls.JeproFormPanelTitle?>
+<?import com.jeprolab.assets.extend.controls.JeproFormPanelContainer?>
+<JeproFormPanel xmlns:fx="http://javafx.com/fxml" fx:controller="com.jeprolab.controllers.JeproLabCountryAddStateController" fx:id="jeproLabStateFormWrapper" >
+    <JeproFormPanelTitle fx:id="jeproLabStateFormTitleWrapper" />
+    <JeproFormPanelContainer fx:id="jeproLabStateFormContentWrapper" >
+        <GridPane  alignment="CENTER" hgap="10" vgap="10" fx:id="jeproLabStateLayout"  >
+            <Label GridPane.columnIndex="0" GridPane.rowIndex="1" fx:id="jeproLabStateNameLabel" styleClass="input-label" />
+            <TextField GridPane.columnIndex="1" GridPane.rowIndex="1" fx:id="jeproLabStateName" />
+            <Label GridPane.columnIndex="0" GridPane.rowIndex="2" fx:id="jeproLabStateIsoCodeLabel" styleClass="input-label" />
+            <TextField GridPane.columnIndex="1" GridPane.rowIndex="2" fx:id="jeproLabStateIsoCode"/>
+            <Label GridPane.columnIndex="0" GridPane.rowIndex="3" fx:id="jeproLabStateCountryZoneLabel" styleClass="input-label" />
+            <ComboBox GridPane.columnIndex="1" GridPane.rowIndex="3" fx:id="jeproLabStateCountryZone"/>
+            <Label GridPane.columnIndex="0" GridPane.rowIndex="4" fx:id="jeproLabStateCountryLabel" styleClass="input-label" />
+            <ComboBox GridPane.columnIndex="1" GridPane.rowIndex="4" fx:id="jeproLabStateCountry"/>
+            <Label GridPane.columnIndex="0" GridPane.rowIndex="5" fx:id="jeproLabStatePublishedLabel" styleClass="input-label" />
+            <JeproSwitchButton GridPane.columnIndex="1" GridPane.rowIndex="5" fx:id="jeproLabStatePublished"/>
+            <!--HBox GridPane.columnIndex="0" GridPane.rowIndex="6" GridPane.columnSpan="2" spacing="50" alignment="CENTER">
+                <Button fx:id="saveButton" />
+                <Button fx:id="cancelButton" />
+            </HBox -->
+        </GridPane>
+    </JeproFormPanelContainer>
+</JeproFormPanel>
