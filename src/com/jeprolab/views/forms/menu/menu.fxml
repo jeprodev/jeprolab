@@ -94,17 +94,16 @@
             </Menu>
             <Menu fx:id="localisationSubMenu" >
                 <Menu fx:id="countriesSubMenu" >
+                    <MenuItem fx:id="countrySubMenuItem" onAction="#handleCountryMenuEvent" />
                     <MenuItem fx:id="addCountrySubMenu" onAction="#handleAddNewCountryMenuEvent" />
-                </Menu>
-                <Menu fx:id="zonesSubMenu" >
+                    <MenuItem fx:id="statesSubMenuItem" onAction="#handleStateMenuEvent" />
+                    <MenuItem fx:id="addStateSubMenuItem" onAction="#handleAddNewStateMenuEvent" />
                     <MenuItem fx:id="zoneListSubMenuItem" onAction="#handleZoneListMenuEvent" />
                     <MenuItem fx:id="editZoneSubMenu" onAction="#handleAddNewZoneMenuEvent" />
                 </Menu>
-                <Menu fx:id="statesSubMenu" >
-                    <MenuItem fx:id="addStateSubMenu" onAction="#handleAddNewStateMenuEvent" />
-                </Menu>
                 <Menu fx:id="currenciesSubMenu" >
-                    <MenuItem fx:id="addCurrencySubMenu" onAction="#handleAddNewCurrencyMenuEvent" />
+                    <MenuItem fx:id="currenciesSubMenuItem" onAction="#handleCurrenciesMenuEvent" />
+                    <MenuItem fx:id="addCurrencySubMenuItem" onAction="#handleAddNewCurrencyMenuEvent" />
                 </Menu>
                 <Menu fx:id="taxesSubMenu" >
                     <MenuItem fx:id="taxesSubMenuItem" onAction="#handleTaxesMenuEvent" />

@@ -40,7 +40,7 @@ public class JeproLabMenuController extends JeproLabController{
     public MenuItem feedsSubMenuItem;
     public MenuItem zoneListSubMenuItem;
     public MenuItem addTaxSubMenuItem, addTaxGroupSubMenuItem, taxesGroupSubMenuItem, taxesSubMenuItem;
-    public MenuItem addCountrySubMenu, editZoneSubMenu, addStateSubMenu, addCurrencySubMenu;
+    public MenuItem countrySubMenuItem, addCountrySubMenu, editZoneSubMenu, addStateSubMenuItem, statesSubMenuItem, currenciesSubMenuItem, addCurrencySubMenuItem;
     public MenuItem requestListMenuItem, requestAddNewMenuItem, requestBillsMenuItem, requestAddBillMenuItem;
     public MenuItem requestComplaintMenuItem, requestAddNewComplaintMenuItem, requestRefundsMenuItem, requestAddNewRefundsMenuItem;
     public MenuItem requestStatusMenuItem, requestAddStatusMenuItem, requestMessagesMenuItem, requestAddMessageMenuItem;
@@ -144,8 +144,9 @@ public class JeproLabMenuController extends JeproLabController{
         localisationSubMenu.setText(bundle.getString("JEPROLAB_LOCALISATION_SETTINGS_LABEL"));
         taxesSubMenu.setText(bundle.getString("JEPROLAB_TAXES_LABEL"));
         countriesSubMenu.setText(bundle.getString("JEPROLAB_COUNTRIES_LABEL"));
-        zonesSubMenu.setText(bundle.getString("JEPROLAB_ZONES_LABEL"));
-        statesSubMenu.setText(bundle.getString("JEPROLAB_STATES_LABEL"));
+        countrySubMenuItem.setText(bundle.getString("JEPROLAB_LIST_OF_LABEL") + " " + bundle.getString("JEPROLAB_COUNTRIES_LABEL"));
+        zoneListSubMenuItem.setText(bundle.getString("JEPROLAB_LIST_OF_LABEL") + " " + bundle.getString("JEPROLAB_ZONE_LABEL"));
+        //statesSubMenu.setText(bundle.getString("JEPROLAB_STATES_LABEL"));
         currenciesSubMenu.setText(bundle.getString("JEPROLAB_CURRENCIES_LABEL"));
         addTaxSubMenuItem.setText(bundle.getString("JEPROLAB_ADD_NEW_LABEL") + " " + bundle.getString("JEPROLAB_TAX_LABEL"));
         taxesSubMenuItem.setText(bundle.getString("JEPROLAB_LIST_OF_LABEL") + " " + bundle.getString("JEPROLAB_TAX_LABEL"));
@@ -153,8 +154,10 @@ public class JeproLabMenuController extends JeproLabController{
         addTaxGroupSubMenuItem.setText(bundle.getString("JEPROLAB_ADD_NEW_LABEL") + " " + bundle.getString("JEPROLAB_TAX_GROUP_LABEL"));
         addCountrySubMenu.setText(bundle.getString("JEPROLAB_ADD_NEW_LABEL") + " " + bundle.getString("JEPROLAB_COUNTRY_LABEL"));
         editZoneSubMenu.setText(bundle.getString("JEPROLAB_ADD_NEW_LABEL") + " " + bundle.getString("JEPROLAB_ZONE_LABEL"));
-        addStateSubMenu.setText(bundle.getString("JEPROLAB_ADD_NEW_LABEL") + " " + bundle.getString("JEPROLAB_STATE_LABEL"));
-        addCurrencySubMenu.setText(bundle.getString("JEPROLAB_ADD_NEW_LABEL") + " " + bundle.getString("JEPROLAB_CURRENCY_LABEL"));
+        statesSubMenuItem.setText(bundle.getString("JEPROLAB_LIST_OF_LABEL") + " " + bundle.getString("JEPROLAB_STATES_LABEL"));
+        addStateSubMenuItem.setText(bundle.getString("JEPROLAB_ADD_NEW_LABEL") + " " + bundle.getString("JEPROLAB_STATE_LABEL"));
+        currenciesSubMenuItem.setText(bundle.getString("JEPROLAB_LIST_OF_LABEL") + " " + bundle.getString("JEPROLAB_CURRENCY_LABEL"));
+        addCurrencySubMenuItem.setText(bundle.getString("JEPROLAB_ADD_NEW_LABEL") + " " + bundle.getString("JEPROLAB_CURRENCY_LABEL"));
     }
 
     public void handleDashBoardMenuEvent(ActionEvent event)throws IOException{
@@ -295,6 +298,16 @@ public class JeproLabMenuController extends JeproLabController{
         JeproLabContext.getContext().controller.initializeContent();
     }
 
+    public void handleStateMenuEvent(ActionEvent event) throws IOException {
+        JeproLab.getInstance().goToForm(JeproLab.getInstance().getApplicationForms().stateForm);
+        JeproLabContext.getContext().controller.initializeContent();
+    }
+
+    public void handleCurrenciesMenuEvent(ActionEvent event) throws IOException {
+        JeproLab.getInstance().goToForm(JeproLab.getInstance().getApplicationForms().currencyForm);
+        JeproLabContext.getContext().controller.initializeContent();
+    }
+
 
     public void handleHelpMenuEvent(ActionEvent event) throws IOException {
         JeproLab.getInstance().goToForm(JeproLab.getInstance().getApplicationForms().requestForm);
@@ -304,6 +317,12 @@ public class JeproLabMenuController extends JeproLabController{
     public void handleAddNewZoneMenuEvent(ActionEvent event) throws IOException {
         JeproLab.request.getRequest().clear();
         JeproLab.getInstance().goToForm(JeproLab.getInstance().getApplicationForms().addZoneForm);
+        JeproLabContext.getContext().controller.initializeContent();
+    }
+
+    public void handleCountryMenuEvent(ActionEvent event) throws IOException {
+        JeproLab.request.getRequest().clear();
+        JeproLab.getInstance().goToForm(JeproLab.getInstance().getApplicationForms().countryForm);
         JeproLabContext.getContext().controller.initializeContent();
     }
 
