@@ -1,7 +1,6 @@
 package com.jeprolab.controllers;
 
 import com.jeprolab.assets.tools.JeproLabContext;
-import com.sun.javafx.scene.control.skin.TableCellSkin;
 import javafx.collections.ObservableList;
 import javafx.fxml.Initializable;
 import javafx.geometry.Pos;
@@ -17,7 +16,7 @@ import java.util.ResourceBundle;
  * Created by jeprodev on 18/06/2014.
  */
 public class JeproLabController implements Initializable {
-    protected boolean has_errors = false;
+    public boolean has_errors = false;
     protected ResourceBundle bundle;
     protected JeproLabContext context;
     protected double formWidth;
@@ -63,6 +62,7 @@ public class JeproLabController implements Initializable {
                 }
             };
             cell.setAlignment(alignment);
+
             return cell;
         });
     }
@@ -78,11 +78,7 @@ public class JeproLabController implements Initializable {
 
 
         public JeproLabActionCell(){
-            commandContainer = new HBox(3);
-        }
-
-        public void setCommandContainer(List<Button> content){
-            commandContainer.getChildren().addAll(content);
+            commandContainer = new HBox(5);
         }
 
         @Override

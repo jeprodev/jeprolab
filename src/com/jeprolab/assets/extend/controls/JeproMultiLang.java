@@ -58,6 +58,14 @@ public class JeproMultiLang<T extends TextInputControl> extends Pane {
         }
     }
 
+
+    public void  setTextPrefSize(double width, double height){
+        width -= 75;
+        for (T field : fields) {
+            field.setPrefSize(width, height);
+        }
+    }
+
     public void setText(Map<String, String> value){
         if(languages == null){
             languages = JeproLabLanguageModel.getLanguages();

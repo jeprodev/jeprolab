@@ -459,7 +459,7 @@ public class JeproLabAnalyzeModel extends JeproLabModel{
                 this.tags = JeproLabTagModel.getAnalyzeTags(this.analyze_id);
             }
 
-            //this.loadStockData();
+            this.loadStockData();
         }
 
         if (this.default_category_id > 0) {
@@ -1377,4 +1377,626 @@ public class JeproLabAnalyzeModel extends JeproLabModel{
         //$this->pagination = new JPagination($total, $limit_start, $limit);
         return analyzes;
     }
+
+    /**
+     * Fill the variables used for stock management
+     */
+    public void loadStockData() {
+        if (this.analyze_id > 0){
+            /* / By default, the analyze quantity correspond to the available quantity to sell in the current lab
+            this.quantity = JeproLabStockAvailableModel.getQuantityAvailableByAnalyzeId(this.analyze_id, 0);
+            this.out_of_stock = JeproLabStockAvailableModel.outOfStock(this.analyze_id);
+            this.depends_on_stock = JeproLabStockAvailableModel.dependsOnStock(this.analyze_id);
+
+            if (JeproLabContext.getContext().laboratory.getLabContext() == JeproLabLaboratoryModel.GROUP_CONTEXT && JeproLabContext.getContext().laboratory.getContextLaboratoryGroup().share_stocks){
+                this.advanced_stock_management = this.useAdvancedStockManagement();
+            } */
+        }
+    }
+
+    public JeproLabAnalyzeModel save(){
+        Map<String, String> post = JeproLab.request.getPost();
+
+        JeproLabContext context = JeproLabContext.getContext();
+        if(languages == null) {
+            languages = JeproLabLanguageModel.getLanguages();
+        }
+        checkAnalyze();
+        removeTaxFromEcoTax();
+        List<Integer> labIds = new ArrayList<>();
+        if(JeproLabLaboratoryModel.isTableAssociated("analyze")){
+            labIds = JeproLabLaboratoryModel.getContextListLaboratoryIds();
+            if(this.laboratory_list_id.size() > 0){
+                labIds = this.laboratory_list_id;
+            }
+        }
+
+        if(JeproLabLaboratoryModel.checkDefaultLabId("analyze")){
+            int minValue =  labIds.get(0);
+            for (Integer value : labIds){
+                if(value < minValue) {
+                    minValue = value;
+                }
+            }
+            this.default_laboratory_id = minValue;
+        }
+        String analyzeReference = post.get("reference");
+        String analyzeEan13 = post.get("ean13");
+        String analyzeUpc = post.get("upc");
+        int analyzePublished = Integer.parseInt(post.get("published"));
+        String analyzeRedirectType = post.get("redirect_type");
+        int availableForOrder = Integer.parseInt(post.get("available_for_order"));
+        int showPrice = Integer.parseInt(post.get("show_price"));
+        int onlineOnly = 0; //Integer.parseInt(post.get("online_only"));
+        String analyzeVisibility = post.get("visibility");
+        int analyzeRedirectId = 0; //Integer.parseInt(post.get("redirect_id"));
+        String analyzeDelay = post.get("delay");
+
+        //this.date_add =  ;
+
+        String query = "INSERT INTO " + dataBaseObject.quoteName("#__jeprolab_analyze") + "("  + dataBaseObject.quoteName("reference") + ", " ;
+        query +=  dataBaseObject.quoteName("ean13") + ", " + dataBaseObject.quoteName("upc") + ", "  + dataBaseObject.quoteName("published");
+        query += ", "  + dataBaseObject.quoteName("redirect_type") + ", " + dataBaseObject.quoteName("visibility") + ", " + dataBaseObject.quoteName("tax_rules_group_id");
+        query += ", " + dataBaseObject.quoteName("delay") + ", "  + dataBaseObject.quoteName("available_for_order") + ", "  + dataBaseObject.quoteName("show_price") + ", ";
+        query += dataBaseObject.quoteName("online_only") + ", " + dataBaseObject.quoteName("default_lab_id") + ", " + dataBaseObject.quoteName("analyze_redirected_id");
+        query += ", " + dataBaseObject.quoteName("date_add") + ", " + dataBaseObject.quoteName("date_upd") +  ", " + dataBaseObject.quoteName("available_date") + " ) VALUES(" + dataBaseObject.quote(analyzeReference, true) ;
+        query += ", " + dataBaseObject.quote(analyzeEan13, true) + ", " + dataBaseObject.quote(analyzeUpc, true) + ", " + analyzePublished;
+        query += ", " + dataBaseObject.quote(analyzeRedirectType, true) + ", " + dataBaseObject.quote(analyzeVisibility, true) + ", 1, " + analyzeDelay;
+        query += ", " + availableForOrder + ", " + showPrice + ", " + onlineOnly + ", " + default_laboratory_id + ", " + analyzeRedirectId + ", ";
+        query += dataBaseObject.quote(JeproLabTools.date("yyyy-MM-dd hh:mm:ss"))+ ", " + dataBaseObject.quote(JeproLabTools.date("yyyy-MM-dd hh:mm:ss")) + ", " + dataBaseObject.quote(JeproLabTools.date("yyyy-MM-dd hh:mm:ss"))+ ") ";
+
+        dataBaseObject.setQuery(query);
+        dataBaseObject.query(true);
+        int analyzeId = dataBaseObject.getGeneratedKey();
+        this.analyze_id = analyzeId;
+
+        if(JeproLabLaboratoryModel.isTableAssociated("analyze")) {
+            String dateAdd = JeproLabTools.date("yyyy-MM-dd hh:mm:ss");
+            /* Laboratory fields */
+            for(int labId : labIds){
+                query = "INSERT INTO " + dataBaseObject.quoteName("#__jeprolab_analyze_lab") + "( " + dataBaseObject.quoteName("analyze_id") + ", ";
+                query += dataBaseObject.quoteName("lab_id") + ", " + dataBaseObject.quoteName("online_only") +  ", " + dataBaseObject.quoteName("published") + ", ";
+                query += dataBaseObject.quoteName("redirect_type") + ", " + dataBaseObject.quoteName("analyze_redirected_id") + ", " + dataBaseObject.quoteName("available_for_order");
+                query += ",  " + dataBaseObject.quoteName("tax_rules_group_id") + ", " + dataBaseObject.quoteName("delay") + ", " + dataBaseObject.quoteName("show_price") + ", " + dataBaseObject.quoteName("visibility") + ", " ;
+                query += dataBaseObject.quoteName("available_date") + ", " + dataBaseObject.quoteName("date_add") + ", " + dataBaseObject.quoteName("date_upd") + ") VALUES( " + analyzeId + ", "  + labId + ", ";
+                query += onlineOnly + ", " + analyzePublished + ", " + dataBaseObject.quote(analyzeRedirectType) + ", 0, " + availableForOrder + ", 1, "  +analyzeDelay + ", ";
+                query += showPrice + ", " + dataBaseObject.quote(analyzeVisibility) + ", " + dataBaseObject.quote(dateAdd) + ", " + dataBaseObject.quote(dateAdd) + ", " + dataBaseObject.quote(dateAdd)+ ") ";
+
+                dataBaseObject.setQuery(query);
+                dataBaseObject.query(false);
+                /* Multilingual fields */
+                for (Object o : languages.entrySet()) {
+                    Map.Entry lang = (Map.Entry) o;
+                    JeproLabLanguageModel language = (JeproLabLanguageModel) lang.getValue();
+
+                    String analyzeName = post.containsKey("name_" + language.language_id) ? post.get("name_" + language.language_id) : " ";
+                    String analyzeDescription = post.containsKey("description_" + language.language_id) ? post.get("description_" + language.language_id) : " ";
+                    String analyzeShortDescription = post.containsKey("short_description_" + language.language_id) ? post.get("short_description_" + language.language_id) : " ";
+
+                    query = "INSERT INTO " + dataBaseObject.quoteName("#__jeprolab_analyze_lang") + "(" + dataBaseObject.quoteName("analyze_id") + ", ";
+                    query += dataBaseObject.quoteName("lab_id") + ", " + dataBaseObject.quoteName("lang_id") + ", " + dataBaseObject.quoteName("description");
+                    query += ", " + dataBaseObject.quoteName("link_rewrite") + ", " + dataBaseObject.quoteName("meta_description") + ", " + dataBaseObject.quoteName("meta_keywords");
+                    query += ", " + dataBaseObject.quoteName("meta_title") + ", " + dataBaseObject.quoteName("short_description") + ", " + dataBaseObject.quoteName("name");
+                    query += ") VALUES (" + analyzeId + ", " + labId + ", " + language.language_id + ", " + dataBaseObject.quote(analyzeDescription) + ", " + dataBaseObject.quote("");
+                    query += ", " + dataBaseObject.quote("") + ", " + dataBaseObject.quote("") + ", " + dataBaseObject.quote("") + ", " + dataBaseObject.quote(analyzeShortDescription) + ", ";
+                    query += dataBaseObject.quote(analyzeName) + ")";
+
+                    dataBaseObject.setQuery(query);
+                    dataBaseObject.query(false);
+                }
+            }
+        }
+
+        JeproLabAnalyzeModel analyze = new JeproLabAnalyzeModel(analyzeId);
+        JeproLabStockAvailableModel.setAnalyzeOutOfStock(analyze.analyze_id, 2);
+
+        analyze.setGroupReduction();
+        /* Hook::exec('actionProductSave', array('id_analyze' => (int)this.id, 'analyze' => $this)); */
+        analyze.addCarriers();
+        analyze.updateAccessories();
+        analyze.updatePackItems();
+        //analyze.updateDownloadProduct();
+
+        if(JeproLabSettingModel.getIntValue("use_advanced_stock_management_on_new_analyze") > 0 && JeproLabSettingModel.getIntValue("advanced_stock_management") > 0){
+            analyze.advanced_stock_management = true;
+            JeproLabStockAvailableModel.setAnalyzeDependsOnStock(analyze.analyze_id, true, context.laboratory.laboratory_id, 0);
+            analyze.update();
+        }
+
+        if(!context.controller.has_errors){
+            if(JeproLabSettingModel.getIntValue("default_warehouse_new_analyze") != 0 && JeproLabSettingModel.getIntValue("advanced_stock_management") > 0){
+               /* JeproLabWarehouseAnalyzeLocationModel warehouseLocationEntity = new JeproLabWarehouseAnalyzeLocationModel();
+                warehouseLocationEntity.analyze_id = analyze.analyze_id;
+                warehouseLocationEntity.analyze_attribute_id = 0;
+                warehouseLocationEntity.warehouse_id = JeproLabSettingModel.getIntValue("default_warehouse_new_analyze");
+                warehouseLocationEntity.location = dataBaseObject.quote("");
+                warehouseLocationEntity.save();*/
+            }
+        }
+
+        return analyze;
+    }
+
+    public boolean update(){
+        /*result = parent::update($null_values);
+        this.setGroupReduction();
+
+        // Sync stock Reference, EAN13 and UPC
+        if (JeproLabSettingModel.get('PS_ADVANCED_STOCK_MANAGEMENT') && StockAvailable::dependsOnStock(this.id, JeproLabContext.getContext()->lab->id)) {
+        Db::getInstance()->update('stock', array(
+                        'reference' => pSQL(this.reference),
+                'ean13'     => pSQL(this.ean13),
+                'upc'        => pSQL(this.upc),
+        ), 'id_analyze = '.(int)this.id.' AND id_analyze_attribute = 0');
+    }
+
+        Hook::exec('actionProductSave', array('id_analyze' => (int)this.id, 'analyze' => $this));
+        Hook::exec('actionProductUpdate', array('id_analyze' => (int)this.id, 'analyze' => $this));
+        if (this.getType() == JeproLabAnalyzeModel.PTYPE_VIRTUAL && this.active && !JeproLabSettingModel.get('PS_VIRTUAL_PROD_FEATURE_ACTIVE')) {
+        JeproLabSettingModel.updateGlobalValue('PS_VIRTUAL_PROD_FEATURE_ACTIVE', '1');
+    }
+*/
+        return true;
+    }
+
+    protected void removeTaxFromEcoTax(){
+        Float ecoTax = JeproLab.request.getPost().containsKey("ecotax") ? Float.parseFloat(JeproLab.request.getPost().get("ecotax")) : 0;
+        if (ecoTax > 0) {
+            ecoTax = JeproLabTools.roundPrice(ecoTax/(1 + JeproLabTaxModel.getAnalyzeEcoTaxRate()/100), 6);
+            JeproLab.request.getPost().put("ecotax", ecoTax.toString());
+        }
+    }
+
+    /**
+     * delete all items in pack, then check if type_analyze value is 2.
+     * if yes, add the pack items from input "inputPackItems"
+     *
+     */
+    public void updatePackItems(){
+        /*JeproshopProductPack::deleteItems($this->analyze_id);
+        // lines format: QTY x ID-QTY x ID
+        $app = JFactory::getApplication();
+        $data = JRequest::get('post');
+        $input_data = isset($data['information']) ?  $data['information'] : $data['jform'];
+        if($input_data['analyze_type'] == JeproshopProductModelProduct::PACKAGE_PRODUCT){
+            $this->setDefaultAttribute(0); //reset cache_default_attribute
+            $items = $app->input->get('input_pack_items');
+            $lines = array_unique(explode('-', $items));
+            // lines is an array of string with format : QTYxID
+            if (count($lines)){
+                foreach ($lines as $line){
+                    if (!empty($line)){
+                        list($qty, $item_id) = explode('x', $line);
+                        if ($qty > 0 && isset($item_id)){
+                            if(JeproshopProductPack::isPack((int)$item_id)){
+                                $this->context->controller->has_errors  = JText::_('COM_JEPROSHOP_YOU_CANT_ADD_PRODUCT_PACKS_INTO_A_PACK_MESSAGE');
+                            }elseif (!JeproshopProductPack::addItem((int)$this->analyze_id, (int)$item_id, (int)$qty)){
+                                $this->context->controller->has_errors  = JText::_('COM_JEPROSHOP_AN_ERROR_OCCURRED_WHILE_ATTEMPTING_TO_ADD_PRODUCTS_TO_THE_PACK_MESSAGE');
+                            }
+                        }
+                    }
+                }
+            }
+        }*/
+    }
+
+    public void addCarriers(){
+        /*$app = JFactory::getApplication();
+        $db = JFactory::getDBO();
+        if (!isset($analyze)){
+            $analyze = new JeproshopProductModelProduct((int)$app->input->get('analyze_id'));
+        }
+        if (JeproshopTools::isLoadedObject($analyze, 'analyze_id')){
+            $carriers = array();
+            $input = JRequest::get('post');
+            $analyze_data = $input['shipping'];
+            if (isset($analyze_data['selected_carriers[]'])){
+                $carriers = $analyze_data['selected_carriers[]'];
+            }
+
+            $query = "UPDATE " . staticDataBaseObject.quoteName('#__jeprolab_analyze') . " SET " . staticDataBaseObject.quoteName('width') . " = " . (float)$analyze_data['width'] . ", " . staticDataBaseObject.quoteName('height') . " = ";
+            $query .= (float)$analyze_data['height'] . ", " . staticDataBaseObject.quoteName('weight') . " = " . (float)$analyze_data['weight'] . ", " . staticDataBaseObject.quoteName('additional_shipping_cost') . " = ";
+            $query .= (float)$analyze_data['additional_shipping_cost'] . " WHERE " . staticDataBaseObject.quoteName('analyze_id') . " = " . (int)$analyze->analyze_id;
+
+            staticDataBaseObject.setQuery($query);
+            staticDataBaseObject.query();
+
+            if(count($carriers)){
+                $query = "DELETE FROM " . staticDataBaseObject.quoteName('#__jeprolab_analyze_carrier') . " WHERE analyze_id = " . (int)$analyze->analyze_id . " AND shop_id = " . (int)$analyze->shop_id;
+
+                staticDataBaseObject.setQuery($query);
+                staticDataBaseObject.query();
+                foreach ($carriers as $carrier){
+                    $query = "INSERT INGORE INTO " . staticDataBaseObject.quoteName('#__jeprolab_analyze_carrier') . staticDataBaseObject.quoteName('analyze_id') . ", ";
+                    $query .= staticDataBaseObject.quoteName('carrier_reference_id') . ", " . staticDataBaseObject.quoteName('shop_id') . " VALUES (" . (int)$analyze->analyze_id;
+                    $query .= ", " . (int)$carrier . ", " . (int)$analyze->shop_id . ") ";
+
+                    staticDataBaseObject.setQuery($query);
+                    staticDataBaseObject.query();
+                }
+            }
+        }*/
+    }
+
+
+    /**
+     * Update analyze accessories
+     */
+    public void updateAccessories(){
+       /* $app = JFactory::getApplication();
+        $this->deleteAccessories();
+        $accessories = $app->input->get('input_accessories');
+        if($accessories){
+            $accessories_id = array_unique(explode('-', $accessories));
+            if (count($accessories_id)){
+                array_pop($accessories_id);
+                $this->changeAccessories($accessories_id);
+            }
+        }*/
+    }
+
+    /**
+     * Set Group reduction if needed
+     */
+    public boolean setGroupReduction() {
+        return JeproLabGroupModel.JeproLabGroupReductionModel.setAnalyzeReduction(this.analyze_id);
+    }
+
+    /**
+     * getProductCategories return an array of categories which this analyze belongs to
+     *
+     * @return List of categories id
+     */
+    public static List<Integer> getAnalyzeCategories(){
+        return getAnalyzeCategories(0);
+    }
+
+    /**
+     * getProductCategories return an array of categories which this analyze belongs to
+     *
+     * @return List of categories id
+     */
+    public static List<Integer> getAnalyzeCategories(int analyzeId){
+        String cacheKey = "jeprolab_analyze_model_get_analyze_categories_" + analyzeId;
+        if (!JeproLabCache.getInstance().isStored(cacheKey)) {
+            if (staticDataBaseObject == null) {
+                staticDataBaseObject = JeproLabFactory.getDataBaseConnector();
+            }
+            List<Integer> categoryIds = new ArrayList<>();
+
+            String query = "SELECT " + staticDataBaseObject.quoteName("category_id") + " FROM " + staticDataBaseObject.quoteName("#__jeprolab_analyze_category");
+            query += " WHERE " + staticDataBaseObject.quoteName("analyze_id") + " = " + analyzeId;
+
+            staticDataBaseObject.setQuery(query);
+            ResultSet categorySet = staticDataBaseObject.loadObjectList();
+
+            if (categorySet != null) {
+                try {
+                    while(categorySet.next()){
+                        categoryIds.add(categorySet.getInt("category_id"));
+                    }
+                }catch(SQLException ignored){
+                    ignored.printStackTrace();
+                }finally {
+                    try {
+                        JeproLabDataBaseConnector.getInstance().closeConnexion();
+                    }catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+            JeproLabCache.getInstance().store(cacheKey, categoryIds);
+            return categoryIds;
+        }
+        return (List<Integer>)JeproLabCache.getInstance().retrieve(cacheKey);
+    }
+
+
+    private void checkAnalyze(){
+        // $className = 'Product';
+        // @todo : the call_user_func seems to contains only statics values (className = 'Product')
+        //$rules = call_user_func(array($this->className, 'getValidationRules'), $this->className);
+        JeproLabLanguageModel defaultLanguage = new JeproLabLanguageModel(JeproLabSettingModel.getIntValue("default_lang"));
+        if(this.languages == null) {
+            languages = JeproLabLanguageModel.getLanguages();
+        }/*
+        // Check required fields
+        foreach ($rules['required'] as $field) {
+            if (!$this->isProductFieldUpdated($field)) {
+                continue;
+            }
+
+            if (($value = Tools::getValue($field)) == false && $value != '0') {
+                if (Tools::getValue('id_'.$this->table) && $field == 'passwd') {
+                    continue;
+                }
+                $this->errors[] = sprintf(
+                        Tools::displayError('The %s field is required.'),
+                        call_user_func(array($className, 'displayFieldName'), $field, $className)
+                );
+            }
+        }
+
+        // Check multilingual required fields
+        foreach ($rules['requiredLang'] as $fieldLang) {
+            if ($this->isProductFieldUpdated($fieldLang, $default_language->id) && !Tools::getValue($fieldLang.'_'.$default_language->id)) {
+                $this->errors[] = sprintf(
+                        Tools::displayError('This %1$s field is required at least in %2$s'),
+                        call_user_func(array($className, 'displayFieldName'), $fieldLang, $className),
+                        $default_language->name
+                );
+            }
+        }
+
+        // Check fields sizes
+        foreach ($rules['size'] as $field => $maxLength) {
+            if ($this->isProductFieldUpdated($field) && ($value = Tools::getValue($field)) && Tools::strlen($value) > $maxLength) {
+                $this->errors[] = sprintf(
+                        Tools::displayError('The %1$s field is too long (%2$d chars max).'),
+                        call_user_func(array($className, 'displayFieldName'), $field, $className),
+                        $maxLength
+                );
+            }
+        }
+
+        if (Tools::getIsset('description_short') && $this->isProductFieldUpdated('description_short')) {
+            $saveShort = Tools::getValue('description_short');
+            $_POST['description_short'] = strip_tags(Tools::getValue('description_short'));
+        }
+
+        // Check description short size without html
+        $limit = (int)Configuration::get('PS_PRODUCT_SHORT_DESC_LIMIT');
+        if ($limit <= 0) {
+            $limit = 400;
+        }
+        foreach ($languages as $language) {
+            if ($this->isProductFieldUpdated('description_short', $language['id_lang']) && ($value = Tools::getValue('description_short_'.$language['id_lang']))) {
+                if (Tools::strlen(strip_tags($value)) > $limit) {
+                    $this->errors[] = sprintf(
+                            Tools::displayError('This %1$s field (%2$s) is too long: %3$d chars max (current count %4$d).'),
+                            call_user_func(array($className, 'displayFieldName'), 'description_short'),
+                            $language['name'],
+                            $limit,
+                            Tools::strlen(strip_tags($value))
+                    );
+                }
+            }
+        }
+
+        // Check multilingual fields sizes
+        foreach ($rules['sizeLang'] as $fieldLang => $maxLength) {
+            foreach ($languages as $language) {
+                $value = Tools::getValue($fieldLang.'_'.$language['id_lang']);
+                if ($value && Tools::strlen($value) > $maxLength) {
+                    $this->errors[] = sprintf(
+                            Tools::displayError('The %1$s field is too long (%2$d chars max).'),
+                            call_user_func(array($className, 'displayFieldName'), $fieldLang, $className),
+                            $maxLength
+                    );
+                }
+            }
+        }
+
+        if ($this->isProductFieldUpdated('description_short') && isset($_POST['description_short'])) {
+            $_POST['description_short'] = $saveShort;
+        }
+
+        // Check fields validity
+        foreach ($rules['validate'] as $field => $function) {
+            if ($this->isProductFieldUpdated($field) && ($value = Tools::getValue($field))) {
+                $res = true;
+                if (Tools::strtolower($function) == 'iscleanhtml') {
+                    if (!Validate::$function($value, (int)Configuration::get('PS_ALLOW_HTML_IFRAME'))) {
+                        $res = false;
+                    }
+                } elseif (!Validate::$function($value)) {
+                    $res = false;
+                }
+
+                if (!$res) {
+                    $this->errors[] = sprintf(
+                            Tools::displayError('The %s field is invalid.'),
+                            call_user_func(array($className, 'displayFieldName'), $field, $className)
+                    );
+                }
+            }
+        }
+        // Check multilingual fields validity
+        foreach ($rules['validateLang'] as $fieldLang => $function) {
+            foreach ($languages as $language) {
+                if ($this->isProductFieldUpdated($fieldLang, $language['id_lang']) && ($value = Tools::getValue($fieldLang.'_'.$language['id_lang']))) {
+                    if (!Validate::$function($value, (int)Configuration::get('PS_ALLOW_HTML_IFRAME'))) {
+                        $this->errors[] = sprintf(
+                                Tools::displayError('The %1$s field (%2$s) is invalid.'),
+                                call_user_func(array($className, 'displayFieldName'), $fieldLang, $className),
+                                $language['name']
+                        );
+                    }
+                }
+            }
+        }
+
+        // Categories
+        if ($this->isProductFieldUpdated('id_category_default') && (!Tools::isSubmit('categoryBox') || !count(Tools::getValue('categoryBox')))) {
+            $this->errors[] = $this->l('Products must be in at least one category.');
+        }
+
+        if ($this->isProductFieldUpdated('id_category_default') && (!is_array(Tools::getValue('categoryBox')) || !in_array(Tools::getValue('id_category_default'), Tools::getValue('categoryBox')))) {
+            $this->errors[] = $this->l('This analyze must be in the default category.');
+        }
+
+        // Tags
+        foreach ($languages as $language) {
+            if ($value = Tools::getValue('tags_'.$language['id_lang'])) {
+                if (!Validate::isTagsList($value)) {
+                    $this->errors[] = sprintf(
+                            Tools::displayError('The tags list (%s) is invalid.'),
+                            $language['name']
+                    );
+                }
+            }
+        } */
+    }
+
+
+
+
+
+    /**
+     *
+     * Created by jeprodev on 16/02/14.
+     */
+    public static class JeproLabAnalyzePackModel  extends JeproLabAnalyzeModel{
+        protected static Map<Integer, List<JeproLabAnalyzeModel>> cachePackItems = new HashMap<>();
+        protected static Map<Integer, Boolean> cacheIsPack = new HashMap<>();
+        protected static Map<String, Boolean> cacheIsPacked = new HashMap<>();
+
+        /**
+         * Is analyze a pack?
+         *
+         * @param analyzeId analyze Id
+         * @return bool
+         */
+        public static boolean isPack(int analyzeId){
+            if (!JeproLabAnalyzePackModel.isFeaturePublished() || analyzeId <= 0) {
+                return false;
+            }
+
+            if (!JeproLabAnalyzePackModel.cacheIsPack.containsKey(analyzeId)){
+                if(staticDataBaseObject == null){
+                    staticDataBaseObject = JeproLabFactory.getDataBaseConnector();
+                }
+                String query = "SELECT COUNT(*) AS pack FROM " + staticDataBaseObject.quoteName("#__jeprolab_pack") + " WHERE ";
+                query += " analyze_pack_id = " + analyzeId;
+
+                staticDataBaseObject.setQuery(query);
+                JeproLabAnalyzePackModel.cacheIsPack.put(analyzeId, staticDataBaseObject.loadValue("pack") > 0);
+            }
+            return JeproLabAnalyzePackModel.cacheIsPack.get(analyzeId);
+        }
+
+        public static boolean isPacked(int analyzeId){
+            return JeproLabAnalyzePackModel.isPacked(analyzeId, 0);
+        }
+
+        /**
+         * Is analyze in a pack?
+         * If analyzeAttributeId specified, then will restrict search on the given combination,
+         * else this method will match a product if at least one of all its combination is in a pack.
+         *
+         * @param analyzeId analyze Id
+         * @param analyzeAttributeId Optional combination of the product
+         * @return bool
+         */
+        public static boolean isPacked(int analyzeId, int analyzeAttributeId){
+            if (!JeproLabAnalyzePackModel.isFeaturePublished()){
+                return false;
+            }
+            String cacheKey = analyzeId + "_"  + analyzeAttributeId;
+
+            if (!JeproLabAnalyzePackModel.cacheIsPacked.containsKey(cacheKey)) {
+                if(staticDataBaseObject == null) {
+                    staticDataBaseObject = JeproLabFactory.getDataBaseConnector();
+                }
+                String query = "SELECT COUNT(*) AS pack FROM " + staticDataBaseObject.quoteName("#__jeprolab_pack") + " WHERE analyze_item_id = " + analyzeId;
+                if(analyzeAttributeId > 0){
+                    query += " AND analyze_attribute_id = " + analyzeAttributeId;
+                }
+                staticDataBaseObject.setQuery(query);
+
+                JeproLabAnalyzePackModel.cacheIsPacked.put(cacheKey, staticDataBaseObject.loadValue("pack") > 0);
+
+                return JeproLabAnalyzePackModel.cacheIsPacked.get(cacheKey);
+            }
+            return JeproLabAnalyzePackModel.cacheIsPacked.get(cacheKey);
+        }
+
+        /**
+         *
+         * @param analyzeId analyze id
+         * @param langId laboratory id
+         * @return List of items
+         */
+        public static List<JeproLabAnalyzeModel> getItems(int analyzeId, int langId){
+            if (!JeproLabAnalyzePackModel.isFeaturePublished()){
+                return new ArrayList<>();
+            }
+
+            if (JeproLabAnalyzePackModel.cachePackItems.containsKey(analyzeId)){
+                return JeproLabAnalyzePackModel.cachePackItems.get(analyzeId);
+            }
+            if(staticDataBaseObject == null){
+                staticDataBaseObject = JeproLabFactory.getDataBaseConnector();
+            }
+
+            String query = "SELECT analyze_item_id, analyze_attribute_item_id, quantity FROM " + staticDataBaseObject.quoteName("#__jeprolab_pack");
+            query += " WHERE analyze_pack_id = " + analyzeId;
+
+            staticDataBaseObject.setQuery(query);
+            ResultSet analyzeSet = staticDataBaseObject.loadObjectList();
+            //$result = Db::getInstance()->executeS('`'.("#__jeprolab_.'pack` where id_product_pack = '.(int)$id_product);
+            List<JeproLabAnalyzeModel> items = new ArrayList<>();
+            if(analyzeSet != null) {
+                try {
+                    JeproLabAnalyzeModel analyze;
+                    while(analyzeSet.next()) {
+                        analyze = new JeproLabAnalyzeModel(analyzeSet.getInt("analyze_item_id"), false, langId);
+                        analyze.loadStockData();
+                        analyze.pack_quantity = analyzeSet.getInt("quantity");
+                        analyze.pack_analyze_attribute_id = analyzeSet.getInt("analyze_attribute_item_id") > 0 ? analyzeSet.getInt("analyze_attribute_item_id"): 0;
+                        if (analyzeSet.getInt("analyze_attribute_item_id") > 0) {
+                            query = "SELECT attribute_group_lang." + staticDataBaseObject.quoteName("name") + " AS group_name, attribute_lang.";
+                            query += staticDataBaseObject.quoteName("name") + " AS attribute_name FROM " + staticDataBaseObject.quoteName("#__jeprolab_analyze_attribute");
+                            query += " AS analyze_attribute " + JeproLabLaboratoryModel.addSqlAssociation("analyze_attribute") + " LEFT JOIN ";
+                            query += staticDataBaseObject.quoteName("#__jeprolab_analyze_attribute_combination") + " AS analyze_attribute_combination ON analyze_attribute_combination.";
+                            query += staticDataBaseObject.quoteName("analyze_attribute_id") + " = analyze_attribute." + staticDataBaseObject.quoteName("analyze_attribute_id");
+                            query += " LEFT JOIN " + staticDataBaseObject.quoteName("#__jeprolab_attribute") + " AS attribute ON attribute." + staticDataBaseObject.quoteName("attribute_id");
+                            query += " = analyze_attribute_combination."  + staticDataBaseObject.quoteName("attribute_id") + " LEFT JOIN " + staticDataBaseObject.quoteName("#__jeprolab_attribute_group");
+                            query += " AS attribute_group ON attribute_group." + staticDataBaseObject.quoteName("attribute_group_id") + " = attribute." + staticDataBaseObject.quoteName("attribute_group_id");
+                            query += " LEFT JOIN " + staticDataBaseObject.quoteName("#__jeprolab_attribute_lang") + " AS attribute_lang ON (attribute." + staticDataBaseObject.quoteName("attribute_id");
+                            query += " = attribute_lang." + staticDataBaseObject.quoteName("attribute_id") + " AND attribute_lang." + staticDataBaseObject.quoteName("lang_id") + " = ";
+                            query += JeproLabContext.getContext().language.language_id + ") LEFT JOIN " + staticDataBaseObject.quoteName("#__jeprolab_attribute_group_lang") +  " AS attribute_group_lang ";
+                            query += " attribute_group_lang ON (attribute_group." + staticDataBaseObject.quoteName("attribute_group_id") + " = attribute_group_lang.'=";
+                            query += staticDataBaseObject.quoteName("attribute_group_id") + " AND attribute_group_lang." + staticDataBaseObject.quoteName("lang_id") + " = ";
+                            query += JeproLabContext.getContext().language.language_id + ") WHERE analyze_attribute." + staticDataBaseObject.quoteName("analyze_attribute_id") + " = ";
+                            query += analyzeSet.getInt("analyze_attribute_item_id") + " GROUP BY analyze_attribute." + staticDataBaseObject.quoteName("analyze_attribute_id") + ", attribute_group.";
+                            query += staticDataBaseObject.quoteName("attribute_group_id") + " ORDER BY analyze_attribute."  + staticDataBaseObject.quoteName("analyze_attribute_id");
+
+                            staticDataBaseObject.setQuery(query);
+                            ResultSet combinationSet = staticDataBaseObject.loadObjectList();
+                            if(combinationSet != null){
+                                while (combinationSet.next()) {
+                                    analyze.name.put("lang_" + langId, analyze.name.get("lang_" + langId) + "_" + combinationSet.getString("group_name") + "_" + combinationSet.getString("attribute_name"));
+                                }
+                            }
+                        }
+                        items.add(analyze);
+                    }
+                }catch(SQLException ignored){
+                    ignored.printStackTrace();
+                }finally {
+                    try {
+                        JeproLabDataBaseConnector.getInstance().closeConnexion();
+                    }catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+            JeproLabAnalyzePackModel.cachePackItems.put(analyzeId, items);// = $array_result;
+            return JeproLabAnalyzePackModel.cachePackItems.get(analyzeId);
+        }
+
+
+
+        /**
+         * This method is allow to know if a feature is used or active
+         * @since 1.5.0.1
+         * @return bool
+         */
+        public static boolean isFeaturePublished(){
+            return JeproLabSettingModel.getIntValue("pack_feature_active") > 0;
+        }
+
+    }
+
 }
