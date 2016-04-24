@@ -308,7 +308,6 @@ public class JeproLabMenuController extends JeproLabController{
         JeproLabContext.getContext().controller.initializeContent();
     }
 
-
     public void handleHelpMenuEvent(ActionEvent event) throws IOException {
         JeproLab.getInstance().goToForm(JeproLab.getInstance().getApplicationForms().requestForm);
         JeproLabContext.getContext().controller.initializeContent();

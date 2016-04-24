@@ -2,12 +2,11 @@
 <?import javafx.scene.control.Label?>
 
 <?import com.jeprolab.assets.extend.controls.switchbutton.JeproSwitchButton?>
-<?import com.jeprolab.assets.extend.controls.JeproMultiLangTextField?>
+<?import com.jeprolab.assets.extend.controls.JeproMultiLang?>
 <?import com.jeprolab.assets.extend.controls.JeproFormPanel?>
 <?import com.jeprolab.assets.extend.controls.JeproFormPanelTitle?>
 <?import com.jeprolab.assets.extend.controls.JeproFormPanelContainer?>
 <?import com.jeprolab.assets.extend.controls.JeproImageChooser?>
-<?import com.jeprolab.assets.extend.controls.JeproMultiLangTextArea?>
 <?import com.jeprolab.assets.extend.controls.tree.JeproCategoryTree?>
 <?import javafx.scene.control.Tab?>
 <?import javafx.scene.control.TabPane?>
@@ -18,34 +17,33 @@
         <TabPane fx:id="jeproLabCategoryTabPane">
             <Tab closable="false" fx:id="jeproLabCategoryInformationTab">
                 <VBox spacing="5" >
-                <Label  fx:id="jeproLabCategoryInformationLabel" />
-                <GridPane fx:id="jeproLabCategoryFormLayout">
-                    <Label GridPane.columnIndex="0" GridPane.rowIndex="1" fx:id="jeproLabCategoryNameLabel" />
-                    <JeproMultiLangTextField GridPane.columnIndex="1" GridPane.rowIndex="1" fx:id="jeproLabCategoryName" />
-                    <Label GridPane.columnIndex="2" GridPane.rowIndex="1" fx:id="jeproLabPublishedCategoryLabel" />
-                    <JeproSwitchButton  GridPane.columnIndex="3" GridPane.rowIndex="1" fx:id="jeproLabPublishedCategory" />
-                    <Label GridPane.columnIndex="0" GridPane.rowIndex="2" fx:id="jeproLabCategoryParentLabel"/>
-                    <JeproCategoryTree GridPane.columnIndex="1" GridPane.rowIndex="2" GridPane.columnSpan="3" fx:id="jeproLabCategoryParent"/>
-                    <Label GridPane.columnIndex="0" GridPane.rowIndex="3" fx:id="jeproLabCategoryDescriptionLabel" />
-                    <JeproMultiLangTextArea GridPane.columnIndex="1" GridPane.rowIndex="3" GridPane.columnSpan="3" fx:id="jeproLabCategoryDescription" />
-                    <Label GridPane.columnIndex="0" GridPane.rowIndex="4" fx:id="jeproLabCategoryImageChooserLabel" />
-                    <JeproImageChooser GridPane.columnIndex="1" GridPane.rowIndex="4" fx:id="jeproLabCategoryImageChooser" />
-                    <Label GridPane.columnIndex="2" GridPane.rowIndex="4" fx:id="jeproLabCategoryIsRootLabel" />
-                    <JeproSwitchButton GridPane.columnIndex="3" GridPane.rowIndex="4" fx:id="jeproLabCategoryIsRoot" />
+                    <Label  fx:id="jeproLabCategoryInformationLabel" />
+                    <GridPane fx:id="jeproLabCategoryFormLayout">
+                        <Label GridPane.columnIndex="0" GridPane.rowIndex="1" fx:id="jeproLabCategoryNameLabel" />
+                        <JeproMultiLang GridPane.columnIndex="1" GridPane.rowIndex="1" fx:id="jeproLabCategoryName" />
+                        <Label GridPane.columnIndex="2" GridPane.rowIndex="1" fx:id="jeproLabPublishedCategoryLabel" />
+                        <JeproSwitchButton  GridPane.columnIndex="3" GridPane.rowIndex="1" fx:id="jeproLabPublishedCategory" />
+                        <Label GridPane.columnIndex="0" GridPane.rowIndex="2" fx:id="jeproLabCategoryParentLabel"/>
+                        <JeproCategoryTree GridPane.columnIndex="1" GridPane.rowIndex="2" GridPane.columnSpan="3" fx:id="jeproLabCategoryParent"/>
+                        <Label GridPane.columnIndex="0" GridPane.rowIndex="3" fx:id="jeproLabCategoryDescriptionLabel" />
+                        <JeproMultiLang GridPane.columnIndex="1" GridPane.rowIndex="3" GridPane.columnSpan="3" fx:id="jeproLabCategoryDescription" />
+                        <Label GridPane.columnIndex="0" GridPane.rowIndex="4" fx:id="jeproLabCategoryImageChooserLabel" />
+                        <JeproImageChooser GridPane.columnIndex="1" GridPane.rowIndex="4" fx:id="jeproLabCategoryImageChooser" />
+                        <Label GridPane.columnIndex="2" GridPane.rowIndex="4" fx:id="jeproLabCategoryIsRootLabel" />
+                        <JeproSwitchButton GridPane.columnIndex="3" GridPane.rowIndex="4" fx:id="jeproLabCategoryIsRoot" />
 
-                    <Label GridPane.columnIndex="0" GridPane.rowIndex="5" fx:id="jeproLabCategoryMetaTileLabel" />
-                    <JeproMultiLangTextField GridPane.columnIndex="1" GridPane.rowIndex="5" fx:id="jeproLabCategoryMetaTile" />
-                    <Label GridPane.columnIndex="2" GridPane.rowIndex="5" fx:id="jeproLabCategoryMetaDescriptionLabel" />
-                    <JeproMultiLangTextField GridPane.columnIndex="3" GridPane.rowIndex="5" fx:id="jeproLabCategoryMetaDescription" />
+                        <Label GridPane.columnIndex="0" GridPane.rowIndex="5" fx:id="jeproLabCategoryMetaTileLabel" />
+                        <JeproMultiLang GridPane.columnIndex="1" GridPane.rowIndex="5" fx:id="jeproLabCategoryMetaTile" />
+                        <Label GridPane.columnIndex="2" GridPane.rowIndex="5" fx:id="jeproLabCategoryMetaDescriptionLabel" />
+                        <JeproMultiLang GridPane.columnIndex="3" GridPane.rowIndex="5" fx:id="jeproLabCategoryMetaDescription" />
 
-                    <Label GridPane.columnIndex="0" GridPane.rowIndex="6" fx:id="jeproLabCategoryMetaKeyWordLabel" />
-                    <JeproMultiLangTextField GridPane.columnIndex="1" GridPane.rowIndex="6" fx:id="jeproLabCategoryMetaKeyWord" />
-                    <Label GridPane.columnIndex="2" GridPane.rowIndex="6" fx:id="jeproLabCategoryLinkRewriteLabel" />
-                    <JeproMultiLangTextField GridPane.columnIndex="3" GridPane.rowIndex="6" fx:id="jeproLabCategoryLinkRewrite" />
+                        <Label GridPane.columnIndex="0" GridPane.rowIndex="6" fx:id="jeproLabCategoryMetaKeyWordLabel" />
+                        <JeproMultiLang GridPane.columnIndex="1" GridPane.rowIndex="6" fx:id="jeproLabCategoryMetaKeyWord" />
+                        <Label GridPane.columnIndex="2" GridPane.rowIndex="6" fx:id="jeproLabCategoryLinkRewriteLabel" />
+                        <JeproMultiLang GridPane.columnIndex="3" GridPane.rowIndex="6" fx:id="jeproLabCategoryLinkRewrite" />
 
-
-                    <Label GridPane.columnIndex="0" GridPane.rowIndex="12" fx:id="jeproLabCategoryLabel" />
-                </GridPane>
+                        <Label GridPane.columnIndex="0" GridPane.rowIndex="12" fx:id="jeproLabCategoryLabel" />
+                    </GridPane>
                 </VBox>
             </Tab>
             <Tab closable="false" fx:id="jeproLabCategoryAssociatedLaboratoriesTab">

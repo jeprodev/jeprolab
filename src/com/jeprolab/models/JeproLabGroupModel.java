@@ -7,10 +7,7 @@ import com.jeprolab.models.core.JeproLabFactory;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  *
@@ -189,6 +186,56 @@ public class JeproLabGroupModel extends JeproLabModel {
             JeproLabGroupModel.cache_reduction.put(cacheKey, reduction);
         }
         return (float)JeproLabGroupModel.cache_reduction.get(cacheKey);
+    }
+
+    public static List<JeproLabGroupModel> getGroups(int langId){
+        return getGroups(langId, 0);
+    }
+
+    public static List<JeproLabGroupModel> getGroups(int langId, int labId){
+        String labCriteria = "";
+        if (labId > 0) {
+            labCriteria = JeproLabLaboratoryModel.addSqlAssociation("group");
+        }
+
+        if(staticDataBaseObject == null){
+            staticDataBaseObject = JeproLabFactory.getDataBaseConnector();
+        }
+
+        String query = "SELECT DISTINCT grp." + staticDataBaseObject.quoteName("group_id") + ", grp." + staticDataBaseObject.quoteName("reduction");
+        query += ", grp." + staticDataBaseObject.quoteName("price_display_method") + ", grp_lang." + staticDataBaseObject.quoteName("name") + " FROM ";
+        query += staticDataBaseObject.quoteName("#__jeprolab_group") + " AS grp LEFT JOIN " + staticDataBaseObject.quoteName("#__jeprolab_group_lang");
+        query += " AS grp_lang ON (grp." + staticDataBaseObject.quoteName("group_id") + " = grp_lang." + staticDataBaseObject.quoteName("group_id");
+        query += " AND grp_lang." + staticDataBaseObject.quoteName("lang_id") + " = " +  langId + ") " + labCriteria + " ORDER BY grp.";
+        query += staticDataBaseObject.quoteName("group_id") + " ASC";
+
+        staticDataBaseObject.setQuery(query);
+        ResultSet groupSet = staticDataBaseObject.loadObjectList();
+        List<JeproLabGroupModel> groupList = new ArrayList<>();
+
+        try{
+            JeproLabGroupModel group;
+            while(groupSet.next()){
+                group = new JeproLabGroupModel();
+                group.group_id = groupSet.getInt("group_id");
+                group.reduction = groupSet.getFloat("reduction");
+                group.price_display_method = groupSet.getInt("price_display_method");
+                if(langId > 0){
+                    group.name.put("lang_" + langId, groupSet.getString("name"));
+                }
+                //group = groupSet.get("");
+                groupList.add(group);
+            }
+        }catch(SQLException ignored){
+            ignored.printStackTrace();
+        }finally {
+            try {
+                JeproLabDataBaseConnector.getInstance().closeConnexion();
+            }catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+        return groupList;
     }
 
 
