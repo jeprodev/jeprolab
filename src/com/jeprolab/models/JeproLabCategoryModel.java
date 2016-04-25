@@ -1371,5 +1371,63 @@ public class JeproLabCategoryModel extends JeproLabModel{
         staticDataBaseObject.query(false);
     }
 
+    public static List<JeproLabCategoryModel> getHomeCategories(int langId){
+        return  getHomeCategories(langId, true, 0);
+    }
+
+    public static List<JeproLabCategoryModel> getHomeCategories(int langId, boolean active){
+        return  getHomeCategories(langId, active, 0);
+    }
+
+    /**
+     * Return main categories
+     *
+     * @param langId Language ID
+     * @param active return only active categories
+     * @param labId language filter
+     * @return array categories
+     */
+    public static List<JeproLabCategoryModel> getHomeCategories(int langId, boolean active, int labId){
+        ResultSet resultSet = JeproLabCategoryModel.getChildren(JeproLabSettingModel.getIntValue("root_category"), langId, active, labId);
+        List<JeproLabCategoryModel> categories = new ArrayList<>();
+
+        if(resultSet != null){
+            try{
+                JeproLabCategoryModel category;
+                while(resultSet.next()){
+                    category = new JeproLabCategoryModel();
+                    category.category_id = resultSet.getInt("category_id");
+                    /*category.parent_id = resultSet.getInt("parent_id");
+                    //category.default_laboratory_id = resultSet.getInt("default_lab_id");
+                    //category.depth_level = resultSet.getInt("depth_level");
+                    //category.n_left = resultSet.getInt("n_left");
+                    //category.n_right = resultSet.getInt("n_right");
+                    category.published = resultSet.getInt("published") > 0;
+                    category.date_add = resultSet.getDate("date_add");
+                    category.date_upd = resultSet.getDate("date_upd");
+                    category.position = resultSet.getInt("position");*/
+                    if(category.name == null){
+                        category.name = new HashMap<>();
+                    }
+                    category.name.put("lang_" + langId, resultSet.getString("name"));
+                    if(category.link_rewrite == null){
+                        category.link_rewrite = new HashMap<>();
+                    }
+                    category.link_rewrite.put("lang_" + langId, resultSet.getString("link_rewrite"));
+                    categories.add(category);
+                }
+            }catch (SQLException ignored){
+                ignored.printStackTrace();
+            }finally {
+                try {
+                    JeproLabDataBaseConnector.getInstance().closeConnexion();
+                }catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+
+        return categories;
+    }
 
 }

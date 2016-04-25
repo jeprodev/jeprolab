@@ -18,6 +18,7 @@ import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
+import javafx.util.Callback;
 
 import java.net.URL;
 import java.util.HashMap;
@@ -53,7 +54,7 @@ public class JeproLabRequestAddController extends JeproLabController{
     public TextField jeproLabRequestReference, jeproLabRequestMainContactInfoMail, jeproLabRequestMainContactInfoName;
     public TextField jeproLabSampleReference;
     public JeproPhoneField jeproLabCustomerCompanyPhone, jeproLabCustomerCompanyFax;
-    public ComboBox jeproLabSampleMatrix;
+    public ComboBox<String> jeproLabSampleMatrix;
     public DatePicker jeproLabSampleTestDate;
     public GridPane jeproLabSampleAnalyzeSelector, jeproLabCustomerInformationLayout, jeproLabCustomerContactLayout, jeproLabSampleAddFormLayout;
     public HBox jeproLabCustomerCompanyPhoneWrapper;
@@ -74,7 +75,10 @@ public class JeproLabRequestAddController extends JeproLabController{
         jeproLabRequestFormWrapper.setPrefWidth(formWidth);
         jeproLabRequestFormWrapper.setLayoutX(0.01 * JeproLab.APP_WIDTH);
         jeproLabRequestFormWrapper.setLayoutY(10);
+        formTitleLabel.setText(bundle.getString("JEPROLAB_ADD_NEW_LABEL") + " " + bundle.getString("JEPROLAB_REQUEST_LABEL"));
+        formTitleLabel.setPrefSize(formWidth, 40);
         jeproLabRequestFormTitleWrapper.setPrefSize(formWidth, 40);
+        jeproLabRequestFormTitleWrapper.getChildren().add(formTitleLabel);
         jeproLabRequestContentWrapper.setPrefWidth(formWidth);
         jeproLabRequestContentWrapper.setLayoutY(40);
 
@@ -241,16 +245,19 @@ public class JeproLabRequestAddController extends JeproLabController{
         CheckBox checkAll = new CheckBox();
         jeproLabSampleRecordTableView.setPrefWidth(formWidth - 440);
         double remainingWidth = formWidth - 520;
-        jeproLabSampleCheckBoxColumn.setGraphic(checkAll);
 
+        jeproLabSampleCheckBoxColumn.setGraphic(checkAll);
         jeproLabSampleCheckBoxColumn.setPrefWidth(20);
+        Callback<TableColumn<JeproLabSampleRecord, Boolean>, TableCell<JeproLabSampleRecord, Boolean>> checkBoxCellFactory = param -> new JeproLabCheckBoxCell();
+        jeproLabSampleCheckBoxColumn.setCellFactory(checkBoxCellFactory);
         jeproLabSampleReferenceColumn.setText(bundle.getString("JEPROLAB_REFERENCE_LABEL"));
         jeproLabSampleReferenceColumn.setPrefWidth(0.30 * remainingWidth);
         jeproLabSampleDesignationColumn.setText(bundle.getString("JEPROLAB_DESIGNATION_LABEL"));
         jeproLabSampleDesignationColumn.setPrefWidth(0.7 * remainingWidth);
         jeproLabSampleActionColumn.setText(bundle.getString("JEPROLAB_ACTIONS_LABEL"));
         jeproLabSampleActionColumn.setPrefWidth(60);
-
+        Callback<TableColumn<JeproLabSampleRecord, HBox>, TableCell<JeproLabSampleRecord, HBox>> sampleActionFactory = param -> new JeproLabSampleActionCell();
+        jeproLabSampleActionColumn.setCellFactory(sampleActionFactory);
     }
 
     private void setFormLabels(){
@@ -393,7 +400,11 @@ public class JeproLabRequestAddController extends JeproLabController{
 
     }
 
-    private class JeproLabSamplActionCell{
+    private class JeproLabCheckBoxCell extends TableCell<JeproLabSampleRecord, Boolean> {
+
+    }
+
+    private class JeproLabSampleActionCell extends TableCell<JeproLabSampleRecord, HBox> {
 
     }
 }

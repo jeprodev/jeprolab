@@ -1,12 +1,13 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.control.TableView?>
 <?import javafx.scene.control.TableColumn?>
-<?import javafx.scene.layout.AnchorPane?>
+
+<?import javafx.scene.layout.HBox?>
 <VBox xmlns:fx="http://javafx.com/fxml" fx:controller="com.jeprolab.controllers.JeproLabFeedBackController" >
-    <AnchorPane>
-        <TableView fx:id="jeproLabFeedBackTableView" >
+    <HBox />
+    <TableView fx:id="jeproLabFeedBackTableView" >
             <columns>
-                <TableColumn resizable="false" editable="false" fx:id="jeproLabFeedBackIndexColumn" />
+                <TableColumn resizable="false" editable="false"  fx:id="jeproLabFeedBackIndexColumn" />
                 <TableColumn resizable="false" editable="false" fx:id="jeproLabFeedBackCheckBoxColumn" />
                 <TableColumn resizable="false" editable="false" fx:id="jeproLabFeedBackCustomerColumn" />
                 <TableColumn resizable="false" editable="false" fx:id="jeproLabFeedBackEnjoyWorkingWithUsColumn" />
@@ -25,5 +26,4 @@
                 <TableColumn resizable="false" editable="false" fx:id="jeproLabFeedBackGlobalQualityColumn"/>
             </columns>
         </TableView>
-    </AnchorPane>
 </VBox>

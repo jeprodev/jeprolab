@@ -1,5 +1,4 @@
 <?import javafx.scene.control.TableView?>
-<?import com.jeprolab.assets.extend.controls.JeproFormPanel?>
 <?import javafx.scene.control.TableColumn?>
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.layout.HBox?>

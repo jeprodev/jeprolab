@@ -40,6 +40,8 @@ public class JeproLabController implements Initializable {
         context.controller = this;
 
         formTitleLabel = new Label();
+        formTitleLabel.getStyleClass().add("form-title");
+        formTitleLabel.setAlignment(Pos.CENTER);
     }
 
     public void initializeContent(){ }
@@ -66,7 +68,6 @@ public class JeproLabController implements Initializable {
             return cell;
         });
     }
-
 
     protected abstract static class JeproLabRecord {
         protected abstract ObservableList getActionContent();

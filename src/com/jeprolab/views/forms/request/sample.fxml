@@ -10,7 +10,7 @@
 <?import javafx.scene.control.ComboBox?>
 <?import javafx.scene.control.DatePicker?>
 <?import javafx.scene.control.ScrollPane?>
-<JeproFormPanel xmlns:fx="http://javafx.com/fxml" fx:id="jeproLabSampleFormWrapper" fx:controller="com.jeprolab.controllers.JeproLabRequestAddSampleController" >
+<JeproFormPanel xmlns:fx="http://javafx.com/fxml" fx:id="jeproLabSampleFormWrapper" fx:controller="com.jeprolab.controllers.JeproLabRequestSampleAddController" >
     <JeproFormPanelTitle fx:id="jeproLabSampleFormTitleWrapper" />
     <JeproFormPanelContainer fx:id="jeproLabSampleContentWrapper" >
         <TabPane fx:id="jeproLabSampleTabPane">
