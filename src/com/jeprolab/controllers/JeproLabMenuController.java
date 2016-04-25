@@ -38,7 +38,7 @@ public class JeproLabMenuController extends JeproLabController{
     public MenuItem groupsSubMenuItem, addGroupMenuItem, currentRequestMenuItem;
     public MenuItem threadsSubMenuItem, contactsSubMenuItem;
     public MenuItem feedsSubMenuItem;
-    public MenuItem zoneListSubMenuItem;
+    public MenuItem zoneListSubMenuItem, laboratoryGroupSubMenuItem;
     public MenuItem addTaxSubMenuItem, addTaxGroupSubMenuItem, taxesGroupSubMenuItem, taxesSubMenuItem;
     public MenuItem countrySubMenuItem, addCountrySubMenu, editZoneSubMenu, addStateSubMenuItem, statesSubMenuItem, currenciesSubMenuItem, addCurrencySubMenuItem;
     public MenuItem requestListMenuItem, requestAddNewMenuItem, requestBillsMenuItem, requestAddBillMenuItem;

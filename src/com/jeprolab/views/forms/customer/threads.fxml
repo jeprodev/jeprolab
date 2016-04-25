@@ -1,0 +1,4 @@
+<?import javafx.scene.layout.VBox?>
+<VBox xmlns:fx="http://javafx.com/fxml" fx:id="jeproLabCustomerListWrapper" fx:controller="com.jeprolab.controllers.JeproLabCustomerThreadsController" spacing="5" >
+
+</VBox>

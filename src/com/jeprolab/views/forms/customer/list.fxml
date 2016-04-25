@@ -1,15 +1,14 @@
-
 <?import javafx.scene.control.TableColumn?>
 <?import javafx.scene.control.TableView?>
-<?import com.jeprolab.assets.extend.controls.JeproFormPanel?>
-<?import javafx.scene.control.ToolBar?>
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.TextField?>
-<JeproFormPanel xmlns:fx="http://javafx.com/fxml" fx:id="jeproLabCustomerListWrapper" fx:controller="com.jeprolab.controllers.JeproLabCustomerController" >
-    <ToolBar fx:id="jeproLabCustomerSearchToolBar">
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.layout.HBox?>
+<VBox xmlns:fx="http://javafx.com/fxml" fx:id="jeproLabCustomerListWrapper" fx:controller="com.jeprolab.controllers.JeproLabCustomerController" spacing="5" >
+    <HBox fx:id="jeproLabCustomerSearchToolBar">
         <TextField fx:id="customerSearchBox"/>
         <Button fx:id="searchCustomerButton"/>
-    </ToolBar>
+    </HBox>
     <TableView fx:id="customersTableView">
         <columns>
             <TableColumn resizable="false" editable="false" fx:id="customerListNumberColumn" />
@@ -27,4 +26,4 @@
             <TableColumn resizable="false" editable="false" fx:id="customerActionsColumn" />
         </columns>
     </TableView>
-</JeproFormPanel>
+</VBox>

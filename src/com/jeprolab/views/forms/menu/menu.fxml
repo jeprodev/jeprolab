@@ -89,7 +89,8 @@
                 <MenuItem  fx:id="laboratorySubMenuItem" onAction="#handleLaboratoriesMenuEvent" />
                 <MenuItem fx:id="addLaboratorySubMenuItem" onAction="#handleAddNewLaboratoryMenuEvent" />
             </Menu>
-            <Menu fx:id="laboratoryGroupSubMenu" onAction="#handleLaboratoryGroupsMenuEvent" >
+            <Menu fx:id="laboratoryGroupSubMenu" >
+                <MenuItem fx:id="laboratoryGroupSubMenuItem"  onAction="#handleLaboratoryGroupsMenuEvent" />
                 <MenuItem fx:id="addLaboratoryGroupSubMenuItem" onAction="#handleAddNewLaboratoryGroupMenuEvent" />
             </Menu>
             <Menu fx:id="localisationSubMenu" >

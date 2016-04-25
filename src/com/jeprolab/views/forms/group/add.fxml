@@ -1,7 +1,7 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.layout.GridPane?>
 <?import javafx.scene.control.Label?>
-<?import com.jeprolab.assets.extend.controls.JeproMultiLangTextField?>
+<?import com.jeprolab.assets.extend.controls.JeproMultiLang?>
 <?import javafx.scene.control.ComboBox?>
 <?import com.jeprolab.assets.extend.controls.switchbutton.JeproSwitchButton?>
 <?import com.jeprolab.assets.extend.controls.JeproAppendButton?>
@@ -14,7 +14,7 @@
         <VBox spacing="5" >
         <GridPane fx:id="groupInformationWrapper" alignment="CENTER">
             <Label GridPane.columnIndex="0" GridPane.rowIndex="0" fx:id="jeproLabGroupNameLabel"  />
-            <JeproMultiLangTextField  GridPane.columnIndex="1" GridPane.rowIndex="0" fx:id="jeproLabGroupName" />
+            <JeproMultiLang  GridPane.columnIndex="1" GridPane.rowIndex="0" fx:id="jeproLabGroupName" />
             <Label GridPane.columnIndex="2" GridPane.rowIndex="0"  fx:id="jeproLabGroupReductionLabel" />
             <JeproAppendButton  GridPane.columnIndex="3" GridPane.rowIndex="0"  fx:id="jeproLabGroupReduction" />
             <Label GridPane.columnIndex="0" GridPane.rowIndex="1"  fx:id="jeproLabGroupPriceDisplayMethodLabel" />

@@ -59,6 +59,7 @@ public class JeproLabCustomerModel extends JeproLabModel{
     public int state_id;
 
     public String postcode;
+    public String last_visit;
 
     public int geolocation_country_id;
 
@@ -244,6 +245,72 @@ public class JeproLabCustomerModel extends JeproLabModel{
             JeproLabCustomerModel._defaultGroupId.put(customerId, (int)staticDataBaseObject.loadValue("default_group_id"));
         }
         return JeproLabCustomerModel._defaultGroupId.get(customerId);
+    }
+
+    public static List<JeproLabCustomerModel> getCustomers(){
+        return getCustomers(false);
+    }
+
+    /**
+     * Return customers list
+     *
+     * @param onlyActive Returns only active customers when true
+     * @return array Customers
+     */
+    public static List<JeproLabCustomerModel> getCustomers(boolean onlyActive){
+        if(staticDataBaseObject == null){
+            staticDataBaseObject = JeproLabFactory.getDataBaseConnector();
+        }
+        List<JeproLabCustomerModel> customers = new ArrayList<>();
+
+        /*String query = "SELECT " + staticDataBaseObject.quoteName("customer_id") + ", " + staticDataBaseObject.quoteName("email");
+        query += ", " + staticDataBaseObject.quoteName("firstname") + ", " + staticDataBaseObject.quoteName("lastname") + " FROM ";
+        query += staticDataBaseObject.quoteName("#__jeprolab_customer") + " WHERE 1 " + JeproLabLaboratoryModel.addSqlRestriction(JeproLabLaboratoryModel.SHARE_CUSTOMER);
+        query += (onlyActive ? " AND " + staticDataBaseObject.quoteName("published") + " = 1" : "") + " ORDER BY ";
+        query += staticDataBaseObject.quoteName("customer_id") + " ASC";*/
+
+        String query = "SELECT * FROM " + staticDataBaseObject.quoteName("#__jeprolab_customer") + " WHERE 1 ";
+        query += JeproLabLaboratoryModel.addSqlRestriction(JeproLabLaboratoryModel.SHARE_CUSTOMER);
+        query += (onlyActive ? " AND " + staticDataBaseObject.quoteName("published") + " = 1" : "") + " ORDER BY ";
+        query += staticDataBaseObject.quoteName("customer_id") + " ASC";
+
+        staticDataBaseObject.setQuery(query);
+        ResultSet customerSet = staticDataBaseObject.loadObjectList();
+
+        if(customerSet != null){
+            try{
+                JeproLabCustomerModel customer;
+                while(customerSet.next()){
+                    customer = new JeproLabCustomerModel();
+                    customer.customer_id = customerSet.getInt("customer_id");
+                    customer.email = customerSet.getString("email");
+                    customer.firstname = customerSet.getString("firstname");
+                    customer.lastname = customerSet.getString("lastname");
+                    //customer.last_visit = customerSet.getString("lastname");
+                    customer.lastname = customerSet.getString("lastname");
+                    customer.company = customerSet.getString("company");
+                    customer.date_add = JeproLabTools.getDate(customerSet.getString("date_add"));
+                    customer.date_upd = JeproLabTools.getDate(customerSet.getString("date_upd"));
+                    customers.add(customer);
+                }
+            }catch (SQLException ignored){
+                ignored.printStackTrace();
+            }finally {
+                try{
+                    JeproLabDataBaseConnector.getInstance().closeConnexion();
+                }catch (Exception ignored){
+                    ignored.printStackTrace();
+                }
+            }
+        }
+        return  customers;
+    }
+
+    public static void resetAddressCache(int customerId, int addressId){
+        String cacheKey = customerId + "_" + addressId;
+        if (JeproLabCustomerModel._customerHasAddress.containsKey(cacheKey)) {
+            JeproLabCustomerModel._customerHasAddress.remove(cacheKey);
+        }
     }
 
 }

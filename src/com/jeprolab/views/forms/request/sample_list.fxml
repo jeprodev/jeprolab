@@ -1,7 +1,10 @@
 <?import javafx.scene.control.TableView?>
 <?import com.jeprolab.assets.extend.controls.JeproFormPanel?>
 <?import javafx.scene.control.TableColumn?>
-<JeproFormPanel xmlns:fx="http://javafx.com/fxml" fx:controller="com.jeprolab.controllers.JeproLabRequestSampleController" fx:id="jeproLabSamplesFormWrapper">
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.layout.HBox?>
+<VBox xmlns:fx="http://javafx.com/fxml" fx:controller="com.jeprolab.controllers.JeproLabRequestSampleController" fx:id="jeproLabSamplesFormWrapper">
+    <HBox />
     <TableView fx:id="jeproLabSamplesTableView" >
         <columns>
             <TableColumn editable="false" resizable="false" fx:id="jeproLabSampleIndexTableColumn" />
@@ -12,4 +15,4 @@
             <TableColumn editable="false" resizable="false" fx:id="jeproLabSampleActionTableColumn" />
         </columns>
     </TableView>
-</JeproFormPanel>
+</VBox>
