@@ -137,6 +137,21 @@ public class JeproLabTools {
         return matcher.matches();
     }
 
+    public static String generateSampleReference(String prefix){
+        String reference = "";
+        try{
+            SecureRandom secure = SecureRandom.getInstance("SHA1PRNG");
+            String randomValue = Integer.toString(secure.nextInt());
+            MessageDigest sha = MessageDigest.getInstance("SHA-1");
+            byte[] result = sha.digest(randomValue.getBytes());
+            String encode = hexEncode(result);
+            reference += "SPL" + encode.substring(0, 3) + encode.substring(4, 6);
+        }catch(NoSuchAlgorithmException ex){
+            ex.printStackTrace();
+        }
+        return prefix + reference;
+    }
+
     public static synchronized String createRequestReference(){
         Calendar calendar = Calendar.getInstance();
         calendar.setTimeInMillis(System.currentTimeMillis());

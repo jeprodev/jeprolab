@@ -11,6 +11,7 @@ import java.util.Map;
 public class JeproLabRequest {
     private static volatile Map<String, String> request, post;
     private static JeproLabRequest instance = null;
+    private static final Object synchronizeObject = new Object();
 
     private JeproLabRequest(){
         request = new HashMap<>();
@@ -113,9 +114,11 @@ public class JeproLabRequest {
     }
 
     public static JeproLabRequest getInstance(){
-        if(instance == null){
-            new JeproLabRequest();
+        synchronized(synchronizeObject) {
+            if (instance == null) {
+                new JeproLabRequest();
+            }
+            return instance;
         }
-        return instance;
     }
 }

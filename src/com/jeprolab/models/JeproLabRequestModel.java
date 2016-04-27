@@ -121,7 +121,7 @@ public class JeproLabRequestModel extends JeproLabModel{
     public static class JeproLabSampleModel extends JeproLabModel{
         public int sample_id;
 
-        public int request_id;
+        //public int request_id;
 
         public int matrix_id;
 
@@ -138,8 +138,7 @@ public class JeproLabRequestModel extends JeproLabModel{
         }
 
         public JeproLabSampleModel(int sampleId){
-
-
+            analyzes = new ArrayList<>();
             if(sampleId > 0){
                 if(dataBaseObject == null){
                     dataBaseObject = JeproLabFactory.getDataBaseConnector();
@@ -151,7 +150,58 @@ public class JeproLabRequestModel extends JeproLabModel{
 
             }
         }
+
+        public void add(){
+            if(dataBaseObject == null){
+                dataBaseObject = JeproLabFactory.getDataBaseConnector();
+            }
+            String removalDate = "2014-06-12";
+            String query = "INSERT INTO " + dataBaseObject.quoteName("#__jeprolab_sample") + " ( " + dataBaseObject.quoteName("matrix_id") + ", ";
+            query += dataBaseObject.quoteName("designation") + ", " + dataBaseObject.quoteName("reference") + ", " + dataBaseObject.quoteName("removal_date");
+            query += ") VALUES(" + this.matrix_id + ", " + dataBaseObject.quote(this.designation) + ", " + dataBaseObject.quote(this.reference) + ", ";
+            query += dataBaseObject.quote(removalDate) + ")";
+
+            dataBaseObject.setQuery(query);
+            dataBaseObject.query(true);
+            this.sample_id = dataBaseObject.getGeneratedKey();
+
+            /***
+             * Adding requested analyzes
+             */
+            for(Integer analyzeId : analyzes) {
+                query = "INSERT INTO " + dataBaseObject.quoteName("#__jeproLab_sample_analyze") + "(" + dataBaseObject.quoteName("sample_id") + ", ";
+                query += dataBaseObject.quoteName("analyze_id") + ") VALUES(" + this.sample_id + ", " + analyzeId + ")";
+                dataBaseObject.setQuery(query);
+                dataBaseObject.query(false);
+            }
+        }
+
+        public void removeAnalyze(int analyzeId){
+            synchronized(this) {
+                int index = 0;
+                for (Integer i : analyzes) {
+                    if (i == analyzeId) {
+                        analyzes.remove(index);
+                        break;
+                    }
+                    index++;
+                }
+            }
+        }
+
+        public void addAnalyze(int analyzeId){
+            synchronized(this) {
+                analyzes.add(analyzeId);
+            }
+        }
+
+        private void print(){
+            for(Integer i: analyzes){
+                System.out.println(i);
+            }
+        }
     }
+
 
     public static class JeproLabMatrixModel  extends JeproLabModel{
         public int matrix_id;
