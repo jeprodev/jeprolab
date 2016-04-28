@@ -111,7 +111,7 @@ public class JeproLabCountryModel extends JeproLabModel{
                 ResultSet countryData = dataBaseObject.loadObjectList();
 
                 try {
-                    while(countryData.next()) {
+                    if(countryData.next()) {
                         this.country_id =  countryData.getInt("country_id");
                         this.zone_id = countryData.getInt("zone_id");
                         this.currency_id = countryData.getInt("currency_id");
@@ -423,7 +423,7 @@ public class JeproLabCountryModel extends JeproLabModel{
      * @param countryId Country ID
      * @return string Country name
      */
-    public static String getNameById(int langId, int countryId){
+    public static String getCountryNameByCountryId(int langId, int countryId){
         String cacheKey = "jeprolab_country_get_name_by_country_id_" + countryId + "_" + langId;
         if (!JeproLabCache.getInstance().isStored(cacheKey)) {
             if(staticDataBaseObject == null){
@@ -463,9 +463,10 @@ public class JeproLabCountryModel extends JeproLabModel{
         return null;
     }
 
-    public static int getIdByName(String countryName){
-        return getIdByName(countryName, JeproLabContext.getContext().language.language_id);
+    public static int getCountryIdByCountryName(String countryName){
+        return getCountryIdByCountryName(countryName, JeproLabContext.getContext().language.language_id);
     }
+
     /**
      * Get a country id with its name
      *
@@ -474,7 +475,7 @@ public class JeproLabCountryModel extends JeproLabModel{
      *
      * @return int Country ID
      */
-    public static int getIdByName(String countryName, int langId){
+    public static int getCountryIdByCountryName(String countryName, int langId){
         if(staticDataBaseObject == null){
             staticDataBaseObject = JeproLabFactory.getDataBaseConnector();
         }
@@ -807,4 +808,5 @@ public class JeproLabCountryModel extends JeproLabModel{
             return false;
         }
     }
+
 }

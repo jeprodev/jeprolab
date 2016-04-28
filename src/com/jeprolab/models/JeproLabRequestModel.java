@@ -20,7 +20,7 @@ public class JeproLabRequestModel extends JeproLabModel{
 
     public int customer_id;
 
-    //public int main_contact_id;
+    public int address_id;
 
     public int first_contact_id;
 
@@ -36,7 +36,7 @@ public class JeproLabRequestModel extends JeproLabModel{
 
     public Date date_upd;
 
-    public JeproLabCustomerModel customer;
+    public List<Integer> samples = new ArrayList<>();
 
     public static Map<Integer, String> sample_matrix = new HashMap<>();
 
@@ -72,7 +72,6 @@ public class JeproLabRequestModel extends JeproLabModel{
                             this.first_contact_id = requestSet.getInt("third_contact_id");
                             this.fourth_contact_id = requestSet.getInt("fourth_contact_id");
                             this.reference = requestSet.getString("reference");
-                            this.customer = new JeproLabCustomerModel(this.customer_id);
                             this.date_add = JeproLabTools.getDate(requestSet.getString("date_add"));
                             this.date_upd = JeproLabTools.getDate(requestSet.getString("date_upd"));
                         }
@@ -97,7 +96,7 @@ public class JeproLabRequestModel extends JeproLabModel{
                 this.third_contact_id = requestModel.third_contact_id;
                 this.fourth_contact_id = requestModel.fourth_contact_id;
                 this.reference = requestModel.reference;
-                this.customer = requestModel.customer;
+                //this.customer = requestModel.customer;
                 this.date_add = requestModel.date_add;
                 this.date_upd = requestModel.date_upd;
             }
@@ -106,6 +105,33 @@ public class JeproLabRequestModel extends JeproLabModel{
 
     public void update(){
 
+    }
+
+    public void add(){
+        if(dataBaseObject == null){
+            dataBaseObject = JeproLabFactory.getDataBaseConnector();
+        }
+        String addedDate = JeproLabTools.date();
+        String query = "INSERT INTO " + dataBaseObject.quoteName("#__jeprolab_request") + " ( " + dataBaseObject.quoteName("customer_id") + ", ";
+        query += dataBaseObject.quoteName("address_id") + ", " + dataBaseObject.quoteName("reference") + ", " + dataBaseObject.quoteName("first_contact_id");
+        query += ", " + dataBaseObject.quoteName("second_contact_id") + ", " + dataBaseObject.quoteName("third_contact_id") + ", ";
+        query += dataBaseObject.quoteName("date_add") + ", " + dataBaseObject.quote("date_upd") + ") VALUES(" + this.customer_id;
+        query += this.address_id + ", " + dataBaseObject.quote(this.reference) + ", " + this.first_contact_id + ", " + this.second_contact_id + ", ";
+        query += this.third_contact_id + ", " + this.fourth_contact_id + ", " + dataBaseObject.quote(addedDate) + ", " + dataBaseObject.quote(addedDate) + ")";
+System.out.println(query);
+        dataBaseObject.setQuery(query);
+        dataBaseObject.query(true);
+        this.request_id = dataBaseObject.getGeneratedKey();
+
+        /***
+         * Adding requested analyzes
+         */
+        for(Integer sampleId : samples) {
+            query = "INSERT INTO " + dataBaseObject.quoteName("#__jeproLab_sample_analyze") + "(" + dataBaseObject.quoteName("request_id") + ", ";
+            query += dataBaseObject.quoteName("sample_id") + ") VALUES(" + this.request_id + ", " + sampleId + ")";
+            dataBaseObject.setQuery(query);
+            dataBaseObject.query(false);
+        }
     }
 
     public static List<Integer> getRequestsByCustomerId(int customerId) {
@@ -192,12 +218,6 @@ public class JeproLabRequestModel extends JeproLabModel{
         public void addAnalyze(int analyzeId){
             synchronized(this) {
                 analyzes.add(analyzeId);
-            }
-        }
-
-        private void print(){
-            for(Integer i: analyzes){
-                System.out.println(i);
             }
         }
     }

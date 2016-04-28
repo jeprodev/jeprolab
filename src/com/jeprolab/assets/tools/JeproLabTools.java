@@ -99,6 +99,9 @@ public class JeproLabTools {
         return (way.toLowerCase().equals("asc") | way.toLowerCase().equals("desc"));
     }
 
+    public static String date(){
+        return date("yyyy-MM-dd hh:mm:ss");
+    }
 
     public static String date(String format){
         Calendar calendar = Calendar.getInstance();

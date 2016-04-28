@@ -197,7 +197,7 @@ public class JeproLabAddressAddController extends JeproLabController {
 
     private void addCommandListener(){
         saveAddressBtn.setOnMouseClicked(evt -> {
-            int countryId = JeproLabCountryModel.getIdByName(jeproLabAddressCountry.getValue());
+            int countryId = JeproLabCountryModel.getCountryIdByCountryName(jeproLabAddressCountry.getValue());
             String request = "company=" + jeproLabAddressCompany.getText() + "&lastname=" + jeproLabAddressLastName.getText() + "&firstname=" + jeproLabAddressFirstName.getText();
             request += "&vatnumber=" + jeproLabAddressVatNumber.getText() + "&country_id=" + countryId ;
 

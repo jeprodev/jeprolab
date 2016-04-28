@@ -11,9 +11,7 @@ import javafx.scene.control.Pagination;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 /**
  *
@@ -146,7 +144,7 @@ public class JeproLabAddressModel extends JeproLabModel{
                         this.city = addressSet.getString("city");
                         this.other = addressSet.getString("other");
                         this.phone = addressSet.getString("phone");
-                        this.mobile_phone = addressSet.getString("mobile_phone");
+                        this.mobile_phone = addressSet.getString("phone_mobile");
                         this.vat_number = addressSet.getString("vat_number");
                         this.dni = addressSet.getString("dni");
                         this.date_add = JeproLabTools.getDate(addressSet.getString("date_add"));
@@ -193,7 +191,7 @@ public class JeproLabAddressModel extends JeproLabModel{
         }
         /* Get and cache address country name */
         if(address_id > 0){
-            this.country = JeproLabCountryModel.getNameById((langId > 0) ? langId : JeproLabSettingModel.getIntValue("default_lang"), this.country_id);
+            this.country = JeproLabCountryModel.getCountryNameByCountryId((langId > 0) ? langId : JeproLabSettingModel.getIntValue("default_lang"), this.country_id);
         }
     }
 
@@ -286,7 +284,7 @@ public class JeproLabAddressModel extends JeproLabModel{
 
             String query = "SELECT " + staticDataBaseObject.quoteName("address_id") + " FROM " + staticDataBaseObject.quoteName("#__jeprolab_address");
             query += " WHERE " + staticDataBaseObject.quoteName("customer_id") + " = " + customerId + " AND " + staticDataBaseObject.quoteName("deleted");
-            query += " = 0 " + (active ? " AND " + staticDataBaseObject.quoteName("active") + " = 1" : "");
+            query += " = 0 " + (active ? " AND " + staticDataBaseObject.quoteName("published") + " = 1" : "");
 
             staticDataBaseObject.setQuery(query);
             int result = (int)staticDataBaseObject.loadValue("address_id");
@@ -468,25 +466,7 @@ public class JeproLabAddressModel extends JeproLabModel{
         if(dataBaseObject == null){
             dataBaseObject = JeproLabFactory.getDataBaseConnector();
         }
-        Map<String, String> addressPost = JeproLab.request.getPost();
-        int countryId = addressPost.containsKey("country_id") ? Integer.parseInt(addressPost.get("country_id")) : 0 ;
-        int stateId = addressPost.containsKey("") ? Integer.parseInt(addressPost.get("")) : 0 ;
-        int customerId = addressPost.containsKey("") ? Integer.parseInt(addressPost.get("")) : 0 ;
-        int manufacturerId = addressPost.containsKey("") ? Integer.parseInt(addressPost.get("")) : 0 ;
-        int supplierId = addressPost.containsKey("") ? Integer.parseInt(addressPost.get("")) : 0 ;
-        int warehouseId = addressPost.containsKey("") ? Integer.parseInt(addressPost.get("")) : 0 ;
-        String localAlias = addressPost.containsKey("alias") ? addressPost.get("alias") : "" ;
-        String localCompany = addressPost.containsKey("company") ? addressPost.get("company") : "";
-        String localLastName = addressPost.containsKey("lastname") ? addressPost.get("lastname") : "";
-        String localFirstName = addressPost.containsKey("firstname") ? addressPost.get("firstname") : "";
-        String localAddress1 = addressPost.containsKey("address_1") ? addressPost.get("address_1") : "";
-        String localAddress2 = addressPost.containsKey("address_2") ? addressPost.get("address_2") : "";
-        String localPostCode = addressPost.containsKey("post_code") ? addressPost.get("post_code") : "";
-        String localCity = addressPost.containsKey("city") ? addressPost.get("city") : "";
-        String localOther = addressPost.containsKey("other") ? addressPost.get("other") : "";
-        String localPhone = addressPost.containsKey("phone") ? addressPost.get("phone") : "";
-        String localMobilePhone = addressPost.containsKey("mobile_phone") ? addressPost.get("mobile_phone") : "";
-        String vatNumber = addressPost.containsKey("vat_number") ? addressPost.get("vat_number") : "";
+
         String currentDate = dataBaseObject.quote(JeproLabTools.date("yyyy-MM-dd hh:mm:ss"));
 
         String query = "INSERT INTO " + dataBaseObject.quoteName("#__jeprolab_address") + "(" + dataBaseObject.quoteName("country_id") + ", ";
@@ -496,19 +476,19 @@ public class JeproLabAddressModel extends JeproLabModel{
         query += ", " + dataBaseObject.quoteName("address1") + ", " + dataBaseObject.quoteName("address2") + ", " + dataBaseObject.quoteName("postcode");
         query += ", " + dataBaseObject.quoteName("city") + ", " + dataBaseObject.quoteName("other") + ", " + dataBaseObject.quoteName("phone");
         query += ", " + dataBaseObject.quoteName("phone_mobile") + ", " + dataBaseObject.quoteName("vat_number") + ", " + dataBaseObject.quoteName("date_add");
-        query += ", " + dataBaseObject.quoteName("date_upd") + ") VALUES (" + countryId + ", " + stateId + ", " + customerId  + ", " + manufacturerId + ", " + supplierId + ", " + warehouseId + ", ";
-        query += dataBaseObject.quote(localAlias) + ", " + dataBaseObject.quote(localCompany) + ", " + dataBaseObject.quote(localLastName) + ", ";
-        query += dataBaseObject.quote(localFirstName) + ", " + dataBaseObject.quote(localAddress1) + ", " + dataBaseObject.quote(localAddress2) + ", ";
-        query += dataBaseObject.quote(localPostCode) + ", " + dataBaseObject.quote(localCity) + ", " + dataBaseObject.quote(localOther) + ", ";
-        query += dataBaseObject.quote(localPhone) + ", " + dataBaseObject.quote(localMobilePhone) + ", " + dataBaseObject.quote(vatNumber) + "," + currentDate + ", " + currentDate + ")";
+        query += ", " + dataBaseObject.quoteName("date_upd") + ") VALUES (" + this.country_id + ", " + this.state_id + ", " + this.customer_id  + ", " + this.manufacturer_id + ", " + this.supplier_id + ", " + this.warehouse_id + ", ";
+        query += dataBaseObject.quote(this.alias) + ", " + dataBaseObject.quote(this.company) + ", " + dataBaseObject.quote(this.lastname) + ", ";
+        query += dataBaseObject.quote(this.firstname) + ", " + dataBaseObject.quote(this.address1) + ", " + dataBaseObject.quote(this.address2) + ", ";
+        query += dataBaseObject.quote(this.postcode) + ", " + dataBaseObject.quote(this.city) + ", " + dataBaseObject.quote(this.other) + ", ";
+        query += dataBaseObject.quote(this.phone) + ", " + dataBaseObject.quote(this.mobile_phone) + ", " + dataBaseObject.quote(this.vat_number) + "," + currentDate + ", " + currentDate + ")";
 
         dataBaseObject.setQuery(query);
         if (!dataBaseObject.query(true)) {
             return false;
         }
 
-        if (customerId > 0) {
-            JeproLabCustomerModel.resetAddressCache(customerId, dataBaseObject.getGeneratedKey());
+        if (this.customer_id > 0) {
+            JeproLabCustomerModel.resetAddressCache(this.customer_id, dataBaseObject.getGeneratedKey());
         }
         return true;
     }
@@ -599,39 +579,21 @@ public class JeproLabAddressModel extends JeproLabModel{
         if(dataBaseObject == null){
             dataBaseObject = JeproLabFactory.getDataBaseConnector();
         }
-        Map<String, String> addressPost = JeproLab.request.getPost();
-        int countryId = addressPost.containsKey("country_id") ? Integer.parseInt(addressPost.get("country_id")) : 0 ;
-        int stateId = addressPost.containsKey("") ? Integer.parseInt(addressPost.get("")) : 0 ;
-        int customerId = addressPost.containsKey("") ? Integer.parseInt(addressPost.get("")) : 0 ;
-        int manufacturerId = addressPost.containsKey("") ? Integer.parseInt(addressPost.get("")) : 0 ;
-        int supplierId = addressPost.containsKey("") ? Integer.parseInt(addressPost.get("")) : 0 ;
-        int warehouseId = addressPost.containsKey("") ? Integer.parseInt(addressPost.get("")) : 0 ;
-        String localAlias = addressPost.containsKey("alias") ? addressPost.get("alias") : "" ;
-        String localCompany = addressPost.containsKey("company") ? addressPost.get("company") : "";
-        String localLastName = addressPost.containsKey("lastname") ? addressPost.get("lastname") : "";
-        String localFirstName = addressPost.containsKey("firstname") ? addressPost.get("firstname") : "";
-        String localAddress1 = addressPost.containsKey("address_1") ? addressPost.get("address_1") : "";
-        String localAddress2 = addressPost.containsKey("address_2") ? addressPost.get("address_2") : "";
-        String localPostCode = addressPost.containsKey("post_code") ? addressPost.get("post_code") : "";
-        String localCity = addressPost.containsKey("city") ? addressPost.get("city") : "";
-        String localOther = addressPost.containsKey("other") ? addressPost.get("other") : "";
-        String localPhone = addressPost.containsKey("phone") ? addressPost.get("phone") : "";
-        String localMobilePhone = addressPost.containsKey("mobile_phone") ? addressPost.get("mobile_phone") : "";
-        String vatNumber = addressPost.containsKey("vat_number") ? addressPost.get("vat_number") : "";
+
         String currentDate = dataBaseObject.quote(JeproLabTools.date("yyyy-MM-dd hh:mm:ss"));
 
         String query = "UPDATE " + dataBaseObject.quoteName("#__jeprolab_address") + " SET " + dataBaseObject.quoteName("country_id") + " = ";
-        query += countryId + ", " + dataBaseObject.quoteName("state_id") + " = " + stateId + ", " + dataBaseObject.quoteName("customer_id") + " = ";
-        query += customerId + ", " + dataBaseObject.quoteName("manufacturer_id") + " = " + manufacturerId + ", " + dataBaseObject.quoteName("supplier_id");
-        query += " = " + supplierId + ", " + dataBaseObject.quoteName("warehouse_id") + " = " + warehouseId + ", " + dataBaseObject.quoteName("alias");
-        query += " = " + dataBaseObject.quote(localAlias) + ", " + dataBaseObject.quoteName("company") + " = " + dataBaseObject.quote(localCompany) + ", ";
-        query += dataBaseObject.quoteName("lastname") + " = " + dataBaseObject.quote(localLastName) + ", " + dataBaseObject.quoteName("address1") + " = ";
-        query += dataBaseObject.quote(localAddress1) + ", " + dataBaseObject.quoteName("address2") + " = " + dataBaseObject.quote(localAddress2) + ", ";
-        query += dataBaseObject.quoteName("postcode") + " = " + dataBaseObject.quote(localPostCode) + ", " + dataBaseObject.quoteName("city") + " = ";
-        query += dataBaseObject.quote(localCity) +  ", " + dataBaseObject.quoteName("other") + " = " + dataBaseObject.quote(localOther) + ", ";
-        query += dataBaseObject.quoteName("phone") + " = " + dataBaseObject.quote(localPhone) + ", " + dataBaseObject.quoteName("phone_mobile") + " = ";
-        query += dataBaseObject.quote(localMobilePhone) + ", " + dataBaseObject.quoteName("firstname") + " = " + dataBaseObject.quote(localFirstName) + ", ";
-        query += dataBaseObject.quoteName("vat_number") + " = " + dataBaseObject.quote(vatNumber) + ", " + dataBaseObject.quoteName("date_upd")+ "  = ";
+        query += this.country_id + ", " + dataBaseObject.quoteName("state_id") + " = " + this.state_id + ", " + dataBaseObject.quoteName("customer_id") + " = ";
+        query += this.customer_id + ", " + dataBaseObject.quoteName("manufacturer_id") + " = " + this.manufacturer_id + ", " + dataBaseObject.quoteName("supplier_id");
+        query += " = " + this.supplier_id + ", " + dataBaseObject.quoteName("warehouse_id") + " = " + this.warehouse_id + ", " + dataBaseObject.quoteName("alias");
+        query += " = " + dataBaseObject.quote(this.alias) + ", " + dataBaseObject.quoteName("company") + " = " + dataBaseObject.quote(this.company) + ", ";
+        query += dataBaseObject.quoteName("lastname") + " = " + dataBaseObject.quote(this.lastname) + ", " + dataBaseObject.quoteName("address1") + " = ";
+        query += dataBaseObject.quote(this.address1) + ", " + dataBaseObject.quoteName("address2") + " = " + dataBaseObject.quote(this.address2) + ", ";
+        query += dataBaseObject.quoteName("postcode") + " = " + dataBaseObject.quote(this.postcode) + ", " + dataBaseObject.quoteName("city") + " = ";
+        query += dataBaseObject.quote(this.city) +  ", " + dataBaseObject.quoteName("other") + " = " + dataBaseObject.quote(this.other) + ", ";
+        query += dataBaseObject.quoteName("phone") + " = " + dataBaseObject.quote(this.phone) + ", " + dataBaseObject.quoteName("phone_mobile") + " = ";
+        query += dataBaseObject.quote(this.mobile_phone) + ", " + dataBaseObject.quoteName("firstname") + " = " + dataBaseObject.quote(this.firstname) + ", ";
+        query += dataBaseObject.quoteName("vat_number") + " = " + dataBaseObject.quote(this.vat_number) + ", " + dataBaseObject.quoteName("date_upd")+ "  = ";
         query += currentDate + " WHERE " + dataBaseObject.quoteName("address_id") + " = " + this.address_id;
         dataBaseObject.setQuery(query);
         return dataBaseObject.query(false);
@@ -639,5 +601,45 @@ public class JeproLabAddressModel extends JeproLabModel{
 
 
 
+    public static class JeproLabStreetTypeModel extends JeproLabModel {
+        public int street_type_id;
 
+        public int language_id;
+
+        public Map<String, String> name;
+
+        public static List<JeproLabStreetTypeModel> getStreetTypes(int langId){
+            if(staticDataBaseObject == null){
+                staticDataBaseObject = JeproLabFactory.getDataBaseConnector();
+            }
+
+            String query = "SELECT * FROM " + staticDataBaseObject.quoteName("#__jeprolab_address_street_type");
+            query += " WHERE " + staticDataBaseObject.quoteName("lang_id") + " = " + langId;
+
+            staticDataBaseObject.setQuery(query);
+            ResultSet streetTypesSet = staticDataBaseObject.loadObjectList();
+            List<JeproLabStreetTypeModel> streetTypes = new ArrayList<>();
+            if(streetTypesSet != null){
+                try{
+                    JeproLabStreetTypeModel streetType;
+                    while(streetTypesSet.next()){
+                        streetType = new JeproLabStreetTypeModel();
+                        streetType.street_type_id = streetTypesSet.getInt("street_type_id");
+                        streetType.name = new HashMap<>();
+                        streetType.name.put("lang_" + langId, streetTypesSet.getString("name"));
+                        streetTypes.add(streetType);
+                    }
+                }catch(SQLException ignored){
+                    ignored.printStackTrace();
+                }finally {
+                    try {
+                        JeproLabDataBaseConnector.getInstance().closeConnexion();;
+                    }catch(Exception ignored){
+                        ignored.printStackTrace();
+                    }
+                }
+            }
+            return streetTypes;
+        }
+    }
 }
