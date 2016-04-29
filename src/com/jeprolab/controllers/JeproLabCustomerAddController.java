@@ -208,7 +208,8 @@ public class JeproLabCustomerAddController extends JeproLabController{
             customerWebsite.setText(customer.website);
             customerEmail.setText(customer.email);
         } else {
-
+            address = new JeproLabAddressModel();
+            customerTitle.setValue(bundle.getString("JEPROLAB_MR_LABEL"));
         }
         updateToolBar();
         addEventListeners();
@@ -242,12 +243,8 @@ public class JeproLabCustomerAddController extends JeproLabController{
      * @return object|boolean
      */
     private void loadCustomer(){
-		/*if (!isset($this->customer) || empty($this->customer))
-			return true;
-		*/
-        //$app = JFactory::getApplication();
         int customerId = JeproLab.request.getRequest().containsKey("customer_id") ? Integer.parseInt(JeproLab.request.getRequest().get("customer_id")) : 0;
-        customerId = 1;
+
         if (customerId > 0){
             if (customer == null)
                 customer = new JeproLabCustomerModel(customerId);
@@ -313,6 +310,10 @@ public class JeproLabCustomerAddController extends JeproLabController{
                 address.add();
             }
         });
+
+        customerNewsLetter.selectedProperty().addListener(((observable, oldValue, newValue) -> {
+            customer.news_letter = newValue;
+        }));
         //cancelButton = new Button(JeproLab.getBundle().getString("JEPROLAB_CANCEL_LABEL"));
     }
 }

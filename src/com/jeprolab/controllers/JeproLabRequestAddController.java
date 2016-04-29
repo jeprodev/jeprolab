@@ -14,6 +14,7 @@ import com.jeprolab.models.JeproLabRequestModel;
 
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleStringProperty;
+import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.geometry.Insets;
@@ -345,6 +346,14 @@ public class JeproLabRequestAddController extends JeproLabController{
             customersContact = JeproLabCustomerModel.getCustomersByCompany(customer.company);
 
             updateContacts(customersContact);
+
+            List<JeproLabRequestModel.JeproLabSampleModel> samples = JeproLabRequestModel.JeproLabSampleModel.getSamplesByRequestId(request.request_id);
+            ObservableList<JeproLabSampleRecord> sampleList = FXCollections.observableArrayList();
+            if(!samples.isEmpty()){
+                sampleList.addAll(samples.stream().map(JeproLabSampleRecord::new).collect(Collectors.toList()));
+                jeproLabSampleRecordTableView.getItems().clear();
+                jeproLabSampleRecordTableView.getItems().addAll(sampleList);
+            }
         }else{
             jeproLabRequestReference.setText(JeproLabTools.createRequestReference());
             customersContact = JeproLabCustomerModel.getCustomersByCompany(jeproLabCustomerCompanyName.getText());
@@ -506,7 +515,9 @@ public class JeproLabRequestAddController extends JeproLabController{
                 customer.company = jeproLabCustomerCompanyName.getText();
                 customer.firstname = jeproLabRequestMainContactInfoName.getText();
                 customer.email = jeproLabRequestMainContactInfoMail.getText();
-
+                customer.laboratory_id = context.laboratory.laboratory_id;
+                customer.laboratory_group_id = context.laboratory.laboratory_group_id;
+                customer.published = true;
                 customer.add();
 
                 JeproLabAddressModel address = new JeproLabAddressModel();

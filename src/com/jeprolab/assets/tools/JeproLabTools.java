@@ -110,6 +110,23 @@ public class JeproLabTools {
         return format1.format(calendar.getTime());
     }
 
+    public static String date(String format, Date date){
+        SimpleDateFormat formatter = new SimpleDateFormat(format);
+        return formatter.format(date);
+    }
+
+    public static Date getDate(){
+        DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
+        //get current date time with Date()
+        Date date = new Date();
+        System.out.println(dateFormat.format(date));
+
+        //get current date time with Calendar()
+        Calendar cal = Calendar.getInstance();
+        System.out.println(cal.getTime());
+        return cal.getTime();
+    }
+
     public static Date getDate(String value){
         //value = value.replace("-", "/");
         DateFormat formatter = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");

@@ -13,6 +13,7 @@
             <TableColumn resizable="false" editable="false" fx:id="requestTotalTableColumn" />
             <TableColumn resizable="false" editable="false" fx:id="requestCarrierColumn" />
             <TableColumn resizable="false" editable="false" fx:id="requestCreationDateColumn" />
+            <TableColumn resizable="false" editable="false" fx:id="requestStatusColumn" />
             <TableColumn resizable="false" editable="false" fx:id="requestOnlineColumn" />
             <TableColumn resizable="false" editable="false" fx:id="requestActionColumn" />
         </columns>

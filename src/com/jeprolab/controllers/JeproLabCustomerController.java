@@ -1,12 +1,16 @@
 package com.jeprolab.controllers;
 
 import com.jeprolab.JeproLab;
+import com.jeprolab.assets.tools.JeproLabTools;
 import com.jeprolab.models.JeproLabAnalyzeModel;
 import com.jeprolab.models.JeproLabCustomerModel;
+import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -18,6 +22,7 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.util.Callback;
 
+import java.io.IOException;
 import java.net.URL;
 import java.util.List;
 import java.util.ResourceBundle;
@@ -77,6 +82,7 @@ public class JeproLabCustomerController extends JeproLabController {
         customerDateAddColumn.setText(bundle.getString("JEPROLAB_DATE_ADD_LABEL"));
         customerDateAddColumn.setPrefWidth(.15 * remainingWidth);
         customerDateAddColumn.setCellValueFactory(new PropertyValueFactory<>("customerAddedDate"));
+        tableCellAlign(customerDateAddColumn, Pos.CENTER);
         customerAllowAdsColumn.setText(bundle.getString("JEPROLAB_ALLOWS_ADS_LABEL"));
         Callback<TableColumn<JeproLabCustomerRecord, Boolean>, TableCell<JeproLabCustomerRecord, Boolean>> allowAdsFactory = param -> new JeproLabAllowAdsCell();
         customerAllowAdsColumn.setCellFactory(allowAdsFactory);
@@ -120,21 +126,36 @@ public class JeproLabCustomerController extends JeproLabController {
         HBox commandWrapper = JeproLab.getInstance().getApplicationToolBarCommandWrapper();
         commandWrapper.getChildren().clear();
         addCustomerBtn = new Button(bundle.getString("JEPROLAB_ADD_NEW_LABEL"), new ImageView(new Image(JeproLab.class.getResourceAsStream("resources/images/add.png"))));
+        addCustomerBtn.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event) {
+                try {
+                    JeproLab.getInstance().goToForm(JeproLab.getInstance().getApplicationForms().addCustomerForm);
+                    context.controller.initializeContent();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
         commandWrapper.getChildren().addAll(addCustomerBtn);
     }
 
     public static class JeproLabCustomerRecord{
-        public SimpleStringProperty customerTitle, customerLastName, customerFirstName, customerLastVisit, customerAddedDate, customerCompany;
-        public SimpleIntegerProperty customerIndex;
+        private SimpleStringProperty customerTitle, customerLastName, customerFirstName;
+        private SimpleStringProperty customerLastVisit, customerAddedDate, customerCompany;
+        private SimpleIntegerProperty customerIndex;
+        private SimpleBooleanProperty customerAllowAds, customerCurrentStatus;
 
         public JeproLabCustomerRecord(JeproLabCustomerModel customer){
             customerTitle = new SimpleStringProperty(customer.title);
             customerFirstName = new SimpleStringProperty(customer.firstname);
             customerLastName = new SimpleStringProperty(customer.lastname);
             customerLastVisit = new SimpleStringProperty("");
-            customerAddedDate = new SimpleStringProperty(customer.date_add.toString());
+            customerAddedDate = new SimpleStringProperty(JeproLabTools.date("dd-MM-yyyy", customer.date_add));
             customerCompany = new SimpleStringProperty(customer.company);
             customerIndex = new SimpleIntegerProperty(customer.customer_id);
+            customerAllowAds = new SimpleBooleanProperty(customer.allow_ads);
+            customerCurrentStatus = new SimpleBooleanProperty(customer.published);
         }
 
         /**
@@ -145,7 +166,7 @@ public class JeproLabCustomerController extends JeproLabController {
         }
 
         public String getCustomerTitle(){
-            return customerTitle.get();
+            return JeproLab.getBundle().getString("JEPROLAB_" + customerTitle.get().toUpperCase() + "_LABEL");
         }
 
         public String getCustomerLastName(){
@@ -166,6 +187,14 @@ public class JeproLabCustomerController extends JeproLabController {
 
         public String getCustomerCompany(){
             return customerCompany.get();
+        }
+
+        public boolean getCustomerAllowAds(){
+            return customerAllowAds.get();
+        }
+
+        public boolean getCustomerCurrentStatus(){
+            return customerCurrentStatus.get();
         }
     }
 
@@ -196,7 +225,11 @@ public class JeproLabCustomerController extends JeproLabController {
         private Button allowAdsBtn;
 
         public JeproLabAllowAdsCell(){
-            allowAdsBtn = new Button();
+            allowAdsBtn = new Button("");
+            allowAdsBtn.setMinSize(18, 18);
+            allowAdsBtn.setMaxSize(18, 18);
+            allowAdsBtn.setPrefSize(18, 18);
+            allowAdsBtn.getStyleClass().add("icon-btn");
         }
 
         @Override
@@ -209,7 +242,11 @@ public class JeproLabCustomerController extends JeproLabController {
             super.updateItem(item, empty);
             ObservableList<JeproLabCustomerRecord> items = getTableView().getItems();
             if((items != null) && (getIndex() >= 0 && getIndex() < items.size())) {
-
+                if(items.get(getIndex()).getCustomerAllowAds()) {
+                    allowAdsBtn.setGraphic(new ImageView(new Image(JeproLab.class.getResourceAsStream("resources/images/published.png"))));
+                }else{
+                    allowAdsBtn.setGraphic(new ImageView(new Image(JeproLab.class.getResourceAsStream("resources/images/unpublished.png"))));
+                }
                 setGraphic(allowAdsBtn);
                 setAlignment(Pos.CENTER);
             }
@@ -221,6 +258,10 @@ public class JeproLabCustomerController extends JeproLabController {
 
         public JeproLabActiveCell(){
             activeBtn = new Button("");
+            activeBtn.setMinSize(18, 18);
+            activeBtn.setMaxSize(18, 18);
+            activeBtn.setPrefSize(18, 18);
+            activeBtn.getStyleClass().add("icon-btn");
         }
 
         @Override
@@ -233,7 +274,11 @@ public class JeproLabCustomerController extends JeproLabController {
             super.updateItem(item, empty);
             ObservableList<JeproLabCustomerRecord> items = getTableView().getItems();
             if((items != null) && (getIndex() >= 0 && getIndex() < items.size())) {
-
+                if(items.get(getIndex()).getCustomerCurrentStatus()) {
+                    activeBtn.setGraphic(new ImageView(new Image(JeproLab.class.getResourceAsStream("resources/images/published.png"))));
+                }else{
+                    activeBtn.setGraphic(new ImageView(new Image(JeproLab.class.getResourceAsStream("resources/images/unpublished.png"))));
+                }
                 setGraphic(activeBtn);
                 setAlignment(Pos.CENTER);
             }
@@ -245,6 +290,10 @@ public class JeproLabCustomerController extends JeproLabController {
 
         public JeproLabEmailCell(){
             emailBtn = new Button("", new ImageView(new Image(JeproLab.class.getResourceAsStream("resources/images/mail.png"))));
+            emailBtn.setMinSize(18, 18);
+            emailBtn.setMaxSize(18, 18);
+            emailBtn.setPrefSize(18, 18);
+            emailBtn.getStyleClass().add("icon-btn");
         }
 
         @Override

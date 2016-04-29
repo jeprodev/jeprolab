@@ -36,11 +36,13 @@ public class JeproLabCustomerModel extends JeproLabModel{
 
     public String firstname;
 
+    public String password = "";
+
     public String birthday = null;
 
     public String email;
 
-    public boolean optin;
+    public boolean allow_ads;
 
     public boolean is_guest;
 
@@ -61,7 +63,7 @@ public class JeproLabCustomerModel extends JeproLabModel{
     public int state_id;
 
     public String postcode;
-    public String last_visit;
+    public Date last_visit;
 
     public int geolocation_country_id;
 
@@ -112,7 +114,7 @@ public class JeproLabCustomerModel extends JeproLabModel{
                             this.firstname = customerSet.getString("firstname");
                             this.email = customerSet.getString("email");
                             this.birthday = customerSet.getString("birthday");
-                            this.optin = customerSet.getInt("optin") > 0;
+                            this.allow_ads = customerSet.getInt("allow_ads") > 0;
                             this.is_guest = customerSet.getInt("is_guest") == 2;
                             this.website = customerSet.getString("website");
                             this.company = customerSet.getString("company");
@@ -150,7 +152,7 @@ public class JeproLabCustomerModel extends JeproLabModel{
                 this.firstname = customer.firstname;
                 this.email = customer.email;
                 this.birthday = customer.birthday;
-                this.optin =customer.optin;
+                this.allow_ads =customer.allow_ads;
                 this.is_guest = customer.is_guest;
                 this.website = customer.website;
                 this.company = customer.company;
@@ -200,7 +202,7 @@ public class JeproLabCustomerModel extends JeproLabModel{
                     customer.lastname = customersSet.getString("lastname");
                     customer.firstname = customersSet.getString("firstname");
                     //customer.birthday = JeproLabTools.getDate(customersSet.getString("birthday"));
-                    customer.optin = customersSet.getInt("optin") > 0;
+                    customer.allow_ads = customersSet.getInt("allow_ads") > 0;
                     customer.is_guest = customersSet.getInt("is_guest") == 2;
                     customer.website = customersSet.getString("website");
                     customer.company = customersSet.getString("company");
@@ -286,9 +288,10 @@ public class JeproLabCustomerModel extends JeproLabModel{
                     customer = new JeproLabCustomerModel();
                     customer.customer_id = customerSet.getInt("customer_id");
                     customer.email = customerSet.getString("email");
+                    customer.title = customerSet.getString("title");
                     customer.firstname = customerSet.getString("firstname");
                     customer.lastname = customerSet.getString("lastname");
-                    //customer.last_visit = customerSet.getString("lastname");
+                    //customer.last_visit = JeproLabTools.getDate(customerSet.getString("lase");
                     customer.lastname = customerSet.getString("lastname");
                     customer.company = customerSet.getString("company");
                     customer.date_add = JeproLabTools.getDate(customerSet.getString("date_add"));
@@ -361,7 +364,7 @@ public class JeproLabCustomerModel extends JeproLabModel{
                     customer.lastname = customersSet.getString("lastname");
                     customer.firstname = customersSet.getString("firstname");
                     customer.birthday = customersSet.getString("birthday");
-                    customer.optin = customersSet.getInt("optin") > 0;
+                    customer.allow_ads = customersSet.getInt("allow_ads") > 0;
                     customer.is_guest = customersSet.getInt("is_guest") == 2;
                     customer.website = customersSet.getString("website");
                     customer.company = customersSet.getString("company");
@@ -395,9 +398,10 @@ public class JeproLabCustomerModel extends JeproLabModel{
         this.language_id = (this.language_id > 0) ? this.language_id : JeproLabContext.getContext().language.language_id;
         this.birthday = ((this.years == 0) ? this.birthday : (this.years + "-" + this.months + "-" + this.days));
 
-        if (this.news_letter && !JeproLabTools.isDate(this.news_letter_date_add)) {
-            this.news_letter_date_add = JeproLabTools.getDate("Y-m-d H:i:s");
+        if(this.news_letter){
+            this.news_letter_date_add = new Date();
         }
+
 
         if (this.default_group_id == JeproLabSettingModel.getIntValue("customer_group")){
             if (this.is_guest) {
@@ -412,6 +416,8 @@ public class JeproLabCustomerModel extends JeproLabModel{
             //break;
         }
 
+        if(this.title == null || (this.title.equals(""))){ this.title = "Mr"; }
+
         String dateAdded = JeproLabTools.date();
         String birthdayString = this.birthday != null ? "" : JeproLabTools.date();
 
@@ -419,25 +425,29 @@ public class JeproLabCustomerModel extends JeproLabModel{
         query +=  dataBaseObject.quoteName("lab_group_id") + ", " + dataBaseObject.quoteName("secure_key");
         query += ", " + dataBaseObject.quoteName("note") + ", " + dataBaseObject.quoteName("default_group_id") + ", " + dataBaseObject.quoteName("lang_id");
         query += ", " + dataBaseObject.quoteName("title") + ", " + dataBaseObject.quoteName("lastname") + ", " + dataBaseObject.quoteName("firstname");
-        query += ", " + dataBaseObject.quoteName("birthday") + ", " + dataBaseObject.quoteName("email") + ", " + dataBaseObject.quoteName("optin");
+        query += ", " + dataBaseObject.quoteName("birthday") + ", " + dataBaseObject.quoteName("email") + ", " + dataBaseObject.quoteName("allow_ads");
         query += ", " + dataBaseObject.quoteName("is_guest") + ", " + dataBaseObject.quoteName("website") + ", " + dataBaseObject.quoteName("company");
         query += ", " + dataBaseObject.quoteName("siret") + ", " + dataBaseObject.quoteName("ape") + ", " + dataBaseObject.quoteName("newsletter");
-        query += ", " + dataBaseObject.quoteName("published") + ", " + dataBaseObject.quoteName("deleted") + ", " + dataBaseObject.quoteName("state_id");
-        query += ", " + dataBaseObject.quoteName("postcode") + ", " + dataBaseObject.quoteName("last_visit") + ", " + dataBaseObject.quoteName("geolocation_country_id");
+        query += ", " + dataBaseObject.quoteName("published") + ", " + dataBaseObject.quoteName("deleted") + ", " + dataBaseObject.quoteName("passwd");
+        //query += ", " + dataBaseObject.quoteName("geolocation_country_id");
         query += ", " + dataBaseObject.quoteName("date_add") + ", " + dataBaseObject.quoteName("date_upd");
         query += ") VALUES (" + this.laboratory_id + ", " + this.laboratory_group_id + ", " + dataBaseObject.quote(this.secure_key) + ", " + dataBaseObject.quote(this.note);
         query += ", " + this.default_group_id + ", " + this.language_id + ", " + dataBaseObject.quote(this.title) + ", " + dataBaseObject.quote(this.lastname);
         query += ", " + dataBaseObject.quote(this.firstname)  + ", " + dataBaseObject.quote(birthdayString) + ", " + dataBaseObject.quote(this.email) + ", ";
-        query += (this.optin ? 1 : 0 ) + ", " + (this.is_guest ? 1 : 0) + dataBaseObject.quote(this.website) + dataBaseObject.quote(this.company) + ", ";
+        query += (this.allow_ads ? 1 : 0 ) + ", " + (this.is_guest ? 1 : 0) + ", " + dataBaseObject.quote(this.website) + ", " + dataBaseObject.quote(this.company) + ", ";
         query += dataBaseObject.quote(this.siret) + ", " + dataBaseObject.quote(this.ape) + ", " + (this.news_letter ? 1 : 0) + ", " + (this.published ? 1 : 0);
-        query += ", " + (this.deleted ? 1 : 0) + ", " + this.state_id + ", " + dataBaseObject.quote(this.postcode) + dataBaseObject.quote(dateAdded) + ", ";
-        query += this.geolocation_country_id + ", " + dataBaseObject.quote(dateAdded) + ", " + dataBaseObject.quoteName(dateAdded) + ")";
+        query += ", " + (this.deleted ? 1 : 0) + ", " + dataBaseObject.quote(this.password) + ", ";
+        query +=  dataBaseObject.quote(dateAdded) + ", " + dataBaseObject.quote(dateAdded) + ")";
 
         dataBaseObject.setQuery(query);
         dataBaseObject.query(true);
         this.customer_id = dataBaseObject.getGeneratedKey();
 
         this.updateGroup(this.group_box);
+
+        if (this.news_letter && !JeproLabTools.isDate(this.news_letter_date_add)) {
+            this.news_letter_date_add = new Date();
+        }
     }
 
     /**
@@ -451,6 +461,7 @@ public class JeproLabCustomerModel extends JeproLabModel{
             this.addGroups(list);
         } else {
             list = new ArrayList<>();
+            this.cleanGroups();
             list.add(this.default_group_id);
             this.addGroups(list);
         }
@@ -469,10 +480,11 @@ public class JeproLabCustomerModel extends JeproLabModel{
 
     public void addGroups(List<Integer> groups){
         String query;
+        if(dataBaseObject == null){
+            dataBaseObject = JeproLabFactory.getDataBaseConnector();
+        }
         for(Integer groupId : groups) {
-            if(dataBaseObject == null){
-                dataBaseObject = JeproLabFactory.getDataBaseConnector();  //$row = array('id_customer' => (int)this.id, 'id_group' => (int)$group);
-            }
+
             query = "INSERT INTO " + dataBaseObject.quoteName("#__jeprolab_customer_group") + "(" + dataBaseObject.quoteName("customer_id");
             query += ", " + dataBaseObject.quoteName("group_id") + ") VALUES (" + this.customer_id + ", " + groupId + ")";
             dataBaseObject.setQuery(query);
@@ -534,6 +546,21 @@ public class JeproLabCustomerModel extends JeproLabModel{
             dataBaseObject = JeproLabFactory.getDataBaseConnector();
         }
 
+        if(this.news_letter){
+            this.news_letter_date_add = new Date();
+        }
+
+        if (this.news_letter && !JeproLabTools.isDate(this.news_letter_date_add)) {
+            this.news_letter_date_add = new Date();;
+        }
+        this.updateGroup(this.group_box);
+
+
+        if (this.deleted) {
+            List<JeproLabAddressModel> addresses = this.getAddresses(JeproLabSettingModel.getIntValue("default_lang"));
+            addresses.forEach(com.jeprolab.models.JeproLabAddressModel::delete);
+        }
+
         String query = "UPDATE " + dataBaseObject.quoteName("#__jeprolab_customer") + " SET " + dataBaseObject.quoteName("lab_id") + " = ";
         query += this.laboratory_id + ", " + dataBaseObject.quoteName("lab_group_id") + " = " + this.laboratory_group_id + ", ";
         query += dataBaseObject.quoteName("secure_key") + " = " + dataBaseObject.quote(this.secure_key) + ", " + dataBaseObject.quoteName("note");
@@ -541,7 +568,7 @@ public class JeproLabCustomerModel extends JeproLabModel{
         query += ", " + dataBaseObject.quoteName("title") + " = " + dataBaseObject.quote(this.title) + ", " + dataBaseObject.quoteName("lastname");
         query +=  " = " + dataBaseObject.quote(this.lastname) + ", " + dataBaseObject.quoteName("firstname") + " = " + dataBaseObject.quote(this.firstname);
         query += ", " + dataBaseObject.quoteName("birthday") + " = " + dataBaseObject.quote(this.birthday) + ", " + dataBaseObject.quoteName("email");
-        query += " = " + dataBaseObject.quote(this.email) + ", " + dataBaseObject.quoteName("optin") + " = " + ( this.optin ? 1 : 0) + ", ";
+        query += " = " + dataBaseObject.quote(this.email) + ", " + dataBaseObject.quoteName("allow_ads") + " = " + ( this.allow_ads ? 1 : 0) + ", ";
         query += dataBaseObject.quoteName("is_guest") + " = " + (this.is_guest ? 1 : 0) + ", " + dataBaseObject.quoteName("website") + " = ";
         query += dataBaseObject.quote(this.website) + ", " + dataBaseObject.quoteName("company") + " = " + dataBaseObject.quote(company) + ", ";
         query += dataBaseObject.quoteName("siret") + " = " + dataBaseObject.quote(this.siret) + ", " + dataBaseObject.quoteName("ape") + " = ";
@@ -566,5 +593,166 @@ public class JeproLabCustomerModel extends JeproLabModel{
         public Date date_add;
         public Date date_upd;
         public Date news_letter_date_add;*/
+    }
+
+    public void delete() {
+        if (!(JeproLabRequestModel.getRequestsByCustomerId(this.customer_id).size() > 0)) {
+            List<JeproLabAddressModel> addresses = this.getAddresses(JeproLabSettingModel.getIntValue("default_lang"));
+            addresses.forEach(com.jeprolab.models.JeproLabAddressModel::delete);
+        }
+
+        if(dataBaseObject == null){ dataBaseObject = JeproLabFactory.getDataBaseConnector(); }
+        String query = "DELETE FROM " + dataBaseObject.quoteName("#__jeprolab_customer_group") + " WHERE " + dataBaseObject.quoteName("customer_id") + " = " + this.customer_id;
+        dataBaseObject.setQuery(query);
+        dataBaseObject.query(false);
+
+        query = "DELETE FROM " + dataBaseObject.quoteName("#__jeprolab_message") + " WHERE " + dataBaseObject.quoteName("customer_id") + " = " + this.customer_id;
+        dataBaseObject.setQuery(query);
+        dataBaseObject.query(false);
+
+        query = "DELETE FROM " + dataBaseObject.quoteName("#__jeprolab_specific_price") + " WHERE customer_id = " + this.customer_id;
+        dataBaseObject.setQuery(query);
+        dataBaseObject.query(false);
+
+        query = "DELETE FROM " + dataBaseObject.quoteName("#__jeprolab_compare") + " WHERE " + dataBaseObject.quoteName("customer_id") + " = " + this.customer_id;
+        dataBaseObject.setQuery(query);
+        dataBaseObject.query(false);
+
+        query = "SELECT cart_id FROM " + dataBaseObject.quoteName("#__jeprolab_cart") + " WHERE " + dataBaseObject.quoteName("customer_id") + " = " + this.customer_id;
+        dataBaseObject.setQuery(query);
+
+        ResultSet cartSet = dataBaseObject.loadObjectList();
+        if (cartSet != null) {
+            try {
+                int cartId;
+                while (cartSet.next()) {
+                    cartId = cartSet.getInt("cart_id");
+                    query = "DELETE FROM " + dataBaseObject.quoteName("#__jeprolab_cart") + " WHERE " + dataBaseObject.quoteName("cart_id") + " = " + cartId;
+                    dataBaseObject.setQuery(query);
+                    dataBaseObject.query(false);
+
+                    query = "DELETE FROM " + dataBaseObject.quoteName("#__jeprolab_cart_product") + " WHERE cart_id = " + cartId;
+                    dataBaseObject.setQuery(query);
+                    dataBaseObject.query(false);
+                }
+            } catch (SQLException ignored) {
+                ignored.printStackTrace();
+            } finally {
+                try {
+                    JeproLabDataBaseConnector.getInstance().closeConnexion();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+
+        query = "SELECT customer_thread_id FROM " + dataBaseObject.quoteName("#__jeprolab_customer_thread") + " WHERE customer_id = " + this.customer_id;
+        dataBaseObject.setQuery(query);
+
+        ResultSet threadIdsSet = dataBaseObject.loadObjectList();
+        if(threadIdsSet != null) {
+            try {
+                int customerThreadId;
+                while (threadIdsSet.next()) {
+                    customerThreadId = threadIdsSet.getInt("customer_thread_id");
+                    query = "DELETE FROM " + dataBaseObject.quoteName("#__jeprolab_customer_thread") + " WHERE customer_thread_id = " + customerThreadId;
+                    dataBaseObject.setQuery(query);
+                    dataBaseObject.query(false);
+
+                    query = "DELETE FROM " + dataBaseObject.quoteName("#__jeprolab_customer_message") + " WHERE customer_thread_id = " + customerThreadId;
+                    dataBaseObject.setQuery(query);
+                    dataBaseObject.query(false);
+                }
+            } catch (SQLException ignored) {
+                ignored.printStackTrace();
+            } finally {
+                try {
+                    JeproLabDataBaseConnector.getInstance().closeConnexion();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+        //JeproLabCartRuleModel.deleteByCustomerId(this.customer_id);
+        query = "DELETE FROM " + dataBaseObject.quoteName("#__jeprolab_customer");
+        query += " WHERE " + dataBaseObject.quoteName("customer_id") + " = " + this.customer_id;
+
+        dataBaseObject.setQuery(query);
+        dataBaseObject.query(false);
+    }
+
+    /**
+     * Return customer addresses
+     *
+     * @param langId Language ID
+     * @return array Addresses
+     */
+    public List<JeproLabAddressModel> getAddresses(int langId){
+        boolean shareRequest = JeproLabContext.getContext().laboratory.getLaboratoryGroup().share_requests;
+        String cacheKey = "jeprolab_customer_model_get_addresses_" + this.customer_id + "_" + langId + "_"  + (shareRequest ? 1 : 0);
+        if (!JeproLabCache.getInstance().isStored(cacheKey)) {
+            String query = "SELECT DISTINCT address.*, country_lang." + dataBaseObject.quoteName("name") + " AS country, state.name AS state_name,";
+            query += " state.iso_code AS state_iso FROM " + dataBaseObject.quoteName("#__jeprolab_address") + " AS address LEFT JOIN ";
+            query += dataBaseObject.quoteName("#__jeprolab_country")  + " AS country ON (address." + dataBaseObject.quoteName("country_id");
+            query += " = country." + dataBaseObject.quoteName("country_id") + ") LEFT JOIN " + dataBaseObject.quoteName("#__jeprolab_country_lang");
+            query += " AS country_lang ON (country." + dataBaseObject.quoteName("country_id") + " = country_lang." + dataBaseObject.quoteName("country_id");
+            query += ") LEFT JOIN " + dataBaseObject.quoteName("#__jeprolab_state") + " AS state ON (state." + dataBaseObject.quoteName("state_id") ;
+            query += " = address." + dataBaseObject.quoteName("state_id") + (shareRequest ? "" : JeproLabLaboratoryModel.addSqlAssociation("country"));
+            query += " WHERE " + dataBaseObject.quoteName("lang_id") + " = " + langId + " AND " + dataBaseObject.quoteName("customer_id") + " = ";
+            query += this.customer_id + " AND address." + dataBaseObject.quoteName("deleted") + " = 0";
+
+            dataBaseObject.setQuery(query);
+            ResultSet resultSet = dataBaseObject.loadObjectList();
+            List<JeproLabAddressModel> addressList = new ArrayList<>();
+
+            if(resultSet != null){
+                try {
+                    JeproLabAddressModel address;
+                    while(resultSet.next()){
+                        address = new JeproLabAddressModel();
+                        address.address_id = resultSet.getInt("address_id");
+                        addressList.add(address);
+                    }
+                }catch (SQLException ignored){
+                    ignored.printStackTrace();
+                }finally {
+                    try {
+                        JeproLabDataBaseConnector.getInstance().closeConnexion();
+                    }catch (Exception e){ e.printStackTrace(); }
+                }
+            }
+            JeproLabCache.getInstance().store(cacheKey, addressList);
+            return addressList;
+        }
+        return (List<JeproLabAddressModel>)JeproLabCache.getInstance().retrieve(cacheKey);
+    }
+
+    public static String getNameByCustomerId(int customerId) {
+        if(staticDataBaseObject == null){
+            staticDataBaseObject = JeproLabFactory.getDataBaseConnector();
+        }
+
+        String query = "SELECT " + staticDataBaseObject.quoteName("firstname") + ", " + staticDataBaseObject.quoteName("lastname") + " FROM ";
+        query += staticDataBaseObject.quoteName("#__jeprolab_customer") + " WHERE " + staticDataBaseObject.quoteName("customer_id") + " = ";
+        query += customerId;
+
+        staticDataBaseObject.setQuery(query);
+        ResultSet customerSet = staticDataBaseObject.loadObjectList();
+        if(customerSet != null){
+            try{
+                if(customerSet.next()){
+                    return customerSet.getString("firstname") + " " + customerSet.getString("lastname").toUpperCase();
+                }
+            }catch (SQLException ignored){
+                ignored.printStackTrace();
+            }finally {
+                try{
+                    JeproLabDataBaseConnector.getInstance().closeConnexion();
+                }catch (Exception ignored){
+                    ignored.printStackTrace();
+                }
+            }
+        }
+        return  "";
     }
 }
