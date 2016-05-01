@@ -4,6 +4,8 @@ import com.jeprolab.JeproLab;
 import com.jeprolab.assets.tools.JeproLabContext;
 import com.jeprolab.assets.tools.JeproLabTools;
 import com.jeprolab.models.JeproLabAnalyzeModel;
+import com.jeprolab.models.JeproLabSettingModel;
+import com.jeprolab.models.JeproLabStockModel;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleStringProperty;
@@ -27,6 +29,7 @@ import java.net.URL;
 import java.util.List;
 import java.util.Objects;
 import java.util.ResourceBundle;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 /**
@@ -82,12 +85,12 @@ public class JeproLabAnalyzeController extends JeproLabController {
 
         jeproLabAnalyzeBasePriceColumn.setText(bundle.getString("JEPROLAB_BASE_PRICE_LABEL"));
         jeproLabAnalyzeBasePriceColumn.setPrefWidth(0.12 * remainingWidth);
-        tableCellAlign(jeproLabAnalyzeBasePriceColumn, Pos.CENTER_RIGHT);
+        tableCellAlign(jeproLabAnalyzeBasePriceColumn, Pos.CENTER);
         jeproLabAnalyzeBasePriceColumn.setCellValueFactory(new PropertyValueFactory<>("analyzeBasePrice"));
 
         jeproLabAnalyzeFinalPriceColumn.setText(bundle.getString("JEPROLAB_FINAL_PRICE_LABEL"));
         jeproLabAnalyzeFinalPriceColumn.setPrefWidth(0.12 * remainingWidth);
-        tableCellAlign(jeproLabAnalyzeFinalPriceColumn, Pos.CENTER_RIGHT);
+        tableCellAlign(jeproLabAnalyzeFinalPriceColumn, Pos.CENTER);
         jeproLabAnalyzeFinalPriceColumn.setCellValueFactory(new PropertyValueFactory<>("analyzePrice"));
 
         jeproLabAnalyzeCategoryColumn.setText(bundle.getString("JEPROLAB_CATEGORY_LABEL"));
@@ -180,6 +183,35 @@ public class JeproLabAnalyzeController extends JeproLabController {
         public String getAnalyzeBasePrice(){
             return analyzeBasePrice.get();
         }
+
+        public void delete(){
+            JeproLabAnalyzeModel analyze = new JeproLabAnalyzeModel(getAnalyzeId(), true);
+            if(analyze.analyze_id > 0){
+                if(JeproLabSettingModel.getIntValue("advanced_stock_management") > 0 && analyze.advanced_stock_management){
+                    JeproLabStockModel.JeproLabStockManager stockManager = JeproLabStockModel.JeproLabStockManagerFactory.getManager();
+                    int quantity = stockManager.getAnalyzePhysicalQuantities(analyze.analyze_id, 0);
+                    int realQuantity = stockManager.getAnalyzeRealQuantities(analyze.analyze_id, 0);
+
+                    if(quantity > 0 || realQuantity > quantity){
+                        JeproLabTools.displayError(500, JeproLab.getBundle().getString("JEPROLAB_YOU_CANNOT_DELETE_THIS_ANALYZE_BECAUSE_THERE_STILL_PRODUCT_TO_RUN_IT_MESSAGE"));
+                        JeproLabContext.getContext().controller.has_errors = true;
+                    }
+                }
+
+                if(!JeproLabContext.getContext().controller.has_errors){
+                    if(analyze.delete()){
+                        int categoryId = JeproLab.request.getRequest().containsKey("category_id") ? Integer.parseInt(JeproLab.request.getRequest().get("category_id")) : 0;
+                        //Logger
+
+                    }else{
+                        JeproLabTools.displayError(500, JeproLab.getBundle().getString("JEPROLAB_AN_ERROR_OCCURRED_WHILE_DELETING_ANALYZE_MESSAGE"));
+                        JeproLabContext.getContext().controller.has_errors = true;
+                    }
+                }
+            }else{
+                JeproLabTools.displayError(500, JeproLab.getBundle().getString("JEPROLAB_AN_ERROR_WHILE_DELETING_THE_ANALYZE_MESSAGE") + "\n" + JeproLab.getBundle().getString("JEPROLAB_UNABLE_TO_LOAD_ANALYZE_LABEL"));
+            }
+        }
     }
 
     public static class JeproLabCheckBoxCell extends TableCell<JeproLabAnalyzeRecord, Boolean>{
@@ -257,6 +289,7 @@ public class JeproLabAnalyzeController extends JeproLabController {
             deleteAnalyze.setMaxSize(btnSize, btnSize);
             deleteAnalyze.setMinSize(btnSize, btnSize);
             deleteAnalyze.getStyleClass().add("icon-btn");
+            commandContainer.setAlignment(Pos.CENTER);
             commandContainer.getChildren().addAll(editAnalyze, deleteAnalyze);
         }
 
@@ -271,9 +304,24 @@ public class JeproLabAnalyzeController extends JeproLabController {
             super.updateItem(item, empty);
             final ObservableList<JeproLabAnalyzeRecord> items = getTableView().getItems();
             if((items != null) && (getIndex() >= 0 && getIndex() < items.size())){
+                int itemId = items.get(getIndex()).getAnalyzeIndex();
+                editAnalyze.setOnAction(event -> {
+                    JeproLab.request.setRequest("analyze_id=" + itemId + "&" + JeproLabTools.getAnalyzeToken() + "=1");
+                    try{
+                        JeproLab.getInstance().goToForm(JeproLab.getInstance().getApplicationForms().addAnalyzeForm);
+                        JeproLabContext.getContext().controller.initializeContent();
+                    }catch (IOException ignored){
+                        ignored.printStackTrace();
+                    }
+                });
+                deleteAnalyze.setOnAction(event -> {
+
+                });
                 setGraphic(commandContainer);
                 setAlignment(Pos.CENTER);
             }
         }
     }
+
+
 }

@@ -8,9 +8,7 @@ import com.jeprolab.models.core.JeproLabFactory;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 /**
  *
@@ -230,5 +228,84 @@ public class JeproLabCartModel extends JeproLabModel{
     }
 
 
+    public static class JeproLabCartRuleModel extends JeproLabModel{
+        /* Filters used when retrieving the cart rules applied to a cart of when calculating the value of a reduction */
+        public final int FILTER_ACTION_ALL = 1;
+        public final int FILTER_ACTION_SHIPPING = 2;
+        public final int FILTER_ACTION_REDUCTION = 3;
+        public final int FILTER_ACTION_GIFT = 4;
+        public final int FILTER_ACTION_ALL_NOCAP = 5;
 
+        public final String BO_ORDER_CODE_PREFIX = "BO_ORDER_";
+
+        /**
+         * @param customerId
+         * @return bool
+         */
+        public static boolean deleteByCustomerId(int customerId){
+            boolean result = true;
+            if(staticDataBaseObject == null){
+                staticDataBaseObject = JeproLabFactory.getDataBaseConnector();
+            }
+            String query = "DELETE FROM " + staticDataBaseObject.quoteName("#__jeprolab_cart_rule") + " AS cart_rule ";
+            query += " WHERE " + staticDataBaseObject.quoteName("customer_id") + " = " + customerId;
+
+            staticDataBaseObject.setQuery(query);
+            result &= staticDataBaseObject.query(false);
+
+            return result;
+        }
+
+        /* When an entity associated to a analyze rule (product, category, attribute, supplier, manufacturer...) is deleted, the product rules must be updated */
+        public static boolean cleanAnalyzeRuleIntegrity(String type, List<Integer> list){
+            String[] fieldTypes = {"analyzes", "categories", "attributes", "manufacturers", "suppliers"};
+            // Type must be available in the 'type' enum of the table cart_rule_product_rule
+            if (!Arrays.asList(fieldTypes).contains(type)) {
+                return false;
+            }
+/*
+        // This check must not be removed because this var is used a few lines below
+        $list = (is_array($list) ? implode(',', array_map('intval', $list)) : (int)$list);
+        if (!preg_match('/^[0-9,]+$/', $list)) {
+            return false;
+        }
+
+        // Delete associated restrictions on cart rules
+        String query = "DELETE cart_rule_analyze_rule_value FROM " + staticDataBaseObject.quoteName("#__jeprolab_cart_rule_analyze_rule");
+        query += " AS cart_rule_analyze_rule LEFT JOIN " + staticDataBaseObject.quoteName("#__jeprolab_cart_rule_analyze_rule_value");
+        query += " AS cart_rule_analyze_rule_value ON cart_rule_analyze_rule." + staticDataBaseObject.quoteName("analyze_rule_id") + " =";
+        query += "cart_rule_analyze_rule_value." + staticDataBaseObject.quoteName("analyze_rule_id") + " WHERE cart_rule_analyze_rule.";
+        query += staticDataBaseObject.quoteName("type") + " = " + staticDataBaseObject.quoteName(type) + " AND cart_rule_analyze_rule_value.";
+        query += staticDataBaseObject.quoteName("item_id") + " IN (" + itemList + ")";
+
+        staticDataBaseObject.setQuery(query);
+
+        Db::getInstance()->execute('
+            '); // $list is checked a few lines above
+
+        // Delete the product rules that does not have any values
+        if (staticDataBaseObject.executeQuery() > 0) {
+            query = "DELETE FROM " + staticDataBaseObject.quoteName("#__jeprolab_cart_rule_analyze_rule") + " NOT EXISTS (SELECT";
+            query += " 1 FROM " + staticDataBaseObject.quoteName("#__jeprolab_cart_rule_analyze_rule_value") + " WHERE ";
+            query += staticDataBaseObject.quoteName(".'cart_rule_product_rule`.`id_product_rule` = `'.dataBaseObject.quoteName(".'cart_rule_product_rule_value`.`id_product_rule`)');
+        }
+        // If the product rules were the only conditions of a product rule group, delete the product rule group
+        if (Db::getInstance()->Affected_Rows() > 0) {
+        Db::getInstance()->delete('cart_rule_product_rule_group', 'NOT EXISTS (SELECT 1 FROM `'.dataBaseObject.quoteName(".'cart_rule_product_rule`
+        WHERE `'.dataBaseObject.quoteName(".'cart_rule_product_rule`.`id_product_rule_group` = `'.dataBaseObject.quoteName(".'cart_rule_product_rule_group`.`id_product_rule_group`)');
+    }
+
+        // If the product rule group were the only restrictions of a cart rule, update de cart rule restriction cache
+        if (Db::getInstance()->Affected_Rows() > 0){
+            query = "UPDATE " + staticDataBaseObject.quoteName("#__jeprolab_cart_rule") + " AS cart_rule LEFT JOIN ";
+            query += staticDataBaseObject.quoteName("#__jeprolab_cart_rule_analyze_rule_group") + " AS cart_rule_analyze_rule_group ";
+            query += " ON cart_rule.cart_rule_id = cart_rule_analyze_rule_group.cart_rule_id SET analyze_restriction = IF(";
+            query += " cart_rule_analyze_rule_group.analyze_rule_group_id IS NULL, 0, 1)";
+
+            staticDataBaseObject.setQuery(query);
+            staticDataBaseObject.query(false);
+        }*/
+            return true;
+        }
+    }
 }

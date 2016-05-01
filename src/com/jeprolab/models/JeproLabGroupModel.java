@@ -317,7 +317,7 @@ public class JeproLabGroupModel extends JeproLabModel {
             return result;
         }
 
-        public static void deleteAnalyzeReduction(int analyzeId){
+        public static boolean deleteAnalyzeReduction(int analyzeId){
             if(staticDataBaseObject == null){
                 staticDataBaseObject = JeproLabFactory.getDataBaseConnector();
             }
@@ -325,7 +325,7 @@ public class JeproLabGroupModel extends JeproLabModel {
             query += staticDataBaseObject.quoteName("analyze_id") + " = "+ analyzeId;
 
             staticDataBaseObject.setQuery(query);
-            staticDataBaseObject.query(false);
+            return staticDataBaseObject.query(false);
         }
 
         public static ResultSet getGroupsReductionByCategoryId(int categoryId){

@@ -1,5 +1,6 @@
 package com.jeprolab.models;
 
+import com.jeprolab.assets.tools.JeproLabCache;
 import com.jeprolab.assets.tools.db.JeproLabDataBaseConnector;
 import com.jeprolab.models.core.JeproLabFactory;
 
@@ -58,5 +59,22 @@ public class JeproLabModel {
 
         dataBaseObject.setQuery(query + condition);
         return dataBaseObject.query(false);
+    }
+
+    public void clearCache(String table, int id){
+        clearCache(table, id, false);
+    }
+
+    /**
+     * Clears cache entries that have this object's ID.
+     *
+     * @param all If true, clears cache for all objects
+     */
+    public void clearCache(String table, int id, boolean all){
+        if (all) {
+            JeproLabCache.getInstance().remove("jeprolab_" + table + "_model_*");
+        } else if (id > 0) {
+            JeproLabCache.getInstance().remove("jeprolab_" + table + "_model_" + id + "_*");
+        }
     }
 }

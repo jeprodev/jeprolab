@@ -92,4 +92,30 @@ public class JeproLabCombinationModel extends JeproLabModel{
         return attributeList;
     }
 
+    public boolean delete(){
+        /*if (!parent::delete()) {
+        return false;
+    }
+
+        // Removes the product from StockAvailable, for the current shop
+        StockAvailable::removeProductFromStockAvailable((int)$this->id_product, (int)$this->id);
+
+        if ($specific_prices = SpecificPrice::getByProductId((int)$this->id_product, (int)$this->id)) {
+        foreach ($specific_prices as $specific_price) {
+            $price = new SpecificPrice((int)$specific_price['id_specific_price']);
+            $price->delete();
+        }
+    }
+
+        if (!$this->hasMultishopEntries() && !$this->deleteAssociations()) {
+            return false;
+        }
+
+        $this->deleteFromSupplier($this->id_product);
+        Product::updateDefaultAttribute($this->id_product);
+        Tools::clearColorListCache((int)$this->id_product);
+*/
+        return true;
+    }
+
 }

@@ -1,18 +1,372 @@
 package com.jeprolab.models;
 
 import com.jeprolab.assets.config.JeproLabConfigurationSettings;
+import com.jeprolab.assets.tools.JeproLabCache;
+import com.jeprolab.assets.tools.JeproLabContext;
 import com.jeprolab.assets.tools.JeproLabTools;
+import com.jeprolab.assets.tools.db.JeproLabDataBaseConnector;
+import com.jeprolab.models.core.JeproLabFactory;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.*;
 
 /**
  *
  * Created by jeprodev on 18/06/2014.
  */
 public class JeproLabImageModel extends JeproLabModel{
+    /** @var int Image ID */
+    public int image_id;
+
+    /** @var int analyze ID */
+    public int analyze_id;
+
+    public int language_id;
+
+    /** @var int Position used to order images of the same product */
+    public int position;
+
+    /** @var bool Image is cover */
+    public boolean cover;
+
+    /** @var string Legend */
+    public Map<String, String> legend = new HashMap<>();
+
+    /** @var string image extension * /
+
+    public String image_format = "jpg";
+    /** @var string path to index.php file to be copied to new image folders * /
+    public String source_index;
+
+    /** @var string image folder */
+    protected String folder;
+
+    protected String image_dir;
+
+    /** @var string image path without extension */
+    protected String existing_path;
+
+    /** @var int access rights of created folders (octal) */
+    protected static int access_rights = 0775;
+
+    protected static Map<String, Map<String, Integer>> _cacheGetSize = new HashMap<>();
+
+    public JeproLabImageModel(){
+        this(0, 0);
+    }
+
+    public JeproLabImageModel(int imageId){
+        this(imageId, 0);
+    }
+
+    public JeproLabImageModel(int imageId, int langId){
+        if(langId > 0){
+            this.language_id = JeproLabLanguageModel.checkLanguage(langId) ? langId : JeproLabSettingModel.getIntValue("default_lang");
+        }
+
+        if(imageId > 0){
+            /** load category from data base if id provided **/
+            String cacheKey = "jeprolab_model_image_" + imageId + "_" + langId;
+            if(!JeproLabCache.getInstance().isStored(cacheKey)){
+                if(dataBaseObject == null){
+                    dataBaseObject = JeproLabFactory.getDataBaseConnector();
+                }
+                String query = "SELECT * FROM " + dataBaseObject.quoteName("#__jeprolab_image") + " AS image ";
+                if(langId > 0){
+                    query += " LEFT JOIN " + dataBaseObject.quoteName("#__jeprolab_image_lang") + " AS image_lang ON ";
+                    query += "(image." + dataBaseObject.quoteName("image_id") + " = image_lang." + dataBaseObject.quoteName("image_id");
+                    query += " AND image." + dataBaseObject.quoteName("lang_id") + " = " + langId + ") ";
+                }
+                query += "WHERE image." + dataBaseObject.quoteName("image_id") + " = " + imageId;
+
+                dataBaseObject.setQuery(query);
+                ResultSet imageSet = dataBaseObject.loadObjectList();
+
+                try {
+                    if (imageSet.next()){
+                        this.image_id = imageSet.getInt("image_id");
+                        this.analyze_id = imageSet.getInt("analyze_id");
+                        this.position = imageSet.getInt("position");
+                        this.cover = imageSet.getInt("cover") > 0;
+                        if (langId <= 0 ){
+                            query = "SELECT * FROM " + dataBaseObject.quoteName("#__jeprolab_image_lang") + " WHERE image_id = " + imageId;
+
+                            dataBaseObject.setQuery(query);
+                            ResultSet imageLangSet = dataBaseObject.loadObjectList();
+                            String legend;
+                            int languageId;
+                            Map<Integer, JeproLabLanguageModel> languages = JeproLabLanguageModel.getLanguages();
+                            Iterator langIt = languages.entrySet().iterator();
+                            while(langIt.hasNext()){
+                                Map.Entry lang = (Map.Entry)langIt.next();
+                                JeproLabLanguageModel language = (JeproLabLanguageModel)lang.getValue();
+                                languageId = imageLangSet.getInt("lang_id");
+                                legend = imageSet.getString("legend");
+                                if(langId == language.language_id){
+                                    this.legend.put("lang_" + languageId, legend);
+                                }
+                            }
+                        }else{
+                            this.language_id = imageSet.getInt("lang_id");
+                            this.legend.put("lang_" + langId, imageSet.getString("legend"));
+                        }
+
+                        JeproLabCache.getInstance().store(cacheKey, this);
+                    }
+                }catch (SQLException ignored){
+                    ignored.printStackTrace();
+                }finally {
+                    try {
+                        JeproLabDataBaseConnector.getInstance().closeConnexion();
+                    }catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
+            }else {
+                JeproLabImageModel image = (JeproLabImageModel)JeproLabCache.getInstance().retrieve(cacheKey);
+                this.image_id = image.image_id;
+                //this. = image.
+                this.legend = image.legend;
+            }
+        }
+
+        this.image_dir = JeproLabConfigurationSettings.JEPROLAB_ANALYZE_IMAGE_DIRECTORY;
+        //this.source_index = JeproLabConfigurationSettings.JEPROLAB_ANALYZE_IMAGE_DIRECTORY.'index.php';
+    }
+
+    public boolean delete(){
+        /*if (!parent::delete()) {
+            return false;
+        }
+
+        if (this.hasMultiLaboratoryEntries()) {
+            return true;
+        }
+
+        if (!this.deleteAnalyzeAttributeImage() || !this.deleteImage()) {
+            return false;
+        }
+
+        // update positions
+        Db::getInstance()->execute('SET @position:=0', false);
+        Db::getInstance()->execute('UPDATE `'._DB_PREFIX_.'image` SET position=(@position:=@position+1)
+        WHERE `id_product` = '.(int)this.id_product.' ORDER BY position ASC');*/
+
+        return true;
+    }
+
+
+
+
+    public static class JeproLabImageTypeModel extends JeproLabModel {
+        public int image_type_id;
+
+        /** @var string Name */
+        public String name;
+
+        /** @var int Width */
+        public int width;
+
+        /** @var int Height */
+        public int height;
+
+        /** @var bool Apply to products */
+        public boolean analyzes;
+
+        /** @var int Apply to categories */
+        public boolean categories;
+
+        /** @var int Apply to manufacturers */
+        public boolean manufacturers;
+
+        /** @var int Apply to suppliers */
+        public boolean suppliers;
+
+        /** @var int Apply to scenes */
+        public boolean scenes;
+
+        public boolean technicians;
+        /** @var int Apply to store */
+        public boolean laboratories;
+
+
+        private static boolean is_passed = false;
+
+        /**
+         * @var array Image types cache
+         */
+        protected static Map<String, List<JeproLabImageTypeModel>>images_types_cache = new HashMap<>();
+
+        protected static Map<String, JeproLabImageTypeModel>images_types_name_cache = new HashMap<>();
+
+        public static List<JeproLabImageTypeModel> getImagesTypes() {
+            return getImagesTypes("", false);
+        }
+
+        public static List<JeproLabImageTypeModel> getImagesTypes(String type) {
+            return getImagesTypes(type, false);
+        }
+
+        /**
+         * Returns image type definitions
+         *
+         * @param type Image type
+         * @param orderBySize order by size
+         * @return array Image type definitions
+         */
+        public static List<JeproLabImageTypeModel> getImagesTypes(String type, boolean orderBySize) {
+            if(staticDataBaseObject == null){
+                staticDataBaseObject = JeproLabFactory.getDataBaseConnector();
+            }
+
+            if (!JeproLabImageTypeModel.images_types_cache.containsKey(type)) {
+                String where = " WHERE 1 ";
+                if (!type.equals("")){
+                    where += " AND " + staticDataBaseObject.quote(type) + " = 1 ";
+                }
+                String query = "SELECT * FROM " + staticDataBaseObject.quoteName("#__jeprolab_image_type") + where + "ORDER BY ";
+
+                if (orderBySize) {
+                    query += staticDataBaseObject.quoteName("width") + " DESC, " + staticDataBaseObject.quoteName("height") + " DESC, ";
+                }
+                query += staticDataBaseObject.quoteName("name") + " ASC ";
+
+                staticDataBaseObject.setQuery(query);
+                ResultSet imageTypeSet = staticDataBaseObject.loadObjectList();
+                List<JeproLabImageTypeModel> list = new ArrayList<>();
+                try{
+                    JeproLabImageTypeModel imageType;
+                    while(imageTypeSet.next()){
+                        imageType = new JeproLabImageTypeModel();
+                        imageType.image_type_id = imageTypeSet.getInt("image_type_id");
+                        imageType.name = imageTypeSet.getString("name");
+                        imageType.width = imageTypeSet.getInt("width");
+                        imageType.height = imageTypeSet.getInt("height");
+                        imageType.analyzes = imageTypeSet.getInt("analyzes") > 0;
+                        imageType.categories = imageTypeSet.getInt("categories") > 0;
+                        imageType.manufacturers = imageTypeSet.getInt("manufactures") > 0;
+                        imageType.suppliers = imageTypeSet.getInt("suppliers") > 0;
+                        imageType.technicians = imageTypeSet.getInt("technicians") > 0;
+                        imageType.scenes = imageTypeSet.getInt("scenes") > 0;
+                        imageType.laboratories = imageTypeSet.getInt("laboratories") > 0;
+                        list.add(imageType);
+                    }
+                }catch (SQLException ignored){
+                    ignored.printStackTrace();
+                }finally {
+                    try {
+                        JeproLabDataBaseConnector.getInstance().closeConnexion();
+                    }catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
+
+                JeproLabImageTypeModel.images_types_cache.put(type, list);
+            }
+            return JeproLabImageTypeModel.images_types_cache.get(type);
+        }
+
+        public static JeproLabImageTypeModel getByNameType(String name){
+            return getByNameType(name, null, 0);
+        }
+
+        public static JeproLabImageTypeModel getByNameType(String name, String type){
+            return getByNameType(name, type, 0);
+        }
+
+        /**
+         * Finds image type definition by name and type
+         * @param name name
+         * @param type type
+         */
+        public static JeproLabImageTypeModel getByNameType(String name, String type, int order){
+            //is_passed = false;
+
+            String cacheKey = name + "_" + type + "_" + order;
+            if (!JeproLabImageTypeModel.images_types_name_cache.containsKey(cacheKey) && !JeproLabImageTypeModel.is_passed){
+                if(staticDataBaseObject == null){
+                    staticDataBaseObject = JeproLabFactory.getDataBaseConnector();
+                }
+                String query = "SELECT * FROM " + staticDataBaseObject.quoteName("#__jeprolab_image_type");
+                staticDataBaseObject.setQuery(query);
+                ResultSet resultSet = staticDataBaseObject.loadObjectList();
+
+                List<String> types = new ArrayList<>();
+                types.add("analyzes");
+                types.add("categories");
+                types.add("manufacturers");
+                types.add("suppliers");
+                types.add("scenes");
+                types.add("laboratories");
+                int total = types.size();
+                if(resultSet != null) {
+                    try {
+                        JeproLabImageTypeModel imageType;
+                        while (resultSet.next()) {
+                            imageType = new JeproLabImageTypeModel();
+                            imageType.image_type_id = resultSet.getInt("image_type_id");
+                            imageType.name = resultSet.getString("name");
+                            imageType.width = resultSet.getInt("width");
+                            imageType.height = resultSet.getInt("height");
+                            imageType.analyzes = resultSet.getInt("analyzes") > 0;
+                            imageType.categories = resultSet.getInt("categories") > 0;
+                            imageType.manufacturers = resultSet.getInt("manufactures") > 0;
+                            imageType.suppliers = resultSet.getInt("suppliers") > 0;
+                            imageType.technicians = resultSet.getInt("technicians") > 0;
+                            imageType.scenes = resultSet.getInt("scenes") > 0;
+                            imageType.laboratories = resultSet.getInt("laboratories") > 0;
+                            //foreach($result as $value) {
+                            for (int i = 0; i < total; i++) {
+                                JeproLabImageTypeModel.images_types_name_cache.put(resultSet.getString("name") + "_" + types.get(i) + "_" , imageType);
+                                //JeproLabImageTypeModel.images_types_name_cache.put(resultSet.getString("name") + "_" + types.get(i) + "_" + value, imageType);
+                            }
+                            //}
+                        }
+                    }catch(SQLException ignored){
+                        ignored.printStackTrace();
+                    }finally {
+                        try {
+                            JeproLabDataBaseConnector.getInstance().closeConnexion();
+                        }catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }
+                is_passed = true;
+            }
+            JeproLabImageTypeModel result = null;
+            if (JeproLabImageTypeModel.images_types_name_cache.containsKey(cacheKey)){
+                result = JeproLabImageTypeModel.images_types_name_cache.get(cacheKey);
+            }
+            return result;
+        }
+
+        public static String getFormattedName(String name){
+            String themeName = JeproLabContext.getContext().laboratory.theme_name;
+            String nameWithoutThemeName = JeproLabTools.strReplace(name, "_" + themeName, "");
+            nameWithoutThemeName = JeproLabTools.strReplace(nameWithoutThemeName, themeName + "_", "");
+
+            //check if the theme name is already in $name if yes only return $name
+            if (!JeproLabTools.strStr(name, themeName).equals("") && JeproLabImageTypeModel.getByNameType(name) != null) {
+                return name;
+            } else if (JeproLabImageTypeModel.getByNameType(nameWithoutThemeName + "_" + themeName) != null){
+                return nameWithoutThemeName + "_" + themeName;
+            } else if (JeproLabImageTypeModel.getByNameType(themeName + "_" + nameWithoutThemeName) != null){
+                return themeName + "_" + nameWithoutThemeName;
+            } else{
+                return nameWithoutThemeName + "_default";
+            }
+        }
+    }
+
+
+
+
 
     public static class JeproLabImageManager {
         static final int ERROR_FILE_NOT_EXIST = 1;
@@ -22,7 +376,7 @@ public class JeproLabImageModel extends JeproLabModel{
         protected static int static_error = 0;
 
         protected static int png_quality = -2;
-        protected static int jpeg_quality = -2;
+        protected static int jpeg_quality = 2;
 
         public static String thumbNail(String imagePath, String cacheImageKey, int size){
             return thumbNail(imagePath, cacheImageKey, size, "jpg", true, true);

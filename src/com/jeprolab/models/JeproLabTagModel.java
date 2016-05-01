@@ -5,7 +5,9 @@ import com.jeprolab.models.core.JeproLabFactory;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -71,5 +73,80 @@ public class JeproLabTagModel extends JeproLabModel{
             $result[$tag['id_lang']][]=$tag['name'];
         }*/
         return result;
+    }
+
+    public static boolean deleteTagsForAnalyze(int analyzeId){
+        if(staticDataBaseObject == null){
+            staticDataBaseObject = JeproLabFactory.getDataBaseConnector();
+        }
+        String query = "SELECT tag_id FROM " + staticDataBaseObject.quoteName("#__jeprolab_analyze_tag") + " WHERE analyze_id = " + analyzeId;
+        staticDataBaseObject.setQuery(query);
+        ResultSet tagsSet = staticDataBaseObject.loadObjectList();
+
+        query = "DELETE " + staticDataBaseObject.quoteName("#__jeprolab_analyze_tag") + " WHERE analyzeId = " + analyzeId;
+        staticDataBaseObject.setQuery(query);
+        boolean result = staticDataBaseObject.query(false);
+
+        query = "DELETE " + staticDataBaseObject.quoteName("#__jeprolab_tag") + " NOT EXISTS (SELECT 1 FROM " + staticDataBaseObject.quoteName("#__jeprolab_analyze_tag");
+        query += " WHERE " + staticDataBaseObject.quoteName("#__jeprolab_analyze_tag") + ".tag_id = " + staticDataBaseObject.quoteName("#__jeprolab_analyze_tag") + ".tag_id)";
+
+        staticDataBaseObject.setQuery(query);
+        staticDataBaseObject.query(false);
+
+        List<Integer> tagList = new ArrayList<>();
+        if(tagsSet != null){
+            try{
+                while(tagsSet.next()){
+                    tagList.add(tagsSet.getInt("tag_id"));
+                }
+            }catch(SQLException ignored){
+                ignored.printStackTrace();
+            }finally {
+                try {
+                    JeproLabDataBaseConnector.getInstance().closeConnexion();
+                }catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+
+        if (tagList.size() > 0) {
+            JeproLabTagModel.updateTagCount(tagList);
+        }
+        return result;
+    }
+
+    public static void updateTagCount(List<Integer> tagList){
+        /*if (!Module::getBatchMode()) {
+        if ($tag_list != null) {
+            $tag_list_query = ' AND pt.id_tag IN ('.implode(',', $tag_list).')';
+            Db::getInstance()->execute('DELETE pt FROM `'._DB_PREFIX_.'tag_count` pt WHERE 1=1 '.$tag_list_query);
+        } else {
+            $tag_list_query = '';
+        }
+
+
+
+        Db::getInstance()->execute('REPLACE INTO `'._DB_PREFIX_.'tag_count` (id_group, id_tag, id_lang, id_shop, counter)
+        SELECT cg.id_group, pt.id_tag, pt.id_lang, id_shop, COUNT(pt.id_tag) AS times
+        FROM `'._DB_PREFIX_.'product_tag` pt
+        INNER JOIN `'._DB_PREFIX_.'product_shop` product_shop
+        USING (id_product)
+        JOIN (SELECT DISTINCT id_group FROM `'._DB_PREFIX_.'category_group`) cg
+        WHERE product_shop.`active` = 1
+        AND EXISTS(SELECT 1 FROM `'._DB_PREFIX_.'category_product` cp
+        LEFT JOIN `'._DB_PREFIX_.'category_group` cgo ON (cp.`id_category` = cgo.`id_category`)
+        WHERE cgo.`id_group` = cg.id_group AND product_shop.`id_product` = cp.`id_product`)
+        '.$tag_list_query.'
+        GROUP BY pt.id_tag, pt.id_lang, cg.id_group, id_shop ORDER BY NULL');
+        Db::getInstance()->execute('REPLACE INTO `'._DB_PREFIX_.'tag_count` (id_group, id_tag, id_lang, id_shop, counter)
+        SELECT 0, pt.id_tag, pt.id_lang, id_shop, COUNT(pt.id_tag) AS times
+        FROM `'._DB_PREFIX_.'product_tag` pt
+        INNER JOIN `'._DB_PREFIX_.'product_shop` product_shop
+        USING (id_product)
+        WHERE product_shop.`active` = 1
+        '.$tag_list_query.'
+        GROUP BY pt.id_tag, pt.id_lang, id_shop ORDER BY NULL');
+    }*/
     }
 }

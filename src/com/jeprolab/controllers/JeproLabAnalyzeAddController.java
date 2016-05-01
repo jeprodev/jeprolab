@@ -175,8 +175,6 @@ public class JeproLabAnalyzeAddController extends JeproLabController {
                 jeproLabAnalyzeVisibility.setValue(bundle.getString("JEPROLAB_NONE_LABEL"));
                 break;
         }
-
-
     }
 
     private void renderInformationTab(){
@@ -380,47 +378,50 @@ public class JeproLabAnalyzeAddController extends JeproLabController {
         jeproLabAnalyzeEan13.addEventFilter(KeyEvent.KEY_TYPED, JeproLabTools.codeValidation(13));
         jeproLabAnalyzeUpc.addEventFilter(KeyEvent.KEY_TYPED, JeproLabTools.codeValidation(12));
 
-        saveAnalyzeBtn.setOnMouseClicked(evt -> {
-            String analyzeVisibility;
+        saveAnalyzeBtn.setOnAction(evt -> {
+
             if (jeproLabAnalyzeVisibility.getValue().equals(bundle.getString("JEPROLAB_CATALOG_LABEL"))) {
-                analyzeVisibility = "catalog";
+                analyze.visibility = "catalog";
             } else if (jeproLabAnalyzeVisibility.getValue().equals(bundle.getString("JEPROLAB_SEARCH_LABEL"))) {
-                analyzeVisibility = "search";
+                analyze.visibility = "search";
             } else if (jeproLabAnalyzeVisibility.getValue().equals(bundle.getString("JEPROLAB_NONE_LABEL"))) {
-                analyzeVisibility = "none";
+                analyze.visibility = "none";
             } else {
-                analyzeVisibility = "both";
+                analyze.visibility = "both";
             }
 
-            String analyzeRedirect;
+
             if (jeproLabAnalyzeRedirect.getValue().equals(bundle.getString("JEPROLAB_301_LABEL"))) {
-                analyzeRedirect = "301";
+                analyze.redirect_type = "301";
             } else if (jeproLabAnalyzeRedirect.getValue().equals(bundle.getString("JEPROLAB_302_LABEL"))) {
-                analyzeRedirect = "302";
-            }else{
-                analyzeRedirect = "404";
+                analyze.redirect_type = "302";
+            } else {
+                analyze.redirect_type = "404";
             }
 
-            String post = "reference=" + jeproLabAnalyzeReference.getText() + "&ean13=" + jeproLabAnalyzeEan13.getText() + "&upc=" + jeproLabAnalyzeUpc.getText();
-            post += "&published=" + (jeproLabAnalyzePublished.isSelected() ? "1" : "0") + "&redirect_type=" + analyzeRedirect + "&available_for_order=";
-            post += (jeproLabAnalyzeAvailableForOrder.isSelected() ? "1" : "0") + "&show_price=" + (jeproLabAnalyzeShowPrice.isSelected() ? "1" : "0") + "&visibility=";
-            post += analyzeVisibility + "&delay=" + (jeproLabAnalyzeDelay.getText().equals("") ? 1 : jeproLabAnalyzeDelay.getText());
+            analyze.reference = jeproLabAnalyzeReference.getText();
+            analyze.ean13 = jeproLabAnalyzeEan13.getText();
+            analyze.upc = jeproLabAnalyzeUpc.getText();
+            analyze.published = jeproLabAnalyzePublished.isSelected();
+            analyze.available_for_order = jeproLabAnalyzeAvailableForOrder.isSelected();
+            analyze.show_price = jeproLabAnalyzeShowPrice.isSelected();
+            analyze.delay = Integer.parseInt(jeproLabAnalyzeDelay.getText());
+            if(languages == null){
+                languages = JeproLabLanguageModel.getLanguages();
+            }
             for (Object o : languages.entrySet()) {
                 Map.Entry lang = (Map.Entry) o;
                 JeproLabLanguageModel language = (JeproLabLanguageModel) lang.getValue();
-                post += "&name_" + language.language_id + "=" + jeproLabAnalyzeName.getFieldContent(language.language_id);
-                post += "&description_" + language.language_id + "=" + jeproLabAnalyzeDescription.getFieldContent(language.language_id);
-                post += "&short_description_" + language.language_id + "=" + jeproLabAnalyzeShortDescription.getFieldContent(language.language_id);
-                post += "&tag_" + language.language_id + "=" + jeproLabAnalyzeTags.getFieldContent(language.language_id);
+                analyze.name.put("lang_" + language.language_id, jeproLabAnalyzeName.getFieldContent(language.language_id));
+                analyze.description.put("lang_" + language.language_id, jeproLabAnalyzeDescription.getFieldContent(language.language_id));
+                analyze.short_description.put("lang_" + language.language_id, jeproLabAnalyzeShortDescription.getFieldContent(language.language_id));
+                analyze.tags.put("lang_" + language.language_id, jeproLabAnalyzeTags.getFieldContent(language.language_id));
             }
-            JeproLab.request.setPost(post);
 
             if (analyze.analyze_id > 0) {
                 analyze.update();
             } else {
-                //JeproLabAnalyzeModel
-                analyze = analyze.save();
-
+                analyze.save();
             }
         });
     }
@@ -534,7 +535,7 @@ public class JeproLabAnalyzeAddController extends JeproLabController {
 
     private void loadAnalyze(boolean option) {
         int analyzeId = JeproLab.request.getRequest().containsKey("analyze_id") ? Integer.parseInt(JeproLab.request.getRequest().get("analyze_id")) : 0;
-        analyzeId = 11;
+
         boolean isLoaded = false;
         if (analyzeId > 0) {
             if (analyze == null) {

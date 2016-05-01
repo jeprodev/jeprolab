@@ -1,5 +1,6 @@
 package com.jeprolab.models;
 
+import com.jeprolab.assets.tools.JeproLabContext;
 import com.jeprolab.assets.tools.db.JeproLabDataBaseConnector;
 import com.jeprolab.models.core.JeproLabFactory;
 
@@ -400,6 +401,39 @@ public class JeproLabPriceModel extends JeproLabModel{
             System.out.print(specificList);
             return specificList;
         }
+
+        public boolean add(){
+            if(dataBaseObject == null){
+                dataBaseObject = JeproLabFactory.getDataBaseConnector();
+            }
+            String query = "INSERT INTO " + dataBaseObject.quoteName("#__jeprolab_specific_price") + "(" + dataBaseObject.quoteName("specific_price_rule_id");
+            query += ", " + dataBaseObject.quoteName("analyze_id") + ", " + dataBaseObject.quoteName("analyze_attribute_id") + ", " + dataBaseObject.quoteName("customer_id");
+            query += ", " + dataBaseObject.quoteName("laboratory_id") + ", " + dataBaseObject.quoteName("country_id") + ", " + dataBaseObject.quoteName("currency_id") + ", ";
+            query += dataBaseObject.quoteName("group_id") + ", " + dataBaseObject.quoteName("from_quantity") + ", " + dataBaseObject.quoteName("price") + ", " ;
+            query += dataBaseObject.quoteName("reduction_type") + ", " + dataBaseObject.quoteName("reduction_tax") + ", " + dataBaseObject.quoteName("reduction") + ", ";
+            query += dataBaseObject.quoteName("from") + ", " + dataBaseObject.quoteName("to") + ") VALUES ( " + this.specific_price_rule_id + ", ";
+            query += this.analyze_id + ", " + this.analyze_attribute_id + ", " + this.customer_id +  ", " + this.laboratory_id + ", " + this.country_id + ", ";
+            query += this.currency_id + ", " + this.group_id + ", " + this.from_quantity + ", " + this.price + ", " + this.reduction_type + ", " + this.reduction;
+            query += ", " + this.reduction + ", " + this.from + ", " + this.to + ") ";
+
+            dataBaseObject.setQuery(query);
+            return dataBaseObject.query(false);
+        }
+
+        public static boolean deleteByAnalyzeId(int analyzeId){
+            if(staticDataBaseObject == null){
+                staticDataBaseObject = JeproLabFactory.getDataBaseConnector();
+            }
+            String query = "DELETE FROM " + staticDataBaseObject.quoteName("#__jeprolab_specific_price") + " WHERE " + staticDataBaseObject.quoteName("analyze_id") + " = " + analyzeId;
+            staticDataBaseObject.setQuery(query);
+            if(staticDataBaseObject.query(false)){
+                JeproLabSettingModel.updateValue("specific_price_active", JeproLabSpecificPriceModel.isCurrentlyUsed("specific_price"));
+                return true;
+            }
+            return false;
+        }
+
+
     }
 
 
@@ -423,5 +457,309 @@ public class JeproLabPriceModel extends JeproLabModel{
         public JeproLabSpecificPriceRuleModel(int specificPriceRuleId){
 
         }
+
+        public static void applyAllRules(int analyzeId) {
+            List<Integer> analyzeList = new ArrayList<>();
+            analyzeList.add(analyzeId);
+            applyAllRules(analyzeList);
+        }
+
+        /**
+         * @param analyzeList analyze ids
+         */
+        public static void applyAllRules(List<Integer> analyzeList) {
+            if (JeproLabSpecificPriceRuleModel.rules_application_enable) {
+                if(staticDataBaseObject == null){
+                    staticDataBaseObject = JeproLabFactory.getDataBaseConnector();
+                }
+                String query = "SELECT * FROM " + staticDataBaseObject.quoteName("#__jeprolab_specific_price_rule");
+                staticDataBaseObject.setQuery(query);
+                ResultSet rulesSet = staticDataBaseObject.loadObjectList();
+                if(rulesSet != null){
+                    try{
+                        JeproLabSpecificPriceRuleModel priceRule;
+                        while(rulesSet.next()){
+                            priceRule = new JeproLabSpecificPriceRuleModel(rulesSet.getInt("specific_price_rule_id"));
+                            priceRule.apply(analyzeList);
+                        }
+                    }catch (SQLException ignored){
+                        ignored.printStackTrace();
+                    }finally {
+                        try {
+                            JeproLabDataBaseConnector.getInstance().closeConnexion();
+                        }catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }
+            }
+        }
+
+        public void apply(){
+            apply(null);
+        }
+
+        public void apply(List<Integer> analyzeList){
+            if (JeproLabSpecificPriceRuleModel.rules_application_enable && analyzeList != null) {
+                this.resetApplication(analyzeList);
+                List<JeproLabAnalyzeModel> analyzes = this.getAffectedAnalyzes(analyzeList);
+                for(JeproLabAnalyzeModel analyze : analyzes) {
+                    JeproLabSpecificPriceRuleModel.applyRuleToAnalyze(this.specific_price_rule_id, analyze.analyze_id, analyze.analyze_attribute_id);
+                }
+            }
+        }
+
+        public boolean resetApplication(List<Integer> analyzeList){
+            if(staticDataBaseObject == null){
+                staticDataBaseObject = JeproLabFactory.getDataBaseConnector();
+            }
+            String where = "";
+            if (analyzeList != null && analyzeList.size() > 0) {
+                String listIds = "";
+                for(int analyzeId : analyzeList){
+                    listIds += analyzeId + ", ";
+                }
+                listIds = listIds.endsWith(", ") ? listIds.substring(0, listIds.length()-2) : listIds;
+                where += " AN analyze_id IN (" + listIds + ") ";
+            }
+            String query = "DELETE FROM " + staticDataBaseObject.quoteName("#__jeprolab_specific_price");
+            query += "WHERE specific_price_rule_id = " + this.specific_price_rule_id + where;
+
+            staticDataBaseObject.quoteName(query);
+            return staticDataBaseObject.query(false);
+        }
+
+        /**
+         * Return the product list affected by this specific rule.
+         *
+         * @param analyzeList list limitation.
+         * @return array Affected products list IDs.
+         */
+        public List<JeproLabAnalyzeModel> getAffectedAnalyzes(List<Integer> analyzeList){
+            Map<Integer, JeproLabSpecificPriceConditionModel> conditionsGroup = this.getConditions();
+            int currentLabId = JeproLabContext.getContext().laboratory.laboratory_id;
+
+            List<JeproLabAnalyzeModel> analyzeResult = new ArrayList<>();
+
+            /*if (conditionsGroup.size() > 0) {
+                foreach ($conditions_group as $id_condition_group => $condition_group) {
+                    // Base request
+                    String select = "SELECT analyze." + dataBaseObject.quoteName("analyze_id");
+                    String from = " FROM " + dataBaseObject.quoteName("#__jeprolab_analyze") + " analyze ";
+                    String leftJoin = " LEFT JOIN " + dataBaseObject.quoteName("#__jeprolab_analyze_lab") + " AS analyze_lab (analyze_lab.";
+                    leftJoin += dataBaseObject.quoteName("analyze_id") + " = analyze." + dataBaseObject.quoteName("analyze_id");
+                    String where = " WHERE analyze_lab." + dataBaseObject.quoteName("lab_id") + " = " + currentLabId;
+
+                    boolean attributesJoinAdded = false;
+
+                    // Add the conditions
+                    foreach ($condition_group as $id_condition => $condition) {
+                        if ($condition['type'] == 'attribute') {
+                            if (!$attributes_join_added) {
+                                $query->select('pa.`id_product_attribute`')
+                                ->leftJoin('product_attribute', 'pa', 'p.`id_product` = pa.`id_product`')
+                                ->join(Shop::addSqlAssociation('product_attribute', 'pa', false));
+
+                                attributesJoinAdded = true;
+                            }
+
+                            $query->leftJoin('product_attribute_combination', 'pac'.(int)$id_condition, 'pa.`id_product_attribute` = pac'.(int)$id_condition.'.`id_product_attribute`')
+                            ->where('pac'.(int)$id_condition.'.`id_attribute` = '.(int)$condition['value']);
+                        } else if ($condition['type'] == 'manufacturer') {
+                            $query->where('p.id_manufacturer = '.(int)$condition['value']);
+                        } else if ($condition['type'] == 'category') {
+                            $query->leftJoin('category_product', 'cp'.(int)$id_condition, 'p.`id_product` = cp'.(int)$id_condition.'.`id_product`')
+                            ->where('cp'.(int)$id_condition.'.id_category = '.(int)$condition['value']);
+                        } else if (condition.type.equals("supplier")){
+                            where += " EXISTS( SELECT analyze_supplier      `ps'.(int)$id_condition.'`.`id_product` FROM " + dataBaseObject.quoteName("#__jeprolab_analyze_supplier");
+                            where += " AS analyze_supplier "
+                            `'._DB_PREFIX_.'product_supplier` `ps'.(int)$id_condition.'`
+                            WHERE
+                            `p`.`id_product` = `ps'.(int)$id_condition.'`.`id_product`
+                            AND `ps'.(int)$id_condition.'`.`id_supplier` = '.(int)$condition['value'].'
+                            )');
+                        } elseif ($condition['type'] == 'feature') {
+                            leftJoin('feature_product', 'fp'.(int)$id_condition, 'p.`id_product` = fp'.(int)$id_condition.'.`id_product`')
+                            ->where('fp'.(int)$id_condition.'.`id_feature_value` = '.(int)$condition['value']);
+                        }
+                    }
+
+                    // analyzes limitation
+                    if ($products && count($products)) {
+                        $query->where('p.`id_product` IN ('.implode(', ', array_map('intval', $products)).')');
+                    }
+
+                    // Force the column id_product_attribute if not requested
+                    if (!attributesJoinAdded) {
+                        select += " NULL AS " + dataBaseObject.quoteName("analyze_attribute_id");
+                    }
+
+                    $result = array_merge($result, Db::getInstance()->executeS($query));
+                }
+            } else {
+                // All products without conditions
+                if (analyzeList != null && analyzeList.size() > 0) {
+                    String query = "SELECT analyze." + dataBaseObject.quoteName("analyze_id") + ", NULL AS " + dataBaseObject.quoteName("analyze_attribute_id");
+                    query += " FROM " + dataBaseObject.quoteName("#__jeprolab_analyze") + " AS analyze LEFT JOIN " + dataBaseObject.quoteName("#__jeprolab_analyze_lab");
+                    query += " AS analyze_lab ON(analyze." + dataBaseObject.quoteName("analyze_id") + " = analyze_lab." + dataBaseObject.quoteName("analyze_id");
+                    query += " ) WHERE analyze_lab." + dataBaseObject.quoteName("lab_id") + " = " + currentLabId + " AND analyze." + dataBaseObject.quoteName("analyze_id") + " IN (" + analyzeIds + ") ";
+
+                    dataBaseObject.setQuery(query);
+                    ResultSet resultSet = dataBaseObject.loadObject();
+
+                    ->select('NULL as `id_product_attribute`')
+                    ->from('product', 'p')
+                    ->leftJoin('product_shop', 'ps', 'p.`id_product` = ps.`id_product`')
+                    ->where('ps.id_shop = '.(int)$current_shop_id);
+                    $query->where('p.`id_product` IN ('.implode(', ', array_map('intval', $products)).')');
+                    $result = Db::getInstance()->executeS($query);
+                } else {
+                    $result = array(array('id_product' => 0, 'id_product_attribute' => null));
+                }
+
+            }*/
+
+            return analyzeResult;
+        }
+
+        public Map<Integer, JeproLabSpecificPriceConditionModel> getConditions(){
+            if(dataBaseObject == null){
+                dataBaseObject = JeproLabFactory.getDataBaseConnector();
+            }
+
+            String query = "SELECT condition_group.*, condition.* FROM " + dataBaseObject.quoteName("#__jeprolab_specific_price_rule_condition_group");
+            query += " AS condition_group LEFT JOIN " + dataBaseObject.quoteName("#__jeprolab_specific_price_rule_condition") + " AS condition ON (";
+            query += "condition.specific_price_rule_condition_group_id = condition_group.specific_price_rule_condition_group_id) WHERE condition_group.";
+            query += "specific_price_rule_id =" + this.specific_price_rule_id;
+
+            dataBaseObject.setQuery(query);
+            ResultSet conditions = dataBaseObject.loadObjectList();
+
+            Map<Integer, JeproLabSpecificPriceConditionModel> conditionsGroup = new HashMap<>();
+            if (conditions != null) {
+                try{
+                    JeproLabSpecificPriceConditionModel condition;
+                    while(conditions.next()) {
+                        condition = new JeproLabSpecificPriceConditionModel();
+                        condition.specific_price_rule_condition_id = conditions.getInt("specific_price_rule_condition_id");
+                        condition.specific_price_rule_condition_group_id = conditions.getInt("specific_price_rule_condition_group_id");
+                        condition.type = conditions.getString("type");
+                        if (conditions.getString("type").equals("attribute")){
+                            query = "SELECT attribute_group_id FROM " + dataBaseObject.quoteName("#__jeprolab_attribute") + " AS attribute ";
+                            query += " WHERE attribute_id = " + conditions.getInt("value");
+                            dataBaseObject.setQuery(query);
+                            condition.attribute_group_id = (int)dataBaseObject.loadValue("attribute_group_id");
+                        } else if (conditions.getString("type").equals("feature")){
+                            query = "SELECT feature_id FROM " + dataBaseObject.quoteName("#__jeprolab_feature_value") + " WHERE feature_value_id = " + conditions.getInt("value");
+                            dataBaseObject.setQuery(query);
+                            condition.feature_id = (int)dataBaseObject.loadValue("feature_id");
+                        }
+                        conditionsGroup.put(condition.specific_price_rule_condition_group_id , condition);
+                    }
+                }catch (SQLException ignored){
+                    ignored.printStackTrace();
+                }finally {
+                    try {
+                        JeproLabDataBaseConnector.getInstance().closeConnexion();
+                    }catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+            return conditionsGroup;
+        }
+
+
+        public static boolean applyRuleToAnalyze(int ruleId, int analyzeId){
+            return applyRuleToAnalyze(ruleId, analyzeId, 0);
+        }
+
+        public static boolean applyRuleToAnalyze(int ruleId, int analyzeId, int analyzeAttributeId) {
+            JeproLabSpecificPriceRuleModel priceRule = new JeproLabSpecificPriceRuleModel(ruleId);
+            if (priceRule.specific_price_rule_id <= 0 ||analyzeId <= 0){
+                return false;
+            }
+
+            JeproLabSpecificPriceModel specificPrice = new JeproLabSpecificPriceModel();
+            specificPrice.specific_price_rule_id = priceRule.specific_price_rule_id;
+            specificPrice.analyze_id = analyzeId;
+            specificPrice.analyze_attribute_id = analyzeAttributeId;
+            specificPrice.customer_id = 0;
+            specificPrice.laboratory_id = priceRule.laboratory_id;
+            specificPrice.country_id = priceRule.country_id;
+            specificPrice.currency_id = priceRule.currency_id;
+            specificPrice.group_id = priceRule.group_id;
+            specificPrice.from_quantity = priceRule.from_quantity;
+            specificPrice.price = priceRule.price;
+            specificPrice.reduction_type = priceRule.reduction_type;
+            specificPrice.reduction_tax = priceRule.reduction_tax;
+            specificPrice.reduction = (priceRule.reduction_type.equals("percentage") ? priceRule.reduction / 100 : priceRule.reduction);
+            specificPrice.from = priceRule.from;
+            specificPrice.to = priceRule.to;
+
+            return specificPrice.add();
+        }
+
+        public boolean delete(){
+            if(dataBaseObject == null){
+                dataBaseObject = JeproLabFactory.getDataBaseConnector();
+            }
+            this.deleteConditions();
+            String query = "DELETE FROM " + dataBaseObject.quoteName("#__jeprolab_specific_price") + " WHERE ";
+            query += dataBaseObject.quoteName("specific_price_rule_id") + " = " + this.specific_price_rule_id;
+
+            dataBaseObject.setQuery(query);
+            //Db::getInstance()->execute(''._DB_PREFIX_.'specific_price WHERE id_specific_price_rule='.(int)$this->id);
+            return dataBaseObject.query(false); //parent::delete();
+        }
+
+        public boolean deleteConditions(){
+            if(dataBaseObject == null){
+                dataBaseObject = JeproLabFactory.getDataBaseConnector();
+            }
+            String query = "SELECT " + dataBaseObject.quoteName("specific_price_rule_condition_group_id") + " FROM ";
+            query += dataBaseObject.quoteName("#__jeprolab_specific_price_rule_condition_group") + " WHERE ";
+            query += dataBaseObject.quoteName("specific_price_rule_id") + " = " + this.specific_price_rule_id;
+
+            boolean result = true;
+
+            dataBaseObject.setQuery(query);
+            ResultSet conditionGroupIdsSet = dataBaseObject.loadObjectList();
+            if(conditionGroupIdsSet != null){
+                try{
+                    query = "DELETE FROM " + dataBaseObject.quoteName("#__jeprolab_specific_price_rule_condition_group") + " WHERE ";
+                    query += dataBaseObject.quoteName("specific_price_rule_condition_group_id") + " = ";
+                    String query1 = "DELETE FROM " + dataBaseObject.quoteName("#__jeprolab_specific_price_rule_condition") + " WHERE " ;
+                    query1 += dataBaseObject.quoteName("specific_price_rule_condition_group_id") + " = ";
+                    int conditionGroupId;
+                    while(conditionGroupIdsSet.next()){
+                        conditionGroupId = conditionGroupIdsSet.getInt("specific_price_rule_condition_group_id");
+                        dataBaseObject.setQuery(query + conditionGroupId);
+                        result &= dataBaseObject.query(false);
+                        dataBaseObject.setQuery(query1 + conditionGroupId);
+                        result &= dataBaseObject.query(false);
+                    }
+                }catch(SQLException ignored){
+                    ignored.printStackTrace();
+                }
+            }
+            return result;
+        }
+
+
+    }
+
+    public static class JeproLabSpecificPriceConditionModel{
+        public int specific_price_rule_condition_id;
+
+        public int specific_price_rule_condition_group_id;
+
+        public String type;
+
+        public String value;
+
+        public int attribute_group_id;
+
+        public int feature_id;
     }
 }

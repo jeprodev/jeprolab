@@ -238,7 +238,7 @@ public class JeproLabCategoryAddController extends JeproLabController{
 
     private JeproLabCategoryModel loadCategory(){
         int categoryId = JeproLab.request.getRequest().containsKey("category_id") ? Integer.parseInt(JeproLab.request.getRequest().get("category_id")) : 0;
-
+System.out.println(categoryId);
         if(context == null) {
             context = JeproLabContext.getContext();
         }

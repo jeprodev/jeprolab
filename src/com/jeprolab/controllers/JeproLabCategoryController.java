@@ -152,7 +152,6 @@ public class JeproLabCategoryController extends JeproLabController{
 
             }
         }
-        System.out.println("jeffr");
 
         categories = JeproLabCategoryModel.getCategories();
         renderDetails();
@@ -362,7 +361,7 @@ public class JeproLabCategoryController extends JeproLabController{
             final ObservableList<JeproLabCategoryRecord> items = getTableView().getItems();
             if((items != null) && (getIndex() >= 0 && getIndex() < items.size())){
                 int categoryId = items.get(getIndex()).getCategoryIndex();
-                editCategory.setOnMouseClicked(event -> {
+                editCategory.setOnAction(event -> {
                     JeproLab.request.setRequest("category_id=" + categoryId + "&task=edit&" + JeproLabTools.getCountryToken() + "=1");
                     try {
                         JeproLab.getInstance().goToForm(JeproLab.getInstance().getApplicationForms().addCategoryForm);
@@ -371,14 +370,7 @@ public class JeproLabCategoryController extends JeproLabController{
                         e.printStackTrace();
                     }
                 });
-                editCategory.setOnMouseEntered(event -> {
-                    JeproLab.getInstance().getScene().setCursor(Cursor.HAND);
-                    //tooltip.setText(bundle.getString("JEPROLAB_EDIT_CATEGORY_MESSAGE"));
-                });
-                editCategory.setOnMouseExited(event -> {
-                            JeproLab.getInstance().getScene().setCursor(Cursor.DEFAULT);
-                        }
-                );
+
                 viewCategory.setOnMouseClicked(event -> {
                     System.out.println("editit function");
                     System.out.println("editit function");
