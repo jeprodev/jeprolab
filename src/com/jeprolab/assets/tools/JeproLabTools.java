@@ -7,9 +7,10 @@ import com.jeprolab.models.JeproLabModel;
 import com.jeprolab.models.JeproLabSettingModel;
 import javafx.event.EventHandler;
 import javafx.scene.control.Alert;
+import javafx.scene.control.TextField;
 import javafx.scene.input.KeyEvent;
 
-import java.awt.*;
+
 import java.io.*;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -375,6 +376,44 @@ public class JeproLabTools {
             //todo return strReplace(ret, '?', chr(128));
         }
         return ret;
+    }
+
+    /*** convert temperature ***/
+    public static double convertTemperature(double temp, String from, String to){
+        double computedTemperature = 0;
+        switch(from){
+            case "fahrenheit" :
+                switch (to){
+                    case "celsius" :
+                        computedTemperature = (temp - 32) * 5/9;
+                        break;
+                    case "kelvin":
+                        computedTemperature = 273.15 + ((temp - 32) * 5/9);
+                        break;
+                }
+                break;
+            case "celsius" :
+                switch (to){
+                    case "fahrenheit" :
+                        computedTemperature = ((9 * temp)/5 ) + 32;
+                        break;
+                    case "kelvin":
+                        computedTemperature = temp + 273.15;
+                        break;
+                }
+                break;
+            case "kelvin":
+                switch (to){
+                    case "celsius" :
+                        computedTemperature = temp - 273.15;
+                        break;
+                    case "fahrenheit":
+                        computedTemperature = 32 + ((temp - 273.15) * 9)/5;
+                        break;
+                }
+                break;
+        }
+        return computedTemperature;
     }
 
     /***************** Numeric Validation Limit the  characters to maxLength AND to ONLY DigitS *********************/

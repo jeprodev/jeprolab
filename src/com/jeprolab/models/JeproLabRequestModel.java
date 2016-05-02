@@ -206,12 +206,39 @@ public class JeproLabRequestModel extends JeproLabModel{
         public JeproLabSampleModel(int sampleId){
             analyzes = new ArrayList<>();
             if(sampleId > 0){
-                if(dataBaseObject == null){
-                    dataBaseObject = JeproLabFactory.getDataBaseConnector();
-                }
                 String cacheKey = "jeprolab_sample_model_" + sampleId;
                 if(!JeproLabCache.getInstance().isStored(cacheKey)){
-                    String query = "SELECT * FROM " + dataBaseObject.quoteName("#__jeprolab_sample") + " AS sample WHERE sample." + dataBaseObject.quoteName("sample_id") + " = " + sampleId;
+                    if(dataBaseObject == null){
+                        dataBaseObject = JeproLabFactory.getDataBaseConnector();
+                    }
+                    String query = "SELECT * FROM " + dataBaseObject.quoteName("#__jeprolab_sample") + " AS sample WHERE sample.";
+                    query += dataBaseObject.quoteName("sample_id") + " = " + sampleId;
+
+                    dataBaseObject.setQuery(query);
+                    ResultSet sampleSet = dataBaseObject.loadObjectList();
+                    if(sampleSet != null){
+                        try{
+                            if(sampleSet.next()){
+                                this.sample_id = sampleSet.getInt("sample_id");
+                                this.matrix_id = sampleSet.getInt("matrix_id");
+                                this.designation = sampleSet.getString("designation");
+                                this.reference = sampleSet.getString("reference");
+                                this.removal_date = JeproLabTools.getDate(sampleSet.getString("removal_date"));
+                                this.analyzes = JeproLabSampleModel.getSampleAnalyzes(this.sample_id);
+                                JeproLabCache.getInstance().store(cacheKey, this);
+                            }
+                        }catch (SQLException ignored){
+
+                        }
+                    }
+                }else{
+                    JeproLabSampleModel sample = (JeproLabSampleModel)JeproLabCache.getInstance().retrieve(cacheKey);
+                    this.sample_id = sample.sample_id;
+                    this.matrix_id = sample.matrix_id;
+                    this.designation = sample.designation;
+                    this.reference = sample.reference;
+                    this.removal_date = sample.removal_date;
+                    this.analyzes = sample.analyzes;
                 }
 
             }
@@ -226,6 +253,7 @@ public class JeproLabRequestModel extends JeproLabModel{
             query += staticDataBaseObject.quoteName("#__jeprolab_request_sample") + " AS request_sample ON (sample." + staticDataBaseObject.quoteName("sample_id");
             query += " = request_sample." + staticDataBaseObject.quoteName("sample_id") + " AND request_sample." + staticDataBaseObject.quoteName("request_id");
             query += " = " + requestId + ") WHERE sample." + staticDataBaseObject.quoteName("sample_id") + " = " + requestId; */
+            query += " LIMIT 0, 24";
 
             staticDataBaseObject.setQuery(query);
             ResultSet sampleSet = staticDataBaseObject.loadObjectList();

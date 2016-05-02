@@ -1,0 +1,18 @@
+<?import com.jeprolab.assets.extend.controls.JeproFormPanel?>
+<?import com.jeprolab.assets.extend.controls.JeproFormPanelContainer?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TextField?>
+<JeproFormPanel xmlns:fx="http://javafx.com/fxml" fx:id="jeproLabMethodFormWrapper" fx:controller="com.jeprolab.controllers.JeproLabAnalyzeAddMethodController" >
+    <JeproFormPanelContainer />
+    <JeproFormPanelContainer >
+        <GridPane>
+            <Label GridPane.columnIndex="0" GridPane.rowIndex="0" fx:id="jeproLabAnalyzeMethodDesignationLabel" styleClass="input-label" />
+            <TextField GridPane.columnIndex="0" GridPane.rowIndex="0" fx:id="jeproLabAnalyzeMethodDesignation"  />
+            <Label GridPane.columnIndex="0" GridPane.rowIndex="0" fx:id="jeproLabAnalyzeMethodCodeLabel" styleClass="input-label" />
+            <TextField GridPane.columnIndex="0" GridPane.rowIndex="0" fx:id="jeproLabAnalyzeMethodCode"  />
+            <Label GridPane.columnIndex="0" GridPane.rowIndex="0" fx:id="jeproLabAnalyzeMethodLabel" styleClass="input-label" />
+            <Label GridPane.columnIndex="0" GridPane.rowIndex="0" fx:id="jeproLabAnalyzeMethodiLabel" styleClass="input-label" />
+        </GridPane>
+    </JeproFormPanelContainer>
+</JeproFormPanel>

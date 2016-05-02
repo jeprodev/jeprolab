@@ -8,8 +8,6 @@ import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -32,6 +30,7 @@ import java.util.stream.Collectors;
  * Created by jeprodev on 02/02/2014.
  */
 public class JeproLabRequestSampleController extends JeproLabController {
+
     @FXML
     public VBox jeproLabSamplesFormWrapper;
     public TableView<JeproLabSampleItemRecord> jeproLabSamplesTableView;
@@ -72,7 +71,7 @@ public class JeproLabRequestSampleController extends JeproLabController {
         jeproLabSampleRemovalDateTableColumn.setCellValueFactory(new PropertyValueFactory<>("sampleRemovalDate"));
         tableCellAlign(jeproLabSampleRemovalDateTableColumn, Pos.CENTER);
 
-        jeproLabSampleMatrixTableColumn.setPrefWidth(0.1 * remainingWidth);
+        jeproLabSampleMatrixTableColumn.setPrefWidth(0.15 * remainingWidth);
         jeproLabSampleMatrixTableColumn.setText(bundle.getString("JEPROLAB_MATRIX_LABEL"));
         jeproLabSampleMatrixTableColumn.setCellValueFactory(new PropertyValueFactory<>("sampleMatrix"));
         tableCellAlign(jeproLabSampleMatrixTableColumn, Pos.CENTER);
@@ -85,12 +84,14 @@ public class JeproLabRequestSampleController extends JeproLabController {
 
     @Override
     public void initializeContent(){
+
         List<JeproLabRequestModel.JeproLabSampleModel> samples = JeproLabRequestModel.JeproLabSampleModel.getSamples();
         ObservableList<JeproLabSampleItemRecord> analyzeList = FXCollections.observableArrayList();
         if(!samples.isEmpty()){
             analyzeList.addAll(samples.stream().map(JeproLabSampleItemRecord::new).collect(Collectors.toList()));
             jeproLabSamplesTableView.setItems(analyzeList);
         }
+
         updateToolBar();
     }
 
@@ -150,7 +151,7 @@ public class JeproLabRequestSampleController extends JeproLabController {
         private double btnSize = 18;
 
         public JeproLabActionCell(){
-            commandContainer = new HBox(4);
+            commandContainer = new HBox(7);
             editSample = new Button("", new ImageView(new Image(JeproLab.class.getResourceAsStream("resources/images/edit.png"))));
             editSample.setMinSize(btnSize, btnSize);
             editSample.setMaxSize(btnSize, btnSize);

@@ -2468,6 +2468,35 @@ public function deleteAttributeCombination($id_analyze_attribute)
         return true;
     }
 
+    public Map<Integer, String> getMethods(){
+        if(dataBaseObject == null){
+            dataBaseObject = JeproLabFactory.getDataBaseConnector();
+        }
+        String query = "SELECT method.* FROM " + dataBaseObject.quoteName("#__jeprolab_method") + " AS method LEFT JOIN " +  dataBaseObject.quoteName("#__jeprolab_analyze_method");
+        query += " AS analyze_method ON( method." + dataBaseObject.quoteName("method_id") + " = analyze_method." + dataBaseObject.quoteName("method_id") + ") WHERE analyze_method.";
+        query += dataBaseObject.quoteName("analyze_id") + " = " + this.analyze_id;
+
+        dataBaseObject.setQuery(query);
+        ResultSet methodSet = dataBaseObject.loadObjectList();
+        Map<Integer, String> methodList = new HashMap<>();
+        if(methodSet != null){
+            try{
+                while(methodSet.next()){
+                    methodList.put(methodSet.getInt("method_id"), methodSet.getString("code"));
+                }
+            }catch(SQLException ignored){
+                ignored.printStackTrace();
+            }finally {
+                try{
+                    JeproLabDataBaseConnector.getInstance().closeConnexion();
+                }catch(Exception ignored){
+                    ignored.printStackTrace();
+                }
+            }
+        }
+        return methodList;
+    }
+
 
 
 

@@ -16,6 +16,8 @@
             <Menu fx:id="analyzeSubMenu" >
                 <MenuItem fx:id="analyzeSubMenuItem" onAction="#handleAnalyzesMenuEvent" />
                 <MenuItem fx:id="addAnalyseSubMenuItem" onAction="#handleAddAnalyseMenuEvent" />
+                <MenuItem fx:id="methodSubMenuItem" onAction="#handleAnalyzeMethodsMenuEvent" />
+                <MenuItem fx:id="addMethodSubMenuItem" onAction="#handleAnalyzeAddMethodsMenuEvent" />
             </Menu>
             <Menu fx:id="attachmentsSubMenu" >
                 <MenuItem fx:id="attachmentSubMenuItem" onAction="#handleAttachmentsMenuEvent" />

@@ -405,6 +405,7 @@ public class JeproLabAnalyzeAddController extends JeproLabController {
             analyze.published = jeproLabAnalyzePublished.isSelected();
             analyze.available_for_order = jeproLabAnalyzeAvailableForOrder.isSelected();
             analyze.show_price = jeproLabAnalyzeShowPrice.isSelected();
+            analyze.on_sale = jeproLabAnalyzeOnSale.isSelected();
             analyze.delay = Integer.parseInt(jeproLabAnalyzeDelay.getText());
             if(languages == null){
                 languages = JeproLabLanguageModel.getLanguages();

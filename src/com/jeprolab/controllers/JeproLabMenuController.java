@@ -37,7 +37,7 @@ public class JeproLabMenuController extends JeproLabController{
     public MenuItem addressesSubMenuItem, addAddressMenuItem;
     public MenuItem groupsSubMenuItem, addGroupMenuItem, currentRequestMenuItem;
     public MenuItem threadsSubMenuItem, contactsSubMenuItem;
-    public MenuItem feedsSubMenuItem;
+    public MenuItem feedsSubMenuItem, methodSubMenuItem, addMethodSubMenuItem;
     public MenuItem zoneListSubMenuItem, laboratoryGroupSubMenuItem;
     public MenuItem addTaxSubMenuItem, addTaxGroupSubMenuItem, taxesGroupSubMenuItem, taxesSubMenuItem;
     public MenuItem countrySubMenuItem, addCountrySubMenu, editZoneSubMenu, addStateSubMenuItem, statesSubMenuItem, currenciesSubMenuItem, addCurrencySubMenuItem;
@@ -66,6 +66,8 @@ public class JeproLabMenuController extends JeproLabController{
         attachmentsSubMenu.setText(bundle.getString("JEPROLAB_ATTACHMENTS_LABEL"));
         attachmentSubMenuItem.setText(bundle.getString("JEPROLAB_LIST_OF_LABEL") + " " + bundle.getString("JEPROLAB_ATTACHMENT_LABEL"));
         addAttachmentSubMenuItem.setText(bundle.getString("JEPROLAB_ADD_NEW_LABEL") + " "  + bundle.getString("JEPROLAB_ATTACHMENT_LABEL"));
+        methodSubMenuItem.setText(bundle.getString("JEPROLAB_LIST_OF_LABEL") + " " + bundle.getString("JEPROLAB_METHODS_LABEL"));
+        addMethodSubMenuItem.setText(bundle.getString("JEPROLAB_ADD_NEW_LABEL") +  " " + bundle.getString("JEPROLAB_METHOD_LABEL"));
 
         /**
          *
@@ -410,5 +412,18 @@ public class JeproLabMenuController extends JeproLabController{
         }catch (IOException  ignored){
             ignored.printStackTrace();
         }
+    }
+
+    public void handleAnalyzeMethodsMenuEvent(ActionEvent event) {
+        try {
+            JeproLab.getInstance().goToForm(JeproLab.getInstance().getApplicationForms().analyzeMethodForm);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        JeproLabContext.getContext().controller.initializeContent();
+    }
+
+    public void handleAnalyzeAddMethodsMenuEvent(ActionEvent event) {
+        processAddEvent(JeproLab.getInstance().getApplicationForms().addAnalyzeMethodForm);
     }
 }
