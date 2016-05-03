@@ -27,6 +27,7 @@ import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
 import javafx.util.Callback;
 
+import java.io.IOException;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.List;
@@ -43,6 +44,7 @@ public class JeproLabRequestAddController extends JeproLabController{
     private JeproLabRequestModel.JeproLabSampleModel sample;
     private Map<Integer, String> sample_matrix = new HashMap<>();
     private Map<Integer, String> contactList = new HashMap<>();
+    private Map<Integer, String> requestStatus = new HashMap<>();
     //private int firstContactId, secondContactId, thirdContactId, fourthContactId;
     private Button saveRequestBtn, cancelBtn;
     private double fourthColumnWidth = 280;
@@ -59,12 +61,13 @@ public class JeproLabRequestAddController extends JeproLabController{
     public Label jeproLabSampleDesignationLabel, jeproLabSampleMatrixLabel, jeproLabSampleTestDateLabel, jeproLabSampleAnalyzeSelectorLabel;
     public Label jeproLabCustomerCompanyAddressLabel, jeproLabCustomerCompanyPhoneLabel, jeproLabCustomerCompanyFaxLabel, jeproLabRequestMainContactInfoLabel;
     public Label jeproLabRequestReferenceLabel, jeproLabRequestDelayLabel, jeproLabRequestMainContactInfoNameLabel, jeproLabRequestMainContactInfoMailLabel;
+    public Label jeproLabRequestStatusLabel, jeproLabSampleConditionLabel;
     public ComboBox<String> jeproLabRequestFirstContact, jeproLabRequestSecondContact, jeproLabRequestThirdContact, jeproLabRequestFourthContact, jeproLabRequestDelay;
     public TextField jeproLabCustomerCompanyName, jeproLabSampleDesignation, jeproLabCustomerCompanyAddress, jeproLabCustomerCompanyAddressDetails;
     public TextField jeproLabRequestReference, jeproLabRequestMainContactInfoMail, jeproLabRequestMainContactInfoName;
     public TextField jeproLabSampleReference;
     public JeproPhoneField jeproLabCustomerCompanyPhone, jeproLabCustomerCompanyFax;
-    public ComboBox<String> jeproLabSampleMatrix;
+    public ComboBox<String> jeproLabSampleMatrix, jeproLabRequestStatus, jeproLabSampleCondition;
     public DatePicker jeproLabSampleTestDate;
     public GridPane jeproLabSampleAnalyzeSelector, jeproLabCustomerInformationLayout, jeproLabCustomerContactLayout, jeproLabSampleAddFormLayout;
     public HBox jeproLabCustomerCompanyPhoneWrapper;
@@ -162,6 +165,8 @@ public class JeproLabRequestAddController extends JeproLabController{
         GridPane.setMargin(jeproLabRequestFourthContactLabel, new Insets(5, 0, 5, 10));
         GridPane.setMargin(jeproLabRequestFourthContact, new Insets(5, 0, 5, 0));
         GridPane.setMargin(jeproLabRequestDelayLabel, new Insets(10, 0, 9, 10));
+        GridPane.setMargin(jeproLabRequestStatusLabel, new Insets(15, 0, 9, 0));
+        GridPane.setMargin(jeproLabRequestStatus, new Insets(15, 0, 9, 0));
         GridPane.setMargin(jeproLabRequestDelay, new Insets(5, 0, 5, 0));
 
         jeproLabRequestFirstContact.setPromptText(bundle.getString("JEPROLAB_SELECT_FIRST_CONTACT_LABEL"));
@@ -183,6 +188,13 @@ public class JeproLabRequestAddController extends JeproLabController{
                 bundle.getString("JEPROLAB_ANALYSE_EXPRESS_DELAY_48_HOURS_LABEL")
         );
         jeproLabRequestDelay.setValue(bundle.getString("JEPROLAB_ANALYSE_REGULAR_DELAY_LABEL"));
+
+        jeproLabRequestStatusLabel.setText(bundle.getString("JEPROLAB_REQUEST_STATUS_LABEL"));
+        jeproLabRequestStatus.setPromptText(bundle.getString("JEPROLAB_SELECT_STATUS_LABEL"));
+        requestStatus = JeproLabRequestModel.JeproLabRequestStatusModel.getRequestStatues();
+        for(Map.Entry<Integer, String> entry : requestStatus.entrySet()){
+            jeproLabRequestStatus.getItems().add(entry.getValue());
+        }
     }
 
     private void renderSampleForm(){
@@ -226,6 +238,11 @@ public class JeproLabRequestAddController extends JeproLabController{
         jeproLabSampleAnalyzeSelectorLabel.setAlignment(Pos.CENTER);
         jeproLabSampleReference.setDisable(true);
 
+        jeproLabSampleConditionLabel.setText(bundle.getString("JEPROLAB_RECEIVED_CONDITION_LABEL"));
+        jeproLabSampleCondition.setPromptText(bundle.getString("JEPROLAB_SELECT_SAMPLE_CONDITION_LABEL"));
+        jeproLabSampleCondition.getItems().addAll(
+                bundle.getString("JEPROLAB_CONSISTENT_LABEL")
+        );
         sample_matrix = JeproLabRequestModel.JeproLabMatrixModel.getMatrices();
         jeproLabSampleMatrix.setPromptText(bundle.getString("JEPROLAB_SELECT_MATRIX_LABEL"));
         for(Map.Entry<Integer, String> matrix : sample_matrix.entrySet()){
@@ -269,7 +286,7 @@ public class JeproLabRequestAddController extends JeproLabController{
     private void renderSampleListForm(){
         CheckBox checkAll = new CheckBox();
         jeproLabSampleRecordTableView.setPrefWidth(formWidth - 440);
-        double remainingWidth = formWidth - 520;
+        double remainingWidth = formWidth - 537;
 
         jeproLabSampleCheckBoxColumn.setGraphic(checkAll);
         jeproLabSampleCheckBoxColumn.setPrefWidth(20);
@@ -282,7 +299,7 @@ public class JeproLabRequestAddController extends JeproLabController{
         jeproLabSampleDesignationColumn.setPrefWidth(0.7 * remainingWidth);
         jeproLabSampleDesignationColumn.setCellValueFactory(new PropertyValueFactory<>("sampleDesignation"));
         jeproLabSampleActionColumn.setText(bundle.getString("JEPROLAB_ACTIONS_LABEL"));
-        jeproLabSampleActionColumn.setPrefWidth(60);
+        jeproLabSampleActionColumn.setPrefWidth(75);
         Callback<TableColumn<JeproLabSampleRecord, HBox>, TableCell<JeproLabSampleRecord, HBox>> sampleActionFactory = param -> new JeproLabSampleActionCell();
         jeproLabSampleActionColumn.setCellFactory(sampleActionFactory);
     }
@@ -334,6 +351,7 @@ public class JeproLabRequestAddController extends JeproLabController{
         loadRequest();
         List<JeproLabCustomerModel> customersContact;
         if(request.request_id > 0){
+
             JeproLabCustomerModel customer = new JeproLabCustomerModel(request.customer_id);
             jeproLabCustomerCompanyName.setText(customer.company);
             JeproLabAddressModel address = JeproLabAddressModel.getAddressByCustomerId(request.customer_id, true);
@@ -446,6 +464,13 @@ public class JeproLabRequestAddController extends JeproLabController{
                 clearSampleForm();
             }
         });
+
+        jeproLabRequestStatus.valueProperty().addListener(((observable, oldValue, newValue) -> {
+            requestStatus.entrySet().stream().filter(entry -> newValue.equals(entry.getValue())).forEach(entry -> {
+                request.status_id = entry.getKey();
+            });
+
+        }));
     }
 
     private void clearSampleForm(){
@@ -499,6 +524,7 @@ public class JeproLabRequestAddController extends JeproLabController{
             }
         }
     }
+
 
     @Override
     public void updateToolBar(){
@@ -600,7 +626,7 @@ public class JeproLabRequestAddController extends JeproLabController{
 
     private class JeproLabSampleActionCell extends TableCell<JeproLabSampleRecord, HBox> {
         protected HBox commandContainer;
-        private Button editSample, deleteSample;
+        private Button editSample, deleteSample, detailButton;
         private final double btnSize = 18;
 
         public JeproLabSampleActionCell(){
@@ -609,13 +635,18 @@ public class JeproLabRequestAddController extends JeproLabController{
             editSample.setMinSize(btnSize, btnSize);
             editSample.setPrefSize(btnSize, btnSize);
             editSample.getStyleClass().add("icon-btn");
+            detailButton = new Button("", new ImageView(new Image(JeproLab.class.getResourceAsStream("resources/images/view.png"))));
+            detailButton.setMaxSize(btnSize, btnSize);
+            detailButton.setMinSize(btnSize, btnSize);
+            detailButton.setPrefSize(btnSize, btnSize);
+            detailButton.getStyleClass().add("icon-btn");
             deleteSample = new Button("", new ImageView(new Image(JeproLab.class.getResourceAsStream("resources/images/trash-icon.png"))));
             deleteSample.setMaxSize(btnSize, btnSize);
             deleteSample.setMinSize(btnSize, btnSize);
             deleteSample.setPrefSize(btnSize, btnSize);
             deleteSample.getStyleClass().add("icon-btn");
             commandContainer = new HBox(5);
-            commandContainer.getChildren().addAll(editSample, deleteSample);
+            commandContainer.getChildren().addAll(editSample, detailButton, deleteSample);
         }
 
         @Override
@@ -628,6 +659,16 @@ public class JeproLabRequestAddController extends JeproLabController{
             super.updateItem(item, empty);
             ObservableList<JeproLabSampleRecord> items = getTableView().getItems();
             if((items != null) && (getIndex() >= 0 && getIndex() < items.size())) {
+                int itemId = items.get(getIndex()).getSampleIndex();
+                detailButton.setOnAction(event -> {
+                    JeproLab.request.setRequest("sample_id=" + itemId);
+                    try {
+                        JeproLab.getInstance().goToForm(JeproLab.getInstance().getApplicationForms().sampleForm);
+                        JeproLabContext.getContext().controller.initializeContent();
+                    }catch (IOException ignored){
+                        ignored.printStackTrace();
+                    }
+                });
 
                 setGraphic(commandContainer);
                 setAlignment(Pos.CENTER);

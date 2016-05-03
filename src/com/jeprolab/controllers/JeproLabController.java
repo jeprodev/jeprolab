@@ -46,6 +46,8 @@ public class JeproLabController implements Initializable {
 
     public void initializeContent(){ }
 
+    //public void initializeContent(int id){ }
+
     public void updateToolBar(){}
 
     /**

@@ -223,9 +223,9 @@ public class JeproLabDataBaseConnector {
             }
         }catch(SQLException ignored) {
             return "";
-        }/*finally {
+        }finally {
             closeConnexion();
-        } */
+        }
         return "";
     }
 

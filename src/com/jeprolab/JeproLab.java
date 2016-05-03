@@ -118,6 +118,7 @@ public class JeproLab extends Application {
 
         formWrapper = new Pane();
         primaryStage.initStyle(StageStyle.UNDECORATED);
+        primaryStage.getIcons().add(new Image(JeproLab.class.getResourceAsStream("resources/images/microscope.png")));
         windowsBar = new ToolBar();
 
         //setting windows toolbar items

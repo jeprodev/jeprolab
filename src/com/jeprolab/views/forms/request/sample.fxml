@@ -35,7 +35,7 @@
                         <Label GridPane.columnIndex="0" GridPane.rowIndex="7"  fx:id="jeproLabSampleTemperatureLabel" styleClass="input-label" />
                         <HBox GridPane.columnIndex="1" GridPane.rowIndex="7" spacing="4" >
                             <TextField   fx:id="jeproLabSampleTemperature"  />
-                            <Label text="°" styleClass="input-label" />
+                            <Label fx:id="jeproLabSampleSymbolLabel" text="°" styleClass="input-label" />
                             <ComboBox fx:id="jeproLabSampleTemperatureUnit" />
                         </HBox>
                         <Label GridPane.columnIndex="0" GridPane.rowIndex="8" fx:id="jeproLabSampleTestDateLabel" styleClass="input-label" />

@@ -206,6 +206,7 @@ public class JeproLabRequestController extends JeproLabController {
         public void updateItem(HBox t, boolean empty){
             super.updateItem(t, empty);
             ObservableList<JeproLabRequestRecord> items = getTableView().getItems();
+
             if((items != null) && (getIndex() >= 0 && getIndex() < items.size())){
                 int itemId = items.get(getIndex()).getRequestIndex();
                 editRequest.setOnAction(event -> {

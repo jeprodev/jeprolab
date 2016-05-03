@@ -7,13 +7,14 @@ import com.jeprolab.assets.extend.controls.JeproFormPanelTitle;
 import com.jeprolab.assets.tools.JeproLabContext;
 import com.jeprolab.assets.tools.JeproLabTools;
 import com.jeprolab.models.JeproLabAnalyzeModel;
-import com.jeprolab.models.JeproLabLanguageModel;
 import com.jeprolab.models.JeproLabRequestModel;
 import javafx.fxml.FXML;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.geometry.VPos;
 import javafx.scene.control.*;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
@@ -29,6 +30,7 @@ import java.util.ResourceBundle;
  */
 public class JeproLabRequestSampleAddController extends JeproLabController {
     JeproLabRequestModel.JeproLabSampleModel sample;
+    private Button saveBtn, cancelBtn;
     @FXML
     public JeproFormPanel jeproLabSampleFormWrapper;
     public JeproFormPanelTitle jeproLabSampleFormTitleWrapper;
@@ -39,7 +41,7 @@ public class JeproLabRequestSampleAddController extends JeproLabController {
     public Label jeproLabSampleRequestReferenceLabel, jeproLabSampleRequestReference, jeproLabSampleDesignationLabel;
     public Label jeproLabSampleReferenceLabel, jeproLabSampleRemovalDateLabel, jeproLabSampleAnalyzeSelectorLabel;
     public Label jeproLabSampleMatrixLabel, jeproLabSampleTestDateLabel, jeproLabSampleReceivedDateLabel;
-    public Label jeproLabSampleReceiveConditionLabel, jeproLabSampleTemperatureLabel;
+    public Label jeproLabSampleReceiveConditionLabel, jeproLabSampleTemperatureLabel, jeproLabSampleSymbolLabel;
     public TextField jeproLabSampleDesignation, jeproLabSampleReference, jeproLabSampleTemperature;
     public ScrollPane jeproLabSampleAnalyzeSelectorContainer;
     public ComboBox<String> jeproLabSampleMatrix, jeproLabSampleReceiveCondition, jeproLabSampleTemperatureUnit;
@@ -53,7 +55,12 @@ public class JeproLabRequestSampleAddController extends JeproLabController {
         jeproLabSampleFormWrapper.setPrefWidth(formWidth);
         jeproLabSampleFormWrapper.setLayoutY(10);
         jeproLabSampleFormWrapper.setLayoutX(0.01 * JeproLab.APP_WIDTH);
+
+        formTitleLabel.setText(bundle.getString("JEPROLAB_EDIT_SAMPLE_LABEL"));
+        formTitleLabel.setPrefSize(formWidth, 40);
+        formTitleLabel.setAlignment(Pos.CENTER);
         jeproLabSampleFormTitleWrapper.setPrefSize(formWidth, 40);
+        jeproLabSampleFormTitleWrapper.getChildren().add(formTitleLabel);
 
         jeproLabSampleContentWrapper.setPrefWidth(formWidth);
         jeproLabSampleContentWrapper.setLayoutY(40);
@@ -65,7 +72,7 @@ public class JeproLabRequestSampleAddController extends JeproLabController {
         );
 
         jeproLabSampleResultTabLayout.getColumnConstraints().addAll(
-                new ColumnConstraints(180), new ColumnConstraints(formWidth - 240)
+                new ColumnConstraints(120), new ColumnConstraints(formWidth - 150)
         );
 
         GridPane.setMargin(jeproLabSampleRequestReferenceLabel, new Insets(15, 5, 10, 10));
@@ -100,7 +107,7 @@ public class JeproLabRequestSampleAddController extends JeproLabController {
         jeproLabSampleReceiveConditionLabel.setText(bundle.getString("JEPROLAB_RECEIVED_CONDITION_LABEL"));
         jeproLabSampleTemperatureLabel.setText(bundle.getString("JEPROLAB_TEMPERATURE_LABEL"));
         jeproLabSampleAnalyzeSelectorLabel.setText(bundle.getString("JEPROLAB_ANALYSES_LABEL"));
-        jeproLabSampleTestDateLabel.setText(bundle.getString("JEPROLAB_REMOVAL_DATE_LABEL"));
+        jeproLabSampleTestDateLabel.setText(bundle.getString("JEPROLAB_TEST_DATE_LABEL"));
         jeproLabSampleMatrixLabel.setText(bundle.getString("JEPROLAB_SAMPLE_MATRIX_LABEL"));
 
         Map<Integer, String> matrices = JeproLabRequestModel.JeproLabMatrixModel.getMatrices();
@@ -109,45 +116,39 @@ public class JeproLabRequestSampleAddController extends JeproLabController {
             jeproLabSampleMatrix.getItems().add(matrix.getValue());
         }
 
+        jeproLabSampleReceiveCondition.setPromptText(bundle.getString("JEPROLAB_SELECT_SAMPLE_CONDITION_LABEL"));
+        jeproLabSampleReceiveCondition.getItems().addAll(
+            bundle.getString("JEPROLAB_CONSISTENT_LABEL")
+        );
         jeproLabSampleTemperatureUnit.getItems().addAll(
                 bundle.getString("JEPROLAB_CELSIUS_LABEL"), bundle.getString("JEPROLAB_FAHRENHEIT_LABEL"), bundle.getString("JEPROLAB_KELVIN_LABEL")
         );
         jeproLabSampleTemperatureUnit.setValue(bundle.getString("JEPROLAB_CELSIUS_LABEL"));
-        jeproLabSampleTemperatureUnit.valueProperty().addListener((observable, oldValue, newValue) -> {
-            double current = Double.parseDouble(jeproLabSampleTemperature.getText());
-            String from = "celsius", to = "kelvin";
-            if(oldValue.equals(bundle.getString("JEPROLAB_CELSIUS_LABEL"))){
-                from = "celsius";
-            }else if(oldValue.equals(bundle.getString("JEPROLAB_FAHRENHEIT_LABEL"))){
-                from = "fahrenheit";
-            }else if(oldValue.equals(bundle.getString("JEPROLAB_KELVIN_LABEL"))){
-                from = "kelvin";
-            }
 
-            if(newValue.equals(bundle.getString("JEPROLAB_CELSIUS_LABEL"))){
-                to = "celsius";
-            }else if(newValue.equals(bundle.getString("JEPROLAB_FAHRENHEIT_LABEL"))){
-                to = "fahrenheit";
-            }else if(newValue.equals(bundle.getString("JEPROLAB_KELVIN_LABEL"))){
-                to = "kelvin";
-            }
-
-            jeproLabSampleTemperature.setText(String.valueOf(JeproLabTools.convertTemperature(current, from, to)));
-        });
         jeproLabSampleTemperature.setPrefWidth(80);
         jeproLabSampleTemperature.setAlignment(Pos.CENTER_RIGHT);
+        HBox.setMargin(jeproLabSampleTemperature, new Insets(5, 0, 5, 0));
+        HBox.setMargin(jeproLabSampleSymbolLabel, new Insets(6, 0, 5, 0));
+        HBox.setMargin(jeproLabSampleTemperatureUnit, new Insets(5, 0, 5, 0));
     }
 
-    @Override
+
     public void initializeContent(){
+        sample = null;
         List<JeproLabAnalyzeModel> analyzesList = JeproLabAnalyzeModel.getAnalyzeList();
         loadSample();
         Map<Integer, String> matrices = JeproLabRequestModel.JeproLabMatrixModel.getMatrices();
         if(sample.sample_id > 0){
+            jeproLabSampleRequestReference.setText(JeproLabRequestModel.getReferenceByRequestId(sample.request_id));
             jeproLabSampleReference.setText(sample.reference);
             jeproLabSampleReference.setDisable(true);
             jeproLabSampleDesignation.setText(sample.designation);
             jeproLabSampleMatrix.setValue(matrices.get(sample.matrix_id));
+            jeproLabSampleRemovalDate.setValue(JeproLabTools.getLocaleDate(sample.removal_date));
+            jeproLabSampleReceivedDate.setValue(JeproLabTools.getLocaleDate(sample.received_date));
+            jeproLabSampleTestDate.setValue(JeproLabTools.getLocaleDate(sample.test_date));
+            jeproLabSampleTemperature.setText(sample.temperature);
+            jeproLabSampleTemperatureUnit.setValue(sample.temperature_unit);
         }
 
         jeproLabSampleResultTabLayout.getColumnConstraints().addAll(
@@ -183,11 +184,76 @@ public class JeproLabRequestSampleAddController extends JeproLabController {
         jeproLabSampleAnalyzeSelector.add(headerLayout, 0, 0);
         for(JeproLabAnalyzeModel analyze : analyzesList){
             JeproLabSampleAnalyzeForm analyzeCheckForm = new JeproLabSampleAnalyzeForm(analyze);
-            if(sample.analyzes.contains(analyze.analyze_id)){ analyzeCheckForm.setSelected(true); }
+            analyzeCheckForm.disableForm(true);
+            if(sample.analyzes.contains(analyze.analyze_id)){
+                analyzeCheckForm.setSelected(true);
+                analyzeCheckForm.disableForm(false);
+                analyzeCheckForm.getAnalyzeCheck().selectedProperty().addListener(((observable, oldValue, newValue) -> {
+                    if(newValue) {
+                        sample.addAnalyze(analyzeCheckForm.getAnalyzeId());
+                        sample.addResultForm(analyzeCheckForm);
+                    }else{
+                        sample.removeAnalyze(analyzeCheckForm.getAnalyzeId());
+                        sample.removeResultForm(analyzeCheckForm);
+                    }
+                }));
+            }
             jeproLabSampleAnalyzeSelector.add(analyzeCheckForm, 0, analyzeRow);
             GridPane.setMargin(analyzeCheckForm, new Insets(8, 2, 4, 4));
             analyzeRow++;
         }
+        updateToolBar();
+        addEventListeners();
+    }
+
+    @Override
+    public void updateToolBar(){
+        HBox commandWrapper = JeproLab.getInstance().getApplicationToolBarCommandWrapper();
+        commandWrapper.getChildren().clear();
+        commandWrapper.setSpacing(4);
+        saveBtn = new Button("", new ImageView(new Image(JeproLab.class.getResourceAsStream("resources/images/floppy-icon.png"))));
+        if (sample.sample_id > 0) {
+            saveBtn.setText(bundle.getString("JEPROLAB_UPDATE_LABEL"));
+        } else {
+            saveBtn.setText(bundle.getString("JEPROLAB_SAVE_LABEL"));
+        }
+        cancelBtn = new Button(bundle.getString("JEPROLAB_CANCEL_LABEL"), new ImageView(new Image(JeproLab.class.getResourceAsStream("resources/images/unpublished.png"))));
+        commandWrapper.getChildren().addAll(saveBtn, cancelBtn);
+    }
+
+    private void addEventListeners(){
+        saveBtn.setOnAction(event -> {
+            if(sample.sample_id > 0){
+                sample.update();
+            }else{
+                sample.add();
+            }
+        });
+
+        jeproLabSampleTemperatureUnit.valueProperty().addListener((observable, oldValue, newValue) -> {
+            double current = Double.parseDouble(jeproLabSampleTemperature.getText());
+            String from = "celsius", to = "kelvin";
+            if(oldValue.equals(bundle.getString("JEPROLAB_CELSIUS_LABEL"))){
+                from = "celsius";
+            }else if(oldValue.equals(bundle.getString("JEPROLAB_FAHRENHEIT_LABEL"))){
+                from = "fahrenheit";
+            }else if(oldValue.equals(bundle.getString("JEPROLAB_KELVIN_LABEL"))){
+                from = "kelvin";
+            }
+
+            if(newValue.equals(bundle.getString("JEPROLAB_CELSIUS_LABEL"))){
+                to = "celsius";
+            }else if(newValue.equals(bundle.getString("JEPROLAB_FAHRENHEIT_LABEL"))){
+                to = "fahrenheit";
+            }else if(newValue.equals(bundle.getString("JEPROLAB_KELVIN_LABEL"))){
+                to = "kelvin";
+            }
+            jeproLabSampleTemperature.setText(String.valueOf(JeproLabTools.convertTemperature(current, from, to)));
+            if(sample != null){
+                sample.temperature = jeproLabSampleTemperature.getText();
+                sample.temperature_unit = newValue;
+            }
+        });
     }
 
     private void loadSample() {
@@ -220,16 +286,31 @@ public class JeproLabRequestSampleAddController extends JeproLabController {
         }*/
     }
 
-    private static class JeproLabSampleAnalyzeForm extends HBox {
+    public static class JeproLabSampleAnalyzeForm extends HBox {
         private static JeproLabContext context = JeproLabContext.getContext();
         private  Map<Integer, String> methods;
         private CheckBox analyzeCheck;
         private TextField jeproLabResultUnit, jeproLabAnalyzeResult;
+        private Button saveBtn;
+        private int analyze_id;
         public ComboBox<String> jeproLabMethod;
 
         public JeproLabSampleAnalyzeForm(JeproLabAnalyzeModel analyze){
             int jeproLabResultUnitWidth = 50;
             analyzeCheck = new CheckBox(analyze.name.get("lang_" + context.language.language_id));
+            saveBtn = new Button("", new ImageView(new Image(JeproLab.class.getResourceAsStream("resources/images/floppy-icon.png"))));
+            saveBtn.setPrefSize(18, 18);
+            saveBtn.setMinSize(18, 18);
+            saveBtn.setMaxSize(18, 18);
+            saveBtn.getStyleClass().add("icon-btn");
+            analyze_id = analyze.analyze_id;
+            analyzeCheck.selectedProperty().addListener(((observable, oldValue, newValue) -> {
+                if(newValue){
+                    disableForm(false);
+                }else{
+                    disableForm(true);
+                }
+            }));
             GridPane formLayout = new GridPane();
             jeproLabResultUnit = new TextField();
             jeproLabAnalyzeResult = new TextField();
@@ -246,11 +327,13 @@ public class JeproLabRequestSampleAddController extends JeproLabController {
             formLayout.add(jeproLabResultUnit, 1, 0);
             formLayout.add(jeproLabMethod, 2, 0);
             formLayout.add(jeproLabAnalyzeResult, 3, 0);
+            formLayout.add(saveBtn, 4, 0);
 
             GridPane.setMargin(analyzeCheck, new Insets(0, 5, 0, 5));
             GridPane.setMargin(jeproLabResultUnit, new Insets(0, 5, 0, 5));
             GridPane.setMargin(jeproLabMethod, new Insets(0, 5, 0, 5));
             GridPane.setMargin(jeproLabAnalyzeResult, new Insets(0, 5, 0, 5));
+            GridPane.setMargin(saveBtn, new Insets(0, 5, 0, 15));
 
             formLayout.getColumnConstraints().addAll(
                     new ColumnConstraints(80), new ColumnConstraints(jeproLabResultUnitWidth + 5),
@@ -263,6 +346,50 @@ public class JeproLabRequestSampleAddController extends JeproLabController {
         public void setSelected(boolean isSelected){
             analyzeCheck.setSelected(isSelected);
         }
-    }
 
+        public void disableForm(boolean disable){
+            jeproLabResultUnit.setDisable(disable);
+            jeproLabAnalyzeResult.setDisable(disable);
+            jeproLabMethod.setDisable(disable);
+            saveBtn.setDisable(disable);
+        }
+
+        public String getAnalyzeMethod(){
+            return jeproLabMethod.getValue();
+        }
+
+        public String getAnalyzeReult(){
+            return jeproLabAnalyzeResult.getText();
+        }
+
+        public String getAnalyzeUnit(){
+            return jeproLabResultUnit.getText();
+        }
+
+        public void setAnalyzeMethod(String value){
+            jeproLabMethod.setValue(value);
+        }
+
+        public void setAnalyzeReult(String result){
+            jeproLabAnalyzeResult.setText(result);
+        }
+
+        public void setAnalyzeUnit(String unit){
+            jeproLabResultUnit.setText(unit);
+        }
+
+        public int getAnalyzeId(){
+            return analyze_id;
+        }
+
+        public CheckBox getAnalyzeCheck(){
+            return analyzeCheck;
+        }
+
+        private void addEventListeners(){
+            saveBtn.setOnAction(event -> {
+
+            });
+        }
+    }
 }

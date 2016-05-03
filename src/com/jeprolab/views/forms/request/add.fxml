@@ -57,7 +57,10 @@
                             <ComboBox GridPane.rowIndex="4" GridPane.columnIndex="1" fx:id="jeproLabRequestFourthContact" />
                             <Label GridPane.columnIndex="0" GridPane.rowIndex="5" GridPane.columnSpan="2" fx:id="jeproLabRequestDelayLabel" />
                             <ComboBox GridPane.columnIndex="1" GridPane.rowIndex="6" GridPane.columnSpan="2" fx:id="jeproLabRequestDelay" />
-
+                            <HBox spacing="20" GridPane.columnIndex="1" GridPane.rowIndex="7" >
+                                <Label fx:id="jeproLabRequestStatusLabel" styleClass="input-label" />
+                                <ComboBox fx:id="jeproLabRequestStatus" />
+                            </HBox>
                     </GridPane>
                     </HBox>
                 </Pane>
@@ -76,9 +79,11 @@
                             <ComboBox GridPane.columnIndex="1" GridPane.rowIndex="2" fx:id="jeproLabSampleMatrix" />
                             <Label GridPane.columnIndex="0" GridPane.rowIndex="3" fx:id="jeproLabSampleTestDateLabel" />
                             <DatePicker GridPane.columnIndex="1" GridPane.rowIndex="3" fx:id="jeproLabSampleTestDate" />
-                            <Label GridPane.columnIndex="0" GridPane.rowIndex="4" GridPane.columnSpan="2" fx:id="jeproLabSampleAnalyzeSelectorLabel" />
-                            <GridPane GridPane.columnIndex="0" GridPane.rowIndex="5" GridPane.columnSpan="2" fx:id="jeproLabSampleAnalyzeSelector" />
-                            <HBox GridPane.columnSpan="2" GridPane.columnIndex="0" GridPane.rowIndex="6" spacing="30" alignment="CENTER" >
+                            <Label GridPane.columnIndex="0" GridPane.rowIndex="4" fx:id="jeproLabSampleConditionLabel" styleClass="input-label" />
+                            <ComboBox GridPane.columnIndex="1" GridPane.rowIndex="4" fx:id="jeproLabSampleCondition" />
+                            <Label GridPane.columnIndex="0" GridPane.rowIndex="5" GridPane.columnSpan="2" fx:id="jeproLabSampleAnalyzeSelectorLabel" />
+                            <GridPane GridPane.columnIndex="0" GridPane.rowIndex="6" GridPane.columnSpan="2" fx:id="jeproLabSampleAnalyzeSelector" />
+                            <HBox GridPane.columnSpan="2" GridPane.columnIndex="0" GridPane.rowIndex="7" spacing="30" alignment="CENTER" >
                                 <Button fx:id="jeproLabSaveSampleBtn" />
                                 <Button fx:id="jeproLabCancelSampleBtn" />
                             </HBox>

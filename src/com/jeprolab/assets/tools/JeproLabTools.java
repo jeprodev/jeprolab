@@ -18,6 +18,8 @@ import java.security.SecureRandom;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.regex.Matcher;
@@ -150,6 +152,10 @@ public class JeproLabTools {
 
 
         //return checkdate((int)$matches[2], (int)$matches[3], (int)$matches[1]);
+    }
+
+    public static LocalDate getLocaleDate(Date date){
+        return date.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
     }
 
     public static boolean pregMatch(String search, String pattern){

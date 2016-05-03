@@ -176,17 +176,19 @@ public class JeproLabRequestSampleController extends JeproLabController {
         public void updateItem(HBox i, boolean empty){
             super.updateItem(i, empty);
             ObservableList<JeproLabSampleItemRecord> items = getTableView().getItems();
+
             if((items != null) && (getIndex() >= 0 && getIndex() < items.size())) {
                 int itemId = items.get(getIndex()).getSampleIndex();
                 editSample.setOnAction(event -> {
+                    JeproLab.request.setRequest("sample_id=" + itemId);
                     try {
-                        JeproLab.request.setRequest("sample_id=" + itemId);
                         JeproLab.getInstance().goToForm(JeproLab.getInstance().getApplicationForms().sampleForm);
                         JeproLabContext.getContext().controller.initializeContent();
                     }catch (IOException ignored){
                         ignored.printStackTrace();
                     }
                 });
+
                 setGraphic(commandContainer);
                 setAlignment(Pos.CENTER);
             }
