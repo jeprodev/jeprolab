@@ -536,6 +536,7 @@ public class JeproLabRequestAddController extends JeproLabController{
             saveRequestBtn.setText(bundle.getString("JEPROLAB_UPDATE_LABEL"));
         } else {
             saveRequestBtn.setText(bundle.getString("JEPROLAB_SAVE_LABEL"));
+
             saveRequestBtn.setOnMouseClicked(evt -> {
                 JeproLabCustomerModel customer = new JeproLabCustomerModel();
                 customer.company = jeproLabCustomerCompanyName.getText();
