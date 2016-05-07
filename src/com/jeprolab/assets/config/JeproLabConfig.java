@@ -31,7 +31,7 @@ public class JeproLabConfig {
         FileInputStream inputStream = null;
 
         try{
-            inputStream = new FileInputStream(new File(JeproLab.class.getResource("assets/config/config.properties").toURI()));
+            inputStream = new FileInputStream(new File(JeproLab.class.getResource("../../config/config.properties").toURI()));
             configProp.load(inputStream);
             dataBaseHost = configProp.getProperty("DATA_BASE_HOST");
             dataBaseName = configProp.getProperty("DATA_BASE_NAME");

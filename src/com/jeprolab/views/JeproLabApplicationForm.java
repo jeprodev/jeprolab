@@ -1,6 +1,7 @@
 package com.jeprolab.views;
 
 import com.jeprolab.JeproLab;
+import com.jeprolab.assets.tools.JeproLabContext;
 import com.jeprolab.controllers.JeproLabController;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.JavaFXBuilderFactory;
@@ -44,6 +45,7 @@ public class JeproLabApplicationForm implements Runnable {
 
             isCreated = true;
         }
+        JeproLabContext.getContext().controller = controller;
         return formWrapper;
     }
 

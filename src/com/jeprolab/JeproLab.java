@@ -87,7 +87,7 @@ public class JeproLab extends Application {
         /**
          * check if configuration file exist, if not means that the application is not installed so start installer gui
          */
-        configurationFile = new File(JeproLab.class.getResource("assets/config/config.properties").toURI());
+        configurationFile = new File(JeproLab.class.getResource("../../config/config.properties").toURI());
 
 
         /*if(configurationFile == null || (!configurationFile.isFile())){

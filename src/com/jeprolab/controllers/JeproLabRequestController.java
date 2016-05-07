@@ -47,6 +47,8 @@ public class JeproLabRequestController extends JeproLabController {
     public TableColumn<JeproLabRequestRecord, String> requestStatusColumn;
     public TableColumn<JeproLabRequestRecord, String> requestOnlineColumn;
     public TableColumn<JeproLabRequestRecord, HBox> requestActionColumn;
+    public TextField jeproLabRequestSearchField;
+    public Button jeproLabRequestSearchFieldButton;
 
     @Override
     public void initialize(URL location, ResourceBundle resource){
@@ -103,6 +105,11 @@ public class JeproLabRequestController extends JeproLabController {
         requestActionColumn.setPrefWidth(65);
         Callback<TableColumn<JeproLabRequestRecord, HBox>, TableCell<JeproLabRequestRecord, HBox>> actionCellFactory = param -> new JeproLabActionCell();
         requestActionColumn.setCellFactory(actionCellFactory);
+
+        HBox.setMargin(jeproLabRequestSearchField, new Insets(5, 5, 5, 0.01 * JeproLab.APP_WIDTH));
+        HBox.setMargin(jeproLabRequestSearchFieldButton, new Insets(5, 5, 5, 5));
+        jeproLabRequestSearchField.setPromptText(bundle.getString("JEPROLAB_SEARCH_REQUEST_LABEL"));
+        jeproLabRequestSearchFieldButton.setGraphic(new ImageView(new Image(JeproLab.class.getResourceAsStream("resources/images/search-icon.png"))));
     }
 
     @Override
@@ -110,7 +117,9 @@ public class JeproLabRequestController extends JeproLabController {
         List<JeproLabRequestModel> requests = JeproLabRequestModel.getRequests();
         ObservableList<JeproLabRequestRecord> requestList = FXCollections.observableArrayList();
         if(!requests.isEmpty()){
+            requestList.clear();
             requestList.addAll(requests.stream().map(JeproLabRequestRecord::new).collect(Collectors.toList()));
+            requestTableView.getItems().clear();
             requestTableView.setItems(requestList);
         }
         updateToolBar();

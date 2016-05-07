@@ -137,11 +137,14 @@ public class JeproLabMenuController extends JeproLabController{
         requestRefundsMenuItem.setText(bundle.getString("JEPROLAB_LIST_OF_LABEL") + " " + bundle.getString("JEPROLAB_REFUNDS_LABEL"));
         requestAddNewRefundsMenuItem.setText(bundle.getString("JEPROLAB_ADD_NEW_LABEL") + " " + bundle.getString("JEPROLAB_REFUND_LABEL"));
 
-        requestSampleMenu.setText(bundle.getString("JEPROLAB_SAMPLES_LABEL"));
+        /*requestSampleMenu.setText(bundle.getString("JEPROLAB_SAMPLES_LABEL"));
         sampleListMenuItem.setText(bundle.getString("JEPROLAB_LIST_OF_LABEL") + " " + bundle.getString("JEPROLAB_SAMPLES_LABEL"));
         sampleAddNewMenuItem.setText(bundle.getString("JEPROLAB_ADD_NEW_LABEL") + " " + bundle.getString("JEPROLAB_SAMPLE_LABEL"));
         /**
-         *
+         * <!Menu fx:id="requestSampleMenu" >
+         <MenuItem fx:id="sampleListMenuItem"  onAction="#handleSampleMenuEvent" />
+         <MenuItem fx:id="sampleAddNewMenuItem"  onAction="#handleAddSampleMenuEvent" />
+         <-Menu-->
          */
         localisationSubMenu.setText(bundle.getString("JEPROLAB_LOCALISATION_SETTINGS_LABEL"));
         taxesSubMenu.setText(bundle.getString("JEPROLAB_TAXES_LABEL"));
@@ -234,11 +237,6 @@ public class JeproLabMenuController extends JeproLabController{
     public void handleAddGroupMenuEvent(ActionEvent event) throws IOException {
         JeproLab.request.getRequest().clear();
         JeproLab.getInstance().goToForm(JeproLab.getInstance().getApplicationForms().addGroupForm);
-        JeproLabContext.getContext().controller.initializeContent();
-    }
-
-    public void handleRequestsMenuEvent(ActionEvent event) throws IOException {
-        JeproLab.getInstance().goToForm(JeproLab.getInstance().getApplicationForms().requestForm);
         JeproLabContext.getContext().controller.initializeContent();
     }
 
@@ -386,6 +384,11 @@ public class JeproLabMenuController extends JeproLabController{
 
     public void handleCheckForJeproLabUpdate(ActionEvent event) throws IOException {
         JeproLab.getInstance().goToForm(JeproLab.getInstance().getApplicationForms().updaterForm);
+        JeproLabContext.getContext().controller.initializeContent();
+    }
+
+    public void handleRequestsMenuEvent(ActionEvent event) throws IOException {
+        JeproLab.getInstance().goToForm(JeproLab.getInstance().getApplicationForms().requestForm);
         JeproLabContext.getContext().controller.initializeContent();
     }
 

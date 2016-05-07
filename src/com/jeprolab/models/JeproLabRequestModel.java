@@ -142,34 +142,65 @@ public class JeproLabRequestModel extends JeproLabModel{
         return requestList;
     }
 
-    public void update(){
-
-    }
-
     public void add(){
         if(dataBaseObject == null){
             dataBaseObject = JeproLabFactory.getDataBaseConnector();
         }
         String addedDate = JeproLabTools.date();
-        String query = "INSERT INTO " + dataBaseObject.quoteName("#__jeprolab_request") + " ( " + dataBaseObject.quoteName("customer_id");
-        query += ", " + dataBaseObject.quoteName("reference") + ", " + dataBaseObject.quoteName("first_contact_id");
-        query += ", " + dataBaseObject.quoteName("second_contact_id") + ", " + dataBaseObject.quoteName("third_contact_id")  + ", " + dataBaseObject.quoteName("fourth_contact_id");
+        String query = "INSERT INTO " + dataBaseObject.quoteName("#__jeprolab_request") + " ( " + dataBaseObject.quoteName("customer_id") + ", ";
+        query += dataBaseObject.quoteName("reference") + ", " + dataBaseObject.quoteName("first_contact_id") + ", " + dataBaseObject.quoteName("second_contact_id");
+        query += ", " + dataBaseObject.quoteName("third_contact_id")  + ", " + dataBaseObject.quoteName("fourth_contact_id") + ", " + dataBaseObject.quoteName("status_id");
         query += ", " +dataBaseObject.quoteName("date_add") + ", " + dataBaseObject.quoteName("date_upd") + ") VALUES(" + this.customer_id + ", ";
-        query += dataBaseObject.quote(this.reference) + ", " + this.first_contact_id + ", " + this.second_contact_id + ", ";
-        query += this.third_contact_id + ", " + this.fourth_contact_id + ", " + dataBaseObject.quote(addedDate) + ", " + dataBaseObject.quote(addedDate) + ")";
+        query += dataBaseObject.quote(this.reference) + ", " + this.first_contact_id + ", " + this.second_contact_id + ", " + this.third_contact_id;
+        query += ", " + this.fourth_contact_id + ", " + this.status_id + ", " + dataBaseObject.quote(addedDate) + ", " + dataBaseObject.quote(addedDate) + ")";
 
         dataBaseObject.setQuery(query);
         dataBaseObject.query(true);
         this.request_id = dataBaseObject.getGeneratedKey();
 
         /***
-         * Adding requested analyzes
+         * Adding samples for this request
          */
         for(Integer sampleId : samples) {
             query = "INSERT INTO " + dataBaseObject.quoteName("#__jeproLab_request_sample") + "(" + dataBaseObject.quoteName("request_id") + ", ";
             query += dataBaseObject.quoteName("sample_id") + ") VALUES(" + this.request_id + ", " + sampleId + ")";
             dataBaseObject.setQuery(query);
             dataBaseObject.query(false);
+        }
+    }
+
+    public void update(){
+        if(dataBaseObject == null){
+            dataBaseObject = JeproLabFactory.getDataBaseConnector();
+        }
+        String query = "UPDATE " + dataBaseObject.quoteName("#__jeprolab_request") + " SET " + dataBaseObject.quoteName("customer_id") + " = ";
+        query += this.customer_id + ", " + dataBaseObject.quoteName("first_contact_id") + " = " + this.first_contact_id + ", ";
+        query += dataBaseObject.quoteName("second_contact_id") + " = " + this.second_contact_id + ", " + dataBaseObject.quoteName("third_contact_id");
+        query += " = " + this.fourth_contact_id + ", " + dataBaseObject.quoteName("status_id") + " = " + this.status_id + ", ";
+        query += dataBaseObject.quoteName("date_upd") + " = " + dataBaseObject.quote(JeproLabTools.date("yyyy-MM-dd hh:mm:ss")) + " WHERE ";
+        query += dataBaseObject.quoteName("request_id") + " = " + this.request_id;
+
+        dataBaseObject.setQuery(query);
+        dataBaseObject.query(false);
+
+        List<Integer> requestSampleIds = JeproLabSampleModel.getSampleIdsByRequestId(this.request_id);
+        for(Integer sampleId : requestSampleIds){
+            if(!samples.contains(sampleId)){
+                query = "DELETE FROM " + staticDataBaseObject.quoteName("#__jeprolab_request_sample") + " WHERE " + dataBaseObject.quoteName("request_id");
+                query += " = " + this.request_id + " AND " + dataBaseObject.quoteName("sample_id") + " = " + sampleId;
+
+                dataBaseObject.setQuery(query);
+                dataBaseObject.query(false);
+            }
+        }
+
+        for(Integer sampleId : samples) {
+            if(!requestSampleIds.contains(sampleId)) {
+                query = "INSERT INTO " + dataBaseObject.quoteName("#__jeproLab_request_sample") + "(" + dataBaseObject.quoteName("request_id") + ", ";
+                query += dataBaseObject.quoteName("sample_id") + ") VALUES(" + this.request_id + ", " + sampleId + ")";
+                dataBaseObject.setQuery(query);
+                dataBaseObject.query(false);
+            }
         }
     }
 
@@ -521,6 +552,36 @@ public class JeproLabRequestModel extends JeproLabModel{
             }
         }
 
+
+        public static List<Integer> getSampleIdsByRequestId(int requestId){
+            if(staticDataBaseObject == null){
+                staticDataBaseObject = JeproLabFactory.getDataBaseConnector();
+            }
+
+            String query = "SELECT " + staticDataBaseObject.quoteName("sample_id") + " FROM " + staticDataBaseObject.quoteName("#__jeprolab_request_sample");
+            query += " WHERE " + staticDataBaseObject.quoteName("request_id") + " = " + requestId;
+
+            staticDataBaseObject.setQuery(query);
+            ResultSet sampleIdSet = staticDataBaseObject.loadObjectList();
+            List<Integer> sampleIds = new ArrayList<>();
+
+            if(sampleIdSet != null){
+                try{
+                    while(sampleIdSet.next()){
+                        sampleIds.add(sampleIdSet.getInt("sample_id"));
+                    }
+                }catch (SQLException ignored){
+                    ignored.printStackTrace();
+                }finally {
+                    try{
+                        JeproLabDataBaseConnector.getInstance().closeConnexion();
+                    }catch (Exception ignored){
+                        ignored.printStackTrace();
+                    }
+                }
+            }
+            return sampleIds;
+        }
 
     }
 

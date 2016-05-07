@@ -127,8 +127,10 @@ public class JeproLabRequestAddController extends JeproLabController{
 
     private void renderCompanyForm(){
         jeproLabCustomerInformationLayout.getColumnConstraints().addAll(
-                new ColumnConstraints(150), new ColumnConstraints(350)
+                new ColumnConstraints(130), new ColumnConstraints(370)
         );
+        jeproLabCustomerCompanyFax.setPrefWidth(150);
+        jeproLabCustomerCompanyPhone.setPrefWidth(150);
 
         GridPane.setMargin(jeproLabCustomerCompanyNameLabel, new Insets(5, 0, 5, 10));
         GridPane.setMargin(jeproLabCustomerCompanyName, new Insets(5, 0, 5, 0));
@@ -336,7 +338,7 @@ public class JeproLabRequestAddController extends JeproLabController{
         jeproLabRequestDelayLabel.getStyleClass().add("input-label");
         jeproLabCustomerCompanyPhoneLabel.setText(bundle.getString("JEPROLAB_PHONE_LABEL"));
         jeproLabCustomerCompanyPhoneLabel.getStyleClass().add("input-label");
-        jeproLabCustomerCompanyFaxLabel.setText(bundle.getString("JEPROLAB_FAX_LABEL"));
+        jeproLabCustomerCompanyFaxLabel.setText(bundle.getString("JEPROLAB_MOBILE_LABEL"));
         jeproLabCustomerCompanyFaxLabel.getStyleClass().add("input-label");
         jeproLabCustomerCompanyAddressLabel.setText(bundle.getString("JEPROLAB_ADDRESS_LABEL"));
         jeproLabCustomerCompanyAddressLabel.getStyleClass().add("input-label");
@@ -393,7 +395,6 @@ public class JeproLabRequestAddController extends JeproLabController{
             if(request.request_id <= 0){
                 request = new JeproLabRequestModel();
             }
-
         }else{
             request = new  JeproLabRequestModel();
         }
@@ -469,7 +470,6 @@ public class JeproLabRequestAddController extends JeproLabController{
             requestStatus.entrySet().stream().filter(entry -> newValue.equals(entry.getValue())).forEach(entry -> {
                 request.status_id = entry.getKey();
             });
-
         }));
     }
 
@@ -525,7 +525,6 @@ public class JeproLabRequestAddController extends JeproLabController{
         }
     }
 
-
     @Override
     public void updateToolBar(){
         HBox commandWrapper = JeproLab.getInstance().getApplicationToolBarCommandWrapper();
@@ -536,44 +535,54 @@ public class JeproLabRequestAddController extends JeproLabController{
             saveRequestBtn.setText(bundle.getString("JEPROLAB_UPDATE_LABEL"));
         } else {
             saveRequestBtn.setText(bundle.getString("JEPROLAB_SAVE_LABEL"));
-
-            saveRequestBtn.setOnMouseClicked(evt -> {
-                JeproLabCustomerModel customer = new JeproLabCustomerModel();
-                customer.company = jeproLabCustomerCompanyName.getText();
-                customer.firstname = jeproLabRequestMainContactInfoName.getText();
-                customer.email = jeproLabRequestMainContactInfoMail.getText();
-                customer.laboratory_id = context.laboratory.laboratory_id;
-                customer.laboratory_group_id = context.laboratory.laboratory_group_id;
-                customer.published = true;
-                customer.add();
-
-                JeproLabAddressModel address = new JeproLabAddressModel();
-                address.customer_id = customer.customer_id;
-                address.address1 = jeproLabCustomerCompanyAddress.getText();
-                address.address1 = jeproLabCustomerCompanyAddressDetails.getText();
-                address.phone = jeproLabCustomerCompanyPhone.getText();
-                address.add();
-
-                request.first_contact_id = firstContactId;
-                request.second_contact_id = secondContactId;
-                request.third_contact_id = thirdContactId;
-                request.fourth_contact_id = fourthContactId;
-
-                request.customer_id = JeproLabCustomerModel.getCustomerIdByEmail(jeproLabRequestMainContactInfoMail.getText());
-                request.reference = jeproLabRequestReference.getText();
-
-                request.samples.addAll(jeproLabSampleRecordTableView.getItems().stream().map(JeproLabSampleRecord::getSampleIndex).collect(Collectors.toList()));
-
-                request.add();
-
-                /*String requestParams = "first_contact_id=" + firstContactId + "&second_contact_id=" + secondContactId + "&third_contact_id=";
-                requestParams += thirdContactId + "&fourth_contact_id=" + fourthContactId + "";
-
-                JeproLab.request.setRequest(requestParams);
-                request.update();*/
-            });
         }
         cancelBtn = new Button(bundle.getString("JEPROLAB_CANCEL_LABEL"), new ImageView(new Image(JeproLab.class.getResourceAsStream("resources/images/unpublished.png"))));
+
+        saveRequestBtn.setOnAction(evt -> {
+            JeproLabCustomerModel customer = new JeproLabCustomerModel(request.customer_id);
+            customer.company = jeproLabCustomerCompanyName.getText();
+            String customerName = jeproLabRequestMainContactInfoName.getText();
+            int separatorIndex = customerName.indexOf(" ");
+            customer.firstname = customerName.substring(0, separatorIndex);
+            customer.lastname = customerName.substring(separatorIndex + 1, customerName.length());
+            customer.email = jeproLabRequestMainContactInfoMail.getText();
+            customer.laboratory_id = context.laboratory.laboratory_id;
+            customer.laboratory_group_id = context.laboratory.laboratory_group_id;
+            customer.published = true;
+            if (customer.customer_id > 0) {
+                customer.update();
+            } else {
+                customer.add();
+            }
+
+            JeproLabAddressModel address = JeproLabAddressModel.getAddressByCustomerId(customer.customer_id, true);
+            address.customer_id = customer.customer_id;
+            address.address1 = jeproLabCustomerCompanyAddress.getText();
+            address.address2 = jeproLabCustomerCompanyAddressDetails.getText();
+            address.phone = jeproLabCustomerCompanyPhone.getText();
+            address.mobile_phone = jeproLabCustomerCompanyFax.getText();
+            if (address.address_id > 0) {
+                address.update();
+            } else {
+                address.add();
+            }
+            request.first_contact_id = firstContactId;
+            request.second_contact_id = secondContactId;
+            request.third_contact_id = thirdContactId;
+            request.fourth_contact_id = fourthContactId;
+
+            request.customer_id = customer.customer_id;
+
+
+            request.samples.addAll(jeproLabSampleRecordTableView.getItems().stream().map(JeproLabSampleRecord::getSampleIndex).collect(Collectors.toList()));
+
+            if (request.request_id > 0) {
+                request.update();
+            } else {
+                request.reference = jeproLabRequestReference.getText();
+                request.add();
+            }
+        });
 
         commandWrapper.getChildren().addAll(saveRequestBtn, cancelBtn);
     }

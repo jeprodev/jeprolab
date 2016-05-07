@@ -46,10 +46,7 @@
             </Menu>
         </Menu>
         <Menu fx:id="currentSubRequestMenu" >
-            <Menu fx:id="requestSampleMenu" >
-                <MenuItem fx:id="sampleListMenuItem"  onAction="#handleSampleMenuEvent" />
-                <MenuItem fx:id="sampleAddNewMenuItem"  onAction="#handleAddSampleMenuEvent" />
-            </Menu>
+
             <Menu fx:id="requestMenu" >
                 <MenuItem fx:id="requestListMenuItem"  onAction="#handleRequestsMenuEvent" />
                 <MenuItem fx:id="requestAddNewMenuItem"  onAction="#handleRequestAddNewMenuEvent" />
