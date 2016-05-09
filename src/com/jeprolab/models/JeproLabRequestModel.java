@@ -31,6 +31,8 @@ public class JeproLabRequestModel extends JeproLabModel{
 
     public int fourth_contact_id;
 
+    public int delay;
+
     public String reference;
 
     public Date date_add;
@@ -67,7 +69,7 @@ public class JeproLabRequestModel extends JeproLabModel{
                         if (requestSet.next()){
                             this.request_id = requestSet.getInt("request_id");
                             this.customer_id = requestSet.getInt("customer_id");
-                            //this.main_contact_id = requestSet.getInt("main_contact_id");
+                            this.delay = requestSet.getInt("delay");
                             this.first_contact_id = requestSet.getInt("first_contact_id");
                             this.third_contact_id = requestSet.getInt("second_contact_id");
                             this.first_contact_id = requestSet.getInt("third_contact_id");
@@ -91,7 +93,7 @@ public class JeproLabRequestModel extends JeproLabModel{
                 JeproLabRequestModel requestModel = (JeproLabRequestModel)JeproLabCache.getInstance().retrieve(cacheKey);
                 this.request_id = requestModel.request_id;
                 this.customer_id = requestModel.customer_id;
-                //this.main_contact_id = requestModel.main_contact_id;
+                this.delay = requestModel.delay;
                 this.first_contact_id = requestModel.first_contact_id;
                 this.second_contact_id = requestModel.second_contact_id;
                 this.third_contact_id = requestModel.third_contact_id;
@@ -150,9 +152,9 @@ public class JeproLabRequestModel extends JeproLabModel{
         String query = "INSERT INTO " + dataBaseObject.quoteName("#__jeprolab_request") + " ( " + dataBaseObject.quoteName("customer_id") + ", ";
         query += dataBaseObject.quoteName("reference") + ", " + dataBaseObject.quoteName("first_contact_id") + ", " + dataBaseObject.quoteName("second_contact_id");
         query += ", " + dataBaseObject.quoteName("third_contact_id")  + ", " + dataBaseObject.quoteName("fourth_contact_id") + ", " + dataBaseObject.quoteName("status_id");
-        query += ", " +dataBaseObject.quoteName("date_add") + ", " + dataBaseObject.quoteName("date_upd") + ") VALUES(" + this.customer_id + ", ";
-        query += dataBaseObject.quote(this.reference) + ", " + this.first_contact_id + ", " + this.second_contact_id + ", " + this.third_contact_id;
-        query += ", " + this.fourth_contact_id + ", " + this.status_id + ", " + dataBaseObject.quote(addedDate) + ", " + dataBaseObject.quote(addedDate) + ")";
+        query += ", " + dataBaseObject.quoteName("delay") + ", " + dataBaseObject.quoteName("date_add") + ", " + dataBaseObject.quoteName("date_upd") + ") VALUES(";
+        query += this.customer_id + ", " + dataBaseObject.quote(this.reference) + ", " + this.first_contact_id + ", " + this.second_contact_id + ", " + this.third_contact_id;
+        query += ", " + this.fourth_contact_id + ", " + this.status_id + ", " + this.delay + ", " + dataBaseObject.quote(addedDate) + ", " + dataBaseObject.quote(addedDate) + ")";
 
         dataBaseObject.setQuery(query);
         dataBaseObject.query(true);
@@ -177,8 +179,8 @@ public class JeproLabRequestModel extends JeproLabModel{
         query += this.customer_id + ", " + dataBaseObject.quoteName("first_contact_id") + " = " + this.first_contact_id + ", ";
         query += dataBaseObject.quoteName("second_contact_id") + " = " + this.second_contact_id + ", " + dataBaseObject.quoteName("third_contact_id");
         query += " = " + this.fourth_contact_id + ", " + dataBaseObject.quoteName("status_id") + " = " + this.status_id + ", ";
-        query += dataBaseObject.quoteName("date_upd") + " = " + dataBaseObject.quote(JeproLabTools.date("yyyy-MM-dd hh:mm:ss")) + " WHERE ";
-        query += dataBaseObject.quoteName("request_id") + " = " + this.request_id;
+        query += dataBaseObject.quoteName("delay") + " = " + this.delay + ", " + dataBaseObject.quoteName("date_upd") + " = ";
+        query += dataBaseObject.quote(JeproLabTools.date("yyyy-MM-dd hh:mm:ss")) + " WHERE " + dataBaseObject.quoteName("request_id") + " = " + this.request_id;
 
         dataBaseObject.setQuery(query);
         dataBaseObject.query(false);
@@ -395,7 +397,6 @@ public class JeproLabRequestModel extends JeproLabModel{
                     }
                 }
             }
-
             return sampleList;
         }
 
@@ -505,7 +506,7 @@ public class JeproLabRequestModel extends JeproLabModel{
             for(JeproLabRequestSampleAddController.JeproLabSampleAnalyzeForm item : resultForms){
                 query = "UPDATE " + dataBaseObject.quoteName("#__jeprolab_sample_analyze") + " SET " + dataBaseObject.quoteName("unit") +  " = ";
                 query += dataBaseObject.quote(item.getAnalyzeUnit()) +  ", "  + dataBaseObject.quoteName("method") + " = " + dataBaseObject.quote(item.getAnalyzeMethod());
-                query += ", " + dataBaseObject.quoteName("result") + " = " + dataBaseObject.quote(item.getAnalyzeReult()) + ", " + dataBaseObject.quoteName("date_upd");
+                query += ", " + dataBaseObject.quoteName("result") + " = " + dataBaseObject.quote(item.getAnalyzeResult()) + ", " + dataBaseObject.quoteName("date_upd");
                 query += " = " + dataBaseObject.quote(JeproLabTools.date("yyyy-MM-dd hh:mm:ss")) + " WHERE " + dataBaseObject.quoteName("sample_id") + " = ";
                 query += this.sample_id + " AND " + dataBaseObject.quoteName("analyze_id") + " = " + item.getAnalyzeId();
 
@@ -583,17 +584,6 @@ public class JeproLabRequestModel extends JeproLabModel{
             return sampleIds;
         }
 
-    }
-
-
-
-
-    /**
-     *
-     * Created by jeprodev on 18/06/2014.
-     */
-    public static class JeproLabSampleResultModel extends JeproLabModel{
-        //public static List<JeproLabSampleResultModel> getSampleResult(int)
     }
 
 

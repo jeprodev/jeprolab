@@ -15,95 +15,102 @@
 <?import javafx.scene.control.DatePicker?>
 <?import javafx.scene.control.ScrollPane?>
 <?import javafx.scene.control.Button?>
+<?import javafx.scene.control.TabPane?>
+<?import javafx.scene.control.Tab?>
 <JeproFormPanel xmlns:fx="http://javafx.com/fxml" fx:id="jeproLabRequestFormWrapper" fx:controller="com.jeprolab.controllers.JeproLabRequestAddController" >
     <JeproFormPanelTitle fx:id="jeproLabRequestFormTitleWrapper" />
     <JeproFormPanelContainer fx:id="jeproLabRequestContentWrapper" >
-        <VBox >
-            <Pane fx:id="jeproLabCustomerInformationWrapper" >
-                <Pane fx:id="jeproLabCustomerInformationTitleWrapper" />
-                <Pane fx:id="jeproLabCustomerInformationContentWrapper" >
-                    <HBox>
-                        <GridPane fx:id="jeproLabCustomerInformationLayout" >
-                            <Label GridPane.columnIndex="0" GridPane.rowIndex="0" fx:id="jeproLabCustomerCompanyNameLabel" />
-                            <TextField GridPane.columnIndex="1" GridPane.rowIndex="0" fx:id="jeproLabCustomerCompanyName" />
-                            <Label GridPane.columnIndex="0" GridPane.rowIndex="1" fx:id="jeproLabCustomerCompanyAddressLabel" />
-                            <TextField GridPane.columnIndex="1" GridPane.rowIndex="1" fx:id="jeproLabCustomerCompanyAddress" />
-                            <TextField GridPane.columnIndex="1" GridPane.rowIndex="2" fx:id="jeproLabCustomerCompanyAddressDetails" />
-                            <Label GridPane.columnIndex="0" GridPane.rowIndex="3" fx:id="jeproLabCustomerCompanyPhoneLabel" />
-                            <HBox GridPane.columnIndex="1" GridPane.rowIndex="3" fx:id="jeproLabCustomerCompanyPhoneWrapper" spacing="5" >
-                                <JeproPhoneField fx:id="jeproLabCustomerCompanyPhone" />
-                                <Label fx:id="jeproLabCustomerCompanyFaxLabel" />
-                                <JeproPhoneField fx:id="jeproLabCustomerCompanyFax" />
+        <TabPane fx:id="jeproLabRequestTabPane" >
+            <Tab fx:id="jeproLabRequestInformationTab" closable="false" >
+                <VBox >
+                    <Pane fx:id="jeproLabCustomerInformationWrapper" >
+                        <Pane fx:id="jeproLabCustomerInformationTitleWrapper" />
+                        <Pane fx:id="jeproLabCustomerInformationContentWrapper" >
+                            <HBox>
+                                <GridPane fx:id="jeproLabCustomerInformationLayout" >
+                                    <Label GridPane.columnIndex="0" GridPane.rowIndex="0" fx:id="jeproLabCustomerCompanyNameLabel" />
+                                    <TextField GridPane.columnIndex="1" GridPane.rowIndex="0" fx:id="jeproLabCustomerCompanyName" />
+                                    <Label GridPane.columnIndex="0" GridPane.rowIndex="1" fx:id="jeproLabCustomerCompanyAddressLabel" />
+                                    <TextField GridPane.columnIndex="1" GridPane.rowIndex="1" fx:id="jeproLabCustomerCompanyAddress" />
+                                    <TextField GridPane.columnIndex="1" GridPane.rowIndex="2" fx:id="jeproLabCustomerCompanyAddressDetails" />
+                                    <Label GridPane.columnIndex="0" GridPane.rowIndex="3" fx:id="jeproLabCustomerCompanyPhoneLabel" />
+                                    <HBox GridPane.columnIndex="1" GridPane.rowIndex="3" fx:id="jeproLabCustomerCompanyPhoneWrapper" spacing="5" >
+                                        <JeproPhoneField fx:id="jeproLabCustomerCompanyPhone" />
+                                        <Label fx:id="jeproLabCustomerCompanyFaxLabel" />
+                                        <JeproPhoneField fx:id="jeproLabCustomerCompanyFax" />
+                                    </HBox>
+                                    <TextField GridPane.columnIndex="1" GridPane.rowIndex="4" fx:id="jeproLabRequestReference" />
+                                    <Label GridPane.columnIndex="0" GridPane.rowIndex="4" fx:id="jeproLabRequestReferenceLabel" />
+                                    <Pane GridPane.columnIndex="0" GridPane.rowIndex="5" GridPane.columnSpan="2" fx:id="jeproLabRequestMainContactInfo" />
+                                    <Label GridPane.rowIndex="6" GridPane.columnIndex="0" fx:id="jeproLabRequestMainContactInfoNameLabel" />
+                                    <TextField GridPane.columnIndex="1" GridPane.rowIndex="6" fx:id="jeproLabRequestMainContactInfoName" />
+                                    <Label GridPane.columnIndex="0" GridPane.rowIndex="7" fx:id="jeproLabRequestMainContactInfoMailLabel" />
+                                    <TextField GridPane.rowIndex="7" GridPane.columnIndex="1" fx:id="jeproLabRequestMainContactInfoMail" />
+                                <!-- Label GridPane.columnIndex="3" GridPane.rowIndex="5" GridPane.columnSpan="2" fx:id="jeproLabRequestDelayLabel" />
+                                <ComboBox GridPane.columnIndex="3" GridPane.rowIndex="6" GridPane.columnSpan="2" fx:id="jeproLabRequestDelay" /-->
+                                </GridPane>
+                                <GridPane fx:id="jeproLabCustomerContactLayout" >
+                                    <Label GridPane.columnIndex="0" GridPane.rowIndex="0" GridPane.columnSpan="2" fx:id="jeproLabResultTransmissionLabel" />
+                                    <Label GridPane.rowIndex="1" GridPane.columnIndex="0" fx:id="jeproLabRequestFirstContactLabel" />
+                                    <ComboBox GridPane.rowIndex="1" GridPane.columnIndex="1" fx:id="jeproLabRequestFirstContact" />
+                                    <Label GridPane.rowIndex="2" GridPane.columnIndex="0" fx:id="jeproLabRequestSecondContactLabel" />
+                                    <ComboBox GridPane.rowIndex="2" GridPane.columnIndex="1" fx:id="jeproLabRequestSecondContact" />
+                                    <Label GridPane.rowIndex="3" GridPane.columnIndex="0" fx:id="jeproLabRequestThirdContactLabel" />
+                                    <ComboBox GridPane.rowIndex="3" GridPane.columnIndex="1" fx:id="jeproLabRequestThirdContact" />
+                                    <Label GridPane.rowIndex="4" GridPane.columnIndex="0" fx:id="jeproLabRequestFourthContactLabel" />
+                                    <ComboBox GridPane.rowIndex="4" GridPane.columnIndex="1" fx:id="jeproLabRequestFourthContact" />
+                                    <Label GridPane.columnIndex="0" GridPane.rowIndex="5" GridPane.columnSpan="2" fx:id="jeproLabRequestDelayLabel" />
+                                    <ComboBox GridPane.columnIndex="1" GridPane.rowIndex="6" GridPane.columnSpan="2" fx:id="jeproLabRequestDelay" />
+                                    <HBox spacing="30" GridPane.columnIndex="1" GridPane.rowIndex="7" fx:id="jeproLabRequestStatusWrapper" >
+                                        <Label fx:id="jeproLabRequestStatusLabel" styleClass="input-label" />
+                                        <ComboBox fx:id="jeproLabRequestStatus" />
+                                    </HBox>
+                            </GridPane>
                             </HBox>
-                            <TextField GridPane.columnIndex="1" GridPane.rowIndex="4" fx:id="jeproLabRequestReference" />
-                            <Label GridPane.columnIndex="0" GridPane.rowIndex="4" fx:id="jeproLabRequestReferenceLabel" />
-                            <Pane GridPane.columnIndex="0" GridPane.rowIndex="5" GridPane.columnSpan="2" fx:id="jeproLabRequestMainContactInfo" />
-                            <Label GridPane.rowIndex="6" GridPane.columnIndex="0" fx:id="jeproLabRequestMainContactInfoNameLabel" />
-                            <TextField GridPane.columnIndex="1" GridPane.rowIndex="6" fx:id="jeproLabRequestMainContactInfoName" />
-                            <Label GridPane.columnIndex="0" GridPane.rowIndex="7" fx:id="jeproLabRequestMainContactInfoMailLabel" />
-                            <TextField GridPane.rowIndex="7" GridPane.columnIndex="1" fx:id="jeproLabRequestMainContactInfoMail" />
-                        <!-- Label GridPane.columnIndex="3" GridPane.rowIndex="5" GridPane.columnSpan="2" fx:id="jeproLabRequestDelayLabel" />
-                        <ComboBox GridPane.columnIndex="3" GridPane.rowIndex="6" GridPane.columnSpan="2" fx:id="jeproLabRequestDelay" /-->
-                        </GridPane>
-                        <GridPane fx:id="jeproLabCustomerContactLayout" >
-                            <Label GridPane.columnIndex="0" GridPane.rowIndex="0" GridPane.columnSpan="2" fx:id="jeproLabResultTransmissionLabel" />
-                            <Label GridPane.rowIndex="1" GridPane.columnIndex="0" fx:id="jeproLabRequestFirstContactLabel" />
-                            <ComboBox GridPane.rowIndex="1" GridPane.columnIndex="1" fx:id="jeproLabRequestFirstContact" />
-                            <Label GridPane.rowIndex="2" GridPane.columnIndex="0" fx:id="jeproLabRequestSecondContactLabel" />
-                            <ComboBox GridPane.rowIndex="2" GridPane.columnIndex="1" fx:id="jeproLabRequestSecondContact" />
-                            <Label GridPane.rowIndex="3" GridPane.columnIndex="0" fx:id="jeproLabRequestThirdContactLabel" />
-                            <ComboBox GridPane.rowIndex="3" GridPane.columnIndex="1" fx:id="jeproLabRequestThirdContact" />
-                            <Label GridPane.rowIndex="4" GridPane.columnIndex="0" fx:id="jeproLabRequestFourthContactLabel" />
-                            <ComboBox GridPane.rowIndex="4" GridPane.columnIndex="1" fx:id="jeproLabRequestFourthContact" />
-                            <Label GridPane.columnIndex="0" GridPane.rowIndex="5" GridPane.columnSpan="2" fx:id="jeproLabRequestDelayLabel" />
-                            <ComboBox GridPane.columnIndex="1" GridPane.rowIndex="6" GridPane.columnSpan="2" fx:id="jeproLabRequestDelay" />
-                            <HBox spacing="20" GridPane.columnIndex="1" GridPane.rowIndex="7" >
-                                <Label fx:id="jeproLabRequestStatusLabel" styleClass="input-label" />
-                                <ComboBox fx:id="jeproLabRequestStatus" />
-                            </HBox>
-                    </GridPane>
-                    </HBox>
-                </Pane>
-            </Pane>
-
-            <Pane fx:id="jeproLabSampleAddFormTitleWrapper"/>
-            <ScrollPane fx:id="jeproLabSampleFormWrapper">
-                <HBox spacing="20" >
-                    <Pane>
-                        <GridPane fx:id="jeproLabSampleAddFormLayout" >
-                            <Label GridPane.columnIndex="0" GridPane.rowIndex="0" fx:id="jeproLabSampleReferenceLabel" />
-                            <TextField GridPane.columnIndex="1" GridPane.rowIndex="0" fx:id="jeproLabSampleReference" />
-                            <Label GridPane.columnIndex="0" GridPane.rowIndex="1" fx:id="jeproLabSampleDesignationLabel" />
-                            <TextField GridPane.columnIndex="1" GridPane.rowIndex="1" fx:id="jeproLabSampleDesignation" />
-                            <Label GridPane.columnIndex="0" GridPane.rowIndex="2" fx:id="jeproLabSampleMatrixLabel" />
-                            <ComboBox GridPane.columnIndex="1" GridPane.rowIndex="2" fx:id="jeproLabSampleMatrix" />
-                            <Label GridPane.columnIndex="0" GridPane.rowIndex="3" fx:id="jeproLabSampleTestDateLabel" />
-                            <DatePicker GridPane.columnIndex="1" GridPane.rowIndex="3" fx:id="jeproLabSampleTestDate" />
-                            <Label GridPane.columnIndex="0" GridPane.rowIndex="4" fx:id="jeproLabSampleConditionLabel" styleClass="input-label" />
-                            <ComboBox GridPane.columnIndex="1" GridPane.rowIndex="4" fx:id="jeproLabSampleCondition" />
-                            <Label GridPane.columnIndex="0" GridPane.rowIndex="5" GridPane.columnSpan="2" fx:id="jeproLabSampleAnalyzeSelectorLabel" />
-                            <GridPane GridPane.columnIndex="0" GridPane.rowIndex="6" GridPane.columnSpan="2" fx:id="jeproLabSampleAnalyzeSelector" />
-                            <HBox GridPane.columnSpan="2" GridPane.columnIndex="0" GridPane.rowIndex="7" spacing="30" alignment="CENTER" >
-                                <Button fx:id="jeproLabSaveSampleBtn" />
-                                <Button fx:id="jeproLabCancelSampleBtn" />
-                            </HBox>
-                        </GridPane>
-                    </Pane>
-                    <Pane>
-                        <Pane />
-                        <Pane>
-                            <TableView fx:id="jeproLabSampleRecordTableView" >
-                                <columns>
-                                    <TableColumn resizable="false" editable="false" fx:id="jeproLabSampleCheckBoxColumn" />
-                                    <TableColumn resizable="false" editable="false" fx:id="jeproLabSampleReferenceColumn" />
-                                    <TableColumn resizable="false" editable="false" fx:id="jeproLabSampleDesignationColumn" />
-                                    <TableColumn resizable="false" editable="false" fx:id="jeproLabSampleActionColumn" />
-                                </columns>
-                            </TableView>
                         </Pane>
                     </Pane>
-                </HBox>
-            </ScrollPane>
-        </VBox>
+
+                    <Pane fx:id="jeproLabSampleAddFormTitleWrapper"/>
+                    <ScrollPane fx:id="jeproLabSampleFormWrapper">
+                        <HBox spacing="20" >
+                            <Pane>
+                                <GridPane fx:id="jeproLabSampleAddFormLayout" >
+                                    <Label GridPane.columnIndex="0" GridPane.rowIndex="0" fx:id="jeproLabSampleReferenceLabel" />
+                                    <TextField GridPane.columnIndex="1" GridPane.rowIndex="0" fx:id="jeproLabSampleReference" />
+                                    <Label GridPane.columnIndex="0" GridPane.rowIndex="1" fx:id="jeproLabSampleDesignationLabel" />
+                                    <TextField GridPane.columnIndex="1" GridPane.rowIndex="1" fx:id="jeproLabSampleDesignation" />
+                                    <Label GridPane.columnIndex="0" GridPane.rowIndex="2" fx:id="jeproLabSampleMatrixLabel" />
+                                    <ComboBox GridPane.columnIndex="1" GridPane.rowIndex="2" fx:id="jeproLabSampleMatrix" />
+                                    <Label GridPane.columnIndex="0" GridPane.rowIndex="3" fx:id="jeproLabSampleTestDateLabel" />
+                                    <DatePicker GridPane.columnIndex="1" GridPane.rowIndex="3" fx:id="jeproLabSampleTestDate" />
+                                    <Label GridPane.columnIndex="0" GridPane.rowIndex="4" fx:id="jeproLabSampleConditionLabel" styleClass="input-label" />
+                                    <ComboBox GridPane.columnIndex="1" GridPane.rowIndex="4" fx:id="jeproLabSampleCondition" />
+                                    <Label GridPane.columnIndex="0" GridPane.rowIndex="5" GridPane.columnSpan="2" fx:id="jeproLabSampleAnalyzeSelectorLabel" />
+                                    <GridPane GridPane.columnIndex="0" GridPane.rowIndex="6" GridPane.columnSpan="2" fx:id="jeproLabSampleAnalyzeSelector" />
+                                    <HBox GridPane.columnSpan="2" GridPane.columnIndex="0" GridPane.rowIndex="7" spacing="30" alignment="CENTER" >
+                                        <Button fx:id="jeproLabSaveSampleBtn" />
+                                        <Button fx:id="jeproLabCancelSampleBtn" />
+                                    </HBox>
+                                </GridPane>
+                            </Pane>
+                            <Pane>
+                                <Pane />
+                                <Pane>
+                                    <TableView fx:id="jeproLabSampleRecordTableView" >
+                                        <columns>
+                                            <TableColumn resizable="false" editable="false" fx:id="jeproLabSampleCheckBoxColumn" />
+                                            <TableColumn resizable="false" editable="false" fx:id="jeproLabSampleReferenceColumn" />
+                                            <TableColumn resizable="false" editable="false" fx:id="jeproLabSampleDesignationColumn" />
+                                            <TableColumn resizable="false" editable="false" fx:id="jeproLabSampleActionColumn" />
+                                        </columns>
+                                    </TableView>
+                                </Pane>
+                            </Pane>
+                        </HBox>
+                    </ScrollPane>
+                </VBox>
+            </Tab>
+            <Tab fx:id="jeproLabRequestDocumentTab" closable="false" ></Tab>
+        </TabPane>
     </JeproFormPanelContainer>
 </JeproFormPanel>

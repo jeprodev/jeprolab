@@ -48,9 +48,9 @@ public class JeproLabRequestAddController extends JeproLabController{
     //private int firstContactId, secondContactId, thirdContactId, fourthContactId;
     private Button saveRequestBtn, cancelBtn;
     private double fourthColumnWidth = 280;
-    private final double formWidth = 0.98 * JeproLab.APP_WIDTH;
+    //private final double formWidth = 0.98 * JeproLab.APP_WIDTH;
     private final double subFormWidth = 0.96 * JeproLab.APP_WIDTH;
-    private int firstContactId, secondContactId, thirdContactId, fourthContactId, requestedDelay;
+    private int firstContactId, secondContactId, thirdContactId, fourthContactId;
 
     @FXML
     public JeproFormPanel jeproLabRequestFormWrapper;
@@ -70,7 +70,7 @@ public class JeproLabRequestAddController extends JeproLabController{
     public ComboBox<String> jeproLabSampleMatrix, jeproLabRequestStatus, jeproLabSampleCondition;
     public DatePicker jeproLabSampleTestDate;
     public GridPane jeproLabSampleAnalyzeSelector, jeproLabCustomerInformationLayout, jeproLabCustomerContactLayout, jeproLabSampleAddFormLayout;
-    public HBox jeproLabCustomerCompanyPhoneWrapper;
+    public HBox jeproLabCustomerCompanyPhoneWrapper, jeproLabRequestStatusWrapper;
     public Pane jeproLabCustomerInformationWrapper, jeproLabCustomerInformationTitleWrapper, jeproLabCustomerInformationContentWrapper;
     public Pane jeproLabRequestMainContactInfo, jeproLabSampleAddFormTitleWrapper;
     public ScrollPane jeproLabSampleFormWrapper;
@@ -80,10 +80,13 @@ public class JeproLabRequestAddController extends JeproLabController{
     public TableColumn<JeproLabSampleRecord, String> jeproLabSampleDesignationColumn;
     public TableColumn<JeproLabSampleRecord, HBox> jeproLabSampleActionColumn;
     public Button jeproLabSaveSampleBtn, jeproLabCancelSampleBtn;
+    public TabPane jeproLabRequestTabPane;
+    public Tab jeproLabRequestInformationTab, jeproLabRequestDocumentTab;
 
     @Override
     public void initialize(URL location, ResourceBundle resource) {
         super.initialize(location, resource);
+        formWidth = 0.98 * JeproLab.APP_WIDTH;
 
         jeproLabRequestFormWrapper.setPrefWidth(formWidth);
         jeproLabRequestFormWrapper.setLayoutX(0.01 * JeproLab.APP_WIDTH);
@@ -114,8 +117,11 @@ public class JeproLabRequestAddController extends JeproLabController{
         jeproLabRequestThirdContact.setPrefWidth(fourthColumnWidth);
         jeproLabRequestFourthContact.setPrefWidth(fourthColumnWidth);
 
-        jeproLabSampleFormWrapper.setPrefSize(subFormWidth, 260);
+        jeproLabSampleFormWrapper.setPrefSize(subFormWidth, 220);
         VBox.setMargin(jeproLabSampleFormWrapper, new Insets(0, 0, 10, 0.01 * JeproLab.APP_WIDTH));
+        jeproLabRequestTabPane.setPrefWidth(formWidth);
+        jeproLabRequestInformationTab.setText(bundle.getString("JEPROLAB_INFORMATION_LABEL"));
+        jeproLabRequestDocumentTab.setText(bundle.getString("JEPROLAB_DOCUMENTS_LABEL"));
 
         renderCompanyForm();
         renderContactForm();
@@ -170,6 +176,7 @@ public class JeproLabRequestAddController extends JeproLabController{
         GridPane.setMargin(jeproLabRequestStatusLabel, new Insets(15, 0, 9, 0));
         GridPane.setMargin(jeproLabRequestStatus, new Insets(15, 0, 9, 0));
         GridPane.setMargin(jeproLabRequestDelay, new Insets(5, 0, 5, 0));
+        GridPane.setMargin(jeproLabRequestStatusWrapper, new Insets(15, 0, 5, 0));
 
         jeproLabRequestFirstContact.setPromptText(bundle.getString("JEPROLAB_SELECT_FIRST_CONTACT_LABEL"));
         jeproLabRequestSecondContact.setPromptText(bundle.getString("JEPROLAB_SELECT_SECOND_CONTACT_LABEL"));
@@ -427,13 +434,13 @@ public class JeproLabRequestAddController extends JeproLabController{
 
         jeproLabRequestDelay.valueProperty().addListener((observable, oldValue, newValue) -> {
             if(newValue.equals(bundle.getString("JEPROLAB_ANALYSE_REGULAR_DELAY_LABEL"))) {
-                requestedDelay = 100;
+                request.delay = 100;
             }else if(newValue.equals(bundle.getString("JEPROLAB_ANALYSE_EXPRESS_DELAY_12_HOURS_LABEL"))) {
-                requestedDelay = 12;
+                request.delay = 12;
             }else if(newValue.equals(bundle.getString("JEPROLAB_ANALYSE_EXPRESS_DELAY_24_HOURS_LABEL"))) {
-                requestedDelay = 24;
+                request.delay = 24;
             }else if(newValue.equals(bundle.getString("JEPROLAB_ANALYSE_EXPRESS_DELAY_48_HOURS_LABEL"))) {
-                requestedDelay = 24;
+                request.delay = 24;
             }
         });
 
@@ -587,6 +594,7 @@ public class JeproLabRequestAddController extends JeproLabController{
         commandWrapper.getChildren().addAll(saveRequestBtn, cancelBtn);
     }
 
+
     public class JeproLabSampleRecord {
         private SimpleStringProperty sampleReference, sampleDesignation;
         private SimpleIntegerProperty sampleIndex;
@@ -655,8 +663,9 @@ public class JeproLabRequestAddController extends JeproLabController{
             deleteSample.setMinSize(btnSize, btnSize);
             deleteSample.setPrefSize(btnSize, btnSize);
             deleteSample.getStyleClass().add("icon-btn");
-            commandContainer = new HBox(5);
-            commandContainer.getChildren().addAll(editSample, detailButton, deleteSample);
+            commandContainer = new HBox(10);
+            commandContainer.setAlignment(Pos.CENTER);
+            commandContainer.getChildren().addAll(editSample, deleteSample);
         }
 
         @Override
@@ -670,7 +679,7 @@ public class JeproLabRequestAddController extends JeproLabController{
             ObservableList<JeproLabSampleRecord> items = getTableView().getItems();
             if((items != null) && (getIndex() >= 0 && getIndex() < items.size())) {
                 int itemId = items.get(getIndex()).getSampleIndex();
-                detailButton.setOnAction(event -> {
+                editSample.setOnAction(event -> {
                     JeproLab.request.setRequest("sample_id=" + itemId);
                     try {
                         JeproLab.getInstance().goToForm(JeproLab.getInstance().getApplicationForms().sampleForm);
@@ -679,7 +688,6 @@ public class JeproLabRequestAddController extends JeproLabController{
                         ignored.printStackTrace();
                     }
                 });
-
                 setGraphic(commandContainer);
                 setAlignment(Pos.CENTER);
             }

@@ -34,6 +34,7 @@ import java.util.stream.Collectors;
  * Created by jeprodev on 02/02/2014.
  */
 public class JeproLabRequestController extends JeproLabController {
+    private Button addRequestBtn;
     @FXML
     public VBox jeproLabFormPanelWrapper;
     public TableView<JeproLabRequestRecord> requestTableView;
@@ -123,10 +124,29 @@ public class JeproLabRequestController extends JeproLabController {
             requestTableView.setItems(requestList);
         }
         updateToolBar();
+        addEventListeners();
     }
 
     @Override
-    public void updateToolBar(){}
+    public void updateToolBar(){
+        HBox commandWrapper = JeproLab.getInstance().getApplicationToolBarCommandWrapper();
+        commandWrapper.getChildren().clear();
+        commandWrapper.setSpacing(4);
+        addRequestBtn = new Button(bundle.getString("JEPROLAB_ADD_NEW_LABEL"), new ImageView(new Image(JeproLab.class.getResourceAsStream("resources/images/add.png"))));
+        commandWrapper.getChildren().addAll(addRequestBtn);
+    }
+
+    private void addEventListeners(){
+        addRequestBtn.setOnAction(event -> {
+            try {
+                JeproLab.request.getRequest().clear();
+                JeproLab.getInstance().goToForm(JeproLab.getInstance().getApplicationForms().addRequestForm);
+                JeproLabContext.getContext().controller.initializeContent();
+            }catch (IOException  ignored){
+                ignored.printStackTrace();
+            }
+        });
+    }
 
     public static class JeproLabRequestRecord{
         private SimpleStringProperty requestReference, requestCreatedDate;
@@ -191,7 +211,7 @@ public class JeproLabRequestController extends JeproLabController {
         private final double btnSize = 18;
 
         public JeproLabActionCell(){
-            commandContainer = new HBox(4);
+            commandContainer = new HBox(10);
             editRequest = new Button("", new ImageView(new Image(JeproLab.class.getResourceAsStream("resources/images/edit.png"))));
             editRequest.setMinSize(btnSize, btnSize);
             editRequest.setMaxSize(btnSize, btnSize);

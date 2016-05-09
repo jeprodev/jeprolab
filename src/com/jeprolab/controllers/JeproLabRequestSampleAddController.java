@@ -291,18 +291,18 @@ public class JeproLabRequestSampleAddController extends JeproLabController {
         private  Map<Integer, String> methods;
         private CheckBox analyzeCheck;
         private TextField jeproLabResultUnit, jeproLabAnalyzeResult;
-        private Button saveBtn;
+        //private Button saveBtn;
         private int analyze_id;
         public ComboBox<String> jeproLabMethod;
 
         public JeproLabSampleAnalyzeForm(JeproLabAnalyzeModel analyze){
             int jeproLabResultUnitWidth = 50;
             analyzeCheck = new CheckBox(analyze.name.get("lang_" + context.language.language_id));
-            saveBtn = new Button("", new ImageView(new Image(JeproLab.class.getResourceAsStream("resources/images/floppy-icon.png"))));
+            /*saveBtn = new Button("", new ImageView(new Image(JeproLab.class.getResourceAsStream("resources/images/floppy-icon.png"))));
             saveBtn.setPrefSize(18, 18);
             saveBtn.setMinSize(18, 18);
             saveBtn.setMaxSize(18, 18);
-            saveBtn.getStyleClass().add("icon-btn");
+            saveBtn.getStyleClass().add("icon-btn"); */
             analyze_id = analyze.analyze_id;
             analyzeCheck.selectedProperty().addListener(((observable, oldValue, newValue) -> {
                 if(newValue){
@@ -327,13 +327,13 @@ public class JeproLabRequestSampleAddController extends JeproLabController {
             formLayout.add(jeproLabResultUnit, 1, 0);
             formLayout.add(jeproLabMethod, 2, 0);
             formLayout.add(jeproLabAnalyzeResult, 3, 0);
-            formLayout.add(saveBtn, 4, 0);
+            //formLayout.add(saveBtn, 4, 0);
 
             GridPane.setMargin(analyzeCheck, new Insets(0, 5, 0, 5));
             GridPane.setMargin(jeproLabResultUnit, new Insets(0, 5, 0, 5));
             GridPane.setMargin(jeproLabMethod, new Insets(0, 5, 0, 5));
             GridPane.setMargin(jeproLabAnalyzeResult, new Insets(0, 5, 0, 5));
-            GridPane.setMargin(saveBtn, new Insets(0, 5, 0, 15));
+            //GridPane.setMargin(saveBtn, new Insets(0, 5, 0, 15));
 
             formLayout.getColumnConstraints().addAll(
                     new ColumnConstraints(80), new ColumnConstraints(jeproLabResultUnitWidth + 5),
@@ -351,14 +351,14 @@ public class JeproLabRequestSampleAddController extends JeproLabController {
             jeproLabResultUnit.setDisable(disable);
             jeproLabAnalyzeResult.setDisable(disable);
             jeproLabMethod.setDisable(disable);
-            saveBtn.setDisable(disable);
+            //saveBtn.setDisable(disable);
         }
 
         public String getAnalyzeMethod(){
             return jeproLabMethod.getValue();
         }
 
-        public String getAnalyzeReult(){
+        public String getAnalyzeResult(){
             return jeproLabAnalyzeResult.getText();
         }
 
@@ -387,9 +387,9 @@ public class JeproLabRequestSampleAddController extends JeproLabController {
         }
 
         private void addEventListeners(){
-            saveBtn.setOnAction(event -> {
+            /*saveBtn.setOnAction(event -> {
 
-            });
+            }); */
         }
     }
 }
