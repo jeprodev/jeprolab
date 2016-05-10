@@ -8,6 +8,7 @@ import com.jeprolab.assets.tools.JeproLabContext;
 import com.jeprolab.assets.tools.JeproLabTools;
 import com.jeprolab.models.JeproLabAnalyzeModel;
 import com.jeprolab.models.JeproLabRequestModel;
+import com.jeprolab.models.document.JeproLabDocument;
 import javafx.fxml.FXML;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -30,7 +31,7 @@ import java.util.ResourceBundle;
  */
 public class JeproLabRequestSampleAddController extends JeproLabController {
     JeproLabRequestModel.JeproLabSampleModel sample;
-    private Button saveBtn, cancelBtn;
+    private Button saveBtn, printTicket, cancelBtn;
     @FXML
     public JeproFormPanel jeproLabSampleFormWrapper;
     public JeproFormPanelTitle jeproLabSampleFormTitleWrapper;
@@ -202,6 +203,10 @@ public class JeproLabRequestSampleAddController extends JeproLabController {
             GridPane.setMargin(analyzeCheckForm, new Insets(8, 2, 4, 4));
             analyzeRow++;
         }
+        if(sample.sample_id <= 0){
+            printTicket.setDisable(true);
+        }
+
         updateToolBar();
         addEventListeners();
     }
@@ -212,13 +217,14 @@ public class JeproLabRequestSampleAddController extends JeproLabController {
         commandWrapper.getChildren().clear();
         commandWrapper.setSpacing(4);
         saveBtn = new Button("", new ImageView(new Image(JeproLab.class.getResourceAsStream("resources/images/floppy-icon.png"))));
+        printTicket = new Button(bundle.getString("JEPROLAB_TICKET_LABEL"), new ImageView(new Image(JeproLab.class.getResourceAsStream("resources/images/printer.png"))));
         if (sample.sample_id > 0) {
             saveBtn.setText(bundle.getString("JEPROLAB_UPDATE_LABEL"));
         } else {
             saveBtn.setText(bundle.getString("JEPROLAB_SAVE_LABEL"));
         }
         cancelBtn = new Button(bundle.getString("JEPROLAB_CANCEL_LABEL"), new ImageView(new Image(JeproLab.class.getResourceAsStream("resources/images/unpublished.png"))));
-        commandWrapper.getChildren().addAll(saveBtn, cancelBtn);
+        commandWrapper.getChildren().addAll(saveBtn, printTicket, cancelBtn);
     }
 
     private void addEventListeners(){
@@ -253,6 +259,10 @@ public class JeproLabRequestSampleAddController extends JeproLabController {
                 sample.temperature = jeproLabSampleTemperature.getText();
                 sample.temperature_unit = newValue;
             }
+        });
+
+        printTicket.setOnAction(event -> {
+            JeproLabDocument.createTicketDocument(sample.sample_id);
         });
     }
 
@@ -291,18 +301,18 @@ public class JeproLabRequestSampleAddController extends JeproLabController {
         private  Map<Integer, String> methods;
         private CheckBox analyzeCheck;
         private TextField jeproLabResultUnit, jeproLabAnalyzeResult;
-        //private Button saveBtn;
+        //private Button ticketBtn;
         private int analyze_id;
         public ComboBox<String> jeproLabMethod;
 
         public JeproLabSampleAnalyzeForm(JeproLabAnalyzeModel analyze){
             int jeproLabResultUnitWidth = 50;
             analyzeCheck = new CheckBox(analyze.name.get("lang_" + context.language.language_id));
-            /*saveBtn = new Button("", new ImageView(new Image(JeproLab.class.getResourceAsStream("resources/images/floppy-icon.png"))));
-            saveBtn.setPrefSize(18, 18);
-            saveBtn.setMinSize(18, 18);
-            saveBtn.setMaxSize(18, 18);
-            saveBtn.getStyleClass().add("icon-btn"); */
+            /*ticketBtn = new Button("", new ImageView(new Image(JeproLab.class.getResourceAsStream("resources/images/floppy-icon.png"))));
+            ticketBtn.setPrefSize(18, 18);
+            ticketBtn.setMinSize(18, 18);
+            ticketBtn.setMaxSize(18, 18);
+            ticketBtn.getStyleClass().add("icon-btn"); */
             analyze_id = analyze.analyze_id;
             analyzeCheck.selectedProperty().addListener(((observable, oldValue, newValue) -> {
                 if(newValue){
@@ -327,13 +337,13 @@ public class JeproLabRequestSampleAddController extends JeproLabController {
             formLayout.add(jeproLabResultUnit, 1, 0);
             formLayout.add(jeproLabMethod, 2, 0);
             formLayout.add(jeproLabAnalyzeResult, 3, 0);
-            //formLayout.add(saveBtn, 4, 0);
+            //formLayout.add(ticketBtn, 4, 0);
 
             GridPane.setMargin(analyzeCheck, new Insets(0, 5, 0, 5));
             GridPane.setMargin(jeproLabResultUnit, new Insets(0, 5, 0, 5));
             GridPane.setMargin(jeproLabMethod, new Insets(0, 5, 0, 5));
             GridPane.setMargin(jeproLabAnalyzeResult, new Insets(0, 5, 0, 5));
-            //GridPane.setMargin(saveBtn, new Insets(0, 5, 0, 15));
+            //GridPane.setMargin(ticketBtn, new Insets(0, 5, 0, 15));
 
             formLayout.getColumnConstraints().addAll(
                     new ColumnConstraints(80), new ColumnConstraints(jeproLabResultUnitWidth + 5),
@@ -351,7 +361,7 @@ public class JeproLabRequestSampleAddController extends JeproLabController {
             jeproLabResultUnit.setDisable(disable);
             jeproLabAnalyzeResult.setDisable(disable);
             jeproLabMethod.setDisable(disable);
-            //saveBtn.setDisable(disable);
+            //ticketBtn.setDisable(disable);
         }
 
         public String getAnalyzeMethod(){

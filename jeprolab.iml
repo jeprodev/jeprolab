@@ -11,5 +11,7 @@
     <orderEntry type="library" name="commons-collections4-4.1" level="application" />
     <orderEntry type="library" name="bcpkix-jdk15on-153" level="application" />
     <orderEntry type="library" name="bcprov-ext-jdk15on-153" level="application" />
+    <orderEntry type="library" name="xmlsec-2.0.6" level="application" />
+    <orderEntry type="library" name="bcprov-1.45" level="application" />
   </component>
 </module>

@@ -1,6 +1,11 @@
 package com.jeprolab.models.document;
 
+import com.itextpdf.text.Document;
 import com.itextpdf.text.DocumentException;
+import com.itextpdf.text.Paragraph;
+import com.itextpdf.text.pdf.PdfWriter;
+import com.jeprolab.assets.config.JeproLabConfig;
+import com.jeprolab.models.JeproLabRequestModel;
 
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -47,9 +52,16 @@ public class JeproLabDocument {
     /**
      *
      */
-    public static  void createTicketDocument(String outputFileName){
+    public static  void createTicketDocument(int sampleId){
+        JeproLabRequestModel.JeproLabSampleModel sample = new JeproLabRequestModel.JeproLabSampleModel(sampleId);
+        String outputFileName = JeproLabConfig.appInstallDirectory + "/documents/pdf/SAMPLE_" + sample.reference + "_TICKET.pdf";
         try{
-
+            ticket_document = new Document();
+            PdfWriter ticketWriter = PdfWriter.getInstance(ticket_document, new FileOutputStream(outputFileName));
+            //ticketWriter.setPdfVersion(PdfWriter.VERSION_1_6);
+            ticket_document.open();
+            ticket_document.add(new Paragraph("Hello word"));
+            ticket_document.close();
         }catch(DocumentException | IOException ignored){
             ignored.printStackTrace();
         }
