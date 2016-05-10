@@ -310,7 +310,7 @@ public class PdfContentByte {
 
     public void add(final PdfContentByte other) {
         if (other.writer != null && writer != other.writer)
-            throw new RuntimeException(MessageLocalization.getComposedMessage("inconsistent.writers.are.you.mixing.two.documents"));
+            throw new RuntimeException(MessageLocalization.getErrorBundle().getString("ITEXTPDF_MESSAGE")); // todo ComposedMessage("inconsistent.writers.are.you.mixing.two.documents"));
         content.append(other.content);
         markedContentSize += other.markedContentSize;
     }
@@ -897,7 +897,7 @@ public class PdfContentByte {
             if (isTagged()) {
                 endText();
             } else {
-    		throw new IllegalPdfSyntaxException(MessageLocalization.getComposedMessage("path.construction.operator.inside.text.object"));
+    		throw new IllegalPdfSyntaxException(MessageLocalization.getErrorBundle().getString("ITEXTPDF_MESSAGE")); // todo ComposedMessage("path.construction.operator.inside.text.object"));
     	}
     	}
         content.append(x).append(' ').append(y).append(" m").append_i(separator);
@@ -928,7 +928,7 @@ public class PdfContentByte {
             if (isTagged()) {
                 endText();
             } else {
-    		throw new IllegalPdfSyntaxException(MessageLocalization.getComposedMessage("path.construction.operator.inside.text.object"));
+    		throw new IllegalPdfSyntaxException(MessageLocalization.getErrorBundle().getString("ITEXTPDF_MESSAGE")); // todo ComposedMessage("path.construction.operator.inside.text.object"));
     	}
     	}
         content.append(x).append(' ').append(y).append(" l").append_i(separator);
@@ -965,7 +965,7 @@ public class PdfContentByte {
             if (isTagged()) {
                 endText();
             } else {
-    		throw new IllegalPdfSyntaxException(MessageLocalization.getComposedMessage("path.construction.operator.inside.text.object"));
+    		throw new IllegalPdfSyntaxException(MessageLocalization.getErrorBundle().getString("ITEXTPDF_MESSAGE")); // todo ComposedMessage("path.construction.operator.inside.text.object"));
     	}
     	}
         content.append(x1).append(' ').append(y1).append(' ').append(x2).append(' ').append(y2).append(' ').append(x3).append(' ').append(y3).append(" c").append_i(separator);
@@ -997,7 +997,7 @@ public class PdfContentByte {
             if (isTagged()) {
                 endText();
             } else {
-    		throw new IllegalPdfSyntaxException(MessageLocalization.getComposedMessage("path.construction.operator.inside.text.object"));
+    		throw new IllegalPdfSyntaxException(MessageLocalization.getErrorBundle().getString("ITEXTPDF_MESSAGE")); // todo ComposedMessage("path.construction.operator.inside.text.object"));
     	}
     	}
         content.append(x2).append(' ').append(y2).append(' ').append(x3).append(' ').append(y3).append(" v").append_i(separator);
@@ -1030,7 +1030,7 @@ public class PdfContentByte {
             if (isTagged()) {
                 endText();
             } else {
-    		throw new IllegalPdfSyntaxException(MessageLocalization.getComposedMessage("path.construction.operator.inside.text.object"));
+    		throw new IllegalPdfSyntaxException(MessageLocalization.getErrorBundle().getString("ITEXTPDF_MESSAGE")); // todo ComposedMessage("path.construction.operator.inside.text.object"));
     	}
     	}
         content.append(x1).append(' ').append(y1).append(' ').append(x3).append(' ').append(y3).append(" y").append_i(separator);
@@ -1088,7 +1088,7 @@ public class PdfContentByte {
             if (isTagged()) {
                 endText();
             } else {
-    		throw new IllegalPdfSyntaxException(MessageLocalization.getComposedMessage("path.construction.operator.inside.text.object"));
+    		throw new IllegalPdfSyntaxException(MessageLocalization.getErrorBundle().getString("ITEXTPDF_MESSAGE")); // todo ComposedMessage("path.construction.operator.inside.text.object"));
     	}
     	}
         content.append(x).append(' ').append(y).append(' ').append(w).append(' ').append(h).append(" re").append_i(separator);
@@ -1328,7 +1328,7 @@ public class PdfContentByte {
             if (isTagged()) {
                 endText();
             } else {
-    		    throw new IllegalPdfSyntaxException(MessageLocalization.getComposedMessage("path.construction.operator.inside.text.object"));
+    		    throw new IllegalPdfSyntaxException(MessageLocalization.getErrorBundle().getString("ITEXTPDF_MESSAGE")); // todo ComposedMessage("path.construction.operator.inside.text.object"));
     	    }
     	}
         content.append("h").append_i(separator);
@@ -1343,7 +1343,7 @@ public class PdfContentByte {
             if (isTagged()) {
                 endText();
             } else {
-    		    throw new IllegalPdfSyntaxException(MessageLocalization.getComposedMessage("path.construction.operator.inside.text.object"));
+    		    throw new IllegalPdfSyntaxException(MessageLocalization.getErrorBundle().getString("ITEXTPDF_MESSAGE")); // todo ComposedMessage("path.construction.operator.inside.text.object"));
     	    }
     	}
         content.append("n").append_i(separator);
@@ -1358,7 +1358,7 @@ public class PdfContentByte {
             if (isTagged()) {
                 endText();
             } else {
-    		    throw new IllegalPdfSyntaxException(MessageLocalization.getComposedMessage("path.construction.operator.inside.text.object"));
+    		    throw new IllegalPdfSyntaxException(MessageLocalization.getErrorBundle().getString("ITEXTPDF_MESSAGE")); // todo ComposedMessage("path.construction.operator.inside.text.object"));
     	    }
     	}
         PdfWriter.checkPdfIsoConformance(writer, PdfIsoKeys.PDFISOKEY_COLOR, state.colorStroke);
@@ -1375,7 +1375,7 @@ public class PdfContentByte {
             if (isTagged()) {
                 endText();
             } else {
-    		    throw new IllegalPdfSyntaxException(MessageLocalization.getComposedMessage("path.construction.operator.inside.text.object"));
+    		    throw new IllegalPdfSyntaxException(MessageLocalization.getErrorBundle().getString("ITEXTPDF_MESSAGE")); // todo ComposedMessage("path.construction.operator.inside.text.object"));
     	    }
     	}
         PdfWriter.checkPdfIsoConformance(writer, PdfIsoKeys.PDFISOKEY_COLOR, state.colorStroke);
@@ -1392,7 +1392,7 @@ public class PdfContentByte {
             if (isTagged()) {
                 endText();
             } else {
-    		    throw new IllegalPdfSyntaxException(MessageLocalization.getComposedMessage("path.construction.operator.inside.text.object"));
+    		    throw new IllegalPdfSyntaxException(MessageLocalization.getErrorBundle().getString("ITEXTPDF_MESSAGE")); // todo ComposedMessage("path.construction.operator.inside.text.object"));
     	    }
     	}
         PdfWriter.checkPdfIsoConformance(writer, PdfIsoKeys.PDFISOKEY_COLOR, state.colorFill);
@@ -1409,7 +1409,7 @@ public class PdfContentByte {
             if (isTagged()) {
                 endText();
             } else {
-    		    throw new IllegalPdfSyntaxException(MessageLocalization.getComposedMessage("path.construction.operator.inside.text.object"));
+    		    throw new IllegalPdfSyntaxException(MessageLocalization.getErrorBundle().getString("ITEXTPDF_MESSAGE")); // todo ComposedMessage("path.construction.operator.inside.text.object"));
     	    }
     	}
         PdfWriter.checkPdfIsoConformance(writer, PdfIsoKeys.PDFISOKEY_COLOR, state.colorFill);
@@ -1426,7 +1426,7 @@ public class PdfContentByte {
             if (isTagged()) {
                 endText();
             } else {
-    		    throw new IllegalPdfSyntaxException(MessageLocalization.getComposedMessage("path.construction.operator.inside.text.object"));
+    		    throw new IllegalPdfSyntaxException(MessageLocalization.getErrorBundle().getString("ITEXTPDF_MESSAGE")); // todo ComposedMessage("path.construction.operator.inside.text.object"));
     	    }
     	}
         PdfWriter.checkPdfIsoConformance(writer, PdfIsoKeys.PDFISOKEY_COLOR, state.colorFill);
@@ -1444,7 +1444,7 @@ public class PdfContentByte {
             if (isTagged()) {
                 endText();
             } else {
-    		    throw new IllegalPdfSyntaxException(MessageLocalization.getComposedMessage("path.construction.operator.inside.text.object"));
+    		    throw new IllegalPdfSyntaxException(MessageLocalization.getErrorBundle().getString("ITEXTPDF_MESSAGE")); // todo ComposedMessage("path.construction.operator.inside.text.object"));
     	    }
     	}
         PdfWriter.checkPdfIsoConformance(writer, PdfIsoKeys.PDFISOKEY_COLOR, state.colorFill);
@@ -1462,7 +1462,7 @@ public class PdfContentByte {
             if (isTagged()) {
                 endText();
             } else {
-    		    throw new IllegalPdfSyntaxException(MessageLocalization.getComposedMessage("path.construction.operator.inside.text.object"));
+    		    throw new IllegalPdfSyntaxException(MessageLocalization.getErrorBundle().getString("ITEXTPDF_MESSAGE")); // todo ComposedMessage("path.construction.operator.inside.text.object"));
     	    }
     	}
         PdfWriter.checkPdfIsoConformance(writer, PdfIsoKeys.PDFISOKEY_COLOR, state.colorFill);
@@ -1480,7 +1480,7 @@ public class PdfContentByte {
             if (isTagged()) {
                 endText();
             } else {
-    		    throw new IllegalPdfSyntaxException(MessageLocalization.getComposedMessage("path.construction.operator.inside.text.object"));
+    		    throw new IllegalPdfSyntaxException(MessageLocalization.getErrorBundle().getString("ITEXTPDF_MESSAGE")); // todo ComposedMessage("path.construction.operator.inside.text.object"));
     	    }
     	}
         PdfWriter.checkPdfIsoConformance(writer, PdfIsoKeys.PDFISOKEY_COLOR, state.colorFill);
@@ -1508,7 +1508,7 @@ public class PdfContentByte {
      */
     public void addImage(final Image image, final boolean inlineImage) throws DocumentException {
         if (!image.hasAbsoluteY())
-            throw new DocumentException(MessageLocalization.getComposedMessage("the.image.must.have.absolute.positioning"));
+            throw new DocumentException(MessageLocalization.getErrorBundle().getString("ITEXTPDF_MESSAGE")); // todo ComposedMessage("the.image.must.have.absolute.positioning"));
         float matrix[] = image.matrix();
         matrix[Image.CX] = image.getAbsoluteX() - matrix[Image.CX];
         matrix[Image.CY] = image.getAbsoluteY() - matrix[Image.CY];
@@ -1769,8 +1769,8 @@ public class PdfContentByte {
         }
         catch (IOException ioe) {
             final String path = image != null && image.getUrl() != null ? image.getUrl().getPath()
-                    : MessageLocalization.getComposedMessage("unknown");
-            throw new DocumentException(MessageLocalization.getComposedMessage("add.image.exception", path), ioe);
+                    : MessageLocalization.getErrorBundle().getString("ITEXTPDF_MESSAGE"); // todo ComposedMessage("unknown");
+            throw new DocumentException(MessageLocalization.getErrorBundle().getString("ITEXTPDF_MESSAGE")); // todo ComposedMessage("add.image.exception", path), ioe);
         }
     }
 
@@ -1807,7 +1807,7 @@ public class PdfContentByte {
             if (isTagged()) {
 
             } else {
-    		    throw new IllegalPdfSyntaxException(MessageLocalization.getComposedMessage("unbalanced.begin.end.text.operators"));
+    		    throw new IllegalPdfSyntaxException(MessageLocalization.getErrorBundle().getString("ITEXTPDF_MESSAGE")); // todo ComposedMessage("unbalanced.begin.end.text.operators"));
     	    }
     	} else {
     	    inText = true;
@@ -1841,7 +1841,7 @@ public class PdfContentByte {
             if (isTagged()) {
 
             } else {
-    	    	throw new IllegalPdfSyntaxException(MessageLocalization.getComposedMessage("unbalanced.begin.end.text.operators"));
+    	    	throw new IllegalPdfSyntaxException(MessageLocalization.getErrorBundle().getString("ITEXTPDF_MESSAGE")); // todo ComposedMessage("unbalanced.begin.end.text.operators"));
     	    }
     	} else {
     	    inText = false;
@@ -1874,7 +1874,7 @@ public class PdfContentByte {
         content.append("Q").append_i(separator);
         int idx = stateList.size() - 1;
         if (idx < 0)
-            throw new IllegalPdfSyntaxException(MessageLocalization.getComposedMessage("unbalanced.save.restore.state.operators"));
+            throw new IllegalPdfSyntaxException(MessageLocalization.getErrorBundle().getString("ITEXTPDF_MESSAGE")); // todo ComposedMessage("unbalanced.save.restore.state.operators"));
         state.restore(stateList.get(idx));
         stateList.remove(idx);
     }
@@ -1946,7 +1946,7 @@ public class PdfContentByte {
         }
         checkWriter();
         if (size < 0.0001f && size > -0.0001f)
-            throw new IllegalArgumentException(MessageLocalization.getComposedMessage("font.size.too.small.1", String.valueOf(size)));
+            throw new IllegalArgumentException(MessageLocalization.getErrorBundle().getString("ITEXTPDF_MESSAGE")); // todo ComposedMessage("font.size.too.small.1", String.valueOf(size)));
         state.size = size;
         state.fontDetails = writer.addSimple(bf);
         PageResources prs = getPageResources();
@@ -2001,7 +2001,7 @@ public class PdfContentByte {
      */
     private void showText2(final String text) {
         if (state.fontDetails == null)
-            throw new NullPointerException(MessageLocalization.getComposedMessage("font.and.size.must.be.set.before.writing.any.text"));
+            throw new NullPointerException(MessageLocalization.getErrorBundle().getString("ITEXTPDF_MESSAGE")); // todo ComposedMessage("font.and.size.must.be.set.before.writing.any.text"));
         byte b[] = state.fontDetails.convertToBytes(text);
         StringUtils.escapeString(b, content);
     }
@@ -2027,7 +2027,7 @@ public class PdfContentByte {
             beginText(true);
         }
         if (state.fontDetails == null)
-            throw new NullPointerException(MessageLocalization.getComposedMessage("font.and.size.must.be.set.before.writing.any.text"));
+            throw new NullPointerException(MessageLocalization.getErrorBundle().getString("ITEXTPDF_MESSAGE")); // todo ComposedMessage("font.and.size.must.be.set.before.writing.any.text"));
         Object[] objs = state.fontDetails.convertToBytesGid(gids);
         StringUtils.escapeString((byte[]) objs[0], content);
         state.tx += ((Integer)objs[2]).intValue() * 0.001f * state.size;
@@ -2071,7 +2071,7 @@ public class PdfContentByte {
      */
     public void showTextKerned(final String text) {
         if (state.fontDetails == null)
-            throw new NullPointerException(MessageLocalization.getComposedMessage("font.and.size.must.be.set.before.writing.any.text"));
+            throw new NullPointerException(MessageLocalization.getErrorBundle().getString("ITEXTPDF_MESSAGE")); // todo ComposedMessage("font.and.size.must.be.set.before.writing.any.text"));
         BaseFont bf = state.fontDetails.getBaseFont();
         if (bf.hasKernPairs())
             showText(getKernArray(text, bf));
@@ -2347,7 +2347,7 @@ public class PdfContentByte {
 
     private void showTextAligned(final int alignment, final String text, float x, float y, final float rotation, final boolean kerned) {
         if (state.fontDetails == null)
-            throw new NullPointerException(MessageLocalization.getComposedMessage("font.and.size.must.be.set.before.writing.any.text"));
+            throw new NullPointerException(MessageLocalization.getErrorBundle().getString("ITEXTPDF_MESSAGE")); // todo ComposedMessage("font.and.size.must.be.set.before.writing.any.text"));
         if (rotation == 0) {
             switch (alignment) {
                 case ALIGN_CENTER:
@@ -2664,7 +2664,7 @@ public class PdfContentByte {
     public PdfPatternPainter createPattern(final float width, final float height, final float xstep, final float ystep) {
         checkWriter();
         if ( xstep == 0.0f || ystep == 0.0f )
-            throw new RuntimeException(MessageLocalization.getComposedMessage("xstep.or.ystep.can.not.be.zero"));
+            throw new RuntimeException(MessageLocalization.getErrorBundle().getString("ITEXTPDF_MESSAGE")); // todo ComposedMessage("xstep.or.ystep.can.not.be.zero"));
         PdfPatternPainter painter = new PdfPatternPainter(writer);
         painter.setWidth(width);
         painter.setHeight(height);
@@ -2700,7 +2700,7 @@ public class PdfContentByte {
     public PdfPatternPainter createPattern(final float width, final float height, final float xstep, final float ystep, final BaseColor color) {
         checkWriter();
         if ( xstep == 0.0f || ystep == 0.0f )
-            throw new RuntimeException(MessageLocalization.getComposedMessage("xstep.or.ystep.can.not.be.zero"));
+            throw new RuntimeException(MessageLocalization.getErrorBundle().getString("ITEXTPDF_MESSAGE")); // todo ComposedMessage("xstep.or.ystep.can.not.be.zero"));
         PdfPatternPainter painter = new PdfPatternPainter(writer, color);
         painter.setWidth(width);
         painter.setHeight(height);
@@ -2873,7 +2873,7 @@ public class PdfContentByte {
             if (inText)
                 endText();
             if (template.isContentTagged() || (template.getPageReference() != null && tagContent)) {
-                throw new RuntimeException(MessageLocalization.getComposedMessage("template.with.tagged.could.not.be.used.more.than.once"));
+                throw new RuntimeException(MessageLocalization.getErrorBundle().getString("ITEXTPDF_MESSAGE")); // todo ComposedMessage("template.with.tagged.could.not.be.used.more.than.once"));
             }
 
             template.setPageReference(writer.getCurrentPage());
@@ -3373,7 +3373,7 @@ public class PdfContentByte {
                 content.append(tint);
                 break;
             default:
-                throw new RuntimeException(MessageLocalization.getComposedMessage("invalid.color.type"));
+                throw new RuntimeException(MessageLocalization.getErrorBundle().getString("ITEXTPDF_MESSAGE")); // todo ComposedMessage("invalid.color.type"));
         }
     }
 
@@ -3396,7 +3396,7 @@ public class PdfContentByte {
     public void setPatternFill(final PdfPatternPainter p, final BaseColor color, final float tint) {
         checkWriter();
         if (!p.isStencil())
-            throw new RuntimeException(MessageLocalization.getComposedMessage("an.uncolored.pattern.was.expected"));
+            throw new RuntimeException(MessageLocalization.getErrorBundle().getString("ITEXTPDF_MESSAGE")); // todo ComposedMessage("an.uncolored.pattern.was.expected"));
         PageResources prs = getPageResources();
         PdfName name = writer.addSimplePattern(p);
         name = prs.addPattern(name, p.getIndirectReference());
@@ -3427,7 +3427,7 @@ public class PdfContentByte {
     public void setPatternStroke(final PdfPatternPainter p, final BaseColor color, final float tint) {
         checkWriter();
         if (!p.isStencil())
-            throw new RuntimeException(MessageLocalization.getComposedMessage("an.uncolored.pattern.was.expected"));
+            throw new RuntimeException(MessageLocalization.getErrorBundle().getString("ITEXTPDF_MESSAGE")); // todo ComposedMessage("an.uncolored.pattern.was.expected"));
         PageResources prs = getPageResources();
         PdfName name = writer.addSimplePattern(p);
         name = prs.addPattern(name, p.getIndirectReference());
@@ -3513,7 +3513,7 @@ public class PdfContentByte {
      */
     protected void checkWriter() {
         if (writer == null)
-            throw new NullPointerException(MessageLocalization.getComposedMessage("the.writer.in.pdfcontentbyte.is.null"));
+            throw new NullPointerException(MessageLocalization.getErrorBundle().getString("ITEXTPDF_MESSAGE")); // todo ComposedMessage("the.writer.in.pdfcontentbyte.is.null"));
     }
 
     /**
@@ -3526,7 +3526,7 @@ public class PdfContentByte {
             beginText(true);
         }
         if (state.fontDetails == null)
-            throw new NullPointerException(MessageLocalization.getComposedMessage("font.and.size.must.be.set.before.writing.any.text"));
+            throw new NullPointerException(MessageLocalization.getErrorBundle().getString("ITEXTPDF_MESSAGE")); // todo ComposedMessage("font.and.size.must.be.set.before.writing.any.text"));
         content.append("[");
         ArrayList<Object> arrayList = text.getArrayList();
         boolean lastWasNumber = false;
@@ -3724,7 +3724,7 @@ public class PdfContentByte {
      */
     void checkNoPattern(final PdfTemplate t) {
         if (t.getType() == PdfTemplate.TYPE_PATTERN)
-            throw new RuntimeException(MessageLocalization.getComposedMessage("invalid.use.of.a.pattern.a.template.was.expected"));
+            throw new RuntimeException(MessageLocalization.getErrorBundle().getString("ITEXTPDF_MESSAGE")); // todo ComposedMessage("invalid.use.of.a.pattern.a.template.was.expected"));
     }
 
     /**
@@ -3931,7 +3931,7 @@ public class PdfContentByte {
      */
     public void beginLayer(final PdfOCG layer) {
         if (layer instanceof PdfLayer && ((PdfLayer)layer).getTitle() != null)
-            throw new IllegalArgumentException(MessageLocalization.getComposedMessage("a.title.is.not.a.layer"));
+            throw new IllegalArgumentException(MessageLocalization.getErrorBundle().getString("ITEXTPDF_MESSAGE")); // todo ComposedMessage("a.title.is.not.a.layer"));
         if (layerDepth == null)
             layerDepth = new ArrayList<Integer>();
         if (layer instanceof PdfLayerMembership) {
@@ -3967,7 +3967,7 @@ public class PdfContentByte {
             n = layerDepth.get(layerDepth.size() - 1).intValue();
             layerDepth.remove(layerDepth.size() - 1);
         } else {
-        	throw new IllegalPdfSyntaxException(MessageLocalization.getComposedMessage("unbalanced.layer.operators"));
+        	throw new IllegalPdfSyntaxException(MessageLocalization.getErrorBundle().getString("ITEXTPDF_MESSAGE")); // todo ComposedMessage("unbalanced.layer.operators"));
         }
         while (n-- > 0)
             content.append("EMC").append_i(separator);
@@ -4058,7 +4058,7 @@ public class PdfContentByte {
                 ar = (PdfArray)obj;
             }
             else
-                throw new IllegalArgumentException(MessageLocalization.getComposedMessage("unknown.object.at.k.1", obj.getClass().toString()));
+                throw new IllegalArgumentException(MessageLocalization.getErrorBundle().getString("ITEXTPDF_MESSAGE")); // todo ComposedMessage("unknown.object.at.k.1", obj.getClass().toString()));
             if (ar.getAsNumber(0) != null) {
                 PdfDictionary dic = new PdfDictionary(PdfName.MCR);
                 dic.put(PdfName.PG, getCurrentPage());
@@ -4090,7 +4090,7 @@ public class PdfContentByte {
      */
     public void endMarkedContentSequence() {
     	if (getMcDepth() == 0) {
-    		throw new IllegalPdfSyntaxException(MessageLocalization.getComposedMessage("unbalanced.begin.end.marked.content.operators"));
+    		throw new IllegalPdfSyntaxException(MessageLocalization.getErrorBundle().getString("ITEXTPDF_MESSAGE")); // todo ComposedMessage("unbalanced.begin.end.marked.content.operators"));
     	}
     	int contentSize = content.size();
         setMcDepth(getMcDepth() - 1);
@@ -4158,20 +4158,20 @@ public class PdfContentByte {
      */
     public void sanityCheck() {
     	if (getMcDepth() != 0) {
-    		throw new IllegalPdfSyntaxException(MessageLocalization.getComposedMessage("unbalanced.marked.content.operators"));
+    		throw new IllegalPdfSyntaxException(MessageLocalization.getErrorBundle().getString("ITEXTPDF_MESSAGE")); // todo ComposedMessage("unbalanced.marked.content.operators"));
     	}
     	if (inText) {
             if (isTagged()) {
                 endText();
             } else {
-    		throw new IllegalPdfSyntaxException(MessageLocalization.getComposedMessage("unbalanced.begin.end.text.operators"));
+    		throw new IllegalPdfSyntaxException(MessageLocalization.getErrorBundle().getString("ITEXTPDF_MESSAGE")); // todo ComposedMessage("unbalanced.begin.end.text.operators"));
     	}
     	}
     	if (layerDepth != null && !layerDepth.isEmpty()) {
-    		throw new IllegalPdfSyntaxException(MessageLocalization.getComposedMessage("unbalanced.layer.operators"));
+    		throw new IllegalPdfSyntaxException(MessageLocalization.getErrorBundle().getString("ITEXTPDF_MESSAGE")); // todo ComposedMessage("unbalanced.layer.operators"));
     	}
     	if (!stateList.isEmpty()) {
-    		throw new IllegalPdfSyntaxException(MessageLocalization.getComposedMessage("unbalanced.save.restore.state.operators"));
+    		throw new IllegalPdfSyntaxException(MessageLocalization.getErrorBundle().getString("ITEXTPDF_MESSAGE")); // todo omposedMessage("unbalanced.save.restore.state.operators"));
     	}
     }
 

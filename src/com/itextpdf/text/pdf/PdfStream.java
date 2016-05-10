@@ -182,9 +182,9 @@ public class PdfStream extends PdfDictionary {
      */
     public void writeLength() throws IOException {
         if (inputStream == null)
-            throw new UnsupportedOperationException(MessageLocalization.getComposedMessage("writelength.can.only.be.called.in.a.contructed.pdfstream.inputstream.pdfwriter"));
+            throw new UnsupportedOperationException(MessageLocalization.getErrorBundle().getString("ITEXTPDF_MESSAGE")); // todo ComposedMessage("writelength.can.only.be.called.in.a.contructed.pdfstream.inputstream.pdfwriter"));
         if (inputStreamLength == -1)
-            throw new IOException(MessageLocalization.getComposedMessage("writelength.can.only.be.called.after.output.of.the.stream.body"));
+            throw new IOException(MessageLocalization.getErrorBundle().getString("ITEXTPDF_MESSAGE")); // todo ComposedMessage("writelength.can.only.be.called.after.output.of.the.stream.body"));
         writer.addToBody(new PdfNumber(inputStreamLength), ref, false);
     }
     
@@ -232,7 +232,7 @@ public class PdfStream extends PdfDictionary {
                     return;
             }
             else {
-                throw new RuntimeException(MessageLocalization.getComposedMessage("stream.could.not.be.compressed.filter.is.not.a.name.or.array"));
+                throw new RuntimeException(MessageLocalization.getErrorBundle().getString("ITEXTPDF_MESSAGE")); // todo ComposedMessage("stream.could.not.be.compressed.filter.is.not.a.name.or.array"));
             }
         }
         try {

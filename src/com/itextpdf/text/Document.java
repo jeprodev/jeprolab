@@ -265,10 +265,10 @@ public class Document implements DocListener, IAccessibleElement {
 
     public boolean add(Element element) throws DocumentException {
         if (close) {
-			throw new DocumentException(MessageLocalization.getComposedMessage("the.document.has.been.closed.you.can.t.add.any.elements"));
+			throw new DocumentException(MessageLocalization.getErrorBundle().getString("ITEXTPDF_THE_DOCUMENT_HAS_BEEN_CLOSED_YOU_CANT_MESSAGE")); //todo ComposedMessage("the.document.has.been.closed.you.can.t.add.any.elements"));
         }
 		if (!open && element.isContent()) {
-			throw new DocumentException(MessageLocalization.getComposedMessage("the.document.is.not.open.yet.you.can.only.add.meta.information"));
+			throw new DocumentException(MessageLocalization.getErrorBundle().getString("ITEXTPDF_MESSAGE")); // todo ComposedMessage("the.document.is.not.open.yet.you.can.only.add.meta.information"));
         }
         boolean success = false;
         if (element instanceof ChapterAutoNumber) {

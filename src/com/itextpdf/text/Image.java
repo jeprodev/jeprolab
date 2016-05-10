@@ -341,7 +341,7 @@ public abstract class Image extends Rectangle implements Indentable, Spaceable, 
 							ra.close();
 				}
 			}
-			throw new IOException(MessageLocalization.getComposedMessage("unknown.image.format", url.toString()));
+			throw new IOException(MessageLocalization.getErrorBundle().getString("ITEXTPDF_MESSAGE")); //todo ComposedMessage("unknown.image.format", url.toString()));
 		} finally {
 			if (is != null) {
 				is.close();
@@ -471,7 +471,7 @@ public abstract class Image extends Rectangle implements Indentable, Spaceable, 
 					}
 				}
 			}
-			throw new IOException(MessageLocalization.getComposedMessage("the.byte.array.is.not.a.recognized.imageformat"));
+			throw new IOException(MessageLocalization.getErrorBundle().getString("ITEXTPDF_MESSAGE")); //todo ComposedMessage("the.byte.array.is.not.a.recognized.imageformat"));
 		} finally {
 			if (is != null) {
 				is.close();
@@ -576,7 +576,7 @@ public abstract class Image extends Rectangle implements Indentable, Spaceable, 
 			final int typeCCITT, final int parameters, final byte[] data, final int transparency[])
 			throws BadElementException {
 		if (transparency != null && transparency.length != 2)
-			throw new BadElementException(MessageLocalization.getComposedMessage("transparency.length.must.be.equal.to.2.with.ccitt.images"));
+			throw new BadElementException(MessageLocalization.getErrorBundle().getString("ITEXTPDF_MESSAGE")); //todo ComposedMessage("transparency.length.must.be.equal.to.2.with.ccitt.images"));
 		Image img = new ImgCCITT(width, height, reverseBits, typeCCITT,
 				parameters, data);
 		img.transparency = transparency;
@@ -607,7 +607,7 @@ public abstract class Image extends Rectangle implements Indentable, Spaceable, 
 			final int bpc, final byte data[], final int transparency[])
 			throws BadElementException {
 		if (transparency != null && transparency.length != components * 2)
-			throw new BadElementException(MessageLocalization.getComposedMessage("transparency.length.must.be.equal.to.componentes.2"));
+			throw new BadElementException(MessageLocalization.getErrorBundle().getString("ITEXTPDF_MESSAGE")); //todo ComposedMessage("transparency.length.must.be.equal.to.components.2"));
 		if (components == 1 && bpc == 1) {
 			byte g4[] = CCITTG4Encoder.compress(data, width, height);
 			return Image.getInstance(width, height, false, Image.CCITTG4,
@@ -1367,7 +1367,7 @@ public abstract class Image extends Rectangle implements Indentable, Spaceable, 
 		this.paddingTop = paddingTop;
 	}
 
-    // widthpercentage (for the moment only used in ColumnText)
+    // width percentage (for the moment only used in ColumnText)
 
 	/**
 	 * Holds value of property widthPercentage.
@@ -1829,7 +1829,7 @@ public abstract class Image extends Rectangle implements Indentable, Spaceable, 
 	 */
 	public void makeMask() throws DocumentException {
 		if (!isMaskCandidate())
-			throw new DocumentException(MessageLocalization.getComposedMessage("this.image.can.not.be.an.image.mask"));
+			throw new DocumentException(MessageLocalization.getErrorBundle().getString("ITEXTPDF_MESSAGE")); // todo ComposedMessage("this.image.can.not.be.an.image.mask"));
 		mask = true;
 	}
 
@@ -1866,9 +1866,9 @@ public abstract class Image extends Rectangle implements Indentable, Spaceable, 
 	 */
 	public void setImageMask(final Image mask) throws DocumentException {
 		if (this.mask)
-			throw new DocumentException(MessageLocalization.getComposedMessage("an.image.mask.cannot.contain.another.image.mask"));
+			throw new DocumentException(MessageLocalization.getErrorBundle().getString("ITEXTPDF_MESSAGE")); // todo ComposedMessage("an.image.mask.cannot.contain.another.image.mask"));
 		if (!mask.mask)
-			throw new DocumentException(MessageLocalization.getComposedMessage("the.image.mask.is.not.a.mask.did.you.do.makemask"));
+			throw new DocumentException(MessageLocalization.getErrorBundle().getString("ITEXTPDF_MESSAGE")); // todo ComposedMessage("the.image.mask.is.not.a.mask.did.you.do.makemask"));
 		imageMask = mask;
 		smask = mask.bpc > 1 && mask.bpc <= 8;
 	}
@@ -2011,10 +2011,10 @@ public abstract class Image extends Rectangle implements Indentable, Spaceable, 
 		try {
 			pg.grabPixels();
 		} catch (InterruptedException e) {
-			throw new IOException(MessageLocalization.getComposedMessage("java.awt.image.interrupted.waiting.for.pixels"));
+			throw new IOException(MessageLocalization.getErrorBundle().getString("ITEXTPDF_MESSAGE")); // todo ComposedMessage("java.awt.image.interrupted.waiting.for.pixels"));
 		}
 		if ((pg.getStatus() & java.awt.image.ImageObserver.ABORT) != 0) {
-			throw new IOException(MessageLocalization.getComposedMessage("java.awt.image.fetch.aborted.or.errored"));
+			throw new IOException(MessageLocalization.getErrorBundle().getString("ITEXTPDF_MESSAGE")); // todo ComposedMessage("java.awt.image.fetch.aborted.or.errored"));
 		}
 		int w = pg.getWidth();
 		int h = pg.getHeight();
@@ -2210,10 +2210,10 @@ public abstract class Image extends Rectangle implements Indentable, Spaceable, 
         try {
             pg.grabPixels();
         } catch (InterruptedException e) {
-            throw new IOException(MessageLocalization.getComposedMessage("java.awt.image.interrupted.waiting.for.pixels"));
+            throw new IOException(MessageLocalization.getErrorBundle().getString("ITEXTPDF_JAVA_AWT_IMAGE_INTERRUPTED_WAITING_FOR_PIXELS_MESSAGE"));
         }
         if ((pg.getStatus() & java.awt.image.ImageObserver.ABORT) != 0) {
-            throw new IOException(MessageLocalization.getComposedMessage("java.awt.image.fetch.aborted.or.errored"));
+            throw new IOException(MessageLocalization.getErrorBundle().getString("ITEXTPDF_JAVA_AWT_IMAGE_FETCH_ABORTED_OR_AN_ERROR_OCCURRED_MESSAGE"));
         }
         int w = pg.getWidth();
         int h = pg.getHeight();

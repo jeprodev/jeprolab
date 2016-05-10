@@ -391,7 +391,7 @@ public class AcroFields {
         if (exportValues == null && displayValues == null)
             return false;
         if (exportValues != null && displayValues != null && exportValues.length != displayValues.length)
-            throw new IllegalArgumentException(MessageLocalization.getComposedMessage("the.export.and.the.display.array.must.have.the.same.size"));
+            throw new IllegalArgumentException(MessageLocalization.getErrorBundle().getString("ITEXTPDF_MESSAGE")); // todo ComposedMessage("the.export.and.the.display.array.must.have.the.same.size"));
         int ftype = getFieldType(fieldName);
         if (ftype != FIELD_TYPE_COMBO && ftype != FIELD_TYPE_LIST)
             return false;
@@ -777,7 +777,7 @@ public class AcroFields {
             return tx.getAppearance();
         }
         if (!PdfName.CH.equals(fieldType))
-            throw new DocumentException(MessageLocalization.getComposedMessage("an.appearance.was.requested.without.a.variable.text.field"));
+            throw new DocumentException(MessageLocalization.getErrorBundle().getString("ITEXTPDF_MESSAGE")); // todo ComposedMessage("an.appearance.was.requested.without.a.variable.text.field"));
         PdfArray opt = merged.getAsArray(PdfName.OPT);
         int flags = 0;
         PdfNumber nfl = merged.getAsNumber(PdfName.FF);
@@ -1009,7 +1009,7 @@ public class AcroFields {
      */
     public boolean setFieldProperty(String field, String name, Object value, int inst[]) {
         if (writer == null)
-            throw new RuntimeException(MessageLocalization.getComposedMessage("this.acrofields.instance.is.read.only"));
+            throw new RuntimeException(MessageLocalization.getErrorBundle().getString("ITEXTPDF_MESSAGE")); // todo ComposedMessage("this.acrofields.instance.is.read.only"));
         try {
             Item item = fields.get(field);
             if (item == null)
@@ -1191,7 +1191,7 @@ public class AcroFields {
      */
     public boolean setFieldProperty(String field, String name, int value, int inst[]) {
         if (writer == null)
-            throw new RuntimeException(MessageLocalization.getComposedMessage("this.acrofields.instance.is.read.only"));
+            throw new RuntimeException(MessageLocalization.getErrorBundle().getString("ITEXTPDF_MESSAGE")); // todo ComposedMessage("this.acrofields.instance.is.read.only"));
         Item item = fields.get(field);
         if (item == null)
             return false;
@@ -1393,7 +1393,7 @@ public class AcroFields {
     public boolean setFieldRichValue(String name, String richValue) throws DocumentException, IOException {
         if (writer == null) {
         	// can't set field values: fail
-            throw new DocumentException(MessageLocalization.getComposedMessage("this.acrofields.instance.is.read.only"));
+            throw new DocumentException(MessageLocalization.getErrorBundle().getString("ITEXTPDF_MESSAGE")); // todo ComposedMessage("this.acrofields.instance.is.read.only"));
         }
 
     	Item item = getFieldItem(name);
@@ -1464,7 +1464,7 @@ public class AcroFields {
      */
     public boolean setField(String name, String value, String display, boolean saveAppearance) throws IOException, DocumentException {
         if (writer == null)
-            throw new DocumentException(MessageLocalization.getComposedMessage("this.acrofields.instance.is.read.only"));
+            throw new DocumentException(MessageLocalization.getErrorBundle().getString("ITEXTPDF_MESSAGE")); // todo ComposedMessage("this.acrofields.instance.is.read.only"));
         if (xfa.isXfaPresent()) {
             name = xfa.findFieldName(name, this);
             if (name == null)

@@ -61,7 +61,7 @@ public class PdfLabColor implements ICachedColorSpace {
                 || whitePoint.length != 3
                 || whitePoint[0] < 0.000001f || whitePoint[2] < 0.000001f
                 || whitePoint[1] < 0.999999f || whitePoint[1] > 1.000001f)
-            throw new RuntimeException(MessageLocalization.getComposedMessage("lab.cs.white.point"));
+            throw new RuntimeException(MessageLocalization.getErrorBundle().getString("ITEXTPDF_MESSAGE")); // todo ComposedMessage("lab.cs.white.point"));
         this.whitePoint = whitePoint;
     }
 
@@ -82,17 +82,17 @@ public class PdfLabColor implements ICachedColorSpace {
                 || whitePoint.length != 3
                 || whitePoint[0] < 0.000001f || whitePoint[2] < 0.000001f
                 || whitePoint[1] < 0.999999f || whitePoint[1] > 1.000001f)
-            throw new RuntimeException(MessageLocalization.getComposedMessage("lab.cs.white.point"));
+            throw new RuntimeException(MessageLocalization.getErrorBundle().getString("ITEXTPDF_MESSAGE")); // todo ComposedMessage("lab.cs.white.point"));
         dictionary.put(PdfName.WHITEPOINT, new PdfArray(whitePoint));
         if (blackPoint != null) {
             if (blackPoint.length != 3
                     || blackPoint[0] < -0.000001f || blackPoint[1] < -0.000001f || blackPoint[2] < -0.000001f)
-                throw new RuntimeException(MessageLocalization.getComposedMessage("lab.cs.black.point"));
+                throw new RuntimeException(MessageLocalization.getErrorBundle().getString("ITEXTPDF_MESSAGE")); // todo ComposedMessage("lab.cs.black.point"));
             dictionary.put(PdfName.BLACKPOINT, new PdfArray(blackPoint));
         }
         if (range != null) {
             if (range.length != 4 || range[0] > range[1] || range[2] > range[3])
-                throw new RuntimeException(MessageLocalization.getComposedMessage("lab.cs.range"));
+                throw new RuntimeException(MessageLocalization.getErrorBundle().getString("ITEXTPDF_MESSAGE")); // todo ComposedMessage("lab.cs.range"));
             dictionary.put(PdfName.RANGE, new PdfArray(range));
         }
         array.add(dictionary);

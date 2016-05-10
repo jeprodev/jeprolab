@@ -324,7 +324,7 @@ public class PdfDocument extends Document {
             annotationsImp = new PdfAnnotationsImp(writer);
             return;
         }
-        throw new DocumentException(MessageLocalization.getComposedMessage("you.can.only.add.a.writer.to.a.pdfdocument.once"));
+        throw new DocumentException(MessageLocalization.getErrorBundle().getString("ITEXTPDF_MESSAGE")); // todo ComposedMessage("you.can.only.add.a.writer.to.a.pdfdocument.once"));
     }
 
 // LISTENER METHODS START
@@ -884,7 +884,7 @@ public class PdfDocument extends Document {
                 writer.getDirectContent().closeMCBlock(this);
             }
             if (annotationsImp.hasUnusedAnnotations())
-                throw new RuntimeException(MessageLocalization.getComposedMessage("not.all.annotations.could.be.added.to.the.document.the.document.doesn.t.have.enough.pages"));
+                throw new RuntimeException(MessageLocalization.getErrorBundle().getString("ITEXTPDF_MESSAGE")); // todo ComposedMessage("not.all.annotations.could.be.added.to.the.document.the.document.doesn.t.have.enough.pages"));
             PdfPageEvent pageEvent = writer.getPageEvent();
             if (pageEvent != null)
                 pageEvent.onCloseDocument(writer, this);
@@ -935,7 +935,7 @@ public class PdfDocument extends Document {
             return false;
         }
         if (!open || close) {
-            throw new RuntimeException(MessageLocalization.getComposedMessage("the.document.is.not.open"));
+            throw new RuntimeException(MessageLocalization.getErrorBundle().getString("ITEXTPDF_MESSAGE")); // todo ComposedMessage("the.document.is.not.open"));
         }
 
         //we end current page
@@ -999,7 +999,7 @@ public class PdfDocument extends Document {
             // [C10]
             if (writer.isPdfIso()) {
                 if (thisBoxSize.containsKey("art") && thisBoxSize.containsKey("trim"))
-                    throw new PdfXConformanceException(MessageLocalization.getComposedMessage("only.one.of.artbox.or.trimbox.can.exist.in.the.page"));
+                    throw new PdfXConformanceException(MessageLocalization.getErrorBundle().getString("ITEXTPDF_MESSAGE")); // todo ComposedMessage("only.one.of.artbox.or.trimbox.can.exist.in.the.page"));
                 if (!thisBoxSize.containsKey("art") && !thisBoxSize.containsKey("trim")) {
                     if (thisBoxSize.containsKey("crop"))
                         thisBoxSize.put("trim", thisBoxSize.get("crop"));
@@ -2291,7 +2291,7 @@ public class PdfDocument extends Document {
     protected static final DecimalFormat SIXTEEN_DIGITS = new DecimalFormat("0000000000000000");
     void addJavaScript(final PdfAction js) {
         if (js.get(PdfName.JS) == null)
-            throw new RuntimeException(MessageLocalization.getComposedMessage("only.javascript.actions.are.allowed"));
+            throw new RuntimeException(MessageLocalization.getErrorBundle().getString("ITEXTPDF_MESSAGE")); // todo ComposedMessage("only.javascript.actions.are.allowed"));
         try {
             documentLevelJS.put(SIXTEEN_DIGITS.format(jsCounter++), writer.addToBody(js).getIndirectReference());
         }
@@ -2301,7 +2301,7 @@ public class PdfDocument extends Document {
     }
     void addJavaScript(final String name, final PdfAction js) {
         if (js.get(PdfName.JS) == null)
-            throw new RuntimeException(MessageLocalization.getComposedMessage("only.javascript.actions.are.allowed"));
+            throw new RuntimeException(MessageLocalization.getErrorBundle().getString("ITEXTPDF_MESSAGE")); // todo ComposedMessage("only.javascript.actions.are.allowed"));
         try {
             documentLevelJS.put(name, writer.addToBody(js).getIndirectReference());
         }
@@ -2721,7 +2721,7 @@ public class PdfDocument extends Document {
             else
                 loop = 0;
             if (loop == 3) {
-                throw new DocumentException(MessageLocalization.getComposedMessage("infinite.table.loop"));
+                throw new DocumentException(MessageLocalization.getErrorBundle().getString("ITEXTPDF_MESSAGE")); // todo ComposedMessage("infinite.table.loop"));
             }
             currentHeight = indentTop() - ct.getYLine();
             newPage();

@@ -1750,7 +1750,7 @@ public class PdfWriter extends DocWriter implements
          actionType.equals(DID_SAVE) ||
          actionType.equals(WILL_PRINT) ||
          actionType.equals(DID_PRINT))) {
-             throw new DocumentException(MessageLocalization.getErrorBundle().getString("ITEXTPDF_MESSAGE")("invalid.additional.action.type.1", actionType.toString()));
+             throw new DocumentException(MessageLocalization.getErrorBundle().getString("ITEXTPDF_INVALID_ADDITIONAL_ACTION_TYPE_1_MESSAGE") + " " + actionType.toString());
          }
          pdf.addAdditionalAction(actionType, action);
      }
@@ -2783,7 +2783,7 @@ public class PdfWriter extends DocWriter implements
             }
         }
         else
-            throw new IllegalArgumentException(MessageLocalization.getErrorBundle().getString("ITEXTPDF_MESSAGE")getComposedMessage("only.pdflayer.is.accepted"));
+            throw new IllegalArgumentException(MessageLocalization.getErrorBundle().getString("ITEXTPDF_ONLY_PDF_LAYER_IS_ACCEPTED_MESSAGE"));
     }
 
 //  User methods to change aspects of the page
@@ -2892,7 +2892,7 @@ public class PdfWriter extends DocWriter implements
     /** @see PdfPageActions#setPageAction(PdfName, PdfAction) */
     public void setPageAction(final PdfName actionType, final PdfAction action) throws DocumentException {
           if (!actionType.equals(PAGE_OPEN) && !actionType.equals(PAGE_CLOSE))
-              throw new DocumentException(MessageLocalization.getErrorBundle().getString("ITEXTPDF_MESSAGE")getComposedMessage("invalid.page.additional.action.type.1", actionType.toString()));
+              throw new DocumentException(MessageLocalization.getErrorBundle().getString("ITEXTPDF_INVALID_PAGE_ADDITIONAL_ACTION_TYPE_1_MESSAGE") + " " + actionType.toString());
           pdf.setPageAction(actionType, action);
       }
 
@@ -3004,7 +3004,7 @@ public class PdfWriter extends DocWriter implements
      */
     public void setRunDirection(final int runDirection) {
         if (runDirection < RUN_DIRECTION_NO_BIDI || runDirection > RUN_DIRECTION_RTL)
-            throw new RuntimeException(MessageLocalization.getErrorBundle().getString("ITEXTPDF_MESSAGE")getComposedMessage("invalid.run.direction.1", runDirection));
+            throw new RuntimeException(MessageLocalization.getErrorBundle().getString("ITEXTPDF_INVALID_RUN_DIRECTION_1_MESSAGE")+ " " + runDirection);
         this.runDirection = runDirection;
     }
 
@@ -3027,7 +3027,7 @@ public class PdfWriter extends DocWriter implements
      * @throws DocumentException on error
      */
      public void setUserunit(final float userunit) throws DocumentException {
- 		if (userunit < 1f || userunit > 75000f) throw new DocumentException(MessageLocalization.getErrorBundle().getString("ITEXTPDF_MESSAGE")getComposedMessage("userunit.should.be.a.value.between.1.and.75000"));
+ 		if (userunit < 1f || userunit > 75000f) throw new DocumentException(MessageLocalization.getErrorBundle().getString("ITEXTPDF_USER_UNIT_SHOULD_BE_A_VALUE_BETWEEN_1_AND_75000_MESSAGE"));
          addPageDictEntry(PdfName.USERUNIT, new PdfNumber(userunit));
          setAtLeastPdfVersion(VERSION_1_6);
      }
@@ -3072,7 +3072,7 @@ public class PdfWriter extends DocWriter implements
     ColorDetails addSimplePatternColorspace(final BaseColor color) {
         int type = ExtendedColor.getType(color);
         if (type == ExtendedColor.TYPE_PATTERN || type == ExtendedColor.TYPE_SHADING)
-            throw new RuntimeException(MessageLocalization.getErrorBundle().getString("ITEXTPDF_MESSAGE")getComposedMessage("an.uncolored.tile.pattern.can.not.have.another.pattern.or.shading.as.color"));
+            throw new RuntimeException(MessageLocalization.getErrorBundle().getString("ITEXTPDF_AN_UNCOLORED_TILE_PATTERN_CAN_NOT_HAVE_OTHER_PATTERN_OR_SHADING_AS_COLOR_MESSAGE"));
         try {
             switch (type) {
                 case ExtendedColor.TYPE_RGB:
@@ -3112,7 +3112,7 @@ public class PdfWriter extends DocWriter implements
                     return patternDetails;
                 }
                 default:
-                    throw new RuntimeException(MessageLocalization.getErrorBundle().getString("ITEXTPDF_MESSAGE")getComposedMessage("invalid.color.type"));
+                    throw new RuntimeException(MessageLocalization.getErrorBundle().getString("ITEXTPDF_INVALID_COLOR_TYPE_MESSAGE"));
             }
         }
         catch (Exception e) {

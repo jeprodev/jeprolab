@@ -94,7 +94,7 @@ public class PdfPage extends PdfDictionary {
         super(PAGE);
         this.mediaBox = mediaBox;
         if (mediaBox != null && (mediaBox.width() > 14400 || mediaBox.height() > 14400)) {
-        	throw new DocumentException(MessageLocalization.getComposedMessage("the.page.size.must.be.smaller.than.14400.by.14400.its.1.by.2", mediaBox.width(), mediaBox.height()));
+        	throw new DocumentException(MessageLocalization.getErrorBundle().getString("ITEXTPDF_MESSAGE")); // todo ComposedMessage("the.page.size.must.be.smaller.than.14400.by.14400.its.1.by.2", mediaBox.width(), mediaBox.height()));
         }
         put(PdfName.MEDIABOX, mediaBox);
         put(PdfName.RESOURCES, resources);

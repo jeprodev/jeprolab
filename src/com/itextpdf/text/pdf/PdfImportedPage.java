@@ -166,7 +166,7 @@ public class PdfImportedPage extends PdfTemplate {
 	}
 
 	void throwError() {
-        throw new RuntimeException(MessageLocalization.getComposedMessage("content.can.not.be.added.to.a.pdfimportedpage"));
+        throw new RuntimeException(MessageLocalization.getErrorBundle().getString("ITEXTPDF_MESSAGE")); // todo ComposedMessage("content.can.not.be.added.to.a.pdfimportedpage"));
     }
     
     PdfReaderInstance getPdfReaderInstance() {

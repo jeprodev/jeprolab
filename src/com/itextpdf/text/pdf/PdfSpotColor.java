@@ -128,7 +128,7 @@ public class PdfSpotColor implements ICachedColorSpace, IPdfSpecialColorSpace {
                             new float[]{lab.getL(), lab.getA(), lab.getB()}, 1);
                     break;
                 default:
-                    throw new RuntimeException(MessageLocalization.getComposedMessage("only.rgb.gray.and.cmyk.are.supported.as.alternative.color.spaces"));
+                    throw new RuntimeException(MessageLocalization.getErrorBundle().getString("ITEXTPDF_MESSAGE")); // todo ComposedMessage("only.rgb.gray.and.cmyk.are.supported.as.alternative.color.spaces"));
             }
         }
         else {

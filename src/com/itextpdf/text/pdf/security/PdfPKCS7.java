@@ -146,7 +146,7 @@ public class PdfPKCS7 {
         // message digest
         digestAlgorithmOid = DigestAlgorithms.getAllowedDigests(hashAlgorithm);
         if (digestAlgorithmOid == null)
-            throw new NoSuchAlgorithmException(MessageLocalization.getComposedMessage("unknown.hash.algorithm.1", hashAlgorithm));
+            throw new NoSuchAlgorithmException(MessageLocalization.getErrorBundle().getString("ITEXTPDF_MESSAGE")); // todo ComposedMessage("unknown.hash.algorithm.1", hashAlgorithm));
 
         // Copy the certificates
         signCert = (X509Certificate)certChain[0];
@@ -170,7 +170,7 @@ public class PdfPKCS7 {
                 digestEncryptionAlgorithmOid = SecurityIDs.ID_DSA;
             }
             else {
-                throw new NoSuchAlgorithmException(MessageLocalization.getComposedMessage("unknown.key.algorithm.1", digestEncryptionAlgorithmOid));
+                throw new NoSuchAlgorithmException(MessageLocalization.getErrorBundle().getString("ITEXTPDF_MESSAGE")); // todo ComposedMessage("unknown.key.algorithm.1", digestEncryptionAlgorithmOid));
             }
         }
         
@@ -248,15 +248,15 @@ public class PdfPKCS7 {
                 pkcs = din.readObject();
             }
             catch (IOException e) {
-                throw new IllegalArgumentException(MessageLocalization.getComposedMessage("can.t.decode.pkcs7signeddata.object"));
+                throw new IllegalArgumentException(MessageLocalization.getErrorBundle().getString("ITEXTPDF_MESSAGE")); // todo ComposedMessage("can.t.decode.pkcs7signeddata.object"));
             }
             if (!(pkcs instanceof ASN1Sequence)) {
-                throw new IllegalArgumentException(MessageLocalization.getComposedMessage("not.a.valid.pkcs.7.object.not.a.sequence"));
+                throw new IllegalArgumentException(MessageLocalization.getErrorBundle().getString("ITEXTPDF_MESSAGE")); // todo ComposedMessage("not.a.valid.pkcs.7.object.not.a.sequence"));
             }
             ASN1Sequence signedData = (ASN1Sequence)pkcs;
             ASN1ObjectIdentifier objId = (ASN1ObjectIdentifier)signedData.getObjectAt(0);
             if (!objId.getId().equals(SecurityIDs.ID_PKCS7_SIGNED_DATA))
-                throw new IllegalArgumentException(MessageLocalization.getComposedMessage("not.a.valid.pkcs.7.object.not.signed.data"));
+                throw new IllegalArgumentException(MessageLocalization.getErrorBundle().getString("ITEXTPDF_MESSAGE")); // todo ComposedMessage("not.a.valid.pkcs.7.object.not.signed.data"));
             ASN1Sequence content = (ASN1Sequence)((ASN1TaggedObject)signedData.getObjectAt(1)).getObject();
             // the positions that we care are:
             //     0 - version
@@ -332,7 +332,7 @@ public class PdfPKCS7 {
             // the signerInfos
             ASN1Set signerInfos = (ASN1Set)content.getObjectAt(next);
             if (signerInfos.size() != 1)
-                throw new IllegalArgumentException(MessageLocalization.getComposedMessage("this.pkcs.7.object.has.multiple.signerinfos.only.one.is.supported.at.this.time"));
+                throw new IllegalArgumentException(MessageLocalization.getErrorBundle().getString("ITEXTPDF_MESSAGE")); // todo ComposedMessage("this.pkcs.7.object.has.multiple.signerinfos.only.one.is.supported.at.this.time"));
             ASN1Sequence signerInfo = (ASN1Sequence)signerInfos.getObjectAt(0);
             // the positions that we care are
             //     0 - version
@@ -353,8 +353,8 @@ public class PdfPKCS7 {
                 }
             }
             if (signCert == null) {
-                throw new IllegalArgumentException(MessageLocalization.getComposedMessage("can.t.find.signing.certificate.with.serial.1",
-                    issuer.getName() + " / " + serialNumber.toString(16)));
+                throw new IllegalArgumentException(MessageLocalization.getErrorBundle().getString("ITEXTPDF_MESSAGE")); // todo ComposedMessage("can.t.find.signing.certificate.with.serial.1",
+                    //issuer.getName() + " / " + serialNumber.toString(16)));
             }
             signCertificateChain();
             digestAlgorithmOid = ((ASN1ObjectIdentifier)((ASN1Sequence)signerInfo.getObjectAt(2)).getObjectAt(0)).getId();
@@ -420,7 +420,7 @@ public class PdfPKCS7 {
                     }
                 }
                 if (digestAttr == null)
-                    throw new IllegalArgumentException(MessageLocalization.getComposedMessage("authenticated.attribute.is.missing.the.digest"));
+                    throw new IllegalArgumentException(MessageLocalization.getErrorBundle().getString("ITEXTPDF_MESSAGE")); // todo ComposedMessage("authenticated.attribute.is.missing.the.digest"));
                 ++next;
             }
             if (isCades && !foundCades)
@@ -661,7 +661,7 @@ public class PdfPKCS7 {
                 this.digestEncryptionAlgorithmOid = SecurityIDs.ID_ECDSA;
             }
             else
-                throw new ExceptionConverter(new NoSuchAlgorithmException(MessageLocalization.getComposedMessage("unknown.key.algorithm.1", digestEncryptionAlgorithm)));
+                throw new ExceptionConverter(new NoSuchAlgorithmException(MessageLocalization.getErrorBundle().getString("ITEXTPDF_MESSAGE"))); // todo ComposedMessage("unknown.key.algorithm.1", digestEncryptionAlgorithm)));
         }
     }
     

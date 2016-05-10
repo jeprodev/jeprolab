@@ -206,7 +206,7 @@ public class PdfEncryption {
 			revision = AES_256;
 			break;
 		default:
-			throw new IllegalArgumentException(MessageLocalization.getComposedMessage("no.valid.encryption.mode"));
+			throw new IllegalArgumentException(MessageLocalization.getErrorBundle().getString("ITEXTPDF_MESSAGE")); // todo ComposedMessage("no.valid.encryption.mode"));
 		}
 	}
 
@@ -464,7 +464,7 @@ public class PdfEncryption {
                 hash = md.digest();
                 isUserPass = compareArray(hash, uValue, 32);
                 if (!isUserPass)
-                    throw new BadPasswordException(MessageLocalization.getComposedMessage("bad.user.password"));
+                    throw new BadPasswordException(MessageLocalization.getErrorBundle().getString("ITEXTPDF_MESSAGE")); // todo ComposedMessage("bad.user.password"));
                 md.update(password, 0, Math.min(password.length, 127));
                 md.update(uValue, KEY_SALT_OFFSET, SALT_LENGHT);
                 hash = md.digest();
@@ -474,7 +474,7 @@ public class PdfEncryption {
             AESCipherCBCnoPad ac = new AESCipherCBCnoPad(false, key);
             byte[] decPerms = ac.processBlock(perms, 0, perms.length);
             if (decPerms[9] != (byte)'a' || decPerms[10] != (byte)'d' || decPerms[11] != (byte)'b')
-                throw new BadPasswordException(MessageLocalization.getComposedMessage("bad.user.password"));
+                throw new BadPasswordException(MessageLocalization.getErrorBundle().getString("ITEXTPDF_MESSAGE")); // todo ComposedMessage("bad.user.password"));
             permissions = (decPerms[0] & 0xff) | ((decPerms[1] & 0xff) << 8)
                     | ((decPerms[2] & 0xff) << 16) | ((decPerms[2] & 0xff) << 24);
             encryptMetadata = decPerms[8] == (byte)'T';

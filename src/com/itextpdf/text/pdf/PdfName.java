@@ -2462,7 +2462,7 @@ public class
         // The minimum number of characters in a name is 0, the maximum is 127 (the '/' not included)
         int length = name.length();
         if (lengthCheck && length > 127)
-            throw new IllegalArgumentException(MessageLocalization.getComposedMessage("the.name.1.is.too.long.2.characters", name, String.valueOf(length)));
+            throw new IllegalArgumentException(MessageLocalization.getErrorBundle().getString("ITEXTPDF_MESSAGE")); // todo ComposedMessage("the.name.1.is.too.long.2.characters", name, String.valueOf(length)));
         bytes = encodeName(name);
     }
 

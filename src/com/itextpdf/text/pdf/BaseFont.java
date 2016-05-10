@@ -714,7 +714,7 @@ public abstract class BaseFont {
         else if (noThrow)
             return null;
         else
-            throw new DocumentException(MessageLocalization.getComposedMessage("font.1.with.2.is.not.recognized", name, encoding));
+            throw new DocumentException(MessageLocalization.getErrorBundle().getString("ITEXTPDF_MESSAGE")); // todo ComposedMessage("font.1.with.2.is.not.recognized", name, encoding));
         if (cached) {
                 fontFound = fontCache.get(key);
                 if (fontFound != null)
@@ -1462,7 +1462,7 @@ public abstract class BaseFont {
                 }
                 visitedResources.remove(xobj);
             } else
-                throw new ExceptionConverter(new InvalidPdfException(MessageLocalization.getComposedMessage("illegal.resources.tree")));
+                throw new ExceptionConverter(new InvalidPdfException(MessageLocalization.getErrorBundle().getString("ITEXTPDF_MESSAGE"))); // todo ComposedMessage("illegal.resources.tree")));
         }
     }
 

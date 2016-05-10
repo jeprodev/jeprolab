@@ -563,7 +563,7 @@ public abstract class BaseField {
      */
     public void setRotation(int rotation) {
         if (rotation % 90 != 0)
-            throw new IllegalArgumentException(MessageLocalization.getComposedMessage("rotation.must.be.a.multiple.of.90"));
+            throw new IllegalArgumentException(MessageLocalization.getErrorBundle().getString("ITEXTPDF_MESSAGE")); // todo ComposedMessage("rotation.must.be.a.multiple.of.90"));
         rotation %= 360;
         if (rotation < 0)
             rotation += 360;

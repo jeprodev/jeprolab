@@ -186,7 +186,7 @@ public class PdfFileSpecification extends PdfDictionary {
                     else {
                         in = StreamUtil.getResourceStream(filePath);
                         if (in == null)
-                            throw new IOException(MessageLocalization.getComposedMessage("1.not.found.as.file.or.resource", filePath));
+                            throw new IOException(MessageLocalization.getErrorBundle().getString("ITEXTPDF_MESSAGE")); // todo ComposedMessage("1.not.found.as.file.or.resource", filePath));
                     }
                 }
                 stream = new PdfEFStream(in, writer);

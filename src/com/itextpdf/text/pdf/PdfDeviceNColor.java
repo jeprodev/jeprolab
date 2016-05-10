@@ -95,7 +95,7 @@ public class PdfDeviceNColor implements ICachedColorSpace, IPdfSpecialColorSpace
             colorantsRanges[2 * i + 1] = 1;
             colorants.add(spotColorant.getName());
             if (colorantsDict.get(spotColorant.getName()) != null)
-                throw new RuntimeException(MessageLocalization.getComposedMessage("devicen.component.names.shall.be.different"));
+                throw new RuntimeException(MessageLocalization.getErrorBundle().getString("ITEXTPDF_MESSAGE")); // todo ComposedMessage("devicen.component.names.shall.be.different"));
             if (colorantsDetails != null)
                 colorantsDict.put(spotColorant.getName(), colorantsDetails[i].getIndirectReference());
             else
@@ -124,7 +124,7 @@ public class PdfDeviceNColor implements ICachedColorSpace, IPdfSpecialColorSpace
                         CMYK[3][i] = cmyk.getBlack();
                         break;
                     default:
-                        throw new RuntimeException(MessageLocalization.getComposedMessage("only.rgb.gray.and.cmyk.are.supported.as.alternative.color.spaces"));
+                        throw new RuntimeException(MessageLocalization.getErrorBundle().getString("ITEXTPDF_MESSAGE")); // todo ComposedMessage("only.rgb.gray.and.cmyk.are.supported.as.alternative.color.spaces"));
                 }
             } else {
                 float r = color.getRed();

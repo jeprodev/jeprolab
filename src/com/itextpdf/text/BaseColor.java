@@ -206,7 +206,7 @@ public class BaseColor {
 
     private static void validate(final int value) {
         if (value < 0 || value > 255)
-            throw new IllegalArgumentException(MessageLocalization.getComposedMessage("color.value.outside.range.0.255"));
+            throw new IllegalArgumentException(MessageLocalization.getErrorBundle().getString("ITEXTPDF_MESSAGE")); // todo ComposedMessage("color.value.outside.range.0.255"));
     }
 
     /* (non-Javadoc)

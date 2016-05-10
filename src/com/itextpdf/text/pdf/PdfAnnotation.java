@@ -703,7 +703,7 @@ public class PdfAnnotation extends PdfDictionary implements IAccessibleElement {
             case ExtendedColor.TYPE_SEPARATION:
             case ExtendedColor.TYPE_PATTERN:
             case ExtendedColor.TYPE_SHADING:
-                throw new RuntimeException(MessageLocalization.getComposedMessage("separations.patterns.and.shadings.are.not.allowed.in.mk.dictionary"));
+                throw new RuntimeException(MessageLocalization.getErrorBundle().getString("ITEXTPDF_MESSAGE")); // todo ComposedMessage("separations.patterns.and.shadings.are.not.allowed.in.mk.dictionary"));
             default:
                 array.add(new PdfNumber(color.getRed() / 255f));
                 array.add(new PdfNumber(color.getGreen() / 255f));
@@ -861,7 +861,7 @@ public class PdfAnnotation extends PdfDictionary implements IAccessibleElement {
     		try {
     			destination = (PdfArray) parameters.remove(PdfName.DEST);
     		} catch (ClassCastException ex) {
-    			throw new IllegalArgumentException(MessageLocalization.getComposedMessage("you.have.to.consolidate.the.named.destinations.of.your.reader"));
+    			throw new IllegalArgumentException(MessageLocalization.getErrorBundle().getString("ITEXTPDF_MESSAGE")); // todo ComposedMessage("you.have.to.consolidate.the.named.destinations.of.your.reader"));
     		}
     		if (destination != null) {
     			destination = new PdfArray(destination);
@@ -900,16 +900,16 @@ public class PdfAnnotation extends PdfDictionary implements IAccessibleElement {
     			PRIndirectReference pp = r.getPageOrigRef(i);
     			if (pp.getGeneration() == pr.getGeneration() && pp.getNumber() == pr.getNumber()) return i;
     		}
-    		throw new IllegalArgumentException(MessageLocalization.getComposedMessage("page.not.found"));
+    		throw new IllegalArgumentException(MessageLocalization.getErrorBundle().getString("ITEXTPDF_MESSAGE")); // todo ComposedMessage("page.not.found"));
     	}
 
     	public void setDestinationPage(int newPage) {
-    		if (!isInternal()) throw new IllegalArgumentException(MessageLocalization.getComposedMessage("cannot.change.destination.of.external.link"));
+    		if (!isInternal()) throw new IllegalArgumentException(MessageLocalization.getErrorBundle().getString("ITEXTPDF_MESSAGE")); // todo ComposedMessage("cannot.change.destination.of.external.link"));
     		this.newPage=newPage;
     	}
 
     	public void transformDestination(float a, float b, float c, float d, float e, float f) {
-    		if (!isInternal()) throw new IllegalArgumentException(MessageLocalization.getComposedMessage("cannot.change.destination.of.external.link"));
+    		if (!isInternal()) throw new IllegalArgumentException(MessageLocalization.getErrorBundle().getString("ITEXTPDF_MESSAGE")); // todo ComposedMessage("cannot.change.destination.of.external.link"));
     		if (destination.getAsName(1).equals(PdfName.XYZ)) {
     			float x = destination.getAsNumber(2).floatValue();
     			float y = destination.getAsNumber(3).floatValue();
