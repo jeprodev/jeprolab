@@ -1019,7 +1019,7 @@ public class PdfPCell extends Rectangle implements IAccessibleElement {
             rotation += 360;
         }
         if (rotation % 90 != 0) {
-            throw new IllegalArgumentException(MessageLocalization.getComposedMessage("rotation.must.be.a.multiple.of.90"));
+            throw new IllegalArgumentException(MessageLocalization.getErrorBundle().getString("ITEXTPDF_MESSAGE")); // todo ComposedMessage("rotation.must.be.a.multiple.of.90"));
         }
         this.rotation = rotation;
     }

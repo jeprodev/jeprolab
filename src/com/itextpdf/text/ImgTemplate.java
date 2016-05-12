@@ -72,9 +72,9 @@ public class ImgTemplate extends Image {
     public ImgTemplate(PdfTemplate template) throws BadElementException{
         super((URL)null);
         if (template == null)
-            throw new BadElementException(MessageLocalization.getComposedMessage("the.template.can.not.be.null"));
+            throw new BadElementException(MessageLocalization.getErrorBundle().getString("ITEXTPDF_MESSAGE")); // todo ComposedMessage("the.template.can.not.be.null"));
         if (template.getType() == PdfTemplate.TYPE_PATTERN)
-            throw new BadElementException(MessageLocalization.getComposedMessage("a.pattern.can.not.be.used.as.a.template.to.create.an.image"));
+            throw new BadElementException(MessageLocalization.getErrorBundle().getString("ITEXTPDF_MESSAGE")); // todo ComposedMessage("a.pattern.can.not.be.used.as.a.template.to.create.an.image"));
         type = IMGTEMPLATE;
         scaledHeight = template.getHeight();
         setTop(scaledHeight);

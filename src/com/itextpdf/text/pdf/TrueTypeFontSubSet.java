@@ -231,11 +231,11 @@ class TrueTypeFontSubSet {
     }
 
     protected void createTableDirectory() throws IOException, DocumentException {
-        tableDirectory = new HashMap<String, int[]>();
+        tableDirectory = new HashMap<>();
         rf.seek(directoryOffset);
         int id = rf.readInt();
         if (id != 0x00010000)
-            throw new DocumentException(MessageLocalization.getComposedMessage("1.is.not.a.true.type.file", fileName));
+            throw new DocumentException(MessageLocalization.getErrorBundle().getString("ITEXTPDF_MESSAGE")); // todo ComposedMessage("1.is.not.a.true.type.file", fileName));
         int num_tables = rf.readUnsignedShort();
         rf.skipBytes(6);
         for (int k = 0; k < num_tables; ++k) {
@@ -252,12 +252,12 @@ class TrueTypeFontSubSet {
         int tableLocation[];
         tableLocation = tableDirectory.get("head");
         if (tableLocation == null)
-            throw new DocumentException(MessageLocalization.getComposedMessage("table.1.does.not.exist.in.2", "head", fileName));
+            throw new DocumentException(MessageLocalization.getErrorBundle().getString("ITEXTPDF_MESSAGE")); // todo ComposedMessage("table.1.does.not.exist.in.2", "head", fileName));
         rf.seek(tableLocation[TABLE_OFFSET] + HEAD_LOCA_FORMAT_OFFSET);
         locaShortTable = rf.readUnsignedShort() == 0;
         tableLocation = tableDirectory.get("loca");
         if (tableLocation == null)
-            throw new DocumentException(MessageLocalization.getComposedMessage("table.1.does.not.exist.in.2", "loca", fileName));
+            throw new DocumentException(MessageLocalization.getErrorBundle().getString("ITEXTPDF_MESSAGE")); // todo ComposedMessage("table.1.does.not.exist.in.2", "loca", fileName));
         rf.seek(tableLocation[TABLE_OFFSET]);
         if (locaShortTable) {
             int entries = tableLocation[TABLE_LENGTH] / 2;
@@ -326,7 +326,7 @@ class TrueTypeFontSubSet {
         int tableLocation[];
         tableLocation = tableDirectory.get("glyf");
         if (tableLocation == null)
-            throw new DocumentException(MessageLocalization.getComposedMessage("table.1.does.not.exist.in.2", "glyf", fileName));
+            throw new DocumentException(MessageLocalization.getErrorBundle().getString("ITEXTPDF_MESSAGE")); // todo ComposedMessage("table.1.does.not.exist.in.2", "glyf", fileName));
         Integer glyph0 = Integer.valueOf(0);
         if (!glyphsUsed.contains(glyph0)) {
             glyphsUsed.add(glyph0);

@@ -176,7 +176,7 @@ public class LtvVerification {
      */
     public boolean addVerification(String signatureName, OcspClient ocsp, CrlClient crl, CertificateOption certOption, Level level, CertificateInclusion certInclude) throws IOException, GeneralSecurityException {
         if (used)
-            throw new IllegalStateException(MessageLocalization.getComposedMessage("verification.already.output"));
+            throw new IllegalStateException(MessageLocalization.getErrorBundle().getString("ITEXTPDF_MESSAGE")); // todo ComposedMessage("verification.already.output"));
         PdfPKCS7 pk = acroFields.verifySignature(signatureName);
         LOGGER.info("Adding verification for " + signatureName);
         Certificate[] xc = pk.getCertificates();
@@ -259,7 +259,7 @@ public class LtvVerification {
      */
     public boolean addVerification(String signatureName, Collection<byte[]> ocsps, Collection<byte[]> crls, Collection<byte[]> certs) throws IOException, GeneralSecurityException {
         if (used)
-            throw new IllegalStateException(MessageLocalization.getComposedMessage("verification.already.output"));
+            throw new IllegalStateException(MessageLocalization.getErrorBundle().getString("ITEXTPDF_MESSAGE")); // todo ComposedMessage("verification.already.output"));
         ValidationData vd = new ValidationData();
         if (ocsps != null) {
             for (byte[] ocsp : ocsps) {

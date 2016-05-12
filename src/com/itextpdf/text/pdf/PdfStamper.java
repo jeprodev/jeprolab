@@ -286,9 +286,9 @@ public class PdfStamper
      */
     public void setEncryption(final byte userPassword[], final byte ownerPassword[], final int permissions, final boolean strength128Bits) throws DocumentException {
         if (stamper.isAppend())
-            throw new DocumentException(MessageLocalization.getComposedMessage("append.mode.does.not.support.changing.the.encryption.status"));
+            throw new DocumentException(MessageLocalization.getErrorBundle().getString("ITEXTPDF_MESSAGE")); // todo ComposedMessage("append.mode.does.not.support.changing.the.encryption.status"));
         if (stamper.isContentWritten())
-            throw new DocumentException(MessageLocalization.getComposedMessage("content.was.already.written.to.the.output"));
+            throw new DocumentException(MessageLocalization.getErrorBundle().getString("ITEXTPDF_MESSAGE")); // todo ComposedMessage("content.was.already.written.to.the.output"));
         stamper.setEncryption(userPassword, ownerPassword, permissions, strength128Bits ? PdfWriter.STANDARD_ENCRYPTION_128 : PdfWriter.STANDARD_ENCRYPTION_40);
     }
 
@@ -307,9 +307,9 @@ public class PdfStamper
      */
     public void setEncryption(final byte userPassword[], final byte ownerPassword[], final int permissions, final int encryptionType) throws DocumentException {
         if (stamper.isAppend())
-            throw new DocumentException(MessageLocalization.getComposedMessage("append.mode.does.not.support.changing.the.encryption.status"));
+            throw new DocumentException(MessageLocalization.getErrorBundle().getString("ITEXTPDF_MESSAGE")); // todo ComposedMessage("append.mode.does.not.support.changing.the.encryption.status"));
         if (stamper.isContentWritten())
-            throw new DocumentException(MessageLocalization.getComposedMessage("content.was.already.written.to.the.output"));
+            throw new DocumentException(MessageLocalization.getErrorBundle().getString("ITEXTPDF_MESSAGE")); // todo ComposedMessage("content.was.already.written.to.the.output"));
         stamper.setEncryption(userPassword, ownerPassword, permissions, encryptionType);
     }
 
@@ -363,9 +363,9 @@ public class PdfStamper
      */
      public void setEncryption(final Certificate[] certs, final int[] permissions, final int encryptionType) throws DocumentException {
         if (stamper.isAppend())
-            throw new DocumentException(MessageLocalization.getComposedMessage("append.mode.does.not.support.changing.the.encryption.status"));
+            throw new DocumentException(MessageLocalization.getErrorBundle().getString("ITEXTPDF_MESSAGE")); // todo ComposedMessage("append.mode.does.not.support.changing.the.encryption.status"));
         if (stamper.isContentWritten())
-            throw new DocumentException(MessageLocalization.getComposedMessage("content.was.already.written.to.the.output"));
+            throw new DocumentException(MessageLocalization.getErrorBundle().getString("ITEXTPDF_MESSAGE")); // todo ComposedMessage("content.was.already.written.to.the.output"));
         stamper.setEncryption(certs, permissions, encryptionType);
      }
 

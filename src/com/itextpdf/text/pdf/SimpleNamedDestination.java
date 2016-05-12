@@ -292,14 +292,14 @@ public final class SimpleNamedDestination implements SimpleXMLDocHandler {
             if (xmlLast == null && xmlNames != null)
                 return;
             else
-                throw new RuntimeException(MessageLocalization.getComposedMessage("destination.end.tag.out.of.place"));
+                throw new RuntimeException(MessageLocalization.getErrorBundle().getString("ITEXTPDF_MESSAGE")); // todo ComposedMessage("destination.end.tag.out.of.place"));
         }
         if (!tag.equals("Name"))
-            throw new RuntimeException(MessageLocalization.getComposedMessage("invalid.end.tag.1", tag));
+            throw new RuntimeException(MessageLocalization.getErrorBundle().getString("ITEXTPDF_MESSAGE")); // todo ComposedMessage("invalid.end.tag.1", tag));
         if (xmlLast == null || xmlNames == null)
-            throw new RuntimeException(MessageLocalization.getComposedMessage("name.end.tag.out.of.place"));
+            throw new RuntimeException(MessageLocalization.getErrorBundle().getString("ITEXTPDF_MESSAGE")); // todo ComposedMessage("name.end.tag.out.of.place"));
         if (!xmlLast.containsKey("Page"))
-            throw new RuntimeException(MessageLocalization.getComposedMessage("page.attribute.missing"));
+            throw new RuntimeException(MessageLocalization.getErrorBundle().getString("ITEXTPDF_MESSAGE")); // todo ComposedMessage("page.attribute.missing"));
         xmlNames.put(unEscapeBinaryString(xmlLast.get("Name")), xmlLast.get("Page"));
         xmlLast = null;
     }
@@ -314,12 +314,12 @@ public final class SimpleNamedDestination implements SimpleXMLDocHandler {
                 return;
             }
             else
-                throw new RuntimeException(MessageLocalization.getComposedMessage("root.element.is.not.destination"));
+                throw new RuntimeException(MessageLocalization.getErrorBundle().getString("ITEXTPDF_MESSAGE")); // todo ComposedMessage("root.element.is.not.destination"));
         }
         if (!tag.equals("Name"))
-            throw new RuntimeException(MessageLocalization.getComposedMessage("tag.1.not.allowed", tag));
+            throw new RuntimeException(MessageLocalization.getErrorBundle().getString("ITEXTPDF_MESSAGE")); // todo ComposedMessage("tag.1.not.allowed", tag));
         if (xmlLast != null)
-            throw new RuntimeException(MessageLocalization.getComposedMessage("nested.tags.are.not.allowed"));
+            throw new RuntimeException(MessageLocalization.getErrorBundle().getString("ITEXTPDF_MESSAGE")); // todo ComposedMessage("nested.tags.are.not.allowed"));
         xmlLast = new HashMap<String, String>(h);
         xmlLast.put("Name", "");
     }

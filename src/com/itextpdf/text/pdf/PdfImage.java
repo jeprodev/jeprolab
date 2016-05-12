@@ -248,7 +248,7 @@ public class PdfImage extends PdfStream {
                     transferBytes(is, streamBytes, -1);
                 	break;
                 default:
-                    throw new BadPdfFormatException(MessageLocalization.getComposedMessage("1.is.an.unknown.image.format", errorID));
+                    throw new BadPdfFormatException(MessageLocalization.getErrorBundle().getString("ITEXTPDF_MESSAGE")); // todo ComposedMessage("1.is.an.unknown.image.format", errorID));
             }
             if (image.getCompressionLevel() > NO_COMPRESSION)
             	flateCompress(image.getCompressionLevel());

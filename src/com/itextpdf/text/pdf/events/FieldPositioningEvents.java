@@ -174,7 +174,7 @@ public class FieldPositioningEvents extends PdfPageEventHelper implements PdfPCe
 	 * @see com.itextpdf.text.pdf.PdfPCellEvent#cellLayout(com.itextpdf.text.pdf.PdfPCell, Rectangle, com.itextpdf.text.pdf.PdfContentByte[])
 	 */
 	public void cellLayout(PdfPCell cell, Rectangle rect, PdfContentByte[] canvases) {
-		if (cellField == null || fieldWriter == null && parent == null) throw new IllegalArgumentException(MessageLocalization.getComposedMessage("you.have.used.the.wrong.constructor.for.this.fieldpositioningevents.class"));
+		if (cellField == null || fieldWriter == null && parent == null) throw new IllegalArgumentException(MessageLocalization.getErrorBundle().getString("ITEXTPDF_MESSAGE")); // todo ComposedMessage("you.have.used.the.wrong.constructor.for.this.fieldpositioningevents.class"));
 		cellField.put(PdfName.RECT, new PdfRectangle(rect.getLeft(padding), rect.getBottom(padding), rect.getRight(padding), rect.getTop(padding)));
 		if (parent == null)
 			fieldWriter.addAnnotation(cellField);

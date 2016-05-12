@@ -282,7 +282,7 @@ public class Chunk implements Element, IAccessibleElement {
 	public Chunk(final DrawInterface separator, final float tabPosition, final boolean newline) {
 		this(OBJECT_REPLACEMENT_CHARACTER, new Font());
 		if (tabPosition < 0) {
-			throw new IllegalArgumentException(MessageLocalization.getComposedMessage("a.tab.position.may.not.be.lower.than.0.yours.is.1", String.valueOf(tabPosition)));
+			throw new IllegalArgumentException(MessageLocalization.getErrorBundle().getString("ITEXTPDF_MESSAGE")); // todo ComposedMessage("a.tab.position.may.not.be.lower.than.0.yours.is.1", String.valueOf(tabPosition)));
 		}
 		setAttribute(TAB, new Object[] {separator, new Float(tabPosition), Boolean.valueOf(newline), new Float(0)});
         this.role = PdfName.ARTIFACT;
@@ -298,7 +298,7 @@ public class Chunk implements Element, IAccessibleElement {
     private Chunk(final Float tabInterval, final boolean isWhitespace) {
         this(OBJECT_REPLACEMENT_CHARACTER, new Font());
         if (tabInterval < 0) {
-            throw new IllegalArgumentException(MessageLocalization.getComposedMessage("a.tab.position.may.not.be.lower.than.0.yours.is.1", String.valueOf(tabInterval)));
+            throw new IllegalArgumentException(MessageLocalization.getErrorBundle().getString("ITEXTPDF_MESSAGE")); // todo ComposedMessage("a.tab.position.may.not.be.lower.than.0.yours.is.1", String.valueOf(tabInterval)));
         }
         setAttribute(TAB, new Object[]{tabInterval, Boolean.valueOf(isWhitespace)});
         setAttribute(SPLITCHARACTER, TabSplitCharacter.TAB);

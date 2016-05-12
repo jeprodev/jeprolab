@@ -61,7 +61,7 @@ public class RomanAlphabetFactory {
 	 * @return a translated string
 	 */
 	public static final String getString(int index) {
-    	if (index < 1) throw new NumberFormatException(MessageLocalization.getComposedMessage("you.can.t.translate.a.negative.number.into.an.alphabetical.value"));
+    	if (index < 1) throw new NumberFormatException(MessageLocalization.getErrorBundle().getString("ITEXTPDF_MESSAGE")); // todo ComposedMessage("you.can.t.translate.a.negative.number.into.an.alphabetical.value"));
 
     	index--;
     	int bytes = 1;

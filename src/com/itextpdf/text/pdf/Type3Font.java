@@ -123,7 +123,7 @@ public class Type3Font extends BaseFont {
      */
     public PdfContentByte defineGlyph(char c, float wx, float llx, float lly, float urx, float ury) {
         if (c == 0 || c > 255)
-            throw new IllegalArgumentException(MessageLocalization.getComposedMessage("the.char.1.doesn.t.belong.in.this.type3.font", c));
+            throw new IllegalArgumentException(MessageLocalization.getErrorBundle().getString("ITEXTPDF_MESSAGE")); // todo ComposedMessage("the.char.1.doesn.t.belong.in.this.type3.font", c));
         usedSlot[c] = true;
         Integer ck = Integer.valueOf(c);
         Type3Glyph glyph = char2glyph.get(ck);
@@ -209,14 +209,14 @@ public class Type3Font extends BaseFont {
     @Override
     void writeFont(PdfWriter writer, PdfIndirectReference ref, Object[] params) throws DocumentException, java.io.IOException {
         if (this.writer != writer)
-            throw new IllegalArgumentException(MessageLocalization.getComposedMessage("type3.font.used.with.the.wrong.pdfwriter"));
+            throw new IllegalArgumentException(MessageLocalization.getErrorBundle().getString("ITEXTPDF_MESSAGE")); // todo ComposedMessage("type3.font.used.with.the.wrong.pdfwriter"));
 
         // Get first & lastchar ...
         int firstChar = 0;
         while( firstChar < usedSlot.length && !usedSlot[firstChar] ) firstChar++;
 
         if ( firstChar == usedSlot.length ) {
-        	throw new DocumentException(MessageLocalization.getComposedMessage("no.glyphs.defined.for.type3.font"));
+        	throw new DocumentException(MessageLocalization.getErrorBundle().getString("ITEXTPDF_MESSAGE")); // todo ComposedMessage("no.glyphs.defined.for.type3.font"));
         }
         int lastChar = usedSlot.length - 1;
         while( lastChar >= firstChar && !usedSlot[lastChar] ) lastChar--;
@@ -310,7 +310,7 @@ public class Type3Font extends BaseFont {
     @Override
     public int getWidth(int char1) {
         if (!widths3.containsKey(char1))
-            throw new IllegalArgumentException(MessageLocalization.getComposedMessage("the.char.1.is.not.defined.in.a.type3.font", char1));
+            throw new IllegalArgumentException(MessageLocalization.getErrorBundle().getString("ITEXTPDF_MESSAGE")); // todo ComposedMessage("the.char.1.is.not.defined.in.a.type3.font", char1));
         return widths3.get(char1);
     }
 

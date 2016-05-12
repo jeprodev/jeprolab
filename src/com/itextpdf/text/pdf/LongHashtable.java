@@ -107,10 +107,10 @@ public class LongHashtable implements Cloneable {
     public LongHashtable(int initialCapacity, float loadFactor) {
         super();
         if (initialCapacity < 0) {
-            throw new IllegalArgumentException(MessageLocalization.getComposedMessage("illegal.capacity.1", initialCapacity));
+            throw new IllegalArgumentException(MessageLocalization.getErrorBundle().getString("ITEXTPDF_MESSAGE")); // todo ComposedMessage("illegal.capacity.1", initialCapacity));
         }
         if (loadFactor <= 0) {
-            throw new IllegalArgumentException(MessageLocalization.getComposedMessage("illegal.load.1", String.valueOf(loadFactor)));
+            throw new IllegalArgumentException(MessageLocalization.getErrorBundle().getString("ITEXTPDF_MESSAGE")); // todo ComposedMessage("illegal.load.1", String.valueOf(loadFactor)));
         }
         if (initialCapacity == 0) {
             initialCapacity = 1;
@@ -414,10 +414,10 @@ public class LongHashtable implements Cloneable {
             	entry = e.next;
             	return e;
             }
-        	throw new NoSuchElementException(MessageLocalization.getComposedMessage("inthashtableiterator"));
+        	throw new NoSuchElementException(MessageLocalization.getErrorBundle().getString("ITEXTPDF_MESSAGE")); // todo ComposedMessage("inthashtableiterator"));
         }
         public void remove() {
-        	throw new UnsupportedOperationException(MessageLocalization.getComposedMessage("remove.not.supported"));
+        	throw new UnsupportedOperationException(MessageLocalization.getErrorBundle().getString("ITEXTPDF_MESSAGE")); // todo ComposedMessage("remove.not.supported"));
         }
     }
 

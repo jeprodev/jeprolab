@@ -217,7 +217,7 @@ public class PRTokeniser {
     }
     
     public void throwError(String error) throws IOException {
-        throw new InvalidPdfException(MessageLocalization.getComposedMessage("1.at.file.pointer.2", error, String.valueOf(file.getFilePointer())));
+        throw new InvalidPdfException(MessageLocalization.getErrorBundle().getString("ITEXTPDF_MESSAGE")); // todo ComposedMessage("1.at.file.pointer.2", error, String.valueOf(file.getFilePointer())));
     }
     
     public int getHeaderOffset() throws IOException{
@@ -226,7 +226,7 @@ public class PRTokeniser {
         if (idx < 0){
         	idx = str.indexOf("%FDF-");
         	if (idx < 0)
-        		throw new InvalidPdfException(MessageLocalization.getComposedMessage("pdf.header.not.found"));
+        		throw new InvalidPdfException(MessageLocalization.getErrorBundle().getString("ITEXTPDF_MESSAGE")); // todo ComposedMessage("pdf.header.not.found"));
         }
 
         return idx;
@@ -237,7 +237,7 @@ public class PRTokeniser {
         String str = readString(1024);
         int idx = str.indexOf("%PDF-");
         if (idx != 0)
-            throw new InvalidPdfException(MessageLocalization.getComposedMessage("pdf.header.not.found"));
+            throw new InvalidPdfException(MessageLocalization.getErrorBundle().getString("ITEXTPDF_MESSAGE")); // todo ComposedMessage("pdf.header.not.found"));
         return str.charAt(7);
     }
     
@@ -246,7 +246,7 @@ public class PRTokeniser {
         String str = readString(1024);
         int idx = str.indexOf("%FDF-");
         if (idx != 0)
-            throw new InvalidPdfException(MessageLocalization.getComposedMessage("fdf.header.not.found"));
+            throw new InvalidPdfException(MessageLocalization.getErrorBundle().getString("ITEXTPDF_MESSAGE")); // todo ComposedMessage("fdf.header.not.found"));
     }
 
     public long getStartxref() throws IOException {
@@ -261,7 +261,7 @@ public class PRTokeniser {
     	    if (idx >= 0) return pos + idx;
     	    pos = pos - arrLength + 9; // 9 = "startxref".length()
     	}
-        throw new InvalidPdfException(MessageLocalization.getComposedMessage("pdf.startxref.not.found"));
+        throw new InvalidPdfException(MessageLocalization.getErrorBundle().getString("ITEXTPDF_MESSAGE")); // todo ComposedMessage("pdf.startxref.not.found"));
     }
 
     public static int getHex(int v) {
@@ -370,7 +370,7 @@ public class PRTokeniser {
             case '>':
                 ch = file.read();
                 if (ch != '>')
-                    throwError(MessageLocalization.getComposedMessage("greaterthan.not.expected"));
+                    throwError(MessageLocalization.getErrorBundle().getString("ITEXTPDF_MESSAGE")); // todo ComposedMessage("greaterthan.not.expected"));
                 type = TokenType.END_DIC;
                 break;
             case '<':
@@ -408,7 +408,7 @@ public class PRTokeniser {
                     v1 = file.read();
                 }
                 if (v1 < 0 || v2 < 0)
-                    throwError(MessageLocalization.getComposedMessage("error.reading.string"));
+                    throwError(MessageLocalization.getErrorBundle().getString("ITEXTPDF_MESSAGE")); // todo ComposedMessage("error.reading.string"));
                 break;
             }
             case '%':
@@ -508,7 +508,7 @@ public class PRTokeniser {
                     outBuf.append((char)ch);
                 }
                 if (ch == -1)
-                    throwError(MessageLocalization.getComposedMessage("error.reading.string"));
+                    throwError(MessageLocalization.getErrorBundle().getString("ITEXTPDF_MESSAGE")); // todo ComposedMessage("error.reading.string"));
                 break;
             }
             default:

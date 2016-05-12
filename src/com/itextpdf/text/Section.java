@@ -273,18 +273,18 @@ public class Section extends ArrayList<Element> implements TextElementArray, Lar
     @Override
     public void add(final int index, final Element element) {
     	if (isAddedCompletely()) {
-    		throw new IllegalStateException(MessageLocalization.getComposedMessage("this.largeelement.has.already.been.added.to.the.document"));
+    		throw new IllegalStateException(MessageLocalization.getErrorBundle().getString("ITEXTPDF_MESSAGE")); // todo ComposedMessage("this.largeelement.has.already.been.added.to.the.document"));
     	}
         try {
             if (element.isNestable()) {
                 super.add(index, element);
             }
             else {
-                throw new ClassCastException(MessageLocalization.getComposedMessage("you.can.t.add.a.1.to.a.section", element.getClass().getName()));
+                throw new ClassCastException(MessageLocalization.getErrorBundle().getString("ITEXTPDF_MESSAGE")); // todo ComposedMessage("you.can.t.add.a.1.to.a.section", element.getClass().getName()));
             }
         }
         catch(ClassCastException cce) {
-            throw new ClassCastException(MessageLocalization.getComposedMessage("insertion.of.illegal.element.1", cce.getMessage()));
+            throw new ClassCastException(MessageLocalization.getErrorBundle().getString("ITEXTPDF_MESSAGE")); // todo ComposedMessage("insertion.of.illegal.element.1", cce.getMessage()));
         }
     }
 
@@ -300,7 +300,7 @@ public class Section extends ArrayList<Element> implements TextElementArray, Lar
     @Override
     public boolean add(final Element element) {
     	if (isAddedCompletely()) {
-    		throw new IllegalStateException(MessageLocalization.getComposedMessage("this.largeelement.has.already.been.added.to.the.document"));
+    		throw new IllegalStateException(MessageLocalization.getErrorBundle().getString("ITEXTPDF_MESSAGE")); // todo ComposedMessage("this.largeelement.has.already.been.added.to.the.document"));
     	}
         try {
             if (element.type() == Element.SECTION) {
@@ -318,11 +318,11 @@ public class Section extends ArrayList<Element> implements TextElementArray, Lar
             	return super.add(element);
             }
             else {
-                throw new ClassCastException(MessageLocalization.getComposedMessage("you.can.t.add.a.1.to.a.section", element.getClass().getName()));
+                throw new ClassCastException(MessageLocalization.getErrorBundle().getString("ITEXTPDF_MESSAGE")); // todo ComposedMessage("you.can.t.add.a.1.to.a.section", element.getClass().getName()));
             }
         }
         catch(ClassCastException cce) {
-            throw new ClassCastException(MessageLocalization.getComposedMessage("insertion.of.illegal.element.1", cce.getMessage()));
+            throw new ClassCastException(MessageLocalization.getErrorBundle().getString("ITEXTPDF_MESSAGE")); // todo ComposedMessage("insertion.of.illegal.element.1", cce.getMessage()));
         }
     }
 
@@ -356,7 +356,7 @@ public class Section extends ArrayList<Element> implements TextElementArray, Lar
      */
     public Section addSection(final float indentation, final Paragraph title, final int numberDepth) {
     	if (isAddedCompletely()) {
-    		throw new IllegalStateException(MessageLocalization.getComposedMessage("this.largeelement.has.already.been.added.to.the.document"));
+    		throw new IllegalStateException(MessageLocalization.getErrorBundle().getString("ITEXTPDF_MESSAGE")); // todo ComposedMessage("this.largeelement.has.already.been.added.to.the.document"));
     	}
         Section section = new Section(title, numberDepth);
         section.setIndentation(indentation);

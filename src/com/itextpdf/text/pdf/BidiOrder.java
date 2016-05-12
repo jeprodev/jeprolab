@@ -1093,16 +1093,16 @@ public final class BidiOrder {
      */
     private static void validateTypes(byte[] types) {
         if (types == null) {
-            throw new IllegalArgumentException(MessageLocalization.getComposedMessage("types.is.null"));
+            throw new IllegalArgumentException(MessageLocalization.getErrorBundle().getString("ITEXTPDF_MESSAGE")); // todo ComposedMessage("types.is.null"));
         }
         for (int i = 0; i < types.length; ++i) {
             if (types[i] < TYPE_MIN || types[i] > TYPE_MAX) {
-                throw new IllegalArgumentException(MessageLocalization.getComposedMessage("illegal.type.value.at.1.2", String.valueOf(i), String.valueOf(types[i])));
+                throw new IllegalArgumentException(MessageLocalization.getErrorBundle().getString("ITEXTPDF_MESSAGE")); // todo ComposedMessage("illegal.type.value.at.1.2", String.valueOf(i), String.valueOf(types[i])));
             }
         }
         for (int i = 0; i < types.length - 1; ++i) {
             if (types[i] == B) {
-                throw new IllegalArgumentException(MessageLocalization.getComposedMessage("b.type.before.end.of.paragraph.at.index.1", i));
+                throw new IllegalArgumentException(MessageLocalization.getErrorBundle().getString("ITEXTPDF_MESSAGE")); // todo ComposedMessage("b.type.before.end.of.paragraph.at.index.1", i));
             }
         }
     }
@@ -1115,7 +1115,7 @@ public final class BidiOrder {
         if (paragraphEmbeddingLevel != -1 &&
         paragraphEmbeddingLevel != 0 &&
         paragraphEmbeddingLevel != 1) {
-            throw new IllegalArgumentException(MessageLocalization.getComposedMessage("illegal.paragraph.embedding.level.1", paragraphEmbeddingLevel));
+            throw new IllegalArgumentException(MessageLocalization.getErrorBundle().getString("ITEXTPDF_MESSAGE")); // todo ComposedMessage("illegal.paragraph.embedding.level.1", paragraphEmbeddingLevel));
         }
     }
     
@@ -1127,12 +1127,12 @@ public final class BidiOrder {
         for (int i = 0; i < linebreaks.length; ++i) {
             int next = linebreaks[i];
             if (next <= prev) {
-                throw new IllegalArgumentException(MessageLocalization.getComposedMessage("bad.linebreak.1.at.index.2", String.valueOf(next), String.valueOf(i)));
+                throw new IllegalArgumentException(MessageLocalization.getErrorBundle().getString("ITEXTPDF_MESSAGE")); // todo ComposedMessage("bad.linebreak.1.at.index.2", String.valueOf(next), String.valueOf(i)));
             }
             prev = next;
         }
         if (prev != textLength) {
-            throw new IllegalArgumentException(MessageLocalization.getComposedMessage("last.linebreak.must.be.at.1", textLength));
+            throw new IllegalArgumentException(MessageLocalization.getErrorBundle().getString("ITEXTPDF_MESSAGE")); // todo ComposedMessage("last.linebreak.must.be.at.1", textLength));
         }
     }
     

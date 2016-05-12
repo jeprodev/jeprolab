@@ -86,7 +86,7 @@ public class TaggedPdfReaderTool {
 		PdfDictionary catalog = reader.getCatalog();
 		PdfDictionary struct = catalog.getAsDict(PdfName.STRUCTTREEROOT);
 		if (struct == null)
-			throw new IOException(MessageLocalization.getComposedMessage("no.structtreeroot.found"));
+			throw new IOException(MessageLocalization.getErrorBundle().getString("ITEXTPDF_MESSAGE")); // todo ComposedMessage("no.structtreeroot.found"));
 		// Inspect the child or children of the StructTreeRoot
 		inspectChild(struct.getDirectObject(PdfName.K));
 		out.flush();

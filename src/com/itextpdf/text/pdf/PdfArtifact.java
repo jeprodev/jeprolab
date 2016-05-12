@@ -100,7 +100,7 @@ public class PdfArtifact implements IAccessibleElement {
 
     public void setType(PdfString type) {
         if (!allowedArtifactTypes.contains(type.toString()))
-            throw new IllegalArgumentException(MessageLocalization.getComposedMessage("the.artifact.type.1.is.invalid", type));
+            throw new IllegalArgumentException(MessageLocalization.getErrorBundle().getString("ITEXTPDF_MESSAGE")); // todo ComposedMessage("the.artifact.type.1.is.invalid", type));
         setAccessibleAttribute(PdfName.TYPE, type);
     }
 

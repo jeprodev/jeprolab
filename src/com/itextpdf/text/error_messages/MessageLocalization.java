@@ -51,7 +51,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
+import java.lang.management.ManagementFactory;
+import java.lang.management.RuntimeMXBean;
 import java.util.HashMap;
+import java.util.List;
 import java.util.ResourceBundle;
 
 /**
@@ -73,7 +76,22 @@ public final class MessageLocalization {
 
     public static ResourceBundle getErrorBundle(){
         if(errorBundle == null){
-            errorBundle = ResourceBundle.getBundle("com.itextpdf.text.error_messages.resources.i18n.message");
+            RuntimeMXBean runtimeMxBean = ManagementFactory.getRuntimeMXBean();
+            List<String> arguments = runtimeMxBean.getInputArguments();
+
+            String lang = "";
+            for (String argument : arguments) {
+                if (argument.contains("Duser.language")) {
+                    String[] args = argument.split("=");
+                    lang = args[1];
+                    break;
+                }
+            }
+            if (lang.equalsIgnoreCase("en")) {
+                errorBundle = ResourceBundle.getBundle("com.itextpdf.text.error_messages.resources.i18n.messages");
+            }else {
+                errorBundle = ResourceBundle.getBundle("com.itextpdf.text.error_messages.resources.i18n.messages");
+            }
         }
         return errorBundle;
     }

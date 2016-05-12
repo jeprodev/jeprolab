@@ -243,7 +243,7 @@ public class PdfCopy extends PdfWriter {
     @Override
     public PdfImportedPage getImportedPage(PdfReader reader, int pageNumber) {
         if (mergeFields && !mergeFieldsInternalCall) {
-            throw new IllegalArgumentException(MessageLocalization.getComposedMessage("1.method.cannot.be.used.in.mergeFields.mode.please.use.addDocument", "getImportedPage"));
+            throw new IllegalArgumentException(MessageLocalization.getErrorBundle().getString("ITEXTPDF_MESSAGE")); // todo ComposedMessage("1.method.cannot.be.used.in.mergeFields.mode.please.use.addDocument", "getImportedPage"));
         }
         if (mergeFields) {
             ImportedPage newPage = new ImportedPage(reader, pageNumber, mergeFields);
@@ -258,7 +258,7 @@ public class PdfCopy extends PdfWriter {
 
     public PdfImportedPage getImportedPage(PdfReader reader, int pageNumber, boolean keepTaggedPdfStructure) throws BadPdfFormatException {
         if (mergeFields && !mergeFieldsInternalCall) {
-            throw new IllegalArgumentException(MessageLocalization.getComposedMessage("1.method.cannot.be.used.in.mergeFields.mode.please.use.addDocument", "getImportedPage"));
+            throw new IllegalArgumentException(MessageLocalization.getErrorBundle().getString("ITEXTPDF_MESSAGE")); // todo ComposedMessage("1.method.cannot.be.used.in.mergeFields.mode.please.use.addDocument", "getImportedPage"));
         }
         updateRootKids = false;
         if (!keepTaggedPdfStructure) {
@@ -429,7 +429,7 @@ public class PdfCopy extends PdfWriter {
                     return theRef;
                 }
                 if ((PdfName.CATALOG.equals(type))) {
-                    LOGGER.warn(MessageLocalization.getComposedMessage("make.copy.of.catalog.dictionary.is.forbidden"));
+                    LOGGER.warn(MessageLocalization.getErrorBundle().getString("ITEXTPDF_MESSAGE")); // todo ComposedMessage("make.copy.of.catalog.dictionary.is.forbidden"));
                     return null;
                 }
             }
@@ -656,7 +656,7 @@ public class PdfCopy extends PdfWriter {
      */
     public void addPage(PdfImportedPage iPage) throws IOException, BadPdfFormatException {
         if (mergeFields && !mergeFieldsInternalCall) {
-            throw new IllegalArgumentException(MessageLocalization.getComposedMessage("1.method.cannot.be.used.in.mergeFields.mode.please.use.addDocument", "addPage"));
+            throw new IllegalArgumentException(MessageLocalization.getErrorBundle().getString("ITEXTPDF_MESSAGE")); // todo ComposedMessage("1.method.cannot.be.used.in.mergeFields.mode.please.use.addDocument", "addPage"));
         }
 
         int pageNum = setFromIPage(iPage);
@@ -700,7 +700,7 @@ public class PdfCopy extends PdfWriter {
      */
     public void addPage(Rectangle rect, int rotation) throws DocumentException {
         if (mergeFields && !mergeFieldsInternalCall) {
-            throw new IllegalArgumentException(MessageLocalization.getComposedMessage("1.method.cannot.be.used.in.mergeFields.mode.please.use.addDocument", "addPage"));
+            throw new IllegalArgumentException(MessageLocalization.getErrorBundle().getString("ITEXTPDF_MESSAGE")); // todo ComposedMessage("1.method.cannot.be.used.in.mergeFields.mode.please.use.addDocument", "addPage"));
         }
         PdfRectangle mediabox = new PdfRectangle(rect, rotation);
         PageResources resources = new PageResources();
@@ -713,7 +713,7 @@ public class PdfCopy extends PdfWriter {
 
     public void addDocument(PdfReader reader, List<Integer> pagesToKeep) throws DocumentException, IOException {
         if (indirectMap.containsKey(reader)) {
-            throw new IllegalArgumentException(MessageLocalization.getComposedMessage("document.1.has.already.been.added", reader.toString()));
+            throw new IllegalArgumentException(MessageLocalization.getErrorBundle().getString("ITEXTPDF_MESSAGE")); // todo ComposedMessage("document.1.has.already.been.added", reader.toString()));
         }
         reader.selectPages(pagesToKeep, false);
         addDocument(reader);
@@ -727,18 +727,18 @@ public class PdfCopy extends PdfWriter {
      */
     public void copyDocumentFields(PdfReader reader) throws DocumentException, IOException {
         if (!document.isOpen()) {
-            throw new DocumentException(MessageLocalization.getComposedMessage("the.document.is.not.open.yet.you.can.only.add.meta.information"));
+            throw new DocumentException(MessageLocalization.getErrorBundle().getString("ITEXTPDF_MESSAGE")); // todo ComposedMessage("the.document.is.not.open.yet.you.can.only.add.meta.information"));
         }
 
         if (indirectMap.containsKey(reader)) {
-            throw new IllegalArgumentException(MessageLocalization.getComposedMessage("document.1.has.already.been.added", reader.toString()));
+            throw new IllegalArgumentException(MessageLocalization.getErrorBundle().getString("ITEXTPDF_MESSAGE")); // todo ComposedMessage("document.1.has.already.been.added", reader.toString()));
         }
 
         if (!reader.isOpenedWithFullPermissions())
-            throw new BadPasswordException(MessageLocalization.getComposedMessage("pdfreader.not.opened.with.owner.password"));
+            throw new BadPasswordException(MessageLocalization.getErrorBundle().getString("ITEXTPDF_MESSAGE")); // todo ComposedMessage("pdfreader.not.opened.with.owner.password"));
 
         if (!mergeFields)
-            throw new IllegalArgumentException(MessageLocalization.getComposedMessage("1.method.can.be.only.used.in.mergeFields.mode.please.use.addDocument", "copyDocumentFields"));
+            throw new IllegalArgumentException(MessageLocalization.getErrorBundle().getString("ITEXTPDF_MESSAGE")); // todo ComposedMessage("1.method.can.be.only.used.in.mergeFields.mode.please.use.addDocument", "copyDocumentFields"));
 
         indirects = new HashMap<RefKey, IndirectReferences>();
         indirectMap.put(reader, indirects);
@@ -763,7 +763,7 @@ public class PdfCopy extends PdfWriter {
                 PdfArray annots = page.getAsArray(PdfName.ANNOTS);
                 if (annots != null && annots.size() > 0) {
                     if (importedPages.size() < i)
-                        throw new DocumentException(MessageLocalization.getComposedMessage("there.are.not.enough.imported.pages.for.copied.fields"));
+                        throw new DocumentException(MessageLocalization.getErrorBundle().getString("ITEXTPDF_MESSAGE")); // todo ComposedMessage("there.are.not.enough.imported.pages.for.copied.fields"));
                     indirectMap.get(reader).put(new RefKey(reader.pageRefs.getPageOrigRef(i)), new IndirectReferences(pageReferences.get(i - 1)));
                     for (int j = 0; j < annots.size(); j++) {
                         PdfDictionary annot = annots.getAsDict(j);
@@ -794,13 +794,13 @@ public class PdfCopy extends PdfWriter {
 
     public void addDocument(PdfReader reader) throws DocumentException, IOException {
         if ( ! document.isOpen() ) {
-            throw new DocumentException(MessageLocalization.getComposedMessage("the.document.is.not.open.yet.you.can.only.add.meta.information"));
+            throw new DocumentException(MessageLocalization.getErrorBundle().getString("ITEXTPDF_MESSAGE")); // todo ComposedMessage("the.document.is.not.open.yet.you.can.only.add.meta.information"));
         }
         if (indirectMap.containsKey(reader)) {
-            throw new IllegalArgumentException(MessageLocalization.getComposedMessage("document.1.has.already.been.added", reader.toString()));
+            throw new IllegalArgumentException(MessageLocalization.getErrorBundle().getString("ITEXTPDF_MESSAGE")); // todo ComposedMessage("document.1.has.already.been.added", reader.toString()));
         }
         if (!reader.isOpenedWithFullPermissions())
-            throw new BadPasswordException(MessageLocalization.getComposedMessage("pdfreader.not.opened.with.owner.password"));
+            throw new BadPasswordException(MessageLocalization.getErrorBundle().getString("ITEXTPDF_MESSAGE")); // todo ComposedMessage("pdfreader.not.opened.with.owner.password"));
         if (mergeFields) {
             reader.consolidateNamedDestinations();
             reader.shuffleSubsetNames();
@@ -1751,7 +1751,7 @@ public class PdfCopy extends PdfWriter {
     @Override
     public void freeReader(PdfReader reader) throws IOException {
         if (mergeFields)
-            throw new UnsupportedOperationException(MessageLocalization.getComposedMessage("it.is.not.possible.to.free.reader.in.merge.fields.mode"));
+            throw new UnsupportedOperationException(MessageLocalization.getErrorBundle().getString("ITEXTPDF_MESSAGE")); // todo ComposedMessage("it.is.not.possible.to.free.reader.in.merge.fields.mode"));
         PdfArray array = reader.trailer.getAsArray(PdfName.ID);
         if (array != null)
             originalFileID = array.getAsString(0).getBytes();
@@ -1869,7 +1869,7 @@ public class PdfCopy extends PdfWriter {
         int pageNum = iPage.getPageNumber();
         PdfReader reader = iPage.getPdfReaderInstance().getReader();
         if (isTagged())
-            throw new RuntimeException(MessageLocalization.getComposedMessage("creating.page.stamp.not.allowed.for.tagged.reader"));
+            throw new RuntimeException(MessageLocalization.getErrorBundle().getString("ITEXTPDF_MESSAGE")); // todo ComposedMessage("creating.page.stamp.not.allowed.for.tagged.reader"));
         PdfDictionary pageN = reader.getPageN(pageNum);
         return new PageStamp(reader, pageN, this);
     }

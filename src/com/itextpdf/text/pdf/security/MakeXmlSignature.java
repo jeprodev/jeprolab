@@ -258,12 +258,12 @@ public class MakeXmlSignature {
     private static void verifyArguments(XmlSignatureAppearance sap, ExternalSignature externalSignature)
             throws DocumentException {
         if (sap.getXmlLocator() == null)
-            throw new DocumentException(MessageLocalization.getComposedMessage("xmllocator.cannot.be.null"));
+            throw new DocumentException(MessageLocalization.getErrorBundle().getString("ITEXTPDF_MESSAGE")); // todo ComposedMessage("xmllocator.cannot.be.null"));
         if (!externalSignature.getHashAlgorithm().equals(SecurityConstants.SHA1))
-            throw new UnsupportedOperationException(MessageLocalization.getComposedMessage("support.only.sha1.hash.algorithm"));
+            throw new UnsupportedOperationException(MessageLocalization.getErrorBundle().getString("ITEXTPDF_MESSAGE")); // todo ComposedMessage("support.only.sha1.hash.algorithm"));
 
         if (!externalSignature.getEncryptionAlgorithm().equals(SecurityConstants.RSA) && !externalSignature.getEncryptionAlgorithm().equals(SecurityConstants.DSA))
-            throw new UnsupportedOperationException(MessageLocalization.getComposedMessage("support.only.rsa.and.dsa.algorithms"));
+            throw new UnsupportedOperationException(MessageLocalization.getErrorBundle().getString("ITEXTPDF_MESSAGE")); // todo ComposedMessage("support.only.rsa.and.dsa.algorithms"));
     }
 
     /**

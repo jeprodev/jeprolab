@@ -240,13 +240,12 @@ public class Document implements DocListener, IAccessibleElement {
     }
 
 	/**
- * Removes a <CODE>DocListener</CODE> from the <CODE>Document</CODE>.
- *
+     * Removes a <CODE>DocListener</CODE> from the <CODE>Document</CODE>.
+     *
 	 * @param listener
 	 *            the DocListener that has to be removed.
- */
-
-    public void removeDocListener(DocListener listener) {
+     */
+    public void removeDocListener(DocListener listener){
         listeners.remove(listener);
     }
 
@@ -254,21 +253,21 @@ public class Document implements DocListener, IAccessibleElement {
 
 	/**
 	 * Adds an <CODE>Element</CODE> to the <CODE>Document</CODE>.
- *
+     *
 	 * @param element
 	 *            the <CODE>Element</CODE> to add
 	 * @return <CODE>true</CODE> if the element was added, <CODE>false
 	 *         </CODE> if not
 	 * @throws DocumentException
 	 *             when a document isn't open yet, or has been closed
- */
+     */
 
     public boolean add(Element element) throws DocumentException {
         if (close) {
-			throw new DocumentException(MessageLocalization.getErrorBundle().getString("ITEXTPDF_THE_DOCUMENT_HAS_BEEN_CLOSED_YOU_CANT_MESSAGE")); //todo ComposedMessage("the.document.has.been.closed.you.can.t.add.any.elements"));
+			throw new DocumentException(MessageLocalization.getErrorBundle().getString("ITEXTPDF_THE_DOCUMENT_HAS_BEEN_CLOSED_YOU_CANT_NOT_ADD_ANY_ELEMENTS_MESSAGE"));
         }
 		if (!open && element.isContent()) {
-			throw new DocumentException(MessageLocalization.getErrorBundle().getString("ITEXTPDF_MESSAGE")); // todo ComposedMessage("the.document.is.not.open.yet.you.can.only.add.meta.information"));
+			throw new DocumentException(MessageLocalization.getErrorBundle().getString("ITEXTPDF_THE_DOCUMENT_IS_NOT_OPEN_YET_YOU_CAN_ONLY_ADD_META_INFORMATION_MESSAGE"));
         }
         boolean success = false;
         if (element instanceof ChapterAutoNumber) {

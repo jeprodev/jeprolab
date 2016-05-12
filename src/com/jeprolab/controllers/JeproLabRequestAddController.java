@@ -12,6 +12,7 @@ import com.jeprolab.models.JeproLabAnalyzeModel;
 import com.jeprolab.models.JeproLabCustomerModel;
 import com.jeprolab.models.JeproLabRequestModel;
 
+import com.jeprolab.models.document.JeproLabDocument;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
@@ -46,7 +47,7 @@ public class JeproLabRequestAddController extends JeproLabController{
     private Map<Integer, String> contactList = new HashMap<>();
     private Map<Integer, String> requestStatus = new HashMap<>();
     //private int firstContactId, secondContactId, thirdContactId, fourthContactId;
-    private Button saveRequestBtn, cancelBtn;
+    private Button saveRequestBtn, cancelBtn, printCertificateBtn;
     private double fourthColumnWidth = 280;
     //private final double formWidth = 0.98 * JeproLab.APP_WIDTH;
     private final double subFormWidth = 0.96 * JeproLab.APP_WIDTH;
@@ -243,6 +244,7 @@ public class JeproLabRequestAddController extends JeproLabController{
         GridPane.setMargin(jeproLabSampleTestDate, new Insets(5, 0, 5, 0));
         GridPane.setMargin(jeproLabSampleAnalyzeSelectorLabel, new Insets(5, 0, 5, 10));
         GridPane.setMargin(jeproLabSampleAnalyzeSelector, new Insets(5, 0, 15, 5));
+        GridPane.setMargin(jeproLabSampleConditionLabel, new Insets(5, 0, 10, 10));
         jeproLabSampleAnalyzeSelectorLabel.setPrefWidth(380);
         jeproLabSampleAnalyzeSelectorLabel.setAlignment(Pos.CENTER);
         jeproLabSampleReference.setDisable(true);
@@ -290,6 +292,7 @@ public class JeproLabRequestAddController extends JeproLabController{
         jeproLabSaveSampleBtn.setGraphic(new ImageView(new Image(JeproLab.class.getResourceAsStream("resources/images/floppy-icon.png"))));
         jeproLabCancelSampleBtn.setText(bundle.getString("JEPROLAB_CANCEL_LABEL"));
         jeproLabCancelSampleBtn.setGraphic(new ImageView(new Image(JeproLab.class.getResourceAsStream("resources/images/unpublished.png"))));
+
     }
 
     private void renderSampleListForm(){
@@ -375,6 +378,7 @@ public class JeproLabRequestAddController extends JeproLabController{
             updateContacts(customersContact);
 
             List<JeproLabRequestModel.JeproLabSampleModel> samples = JeproLabRequestModel.JeproLabSampleModel.getSamplesByRequestId(request.request_id);
+            System.out.println(samples.size());
             ObservableList<JeproLabSampleRecord> sampleList = FXCollections.observableArrayList();
             if(!samples.isEmpty()){
                 sampleList.addAll(samples.stream().map(JeproLabSampleRecord::new).collect(Collectors.toList()));
@@ -543,6 +547,7 @@ public class JeproLabRequestAddController extends JeproLabController{
         } else {
             saveRequestBtn.setText(bundle.getString("JEPROLAB_SAVE_LABEL"));
         }
+        printCertificateBtn = new Button(bundle.getString("JEPROLAB_CERTIFICATE_LABEL"), new ImageView(new Image(JeproLab.class.getResourceAsStream("resources/images/printer.png"))));
         cancelBtn = new Button(bundle.getString("JEPROLAB_CANCEL_LABEL"), new ImageView(new Image(JeproLab.class.getResourceAsStream("resources/images/unpublished.png"))));
 
         saveRequestBtn.setOnAction(evt -> {
@@ -591,7 +596,13 @@ public class JeproLabRequestAddController extends JeproLabController{
             }
         });
 
-        commandWrapper.getChildren().addAll(saveRequestBtn, cancelBtn);
+        printCertificateBtn.setOnAction(event -> {
+            if(request.request_id > 0){
+                JeproLabDocument.createCertificateDocument(request.request_id);
+            }
+        });
+
+        commandWrapper.getChildren().addAll(saveRequestBtn, printCertificateBtn, cancelBtn);
     }
 
 

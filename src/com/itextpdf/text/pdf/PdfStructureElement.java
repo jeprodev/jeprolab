@@ -128,7 +128,7 @@ public class PdfStructureElement extends PdfDictionary implements IPdfStructureE
         if (!top.getWriter().getStandardStructElems().contains(structureType)) {
             PdfDictionary roleMap = top.getAsDict(PdfName.ROLEMAP);
             if (roleMap == null || !roleMap.contains(structureType))
-                throw new ExceptionConverter(new DocumentException(MessageLocalization.getComposedMessage("unknown.structure.element.role.1", structureType.toString())));
+                throw new ExceptionConverter(new DocumentException(MessageLocalization.getErrorBundle().getString("ITEXTPDF_MESSAGE"))); // todo ComposedMessage("unknown.structure.element.role.1", structureType.toString())));
             else
                 this.structureType = roleMap.getAsName(structureType);
         } else {

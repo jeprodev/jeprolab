@@ -736,10 +736,10 @@ public final class SimpleBookmark implements SimpleXMLDocHandler {
             if (attr.isEmpty())
                 return;
             else
-                throw new RuntimeException(MessageLocalization.getComposedMessage("bookmark.end.tag.out.of.place"));
+                throw new RuntimeException(MessageLocalization.getErrorBundle().getString("ITEXTPDF_MESSAGE")); // todo ComposedMessage("bookmark.end.tag.out.of.place"));
         }
         if (!tag.equals("Title"))
-            throw new RuntimeException(MessageLocalization.getComposedMessage("invalid.end.tag.1", tag));
+            throw new RuntimeException(MessageLocalization.getErrorBundle().getString("ITEXTPDF_MESSAGE")); // todo ComposedMessage("invalid.end.tag.1", tag));
         HashMap<String, Object> attributes = attr.pop();
         String title = (String)attributes.get("Title");
         attributes.put("Title",  title.trim());
@@ -772,11 +772,11 @@ public final class SimpleBookmark implements SimpleXMLDocHandler {
                 return;
             }
             else
-                throw new RuntimeException(MessageLocalization.getComposedMessage("root.element.is.not.bookmark.1", tag));
+                throw new RuntimeException(MessageLocalization.getErrorBundle().getString("ITEXTPDF_MESSAGE")); // todo ComposedMessage("root.element.is.not.bookmark.1", tag));
         }
         if (!tag.equals("Title"))
-            throw new RuntimeException(MessageLocalization.getComposedMessage("tag.1.not.allowed", tag));
-        HashMap<String, Object> attributes = new HashMap<String, Object>(h);
+            throw new RuntimeException(MessageLocalization.getErrorBundle().getString("ITEXTPDF_MESSAGE")); // todo ComposedMessage("tag.1.not.allowed", tag));
+        HashMap<String, Object> attributes = new HashMap<>(h);
         attributes.put("Title", "");
         attributes.remove("Kids");
         attr.push(attributes);

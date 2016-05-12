@@ -197,7 +197,7 @@ public class TSAClientBouncyCastle implements TSAClient {
             int value = (failure == null) ? 0 : failure.intValue();
             if (value != 0) {
                 // @todo: Translate value of 15 error codes defined by PKIFailureInfo to string
-                throw new IOException(MessageLocalization.getComposedMessage("invalid.tsa.1.response.code.2", tsaURL, String.valueOf(value)));
+                throw new IOException(MessageLocalization.getErrorBundle().getString("ITEXTPDF_MESSAGE")); // todo ComposedMessage("invalid.tsa.1.response.code.2", tsaURL, String.valueOf(value)));
             }
             // @todo: validate the time stap certificate chain (if we want
             //        assure we do not sign using an invalid timestamp).
@@ -205,7 +205,7 @@ public class TSAClientBouncyCastle implements TSAClient {
             // extract just the time stamp token (removes communication status info)
             TimeStampToken  tsToken = response.getTimeStampToken();
             if (tsToken == null) {
-                throw new IOException(MessageLocalization.getComposedMessage("tsa.1.failed.to.return.time.stamp.token.2", tsaURL, response.getStatusString()));
+                throw new IOException(MessageLocalization.getErrorBundle().getString("ITEXTPDF_MESSAGE")); // todo ComposedMessage("tsa.1.failed.to.return.time.stamp.token.2", tsaURL, response.getStatusString()));
             }
             TimeStampTokenInfo tsTokenInfo = tsToken.getTimeStampInfo(); // to view details
             byte[] encoded = tsToken.getEncoded();
@@ -232,7 +232,7 @@ public class TSAClientBouncyCastle implements TSAClient {
         	tsaConnection = (URLConnection) url.openConnection();
         }
         catch (IOException ioe) {
-            throw new IOException(MessageLocalization.getComposedMessage("failed.to.get.tsa.response.from.1", tsaURL));
+            throw new IOException(MessageLocalization.getErrorBundle().getString("ITEXTPDF_MESSAGE")); // todo ComposedMessage("failed.to.get.tsa.response.from.1", tsaURL));
         }
         tsaConnection.setDoInput(true);
         tsaConnection.setDoOutput(true);

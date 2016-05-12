@@ -138,9 +138,9 @@ class PdfStamperImp extends PdfWriter {
     protected PdfStamperImp(PdfReader reader, OutputStream os, char pdfVersion, boolean append) throws DocumentException, IOException {
         super(new PdfDocument(), os);
         if (!reader.isOpenedWithFullPermissions())
-            throw new BadPasswordException(MessageLocalization.getComposedMessage("pdfreader.not.opened.with.owner.password"));
+            throw new BadPasswordException(MessageLocalization.getErrorBundle().getString("ITEXTPDF_MESSAGE")); // todo ComposedMessage("pdfreader.not.opened.with.owner.password"));
         if (reader.isTampered())
-            throw new DocumentException(MessageLocalization.getComposedMessage("the.original.document.was.reused.read.it.again.from.file"));
+            throw new DocumentException(MessageLocalization.getErrorBundle().getString("ITEXTPDF_MESSAGE")); // todo ComposedMessage("the.original.document.was.reused.read.it.again.from.file"));
         reader.setTampered(true);
         this.reader = reader;
         file = reader.getSafeFile();
@@ -150,7 +150,7 @@ class PdfStamperImp extends PdfWriter {
         }
         if (append) {
             if (reader.isRebuilt())
-                throw new DocumentException(MessageLocalization.getComposedMessage("append.mode.requires.a.document.without.errors.even.if.recovery.was.possible"));
+                throw new DocumentException(MessageLocalization.getErrorBundle().getString("ITEXTPDF_MESSAGE")); // todo ComposedMessage("append.mode.requires.a.document.without.errors.even.if.recovery.was.possible"));
             pdf_version.setAppendmode(true);
             if ( pdfVersion == 0 ) {
                 pdf_version.setPdfVersion(reader.getPdfVersion());
@@ -781,7 +781,7 @@ class PdfStamperImp extends PdfWriter {
     void replacePage(PdfReader r, int pageImported, int pageReplaced) {
         PdfDictionary pageN = reader.getPageN(pageReplaced);
         if (pagesToContent.containsKey(pageN))
-            throw new IllegalStateException(MessageLocalization.getComposedMessage("this.page.cannot.be.replaced.new.content.was.already.added"));
+            throw new IllegalStateException(MessageLocalization.getErrorBundle().getString("ITEXTPDF_MESSAGE")); // todo ComposedMessage("this.page.cannot.be.replaced.new.content.was.already.added"));
         PdfImportedPage p = getImportedPage(r, pageImported);
         PdfDictionary dic2 = reader.getPageNRelease(pageReplaced);
         dic2.remove(PdfName.RESOURCES);
@@ -837,7 +837,7 @@ class PdfStamperImp extends PdfWriter {
                 }
             }
             if (len == kids.size())
-                throw new RuntimeException(MessageLocalization.getComposedMessage("internal.inconsistence"));
+                throw new RuntimeException(MessageLocalization.getErrorBundle().getString("ITEXTPDF_MESSAGE")); // todo ComposedMessage("internal.inconsistence"));
             markUsed(kids);
             reader.pageRefs.insertPage(pageNumber, pref);
             correctAcroFieldPages(pageNumber);
@@ -891,7 +891,7 @@ class PdfStamperImp extends PdfWriter {
     boolean partialFormFlattening(String name) {
         getAcroFields();
         if (acroFields.getXfa().isXfaPresent())
-            throw new UnsupportedOperationException(MessageLocalization.getComposedMessage("partial.form.flattening.is.not.supported.with.xfa.forms"));
+            throw new UnsupportedOperationException(MessageLocalization.getErrorBundle().getString("ITEXTPDF_MESSAGE")); // todo ComposedMessage("partial.form.flattening.is.not.supported.with.xfa.forms"));
         if (!acroFields.getFields().containsKey(name))
             return false;
         partialFlattening.add(name);
@@ -900,7 +900,7 @@ class PdfStamperImp extends PdfWriter {
 
     protected void flatFields() {
         if (append)
-            throw new IllegalArgumentException(MessageLocalization.getComposedMessage("field.flattening.is.not.supported.in.append.mode"));
+            throw new IllegalArgumentException(MessageLocalization.getErrorBundle().getString("ITEXTPDF_MESSAGE")); // todo ComposedMessage("field.flattening.is.not.supported.in.append.mode"));
         getAcroFields();
         Map<String, Item> fields = acroFields.getFields();
         if (fieldsAdded && partialFlattening.isEmpty()) {
@@ -1153,9 +1153,9 @@ class PdfStamperImp extends PdfWriter {
     private void flattenAnnotations(boolean flattenFreeTextAnnotations) {
         if (append) {
             if (flattenFreeTextAnnotations) {
-                throw new IllegalArgumentException(MessageLocalization.getComposedMessage("freetext.flattening.is.not.supported.in.append.mode"));
+                throw new IllegalArgumentException(MessageLocalization.getErrorBundle().getString("ITEXTPDF_MESSAGE")); // todo ComposedMessage("freetext.flattening.is.not.supported.in.append.mode"));
             } else {
-                throw new IllegalArgumentException(MessageLocalization.getComposedMessage("annotation.flattening.is.not.supported.in.append.mode"));
+                throw new IllegalArgumentException(MessageLocalization.getErrorBundle().getString("ITEXTPDF_MESSAGE")); // todo ComposedMessage("annotation.flattening.is.not.supported.in.append.mode"));
             }
         }
 
@@ -1300,7 +1300,7 @@ class PdfStamperImp extends PdfWriter {
     public PdfIndirectReference getPageReference(int page) {
         PdfIndirectReference ref = reader.getPageOrigRef(page);
         if (ref == null)
-            throw new IllegalArgumentException(MessageLocalization.getComposedMessage("invalid.page.number.1", page));
+            throw new IllegalArgumentException(MessageLocalization.getErrorBundle().getString("ITEXTPDF_MESSAGE")); // todo ComposedMessage("invalid.page.number.1", page));
         return ref;
     }
 
@@ -1309,7 +1309,7 @@ class PdfStamperImp extends PdfWriter {
      */
     @Override
     public void addAnnotation(PdfAnnotation annot) {
-        throw new RuntimeException(MessageLocalization.getComposedMessage("unsupported.in.this.context.use.pdfstamper.addannotation"));
+        throw new RuntimeException(MessageLocalization.getErrorBundle().getString("ITEXTPDF_MESSAGE")); // todo ComposedMessage("unsupported.in.this.context.use.pdfstamper.addannotation"));
     }
 
     void addDocumentField(PdfIndirectReference ref) {
@@ -1620,7 +1620,7 @@ class PdfStamperImp extends PdfWriter {
      */
     @Override
     public void setPageAction(PdfName actionType, PdfAction action) throws PdfException {
-        throw new UnsupportedOperationException(MessageLocalization.getComposedMessage("use.setpageaction.pdfname.actiontype.pdfaction.action.int.page"));
+        throw new UnsupportedOperationException(MessageLocalization.getErrorBundle().getString("ITEXTPDF_MESSAGE")); // todo ComposedMessage("use.setpageaction.pdfname.actiontype.pdfaction.action.int.page"));
     }
 
     /**
@@ -1634,7 +1634,7 @@ class PdfStamperImp extends PdfWriter {
      */
     void setPageAction(PdfName actionType, PdfAction action, int page) throws PdfException {
         if (!actionType.equals(PAGE_OPEN) && !actionType.equals(PAGE_CLOSE))
-            throw new PdfException(MessageLocalization.getComposedMessage("invalid.page.additional.action.type.1", actionType.toString()));
+            throw new PdfException(MessageLocalization.getErrorBundle().getString("ITEXTPDF_MESSAGE")); // todo ComposedMessage("invalid.page.additional.action.type.1", actionType.toString()));
         PdfDictionary pg = reader.getPageN(page);
         PdfDictionary aa = (PdfDictionary) PdfReader.getPdfObject(pg.get(PdfName.AA), pg);
         if (aa == null) {
@@ -1653,7 +1653,7 @@ class PdfStamperImp extends PdfWriter {
      */
     @Override
     public void setDuration(int seconds) {
-        throw new UnsupportedOperationException(MessageLocalization.getComposedMessage("use.setpageaction.pdfname.actiontype.pdfaction.action.int.page"));
+        throw new UnsupportedOperationException(MessageLocalization.getErrorBundle().getString("ITEXTPDF_MESSAGE")); // todo ComposedMessage("use.setpageaction.pdfname.actiontype.pdfaction.action.int.page"));
     }
 
     /**
@@ -1663,7 +1663,7 @@ class PdfStamperImp extends PdfWriter {
      */
     @Override
     public void setTransition(PdfTransition transition) {
-        throw new UnsupportedOperationException(MessageLocalization.getComposedMessage("use.setpageaction.pdfname.actiontype.pdfaction.action.int.page"));
+        throw new UnsupportedOperationException(MessageLocalization.getErrorBundle().getString("ITEXTPDF_MESSAGE")); // todo ComposedMessage("use.setpageaction.pdfname.actiontype.pdfaction.action.int.page"));
     }
 
     /**
@@ -1744,7 +1744,7 @@ class PdfStamperImp extends PdfWriter {
                 actionType.equals(DID_SAVE) ||
                 actionType.equals(WILL_PRINT) ||
                 actionType.equals(DID_PRINT))) {
-            throw new PdfException(MessageLocalization.getComposedMessage("invalid.additional.action.type.1", actionType.toString()));
+            throw new PdfException(MessageLocalization.getErrorBundle().getString("ITEXTPDF_MESSAGE")); // todo ComposedMessage("invalid.additional.action.type.1", actionType.toString()));
         }
         PdfDictionary aa = reader.getCatalog().getAsDict(PdfName.AA);
         if (aa == null) {
@@ -1773,7 +1773,7 @@ class PdfStamperImp extends PdfWriter {
      */
     @Override
     public void setOpenAction(String name) {
-        throw new UnsupportedOperationException(MessageLocalization.getComposedMessage("open.actions.by.name.are.not.supported"));
+        throw new UnsupportedOperationException(MessageLocalization.getErrorBundle().getString("ITEXTPDF_MESSAGE")); // todo ComposedMessage("open.actions.by.name.are.not.supported"));
     }
 
     /**
@@ -1781,7 +1781,7 @@ class PdfStamperImp extends PdfWriter {
      */
     @Override
     public void setThumbnail(Image image) {
-        throw new UnsupportedOperationException(MessageLocalization.getComposedMessage("use.pdfstamper.setthumbnail"));
+        throw new UnsupportedOperationException(MessageLocalization.getErrorBundle().getString("ITEXTPDF_MESSAGE")); // todo ComposedMessage("use.pdfstamper.setthumbnail"));
     }
 
     void setThumbnail(Image image, int page) throws PdfException, DocumentException {
@@ -1794,12 +1794,12 @@ class PdfStamperImp extends PdfWriter {
 
     @Override
     public PdfContentByte getDirectContentUnder() {
-        throw new UnsupportedOperationException(MessageLocalization.getComposedMessage("use.pdfstamper.getundercontent.or.pdfstamper.getovercontent"));
+        throw new UnsupportedOperationException(MessageLocalization.getErrorBundle().getString("ITEXTPDF_MESSAGE")); // todo omposedMessage("use.pdfstamper.getundercontent.or.pdfstamper.getovercontent"));
     }
 
     @Override
     public PdfContentByte getDirectContent() {
-        throw new UnsupportedOperationException(MessageLocalization.getComposedMessage("use.pdfstamper.getundercontent.or.pdfstamper.getovercontent"));
+        throw new UnsupportedOperationException(MessageLocalization.getErrorBundle().getString("ITEXTPDF_MESSAGE")); // todo omposedMessage("use.pdfstamper.getundercontent.or.pdfstamper.getovercontent"));
     }
 
     /**

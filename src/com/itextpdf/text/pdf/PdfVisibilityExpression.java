@@ -77,7 +77,7 @@ public class PdfVisibilityExpression extends PdfArray {
 			super.add(PdfName.NOT);
 			break;
 		default:
-			throw new IllegalArgumentException(MessageLocalization.getComposedMessage("illegal.ve.value"));	
+			throw new IllegalArgumentException(MessageLocalization.getErrorBundle().getString("ITEXTPDF_MESSAGE")); // todo ComposedMessage("illegal.ve.value"));
 		} 
 	}
 
@@ -86,7 +86,7 @@ public class PdfVisibilityExpression extends PdfArray {
 	 */
 	@Override
 	public void add(int index, PdfObject element) {
-		throw new IllegalArgumentException(MessageLocalization.getComposedMessage("illegal.ve.value"));
+		throw new IllegalArgumentException(MessageLocalization.getErrorBundle().getString("ITEXTPDF_MESSAGE")); // todo ComposedMessage("illegal.ve.value"));
 	}
 
 	/**
@@ -98,7 +98,7 @@ public class PdfVisibilityExpression extends PdfArray {
 			return super.add(((PdfLayer)object).getRef());
 		if (object instanceof PdfVisibilityExpression)
 			return super.add(object);
-		throw new IllegalArgumentException(MessageLocalization.getComposedMessage("illegal.ve.value"));
+		throw new IllegalArgumentException(MessageLocalization.getErrorBundle().getString("ITEXTPDF_MESSAGE")); // todo ComposedMessage("illegal.ve.value"));
 	}
 
 	/**
@@ -106,7 +106,7 @@ public class PdfVisibilityExpression extends PdfArray {
 	 */
 	@Override
 	public void addFirst(PdfObject object) {
-		throw new IllegalArgumentException(MessageLocalization.getComposedMessage("illegal.ve.value"));
+		throw new IllegalArgumentException(MessageLocalization.getErrorBundle().getString("ITEXTPDF_MESSAGE")); // todo ComposedMessage("illegal.ve.value"));
 	}
 
 	/**
@@ -114,7 +114,7 @@ public class PdfVisibilityExpression extends PdfArray {
 	 */
 	@Override
 	public boolean add(float[] values) {
-		throw new IllegalArgumentException(MessageLocalization.getComposedMessage("illegal.ve.value"));
+		throw new IllegalArgumentException(MessageLocalization.getErrorBundle().getString("ITEXTPDF_MESSAGE")); // todo ComposedMessage("illegal.ve.value"));
 	}
 
 	/**
@@ -122,7 +122,7 @@ public class PdfVisibilityExpression extends PdfArray {
 	 */
 	@Override
 	public boolean add(int[] values) {
-		throw new IllegalArgumentException(MessageLocalization.getComposedMessage("illegal.ve.value"));
+		throw new IllegalArgumentException(MessageLocalization.getErrorBundle().getString("ITEXTPDF_MESSAGE")); // todo ComposedMessage("illegal.ve.value"));
 	}
 	
 }

@@ -51,7 +51,7 @@ import com.itextpdf.text.pdf.PdfString;
 import java.util.ArrayList;
 
 public class CMapByteCid extends AbstractCMap {
-    private ArrayList<char[]> planes = new ArrayList<char[]>();
+    private ArrayList<char[]> planes = new ArrayList<>();
 
     public CMapByteCid() {
         planes.add(new char[256]);
@@ -72,7 +72,7 @@ public class CMapByteCid extends AbstractCMap {
             int one = seqs[idx] & 0xff;
             char c = plane[one];
             if (c != 0 && (c & 0x8000) == 0)
-                throw new RuntimeException(MessageLocalization.getComposedMessage("inconsistent.mapping"));
+                throw new RuntimeException(MessageLocalization.getErrorBundle().getString("ITEXTPDF_MESSAGE")); // todo ComposedMessage("inconsistent.mapping"));
             if (c == 0) {
                 planes.add(new char[256]);
                 c = (char)(planes.size() - 1 | 0x8000);
@@ -84,7 +84,7 @@ public class CMapByteCid extends AbstractCMap {
         int one = seqs[size] & 0xff;
         char c = plane[one];
         if ((c & 0x8000) != 0)
-            throw new RuntimeException(MessageLocalization.getComposedMessage("inconsistent.mapping"));
+            throw new RuntimeException(MessageLocalization.getErrorBundle().getString("ITEXTPDF_MESSAGE")); // todo ComposedMessage("inconsistent.mapping"));
         plane[one] = cid;
     }
     

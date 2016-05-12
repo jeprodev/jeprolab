@@ -341,7 +341,7 @@ public abstract class Image extends Rectangle implements Indentable, Spaceable, 
 							ra.close();
 				}
 			}
-			throw new IOException(MessageLocalization.getErrorBundle().getString("ITEXTPDF_MESSAGE")); //todo ComposedMessage("unknown.image.format", url.toString()));
+			throw new IOException(MessageLocalization.getErrorBundle().getString("ITEXTPDF_UNKNOWN_IMAGE_FORMAT_MESSAGE") + " " + url.toString());
 		} finally {
 			if (is != null) {
 				is.close();

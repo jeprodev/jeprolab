@@ -52,7 +52,7 @@ public class DeviceNColor extends ExtendedColor {
     public DeviceNColor(PdfDeviceNColor pdfDeviceNColor, float[] tints) {
         super(TYPE_DEVICEN);
         if (pdfDeviceNColor.getSpotColors().length != tints.length)
-            throw new RuntimeException(MessageLocalization.getComposedMessage("devicen.color.shall.have.the.same.number.of.colorants.as.the.destination.DeviceN.color.space"));
+            throw new RuntimeException(MessageLocalization.getErrorBundle().getString("ITEXTPDF_MESSAGE")); // todo ComposedMessage("devicen.color.shall.have.the.same.number.of.colorants.as.the.destination.DeviceN.color.space"));
         this.pdfDeviceNColor = pdfDeviceNColor;
         this.tints = tints;
     }

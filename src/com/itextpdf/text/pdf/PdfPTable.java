@@ -228,10 +228,10 @@ public class PdfPTable implements LargeElement, Spaceable, IAccessibleElement {
      */
     public PdfPTable(final float relativeWidths[]) {
         if (relativeWidths == null) {
-            throw new NullPointerException(MessageLocalization.getComposedMessage("the.widths.array.in.pdfptable.constructor.can.not.be.null"));
+            throw new NullPointerException(MessageLocalization.getErrorBundle().getString("ITEXTPDF_MESSAGE")); // todo ComposedMessage("the.widths.array.in.pdfptable.constructor.can.not.be.null"));
         }
         if (relativeWidths.length == 0) {
-            throw new IllegalArgumentException(MessageLocalization.getComposedMessage("the.widths.array.in.pdfptable.constructor.can.not.have.zero.length"));
+            throw new IllegalArgumentException(MessageLocalization.getErrorBundle().getString("ITEXTPDF_MESSAGE")); // todo ComposedMessage("the.widths.array.in.pdfptable.constructor.can.not.have.zero.length"));
         }
         this.relativeWidths = new float[relativeWidths.length];
         System.arraycopy(relativeWidths, 0, this.relativeWidths, 0, relativeWidths.length);
@@ -248,7 +248,7 @@ public class PdfPTable implements LargeElement, Spaceable, IAccessibleElement {
      */
     public PdfPTable(final int numColumns) {
         if (numColumns <= 0) {
-            throw new IllegalArgumentException(MessageLocalization.getComposedMessage("the.number.of.columns.in.pdfptable.constructor.must.be.greater.than.zero"));
+            throw new IllegalArgumentException(MessageLocalization.getErrorBundle().getString("ITEXTPDF_MESSAGE")); // todo ComposedMessage("the.number.of.columns.in.pdfptable.constructor.must.be.greater.than.zero"));
         }
         relativeWidths = new float[numColumns];
         for (int k = 0; k < numColumns; ++k) {
@@ -311,7 +311,7 @@ public class PdfPTable implements LargeElement, Spaceable, IAccessibleElement {
     /**
      * Copies the format of the sourceTable without copying the content.
      *
-     * @param sourceTable
+     * @param sourceTable source table
      * @since 2.1.6 private is now protected
      */
     protected void copyFormat(final PdfPTable sourceTable) {
@@ -367,7 +367,7 @@ public class PdfPTable implements LargeElement, Spaceable, IAccessibleElement {
      */
     public void setWidths(final float relativeWidths[]) throws DocumentException {
         if (relativeWidths.length != getNumberOfColumns()) {
-            throw new DocumentException(MessageLocalization.getComposedMessage("wrong.number.of.columns"));
+            throw new DocumentException(MessageLocalization.getErrorBundle().getString("ITEXTPDF_MESSAGE")); // todo ComposedMessage("wrong.number.of.columns"));
         }
         this.relativeWidths = new float[relativeWidths.length];
         System.arraycopy(relativeWidths, 0, this.relativeWidths, 0, relativeWidths.length);
@@ -433,7 +433,7 @@ public class PdfPTable implements LargeElement, Spaceable, IAccessibleElement {
      */
     public void setTotalWidth(final float columnWidth[]) throws DocumentException {
         if (columnWidth.length != getNumberOfColumns()) {
-            throw new DocumentException(MessageLocalization.getComposedMessage("wrong.number.of.columns"));
+            throw new DocumentException(MessageLocalization.getErrorBundle().getString("ITEXTPDF_MESSAGE")); // todo ComposedMessage("wrong.number.of.columns"));
         }
         totalWidth = 0;
         for (int k = 0; k < columnWidth.length; ++k) {
@@ -451,7 +451,7 @@ public class PdfPTable implements LargeElement, Spaceable, IAccessibleElement {
      */
     public void setWidthPercentage(final float columnWidth[], final Rectangle pageSize) throws DocumentException {
         if (columnWidth.length != getNumberOfColumns()) {
-            throw new IllegalArgumentException(MessageLocalization.getComposedMessage("wrong.number.of.columns"));
+            throw new IllegalArgumentException(MessageLocalization.getErrorBundle().getString("ITEXTPDF_MESSAGE")); // todo ComposedMessage("wrong.number.of.columns"));
         }
         setTotalWidth(columnWidth);
         widthPercentage = totalWidth / (pageSize.getRight() - pageSize.getLeft()) * 100f;
@@ -492,7 +492,7 @@ public class PdfPTable implements LargeElement, Spaceable, IAccessibleElement {
      */
     public void resetColumnCount(final int newColCount) {
         if (newColCount <= 0) {
-            throw new IllegalArgumentException(MessageLocalization.getComposedMessage("the.number.of.columns.in.pdfptable.constructor.must.be.greater.than.zero"));
+            throw new IllegalArgumentException(MessageLocalization.getErrorBundle().getString("ITEXTPDF_MESSAGE")); // todo ComposedMessage("the.number.of.columns.in.pdfptable.constructor.must.be.greater.than.zero"));
         }
         relativeWidths = new float[newColCount];
         for (int k = 0; k < newColCount; ++k) {
@@ -779,7 +779,7 @@ public class PdfPTable implements LargeElement, Spaceable, IAccessibleElement {
      */
     public float writeSelectedRows(int colStart, int colEnd, int rowStart, int rowEnd, final float xPos, float yPos, final PdfContentByte[] canvases, final boolean reusable) {
         if (totalWidth <= 0) {
-            throw new RuntimeException(MessageLocalization.getComposedMessage("the.table.width.must.be.greater.than.zero"));
+            throw new RuntimeException(MessageLocalization.getErrorBundle().getString("ITEXTPDF_MESSAGE")); // todo ComposedMessage("the.table.width.must.be.greater.than.zero"));
         }
 
         int totalRows = rows.size();
@@ -1646,7 +1646,7 @@ public class PdfPTable implements LargeElement, Spaceable, IAccessibleElement {
                 this.runDirection = runDirection;
                 break;
             default:
-                throw new RuntimeException(MessageLocalization.getComposedMessage("invalid.run.direction.1", runDirection));
+                throw new RuntimeException(MessageLocalization.getErrorBundle().getString("ITEXTPDF_MESSAGE")); // todo ComposedMessage("invalid.run.direction.1", runDirection));
         }
     }
 

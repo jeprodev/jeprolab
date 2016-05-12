@@ -148,7 +148,7 @@ class CJKFont extends BaseFont {
         fontType = FONT_TYPE_CJK;
         String nameBase = getBaseName(fontName);
         if (!isCJKFont(nameBase, enc))
-            throw new DocumentException(MessageLocalization.getComposedMessage("font.1.with.2.encoding.is.not.a.cjk.font", fontName, enc));
+            throw new DocumentException(MessageLocalization.getErrorBundle().getString("ITEXTPDF_MESSAGE")); // todo ComposedMessage("font.1.with.2.encoding.is.not.a.cjk.font", fontName, enc));
         if (nameBase.length() < fontName.length()) {
             style = fontName.substring(nameBase.length());
             fontName = nameBase;

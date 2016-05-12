@@ -77,7 +77,7 @@ public class JeproLabAddressController extends JeproLabController{
         addressCityColumn.setText(bundle.getString("JEPROLAB_CITY_LABEL"));
         addressCityColumn.setPrefWidth(0.13 * layoutWidth);
         tableCellAlign(addressCityColumn, Pos.CENTER);
-
+        //updateToolBar();
     }
 
     @Override

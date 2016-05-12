@@ -474,7 +474,7 @@ public class BarcodeEAN extends Barcode{
                 width = x * (4 + 5 * 7 + 4 * 2);
                 break;
             default:
-                throw new RuntimeException(MessageLocalization.getComposedMessage("invalid.code.type"));
+                throw new RuntimeException(MessageLocalization.getErrorBundle().getString("ITEXTPDF_MESSAGE")); // todo ComposedMessage("invalid.code.type"));
         }
         return new Rectangle(width, height);
     }
@@ -691,7 +691,7 @@ public class BarcodeEAN extends Barcode{
                 width = 4 + 5 * 7 + 4 * 2;
                 break;
             default:
-                throw new RuntimeException(MessageLocalization.getComposedMessage("invalid.code.type"));
+                throw new RuntimeException(MessageLocalization.getErrorBundle().getString("ITEXTPDF_MESSAGE")); // todo ComposedMessage("invalid.code.type"));
         }
 
         boolean print = true;

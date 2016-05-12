@@ -460,15 +460,15 @@ public class PdfSignatureAppearance {
     public void setVisibleSignature(Rectangle pageRect, int page, String fieldName) {
         if (fieldName != null) {
             if (fieldName.indexOf('.') >= 0)
-                throw new IllegalArgumentException(MessageLocalization.getComposedMessage("field.names.cannot.contain.a.dot"));
+                throw new IllegalArgumentException(MessageLocalization.getErrorBundle().getString("ITEXTPDF_MESSAGE")); // todo ComposedMessage("field.names.cannot.contain.a.dot"));
             AcroFields af = writer.getAcroFields();
             Item item = af.getFieldItem(fieldName);
             if (item != null)
-                throw new IllegalArgumentException(MessageLocalization.getComposedMessage("the.field.1.already.exists", fieldName));
+                throw new IllegalArgumentException(MessageLocalization.getErrorBundle().getString("ITEXTPDF_MESSAGE")); // todo ComposedMessage("the.field.1.already.exists", fieldName));
             this.fieldName = fieldName;
         }
         if (page < 1 || page > writer.reader.getNumberOfPages())
-            throw new IllegalArgumentException(MessageLocalization.getComposedMessage("invalid.page.number.1", page));
+            throw new IllegalArgumentException(MessageLocalization.getErrorBundle().getString("ITEXTPDF_MESSAGE")); // todo ComposedMessage("invalid.page.number.1", page));
         this.pageRect = new Rectangle(pageRect);
         this.pageRect.normalize();
         rect = new Rectangle(this.pageRect.getWidth(), this.pageRect.getHeight());
@@ -483,10 +483,10 @@ public class PdfSignatureAppearance {
         AcroFields af = writer.getAcroFields();
         Item item = af.getFieldItem(fieldName);
         if (item == null)
-            throw new IllegalArgumentException(MessageLocalization.getComposedMessage("the.field.1.does.not.exist", fieldName));
+            throw new IllegalArgumentException(MessageLocalization.getErrorBundle().getString("ITEXTPDF_MESSAGE")); // todo omposedMessage("the.field.1.does.not.exist", fieldName));
         PdfDictionary merged = item.getMerged(0);
         if (!PdfName.SIG.equals(PdfReader.getPdfObject(merged.get(PdfName.FT))))
-            throw new IllegalArgumentException(MessageLocalization.getComposedMessage("the.field.1.is.not.a.signature.field", fieldName));
+            throw new IllegalArgumentException(MessageLocalization.getErrorBundle().getString("ITEXTPDF_MESSAGE")); // todo ComposedMessage("the.field.1.is.not.a.signature.field", fieldName));
         this.fieldName = fieldName;
         PdfArray r = merged.getAsArray(PdfName.RECT);
         float llx = r.getAsNumber(0).floatValue();
@@ -787,7 +787,7 @@ public class PdfSignatureAppearance {
      */
     public void setRunDirection(int runDirection) {
         if (runDirection < PdfWriter.RUN_DIRECTION_DEFAULT || runDirection > PdfWriter.RUN_DIRECTION_RTL)
-            throw new RuntimeException(MessageLocalization.getComposedMessage("invalid.run.direction.1", runDirection));
+            throw new RuntimeException(MessageLocalization.getErrorBundle().getString("ITEXTPDF_MESSAGE")); // todo ComposedMessage("invalid.run.direction.1", runDirection));
         this.runDirection = runDirection;
     }
 
@@ -956,7 +956,7 @@ public class PdfSignatureAppearance {
             }
             else if (renderingMode == RenderingMode.GRAPHIC) {
                 if (signatureGraphic == null) {
-                    throw new IllegalStateException(MessageLocalization.getComposedMessage("a.signature.image.should.be.present.when.rendering.mode.is.graphic.only"));
+                    throw new IllegalStateException(MessageLocalization.getErrorBundle().getString("ITEXTPDF_MESSAGE")); // todo ComposedMessage("a.signature.image.should.be.present.when.rendering.mode.is.graphic.only"));
                 }
                 signatureRect = new Rectangle(
                         MARGIN,
@@ -990,7 +990,7 @@ public class PdfSignatureAppearance {
                 break;
             case GRAPHIC_AND_DESCRIPTION:
                 if (signatureGraphic == null) {
-                    throw new IllegalStateException(MessageLocalization.getComposedMessage("a.signature.image.should.be.present.when.rendering.mode.is.graphic.and.description"));
+                    throw new IllegalStateException(MessageLocalization.getErrorBundle().getString("ITEXTPDF_MESSAGE")); // todo ComposedMessage("a.signature.image.should.be.present.when.rendering.mode.is.graphic.and.description"));
                 }
                 ct2 = new ColumnText(t);
                 ct2.setRunDirection(runDirection);
@@ -1264,7 +1264,7 @@ public class PdfSignatureAppearance {
      */
 	public void preClose(HashMap<PdfName, Integer> exclusionSizes) throws IOException, DocumentException {
         if (preClosed)
-            throw new DocumentException(MessageLocalization.getComposedMessage("document.already.pre.closed"));
+            throw new DocumentException(MessageLocalization.getErrorBundle().getString("ITEXTPDF_MESSAGE")); // todo ComposedMessage("document.already.pre.closed"));
         stamper.mergeVerification();
         preClosed = true;
         AcroFields af = writer.getAcroFields();
@@ -1464,17 +1464,17 @@ public class PdfSignatureAppearance {
     public void close(PdfDictionary update) throws IOException, DocumentException {
         try {
             if (!preClosed)
-                throw new DocumentException(MessageLocalization.getComposedMessage("preclose.must.be.called.first"));
+                throw new DocumentException(MessageLocalization.getErrorBundle().getString("ITEXTPDF_MESSAGE")); // todo ComposedMessage("preclose.must.be.called.first"));
             ByteBuffer bf = new ByteBuffer();
             for (PdfName key: update.getKeys()) {
                 PdfObject obj = update.get(key);
                 PdfLiteral lit = exclusionLocations.get(key);
                 if (lit == null)
-                    throw new IllegalArgumentException(MessageLocalization.getComposedMessage("the.key.1.didn.t.reserve.space.in.preclose", key.toString()));
+                    throw new IllegalArgumentException(MessageLocalization.getErrorBundle().getString("ITEXTPDF_MESSAGE")); // todo ComposedMessage("the.key.1.didn.t.reserve.space.in.preclose", key.toString()));
                 bf.reset();
                 obj.toPdf(null, bf);
                 if (bf.size() > lit.getPosLength())
-                    throw new IllegalArgumentException(MessageLocalization.getComposedMessage("the.key.1.is.too.big.is.2.reserved.3", key.toString(), String.valueOf(bf.size()), String.valueOf(lit.getPosLength())));
+                    throw new IllegalArgumentException(MessageLocalization.getErrorBundle().getString("ITEXTPDF_MESSAGE")); // todo ComposedMessage("the.key.1.is.too.big.is.2.reserved.3", key.toString(), String.valueOf(bf.size()), String.valueOf(lit.getPosLength())));
                 if (tempFile == null)
                     System.arraycopy(bf.getBuffer(), 0, bout, (int)lit.getPosition(), bf.size());
                 else {
@@ -1483,7 +1483,7 @@ public class PdfSignatureAppearance {
                 }
             }
             if (update.size() != exclusionLocations.size())
-                throw new IllegalArgumentException(MessageLocalization.getComposedMessage("the.update.dictionary.has.less.keys.than.required"));
+                throw new IllegalArgumentException(MessageLocalization.getErrorBundle().getString("ITEXTPDF_MESSAGE")); // todo ComposedMessage("the.update.dictionary.has.less.keys.than.required"));
             if (tempFile == null) {
                 originalout.write(bout, 0, boutLen);
             }
@@ -1495,7 +1495,7 @@ public class PdfSignatureAppearance {
                     while (length > 0) {
                         int r = raf.read(buf, 0, (int)Math.min((long)buf.length, length));
                         if (r < 0)
-                            throw new EOFException(MessageLocalization.getComposedMessage("unexpected.eof"));
+                            throw new EOFException(MessageLocalization.getErrorBundle().getString("ITEXTPDF_MESSAGE")); // todo ComposedMessage("unexpected.eof"));
                         originalout.write(buf, 0, r);
                         length -= r;
                     }

@@ -253,7 +253,7 @@ public class BmpImage {
             // Start File Header
             if (!(readUnsignedByte(inputStream) == 'B' &&
             readUnsignedByte(inputStream) == 'M')) {
-                throw new RuntimeException(MessageLocalization.getComposedMessage("invalid.magic.value.for.bmp.file"));
+                throw new RuntimeException(MessageLocalization.getErrorBundle().getString("ITEXTPDF_MESSAGE")); // todo ComposedMessage("invalid.magic.value.for.bmp.file"));
             }
 
             // Read file size
@@ -810,7 +810,7 @@ public class BmpImage {
         while (bytesRead < sizeOfPalette) {
             int r = inputStream.read(palette, bytesRead, sizeOfPalette - bytesRead);
             if (r < 0) {
-                throw new RuntimeException(MessageLocalization.getComposedMessage("incomplete.palette"));
+                throw new RuntimeException(MessageLocalization.getErrorBundle().getString("ITEXTPDF_MESSAGE")); // todo ComposedMessage("incomplete.palette"));
             }
             bytesRead += r;
         }

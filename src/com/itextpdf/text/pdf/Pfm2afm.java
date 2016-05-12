@@ -269,7 +269,7 @@ public final class Pfm2afm {
         res2 = in.readIntLE();
         fontname = in.readIntLE();
         if (h_len != in.length() || extlen != 30 || fontname < 75 || fontname > 512)
-            throw new IOException(MessageLocalization.getComposedMessage("not.a.valid.pfm.file"));
+            throw new IOException(MessageLocalization.getErrorBundle().getString("ITEXTPDF_MESSAGE")); // todo ComposedMessage("not.a.valid.pfm.file"));
         in.seek(psext + 14);
         capheight = in.readShortLE();
         xheight = in.readShortLE();

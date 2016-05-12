@@ -232,7 +232,7 @@ public final class RandomAccessSourceFactory {
 	 * Unless you are explicitly working with a FileChannel already, it is better to use
 	 * {@link RandomAccessSourceFactory#createBestSource(String)}.
 	 * If the file is large, it will be opened using a paging strategy.
-	 * @param filename the name of the file or resource to create the {@link RandomAccessSource} for
+	 * @param channel the name of the file or resource to create the {@link RandomAccessSource} for
 	 * @return the newly created {@link RandomAccessSource}
 	 */
 	public RandomAccessSource createBestSource(FileChannel channel) throws IOException{
@@ -260,7 +260,7 @@ public final class RandomAccessSourceFactory {
 	private RandomAccessSource createByReadingToMemory(String filename) throws IOException {
         InputStream is = StreamUtil.getResourceStream(filename);
         if (is == null)
-            throw new IOException(MessageLocalization.getComposedMessage("1.not.found.as.file.or.resource", filename));
+            throw new IOException(MessageLocalization.getErrorBundle().getString("ITEXTPDF_TYPE_1_FONT_NOT_FOUND_AS_RESOURCE_MESSAGE")+ " " + filename);
         return createByReadingToMemory(is);
 	}
 	

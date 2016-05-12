@@ -421,7 +421,7 @@ public final class FontFactory {
      */
     public static void setFontImp(final FontFactoryImp fontImp) {
         if (fontImp == null)
-            throw new NullPointerException(MessageLocalization.getComposedMessage("fontfactoryimp.cannot.be.null"));
+            throw new NullPointerException(MessageLocalization.getErrorBundle().getString("ITEXTPDF_MESSAGE")); // todo ComposedMessage("fontfactoryimp.cannot.be.null"));
         FontFactory.fontImp = fontImp;
     }
 }

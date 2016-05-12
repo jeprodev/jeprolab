@@ -130,7 +130,7 @@ public class RectangleReadOnly extends Rectangle {
 	 * Throws an error because of the read only nature of this object.
 	 */
     private void throwReadOnlyError() {
-        throw new UnsupportedOperationException(MessageLocalization.getComposedMessage("rectanglereadonly.this.rectangle.is.read.only"));
+        throw new UnsupportedOperationException(MessageLocalization.getErrorBundle().getString("ITEXTPDF_MESSAGE")); // todo ComposedMessage("rectanglereadonly.this.rectangle.is.read.only"));
     }
 
 	/**

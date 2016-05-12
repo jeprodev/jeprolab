@@ -204,7 +204,7 @@ public class JBIG2SegmentReader {
 
 	public void read() throws IOException {
 		if ( this.read ) {
-			throw new IllegalStateException(MessageLocalization.getComposedMessage("already.attempted.a.read.on.this.jbig2.file"));
+			throw new IllegalStateException(MessageLocalization.getErrorBundle().getString("ITEXTPDF_MESSAGE")); // todo ComposedMessage("already.attempted.a.read.on.this.jbig2.file"));
 		}
 		this.read = true;
 
@@ -251,7 +251,7 @@ public class JBIG2SegmentReader {
 			ra.seek(last);
 			JBIG2Page p = pages.get(Integer.valueOf(s.page));
 			if ( p == null ) {
-				throw new IllegalStateException(MessageLocalization.getComposedMessage("referring.to.widht.height.of.page.we.havent.seen.yet.1", s.page));
+				throw new IllegalStateException(MessageLocalization.getErrorBundle().getString("ITEXTPDF_MESSAGE")); // todo ComposedMessage("referring.to.widht.height.of.page.we.havent.seen.yet.1", s.page));
 			}
 
 			p.pageBitmapWidth = page_bitmap_width;
@@ -304,7 +304,7 @@ public class JBIG2SegmentReader {
 			}
 
 		} else if ( count_of_referred_to_segments == 5 || count_of_referred_to_segments == 6 ) {
-			throw new IllegalStateException(MessageLocalization.getComposedMessage("count.of.referred.to.segments.had.bad.value.in.header.for.segment.1.starting.at.2", String.valueOf(segment_number), String.valueOf(ptr)));
+			throw new IllegalStateException(MessageLocalization.getErrorBundle().getString("ITEXTPDF_MESSAGE")); // todo ComposedMessage("count.of.referred.to.segments.had.bad.value.in.header.for.segment.1.starting.at.2", String.valueOf(segment_number), String.valueOf(ptr)));
 		}
 		s.segmentRetentionFlags = segment_retention_flags;
 		s.countOfReferredToSegments = count_of_referred_to_segments;
@@ -331,7 +331,7 @@ public class JBIG2SegmentReader {
 			segment_page_association = ra.read();
 		}
 		if ( segment_page_association < 0 ) {
-			throw new IllegalStateException(MessageLocalization.getComposedMessage("page.1.invalid.for.segment.2.starting.at.3", String.valueOf(segment_page_association), String.valueOf(segment_number), String.valueOf(ptr)));
+			throw new IllegalStateException(MessageLocalization.getErrorBundle().getString("ITEXTPDF_MESSAGE")); // todo ComposedMessage("page.1.invalid.for.segment.2.starting.at.3", String.valueOf(segment_page_association), String.valueOf(segment_number), String.valueOf(ptr)));
 		}
 		s.page = segment_page_association;
 		// so we can change the page association at embedding time.
@@ -370,7 +370,7 @@ public class JBIG2SegmentReader {
 
 		for ( int i = 0; i < idstring.length; i++ ) {
 			if ( idstring[i] != refidstring[i] ) {
-				throw new IllegalStateException(MessageLocalization.getComposedMessage("file.header.idstring.not.good.at.byte.1", i));
+				throw new IllegalStateException(MessageLocalization.getErrorBundle().getString("ITEXTPDF_MESSAGE")); // todo ComposedMessage("file.header.idstring.not.good.at.byte.1", i));
 			}
 		}
 
@@ -380,7 +380,7 @@ public class JBIG2SegmentReader {
 		this.number_of_pages_known = ( fileheaderflags & 0x2) == 0x0;
 
 		if ( (fileheaderflags & 0xfc) != 0x0 ) {
-			throw new IllegalStateException(MessageLocalization.getComposedMessage("file.header.flags.bits.2.7.not.0"));
+			throw new IllegalStateException(MessageLocalization.getErrorBundle().getString("ITEXTPDF_MESSAGE")); // todo ComposedMessage("file.header.flags.bits.2.7.not.0"));
 		}
 
 		if ( this.number_of_pages_known ) {

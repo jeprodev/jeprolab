@@ -146,7 +146,7 @@ public class MetaDo {
 
     public void readAll() throws IOException, DocumentException{
         if (in.readInt() != 0x9AC6CDD7) {
-            throw new DocumentException(MessageLocalization.getComposedMessage("not.a.placeable.windows.metafile"));
+            throw new DocumentException(MessageLocalization.getErrorBundle().getString("ITEXTPDF_MESSAGE")); // todo ComposedMessage("not.a.placeable.windows.metafile"));
         }
         in.readWord();
         left = in.readShort();
@@ -679,7 +679,7 @@ public class MetaDo {
 
     public static byte[] wrapBMP(Image image) throws IOException {
         if (image.getOriginalType() != Image.ORIGINAL_BMP)
-            throw new IOException(MessageLocalization.getComposedMessage("only.bmp.can.be.wrapped.in.wmf"));
+            throw new IOException(MessageLocalization.getErrorBundle().getString("ITEXTPDF_MESSAGE")); // todo ComposedMessage("only.bmp.can.be.wrapped.in.wmf"));
         InputStream imgIn;
         byte data[] = null;
         if (image.getOriginalData() == null) {

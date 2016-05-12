@@ -171,7 +171,7 @@ public class CrlClientOnline implements CrlClient {
         		LOGGER.info("Checking CRL: " + urlt);
         		HttpURLConnection con = (HttpURLConnection)urlt.openConnection();
         		if (con.getResponseCode() / 100 != 2) {
-        			throw new IOException(MessageLocalization.getComposedMessage("invalid.http.response.1", con.getResponseCode()));
+        			throw new IOException(MessageLocalization.getErrorBundle().getString("ITEXTPDF_MESSAGE")); // todo ComposedMessage("invalid.http.response.1", con.getResponseCode()));
         		}
         		//Get Response
         		InputStream inp = (InputStream) con.getContent();

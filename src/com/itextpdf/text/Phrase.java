@@ -305,7 +305,7 @@ public class Phrase extends ArrayList<Element> implements TextElementArray {
             super.add(index, element);
 	        return;
 	    default:
-	        throw new ClassCastException(MessageLocalization.getComposedMessage("insertion.of.illegal.element.1", element.getClass().getName()));
+	        throw new ClassCastException(MessageLocalization.getErrorBundle().getString("ITEXTPDF_MESSAGE")); // todo ComposedMessage("insertion.of.illegal.element.1", element.getClass().getName()));
         }
     }
 
@@ -369,7 +369,7 @@ public class Phrase extends ArrayList<Element> implements TextElementArray {
             }
         }
         catch(ClassCastException cce) {
-            throw new ClassCastException(MessageLocalization.getComposedMessage("insertion.of.illegal.element.1", cce.getMessage()));
+            throw new ClassCastException(MessageLocalization.getErrorBundle().getString("ITEXTPDF_MESSAGE")); // todo ComposedMessage("insertion.of.illegal.element.1", cce.getMessage()));
         }
     }
 

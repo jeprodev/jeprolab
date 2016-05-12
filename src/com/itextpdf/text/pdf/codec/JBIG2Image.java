@@ -82,7 +82,7 @@ public class JBIG2Image {
 	 */
 	public static Image getJbig2Image(RandomAccessFileOrArray ra, int page) {
 		if (page < 1)
-            throw new IllegalArgumentException(MessageLocalization.getComposedMessage("the.page.number.must.be.gt.eq.1"));
+            throw new IllegalArgumentException(MessageLocalization.getErrorBundle().getString("ITEXTPDF_MESSAGE")); // todo ComposedMessage("the.page.number.must.be.gt.eq.1"));
 		
 		try {
 			JBIG2SegmentReader sr = new JBIG2SegmentReader(ra);

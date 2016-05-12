@@ -563,7 +563,7 @@ public class ColumnText {
             ((PdfPTable) element).init();
         }
         if (element.type() != Element.PARAGRAPH && element.type() != Element.LIST && element.type() != Element.PTABLE && element.type() != Element.YMARK && element.type() != Element.DIV) {
-            throw new IllegalArgumentException(MessageLocalization.getComposedMessage("element.not.allowed"));
+            throw new IllegalArgumentException(MessageLocalization.getErrorBundle().getString("ITEXTPDF_MESSAGE")); // todo ComposedMessage("element.not.allowed"));
         }
         if (!composite) {
             composite = true;
@@ -604,7 +604,7 @@ public class ColumnText {
      */
     protected ArrayList<float[]> convertColumn(final float cLine[]) {
         if (cLine.length < 4) {
-            throw new RuntimeException(MessageLocalization.getComposedMessage("no.valid.column.line.found"));
+            throw new RuntimeException(MessageLocalization.getErrorBundle().getString("ITEXTPDF_MESSAGE")); // todo ComposedMessage("no.valid.column.line.found"));
         }
         ArrayList<float[]> cc = new ArrayList<float[]>();
         for (int k = 0; k < cLine.length - 2; k += 2) {
@@ -628,7 +628,7 @@ public class ColumnText {
             minY = Math.min(minY, r[0]);
         }
         if (cc.isEmpty()) {
-            throw new RuntimeException(MessageLocalization.getComposedMessage("no.valid.column.line.found"));
+            throw new RuntimeException(MessageLocalization.getErrorBundle().getString("ITEXTPDF_MESSAGE")); // todo ComposedMessage("no.valid.column.line.found"));
         }
         return cc;
     }
@@ -1035,7 +1035,7 @@ public class ColumnText {
                 text = canvas;
             }
         } else if (!simulate) {
-            throw new NullPointerException(MessageLocalization.getComposedMessage("columntext.go.with.simulate.eq.eq.false.and.text.eq.eq.null"));
+            throw new NullPointerException(MessageLocalization.getErrorBundle().getString("ITEXTPDF_MESSAGE")); // todo ComposedMessage("columntext.go.with.simulate.eq.eq.false.and.text.eq.eq.null"));
         }
         if (!simulate) {
             if (ratio == GLOBAL_SPACE_CHAR_RATIO) {
@@ -1246,7 +1246,7 @@ public class ColumnText {
      */
     public void setRunDirection(final int runDirection) {
         if (runDirection < PdfWriter.RUN_DIRECTION_DEFAULT || runDirection > PdfWriter.RUN_DIRECTION_RTL) {
-            throw new RuntimeException(MessageLocalization.getComposedMessage("invalid.run.direction.1", runDirection));
+            throw new RuntimeException(MessageLocalization.getErrorBundle().getString("ITEXTPDF_MESSAGE")); // todo ComposedMessage("invalid.run.direction.1", runDirection));
         }
         this.runDirection = runDirection;
     }
@@ -1489,7 +1489,7 @@ public class ColumnText {
             pdf = canvas.pdf;
         }
         if (!rectangularMode) {
-            throw new DocumentException(MessageLocalization.getComposedMessage("irregular.columns.are.not.supported.in.composite.mode"));
+            throw new DocumentException(MessageLocalization.getErrorBundle().getString("ITEXTPDF_MESSAGE")); // todo ComposedMessage("irregular.columns.are.not.supported.in.composite.mode"));
         }
         linesWritten = 0;
         descender = 0;

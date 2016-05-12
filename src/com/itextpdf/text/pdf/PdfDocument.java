@@ -817,7 +817,7 @@ public class PdfDocument extends Document {
             lastElementType = element.type();
             return true;
         }
-        catch(Exception e) {
+        catch(Exception e) {e.printStackTrace();
             throw new DocumentException(e);
         }
     }
@@ -884,7 +884,7 @@ public class PdfDocument extends Document {
                 writer.getDirectContent().closeMCBlock(this);
             }
             if (annotationsImp.hasUnusedAnnotations())
-                throw new RuntimeException(MessageLocalization.getErrorBundle().getString("ITEXTPDF_MESSAGE")); // todo ComposedMessage("not.all.annotations.could.be.added.to.the.document.the.document.doesn.t.have.enough.pages"));
+                throw new RuntimeException(MessageLocalization.getErrorBundle().getString("ITEXTPDF_NOT_ALL_ANNOTATIONS_COULD_BE_ADDED_TO_THE_DOCUMENT_THE_DOCUMENT_DOES_NOT_HAVE_ENOUGH_PAGES_MESSAGE"));
             PdfPageEvent pageEvent = writer.getPageEvent();
             if (pageEvent != null)
                 pageEvent.onCloseDocument(writer, this);

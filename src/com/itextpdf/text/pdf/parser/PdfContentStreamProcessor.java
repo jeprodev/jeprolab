@@ -351,7 +351,7 @@ public class PdfContentStreamProcessor {
                 handler = xobjectDoHandlers.get(PdfName.DEFAULT);
             handler.handleXObject(this, xobjectStream, xobjects.getAsIndirectObject(xobjectName));
         } else {
-            throw new IllegalStateException(MessageLocalization.getComposedMessage("XObject.1.is.not.a.stream", xobjectName));
+            throw new IllegalStateException(MessageLocalization.getErrorBundle().getString("ITEXTPDF_MESSAGE")); // todo ComposedMessage("XObject.1.is.not.a.stream", xobjectName));
         }
 
     }
@@ -733,10 +733,10 @@ public class PdfContentStreamProcessor {
             PdfName dictionaryName = (PdfName)operands.get(0);
             PdfDictionary extGState = processor.resources.getAsDict(PdfName.EXTGSTATE);
             if (extGState == null)
-                throw new IllegalArgumentException(MessageLocalization.getComposedMessage("resources.do.not.contain.extgstate.entry.unable.to.process.operator.1", operator));
+                throw new IllegalArgumentException(MessageLocalization.getErrorBundle().getString("ITEXTPDF_MESSAGE")); // todo ComposedMessage("resources.do.not.contain.extgstate.entry.unable.to.process.operator.1", operator));
             PdfDictionary gsDic = extGState.getAsDict(dictionaryName);
             if (gsDic == null)
-                throw new IllegalArgumentException(MessageLocalization.getComposedMessage("1.is.an.unknown.graphics.state.dictionary", dictionaryName));
+                throw new IllegalArgumentException(MessageLocalization.getErrorBundle().getString("ITEXTPDF_MESSAGE")); // todo ComposedMessage("1.is.an.unknown.graphics.state.dictionary", dictionaryName));
 
             // at this point, all we care about is the FONT entry in the GS dictionary
             PdfArray fontParameter = gsDic.getAsArray(PdfName.FONT);

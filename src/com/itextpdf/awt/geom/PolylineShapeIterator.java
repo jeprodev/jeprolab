@@ -87,7 +87,7 @@ public class PolylineShapeIterator implements PathIterator {
 	 */
 	public int currentSegment(double[] coords) {
 		if (isDone()) {
-			throw new NoSuchElementException(MessageLocalization.getComposedMessage("line.iterator.out.of.bounds"));
+			throw new NoSuchElementException(MessageLocalization.getErrorBundle().getString("ITEXTPDF_MESSAGE")); // todo ComposedMessage("line.iterator.out.of.bounds"));
 		}
 		int type = (index==0)?SEG_MOVETO:SEG_LINETO;
 		coords[0] = poly.x[index];
@@ -118,7 +118,7 @@ public class PolylineShapeIterator implements PathIterator {
 	 */
 	public int currentSegment(float[] coords) {
 		if (isDone()) {
-			throw new NoSuchElementException(MessageLocalization.getComposedMessage("line.iterator.out.of.bounds"));
+			throw new NoSuchElementException(MessageLocalization.getErrorBundle().getString("ITEXTPDF_MESSAGE")); // todo ComposedMessage("line.iterator.out.of.bounds"));
 		}
 		int type = (index==0)?SEG_MOVETO:SEG_LINETO;
 		coords[0] = poly.x[index];

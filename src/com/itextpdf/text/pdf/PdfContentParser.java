@@ -120,20 +120,20 @@ public class PdfContentParser {
         PdfDictionary dic = new PdfDictionary();
         while (true) {
             if (!nextValidToken())
-                throw new IOException(MessageLocalization.getComposedMessage("unexpected.end.of.file"));
+                throw new IOException(MessageLocalization.getErrorBundle().getString("ITEXTPDF_MESSAGE")); // todo ComposedMessage("unexpected.end.of.file"));
                 if (tokeniser.getTokenType() == TokenType.END_DIC)
                     break;
                 if (tokeniser.getTokenType() == TokenType.OTHER && "def".equals(tokeniser.getStringValue()))
                     continue;
                 if (tokeniser.getTokenType() != TokenType.NAME)
-                    throw new IOException(MessageLocalization.getComposedMessage("dictionary.key.1.is.not.a.name", tokeniser.getStringValue()));
+                    throw new IOException(MessageLocalization.getErrorBundle().getString("ITEXTPDF_MESSAGE")); // todo ComposedMessage("dictionary.key.1.is.not.a.name", tokeniser.getStringValue()));
                 PdfName name = new PdfName(tokeniser.getStringValue(), false);
                 PdfObject obj = readPRObject();
                 int type = obj.type();
                 if (-type == TokenType.END_DIC.ordinal())
-                    throw new IOException(MessageLocalization.getComposedMessage("unexpected.gt.gt"));
+                    throw new IOException(MessageLocalization.getErrorBundle().getString("ITEXTPDF_MESSAGE")); // todo tComposedMessage("unexpected.gt.gt"));
                 if (-type == TokenType.END_ARRAY.ordinal())
-                    throw new IOException(MessageLocalization.getComposedMessage("unexpected.close.bracket"));
+                    throw new IOException(MessageLocalization.getErrorBundle().getString("ITEXTPDF_MESSAGE")); // todo ComposedMessage("unexpected.close.bracket"));
                 dic.put(name, obj);
         }
         return dic;
@@ -152,7 +152,7 @@ public class PdfContentParser {
             if (-type == TokenType.END_ARRAY.ordinal())
                 break;
             if (-type == TokenType.END_DIC.ordinal())
-                throw new IOException(MessageLocalization.getComposedMessage("unexpected.gt.gt"));
+                throw new IOException(MessageLocalization.getErrorBundle().getString("ITEXTPDF_MESSAGE")); // todo ComposedMessage("unexpected.gt.gt"));
             array.add(obj);
         }
         return array;

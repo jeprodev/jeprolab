@@ -498,9 +498,9 @@ class TrueTypeFont extends BaseFont {
         if (fileName.toLowerCase().endsWith(".ttf") || fileName.toLowerCase().endsWith(".otf") || fileName.toLowerCase().endsWith(".ttc")) {
             process(ttfAfm, forceRead);
             if (!justNames && embedded && os_2.fsType == 2)
-                throw new DocumentException(MessageLocalization.getComposedMessage("1.cannot.be.embedded.due.to.licensing.restrictions", fileName + style));
+                throw new DocumentException(MessageLocalization.getErrorBundle().getString("ITEXTPDF_MESSAGE")); // todo ComposedMessage("1.cannot.be.embedded.due.to.licensing.restrictions", fileName + style));
         } else
-            throw new DocumentException(MessageLocalization.getComposedMessage("1.is.not.a.ttf.otf.or.ttc.font.file", fileName + style));
+            throw new DocumentException(MessageLocalization.getErrorBundle().getString("ITEXTPDF_MESSAGE")); // todo ComposedMessage("1.is.not.a.ttf.otf.or.ttc.font.file", fileName + style));
         if (!encoding.startsWith("#"))
             PdfEncodings.convertToBytes(" ", enc); // check if the encoding exists
         createEncoding();
@@ -533,7 +533,7 @@ class TrueTypeFont extends BaseFont {
         int table_location[];
         table_location = tables.get("head");
         if (table_location == null)
-            throw new DocumentException(MessageLocalization.getComposedMessage("table.1.does.not.exist.in.2", "head", fileName + style));
+            throw new DocumentException(MessageLocalization.getErrorBundle().getString("ITEXTPDF_MESSAGE")); // todo ComposedMessage("table.1.does.not.exist.in.2", "head", fileName + style));
         rf.seek(table_location[0] + 16);
         head.flags = rf.readUnsignedShort();
         head.unitsPerEm = rf.readUnsignedShort();
@@ -546,7 +546,7 @@ class TrueTypeFont extends BaseFont {
 
         table_location = tables.get("hhea");
         if (table_location == null)
-            throw new DocumentException(MessageLocalization.getComposedMessage("table.1.does.not.exist.in.2", "hhea", fileName + style));
+            throw new DocumentException(MessageLocalization.getErrorBundle().getString("ITEXTPDF_MESSAGE")); // todo ComposedMessage("table.1.does.not.exist.in.2", "hhea", fileName + style));
         rf.seek(table_location[0] + 4);
         hhea.Ascender = rf.readShort();
         hhea.Descender = rf.readShort();
@@ -669,7 +669,7 @@ class TrueTypeFont extends BaseFont {
         int table_location[];
         table_location = tables.get("name");
         if (table_location == null)
-            throw new DocumentException(MessageLocalization.getComposedMessage("table.1.does.not.exist.in.2", "name", fileName + style));
+            throw new DocumentException(MessageLocalization.getErrorBundle().getString("ITEXTPDF_MESSAGE")); // todo ComposedMessage("table.1.does.not.exist.in.2", "name", fileName + style));
         rf.seek(table_location[0] + 2);
         int numRecords = rf.readUnsignedShort();
         int startOfStorage = rf.readUnsignedShort();
@@ -703,7 +703,7 @@ class TrueTypeFont extends BaseFont {
         int table_location[];
         table_location = tables.get("name");
         if (table_location == null)
-            throw new DocumentException(MessageLocalization.getComposedMessage("table.1.does.not.exist.in.2", "name", fileName + style));
+            throw new DocumentException(MessageLocalization.getErrorBundle().getString("ITEXTPDF_MESSAGE")); // todo ComposedMessage("table.1.does.not.exist.in.2", "name", fileName + style));
         rf.seek(table_location[0] + 2);
         int numRecords = rf.readUnsignedShort();
         int startOfStorage = rf.readUnsignedShort();
@@ -745,7 +745,7 @@ class TrueTypeFont extends BaseFont {
         int table_location[];
         table_location = tables.get("name");
         if (table_location == null)
-            throw new DocumentException(MessageLocalization.getComposedMessage("table.1.does.not.exist.in.2", "name", fileName + style));
+            throw new DocumentException(MessageLocalization.getErrorBundle().getString("ITEXTPDF_MESSAGE")); // todo ComposedMessage("table.1.does.not.exist.in.2", "name", fileName + style));
         rf.seek(table_location[0] + 2);
         int numRecords = rf.readUnsignedShort();
         int startOfStorage = rf.readUnsignedShort();
@@ -805,21 +805,21 @@ class TrueTypeFont extends BaseFont {
             if (ttcIndex.length() > 0) {
                 int dirIdx = Integer.parseInt(ttcIndex);
                 if (dirIdx < 0)
-                    throw new DocumentException(MessageLocalization.getComposedMessage("the.font.index.for.1.must.be.positive", fileName));
+                    throw new DocumentException(MessageLocalization.getErrorBundle().getString("ITEXTPDF_MESSAGE")); // todo ComposedMessage("the.font.index.for.1.must.be.positive", fileName));
                 String mainTag = readStandardString(4);
                 if (!mainTag.equals("ttcf"))
-                    throw new DocumentException(MessageLocalization.getComposedMessage("1.is.not.a.valid.ttc.file", fileName));
+                    throw new DocumentException(MessageLocalization.getErrorBundle().getString("ITEXTPDF_MESSAGE")); // todo ComposedMessage("1.is.not.a.valid.ttc.file", fileName));
                 rf.skipBytes(4);
                 int dirCount = rf.readInt();
                 if (dirIdx >= dirCount)
-                    throw new DocumentException(MessageLocalization.getComposedMessage("the.font.index.for.1.must.be.between.0.and.2.it.was.3", fileName, String.valueOf(dirCount - 1), String.valueOf(dirIdx)));
+                    throw new DocumentException(MessageLocalization.getErrorBundle().getString("ITEXTPDF_MESSAGE")); // todo ComposedMessage("the.font.index.for.1.must.be.between.0.and.2.it.was.3", fileName, String.valueOf(dirCount - 1), String.valueOf(dirIdx)));
                 rf.skipBytes(dirIdx * 4);
                 directoryOffset = rf.readInt();
             }
             rf.seek(directoryOffset);
             int ttId = rf.readInt();
             if (ttId != 0x00010000 && ttId != 0x4F54544F)
-                throw new DocumentException(MessageLocalization.getComposedMessage("1.is.not.a.valid.ttf.or.otf.file", fileName));
+                throw new DocumentException(MessageLocalization.getErrorBundle().getString("ITEXTPDF_MESSAGE")); // todo ComposedMessage("1.is.not.a.valid.ttf.or.otf.file", fileName));
             int num_tables = rf.readUnsignedShort();
             rf.skipBytes(6);
             for (int k = 0; k < num_tables; ++k) {
@@ -904,7 +904,7 @@ class TrueTypeFont extends BaseFont {
         int table_location[];
         table_location = tables.get("hmtx");
         if (table_location == null)
-            throw new DocumentException(MessageLocalization.getComposedMessage("table.1.does.not.exist.in.2", "hmtx", fileName + style));
+            throw new DocumentException(MessageLocalization.getErrorBundle().getString("ITEXTPDF_MESSAGE")); // todo ComposedMessage("table.1.does.not.exist.in.2", "hmtx", fileName + style));
         rf.seek(table_location[0]);
         glyphWidthsByIndex = new int[hhea.numberOfHMetrics];
         for (int k = 0; k < hhea.numberOfHMetrics; ++k) {
@@ -930,7 +930,7 @@ class TrueTypeFont extends BaseFont {
         int tableLocation[];
         tableLocation = tables.get("head");
         if (tableLocation == null)
-            throw new DocumentException(MessageLocalization.getComposedMessage("table.1.does.not.exist.in.2", "head", fileName + style));
+            throw new DocumentException(MessageLocalization.getErrorBundle().getString("ITEXTPDF_MESSAGE")); // todo ComposedMessage("table.1.does.not.exist.in.2", "head", fileName + style));
         rf.seek(tableLocation[0] + TrueTypeFontSubSet.HEAD_LOCA_FORMAT_OFFSET);
         boolean locaShortTable = rf.readUnsignedShort() == 0;
         tableLocation = tables.get("loca");
@@ -951,7 +951,7 @@ class TrueTypeFont extends BaseFont {
         }
         tableLocation = tables.get("glyf");
         if (tableLocation == null)
-            throw new DocumentException(MessageLocalization.getComposedMessage("table.1.does.not.exist.in.2", "glyf", fileName + style));
+            throw new DocumentException(MessageLocalization.getErrorBundle().getString("ITEXTPDF_MESSAGE")); // todo ComposedMessage("table.1.does.not.exist.in.2", "glyf", fileName + style));
         int tableGlyphOffset = tableLocation[0];
         bboxes = new int[locaTable.length - 1][];
         for (int glyph = 0; glyph < locaTable.length - 1; ++glyph) {
@@ -978,7 +978,7 @@ class TrueTypeFont extends BaseFont {
         int table_location[];
         table_location = tables.get("cmap");
         if (table_location == null)
-            throw new DocumentException(MessageLocalization.getComposedMessage("table.1.does.not.exist.in.2", "cmap", fileName + style));
+            throw new DocumentException(MessageLocalization.getErrorBundle().getString("ITEXTPDF_MESSAGE")); // todo ComposedMessage("table.1.does.not.exist.in.2", "cmap", fileName + style));
         rf.seek(table_location[0]);
         rf.skipBytes(2);
         int num_tables = rf.readUnsignedShort();

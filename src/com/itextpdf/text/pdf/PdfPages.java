@@ -110,7 +110,7 @@ public class PdfPages {
     // returns the top parent to include in the catalog
     PdfIndirectReference writePageTree() throws IOException {
         if (pages.isEmpty())
-            throw new IOException(MessageLocalization.getErrorBundle().getString("ITEXTPDF_MESSAGE")); // todo ComposedMessage("the.document.has.no.pages"));
+            throw new IOException(MessageLocalization.getErrorBundle().getString("ITEXTPDF_THE_DOCUMENT_HAS_NO_PAGES_MESSAGE")); // todo ComposedMessage("the.document.has.no.pages"));
         int leaf = 1;
         ArrayList<PdfIndirectReference> tParents = parents;
         ArrayList<PdfIndirectReference> tPages = pages;

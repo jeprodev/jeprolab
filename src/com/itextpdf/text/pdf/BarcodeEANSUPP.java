@@ -150,6 +150,6 @@ public class BarcodeEANSUPP extends Barcode{
      * @return the image
      */    
     public java.awt.Image createAwtImage(java.awt.Color foreground, java.awt.Color background) {
-        throw new UnsupportedOperationException(MessageLocalization.getComposedMessage("the.two.barcodes.must.be.composed.externally"));
+        throw new UnsupportedOperationException(MessageLocalization.getErrorBundle().getString("ITEXTPDF_MESSAGE")); // todo ComposedMessage("the.two.barcodes.must.be.composed.externally"));
     }    
 }

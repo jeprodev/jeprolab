@@ -658,9 +658,9 @@ public class TIFFFaxDecoder {
                     
                     updatePointer(4 - bits);
                 } else if (bits == 0) {     // ERROR
-                    throw new RuntimeException(MessageLocalization.getComposedMessage("invalid.code.encountered"));
+                    throw new RuntimeException(MessageLocalization.getErrorBundle().getString("ITEXTPDF_MESSAGE")); // todo ComposedMessage("invalid.code.encountered"));
                 } else if (bits == 15) {    // EOL
-                    throw new RuntimeException(MessageLocalization.getComposedMessage("eol.code.word.encountered.in.white.run"));
+                    throw new RuntimeException(MessageLocalization.getErrorBundle().getString("ITEXTPDF_MESSAGE")); // todo ComposedMessage("eol.code.word.encountered.in.white.run"));
                 } else {
                     // 11 bits - 0000 0111 1111 1111 = 0x07ff
                     code = (entry >>> 5) & 0x07ff;
@@ -716,7 +716,7 @@ public class TIFFFaxDecoder {
                         updatePointer(4 - bits);
                     } else if (bits == 15) {
                         // EOL code
-                        throw new RuntimeException(MessageLocalization.getComposedMessage("eol.code.word.encountered.in.black.run"));
+                        throw new RuntimeException(MessageLocalization.getErrorBundle().getString("ITEXTPDF_MESSAGE")); // todo ComposedMessage("eol.code.word.encountered.in.black.run"));
                     } else {
                         setToBlack(buffer, lineOffset, bitOffset, code);
                         bitOffset += code;
@@ -793,7 +793,7 @@ public class TIFFFaxDecoder {
         
         // The data must start with an EOL code
         if (readEOL(true) != 1) {
-            throw new RuntimeException(MessageLocalization.getComposedMessage("first.scanline.must.be.1d.encoded"));
+            throw new RuntimeException(MessageLocalization.getErrorBundle().getString("ITEXTPDF_MESSAGE")); // todo ComposedMessage("first.scanline.must.be.1d.encoded"));
         }
         
         int lineOffset = 0;
@@ -895,7 +895,7 @@ public class TIFFFaxDecoder {
                         
                         updatePointer(7 - bits);
                     } else {
-                        throw new RuntimeException(MessageLocalization.getComposedMessage("invalid.code.encountered.while.decoding.2d.group.3.compressed.data"));
+                        throw new RuntimeException(MessageLocalization.getErrorBundle().getString("ITEXTPDF_MESSAGE")); // todo ComposedMessage("invalid.code.encountered.while.decoding.2d.group.3.compressed.data"));
                     }
                 }
                 
@@ -1043,7 +1043,7 @@ public class TIFFFaxDecoder {
                     updatePointer(7 - bits);
                 } else if (code == 11) {
                     if (nextLesserThan8Bits(3) != 7) {
-                        throw new InvalidImageException(MessageLocalization.getComposedMessage("invalid.code.encountered.while.decoding.2d.group.4.compressed.data"));
+                        throw new InvalidImageException(MessageLocalization.getErrorBundle().getString("ITEXTPDF_MESSAGE")); // todo ComposedMessage("invalid.code.encountered.while.decoding.2d.group.4.compressed.data"));
                     }
                     
                     int zeros = 0;
@@ -1196,12 +1196,12 @@ public class TIFFFaxDecoder {
                 runLength += code;
                 updatePointer(4 - bits);
             } else if (bits == 0) {     // ERROR
-                throw new InvalidImageException(MessageLocalization.getComposedMessage("invalid.code.encountered"));
+                throw new InvalidImageException(MessageLocalization.getErrorBundle().getString("ITEXTPDF_MESSAGE")); // todo ComposedMessage("invalid.code.encountered"));
             } else if (bits == 15) {    // EOL
                 if ( runLength == 0 ) {
                     isWhite = false;
                 } else {
-                    throw new RuntimeException(MessageLocalization.getComposedMessage("eol.code.word.encountered.in.white.run"));
+                    throw new RuntimeException(MessageLocalization.getErrorBundle().getString("ITEXTPDF_MESSAGE")); // todo ComposedMessage("eol.code.word.encountered.in.white.run"));
                 }
             } else {
                 // 11 bits - 0000 0111 1111 1111 = 0x07ff
@@ -1253,7 +1253,7 @@ public class TIFFFaxDecoder {
                     updatePointer(4 - bits);
                 } else if (bits == 15) {
                     // EOL code
-                    throw new RuntimeException(MessageLocalization.getComposedMessage("eol.code.word.encountered.in.black.run"));
+                    throw new RuntimeException(MessageLocalization.getErrorBundle().getString("ITEXTPDF_MESSAGE")); // todo ComposedMessage("eol.code.word.encountered.in.black.run"));
                 } else {
                     runLength += code;
                     updatePointer(9 - bits);
@@ -1300,7 +1300,7 @@ public class TIFFFaxDecoder {
                 }
             }
             if(next12Bits != 1) {
-                throw new RuntimeException(MessageLocalization.getComposedMessage("scanline.must.begin.with.eol.code.word"));
+                throw new RuntimeException(MessageLocalization.getErrorBundle().getString("ITEXTPDF_MESSAGE")); // todo ComposedMessage("scanline.must.begin.with.eol.code.word"));
             }
         } else if (fillBits == 1) {
             
@@ -1311,7 +1311,7 @@ public class TIFFFaxDecoder {
             int bitsLeft = 8 - bitPointer;
             
             if (nextNBits(bitsLeft) != 0) {
-                throw new RuntimeException(MessageLocalization.getComposedMessage("all.fill.bits.preceding.eol.code.must.be.0"));
+                throw new RuntimeException(MessageLocalization.getErrorBundle().getString("ITEXTPDF_MESSAGE")); // todo ComposedMessage("all.fill.bits.preceding.eol.code.must.be.0"));
             }
             
             // If the number of bitsLeft is less than 8, then to have a 12
@@ -1320,7 +1320,7 @@ public class TIFFFaxDecoder {
             // that.
             if (bitsLeft < 4) {
                 if (nextNBits(8) != 0) {
-                    throw new RuntimeException(MessageLocalization.getComposedMessage("all.fill.bits.preceding.eol.code.must.be.0"));
+                    throw new RuntimeException(MessageLocalization.getErrorBundle().getString("ITEXTPDF_MESSAGE")); // todo ComposedMessage("all.fill.bits.preceding.eol.code.must.be.0"));
                 }
             }
             
@@ -1331,7 +1331,7 @@ public class TIFFFaxDecoder {
             while ((n = nextNBits(8)) != 1) {
                 // If not all zeros
                 if (n != 0) {
-                    throw new RuntimeException(MessageLocalization.getComposedMessage("all.fill.bits.preceding.eol.code.must.be.0"));
+                    throw new RuntimeException(MessageLocalization.getErrorBundle().getString("ITEXTPDF_MESSAGE")); // todo ComposedMessage("all.fill.bits.preceding.eol.code.must.be.0"));
                 }
             }
         }
@@ -1408,7 +1408,7 @@ public class TIFFFaxDecoder {
                 next2next = flipTable[data[bp + 2] & 0xff];
             }
         } else {
-            throw new RuntimeException(MessageLocalization.getComposedMessage("tiff.fill.order.tag.must.be.either.1.or.2"));
+            throw new RuntimeException(MessageLocalization.getErrorBundle().getString("ITEXTPDF_MESSAGE")); // todo ComposedMessage("tiff.fill.order.tag.must.be.either.1.or.2"));
         }
         
         int bitsLeft = 8 - bitPointer;
@@ -1469,7 +1469,7 @@ public class TIFFFaxDecoder {
                 }
             }
         } else {
-            throw new RuntimeException(MessageLocalization.getComposedMessage("tiff.fill.order.tag.must.be.either.1.or.2"));
+            throw new RuntimeException(MessageLocalization.getErrorBundle().getString("ITEXTPDF_MESSAGE")); // todo ComposedMessage("tiff.fill.order.tag.must.be.either.1.or.2"));
         }
         
         int bitsLeft = 8 - bitPointer;

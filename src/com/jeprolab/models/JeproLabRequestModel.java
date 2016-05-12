@@ -77,6 +77,7 @@ public class JeproLabRequestModel extends JeproLabModel{
                             this.reference = requestSet.getString("reference");
                             this.date_add = JeproLabTools.getDate(requestSet.getString("date_add"));
                             this.date_upd = JeproLabTools.getDate(requestSet.getString("date_upd"));
+                            this.samples = JeproLabSampleModel.getSampleIdsByRequestId(this.request_id);
                         }
                         JeproLabCache.getInstance().store(cacheKey, this);
                     }catch(SQLException ignored){
@@ -99,7 +100,7 @@ public class JeproLabRequestModel extends JeproLabModel{
                 this.third_contact_id = requestModel.third_contact_id;
                 this.fourth_contact_id = requestModel.fourth_contact_id;
                 this.reference = requestModel.reference;
-                //this.customer = requestModel.customer;
+                this.samples = requestModel.samples;
                 this.date_add = requestModel.date_add;
                 this.date_upd = requestModel.date_upd;
             }
@@ -285,6 +286,8 @@ public class JeproLabRequestModel extends JeproLabModel{
 
         public String reference;
 
+        public String lot;
+
         public String condition;
 
         public String designation;
@@ -327,6 +330,7 @@ public class JeproLabRequestModel extends JeproLabModel{
                                 this.designation = sampleSet.getString("designation");
                                 this.reference = sampleSet.getString("reference");
                                 this.condition = sampleSet.getString("condition");
+                                this.lot = sampleSet.getString("lot");
                                 this.removal_date = JeproLabTools.getDate(sampleSet.getString("removal_date"));
                                 this.received_date = JeproLabTools.getDate(sampleSet.getString("received_date"));
                                 this.test_date = JeproLabTools.getDate(sampleSet.getString("test_date"));
@@ -346,6 +350,7 @@ public class JeproLabRequestModel extends JeproLabModel{
                     this.temperature = sample.temperature;
                     this.temperature_unit = sample.temperature_unit;
                     this.condition = sample.condition;
+                    this.lot = sample.lot;
                     this.received_date = sample.received_date;
                     this.test_date = sample.test_date;
                     this.removal_date = sample.removal_date;
@@ -408,7 +413,7 @@ public class JeproLabRequestModel extends JeproLabModel{
             String query = "SELECT sample.* FROM " + staticDataBaseObject.quoteName("#__jeprolab_sample") + " AS sample LEFT JOIN ";
             query += staticDataBaseObject.quoteName("#__jeprolab_request_sample") + " AS request_sample ON (sample." + staticDataBaseObject.quoteName("sample_id");
             query += " = request_sample." + staticDataBaseObject.quoteName("sample_id") + " AND request_sample." + staticDataBaseObject.quoteName("request_id");
-            query += " = " + requestId + ") WHERE sample." + staticDataBaseObject.quoteName("sample_id") + " = " + requestId;
+            query += " = " + requestId + ") WHERE request_sample." + staticDataBaseObject.quoteName("request_id") + " = " + requestId;
 
             staticDataBaseObject.setQuery(query);
             ResultSet sampleSet = staticDataBaseObject.loadObjectList();

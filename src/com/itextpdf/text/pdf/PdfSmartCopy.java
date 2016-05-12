@@ -140,7 +140,7 @@ public class PdfSmartCopy extends PdfCopy {
                     return theRef;
                 }
                 if ((PdfName.CATALOG.equals(type))) {
-                    LOGGER.warn(MessageLocalization.getComposedMessage("make.copy.of.catalog.dictionary.is.forbidden"));
+                    LOGGER.warn(MessageLocalization.getErrorBundle().getString("ITEXTPDF_MESSAGE")); // todo ComposedMessage("make.copy.of.catalog.dictionary.is.forbidden"));
                     return null;
                 }
             }

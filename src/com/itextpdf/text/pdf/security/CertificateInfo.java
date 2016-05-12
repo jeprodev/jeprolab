@@ -194,7 +194,7 @@ public class CertificateInfo {
 	            int index = token.indexOf('=');
 	
 	            if (index == -1) {
-	                throw new IllegalArgumentException(MessageLocalization.getComposedMessage("badly.formated.directory.string"));
+	                throw new IllegalArgumentException(MessageLocalization.getErrorBundle().getString("ITEXTPDF_MESSAGE")); // todo ComposedMessage("badly.formated.directory.string"));
 	            }
 	
 	            String id = token.substring(0, index).toUpperCase();

@@ -84,7 +84,7 @@ public class PdfLayer extends PdfDictionary implements PdfOCG {
      */
     public static PdfLayer createTitle(String title, PdfWriter writer) {
         if (title == null)
-            throw new NullPointerException(MessageLocalization.getComposedMessage("title.cannot.be.null"));
+            throw new NullPointerException(MessageLocalization.getErrorBundle().getString("ITEXTPDF_MESSAGE")); // todo ComposedMessage("title.cannot.be.null"));
         PdfLayer layer = new PdfLayer(title);
         writer.registerLayer(layer);
         return layer;
@@ -115,10 +115,10 @@ public class PdfLayer extends PdfDictionary implements PdfOCG {
      */
     public void addChild(PdfLayer child) {
         if (child.parent != null)
-            throw new IllegalArgumentException(MessageLocalization.getComposedMessage("the.layer.1.already.has.a.parent", child.getAsString(PdfName.NAME).toUnicodeString()));
+            throw new IllegalArgumentException(MessageLocalization.getErrorBundle().getString("ITEXTPDF_MESSAGE")); // todo ComposedMessage("the.layer.1.already.has.a.parent", child.getAsString(PdfName.NAME).toUnicodeString()));
         child.parent = this;
         if (children == null)
-            children = new ArrayList<PdfLayer>();
+            children = new ArrayList<>();
         children.add(child);
     }
 

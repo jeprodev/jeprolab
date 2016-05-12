@@ -154,7 +154,7 @@ public class PdfCollectionItem extends PdfDictionary {
 		PdfName fieldname = new PdfName(key);
 		PdfObject o = get(fieldname);
 		if (o == null)
-			throw new IllegalArgumentException(MessageLocalization.getComposedMessage("you.must.set.a.value.before.adding.a.prefix"));
+			throw new IllegalArgumentException(MessageLocalization.getErrorBundle().getString("ITEXTPDF_MESSAGE")); // todo ComposedMessage("you.must.set.a.value.before.adding.a.prefix"));
 		PdfDictionary dict = new PdfDictionary(PdfName.COLLECTIONSUBITEM);
 		dict.put(PdfName.D, o);
 		dict.put(PdfName.P, new PdfString(prefix, PdfObject.TEXT_UNICODE));

@@ -151,7 +151,7 @@ public final class FilterHandlers {
             PdfNumber wn = (PdfNumber)PdfReader.getPdfObjectRelease(streamDictionary.get(PdfName.WIDTH));
             PdfNumber hn = (PdfNumber)PdfReader.getPdfObjectRelease(streamDictionary.get(PdfName.HEIGHT));
             if (wn == null || hn == null)
-                throw new UnsupportedPdfException(MessageLocalization.getComposedMessage("filter.ccittfaxdecode.is.only.supported.for.images"));
+                throw new UnsupportedPdfException(MessageLocalization.getErrorBundle().getString("ITEXTPDF_MESSAGE")); // todo ComposedMessage("filter.ccittfaxdecode.is.only.supported.for.images"));
             int width = wn.intValue();
             int height = hn.intValue();
             

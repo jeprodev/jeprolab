@@ -64,7 +64,7 @@ public class CidResource implements CidLocation{
         String fullName = BaseFont.RESOURCE_PATH + "cmaps/" + location;
         InputStream inp = StreamUtil.getResourceStream(fullName);
         if (inp == null)
-            throw new IOException(MessageLocalization.getComposedMessage("the.cmap.1.was.not.found", fullName));
+            throw new IOException(MessageLocalization.getErrorBundle().getString("ITEXTPDF_MESSAGE")); // todo ComposedMessage("the.cmap.1.was.not.found", fullName));
         return new PRTokeniser(new RandomAccessFileOrArray(new RandomAccessSourceFactory().createSource(inp)));
     }
 }

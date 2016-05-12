@@ -68,7 +68,7 @@ public class PdfStructTreeController {
 
     protected PdfStructTreeController(PdfReader reader, PdfCopy writer) throws BadPdfFormatException {
         if (!writer.isTagged())
-            throw new BadPdfFormatException(MessageLocalization.getComposedMessage("no.structtreeroot.found"));
+            throw new BadPdfFormatException(MessageLocalization.getErrorBundle().getString("ITEXTPDF_MESSAGE")); // todo ComposedMessage("no.structtreeroot.found"));
         this.writer = writer;
         structureTreeRoot = writer.getStructureTreeRoot();
         structureTreeRoot.put(PdfName.PARENTTREE, new PdfDictionary(PdfName.STRUCTELEM));
@@ -80,11 +80,11 @@ public class PdfStructTreeController {
         PdfObject obj = reader.getCatalog().get(PdfName.STRUCTTREEROOT);
         obj = getDirectObject(obj);
         if ((obj == null) || (!obj.isDictionary()))
-            throw new BadPdfFormatException(MessageLocalization.getComposedMessage("no.structtreeroot.found"));
+            throw new BadPdfFormatException(MessageLocalization.getErrorBundle().getString("ITEXTPDF_MESSAGE")); // todo ComposedMessage("no.structtreeroot.found"));
         structTreeRoot = (PdfDictionary) obj;
         obj = PdfStructTreeController.getDirectObject(structTreeRoot.get(PdfName.PARENTTREE));
         if (obj == null || !obj.isDictionary())
-            throw new BadPdfFormatException(MessageLocalization.getComposedMessage("the.document.does.not.contain.parenttree"));
+            throw new BadPdfFormatException(MessageLocalization.getErrorBundle().getString("ITEXTPDF_MESSAGE")); // todo ComposedMessage("the.document.does.not.contain.parenttree"));
         parentTree = (PdfDictionary) obj;
         sourceRoleMap = null;
         sourceClassMap = null;
@@ -118,7 +118,7 @@ public class PdfStructTreeController {
 //
 //        }
         if (copyPageMarks(parentTree, sourceArrayNumber, newArrayNumber) == returnType.NOTFOUND) {
-            throw new BadPdfFormatException(MessageLocalization.getComposedMessage("invalid.structparent"));
+            throw new BadPdfFormatException(MessageLocalization.getErrorBundle().getString("ITEXTPDF_MESSAGE")); // todo ComposedMessage("invalid.structparent"));
         }
     }
 
@@ -398,7 +398,7 @@ public class PdfStructTreeController {
             PdfObject put = structureTreeRoot.getMappedClass(name);
             if (put != null) {
                 if (!compareObjects(put, object)) {
-                    throw new BadPdfFormatException(MessageLocalization.getComposedMessage("conflict.in.classmap", name));
+                    throw new BadPdfFormatException(MessageLocalization.getErrorBundle().getString("ITEXTPDF_MESSAGE")); // todo ComposedMessage("conflict.in.classmap", name));
                 }
             } else {
                 if (object.isDictionary())
@@ -436,7 +436,7 @@ public class PdfStructTreeController {
             roleMap.put(structType, object);
         } else if ((currentRole = roleMap.get(structType)) != null) {
             if (!currentRole.equals(object)) {
-                throw new BadPdfFormatException(MessageLocalization.getComposedMessage("conflict.in.rolemap", object));
+                throw new BadPdfFormatException(MessageLocalization.getErrorBundle().getString("ITEXTPDF_MESSAGE")); // todo ComposedMessage("conflict.in.rolemap", object));
             }
         } else {
             roleMap.put(structType, object);

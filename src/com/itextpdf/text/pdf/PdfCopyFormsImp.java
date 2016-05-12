@@ -75,13 +75,13 @@ class PdfCopyFormsImp extends PdfCopyFieldsImp {
      */
     public void copyDocumentFields(PdfReader reader) throws DocumentException {
     	if (!reader.isOpenedWithFullPermissions())
-            throw new IllegalArgumentException(MessageLocalization.getComposedMessage("pdfreader.not.opened.with.owner.password"));
+            throw new IllegalArgumentException(MessageLocalization.getErrorBundle().getString("ITEXTPDF_MESSAGE")); // todo ComposedMessage("pdfreader.not.opened.with.owner.password"));
         if (readers2intrefs.containsKey(reader)) {
             reader = new PdfReader(reader);
         }
         else {
             if (reader.isTampered())
-                throw new DocumentException(MessageLocalization.getComposedMessage("the.document.was.reused"));
+                throw new DocumentException(MessageLocalization.getErrorBundle().getString("ITEXTPDF_MESSAGE")); // todo ComposedMessage("the.document.was.reused"));
             reader.consolidateNamedDestinations();
             reader.setTampered(true);
         }

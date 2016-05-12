@@ -156,9 +156,9 @@ public class OcspClientBouncyCastle implements OcspClient {
                     if (status == CertificateStatus.GOOD) {
                         return basicResponse.getEncoded();
                     } else if (status instanceof org.bouncycastle.ocsp.RevokedStatus) {
-                        throw new IOException(MessageLocalization.getComposedMessage("ocsp.status.is.revoked"));
+                        throw new IOException(MessageLocalization.getErrorBundle().getString("ITEXTPDF_MESSAGE")); // todo ComposedMessage("ocsp.status.is.revoked"));
                     } else {
-                        throw new IOException(MessageLocalization.getComposedMessage("ocsp.status.is.unknown"));
+                        throw new IOException(MessageLocalization.getErrorBundle().getString("ITEXTPDF_MESSAGE")); // todo ComposedMessage("ocsp.status.is.unknown"));
                     }
                 }
             }
@@ -220,7 +220,7 @@ public class OcspClientBouncyCastle implements OcspClient {
         dataOut.flush();
         dataOut.close();
         if (con.getResponseCode() / 100 != 2) {
-            throw new IOException(MessageLocalization.getComposedMessage("invalid.http.response.1", con.getResponseCode()));
+            throw new IOException(MessageLocalization.getErrorBundle().getString("ITEXTPDF_MESSAGE")); // todo ComposedMessage("invalid.http.response.1", con.getResponseCode()));
         }
         //Get Response
         InputStream in = (InputStream) con.getContent();

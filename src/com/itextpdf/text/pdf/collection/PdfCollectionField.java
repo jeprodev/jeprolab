@@ -169,6 +169,6 @@ public class PdfCollectionField extends PdfDictionary {
 		case NUMBER:
 			return new PdfNumber(v);
 		}
-		throw new IllegalArgumentException(MessageLocalization.getComposedMessage("1.is.not.an.acceptable.value.for.the.field.2", v, get(PdfName.N).toString()));
+		throw new IllegalArgumentException(MessageLocalization.getErrorBundle().getString("ITEXTPDF_MESSAGE")); // todo ComposedMessage("1.is.not.an.acceptable.value.for.the.field.2", v, get(PdfName.N).toString()));
 	}
 }

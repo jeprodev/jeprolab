@@ -290,7 +290,7 @@ public class PdfImageObject {
      */
     private void decodeImageBytes() throws IOException{
         if (streamContentType != null)
-            throw new IllegalStateException(MessageLocalization.getComposedMessage("Decoding.can't.happen.on.this.type.of.stream.(.1.)", streamContentType));
+            throw new IllegalStateException(MessageLocalization.getErrorBundle().getString("ITEXTPDF_MESSAGE")); // todo ComposedMessage("Decoding.can't.happen.on.this.type.of.stream.(.1.)", streamContentType));
         
         pngColorType = -1;
         PdfArray decode = dictionary.getAsArray(PdfName.DECODE);
@@ -312,7 +312,7 @@ public class PdfImageObject {
         ByteArrayOutputStream ms = new ByteArrayOutputStream();
         if (pngColorType < 0) {
             if (bpc != 8)
-                throw new UnsupportedPdfException(MessageLocalization.getComposedMessage("the.color.depth.1.is.not.supported", bpc));
+                throw new UnsupportedPdfException(MessageLocalization.getErrorBundle().getString("ITEXTPDF_MESSAGE")); // todo ComposedMessage("the.color.depth.1.is.not.supported", bpc));
 
             if (PdfName.DEVICECMYK.equals(colorspace)) {
             }
@@ -320,16 +320,16 @@ public class PdfImageObject {
                 PdfArray ca = (PdfArray)colorspace;
                 PdfObject tyca = ca.getDirectObject(0);
                 if (!PdfName.ICCBASED.equals(tyca))
-                    throw new UnsupportedPdfException(MessageLocalization.getComposedMessage("the.color.space.1.is.not.supported", colorspace));
+                    throw new UnsupportedPdfException(MessageLocalization.getErrorBundle().getString("ITEXTPDF_MESSAGE")); // todo ComposedMessage("the.color.space.1.is.not.supported", colorspace));
                 PRStream pr = (PRStream)ca.getDirectObject(1);
                 int n = pr.getAsNumber(PdfName.N).intValue();
                 if (n != 4) {
-                    throw new UnsupportedPdfException(MessageLocalization.getComposedMessage("N.value.1.is.not.supported", n));
+                    throw new UnsupportedPdfException(MessageLocalization.getErrorBundle().getString("ITEXTPDF_MESSAGE")); // todo ComposedMessage("N.value.1.is.not.supported", n));
                 }
                 icc = PdfReader.getStreamBytes(pr);
             }
             else
-                throw new UnsupportedPdfException(MessageLocalization.getComposedMessage("the.color.space.1.is.not.supported", colorspace));
+                throw new UnsupportedPdfException(MessageLocalization.getErrorBundle().getString("ITEXTPDF_MESSAGE")); // todo ComposedMessage("the.color.space.1.is.not.supported", colorspace));
             stride = 4 * width;
             TiffWriter wr = new TiffWriter();
             wr.addField(new TiffWriter.FieldShort(TIFFConstants.TIFFTAG_SAMPLESPERPIXEL, 4));

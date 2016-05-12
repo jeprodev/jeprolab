@@ -155,7 +155,7 @@ public class CMapToUnicode extends AbstractCMap {
                 intSrc |= src[1] & 0xFF;
                 doubleByteMappings.put(Integer.valueOf(intSrc), dest);
             } else {
-                throw new IOException(MessageLocalization.getComposedMessage("mapping.code.should.be.1.or.two.bytes.and.not.1", src.length));
+                throw new IOException(MessageLocalization.getErrorBundle().getString("ITEXTPDF_MESSAGE")); // todo ComposedMessage("mapping.code.should.be.1.or.two.bytes.and.not.1", src.length));
             }
         }
         catch (Exception ex) {

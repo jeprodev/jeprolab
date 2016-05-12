@@ -87,7 +87,7 @@ public class FontSelector {
      */
     public Phrase process(String text) {
         if (fonts.size() == 0)
-            throw new IndexOutOfBoundsException(MessageLocalization.getComposedMessage("no.font.is.defined"));
+            throw new IndexOutOfBoundsException(MessageLocalization.getErrorBundle().getString("ITEXTPDF_MESSAGE")); // todo ComposedMessage("no.font.is.defined"));
         char cc[] = text.toCharArray();
         int len = cc.length;
         StringBuffer sb = new StringBuffer();
