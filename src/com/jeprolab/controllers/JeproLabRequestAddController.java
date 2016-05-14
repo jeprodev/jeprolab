@@ -82,7 +82,7 @@ public class JeproLabRequestAddController extends JeproLabController{
     public TableColumn<JeproLabSampleRecord, HBox> jeproLabSampleActionColumn;
     public Button jeproLabSaveSampleBtn, jeproLabCancelSampleBtn;
     public TabPane jeproLabRequestTabPane;
-    public Tab jeproLabRequestInformationTab, jeproLabRequestDocumentTab;
+    public Tab jeproLabRequestInformationTab, jeproLabRequestDocumentTab, jeproLabRequestSampleTab;
 
     @Override
     public void initialize(URL location, ResourceBundle resource) {
@@ -118,8 +118,8 @@ public class JeproLabRequestAddController extends JeproLabController{
         jeproLabRequestThirdContact.setPrefWidth(fourthColumnWidth);
         jeproLabRequestFourthContact.setPrefWidth(fourthColumnWidth);
 
-        jeproLabSampleFormWrapper.setPrefSize(subFormWidth, 220);
-        VBox.setMargin(jeproLabSampleFormWrapper, new Insets(0, 0, 10, 0.01 * JeproLab.APP_WIDTH));
+        jeproLabSampleFormWrapper.setPrefSize(subFormWidth, 520);
+        VBox.setMargin(jeproLabSampleFormWrapper, new Insets(0, 0, 10, 0.005 * JeproLab.APP_WIDTH));
         jeproLabRequestTabPane.setPrefWidth(formWidth);
         jeproLabRequestInformationTab.setText(bundle.getString("JEPROLAB_INFORMATION_LABEL"));
         jeproLabRequestDocumentTab.setText(bundle.getString("JEPROLAB_DOCUMENTS_LABEL"));
@@ -233,7 +233,7 @@ public class JeproLabRequestAddController extends JeproLabController{
         jeproLabSampleAddFormLayout.getColumnConstraints().addAll(new ColumnConstraints(140), new ColumnConstraints(240));
         jeproLabSampleAddFormTitleWrapper.setPrefSize(subFormWidth, 30);
         jeproLabSampleAddFormTitleWrapper.getStyleClass().add("form-panel-title-gray");
-        VBox.setMargin(jeproLabSampleAddFormTitleWrapper, new Insets(0, 0, 0, 0.01 * JeproLab.APP_WIDTH));
+        VBox.setMargin(jeproLabSampleAddFormTitleWrapper, new Insets(0, 0, 0, 0.005 * JeproLab.APP_WIDTH));
         GridPane.setMargin(jeproLabSampleReferenceLabel, new Insets(5, 0, 5, 10));
         GridPane.setMargin(jeproLabSampleReference, new Insets(5, 0, 5, 0));
         GridPane.setMargin(jeproLabSampleDesignationLabel, new Insets(5, 0, 5, 10));
@@ -297,8 +297,10 @@ public class JeproLabRequestAddController extends JeproLabController{
 
     private void renderSampleListForm(){
         CheckBox checkAll = new CheckBox();
-        jeproLabSampleRecordTableView.setPrefWidth(formWidth - 440);
+        jeproLabSampleRecordTableView.setPrefWidth(formWidth - 420);
         double remainingWidth = formWidth - 537;
+
+        jeproLabRequestSampleTab.setText(bundle.getString("JEPROLAB_SAMPLES_LABEL"));
 
         jeproLabSampleCheckBoxColumn.setGraphic(checkAll);
         jeproLabSampleCheckBoxColumn.setPrefWidth(20);

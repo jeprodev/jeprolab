@@ -589,6 +589,48 @@ public class JeproLabRequestModel extends JeproLabModel{
             return sampleIds;
         }
 
+        public static Map<String, String> getSampleResult(int sampleId, int analyzeId){
+            if(staticDataBaseObject == null){
+                staticDataBaseObject = JeproLabFactory.getDataBaseConnector();
+            }
+
+            String query = "SELECT sample.*, analyze_lang." + staticDataBaseObject.quoteName("name") + " AS name, analyze_method.";
+            query += staticDataBaseObject.quoteName("threshold") + ", analyze_method." + staticDataBaseObject.quoteName("code");
+            query += " AS method FROM " + staticDataBaseObject.quoteName("#__jeprolab_sample_analyze") + " sample LEFT JOIN ";
+            query += staticDataBaseObject.quoteName("#__jeprolab_analyze_lang") + " AS analyze_lang ON (analyze_lang.";
+            query += staticDataBaseObject.quoteName("analyze_id") + " = " + analyzeId + " AND analyze_lang." + staticDataBaseObject.quoteName("lang_id");
+            query += " = " + JeproLabContext.getContext().language.language_id + ") LEFT JOIN " + staticDataBaseObject.quoteName("#__jeprolab_method");
+            query += " AS analyze_method ON (analyze_method.method_id = sample.method_id)  WHERE " + staticDataBaseObject.quoteName("sample_id") + " = " ;
+            query += sampleId + " AND sample." + staticDataBaseObject.quoteName("analyze_id") + " = " + analyzeId;
+
+            staticDataBaseObject.setQuery(query);
+            ResultSet resultSet = staticDataBaseObject.loadObjectList();
+
+            Map<String, String> result = new HashMap<>();
+            if(resultSet != null){
+                try{
+                    if(resultSet.next()){
+                        result.put("name", resultSet.getString("name"));
+                        result.put("unit", resultSet.getString("unit"));
+                        result.put("threshold", resultSet.getString("threshold"));
+                        result.put("result", resultSet.getString("result"));
+                        result.put("method", resultSet.getString("method"));
+                        result.put("result", resultSet.getString("result"));
+                    }
+                }catch (SQLException ignored){
+                    ignored.printStackTrace();
+                }finally {
+                    try{
+                        JeproLabDataBaseConnector.getInstance().closeConnexion();
+                    }catch(Exception ignored0){
+                        ignored0.printStackTrace();
+                    }
+                }
+            }
+            return result;
+        }
+
+
     }
 
 
