@@ -13,6 +13,7 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
+import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Cursor;
 import javafx.scene.control.*;
@@ -21,6 +22,7 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.VBox;
 import javafx.util.Callback;
 import sun.java2d.pipe.SpanShapeRenderer;
 
@@ -40,6 +42,9 @@ public class JeproLabAnalyzeController extends JeproLabController {
     private CheckBox checkAll;
     private Button addAnalyzeBtn;
     @FXML
+    public HBox jeproLabAnalyzeSearchWrapper;
+    public TextField jeproLabAnalyzeSearch;
+    public Button jeproLabAnalyzeSearchBtn;
     public TableView<JeproLabAnalyzeRecord> jeproLabAnalyzeTableView;
     public TableColumn<JeproLabAnalyzeRecord, Integer> jeproLabAnalyzeIndexColumn;
     public TableColumn<JeproLabAnalyzeRecord, Boolean> jeproLabAnalyzeCheckBoxColumn;
@@ -57,6 +62,10 @@ public class JeproLabAnalyzeController extends JeproLabController {
         jeproLabAnalyzeTableView.setPrefSize(0.98 * JeproLab.APP_WIDTH, 600);
         jeproLabAnalyzeTableView.setLayoutX(0.01 * JeproLab.APP_WIDTH);
         jeproLabAnalyzeTableView.setLayoutY(10);
+
+        VBox.setMargin(jeproLabAnalyzeSearchWrapper, new Insets(5, 0, 0, 0.01 * JeproLab.APP_WIDTH));
+        VBox.setMargin(jeproLabAnalyzeTableView, new Insets(0, 0, 0, 0.01 * JeproLab.APP_WIDTH));
+        jeproLabAnalyzeSearch.setPromptText(bundle.getString("JEPROLAB_SEARCH_LABEL"));
 
         jeproLabAnalyzeIndexColumn.setText("#");
         jeproLabAnalyzeIndexColumn.setPrefWidth(30);
@@ -322,6 +331,4 @@ public class JeproLabAnalyzeController extends JeproLabController {
             }
         }
     }
-
-
 }

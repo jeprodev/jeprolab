@@ -19,10 +19,7 @@ import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyEvent;
-import javafx.scene.layout.ColumnConstraints;
-import javafx.scene.layout.GridPane;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.Pane;
+import javafx.scene.layout.*;
 
 import java.net.URL;
 import java.util.ArrayList;
@@ -56,12 +53,13 @@ public class JeproLabAnalyzeAddController extends JeproLabController {
     public JeproImageSlider jeproLabAnalyzeSlider;
 
     public GridPane jeproLabAnalyzeInformationLayout, jeproLabAnalyzePriceLayout, jeproLabSpecificPricePaneLayout, jeproLabAnalyzeOptionLayout;
+    public GridPane jeproLabAnalyzeMethodSelectorLayout;
     public Pane jeproLabAnalyzeSpecificPriceModification, jeproLabAnalyzePricePane, jeproLabSpecificPricePaneWrapper, jeproLabSpecificPricePaneTitle;
     public Pane jeproLabSpecificPricePaneContent;
     public TabPane jeproLabAnalyzeTabPane;
     public Tab jeproLabAnalyzeInformationTabForm, jeproLabAnalyzePriceTabForm, jeproLabAnalyzeAttachedFileTabForm;
     public Tab jeproLabAnalyzeSeoTabForm, jeproLabAnalyzeAssociationTabForm, jeproLabAnalyzeImageTabForm, jeproLabAnalyzeShippingTabForm;
-    public Tab jeproLabAnalyzeTechnicianTabForm, jeproLabAnalyzeSpecificPriceTabForm;
+    public Tab jeproLabAnalyzeTechnicianTabForm, jeproLabAnalyzeSpecificPriceTabForm, jeproLabAnalyzeMethodSelectorTab;
 
     public HBox jeproLabAnalyzeSpecificPriceLabIdWrapper, jeproLabAnalyzeDelayWrapper, jeproLabSpecificPricePriorityWrapper;
     public HBox jeproLabAnalyzeSpecificPriceModificationCommandWrapper;
@@ -74,7 +72,7 @@ public class JeproLabAnalyzeAddController extends JeproLabController {
     public Label jeproLabAnalyzeFinalPriceWithoutTaxLabel, jeproLabAnalyzeSpecificPriceLabIdLabel, jeproLabAnalyzeSpecificPriceCustomerIdLabel;
     public Label jeproLabAnalyzeSpecificPriceCombinationLabel, jeproLabAnalyzeApplyDiscountOfLabel, jeproLabAnalyzeSpecificPriceFromLabel;
     public Label jeproLabAnalyzeFinalPriceWithoutTax, jeproLabAnalyzeSpecificPriceToLabel, jeproLabAnalyzeStartingAtLabel, jeproLabAnalyzeSpecificPriceLabel;
-    public Label jeproLabAnalyzeDelayLabel, jeproLabDaysLabel, jeproLabAnalyzeSpecificPricePriorityLabel;
+    public Label jeproLabAnalyzeDelayLabel, jeproLabDaysLabel, jeproLabAnalyzeSpecificPricePriorityLabel, jeproLabAnalyzeMethodSelectorLabel;
     public TextField jeproLabAnalyzeReference, jeproLabAnalyzeEan13, jeproLabAnalyzeUpc, jeproLabAnalyzeStartingAt, jeproLabAnalyzeDelay;
     public ComboBox<String> jeproLabAnalyzeRedirect, jeproLabAnalyzeVisibility, jeproLabAnalyzeApplyDiscountOf;
     public JeproMultiLang<TextArea> jeproLabAnalyzeShortDescription, jeproLabAnalyzeDescription;
@@ -88,7 +86,7 @@ public class JeproLabAnalyzeAddController extends JeproLabController {
     public JeproPriceBox jeproLabAnalyzeWholeSalePrice, jeproLabAnalyzePriceTaxExcluded, jeproLabAnalyzePriceUseEcoTax, jeproLabAnalyzePriceTaxIncluded;
     public JeproPriceBox jeproLabAnalyzeSpecificPrice;
     public Button jeproLabAnalyzeSpecificPriceModificationCommandSaveButton, jeproLabAnalyzeSpecificPriceModificationCommandCancelButton;
-
+    public ScrollPane jeproLabAnalyzeMethodScrollPane;
 
     @Override
     public void initialize(URL location, ResourceBundle resource) {
@@ -125,6 +123,7 @@ public class JeproLabAnalyzeAddController extends JeproLabController {
         }
         request = JeproLab.request;
         this.loadAnalyze(true);
+        renderMethodTab();
         updateToolBar();
         addEventListener();
         if(analyze.analyze_id > 0){
@@ -240,6 +239,48 @@ public class JeproLabAnalyzeAddController extends JeproLabController {
         jeproLabAnalyzeVisibility.getItems().add(bundle.getString("JEPROLAB_CATALOG_LABEL"));
         jeproLabAnalyzeVisibility.getItems().add(bundle.getString("JEPROLAB_SEARCH_LABEL"));
         jeproLabAnalyzeVisibility.getItems().add(bundle.getString("JEPROLAB_NONE_LABEL"));
+    }
+
+    private void renderMethodTab(){
+        int columnWidth = 190;
+        List<JeproLabAnalyzeModel.JeproLabMethodModel>  methods = JeproLabAnalyzeModel.JeproLabMethodModel.getMethods();
+
+        jeproLabAnalyzeMethodScrollPane.setPrefSize(formWidth - 10, 550);
+        jeproLabAnalyzeMethodSelectorLabel.setPrefSize(formWidth - 10, 30);
+        jeproLabAnalyzeMethodSelectorLabel.setAlignment(Pos.CENTER);
+
+        VBox.setMargin(jeproLabAnalyzeMethodSelectorLabel, new Insets(0, 0, 0, 5));
+        VBox.setMargin(jeproLabAnalyzeMethodScrollPane, new Insets(0, 0, 0, 5));
+
+        jeproLabAnalyzeMethodSelectorLayout.getColumnConstraints().addAll(
+                new ColumnConstraints(columnWidth), new ColumnConstraints(columnWidth), new ColumnConstraints(columnWidth)
+        );
+
+        CheckBox methodCheckBox;
+
+        int rowIndex = 0, index = 0;
+        for(JeproLabAnalyzeModel.JeproLabMethodModel method : methods){
+            methodCheckBox = new CheckBox(method.name + " " + method.code);
+            jeproLabAnalyzeMethodSelectorLayout.add(methodCheckBox, index % 3, rowIndex);
+
+            GridPane.setMargin(methodCheckBox, new Insets(5, 5, 5, 5));
+            index++;
+            if((index % 3) == 0){
+                rowIndex++;
+            }
+
+            if(analyze.analyze_id > 0 && analyze.analyzeMethods.contains(method.method_id)){
+                methodCheckBox.setSelected(true);
+            }
+
+            methodCheckBox.selectedProperty().addListener(((observable, oldValue, newValue) -> {
+                if(newValue){
+                    analyze.addMethod(method.method_id);
+                }else{
+                    analyze.removeMethod(method.method_id);
+                }
+            }));
+        }
     }
 
     private void renderPriceTab(){
@@ -410,6 +451,7 @@ public class JeproLabAnalyzeAddController extends JeproLabController {
             if(languages == null){
                 languages = JeproLabLanguageModel.getLanguages();
             }
+
             for (Object o : languages.entrySet()) {
                 Map.Entry lang = (Map.Entry) o;
                 JeproLabLanguageModel language = (JeproLabLanguageModel) lang.getValue();
@@ -516,6 +558,12 @@ public class JeproLabAnalyzeAddController extends JeproLabController {
         jeproLabAnalyzeImageTabForm.setText(bundle.getString("JEPROLAB_PRICE_LABEL"));
         jeproLabAnalyzeShippingTabForm.setText(bundle.getString("JEPROLAB_PRICE_LABEL"));
         jeproLabAnalyzeTechnicianTabForm.setText(bundle.getString("JEPROLAB_PRICE_LABEL")); */
+
+        /**
+         * Method form labels
+         */
+        jeproLabAnalyzeMethodSelectorTab.setText(bundle.getString("JEPROLAB_METHOD_LABEL"));
+        jeproLabAnalyzeMethodSelectorLabel.setText(bundle.getString("JEPROLAB_SELECT_METHODS_RELATED_TO_THE_ANALYZE_LABEL"));
     }
 
     @Override

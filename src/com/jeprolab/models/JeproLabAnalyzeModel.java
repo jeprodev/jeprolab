@@ -194,6 +194,8 @@ public class JeproLabAnalyzeModel extends JeproLabModel{
 
     public int tax_rules_group_id = 1;
 
+    public List<Integer> analyzeMethods = new ArrayList<>();
+
     /**
      * @since 1.5.0
      * @var bool Tells if the analyze uses the advanced stock management
@@ -337,6 +339,7 @@ public class JeproLabAnalyzeModel extends JeproLabModel{
                             this.delay = analyzeResult.getInt("delay");
                             this.indexed = analyzeResult.getInt("indexed") > 0;
                             this.published = analyzeResult.getInt("published") > 0;
+                            this.analyzeMethods = JeproLabMethodModel.getAnalyzeMethodIdsByAnalyzeId(this.analyze_id);
 
                             this.name = new HashMap<>();
                             this.short_description = new HashMap<>();
@@ -437,6 +440,7 @@ public class JeproLabAnalyzeModel extends JeproLabModel{
                 this.link_rewrite = analyzeModel.link_rewrite;
                 this.available_later = analyzeModel.available_later;
                 this.available_now = analyzeModel.available_now;
+                this.analyzeMethods = analyzeModel.analyzeMethods;
             }
 
         }
@@ -504,6 +508,11 @@ public class JeproLabAnalyzeModel extends JeproLabModel{
         return total > 0;
     }
 
+    /**
+     * Compute analyze price given it id
+     * @param analyzeId analyze id
+     * @return price of the analyze
+     */
     public static float getStaticPrice(int analyzeId){
         return getStaticPrice(analyzeId, true, 0, 6, false, true, 1, false, 0, 0, 0, true, true, null, true);
     }
@@ -1009,6 +1018,7 @@ public class JeproLabAnalyzeModel extends JeproLabModel{
     public static int getDefaultAttribute(int analyzeId, int minimumQuantity){
         return getDefaultAttribute(analyzeId, minimumQuantity, false);
     }
+
     /**
      * Get the default attribute for a analyze
      *
@@ -1395,7 +1405,7 @@ public class JeproLabAnalyzeModel extends JeproLabModel{
      * Fill the variables used for stock management
      */
     public void loadStockData() {
-        if (this.analyze_id > 0){
+        if(this.analyze_id > 0){
             /* / By default, the analyze quantity correspond to the available quantity to sell in the current lab
             this.quantity = JeproLabStockAvailableModel.getQuantityAvailableByAnalyzeId(this.analyze_id, 0);
             this.out_of_stock = JeproLabStockAvailableModel.outOfStock(this.analyze_id);
@@ -1407,15 +1417,15 @@ public class JeproLabAnalyzeModel extends JeproLabModel{
         }
     }
 
-    public JeproLabAnalyzeModel save(){
-        Map<String, String> post = JeproLab.request.getPost();
+    public void save(){
+        //Map<String, String> post = JeproLab.request.getPost();
 
         JeproLabContext context = JeproLabContext.getContext();
         if(languages == null) {
             languages = JeproLabLanguageModel.getLanguages();
         }
-        checkAnalyze();
-        removeTaxFromEcoTax();
+        this.checkAnalyze();
+        this.removeTaxFromEcoTax();
         List<Integer> labIds = new ArrayList<>();
         if(JeproLabLaboratoryModel.isTableAssociated("analyze")){
             labIds = JeproLabLaboratoryModel.getContextListLaboratoryIds();
@@ -1433,7 +1443,7 @@ public class JeproLabAnalyzeModel extends JeproLabModel{
             }
             this.default_laboratory_id = minValue;
         }
-        String analyzeReference = post.get("reference");
+        /*String analyzeReference = post.get("reference");
         String analyzeEan13 = post.get("ean13");
         String analyzeUpc = post.get("upc");
         int analyzePublished = Integer.parseInt(post.get("published"));
@@ -1446,34 +1456,36 @@ public class JeproLabAnalyzeModel extends JeproLabModel{
         String analyzeDelay = post.get("delay");
 
         //this.date_add =  ;
-
+*/
         String query = "INSERT INTO " + dataBaseObject.quoteName("#__jeprolab_analyze") + "("  + dataBaseObject.quoteName("reference") + ", " ;
-        query +=  dataBaseObject.quoteName("ean13") + ", " + dataBaseObject.quoteName("upc") + ", "  + dataBaseObject.quoteName("published");
-        query += ", "  + dataBaseObject.quoteName("redirect_type") + ", " + dataBaseObject.quoteName("visibility") + ", " + dataBaseObject.quoteName("tax_rules_group_id");
+        query += dataBaseObject.quoteName("ean13") + ", " + dataBaseObject.quoteName("upc") + ", "  + dataBaseObject.quoteName("published") + ", ";
+        query += dataBaseObject.quoteName("redirect_type") + ", " + dataBaseObject.quoteName("visibility") + ", " + dataBaseObject.quoteName("tax_rules_group_id");
         query += ", " + dataBaseObject.quoteName("delay") + ", "  + dataBaseObject.quoteName("available_for_order") + ", "  + dataBaseObject.quoteName("show_price") + ", ";
         query += dataBaseObject.quoteName("online_only") + ", " + dataBaseObject.quoteName("default_lab_id") + ", " + dataBaseObject.quoteName("analyze_redirected_id");
-        query += ", " + dataBaseObject.quoteName("date_add") + ", " + dataBaseObject.quoteName("date_upd") +  ", " + dataBaseObject.quoteName("available_date") + " ) VALUES(" + dataBaseObject.quote(analyzeReference, true) ;
-        query += ", " + dataBaseObject.quote(analyzeEan13, true) + ", " + dataBaseObject.quote(analyzeUpc, true) + ", " + analyzePublished;
-        query += ", " + dataBaseObject.quote(analyzeRedirectType, true) + ", " + dataBaseObject.quote(analyzeVisibility, true) + ", 1, " + analyzeDelay;
-        query += ", " + availableForOrder + ", " + showPrice + ", " + onlineOnly + ", " + default_laboratory_id + ", " + analyzeRedirectId + ", ";
-        query += dataBaseObject.quote(JeproLabTools.date("yyyy-MM-dd hh:mm:ss"))+ ", " + dataBaseObject.quote(JeproLabTools.date("yyyy-MM-dd hh:mm:ss")) + ", " + dataBaseObject.quote(JeproLabTools.date("yyyy-MM-dd hh:mm:ss"))+ ") ";
+        query += ", " + dataBaseObject.quoteName("date_add") + ", " + dataBaseObject.quoteName("date_upd") +  ", " + dataBaseObject.quoteName("available_date");
+        query += ") VALUES(" + dataBaseObject.quote(this.reference, true) + ", " + dataBaseObject.quote(this.ean13, true) + ", " + dataBaseObject.quote(this.upc, true);
+        query += ", " + (this.published ? 1 : 0) + ", " + dataBaseObject.quote(this.redirect_type, true) + ", " + dataBaseObject.quote(this.visibility, true) + ", ";
+        query += this.tax_rules_group_id + ", " + this.delay + ", " + (this.available_for_order ? 1 : 0) + ", " + (this.show_price ? 1 : 0) + ", " + (this.online_only ? 1 :0);
+        query += ", " + default_laboratory_id + ", " + this.analyze_redirected_id + ", " + dataBaseObject.quote(JeproLabTools.date("yyyy-MM-dd hh:mm:ss"))+ ", ";
+        query += dataBaseObject.quote(JeproLabTools.date("yyyy-MM-dd hh:mm:ss")) + ", " + dataBaseObject.quote(JeproLabTools.date("yyyy-MM-dd hh:mm:ss"))+ ") ";
 
         dataBaseObject.setQuery(query);
         dataBaseObject.query(true);
-        int analyzeId = dataBaseObject.getGeneratedKey();
-        this.analyze_id = analyzeId;
+        this.analyze_id = dataBaseObject.getGeneratedKey();
 
         if(JeproLabLaboratoryModel.isTableAssociated("analyze")) {
             String dateAdd = JeproLabTools.date("yyyy-MM-dd hh:mm:ss");
             /* Laboratory fields */
             for(int labId : labIds){
                 query = "INSERT INTO " + dataBaseObject.quoteName("#__jeprolab_analyze_lab") + "( " + dataBaseObject.quoteName("analyze_id") + ", ";
-                query += dataBaseObject.quoteName("lab_id") + ", " + dataBaseObject.quoteName("online_only") +  ", " + dataBaseObject.quoteName("published") + ", ";
-                query += dataBaseObject.quoteName("redirect_type") + ", " + dataBaseObject.quoteName("analyze_redirected_id") + ", " + dataBaseObject.quoteName("available_for_order");
-                query += ",  " + dataBaseObject.quoteName("tax_rules_group_id") + ", " + dataBaseObject.quoteName("delay") + ", " + dataBaseObject.quoteName("show_price") + ", " + dataBaseObject.quoteName("visibility") + ", " ;
-                query += dataBaseObject.quoteName("available_date") + ", " + dataBaseObject.quoteName("date_add") + ", " + dataBaseObject.quoteName("date_upd") + ") VALUES( " + analyzeId + ", "  + labId + ", ";
-                query += onlineOnly + ", " + analyzePublished + ", " + dataBaseObject.quote(analyzeRedirectType) + ", 0, " + availableForOrder + ", 1, "  +analyzeDelay + ", ";
-                query += showPrice + ", " + dataBaseObject.quote(analyzeVisibility) + ", " + dataBaseObject.quote(dateAdd) + ", " + dataBaseObject.quote(dateAdd) + ", " + dataBaseObject.quote(dateAdd)+ ") ";
+                query += dataBaseObject.quoteName("lab_id") + ", " + dataBaseObject.quoteName("online_only") +  ", " + dataBaseObject.quoteName("published");
+                query += ", " + dataBaseObject.quoteName("redirect_type") + ", " + dataBaseObject.quoteName("analyze_redirected_id") + ", ";
+                query += dataBaseObject.quoteName("available_for_order") + ",  " + dataBaseObject.quoteName("tax_rules_group_id") + ", " + dataBaseObject.quoteName("delay");
+                query += ", " + dataBaseObject.quoteName("show_price") + ", " + dataBaseObject.quoteName("visibility") + ", " + dataBaseObject.quoteName("available_date");
+                query += ", " + dataBaseObject.quoteName("date_add") + ", " + dataBaseObject.quoteName("date_upd") + ") VALUES( " +this.analyze_id + ", "  + labId + ", ";
+                query += this.online_only + ", " + (this.published ? 1 : 0) + ", " + dataBaseObject.quote(this.redirect_type) + ", 0, " + (this.available_for_order ? 1 : 0);
+                query += ", " +  this.tax_rules_group_id + ", "  + this.delay + ", " + (this.show_price ? 1 : 0) + ", " + dataBaseObject.quote(this.visibility) + ", " ;
+                query += dataBaseObject.quote(dateAdd) + ", " + dataBaseObject.quote(dateAdd) + ", " + dataBaseObject.quote(dateAdd)+ ") ";
 
                 dataBaseObject.setQuery(query);
                 dataBaseObject.query(false);
@@ -1481,18 +1493,19 @@ public class JeproLabAnalyzeModel extends JeproLabModel{
                 for (Object o : languages.entrySet()) {
                     Map.Entry lang = (Map.Entry) o;
                     JeproLabLanguageModel language = (JeproLabLanguageModel) lang.getValue();
-
+/*
                     String analyzeName = post.containsKey("name_" + language.language_id) ? post.get("name_" + language.language_id) : " ";
                     String analyzeDescription = post.containsKey("description_" + language.language_id) ? post.get("description_" + language.language_id) : " ";
                     String analyzeShortDescription = post.containsKey("short_description_" + language.language_id) ? post.get("short_description_" + language.language_id) : " ";
-
+*/
                     query = "INSERT INTO " + dataBaseObject.quoteName("#__jeprolab_analyze_lang") + "(" + dataBaseObject.quoteName("analyze_id") + ", ";
                     query += dataBaseObject.quoteName("lab_id") + ", " + dataBaseObject.quoteName("lang_id") + ", " + dataBaseObject.quoteName("description");
                     query += ", " + dataBaseObject.quoteName("link_rewrite") + ", " + dataBaseObject.quoteName("meta_description") + ", " + dataBaseObject.quoteName("meta_keywords");
                     query += ", " + dataBaseObject.quoteName("meta_title") + ", " + dataBaseObject.quoteName("short_description") + ", " + dataBaseObject.quoteName("name");
-                    query += ") VALUES (" + analyzeId + ", " + labId + ", " + language.language_id + ", " + dataBaseObject.quote(analyzeDescription) + ", " + dataBaseObject.quote("");
-                    query += ", " + dataBaseObject.quote("") + ", " + dataBaseObject.quote("") + ", " + dataBaseObject.quote("") + ", " + dataBaseObject.quote(analyzeShortDescription) + ", ";
-                    query += dataBaseObject.quote(analyzeName) + ")";
+                    query += ") VALUES (" + this.analyze_id + ", " + labId + ", " + language.language_id + ", " + dataBaseObject.quote(this.description.get("lang_" + language.language_id));
+                    query += ", " + dataBaseObject.quote(this.link_rewrite.get("lang_" + language.language_id)) + ", " + dataBaseObject.quote(this.meta_description.get("lang_" + language.language_id));
+                    query += ", " + dataBaseObject.quote(this.meta_keywords.get("lang_" + language.language_id)) + ", " + dataBaseObject.quote(this.meta_title.get("lang_" + language.language_id));
+                    query += ", " + dataBaseObject.quote(this.short_description.get("lang_" + language.language_id)) + ", "+ dataBaseObject.quote(this.name.get("lang_" + language.language_id)) + ")";
 
                     dataBaseObject.setQuery(query);
                     dataBaseObject.query(false);
@@ -1500,11 +1513,11 @@ public class JeproLabAnalyzeModel extends JeproLabModel{
             }
         }
 
-        JeproLabAnalyzeModel analyze = new JeproLabAnalyzeModel(analyzeId);
-        JeproLabStockModel.JeproLabStockAvailableModel.setAnalyzeOutOfStock(analyze.analyze_id, 2);
+        //JeproLabAnalyzeModel analyze = new JeproLabAnalyzeModel(analyzeId);
+        JeproLabStockModel.JeproLabStockAvailableModel.setAnalyzeOutOfStock(this.analyze_id, 2);
 
-        analyze.setGroupReduction();
-        /* Hook::exec('actionProductSave', array('id_analyze' => (int)this.id, 'analyze' => $this)); */
+        this.setGroupReduction();
+        /* Hook::exec('actionProductSave', array('id_analyze' => (int)this.id, 'analyze' => $this)); *
         analyze.addCarriers();
         analyze.updateAccessories();
         analyze.updatePackItems();
@@ -1513,7 +1526,7 @@ public class JeproLabAnalyzeModel extends JeproLabModel{
         if(JeproLabSettingModel.getIntValue("use_advanced_stock_management_on_new_analyze") > 0 && JeproLabSettingModel.getIntValue("advanced_stock_management") > 0){
             analyze.advanced_stock_management = true;
             JeproLabStockModel.JeproLabStockAvailableModel.setAnalyzeDependsOnStock(analyze.analyze_id, true, context.laboratory.laboratory_id, 0);
-            analyze.update();
+            this.update();
         }
 
         if(!context.controller.has_errors){
@@ -1523,11 +1536,10 @@ public class JeproLabAnalyzeModel extends JeproLabModel{
                 warehouseLocationEntity.analyze_attribute_id = 0;
                 warehouseLocationEntity.warehouse_id = JeproLabSettingModel.getIntValue("default_warehouse_new_analyze");
                 warehouseLocationEntity.location = dataBaseObject.quote("");
-                warehouseLocationEntity.save();*/
+                warehouseLocationEntity.save();* /
             }
-        }
-
-        return analyze;
+        } */
+        this.updateMethods();
     }
 
     public void update(){
@@ -2406,17 +2418,16 @@ public class JeproLabAnalyzeModel extends JeproLabModel{
     }
 
     /*
- * @deprecated 1.5.0.10
- * @see JeproLabAnalyzeModel.deleteAttributeCombination()
- * @param int $id_analyze_attribute
- * /
-public function deleteAttributeCombination($id_analyze_attribute)
-        {
+     * @deprecated 1.5.0.10
+     * @see JeproLabAnalyzeModel.deleteAttributeCombination()
+     * @param int $id_analyze_attribute
+     * /
+    public function deleteAttributeCombination($id_analyze_attribute){
         Tools::displayAsDeprecated('Use JeproLabAnalyzeModel.deleteAttributeCombination($id_analyze_attribute)');
         return this.deleteAttributeCombination($id_analyze_attribute);
         }
+    */
 
-*/
     public boolean deleteCategories(){
         return  deleteCategories(false);
     }
@@ -2495,6 +2506,46 @@ public function deleteAttributeCombination($id_analyze_attribute)
             }
         }
         return methodList;
+    }
+
+    public void removeMethod(int methodId){
+        synchronized(this) {
+            int index = 0;
+            for (Integer i : analyzeMethods) {
+                if (i == methodId) {
+                    analyzeMethods.remove(index);
+                    break;
+                }
+                index++;
+            }
+        }
+    }
+
+    public void addMethod(int methodId){
+        synchronized(this) {
+            analyzeMethods.add(methodId);
+        }
+    }
+
+    public void updateMethods(){
+        if(dataBaseObject == null){
+            dataBaseObject = JeproLabFactory.getDataBaseConnector();
+        }
+        /**
+         * remove method before update in o
+         */
+        String query = "DELETE " + dataBaseObject.quoteName("#__jeprolab_analyze_method") + " WHERE " + dataBaseObject.quoteName("analyze_id") + " = " + this.analyze_id;
+
+        dataBaseObject.setQuery(query);
+        dataBaseObject.query(false);
+
+        query = "INSERT INTO " + dataBaseObject.quoteName("#__jeprolab_analyze_method") + "(" + dataBaseObject.quoteName("analyze_id");
+        query += ", " + dataBaseObject.quoteName("method_id") + ") VALUES (" + this.analyze_id + ", ";
+
+        for(Integer methodId : analyzeMethods){
+            dataBaseObject.setQuery(query + methodId + ")");
+            dataBaseObject.query(false);
+        }
     }
 
 
@@ -2657,4 +2708,169 @@ public function deleteAttributeCombination($id_analyze_attribute)
         }
     }
 
+
+    /***
+     * Analyze method
+     */
+    public static class JeproLabMethodModel extends JeproLabModel{
+        public int method_id;
+
+        public String name;
+
+        public String code;
+
+        public float threshold;
+
+        public String unit;
+
+        public JeproLabMethodModel(){
+            this(0);
+        }
+
+        public JeproLabMethodModel(int methodId){
+            if(methodId > 0){
+                String cacheKey = "jeprolab_";
+                if(!JeproLabCache.getInstance().isStored(cacheKey)){
+                    if (dataBaseObject == null){
+                        dataBaseObject = JeproLabFactory.getDataBaseConnector();
+                    }
+
+                    String query = "SELECT * FROM " + dataBaseObject.quoteName("#__jeprolab_method") + " WHERE " + dataBaseObject.quoteName("method_id") + " = " + methodId;
+
+                    dataBaseObject.setQuery(query);
+                    ResultSet methodSet = dataBaseObject.loadObjectList();
+                    if(methodSet != null){
+                        try{
+                            //JeproLabMethodModel method;
+                            if(methodSet.next()){
+                                //method = new JeproLabMethodModel();
+                                this.method_id = methodSet.getInt("method_id");
+                                this.name = methodSet.getString("name");
+                                this.code = methodSet.getString("code");
+                                this.threshold = methodSet.getFloat("threshold");
+                                this.unit = methodSet.getString("unit");
+                                JeproLabCache.getInstance().store(cacheKey, this);
+                            }
+                        }catch(SQLException ignored){
+                            ignored.printStackTrace();
+                        }finally {
+                            try{
+                                JeproLabDataBaseConnector.getInstance().closeConnexion();
+                            }catch(Exception ignored){
+                                ignored.printStackTrace();
+                            }
+                        }
+                    }
+                }else{
+                    JeproLabMethodModel method = (JeproLabMethodModel)JeproLabCache.getInstance().retrieve(cacheKey);
+                    this.method_id = method.method_id;
+                    this.name = method.name;
+                    this.code = method.code;
+                    this.threshold = method.threshold;
+                    this.unit = method.unit;
+                }
+            }
+        }
+
+        /**
+         * Get list of available methods
+         */
+        public static List<JeproLabMethodModel> getMethods(){
+            if (staticDataBaseObject == null){
+                staticDataBaseObject = JeproLabFactory.getDataBaseConnector();
+            }
+
+            String query = "SELECT * FROM " + staticDataBaseObject.quoteName("#__jeprolab_method");
+
+            staticDataBaseObject.setQuery(query);
+            ResultSet methodSet = staticDataBaseObject.loadObjectList();
+
+            List<JeproLabMethodModel> methods = new ArrayList<>();
+
+            if(methodSet != null){
+                try{
+                    JeproLabMethodModel method;
+                    while(methodSet.next()){
+                        method = new JeproLabMethodModel();
+                        method.method_id = methodSet.getInt("method_id");
+                        method.name = methodSet.getString("name");
+                        method.code = methodSet.getString("code");
+                        method.threshold = methodSet.getFloat("threshold");
+                        method.unit = methodSet.getString("unit");
+                        methods.add(method);
+                    }
+                }catch(SQLException ignored){
+                    ignored.printStackTrace();
+                }finally {
+                    try{
+                        JeproLabDataBaseConnector.getInstance().closeConnexion();
+                    }catch(Exception ignored){
+                        ignored.printStackTrace();
+                    }
+                }
+            }
+
+            return methods;
+        }
+
+        public void save(){
+            if(dataBaseObject == null){
+                dataBaseObject = JeproLabFactory.getDataBaseConnector();
+            }
+
+            String query = "INSERT INTO " + dataBaseObject.quoteName("#__jeprolab_method") + "(" + dataBaseObject.quoteName("name") + ", ";
+            query += dataBaseObject.quoteName("code") + ", " + dataBaseObject.quoteName("threshold") + ", " + dataBaseObject.quoteName("unit");
+            query += ") VALUES (" + dataBaseObject.quote(this.name) + ", " + dataBaseObject.quote(this.code) + ", " + this.threshold + ", ";
+            query += dataBaseObject.quote(this.unit) + ")";
+
+            dataBaseObject.setQuery(query);
+            dataBaseObject.query(true);
+            this.method_id = dataBaseObject.getGeneratedKey();
+        }
+
+        public void update(){
+            if(dataBaseObject == null){
+                dataBaseObject = JeproLabFactory.getDataBaseConnector();
+            }
+
+            String query = "UPDATE " + dataBaseObject.quoteName("#__jeprolab_method") + " SET " + dataBaseObject.quoteName("name") + " = ";
+            query += dataBaseObject.quote(this.name) + ", " + dataBaseObject.quoteName("code") + " = " + dataBaseObject.quote(this.code);
+            query += ", " + dataBaseObject.quoteName("threshold") + " = " + this.threshold + ", " + dataBaseObject.quoteName("unit");
+            query += " = " + dataBaseObject.quote(this.unit) + " WHERE " + dataBaseObject.quoteName("method_id") + " = " + this.method_id;
+
+            dataBaseObject.setQuery(query);
+            dataBaseObject.query(false);
+        }
+
+        public static List<Integer> getAnalyzeMethodIdsByAnalyzeId(int analyzeId){
+            if (staticDataBaseObject == null){
+                staticDataBaseObject = JeproLabFactory.getDataBaseConnector();
+            }
+
+            String query = "SELECT " + staticDataBaseObject.quoteName("method_id") + " FROM " + staticDataBaseObject.quoteName("#__jeprolab_analyze_method");
+            query += " WHERE " + staticDataBaseObject.quoteName("analyze_id") + " = " + analyzeId;
+
+
+            staticDataBaseObject.setQuery(query);
+            ResultSet methodSet = staticDataBaseObject.loadObjectList();
+
+            List<Integer> methodIds = new ArrayList<>();
+            if(methodSet != null){
+                try{
+                    while(methodSet.next()){
+                        methodIds.add(methodSet.getInt("method_id"));
+                    }
+                }catch (SQLException ignored){
+                    ignored.printStackTrace();
+                }finally {
+                    try{
+                        JeproLabDataBaseConnector.getInstance().closeConnexion();
+                    }catch (Exception ignored){
+                        ignored.printStackTrace();
+                    }
+                }
+            }
+            return methodIds;
+        }
+    }
 }

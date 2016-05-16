@@ -21,6 +21,7 @@
 <?import com.jeprolab.assets.extend.controls.JeproPriceBox?>
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ScrollPane?>
 <JeproFormPanel  xmlns:fx="http://javafx.com/fxml" fx:id="jeproLabAddAnalyseFormWrapper" fx:controller="com.jeprolab.controllers.JeproLabAnalyzeAddController" >
     <JeproFormPanelTitle fx:id="jeproLabAddAnalyseFormTitleWrapper" />
     <JeproFormPanelContainer fx:id="jeproLabAddAnalyseFormContainerWrapper"  >
@@ -69,6 +70,14 @@
                         <Label fx:id="jeproLabDaysLabel" />
                     </HBox>
                 </GridPane>
+            </Tab>
+            <Tab fx:id="jeproLabAnalyzeMethodSelectorTab" closable="false" >
+                <VBox spacing="0" >
+                    <Label fx:id="jeproLabAnalyzeMethodSelectorLabel" styleClass="form-panel-title-gray, form-title" />
+                    <ScrollPane fx:id="jeproLabAnalyzeMethodScrollPane" >
+                        <GridPane fx:id="jeproLabAnalyzeMethodSelectorLayout" />
+                    </ScrollPane>
+                </VBox>
             </Tab>
             <Tab fx:id="jeproLabAnalyzePriceTabForm" closable="false" >
                 <VBox fx:id="jeproLabAnalyzePricePane" >

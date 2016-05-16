@@ -2,6 +2,14 @@
     -fx-background-color: transparent;
 }
 
+.add-btn{
+    -fx-graphic: url("../../resources/images/add.png");
+}
+
+.search-btn{ -fx-graphic: url("../../resources/images/search-icon.png"); }
+.save-btn{ -fx-graphic: url("../../resources/images/floppy-icon.png"); }
+.cross-btn{ -fx-graphic: url("../../resources/images/unpublished.png"); }
+
 .form-title{
     -fx-text-fill: black;
     -fx-font-size: 18px;
