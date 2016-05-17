@@ -11,24 +11,24 @@
     <JeproFormPanelContainer fx:id="jeproLabFormContainerWrapper" >
         <GridPane fx:id="jeproLabCurrencyLayout" >
             <!--Label GridPane.columnSpan="2" GridPane.columnIndex="0" GridPane.rowIndex="0" fx:id="formTitleLabel" /-->
-            <Label GridPane.columnIndex="0" GridPane.rowIndex="0" fx:id="currencyNameLabel" />
-            <TextField GridPane.columnIndex="1" GridPane.rowIndex="0" fx:id="currencyName" />
-            <Label GridPane.columnIndex="0" GridPane.rowIndex="1" fx:id="isoCodeLabel" />
-            <TextField  GridPane.columnIndex="1" GridPane.rowIndex="1" fx:id="isoCode" />
-            <Label GridPane.columnIndex="0" GridPane.rowIndex="2" fx:id="numericIsoCodeLabel" />
-            <TextField  GridPane.columnIndex="1" GridPane.rowIndex="2" fx:id="numericIsoCode" />
-            <Label GridPane.columnIndex="0" GridPane.rowIndex="3" fx:id="currencySymbolLabel" />
-            <TextField  GridPane.columnIndex="1" GridPane.rowIndex="3" fx:id="currencySymbol" />
-            <Label GridPane.columnIndex="0" GridPane.rowIndex="4" fx:id="conversionRateLabel" />
-            <TextField  GridPane.columnIndex="1" GridPane.rowIndex="4" fx:id="conversionRate" />
-            <Label GridPane.columnIndex="0" GridPane.rowIndex="5" fx:id="currencyFormatLabel" />
-            <ComboBox  GridPane.columnIndex="1" GridPane.rowIndex="5" fx:id="currencyFormat" />
-            <Label GridPane.columnIndex="0" GridPane.rowIndex="6" fx:id="hasDecimalsLabel" />
-            <JeproSwitchButton  GridPane.columnIndex="1" GridPane.rowIndex="6"  fx:id="hasDecimals" />
-            <Label GridPane.columnIndex="0" GridPane.rowIndex="7" fx:id="spacingLabel" />
-            <JeproSwitchButton  GridPane.columnIndex="1" GridPane.rowIndex="7" fx:id="hasSpacing" />
-            <Label GridPane.columnIndex="0" GridPane.rowIndex="8" fx:id="publishedLabel" />
-            <JeproSwitchButton  GridPane.columnIndex="1" GridPane.rowIndex="8" fx:id="published" />
+            <Label GridPane.columnIndex="0" GridPane.rowIndex="0" fx:id="jeproLabCurrencyNameLabel" styleClass="input-label" />
+            <TextField GridPane.columnIndex="1" GridPane.rowIndex="0" fx:id="jeproLabCurrencyName" />
+            <Label GridPane.columnIndex="0" GridPane.rowIndex="1" fx:id="jeproLabCurrencyIsoCodeLabel" styleClass="input-label"  />
+            <TextField  GridPane.columnIndex="1" GridPane.rowIndex="1" fx:id="jeproLabCurrencyIsoCode" />
+            <Label GridPane.columnIndex="0" GridPane.rowIndex="2" fx:id="jeproLabCurrencyNumericIsoCodeLabel" styleClass="input-label"  />
+            <TextField  GridPane.columnIndex="1" GridPane.rowIndex="2" fx:id="jeproLabCurrencyNumericIsoCode" />
+            <Label GridPane.columnIndex="0" GridPane.rowIndex="3" fx:id="jeproLabCurrencySymbolLabel" styleClass="input-label"  />
+            <TextField  GridPane.columnIndex="1" GridPane.rowIndex="3" fx:id="jeproLabCurrencySymbol" />
+            <Label GridPane.columnIndex="0" GridPane.rowIndex="4" fx:id="jeproLabCurrencyConversionRateLabel" styleClass="input-label"  />
+            <TextField  GridPane.columnIndex="1" GridPane.rowIndex="4" fx:id="jeproLabCurrencyConversionRate" />
+            <Label GridPane.columnIndex="0" GridPane.rowIndex="5" fx:id="jeproLabCurrencyFormatLabel" styleClass="input-label"  />
+            <ComboBox  GridPane.columnIndex="1" GridPane.rowIndex="5" fx:id="jeproLabCurrencyFormat" />
+            <Label GridPane.columnIndex="0" GridPane.rowIndex="6" fx:id="jeproLabCurrencyHasDecimalsLabel" styleClass="input-label"  />
+            <JeproSwitchButton  GridPane.columnIndex="1" GridPane.rowIndex="6"  fx:id="jeproLabCurrencyHasDecimals" />
+            <Label GridPane.columnIndex="0" GridPane.rowIndex="7" fx:id="jeproLabCurrencyHasSpacingLabel" styleClass="input-label"  />
+            <JeproSwitchButton  GridPane.columnIndex="1" GridPane.rowIndex="7" fx:id="jeproLabCurrencyHasSpacing" />
+            <Label GridPane.columnIndex="0" GridPane.rowIndex="8" fx:id="jeproLabCurrencyPublishedLabel"  styleClass="input-label" />
+            <JeproSwitchButton  GridPane.columnIndex="1" GridPane.rowIndex="8" fx:id="jeproLabCurrencyPublished" />
         </GridPane>
     </JeproFormPanelContainer>
 </JeproFormPanel>

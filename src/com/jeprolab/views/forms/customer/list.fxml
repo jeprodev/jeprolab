@@ -5,9 +5,9 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.layout.HBox?>
 <VBox xmlns:fx="http://javafx.com/fxml" fx:id="jeproLabCustomerListWrapper" fx:controller="com.jeprolab.controllers.JeproLabCustomerController" spacing="5" >
-    <HBox fx:id="jeproLabCustomerSearchToolBar">
+    <HBox fx:id="jeproLabCustomerSearchToolBar" spacing="5" >
         <TextField fx:id="customerSearchBox"/>
-        <Button fx:id="searchCustomerButton"/>
+        <Button fx:id="searchCustomerButton"  styleClass="search-btn, icon-btn" />
     </HBox>
     <TableView fx:id="customersTableView">
         <columns>

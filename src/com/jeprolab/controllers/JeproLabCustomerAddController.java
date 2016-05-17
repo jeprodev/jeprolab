@@ -182,13 +182,14 @@ public class JeproLabCustomerAddController extends JeproLabController{
     public void initializeContent() {
         loadCustomer();
         final int[] zoneId = {0};
-/*if(address.country_id == country.country_id){
+        /*if(address.country_id == country.country_id){
                 zoneId = country.zone_id;
                 customerCountry.setValue(country.name.get("lang_" + context.language.language_id));
             }*//*if(zone.zone_id == zoneId){
                 jeproLabAddressCountryZone.setValue(zone.name);
             }*/
         if (customer.customer_id > 0) {
+            formTitleLabel.setText(bundle.getString("JEPROLAB_EDIT_LABEL") + " " + bundle.getString("JEPROLAB_CUSTOMER_LABEL"));
             customerTitle.setValue(bundle.getString("JEPROLAB_" + customer.title.toUpperCase() + "_LABEL"));
             customerFirstName.setText(customer.firstname);
             customerLastName.setText(customer.lastname);

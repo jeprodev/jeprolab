@@ -1,0 +1,7 @@
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.control.TableView?>
+<VBox spacing="5"  xmlns:fx="http://javafx.com/fxml" fx:controller="com.jeprolab.controllers.JeproLabCurrencyController" >
+    <HBox></HBox>
+    <TableView></TableView>
+</VBox>

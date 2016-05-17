@@ -1,6 +1,7 @@
 package com.jeprolab.controllers;
 
 import com.jeprolab.JeproLab;
+import com.jeprolab.assets.tools.JeproLabContext;
 import com.jeprolab.assets.tools.JeproLabTools;
 import com.jeprolab.models.JeproLabAnalyzeModel;
 import com.jeprolab.models.JeproLabCustomerModel;
@@ -62,20 +63,25 @@ public class JeproLabCustomerController extends JeproLabController {
         customerListNumberColumn.setPrefWidth(30);
         customerListNumberColumn.setCellValueFactory(new PropertyValueFactory<>("customerIndex"));
         tableCellAlign(customerListNumberColumn, Pos.CENTER_RIGHT);
+
         CheckBox checkAll = new CheckBox();
         customerCheckBoxColumn.setGraphic(checkAll);
         customerCheckBoxColumn.setPrefWidth(20);
         Callback<TableColumn<JeproLabCustomerRecord, Boolean>, TableCell<JeproLabCustomerRecord, Boolean>> checkBoxFactory = param -> new JeproLabCheckBoxCell();
         customerCheckBoxColumn.setCellFactory(checkBoxFactory);
+
         customerTitleColumn.setText(bundle.getString("JEPROLAB_TITLE_LABEL"));
         customerTitleColumn.setPrefWidth(45);
         customerTitleColumn.setCellValueFactory(new PropertyValueFactory<>("customerTitle"));
+
         customerNameColumn.setText(bundle.getString("JEPROLAB_LAST_NAME_LABEL"));
         customerNameColumn.setPrefWidth(.18 * remainingWidth);
         customerNameColumn.setCellValueFactory(new PropertyValueFactory<>("customerLastName"));
+
         customerFistNameColumn.setText(bundle.getString("JEPROLAB_FIRST_NAME_LABEL"));
         customerFistNameColumn.setPrefWidth(.18 * remainingWidth);
         customerFistNameColumn.setCellValueFactory(new PropertyValueFactory<>("customerFirstName"));
+
         customerLastVisitColumn.setText(bundle.getString("JEPROLAB_LAST_VISIT_LABEL"));
         customerLastVisitColumn.setPrefWidth(0.11 * remainingWidth);
         customerLastVisitColumn.setCellValueFactory(new PropertyValueFactory<>("customerLastVisit"));
@@ -126,15 +132,12 @@ public class JeproLabCustomerController extends JeproLabController {
         HBox commandWrapper = JeproLab.getInstance().getApplicationToolBarCommandWrapper();
         commandWrapper.getChildren().clear();
         addCustomerBtn = new Button(bundle.getString("JEPROLAB_ADD_NEW_LABEL"), new ImageView(new Image(JeproLab.class.getResourceAsStream("resources/images/add.png"))));
-        addCustomerBtn.setOnAction(new EventHandler<ActionEvent>() {
-            @Override
-            public void handle(ActionEvent event) {
-                try {
-                    JeproLab.getInstance().goToForm(JeproLab.getInstance().getApplicationForms().addCustomerForm);
-                    context.controller.initializeContent();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
+        addCustomerBtn.setOnAction(event -> {
+            try {
+                JeproLab.getInstance().goToForm(JeproLab.getInstance().getApplicationForms().addCustomerForm);
+                context.controller.initializeContent();
+            } catch (IOException e) {
+                e.printStackTrace();
             }
         });
         commandWrapper.getChildren().addAll(addCustomerBtn);
@@ -173,7 +176,7 @@ public class JeproLabCustomerController extends JeproLabController {
             return customerLastName.get();
         }
 
-        public String getCcustomerFirstName(){
+        public String getCustomerFirstName(){
             return customerFirstName.get();
         }
 
@@ -315,7 +318,7 @@ public class JeproLabCustomerController extends JeproLabController {
 
     private static class JeproLabActionCell extends TableCell<JeproLabCustomerRecord, HBox>{
         protected HBox commandContainer;
-        private Button editCustomer, viewCustomer, deleteCustomer;
+        private Button editCustomer, deleteCustomer;
         private double btnSize = 18;
 
         public JeproLabActionCell(){
@@ -326,11 +329,11 @@ public class JeproLabCustomerController extends JeproLabController {
             editCustomer.setMaxSize(btnSize, btnSize);
             editCustomer.getStyleClass().add("icon-btn");
 
-            viewCustomer = new Button("", new ImageView(new Image(JeproLab.class.getResourceAsStream("resources/images/view.png"))));
+            /*viewCustomer = new Button("", new ImageView(new Image(JeproLab.class.getResourceAsStream("resources/images/view.png"))));
             viewCustomer.setPrefSize(btnSize, btnSize);
             viewCustomer.setMinSize(btnSize, btnSize);
             viewCustomer.setMaxSize(btnSize, btnSize);
-            viewCustomer.getStyleClass().add("icon-btn");
+            viewCustomer.getStyleClass().add("icon-btn");*/
 
             deleteCustomer = new Button("", new ImageView(new Image(JeproLab.class.getResourceAsStream("resources/images/trash-icon.png"))));
             deleteCustomer.setPrefSize(btnSize, btnSize);
@@ -338,7 +341,8 @@ public class JeproLabCustomerController extends JeproLabController {
             deleteCustomer.setMaxSize(btnSize, btnSize);
             deleteCustomer.getStyleClass().add("icon-btn");
 
-            commandContainer.getChildren().addAll(editCustomer, viewCustomer, deleteCustomer);
+            commandContainer.getChildren().addAll(editCustomer, deleteCustomer);
+            commandContainer.setAlignment(Pos.CENTER);
         }
 
         @Override
@@ -351,7 +355,19 @@ public class JeproLabCustomerController extends JeproLabController {
             super.updateItem(item, empty);
             ObservableList<JeproLabCustomerRecord> items = getTableView().getItems();
             if((items != null) && (getIndex() >= 0 && getIndex() < items.size())) {
+                int itemId = items.get(getIndex()).getCustomerIndex();
+                editCustomer.setOnAction(event -> {
+                    JeproLab.request.setRequest("customer_id=" + itemId);
+                    try{
+                        JeproLab.getInstance().goToForm(JeproLab.getInstance().getApplicationForms().addCustomerForm);
+                        JeproLabContext.getContext().controller.initializeContent();
+                    }catch (IOException ignored){
+                        ignored.printStackTrace();
+                    }
+                });
+                deleteCustomer.setOnAction(event -> {
 
+                });
                 setGraphic(commandContainer);
                 setAlignment(Pos.CENTER);
             }
