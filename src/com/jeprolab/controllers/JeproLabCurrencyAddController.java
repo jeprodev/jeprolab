@@ -82,8 +82,8 @@ public class JeproLabCurrencyAddController extends JeproLabController {
         jeproLabCurrencySymbolLabel.setText(bundle.getString("JEPROLAB_CURRENCY_SYMBOL_LABEL"));
         jeproLabCurrencyConversionRateLabel.setText(bundle.getString("JEPROLAB_CONVERSION_RATE_LABEL"));
         jeproLabCurrencyFormatLabel.setText(bundle.getString("JEPROLAB_CURRENCY_FORMAT_LABEL"));
-        jeproLabCurrencyHasDecimalsLabel.setText(bundle.getString("JEPROLAB_HAS_DECIMALS_LABEL"));
-        jeproLabCurrencyHasSpacingLabel.setText(bundle.getString("JEPROLAB_HAS_SPACING_LABEL"));
+        jeproLabCurrencyHasDecimalsLabel.setText(bundle.getString("JEPROLAB_CURRENCY_HAS_DECIMALS_LABEL"));
+        jeproLabCurrencyHasSpacingLabel.setText(bundle.getString("JEPROLAB_CURRENCY_HAS_SPACING_LABEL"));
         jeproLabCurrencyPublishedLabel.setText(bundle.getString("JEPROLAB_PUBLISHED_LABEL"));
     }
 

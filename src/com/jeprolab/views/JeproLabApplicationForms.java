@@ -52,7 +52,7 @@ public class JeproLabApplicationForms {
         addLaboratoryForm = new JeproLabApplicationForm("lab/add.fxml");
         laboratoriesGroupsForm = new JeproLabApplicationForm("lab/groups.fxml");
         addLaboratoriesGroupForm = new JeproLabApplicationForm("lab/add_group.fxml");
-        addTaxGroupForm = new JeproLabApplicationForm("lab/add_group.fxml");
+        addTaxGroupForm = new JeproLabApplicationForm("taxes/add_group.fxml");
         addTaxForm = new JeproLabApplicationForm("taxes/add.fxml");
         taxesForm = new JeproLabApplicationForm("taxes/list.fxml");
         taxGroupForm = new JeproLabApplicationForm("taxes/groups.fxml");

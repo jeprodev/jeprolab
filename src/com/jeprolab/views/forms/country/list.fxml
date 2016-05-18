@@ -3,10 +3,15 @@
 <?import javafx.scene.control.TableColumn?>
 <?import com.jeprolab.assets.extend.controls.JeproFormPanel?>
 <?import javafx.scene.layout.HBox?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.control.Button?>
 <JeproFormPanel xmlns:fx="http://javafx.com/fxml" fx:controller="com.jeprolab.controllers.JeproLabCountryController" >
-    <VBox spacing="10">
+    <VBox spacing="5">
         <children>
-            <HBox />
+            <HBox fx:id="jeproLabCountrySearchWrapper" >
+                <TextField fx:id="jeproLabCountrySearch" />
+                <Button fx:id="jeproLabCountrySearchBtn" styleClass="icon-btn, search-btn" />
+            </HBox>
             <TableView fx:id="jeproLabCountryTableView">
                 <columns>
                     <TableColumn resizable="false" editable="false" fx:id="jeproLabCountryIndexColumn" />

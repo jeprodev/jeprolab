@@ -9,6 +9,8 @@
 .search-btn{ -fx-graphic: url("../../resources/images/search-icon.png"); }
 .save-btn{ -fx-graphic: url("../../resources/images/floppy-icon.png"); }
 .cross-btn{ -fx-graphic: url("../../resources/images/unpublished.png"); }
+.edit-btn{ -fx-graphic: url("../../resources/images/edit.png"); }
+.delete-btn{ -fx-graphic: url("../../resources/images/trash-icon.png"); }
 
 .form-title{
     -fx-text-fill: black;

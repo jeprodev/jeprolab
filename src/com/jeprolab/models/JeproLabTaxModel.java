@@ -17,7 +17,7 @@ public class JeproLabTaxModel extends JeproLabModel{
     public int tax_id;
 
     /** @var string Name */
-    public String name;
+    public Map<String, String> name;
 
     /** @var float Rate (%) */
     public float rate;
@@ -52,7 +52,7 @@ public class JeproLabTaxModel extends JeproLabModel{
             }else{
                 JeproLabTaxModel taxModel = (JeproLabTaxModel)JeproLabCache.getInstance().retrieve(cacheKey);
                 this.tax_id = taxModel.tax_id;
-                this.published = taxModel.deleted;
+                this.deleted = taxModel.deleted;
                 this.published = taxModel.published;
                 this.rate = taxModel.rate;
             }
@@ -366,6 +366,44 @@ public class JeproLabTaxModel extends JeproLabModel{
         /** @var string Object last modification date */
         public Date date_upd;
 
+        public JeproLabTaxRulesGroupModel(){
+            this(0);
+        }
+
+        public JeproLabTaxRulesGroupModel(int taxRulesGroupId){
+            if(taxRulesGroupId > 0){
+                String cacheKey = "jeprolab_tax_rules_group_model_" + taxRulesGroupId;
+                if(!JeproLabCache.getInstance().isStored(cacheKey)){
+                    if(dataBaseObject == null){
+                        dataBaseObject = JeproLabFactory.getDataBaseConnector();
+                    }
+
+                    String query = "SELECT * FROM " + dataBaseObject.quoteName("#__jeprolab_tax_rules_group") + " WHERE " + dataBaseObject.quoteName("tax_rules_group_id") + " = " + taxRulesGroupId;
+
+                    dataBaseObject.setQuery(query);
+                    ResultSet taxRulesGroupSet = dataBaseObject.loadObjectList();
+
+                    if(taxRulesGroupSet != null){
+                        try{
+                            if(taxRulesGroupSet.next()){
+                                this.tax_rules_group_id = taxRulesGroupSet.getInt("tax_rules_group_id");
+                                this.name = taxRulesGroupSet.getString("name");
+                                this.published = taxRulesGroupSet.getInt("published") > 0;
+                                JeproLabCache.getInstance().store(cacheKey, this);
+                            }
+                        }catch(SQLException ignored){
+                            ignored.printStackTrace();
+                        }
+                    }
+                }else{
+                    JeproLabTaxRulesGroupModel taxRulesGroup = (JeproLabTaxRulesGroupModel)JeproLabCache.getInstance().retrieve(cacheKey);
+                    this.tax_rules_group_id = taxRulesGroup.tax_rules_group_id;
+                    this.name = taxRulesGroup.name;
+                    this.published = taxRulesGroup.published;
+                }
+            }
+        }
+
         public static List<JeproLabTaxRulesGroupModel> getTaxRulesGroups(){
             return getTaxRulesGroups(true);
         }
@@ -539,7 +577,7 @@ public class JeproLabTaxModel extends JeproLabModel{
         /**
          * Returns a tax manager able to handle this address
          *
-         * @param address
+         * @param address address
          * @param type
          *
          * @return TaxManagerInterface

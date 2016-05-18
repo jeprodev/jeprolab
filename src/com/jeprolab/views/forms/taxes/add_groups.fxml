@@ -1,4 +1,0 @@
-<?import com.jeprolab.assets.extend.controls.JeproFormPanel?>
-<JeproFormPanel xmlns:fx="http://javafx.com/fxl" fx:controller="com.jeprolab.controllers.JeproLabTaxGroupsAddController" >
-
-</JeproFormPanel>

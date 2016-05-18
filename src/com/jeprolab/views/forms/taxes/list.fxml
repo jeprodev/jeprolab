@@ -1,16 +1,25 @@
-
 <?import javafx.scene.control.TableView?>
 <?import javafx.scene.control.TableColumn?>
 <?import com.jeprolab.assets.extend.controls.JeproFormPanel?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.control.Button?>
 <JeproFormPanel xmlns:fx="http://javafx.com/fxml" fx:controller="com.jeprolab.controllers.JeproLabTaxController"  >
-    <TableView fx:id="jeproLabTaxTableView" >
-        <columns>
-            <TableColumn resizable="false" editable="false" fx:id="jeproLabTaxIndexColumn" />
-            <TableColumn resizable="false" editable="false" fx:id="jeproLabTaxCheckBoxColumn" />
-            <TableColumn resizable="false" editable="false" fx:id="jeproLabTaxStatusColumn" />
-            <TableColumn resizable="false" editable="false" fx:id="jeproLabTaxNameColumn" />
-            <TableColumn resizable="false" editable="false" fx:id="jeproLabTaxRateColumn" />
-            <TableColumn resizable="false" editable="false" fx:id="jeproLabTaxActionColumn" />
-        </columns>
-    </TableView>
+    <VBox spacing="5">
+        <HBox spacing="10" fx:id="jeproLabTaxSearchWrapper">
+            <TextField fx:id="jeproLabTaxSearch" />
+            <Button fx:id="jeproLabTaxSearchBtn" styleClass="icon-btn, search-btn" />
+        </HBox>
+        <TableView fx:id="jeproLabTaxTableView" >
+            <columns>
+                <TableColumn resizable="false" editable="false" fx:id="jeproLabTaxIndexColumn" />
+                <TableColumn resizable="false" editable="false" fx:id="jeproLabTaxCheckBoxColumn" />
+                <TableColumn resizable="false" editable="false" fx:id="jeproLabTaxStatusColumn" />
+                <TableColumn resizable="false" editable="false" fx:id="jeproLabTaxNameColumn" />
+                <TableColumn resizable="false" editable="false" fx:id="jeproLabTaxRateColumn" />
+                <TableColumn resizable="false" editable="false" fx:id="jeproLabTaxActionColumn" />
+            </columns>
+        </TableView>
+    </VBox>
 </JeproFormPanel>

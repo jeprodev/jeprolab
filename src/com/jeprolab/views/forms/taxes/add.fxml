@@ -1,21 +1,26 @@
 <?import javafx.scene.layout.GridPane?>
 <?import javafx.scene.control.Label?>
-<?import com.jeprolab.assets.extend.controls.JeproMultiLangTextField?>
+<?import com.jeprolab.assets.extend.controls.JeproMultiLang ?>
 <?import javafx.scene.control.TextField?>
 <?import com.jeprolab.assets.extend.controls.switchbutton.JeproSwitchButton?>
 <?import com.jeprolab.assets.extend.controls.JeproFormPanel?>
 <?import com.jeprolab.assets.extend.controls.JeproFormPanelTitle?>
 <?import com.jeprolab.assets.extend.controls.JeproFormPanelContainer?>
+<?import javafx.scene.layout.HBox?>
+
 <JeproFormPanel xmlns:fx="http://javafx.com/fxml" fx:controller="com.jeprolab.controllers.JeproLabTaxAddController" fx:id="jeproLabFormPanelWrapper" >
-    <JeproFormPanelTitle fx:id="jeproLabFormPanelTitle" />
-    <JeproFormPanelContainer fx:id="jeproLabFormPanelContainer" >
+    <JeproFormPanelTitle fx:id="jeproLabFormPanelTitleWrapper" />
+    <JeproFormPanelContainer fx:id="jeproLabFormPanelContainerWrapper" >
         <GridPane fx:id="jeproLabTaxLayout" >
-            <Label GridPane.columnIndex="0" GridPane.rowIndex="0" fx:id="jeproLabTaxNameLabel" />
-            <JeproMultiLangTextField GridPane.columnIndex="1" GridPane.rowIndex="0" fx:id="jeproLabTaxName" />
-            <Label GridPane.columnIndex="0" GridPane.rowIndex="1" fx:id="jeproLabTaxRateLabel" />
-            <TextField GridPane.columnIndex="1" GridPane.rowIndex="1" fx:id="jeproLabTaxRate" />
-            <Label GridPane.columnIndex="0" GridPane.rowIndex="2" fx:id="jeproLabPublishedLabel" />
-            <JeproSwitchButton GridPane.columnIndex="1" GridPane.rowIndex="2" fx:id="jeproLabPublished" />
+            <Label GridPane.columnIndex="0" GridPane.rowIndex="0" fx:id="jeproLabTaxNameLabel" styleClass="input-label" />
+            <JeproMultiLang GridPane.columnIndex="1" GridPane.rowIndex="0" fx:id="jeproLabTaxName" />
+            <Label GridPane.columnIndex="0" GridPane.rowIndex="1" fx:id="jeproLabTaxRateLabel" styleClass="input-label" />
+            <HBox GridPane.columnIndex="1" GridPane.rowIndex="1" fx:id="jeproLabTaxRateWrapper" spacing="5" >
+                <TextField fx:id="jeproLabTaxRate" />
+                <Label fx:id="jeproLabTaxRateUnitLabel" styleClass="input-label" />
+            </HBox>
+            <Label GridPane.columnIndex="0" GridPane.rowIndex="2" fx:id="jeproLabTaxPublishedLabel" styleClass="input-label" />
+            <JeproSwitchButton GridPane.columnIndex="1" GridPane.rowIndex="2" fx:id="jeproLabTaxPublished" />
         </GridPane>
     </JeproFormPanelContainer>
 </JeproFormPanel>
