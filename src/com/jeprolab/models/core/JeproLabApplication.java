@@ -18,14 +18,14 @@ public class JeproLabApplication {
      * Username and encoded password are passed the on user login event which is responsible for the user validation. A
      * successful validation updates the current session record with the user's details.
      *
-     * @param userName
-     * @param passWord
+     * @param userName user name or email
+     * @param passWord user password
      * @return boolean true on success
      */
     public static boolean login(String userName, String passWord, JeproLabAuthentication.JeproLabAuthenticationOption loginOptions){
         JeproLabAuthentication authenticator = JeproLabAuthentication.getInstance();
         JeproLabAuthentication.JeproLabAuthenticationResponse response = authenticator.authenticate(userName, passWord, loginOptions);
-
+        System.out.println(response.status);
         if(response.status == JeproLabAuthentication.SUCCESS_STATUS){
             /**
              * Validate that the user should be able to login (different to being authenticated).

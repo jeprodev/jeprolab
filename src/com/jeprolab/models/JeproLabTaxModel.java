@@ -42,12 +42,53 @@ public class JeproLabTaxModel extends JeproLabModel{
 
     public JeproLabTaxModel(int taxId, int langId, int labId){
         if(taxId > 0){
-            if(dataBaseObject == null){
-                dataBaseObject = JeproLabFactory.getDataBaseConnector();
-            }
-
             String cacheKey = "jeprolab_tax_model_" + taxId + "_" + langId + "_" + labId;
             if(!JeproLabCache.getInstance().isStored(cacheKey)){
+                if(dataBaseObject == null){
+                    dataBaseObject = JeproLabFactory.getDataBaseConnector();
+                }
+
+                String query = "SELECT * FROM " + dataBaseObject.quoteName("#__jeprolab_tax") + " AS tax LEFT JOIN ";
+                query += dataBaseObject.quoteName("#__jeprolab_tax_lang") + " AS tax_lang ON (tax_lang.tax_id = tax.tax_id";
+
+                if(langId > 0){
+                    query += " AND tax_lang.lang_id = " + langId ;
+                }
+                query += ") WHERE tax.tax_id = " + taxId;
+
+                dataBaseObject.setQuery(query);
+                ResultSet taxSet = dataBaseObject.loadObjectList();
+                if(taxSet != null){
+                    try{
+                        if(taxSet.next()){
+                            this.tax_id = taxSet.getInt("tax_id");
+                            this.rate = taxSet.getFloat("rate");
+                            this.published = taxSet.getInt("published") > 0;
+                            this.deleted = taxSet.getInt("deleted") > 0;
+                            this.name = new HashMap<>();
+                            if(langId > 0) {
+                                this.name.put("lang_" + langId, taxSet.getString("name"));
+                            }else{
+                                for (Object o : JeproLabLanguageModel.getLanguages().entrySet()) {
+                                    Map.Entry lang = (Map.Entry) o;
+                                    JeproLabLanguageModel language = (JeproLabLanguageModel) lang.getValue();
+                                    if(taxSet.getInt("lang_id") == language.language_id) {
+                                        this.name.put("lang_" + language.language_id, taxSet.getString("name"));
+                                    }
+                                }
+                            }
+                            JeproLabCache.getInstance().store(cacheKey, this);
+                        }
+                    }catch (SQLException ignored){
+                        ignored.printStackTrace();
+                    }finally {
+                        try{
+                            JeproLabDataBaseConnector.getInstance().closeConnexion();
+                        }catch(Exception ignored){
+                            ignored.printStackTrace();
+                        }
+                    }
+                }
 
             }else{
                 JeproLabTaxModel taxModel = (JeproLabTaxModel)JeproLabCache.getInstance().retrieve(cacheKey);
@@ -55,6 +96,7 @@ public class JeproLabTaxModel extends JeproLabModel{
                 this.deleted = taxModel.deleted;
                 this.published = taxModel.published;
                 this.rate = taxModel.rate;
+                this.name = taxModel.name;
             }
         }
     }
@@ -195,7 +237,7 @@ public class JeproLabTaxModel extends JeproLabModel{
         String leftJoin = "", orderBy = "";
 
         if (langId > 0) {
-            selectQuery = ", tax_lang.name, tax_lang.lang_id ";
+            selectQuery += ", tax_lang.name, tax_lang.lang_id ";
             leftJoin += " LEFT JOIN " + staticDataBaseObject.quoteName("#__jeprolab_tax_lang") + " AS tax_lang ON (tax_lang.";
             leftJoin += staticDataBaseObject.quoteName("tax_id") + " = tax." + staticDataBaseObject.quoteName("tax_id") ;
             leftJoin += " AND tax_lang." + staticDataBaseObject.quoteName("lang_id") +  " = " + langId + ") ";
@@ -205,9 +247,69 @@ public class JeproLabTaxModel extends JeproLabModel{
         if (activeOnly) {
             whereQuery += " AND tax." + staticDataBaseObject.quoteName("published") + " = 1";
         }
+
         staticDataBaseObject.setQuery(selectQuery + fromQuery + leftJoin + whereQuery + orderBy);
 
         return staticDataBaseObject.loadObjectList();
+    }
+
+    public static List<JeproLabTaxModel> getTaxList(){
+        return getTaxList(JeproLabContext.getContext().language.language_id, false);
+    }
+
+    public static List<JeproLabTaxModel> getTaxList(int langId){
+        return getTaxList(langId, false);
+    }
+
+    public static List<JeproLabTaxModel> getTaxList(int langId, boolean activeOnly){
+        if(staticDataBaseObject == null){
+            staticDataBaseObject = JeproLabFactory.getDataBaseConnector();
+        }
+        String selectQuery = "SELECT tax.*";
+        String fromQuery = " FROM " + staticDataBaseObject.quoteName("#__jeprolab_tax") + " AS tax ";
+        String whereQuery = " WHERE tax." + staticDataBaseObject.quoteName("deleted") + " != 1";
+        String leftJoin = "", orderBy = " ORDER BY ";
+
+        if (langId > 0) {
+            selectQuery += ", tax_lang.name, tax_lang.lang_id ";
+            leftJoin += " LEFT JOIN " + staticDataBaseObject.quoteName("#__jeprolab_tax_lang") + " AS tax_lang ON (tax_lang.";
+            leftJoin += staticDataBaseObject.quoteName("tax_id") + " = tax." + staticDataBaseObject.quoteName("tax_id") ;
+            leftJoin += " AND tax_lang." + staticDataBaseObject.quoteName("lang_id") +  " = " + langId + ") ";
+            orderBy += staticDataBaseObject.quoteName("name") + " ASC";
+        }
+
+        if (activeOnly) {
+            whereQuery += " AND tax." + staticDataBaseObject.quoteName("published") + " = 1";
+        }
+
+        staticDataBaseObject.setQuery(selectQuery + fromQuery + leftJoin + whereQuery + orderBy);
+
+        ResultSet taxSet =  staticDataBaseObject.loadObjectList();
+        List<JeproLabTaxModel> taxList = new ArrayList<>();
+
+        if(taxSet != null){
+            try{
+                JeproLabTaxModel tax;
+                while(taxSet.next()){
+                    tax = new JeproLabTaxModel();
+                    tax.tax_id = taxSet.getInt("tax_id");
+                    tax.rate = taxSet.getFloat("rate");
+                    tax.published = taxSet.getInt("published") > 0;
+                    tax.name = new HashMap<>();
+                    tax.name.put("lang_" + langId, taxSet.getString("name"));
+                    taxList.add(tax);
+                }
+            }catch(SQLException ignored){
+                ignored.printStackTrace();
+            }finally {
+                try{
+                    JeproLabDataBaseConnector.getInstance().closeConnexion();
+                }catch (Exception ignored){
+                    ignored.printStackTrace();
+                }
+            }
+        }
+        return taxList;
     }
 
     public static int getTaxIdByName(String taxName){

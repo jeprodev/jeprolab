@@ -8,6 +8,8 @@ import com.jeprolab.assets.tools.JeproLabTools;
 import com.jeprolab.models.*;
 import com.jeprolab.models.core.JeproLabRequest;
 import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -242,7 +244,7 @@ public class JeproLabAnalyzeAddController extends JeproLabController {
     }
 
     private void renderMethodTab(){
-        int columnWidth = 190;
+        int columnWidth = (int)((0.93 * JeproLab.APP_WIDTH) / 4);
         List<JeproLabAnalyzeModel.JeproLabMethodModel>  methods = JeproLabAnalyzeModel.JeproLabMethodModel.getMethods();
 
         jeproLabAnalyzeMethodScrollPane.setPrefSize(formWidth - 10, 550);
@@ -253,7 +255,8 @@ public class JeproLabAnalyzeAddController extends JeproLabController {
         VBox.setMargin(jeproLabAnalyzeMethodScrollPane, new Insets(0, 0, 0, 5));
 
         jeproLabAnalyzeMethodSelectorLayout.getColumnConstraints().addAll(
-                new ColumnConstraints(columnWidth), new ColumnConstraints(columnWidth), new ColumnConstraints(columnWidth)
+                new ColumnConstraints(columnWidth), new ColumnConstraints(columnWidth),
+                new ColumnConstraints(columnWidth), new ColumnConstraints(columnWidth)
         );
 
         CheckBox methodCheckBox;
@@ -261,23 +264,26 @@ public class JeproLabAnalyzeAddController extends JeproLabController {
         int rowIndex = 0, index = 0;
         for(JeproLabAnalyzeModel.JeproLabMethodModel method : methods){
             methodCheckBox = new CheckBox(method.name + " " + method.code);
-            jeproLabAnalyzeMethodSelectorLayout.add(methodCheckBox, index % 3, rowIndex);
+            jeproLabAnalyzeMethodSelectorLayout.add(methodCheckBox, index % 4, rowIndex);
 
-            GridPane.setMargin(methodCheckBox, new Insets(5, 5, 5, 5));
+            GridPane.setMargin(methodCheckBox, new Insets(10, 10, 10, 10));
             index++;
-            if((index % 3) == 0){
+            if((index % 4) == 0){
                 rowIndex++;
             }
 
             if(analyze.analyze_id > 0 && analyze.analyzeMethods.contains(method.method_id)){
                 methodCheckBox.setSelected(true);
+
             }
 
             methodCheckBox.selectedProperty().addListener(((observable, oldValue, newValue) -> {
                 if(newValue){
                     analyze.addMethod(method.method_id);
+                    //methodCheckBox.getStyleClass().add("analyze-method");
                 }else{
                     analyze.removeMethod(method.method_id);
+                    //methodCheckBox.getStyleClass().remove("analyze-method");
                 }
             }));
         }

@@ -1,4 +1,4 @@
-package com.jeprolab.models.core;
+package com.jeprolab.models.core.cipher;
 
 /**
  *

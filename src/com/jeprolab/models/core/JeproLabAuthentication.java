@@ -1,14 +1,13 @@
 package com.jeprolab.models.core;
 
 import com.jeprolab.JeproLab;
-import com.jeprolab.assets.tools.db.JeproLabDataBaseConnector;
 import com.jeprolab.models.JeproLabEmployeeModel;
+import com.jeprolab.models.core.cipher.JeproLabJCrypt;
+import com.jeprolab.models.core.cipher.JeproLabPassWordHash;
 
-import java.io.IOException;
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 /**
  *
@@ -37,7 +36,9 @@ public class JeproLabAuthentication {
     }
 
     public JeproLabAuthenticationResponse authenticate(String userName, String passWord, JeproLabAuthenticationOption loginOptions){
-        JeproLabAuthenticationResponse response = onUserAuthenticate(userName, passWord, loginOptions, new JeproLabAuthenticationResponse());
+        JeproLabAuthenticationResponse response = new JeproLabAuthenticationResponse();
+
+        onUserAuthenticate(userName, passWord, loginOptions, response);
 
         if(response.status == JeproLabAuthentication.SUCCESS_STATUS){
             if(response.type == null){
@@ -68,7 +69,37 @@ public class JeproLabAuthentication {
             return  response;
         }
 
-        JeproLabDataBaseConnector dbc = JeproLabFactory.getDataBaseConnector();
+        /**
+         * Get a database object
+         */
+        Map<String, String> employeeCredentials = JeproLabEmployeeModel.getEmployeeIdAndPasswordByUsername(userName);
+        if(!employeeCredentials.isEmpty()){
+            verifyPassWord(passWord, employeeCredentials.get("password"), Integer.parseInt(employeeCredentials.get("id")));
+        }
+        JeproLabEmployeeModel employee = new JeproLabEmployeeModel();
+        int employeeId = JeproLabEmployeeModel.getEmployeeIdByUsername(userName);
+
+        if(employeeId > 0) {
+            employee.loadEmployee(employeeId);
+        }
+
+        //If the user is blocked, display message to contact the manager
+        if(employee.is_blocked){
+            response.status = JeproLabAuthentication.FAILURE_STATUS;
+            response.errorMessage = JeproLab.getBundle().getString("JEPROLAB_AUTHENTICATION_YOUR_ACCOUNT_HAS_BEEN_BLOCKED_MESSAGE");
+            return response;
+        }
+
+        //check if the user can login in
+        if(!employee.authorize(options.action)){
+            response.status = JeproLabAuthentication.FAILURE_STATUS;
+            response.errorMessage = JeproLab.getBundle().getString("JEPROLAB_AUTHENTICATION_YOUR_CREDENTIAL_DOES_NOT_ALLOW_YOU_TO_DO_THIS_ACTION__MESSAGE") + " " + options.action;
+            return response;
+        }
+
+
+
+        /*JeproLabDataBaseConnector dbc = JeproLabFactory.getDataBaseConnector();
         String query = "SELECT " + dbc.quoteName("id") + ", " + dbc.quoteName("password") + " FROM " + dbc.quoteName("#__users");
         query += " WHERE " + dbc.quoteName("username") + " = " + dbc.quote(userName) + ";";
 
@@ -149,7 +180,8 @@ public class JeproLabAuthentication {
             match = passHash.checkPassWord(passWrd, cipherPassWord);
             rehash = true;
         }else if(cipherPassWord.substring(0,1).equals("$")){
-
+            //JCrypt.hasStrongPasswordSupport();
+            JeproLabJCrypt.checkPassword(passWrd, cipherPassWord);
         }else if(cipherPassWord.substring(0, 8).equals("{SHA256}")){
             String encryption = cipherPassWord.substring(0, 8);
             String cipherSalt = cipherPassWord.substring(9, cipherPassWord.length() - 1);
@@ -363,6 +395,7 @@ public class JeproLabAuthentication {
         public boolean secure = false;
     }
 
+
     /**
      *
      * Created by jeprodev on 09/06/2014.
@@ -378,7 +411,7 @@ public class JeproLabAuthentication {
 
         public boolean secure = false;
 
-        //public boolean silent = false;
+        public String action = "";
 
         public int lifeTime = 0;
 

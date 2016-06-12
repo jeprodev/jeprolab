@@ -76,7 +76,7 @@ public class JeproLabController implements Initializable {
 
     }
 
-    protected static class JeproLabActionCell<T> extends TableCell<T, HBox>{
+    private static class JeproLabActionCell<T> extends TableCell<T, HBox>{
         protected HBox commandContainer;
 
 
@@ -101,7 +101,7 @@ public class JeproLabController implements Initializable {
     }
 
 
-    protected static class JeproLabStatusCell<T> extends TableCell<T, Button>{
+    private static class JeproLabStatusCell<T> extends TableCell<T, Button>{
         private Button statusButton;
 
         public JeproLabStatusCell(T mo){

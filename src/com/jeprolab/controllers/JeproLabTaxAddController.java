@@ -10,8 +10,11 @@ import com.jeprolab.models.JeproLabTaxModel;
 import javafx.fxml.FXML;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
@@ -25,6 +28,7 @@ import java.util.ResourceBundle;
  */
 public class JeproLabTaxAddController extends JeproLabController {
     private JeproLabTaxModel tax;
+    private Button saveTaxButton, cancelButton;
     @FXML
     public Label jeproLabTaxNameLabel, jeproLabTaxRateLabel, jeproLabTaxRateUnitLabel, jeproLabTaxPublishedLabel;
     public JeproMultiLang<TextField> jeproLabTaxName;
@@ -71,6 +75,7 @@ public class JeproLabTaxAddController extends JeproLabController {
 
     @Override
     public void initializeContent(){
+        tax = null;
         loadTax();
 
         jeproLabTaxName.setText(tax.name);
@@ -79,6 +84,23 @@ public class JeproLabTaxAddController extends JeproLabController {
         jeproLabTaxRate.setText(String.valueOf(tax.rate));
 
         jeproLabTaxPublished.setSelected(tax.published);
+        updateToolBar();
+    }
+
+    @Override
+    public void updateToolBar(){
+        HBox commandWrapper = JeproLab.getInstance().getApplicationToolBarCommandWrapper();
+        commandWrapper.getChildren().clear();
+        commandWrapper.setSpacing(4);
+        saveTaxButton = new Button("", new ImageView(new Image(JeproLab.class.getResourceAsStream("resources/images/floppy-icon.png"))));
+        if (tax.tax_id > 0) {
+            saveTaxButton.setText(bundle.getString("JEPROLAB_UPDATE_LABEL"));
+        } else {
+            saveTaxButton.setText(bundle.getString("JEPROLAB_SAVE_LABEL"));
+        }
+        cancelButton = new Button(bundle.getString("JEPROLAB_CANCEL_LABEL"), new ImageView(new Image(JeproLab.class.getResourceAsStream("resources/images/unpublished.png"))));
+
+        commandWrapper.getChildren().addAll(saveTaxButton, cancelButton);
     }
 
     private void loadTax(){

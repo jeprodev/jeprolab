@@ -2,18 +2,30 @@ package com.jeprolab.controllers;
 
 import com.jeprolab.JeproLab;
 import com.jeprolab.assets.extend.controls.JeproFormPanel;
-import com.sun.org.apache.xpath.internal.operations.Bool;
+import com.jeprolab.assets.tools.JeproLabContext;
+import com.jeprolab.models.JeproLabAddressModel;
+import com.jeprolab.models.JeproLabTaxModel;
+import javafx.beans.property.SimpleBooleanProperty;
+import javafx.beans.property.SimpleIntegerProperty;
+import javafx.beans.property.SimpleStringProperty;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.util.Callback;
 
+import java.io.IOException;
 import java.net.URL;
+import java.util.List;
 import java.util.ResourceBundle;
+import java.util.stream.Collectors;
 
 /**
  *
@@ -21,6 +33,7 @@ import java.util.ResourceBundle;
  */
 public class JeproLabTaxGroupsController extends JeproLabController {
     private CheckBox checkAll;
+    private Button addTaxRulesGroup;
 
     @FXML
     public JeproFormPanel jeproLabFormPanelWrapper;
@@ -38,12 +51,12 @@ public class JeproLabTaxGroupsController extends JeproLabController {
     public void initialize(URL location, ResourceBundle resource){
         super.initialize(location, resource);
         formWidth = 0.98 * JeproLab.APP_WIDTH;
-        double remainingWidth = formWidth - 170;
+        double remainingWidth = formWidth - 172;
 
         VBox.setMargin(jeproLabTaxRulesGroupSearchWrapper, new Insets(5, 0, 0, 0.01 * JeproLab.APP_WIDTH));
         VBox.setMargin(jeproLabTaxRulesGroupTableView, new Insets(5, 0, 0, 0.01 * JeproLab.APP_WIDTH));
 
-        jeproLabTaxRulesGroupTableView.setPrefWidth(formWidth);
+        jeproLabTaxRulesGroupTableView.setPrefSize(formWidth, 600);
 
         jeproLabTaxRulesGroupIndexColumn.setPrefWidth(30);
         jeproLabTaxRulesGroupIndexColumn.setText("#");
@@ -77,23 +90,150 @@ public class JeproLabTaxGroupsController extends JeproLabController {
     }
 
     @Override
+    public void updateToolBar(){
+        HBox commandWrapper = JeproLab.getInstance().getApplicationToolBarCommandWrapper();
+        commandWrapper.getChildren().clear();
+        addTaxRulesGroup = new Button(bundle.getString("JEPROLAB_ADD_NEW_LABEL"), new ImageView(new Image(JeproLab.class.getResourceAsStream("resources/images/add.png"))));
+        commandWrapper.getChildren().addAll(addTaxRulesGroup);
+    }
+
+    @Override
     public void initializeContent(){
-
+        List<JeproLabTaxModel.JeproLabTaxRulesGroupModel> taxRulesGroupRecords = JeproLabTaxModel.JeproLabTaxRulesGroupModel.getTaxRulesGroups();
+        ObservableList<JeproLabTaxRulesGroupRecord> taxRulesGroupRecordList = FXCollections.observableArrayList();
+        if(!taxRulesGroupRecords.isEmpty()){
+            taxRulesGroupRecordList.addAll(taxRulesGroupRecords.stream().map(JeproLabTaxRulesGroupRecord::new).collect(Collectors.toList()));
+            jeproLabTaxRulesGroupTableView.setItems(taxRulesGroupRecordList);
+        }
+        updateToolBar();
     }
 
+    /**
+     *
+     * Created by jeprodev on 02/02/2014.
+     */
     public static class JeproLabTaxRulesGroupRecord{
+        private SimpleIntegerProperty taxRulesGroupIndex;
+        private SimpleStringProperty taxRulesGroupName;
+        private SimpleBooleanProperty taxRulesGroupPublished;
 
+        public JeproLabTaxRulesGroupRecord(JeproLabTaxModel.JeproLabTaxRulesGroupModel taxRulesGroup){
+            taxRulesGroupIndex = new SimpleIntegerProperty(taxRulesGroup.tax_rules_group_id);
+            taxRulesGroupName = new SimpleStringProperty(taxRulesGroup.name);
+            taxRulesGroupPublished = new SimpleBooleanProperty(taxRulesGroup.published);
+        }
+
+        public int getTaxRulesGroupIndex(){
+            return taxRulesGroupIndex.get();
+        }
+
+        public String getTaxRulesGroupName(){
+            return taxRulesGroupName.get();
+        }
+
+        public boolean getTaxRulesGroupPublished(){
+            return taxRulesGroupPublished.get();
+        }
     }
 
+    /**
+     *
+     * Created by jeprodev on 02/02/2014.
+     */
     private static class JeproLabCheckBoxCell extends TableCell<JeproLabTaxRulesGroupRecord, Boolean>{
+        private CheckBox taxRulesGroupCheckBox;
 
+        public JeproLabCheckBoxCell(){
+            taxRulesGroupCheckBox = new CheckBox();
+        }
+
+        @Override
+        public void updateItem(Boolean item, boolean empty){
+            super.updateItem(item, empty);
+            ObservableList<JeproLabTaxRulesGroupRecord> items = getTableView().getItems();
+            if((items != null) && (getIndex() >= 0 && getIndex() < items.size())){
+                setGraphic(taxRulesGroupCheckBox);
+                setAlignment(Pos.CENTER);
+            }
+        }
     }
 
+    /**
+     *
+     * Created by jeprodev on 02/02/2014.
+     */
     private static class JeproLabStatusCell extends TableCell<JeproLabTaxRulesGroupRecord, Button>{
+        private Button statusBtn;
+        private final double btnSize = 18;
 
+        public JeproLabStatusCell(){
+            statusBtn = new Button("");
+            statusBtn.setMaxSize(btnSize, btnSize);
+            statusBtn.setMinSize(btnSize, btnSize);
+            statusBtn.setPrefSize(btnSize, btnSize);
+            statusBtn.getStyleClass().add("icon-btn");
+        }
+
+        @Override
+        public void updateItem(Button item, boolean empty){
+            super.updateItem(item, empty);
+            ObservableList<JeproLabTaxRulesGroupRecord> items = getTableView().getItems();
+            if((items != null) && (getIndex() >= 0 && getIndex() < items.size())){
+                if(items.get(getIndex()).getTaxRulesGroupPublished()) {
+                    statusBtn.setGraphic(new ImageView(new Image(JeproLab.class.getResourceAsStream("resources/images/published.png"))));
+                }else{
+                    statusBtn.setGraphic(new ImageView(new Image(JeproLab.class.getResourceAsStream("resources/images/unpublished.png"))));
+                }
+                setGraphic(statusBtn);
+                setAlignment(Pos.CENTER);
+            }
+        }
     }
 
-    public static class JeproLabActionCell extends TableCell<JeproLabTaxRulesGroupRecord, HBox>{
+    /**
+     *
+     * Created by jeprodev on 02/02/2014.
+     */
+    private static class JeproLabActionCell extends TableCell<JeproLabTaxRulesGroupRecord, HBox>{
+        private Button editTaxRulesGroup, deleteTaxRulesGroup;
+        private HBox commandWrapper;
+        private final double btnSize = 18;
 
+        public JeproLabActionCell(){
+            editTaxRulesGroup = new Button("");
+            editTaxRulesGroup.getStyleClass().addAll("edit-btn", "icon-btn");
+            editTaxRulesGroup.setPrefSize(btnSize, btnSize);
+            editTaxRulesGroup.setMinSize(btnSize, btnSize);
+            editTaxRulesGroup.setMaxSize(btnSize, btnSize);
+
+            deleteTaxRulesGroup = new Button("");
+            deleteTaxRulesGroup.getStyleClass().addAll("delete-btn", "icon-btn");
+            deleteTaxRulesGroup.setPrefSize(btnSize, btnSize);
+            deleteTaxRulesGroup.setMaxSize(btnSize, btnSize);
+            deleteTaxRulesGroup.setMinSize(btnSize, btnSize);
+
+            commandWrapper = new HBox(8);
+            commandWrapper.setAlignment(Pos.CENTER);
+            commandWrapper.getChildren().addAll(editTaxRulesGroup, deleteTaxRulesGroup);
+        }
+
+        public void updateItem(HBox item, boolean empty){
+            super.updateItem(item, empty);
+            final ObservableList<JeproLabTaxRulesGroupRecord> items = getTableView().getItems();
+            if((items != null) && (getIndex() >= 0 && getIndex() < items.size())){
+                int itemId = items.get(getIndex()).getTaxRulesGroupIndex();
+                editTaxRulesGroup.setOnAction(event -> {
+                    JeproLab.request.setRequest("tax_rules_group_id=" + itemId);
+                    try{
+                        JeproLab.getInstance().goToForm(JeproLab.getInstance().getApplicationForms().addTaxGroupForm);
+                        JeproLabContext.getContext().controller.initializeContent();
+                    }catch (IOException ignored){
+                        ignored.printStackTrace();
+                    }
+                });
+                setGraphic(commandWrapper);
+                setAlignment(Pos.CENTER);
+            }
+        }
     }
 }

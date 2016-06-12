@@ -402,7 +402,11 @@ public class JeproLabMenuController extends JeproLabController{
     public void handleRequestAddNewComplaintMenuEvent(ActionEvent event){}
     public void handleRequestRefundsMenuEvent(ActionEvent event){}
     public void handleRequestAddRefundMenuEvent(ActionEvent event){}
-    public void handleRequestStatusMenuEvent(ActionEvent event){}
+
+    public void handleRequestStatusMenuEvent(ActionEvent event){
+        processAddEvent(JeproLab.getInstance().getApplicationForms().requestStatusForm);
+    }
+
     public void handleRequestAddStatusMenuEvent(ActionEvent event){}
     public void handleRequestMessagesMenuEvent(ActionEvent event){}
     public void handleRequestAddMessageMenuEvent(ActionEvent event){}

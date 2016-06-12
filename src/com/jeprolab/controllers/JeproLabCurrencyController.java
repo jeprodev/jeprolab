@@ -50,7 +50,7 @@ public class JeproLabCurrencyController extends JeproLabController{
     @Override
     public void initialize(URL location, ResourceBundle resource){
         super.initialize(location, resource);
-        double remainingWidth = (0.98 * JeproLab.APP_WIDTH) - 755;
+        double remainingWidth = (0.98 * JeproLab.APP_WIDTH) - 757;
 
         VBox.setMargin(jeproLabCurrencySearchWrapper, new Insets(5, 0, 0, 0.01 * JeproLab.APP_WIDTH));
         VBox.setMargin(jeproLabCurrencyTableView, new Insets(0, 0, 0, 0.01 * JeproLab.APP_WIDTH));

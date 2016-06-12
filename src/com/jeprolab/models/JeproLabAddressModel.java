@@ -268,6 +268,37 @@ public class JeproLabAddressModel extends JeproLabModel{
         return  addresses;
     }
 
+    public static List<JeproLabAddressModel> getAddresses(){
+        ResultSet addressSet = getAddressList();
+        List<JeproLabAddressModel> addresses = new ArrayList<>();
+        if(addressSet != null){
+            JeproLabAddressModel address;
+            try {
+                while(addressSet.next()){
+                    address = new JeproLabAddressModel();
+                    address.address_id = addressSet.getInt("address_id");
+                    address.firstname = addressSet.getString("firstname");
+                    address.lastname = addressSet.getString("lastname");
+                    address.address1 = addressSet.getString("address1");
+                    address.postcode = addressSet.getString("postcode");
+                    address.city = addressSet.getString("city");
+                    address.country
+                            = addressSet.getString("country");
+                    addresses.add(address);
+                }
+            }catch (SQLException ignored){
+                ignored.printStackTrace();
+            }finally {
+                try{
+                    JeproLabDataBaseConnector.getInstance().closeConnexion();
+                }catch(Exception ignored){
+                    ignored.printStackTrace();
+                }
+            }
+        }
+        return addresses;
+    }
+
     public static int getCustomerFirstAddressId(int customerId){
         return getCustomerFirstAddressId(customerId, true);
     }
@@ -462,7 +493,7 @@ public class JeproLabAddressModel extends JeproLabModel{
     /**
      *
      */
-    public boolean add(){
+    public void add(){
         if(dataBaseObject == null){
             dataBaseObject = JeproLabFactory.getDataBaseConnector();
         }
@@ -483,14 +514,12 @@ public class JeproLabAddressModel extends JeproLabModel{
         query += dataBaseObject.quote(this.phone) + ", " + dataBaseObject.quote(this.mobile_phone) + ", " + dataBaseObject.quote(this.vat_number) + "," + currentDate + ", " + currentDate + ")";
 
         dataBaseObject.setQuery(query);
-        if (!dataBaseObject.query(true)) {
-            return false;
-        }
+        dataBaseObject.query(true);
+        this.address_id = dataBaseObject.getGeneratedKey();
 
         if (this.customer_id > 0) {
             JeproLabCustomerModel.resetAddressCache(this.customer_id, dataBaseObject.getGeneratedKey());
         }
-        return true;
     }
 
     /**
@@ -512,8 +541,9 @@ public class JeproLabAddressModel extends JeproLabModel{
             return dataBaseObject.query(false);
         } else {
             this.deleted = true;
-            return this.update();
+            this.update();
         }
+        return true;
     }
 
     /**
@@ -563,7 +593,7 @@ public class JeproLabAddressModel extends JeproLabModel{
         return dataBaseObject.loadValue("used") > 0;
     }
 
-    public boolean update(){
+    public void update(){
         // Empty related caches
         if (JeproLabAddressModel.countries_ids.containsKey(this.address_id)) {
             JeproLabAddressModel.countries_ids.remove(this.address_id);
@@ -596,7 +626,7 @@ public class JeproLabAddressModel extends JeproLabModel{
         query += dataBaseObject.quoteName("vat_number") + " = " + dataBaseObject.quote(this.vat_number) + ", " + dataBaseObject.quoteName("date_upd")+ "  = ";
         query += currentDate + " WHERE " + dataBaseObject.quoteName("address_id") + " = " + this.address_id;
         dataBaseObject.setQuery(query);
-        return dataBaseObject.query(false);
+        dataBaseObject.query(false);
     }
 
 

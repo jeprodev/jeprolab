@@ -140,6 +140,7 @@ public class JeproLabAddressAddController extends JeproLabController {
     @Override
     public void initializeContent(){
         JeproLabContext context = JeproLabContext.getContext();
+        address = null;
         loadAddress(true);
         List<JeproLabCountryModel> countries = JeproLabCountryModel.getCountries(context.language.language_id, true);
         List<JeproLabCountryModel.JeproLabZoneModel> zones = JeproLabCountryModel.JeproLabZoneModel.getZones(true);
@@ -205,9 +206,9 @@ public class JeproLabAddressAddController extends JeproLabController {
 
             //label.setText("Selected: " + listView.getSelectionModel().getSelectedItems());
             if(address.address_id > 0){
-                boolean isUpdated = address.update();
+                address.update();
             }else{
-                boolean isAdded = address.add();
+                address.add();
             }
         });
 

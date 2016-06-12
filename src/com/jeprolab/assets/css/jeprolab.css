@@ -12,6 +12,21 @@
 .edit-btn{ -fx-graphic: url("../../resources/images/edit.png"); }
 .delete-btn{ -fx-graphic: url("../../resources/images/trash-icon.png"); }
 
+.default-btn{
+    -fx-padding: 7 15 5 15;
+    -fx-font-size: 13px;
+    -fx-font-weight: bold;
+}
+
+.primary-btn{
+    -fx-background-color: #3C7FB1, linear-gradient(#fafdfe, #e8f5fc), linear-gradient(#eaf6fd, #d9f0fc 49%, #bee6fd 50%, #a7d9f5 100%);
+}
+
+.red-btn{
+    -fx-background-color: linear-gradient(#ff5400, #be1d00);
+}
+
+
 .form-title{
     -fx-text-fill: black;
     -fx-font-size: 18px;
@@ -72,6 +87,8 @@
 .radio-button .dot{
     -fx-content-display:none;
 }
+
+.analyze-method .label{ -fx-font-weight: bold; }
 
 .installer-header{
     -fx-background-image: url("../../resources/images/jeprodesign.jpg");
