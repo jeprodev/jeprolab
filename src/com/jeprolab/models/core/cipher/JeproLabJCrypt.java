@@ -387,7 +387,7 @@ public class JeproLabJCrypt {
 
         /**
          * Extract number of rounds
-         */System.out.println(salt.charAt(offset + 2));
+         */
         if(salt.charAt(offset + 2) > '$'){
             throw new IllegalArgumentException(JeproLab.getBundle().getString("JEPROLAB_MISSING_SALT_ROUNDS_MESSAGE"));
         }

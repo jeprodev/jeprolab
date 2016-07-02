@@ -73,7 +73,7 @@ public class JeproLabLoginController extends JeproLabController {
 
         formTitleLabel.getStyleClass().add("form-title");
         formTitleLabel.setAlignment(Pos.CENTER);
-
+        //todo :: remove it
         userName.setText("jeproQxT");
         password.setText("qxtbljwm");
 

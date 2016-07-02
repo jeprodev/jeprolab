@@ -1,10 +1,16 @@
 package com.jeprolab.models.core;
 
 import com.jeprolab.JeproLab;
+import com.jeprolab.assets.config.JeproLabConfig;
+import com.jeprolab.assets.tools.JeproLabUpdater;
 import com.jeprolab.models.JeproLabEmployeeModel;
 import com.jeprolab.models.core.cipher.JeproLabJCrypt;
 import com.jeprolab.models.core.cipher.JeproLabPassWordHash;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.URL;
+import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -37,9 +43,9 @@ public class JeproLabAuthentication {
 
     public JeproLabAuthenticationResponse authenticate(String userName, String passWord, JeproLabAuthenticationOption loginOptions){
         JeproLabAuthenticationResponse response = new JeproLabAuthenticationResponse();
-
-        onUserAuthenticate(userName, passWord, loginOptions, response);
-
+        System.out.println(response.status);
+        response = onUserAuthenticate(userName, passWord, loginOptions, response);
+        System.out.println(response.status);
         if(response.status == JeproLabAuthentication.SUCCESS_STATUS){
             if(response.type == null){
                 response.type = "JeproLab";
@@ -74,7 +80,11 @@ public class JeproLabAuthentication {
          */
         Map<String, String> employeeCredentials = JeproLabEmployeeModel.getEmployeeIdAndPasswordByUsername(userName);
         if(!employeeCredentials.isEmpty()){
-            verifyPassWord(passWord, employeeCredentials.get("password"), Integer.parseInt(employeeCredentials.get("id")));
+            if(verifyPassWord(userName, passWord, Integer.parseInt(employeeCredentials.get("id")))){
+                response.status = JeproLabAuthentication.SUCCESS_STATUS;
+                response.errorMessage = "";
+                System.out.println("jef vous etes bien");
+            }
         }
         JeproLabEmployeeModel employee = new JeproLabEmployeeModel();
         int employeeId = JeproLabEmployeeModel.getEmployeeIdByUsername(userName);
@@ -97,7 +107,7 @@ public class JeproLabAuthentication {
             return response;
         }
 
-
+        System.out.println(response.status);
 
         /*JeproLabDataBaseConnector dbc = JeproLabFactory.getDataBaseConnector();
         String query = "SELECT " + dbc.quoteName("id") + ", " + dbc.quoteName("password") + " FROM " + dbc.quoteName("#__users");
@@ -162,16 +172,38 @@ public class JeproLabAuthentication {
         return  response;
     }
 
-    public List authorise(JeproLabAuthenticationResponse response, JeproLabAuthenticationOption loginOptions){
+    public List<Integer> authorise(JeproLabAuthenticationResponse response, JeproLabAuthenticationOption loginOptions){
         return onEmployeeAuthorisation(response, loginOptions);
     }
 
-    private static List onEmployeeAuthorisation(JeproLabAuthenticationResponse response, JeproLabAuthenticationOption loginOptions){
+    private static List<Integer> onEmployeeAuthorisation(JeproLabAuthenticationResponse response, JeproLabAuthenticationOption loginOptions){
         //TODO trigger authorisation to notify that user is logged  add authorise to do things
         return new ArrayList<Integer>();
     }
 
-    private boolean verifyPassWord(String passWrd, String cipherPassWord, int employeeId){
+    private boolean verifyPassWord(String userName, String passWord, int employeeId){
+        try{
+            URL authenticationUrl = new URL(JeproLabConfig.managedWebsite + "index.php?option=com_jeprolab&task=verify&username=" + userName + "&pass=" + passWord + "&id=" + employeeId);
+            URLConnection connection = authenticationUrl.openConnection();
+            InputStream html = connection.getInputStream();
+
+            int c = 0;
+            StringBuilder builder = new StringBuilder("");
+            while(c != -1){
+                c = html.read();
+                System.out.println(c);
+                builder.append((char) c);
+            }
+            String loginResponse = builder.toString();
+            if(loginResponse.indexOf("<result>") > 0) {
+                loginResponse = loginResponse.substring(loginResponse.indexOf("<result>"), loginResponse.indexOf("</result>"));
+            }
+            return loginResponse.equals("1");
+        }catch (IOException ignored){
+            ignored.printStackTrace();
+            return false;
+        }
+        /*
         boolean rehash = false;
         boolean match = false;
 
@@ -197,8 +229,8 @@ public class JeproLabAuthentication {
             employee.password = JeproLabAuthentication.hashPassWord(passWrd);
             employee.save();
         }
-        match = true;
-        return match;
+        match = true;*/
+
     }
 
     private static String hashPassWord(String passWrd) {

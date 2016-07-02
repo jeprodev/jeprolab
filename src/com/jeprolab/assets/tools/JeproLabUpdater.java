@@ -26,6 +26,7 @@ public class JeproLabUpdater {
 
         return ""; //data.substring(data.indexOf("[version]") + 9, data.indexOf("[/version]"));
     }
+
     public static void checkForNewVersion(String currentVersion){
         try {
             String lastVersion = getLatestVersion();

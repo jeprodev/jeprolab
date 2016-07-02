@@ -26,6 +26,7 @@ public class JeproLabConfig {
     public static String installedAppVersion;
     public static String installedAppPackage;
     public static String certificate_logo;
+    public static String managedWebsite;
 
     public static void initialize(){
         Properties configProp = new Properties();
@@ -46,7 +47,7 @@ public class JeproLabConfig {
             installedAppVersion = configProp.getProperty("APPLICATION_INSTALLED_VERSION");
             installedAppPackage = configProp.getProperty("APPLICATION_INSTALLED_PACKAGE");
             certificate_logo = configProp.getProperty("APPLICATION_CERTIFICATE_LOGO_PATH");
-            //certificate_logo = configProp.getProperty("");
+            managedWebsite = configProp.getProperty("APPLICATION_WEBSITE_URL");
         }catch (IOException | URISyntaxException excpt){
             excpt.printStackTrace();
         } finally {
