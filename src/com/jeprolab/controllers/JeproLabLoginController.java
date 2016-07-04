@@ -133,7 +133,9 @@ public class JeproLabLoginController extends JeproLabController {
     }
 
     public static void onUserLogged(JeproLabAuthentication.JeproLabAuthenticationOption loginOptions){
-
+        JeproLabContext context = JeproLabContext.getContext();
+        context.employee = loginOptions.employee;
+        JeproLab.getInstance().getUserInfoBtn().setText(context.employee.username + " ");
     }
 
     public static void onUserLoginFailure(JeproLabAuthentication.JeproLabAuthenticationResponse response){

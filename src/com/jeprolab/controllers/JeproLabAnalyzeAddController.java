@@ -75,7 +75,9 @@ public class JeproLabAnalyzeAddController extends JeproLabController {
     public Label jeproLabAnalyzeSpecificPriceCombinationLabel, jeproLabAnalyzeApplyDiscountOfLabel, jeproLabAnalyzeSpecificPriceFromLabel;
     public Label jeproLabAnalyzeFinalPriceWithoutTax, jeproLabAnalyzeSpecificPriceToLabel, jeproLabAnalyzeStartingAtLabel, jeproLabAnalyzeSpecificPriceLabel;
     public Label jeproLabAnalyzeDelayLabel, jeproLabDaysLabel, jeproLabAnalyzeSpecificPricePriorityLabel, jeproLabAnalyzeMethodSelectorLabel;
+    public Label jeproLabAnalyzeDelayHoursLabel;
     public TextField jeproLabAnalyzeReference, jeproLabAnalyzeEan13, jeproLabAnalyzeUpc, jeproLabAnalyzeStartingAt, jeproLabAnalyzeDelay;
+    public TextField jeproLabAnalyzeDelayHours;
     public ComboBox<String> jeproLabAnalyzeRedirect, jeproLabAnalyzeVisibility, jeproLabAnalyzeApplyDiscountOf;
     public JeproMultiLang<TextArea> jeproLabAnalyzeShortDescription, jeproLabAnalyzeDescription;
     public CheckBox jeproLabAnalyzeLeaveBasePrice, jeproLabAnalyzeOnSale, jeproLabAnalyzeShowPrice, jeproLabAnalyzeAvailableForOrder, jeproLabAnalyzeIsOnSale;
@@ -146,7 +148,7 @@ public class JeproLabAnalyzeAddController extends JeproLabController {
         jeproLabAnalyzeShortDescription.setText(analyze.short_description);
         jeproLabAnalyzeDescription.setText(analyze.description);
         //jeproLabAnalyzeSlider.setImages();
-        jeproLabAnalyzeDelay.setText(String.valueOf(analyze.delay));
+        jeproLabAnalyzeDelay.setText(String.valueOf((int)analyze.delay/24));
         analyze.tags = JeproLabTagModel.getAnalyzeTags(analyze.analyze_id);
 
         switch (analyze.redirect_type) {
@@ -221,7 +223,8 @@ public class JeproLabAnalyzeAddController extends JeproLabController {
 
         GridPane.setMargin(jeproLabAnalyzeDelayLabel, new Insets(5, 10, 30, 15));
         GridPane.setHalignment(jeproLabAnalyzeDelayLabel, HPos.RIGHT);
-        GridPane.setMargin(jeproLabDaysLabel, new Insets(5, 10, 30, 15));
+        GridPane.setMargin(jeproLabDaysLabel, new Insets(10, 10, 30, 15));
+        GridPane.setMargin(jeproLabAnalyzeDelayHoursLabel, new Insets(10, 10, 30, 15));
 
         jeproLabAnalyzeName.setWidth(310);
         GridPane.setMargin(jeproLabAnalyzeShortDescription, new Insets(10, 0, 0, 0));
@@ -241,6 +244,9 @@ public class JeproLabAnalyzeAddController extends JeproLabController {
         jeproLabAnalyzeVisibility.getItems().add(bundle.getString("JEPROLAB_CATALOG_LABEL"));
         jeproLabAnalyzeVisibility.getItems().add(bundle.getString("JEPROLAB_SEARCH_LABEL"));
         jeproLabAnalyzeVisibility.getItems().add(bundle.getString("JEPROLAB_NONE_LABEL"));
+
+        jeproLabAnalyzeDelay.setPrefWidth(80);
+        jeproLabAnalyzeDelayHours.setPrefWidth(80);
     }
 
     private void renderMethodTab(){
@@ -453,7 +459,7 @@ public class JeproLabAnalyzeAddController extends JeproLabController {
             analyze.available_for_order = jeproLabAnalyzeAvailableForOrder.isSelected();
             analyze.show_price = jeproLabAnalyzeShowPrice.isSelected();
             analyze.on_sale = jeproLabAnalyzeOnSale.isSelected();
-            analyze.delay = Integer.parseInt(jeproLabAnalyzeDelay.getText());
+            analyze.delay = (Integer.parseInt(jeproLabAnalyzeDelay.getText()) * 24) +  Integer.parseInt(jeproLabAnalyzeDelayHours.getText());
             if(languages == null){
                 languages = JeproLabLanguageModel.getLanguages();
             }
@@ -507,6 +513,8 @@ public class JeproLabAnalyzeAddController extends JeproLabController {
         jeproLabAnalyzeRedirectLabel.getStyleClass().add("input-label");
         jeproLabAnalyzeDelayLabel.setText(bundle.getString("JEPROLAB_DELAYS_LABEL"));
         jeproLabAnalyzeDelayLabel.getStyleClass().add("input-label");
+        jeproLabAnalyzeDelayHoursLabel.setText(bundle.getString("JEPROLAB_HOURS_LABEL"));
+        jeproLabAnalyzeDelayHoursLabel.getStyleClass().add("input-label");
         jeproLabDaysLabel.setText(bundle.getString("JEPROLAB_DAYS_LABEL"));
         jeproLabDaysLabel.getStyleClass().add("input-label");
         jeproLabAnalyzeOptionLabel.setText(bundle.getString("JEPROLAB_OPTIONS_LABEL"));

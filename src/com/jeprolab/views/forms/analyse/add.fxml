@@ -68,6 +68,8 @@
                     <HBox GridPane.columnIndex="3" GridPane.rowIndex="9" spacing="5" fx:id="jeproLabAnalyzeDelayWrapper" >
                         <TextField fx:id="jeproLabAnalyzeDelay" />
                         <Label fx:id="jeproLabDaysLabel" />
+                        <TextField fx:id="jeproLabAnalyzeDelayHours" />
+                        <Label fx:id="jeproLabAnalyzeDelayHoursLabel" />
                     </HBox>
                 </GridPane>
             </Tab>

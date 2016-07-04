@@ -43,9 +43,7 @@ public class JeproLabAuthentication {
 
     public JeproLabAuthenticationResponse authenticate(String userName, String passWord, JeproLabAuthenticationOption loginOptions){
         JeproLabAuthenticationResponse response = new JeproLabAuthenticationResponse();
-        System.out.println(response.status);
         response = onUserAuthenticate(userName, passWord, loginOptions, response);
-        System.out.println(response.status);
         if(response.status == JeproLabAuthentication.SUCCESS_STATUS){
             if(response.type == null){
                 response.type = "JeproLab";
@@ -80,10 +78,9 @@ public class JeproLabAuthentication {
          */
         Map<String, String> employeeCredentials = JeproLabEmployeeModel.getEmployeeIdAndPasswordByUsername(userName);
         if(!employeeCredentials.isEmpty()){
-            if(verifyPassWord(userName, passWord, Integer.parseInt(employeeCredentials.get("id")))){
+            if(verifyPassWord(userName, passWord, Integer.parseInt(employeeCredentials.get("id")), employeeCredentials.get("password"))){
                 response.status = JeproLabAuthentication.SUCCESS_STATUS;
                 response.errorMessage = "";
-                System.out.println("jef vous etes bien");
             }
         }
         JeproLabEmployeeModel employee = new JeproLabEmployeeModel();
@@ -106,8 +103,6 @@ public class JeproLabAuthentication {
             response.errorMessage = JeproLab.getBundle().getString("JEPROLAB_AUTHENTICATION_YOUR_CREDENTIAL_DOES_NOT_ALLOW_YOU_TO_DO_THIS_ACTION__MESSAGE") + " " + options.action;
             return response;
         }
-
-        System.out.println(response.status);
 
         /*JeproLabDataBaseConnector dbc = JeproLabFactory.getDataBaseConnector();
         String query = "SELECT " + dbc.quoteName("id") + ", " + dbc.quoteName("password") + " FROM " + dbc.quoteName("#__users");
@@ -181,7 +176,7 @@ public class JeproLabAuthentication {
         return new ArrayList<Integer>();
     }
 
-    private boolean verifyPassWord(String userName, String passWord, int employeeId){
+    private boolean verifyPassWord(String userName, String passWord, int employeeId, String hashPass){
         try{
             URL authenticationUrl = new URL(JeproLabConfig.managedWebsite + "index.php?option=com_jeprolab&task=verify&username=" + userName + "&pass=" + passWord + "&id=" + employeeId);
             URLConnection connection = authenticationUrl.openConnection();
@@ -189,48 +184,21 @@ public class JeproLabAuthentication {
 
             int c = 0;
             StringBuilder builder = new StringBuilder("");
-            while(c != -1){
+            while(c  != -1){
                 c = html.read();
-                System.out.println(c);
                 builder.append((char) c);
             }
             String loginResponse = builder.toString();
+
             if(loginResponse.indexOf("<result>") > 0) {
-                loginResponse = loginResponse.substring(loginResponse.indexOf("<result>"), loginResponse.indexOf("</result>"));
+                loginResponse = loginResponse.substring(loginResponse.indexOf("<result>") + 8, loginResponse.indexOf("</result>"));
             }
-            return loginResponse.equals("1");
+
+            return loginResponse.equals(hashPass);
         }catch (IOException ignored){
             ignored.printStackTrace();
             return false;
         }
-        /*
-        boolean rehash = false;
-        boolean match = false;
-
-        if(cipherPassWord.indexOf("$P$") == 0 ){
-            JeproLabPassWordHash passHash = new JeproLabPassWordHash(10, true);
-            match = passHash.checkPassWord(passWrd, cipherPassWord);
-            rehash = true;
-        }else if(cipherPassWord.substring(0,1).equals("$")){
-            //JCrypt.hasStrongPasswordSupport();
-            JeproLabJCrypt.checkPassword(passWrd, cipherPassWord);
-        }else if(cipherPassWord.substring(0, 8).equals("{SHA256}")){
-            String encryption = cipherPassWord.substring(0, 8);
-            String cipherSalt = cipherPassWord.substring(9, cipherPassWord.length() - 1);
-            String encryptionTest = JeproLabAuthentication.getCipheredPassWord(cipherPassWord, cipherSalt, encryption, true);
-            //match = JeproLabAuthentication.timingSafeComparison(encryptionTest, cipherPassWord);
-            rehash = true;
-        }else{
-            rehash = true;
-        }
-
-        if((employeeId > 0) && match && rehash){
-            JeproLabEmployeeModel employee = new JeproLabEmployeeModel(employeeId);
-            employee.password = JeproLabAuthentication.hashPassWord(passWrd);
-            employee.save();
-        }
-        match = true;*/
-
     }
 
     private static String hashPassWord(String passWrd) {
