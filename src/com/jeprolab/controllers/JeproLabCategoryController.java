@@ -89,9 +89,6 @@ public class JeproLabCategoryController extends JeproLabController{
         categoryActionColumn.setPrefWidth(0.09 * remainingWidth);
         Callback<TableColumn<JeproLabCategoryRecord, HBox>, TableCell<JeproLabCategoryRecord, HBox>> actionFactory = param -> new JeproLabActionCell();
         categoryActionColumn.setCellFactory(actionFactory);
-
-
-
     }
 
     @Override
@@ -173,6 +170,15 @@ public class JeproLabCategoryController extends JeproLabController{
         HBox commandWrapper = JeproLab.getInstance().getApplicationToolBarCommandWrapper();
         commandWrapper.getChildren().clear();
         addCategoryBtn = new Button(bundle.getString("JEPROLAB_ADD_NEW_LABEL"), new ImageView(new Image(JeproLab.class.getResourceAsStream("resources/images/add.png"))));
+        addCategoryBtn.setOnAction(evt ->{
+            try {
+                JeproLab.request.getRequest().clear();
+                JeproLab.getInstance().goToForm(JeproLab.getInstance().getApplicationForms().addCategoryForm);
+                JeproLabContext.getContext().controller.initializeContent();
+            }catch (IOException ignored){
+                ignored.printStackTrace();
+            }
+        });
         commandWrapper.getChildren().addAll(addCategoryBtn);
     }
 

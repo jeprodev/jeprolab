@@ -38,8 +38,8 @@
                 <MenuItem fx:id="groupsSubMenuItem" onAction="#handleGroupsMenuEvent" />
                 <MenuItem fx:id="addGroupMenuItem" onAction="#handleAddGroupMenuEvent" />
             </Menu>
-            <Menu fx:id="threadsSubMenu" onAction="#handleCustomerThreadsMenuEvent" >
-
+            <Menu fx:id="threadsSubMenu" >
+                <MenuItem fx:id="customerThreadsSubMenuItem" onAction="#handleCustomerThreadsMenuEvent" />
             </Menu>
             <Menu fx:id="contactsSubMenu">
                 <MenuItem fx:id="contactsSubMenuItem" onAction="#handleContactsMenuEvents" />

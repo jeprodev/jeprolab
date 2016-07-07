@@ -3,6 +3,7 @@ package com.jeprolab.models;
 import com.jeprolab.assets.tools.JeproLabCache;
 import com.jeprolab.assets.tools.db.JeproLabDataBaseConnector;
 import com.jeprolab.assets.tools.helpers.JeproLabEmployeeHelper;
+import com.jeprolab.models.core.JeproLabAccess;
 import com.jeprolab.models.core.JeproLabFactory;
 
 import java.net.MalformedURLException;
@@ -236,14 +237,24 @@ public class JeproLabEmployeeModel extends JeproLabModel {
                 }
             }
         }
-
         return credential;
     }
 
-    public boolean authorize(String action){
+    public boolean authorize(String action, String assetName){
+        int rootId;
         if(!this.is_root){
-
+            rootId = JeproLabEmployeeModel.getEmployeeIdByUsername(JeproLabSettingModel.getStringValue("root_user_name"));
+            if(this.employee_id > 0 && this.employee_id == rootId){
+                this.is_root = true;
+            }else{
+                //Get all administrator groups against witch the user is mapped
+                List identities = this.getAuthorisedGroups();
+                if(JeproLabAccess.getAssetRules(1).allow("core.admin", identities)) {
+                    this.is_root = true;
+                    return true;
+                }
+            }
         }
-        return true;
+        return this.is_root || JeproLabAccess.check(this.employee_id, action, assetName);
     }
 }

@@ -49,7 +49,6 @@ public class JeproLabRequestAddController extends JeproLabController{
     //private int firstContactId, secondContactId, thirdContactId, fourthContactId;
     private Button saveRequestBtn, cancelBtn, printCertificateBtn;
     private double fourthColumnWidth = 280;
-    //private final double formWidth = 0.98 * JeproLab.APP_WIDTH;
     private final double subFormWidth = 0.96 * JeproLab.APP_WIDTH;
     private int firstContactId, secondContactId, thirdContactId, fourthContactId;
 
@@ -394,6 +393,9 @@ public class JeproLabRequestAddController extends JeproLabController{
         }
         this.updateToolBar();
         this.addEventListeners();
+        if(!context.employee.isSuperAdmin()){
+            printCertificateBtn.setDisable(true);
+        }
     }
 
     private void loadRequest(){

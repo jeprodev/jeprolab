@@ -17,7 +17,6 @@
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.control.CheckBox?>
 <?import javafx.scene.control.DatePicker?>
-
 <?import com.jeprolab.assets.extend.controls.JeproPriceBox?>
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.control.Button?>

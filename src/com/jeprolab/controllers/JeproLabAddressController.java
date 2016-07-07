@@ -122,6 +122,15 @@ public class JeproLabAddressController extends JeproLabController{
         HBox commandWrapper = JeproLab.getInstance().getApplicationToolBarCommandWrapper();
         commandWrapper.getChildren().clear();
         addAddressBtn = new Button(bundle.getString("JEPROLAB_ADD_NEW_LABEL"), new ImageView(new Image(JeproLab.class.getResourceAsStream("resources/images/add.png"))));
+        addAddressBtn.setOnAction(evt ->{
+            try {
+                JeproLab.request.getRequest().clear();
+                JeproLab.getInstance().goToForm(JeproLab.getInstance().getApplicationForms().addAddressForm);
+                JeproLabContext.getContext().controller.initializeContent();
+            }catch (IOException ignored){
+                ignored.printStackTrace();
+            }
+        });
         commandWrapper.getChildren().addAll(addAddressBtn);
     }
 
