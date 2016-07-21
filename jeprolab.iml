@@ -8,10 +8,12 @@
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="library" name="mysql-connector-java-5.1.38-bin" level="application" />
-    <orderEntry type="library" name="commons-collections4-4.1" level="application" />
     <orderEntry type="library" name="bcpkix-jdk15on-153" level="application" />
     <orderEntry type="library" name="bcprov-ext-jdk15on-153" level="application" />
     <orderEntry type="library" name="xmlsec-2.0.6" level="application" />
     <orderEntry type="library" name="bcprov-1.45" level="application" />
+    <orderEntry type="library" name="bcpkix-jdk15on-154" level="project" />
+    <orderEntry type="library" name="mysql-connector-java-5.1.39-bin" level="project" />
+    <orderEntry type="library" name="commons-collections4-4.1" level="project" />
   </component>
 </module>

@@ -118,4 +118,33 @@ public class JeproLabCombinationModel extends JeproLabModel{
         return true;
     }
 
+    public static class JeproLabCustomizationModel extends  JeproLabModel{
+        /** @var int */
+        public int analyze_attribute_id;
+        /** @var int */
+        public int delivery_address_id;
+        /** @var int */
+        public int cart_id;
+        /** @var int */
+        public int analyze_id;
+        /** @var int */
+        public int quantity;
+        /** @var int */
+        public int quantity_refunded;
+        /** @var int */
+        public int quantity_returned;
+        /** @var bool */
+        public boolean in_cart;
+
+        /**
+         * This method is allow to know if a feature is used or active
+         * @since 1.5.0.1
+         * @return bool
+         */
+        public static boolean isFeaturePublished(){
+            return JeproLabSettingModel.getIntValue("customization_feature_active") > 0;
+        }
+
+    }
+
 }

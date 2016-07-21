@@ -11,6 +11,7 @@ import java.io.IOException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  *
@@ -61,10 +62,12 @@ public class JeproLabAnalyzeModel extends JeproLabModel{
     /** @var int Quantity available */
     public int quantity = 0;
 
+    public int stock_quantity = 0;
+
     public int minimal_quantity = 0;
 
     /** @var float Price in euros */
-    public float price = 0;
+    public JeproLabPriceModel analyze_price = null;
 
     public JeproLabPriceModel.JeproLabSpecificPriceModel specific_price = null;
 
@@ -220,6 +223,8 @@ public class JeproLabAnalyzeModel extends JeproLabModel{
      */
     public String category_name;
 
+    public String image_name;
+
     /**
      * @var int tell the type of stock management to apply on the pack
      */
@@ -235,13 +240,15 @@ public class JeproLabAnalyzeModel extends JeproLabModel{
     protected static Map<Integer, Map<Integer, Integer>> combinations = new HashMap<>();
 
     protected static boolean stock_management = false;
-    protected static boolean order_out_of_stock = false;
+    protected static boolean request_out_of_stock = false;
 
     private static JeproLabPriceModel.JeproLabSpecificPriceModel static_specific_price;
 
     protected static boolean multi_lang_lab = true;
     protected static JeproLabAddressModel address = null;
     protected static JeproLabContext static_context = null;
+
+    public static Map<Integer, JeproLabFeatureValueModel > cache_features = new HashMap<>();
 
     /**
      * Note:  prefix is "ANALYZE_TYPE" because TYPE_ is used in ObjectModel (definition)
@@ -467,11 +474,12 @@ public class JeproLabAnalyzeModel extends JeproLabModel{
             this.is_new = this.isNew();
 
             // Keep base price
-            this.base_price = this.price;
+            //this.analyze_price = new JeproLabPriceModel();
+            this.base_price = this.analyze_price.price;
 
-            this.price = JeproLabAnalyzeModel.getStaticPrice(this.analyze_id, false, 0, 6, false, true, 1, false, 0, 0, 0);
+            this.analyze_price.price = JeproLabAnalyzeModel.getStaticPrice(this.analyze_id, false, 0, 6, false, true, 1, false, 0, 0, 0);
             specific_price = JeproLabAnalyzeModel.static_specific_price;
-            this.unit_price = (this.unit_price_ratio != 0  ? this.price / this.unit_price_ratio : 0);
+            this.unit_price = (this.unit_price_ratio != 0  ? this.analyze_price.price / this.unit_price_ratio : 0);
             if (this.analyze_id > 0) {
                 this.tags = JeproLabTagModel.getAnalyzeTags(this.analyze_id);
             }
@@ -482,6 +490,29 @@ public class JeproLabAnalyzeModel extends JeproLabModel{
         if (this.default_category_id > 0) {
             this.category_name = JeproLabCategoryModel.getLinkRewrite(this.default_category_id, langId);
         }
+    }
+
+    public static JeproLabAnalyzeModel getTaxesInformation(JeproLabAnalyzeModel analyze){
+        return getTaxesInformation(analyze, null);
+    }
+
+    public static JeproLabAnalyzeModel getTaxesInformation(JeproLabAnalyzeModel analyze, JeproLabContext context){
+        if (context == null) {
+            context = JeproLabContext.getContext();
+        }
+        if (address == null) {
+            address = new JeproLabAddressModel();
+        }
+
+        address.country_id = context.country.country_id;
+        address.state_id = 0;
+        address.postcode = "";
+
+        JeproLabTaxModel.JeproLabTaxRulesManager taxManager = JeproLabTaxModel.JeproLabTaxManagerFactory.getManager(address, JeproLabAnalyzeModel.getTaxRulesGroupIdByAnalyzeId(analyze.analyze_id, context));
+        analyze.tax_rate = taxManager.getTaxCalculator().getTotalRate();
+        analyze.tax_name = taxManager.getTaxCalculator().getTaxesName();
+
+        return analyze;
     }
 
     public boolean isNew(){
@@ -974,7 +1005,7 @@ public class JeproLabAnalyzeModel extends JeproLabModel{
     /**
      * Returns JeproLabTaxManagerFactory rate.
      *
-     * @param address addres to get tax from
+     * @param address address to get tax from a given address
      * @return float The total taxes rate applied to the analyze
      */
     public float getTaxesRate(JeproLabAddressModel address) {
@@ -1558,7 +1589,7 @@ public class JeproLabAnalyzeModel extends JeproLabModel{
         query += dataBaseObject.quoteName("on_sale") + " = " + (this.on_sale ? 1 : 0) + ", " + dataBaseObject.quoteName("online_only") + " = " + (this.online_only ? 1 : 0);
         query += ", " + dataBaseObject.quoteName("ean13") + " = " + dataBaseObject.quote(this.ean13) + ", " + dataBaseObject.quoteName("ecotax") + " = ";
         query += this.eco_tax + ", " + dataBaseObject.quoteName("quantity") + " = " + this.quantity + ", " + dataBaseObject.quoteName("minimal_quantity") + " = ";
-        query += this.minimal_quantity + ", " + dataBaseObject.quoteName("price") + " = " + this.price + ", " + dataBaseObject.quoteName("wholesale_price") + " = ";
+        query += this.minimal_quantity + ", " + dataBaseObject.quoteName("price") + " = " + this.analyze_price.price + ", " + dataBaseObject.quoteName("wholesale_price") + " = ";
         query += this.wholesale_price + ", " + dataBaseObject.quoteName("unity") + " = " +  this.unity + ", " + dataBaseObject.quoteName("unit_price_ratio") + " = ";
         query += this.unit_price_ratio + ", " + dataBaseObject.quoteName("additional_shipping_cost") + " = " + this.additional_shipping_cost + ", " + dataBaseObject.quoteName("reference");
         query += " = " + dataBaseObject.quote(this.reference) + ", " + dataBaseObject.quoteName("supplier_reference") + " = " + dataBaseObject.quote(this.supplier_reference);
@@ -2209,6 +2240,50 @@ public class JeproLabAnalyzeModel extends JeproLabModel{
         return result;
     }
 
+    public static String defineAnalyzeImage(JeproLabAnalyzeModel analyze, int langId){
+        if (!analyze.image_name.equals("")) {
+            return analyze.analyze_id + "_" + analyze.image_name;
+        }
+        return JeproLabLanguageModel.getIsoByLanguageId(langId) + "_default";
+    }
+
+    public static void cacheAnalyzesFeatures(List<Integer> analyzeIds){
+        if (!JeproLabFeatureValueModel.isFeaturePublished()) {
+            List<Integer> analyzeImplode = analyzeIds.stream().filter(analyzeId -> !JeproLabAnalyzeModel.cache_features.containsKey(analyzeId)).collect(Collectors.toList());
+            if (analyzeImplode.size() > 0) {
+                if(staticDataBaseObject == null){
+                    staticDataBaseObject = JeproLabFactory.getDataBaseConnector();
+                }
+                String query = "SELECT feature_id, analyze_id, feature_value_id FROM " + staticDataBaseObject.quoteName("#__jeprolab_feature_analyze");
+                query += " WHERE " + staticDataBaseObject.quoteName("analyze_id") + " IN (" + analyzeImplodeList + ") ";
+
+                staticDataBaseObject.setQuery(query);
+                ResultSet analyzeFeatureSet = staticDataBaseObject.loadObjectList();
+
+                if(analyzeFeatureSet != null){
+                    try{
+                        JeproLabFeatureValueModel feature;
+                        while(analyzeFeatureSet.next()){
+                            feature = new JeproLabFeatureValueModel();
+                            JeproLabAnalyzeModel.cache_features.put(analyzeFeatureSet.getInt("analyze_id"), feature);
+                        }
+                    }catch(SQLException ignored){
+                        ignored.printStackTrace();
+                    }
+                }
+            }
+
+
+            /*foreach ($result as $row) {
+                if (!array_key_exists($row['id_product'], self::$_cacheFeatures)) {
+                    self::$_cacheFeatures[$row['id_product']] = array();
+                }
+                self::$_cacheFeatures[$row['id_product']][] = $row;
+            } */
+        }
+    }
+
+
     public boolean deleteFromCartRules(){
         if(dataBaseObject == null){
             dataBaseObject = JeproLabFactory.getDataBaseConnector();
@@ -2478,6 +2553,7 @@ public class JeproLabAnalyzeModel extends JeproLabModel{
         );*/
         return true;
     }
+
 
     public Map<Integer, String> getMethods(){
         if(dataBaseObject == null){

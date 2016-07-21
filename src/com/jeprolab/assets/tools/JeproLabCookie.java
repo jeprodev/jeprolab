@@ -29,4 +29,8 @@ public class JeproLabCookie {
     public String get(String field){
         return "";
     }
+
+    public void logout(){
+
+    }
 }

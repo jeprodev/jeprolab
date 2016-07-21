@@ -25,13 +25,23 @@ public class JeproLabPriceModel extends JeproLabModel{
         public int country_id;
         public int group_id;
         public int customer_id;
-        public float price;
+
         public int from_quantity;
         public float reduction;
         public float reduction_tax = 1;
         public String reduction_type;
         public Date from;
         public Date to;
+
+        public float price = 0;
+
+        public float price_without_reduction = 0;
+
+        public float price_with_reduction = 0;
+        public float price_with_reduction_without_tax = 0;
+        public float total;
+        public float total_with_tax;
+        public float price_with_out_tax;
 
         protected static Map<String, JeproLabSpecificPriceModel> _specificPriceCache = new HashMap<>();
         protected static Map<String, List<Integer>> _filterOutCache = new HashMap<>();

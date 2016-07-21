@@ -1,5 +1,6 @@
 package com.jeprolab.models;
 
+import com.jeprolab.JeproLab;
 import com.jeprolab.assets.config.JeproLabConfigurationSettings;
 import com.jeprolab.assets.tools.JeproLabCache;
 import com.jeprolab.assets.tools.JeproLabContext;
@@ -158,6 +159,54 @@ public class JeproLabImageModel extends JeproLabModel{
         WHERE `id_product` = '.(int)this.id_product.' ORDER BY position ASC');*/
 
         return true;
+    }
+
+    /**
+     * Return first image (by position) associated with a product attribute
+     *
+     * @param labId JeproLabLaboratoryModel ID
+     * @param langId Language ID
+     * @param analyzeId Product ID
+     * @param analyzeAttributeId Product Attribute ID
+     * @return array
+     */
+    public static Map<String, String> getBestImageAttribute(int labId, int langId, int analyzeId, int analyzeAttributeId){
+        String cacheKey = "jeprolab_image_getBestImageAttribute_" + analyzeId + "_" + analyzeAttributeId + "_" + langId + "_" + langId;
+        Map<String, String> rowData = new HashMap<>();
+        if (!JeproLabCache.getInstance().isStored(cacheKey)){
+            if(staticDataBaseObject == null){
+                staticDataBaseObject = JeproLabFactory.getDataBaseConnector();
+            }
+
+            String query = "SELECT image_lab." + staticDataBaseObject.quoteName("image_id") + ", image_lang." + staticDataBaseObject.quoteName("legend");
+            query += " FROM " + staticDataBaseObject.quoteName("#__jeprolab_image") + " AS image INNER JOIN " + staticDataBaseObject.quoteName("#__jeprolab_image_lab");
+            query += " AS image_lab (image." + staticDataBaseObject.quoteName("image_id") + " = image_lab." + staticDataBaseObject.quoteName("image_id");
+            query += " AND image_lab." + staticDataBaseObject.quoteName("lab_id") + " = " + labId + ") INNER JOIN " + staticDataBaseObject.quoteName("#__jeprolab_analyze_attribute_image");
+            query += " AS analyze_attribute_image ON(analyze_attribute_image." + staticDataBaseObject.quoteName("image_id") + " = image.";
+            query += staticDataBaseObject.quoteName("image_id") + " AND analyze_attribute_id." + staticDataBaseObject.quoteName("analyze_attribute_id");
+            query += " = " + analyzeAttributeId + ") LEFT JOIN " + staticDataBaseObject.quoteName("#__jeprolab_image_lang") + " AS image_lang ON (image_lang.";
+            query += staticDataBaseObject.quoteName("image_id") + " = image_lab." + staticDataBaseObject.quoteName("image_id") + " AND image_lang.";
+            query += staticDataBaseObject.quoteName("lang_id") + " = " + langId + ") WHERE image." + staticDataBaseObject.quoteName("analyze_id") + " = ";
+            query += analyzeId + " ORDER BY image." + staticDataBaseObject.quoteName("position") + " ASC ";
+
+            staticDataBaseObject.setQuery(query);
+            ResultSet rowDataSet = staticDataBaseObject.loadObjectList();
+
+            if(rowDataSet != null){
+                try{
+                    if(rowDataSet.next()){
+                        rowData.put("image_id", rowDataSet.getString("image_id"));
+                        rowData.put("legend", rowDataSet.getString("legend"));
+                        JeproLabCache.getInstance().store(cacheKey, rowData);
+                    }
+                }catch (SQLException ignored){
+                    ignored.printStackTrace();
+                }
+            }
+        } else {
+            rowData = (Map<String, String>)(JeproLabCache.getInstance().retrieve(cacheKey));
+        }
+        return rowData;
     }
 
 

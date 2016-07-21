@@ -391,6 +391,18 @@ public class JeproLabGroupModel extends JeproLabModel {
             return true;
         }
 
+        public static boolean deleteCategory(int categoryId){
+            if(staticDataBaseObject == null){
+                staticDataBaseObject = JeproLabFactory.getDataBaseConnector();
+            }
+
+            String query = "DELETE FROM " + staticDataBaseObject.quoteName("#__jeprolab_group_reduction") + " WHERE ";
+            query += staticDataBaseObject.quoteName("category_id") + " = " + categoryId;
+            staticDataBaseObject.setQuery(query);
+
+            return staticDataBaseObject.query(false);
+        }
+
 
 
     }

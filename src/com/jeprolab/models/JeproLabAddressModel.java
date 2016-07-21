@@ -95,8 +95,8 @@ public class JeproLabAddressModel extends JeproLabModel{
 
     public boolean published = false;
 
-    protected static Map<Integer, ResultSet> zones_ids  = new HashMap<>();
-    protected static Map<Integer, ResultSet> countries_ids = new HashMap<>();
+    protected static Map<Integer, Map<String, String>> zones_ids  = new HashMap<>();
+    protected static Map<Integer, Map<String, String>> countries_ids = new HashMap<>();
 
     private static Pagination pagination;
 
@@ -344,8 +344,9 @@ public class JeproLabAddressModel extends JeproLabModel{
      */
     public static JeproLabAddressModel initialize(int addressId, boolean withGeolocation) {
         JeproLabContext context = JeproLabContext.getContext();
+        boolean exists = addressId > 0 && JeproLabAddressModel.addressExists(addressId);
         String contextHash;
-        if (addressId > 0) {
+        if (exists) {
             contextHash = addressId + "";
         } else if (withGeolocation && (context.customer.geolocation_country_id > 0)) {
             contextHash = JeproLabTools.md5(context.customer.geolocation_country_id + "_" + context.customer.state_id + "_" + context.customer.postcode);
@@ -358,11 +359,11 @@ public class JeproLabAddressModel extends JeproLabModel{
 
         if (!JeproLabCache.getInstance().isStored(cacheKey)) {
             // if an id_address has been specified retrieve the address
-            if (addressId > 0) {
+            if (exists) {
                 address = new JeproLabAddressModel(addressId);
 
                 if (address.address_id <= 0) {
-                    JeproLabTools.displayWarning(500, JeproLab.getBundle().getString("JEPROLAB_LABEL") + addressId); //'Invalid address #'.(int)$id_address);
+                    JeproLabTools.displayWarning(500, JeproLab.getBundle().getString("JEPROLAB_INVALID_ADDRESS_ID_LABEL") + addressId); //'Invalid address #'.(int)$id_address);
                 }
             } else if (withGeolocation && (context.customer.geolocation_country_id > 0)) {
                 address = new JeproLabAddressModel();
@@ -467,7 +468,7 @@ public class JeproLabAddressModel extends JeproLabModel{
 
     }
 
-    public static ResultSet getCountryAndState(int addressId){
+    public static Map<String, String> getCountryAndState(int addressId){
         if (JeproLabAddressModel.countries_ids.containsKey(addressId)){
             return JeproLabAddressModel.countries_ids.get(addressId);
         }
@@ -482,12 +483,24 @@ public class JeproLabAddressModel extends JeproLabModel{
 
             staticDataBaseObject.setQuery(query);
             result = staticDataBaseObject.loadObjectList();
-            JeproLabAddressModel.countries_ids.put(addressId, result);
+            if(result != null){
+                try{
+                    Map<String, String> resultItem;
+                    if(result.next()){
+                        resultItem = new HashMap<>();
+                        resultItem.put("country_id", result.getString("country_id"));
+                        resultItem.put("state_id", result.getString("state_id"));
+                        resultItem.put("vat_number", result.getString("vat_number"));
+                        JeproLabAddressModel.countries_ids.put(addressId, resultItem);
+                    }
+                }catch(SQLException ignored){
+                    ignored.printStackTrace();
+                }
+            }
+            return JeproLabAddressModel.countries_ids.get(addressId);
         } else {
-            result = null;
+            return null;
         }
-
-        return result;
     }
 
     /**
@@ -627,6 +640,56 @@ public class JeproLabAddressModel extends JeproLabModel{
         query += currentDate + " WHERE " + dataBaseObject.quoteName("address_id") + " = " + this.address_id;
         dataBaseObject.setQuery(query);
         dataBaseObject.query(false);
+    }
+
+    /**
+     * Get zone id for a given address
+     *
+     * @param addressId Address id for which we want to get zone id
+     * @return int Zone id
+     */
+    public static int getZoneIdByAddressId(int addressId){
+        if (addressId <= 0) {
+            return 0;
+        }
+
+        if (JeproLabAddressModel.zones_ids.containsKey(addressId)){
+            return Integer.parseInt(JeproLabAddressModel.zones_ids.get(addressId).get("zone_id"));
+        }
+
+        /*int zoneId = Hook::exec('actionGetIDZoneByAddressID', array('id_address' => $id_address));
+
+        if (zoneId > 0){
+            Map<String, String> zoneSet = new HashMap<>();
+            zoneSet.put("zone_id", zoneId);
+            JeproLabAddressModel.zones_ids.put(addressId, zoneSet);
+            return Integer.parseInt(JeproLabAddressModel.zones_ids.get(addressId).get("zone_id"));
+        }*/
+
+        if(staticDataBaseObject == null){
+            staticDataBaseObject = JeproLabFactory.getDataBaseConnector();
+        }
+        String query = "SELECT state." + staticDataBaseObject.quoteName("zone_id") + " AS state_zone_id, country.";
+        query += staticDataBaseObject.quoteName("zone_id") + " FROM " + staticDataBaseObject.quoteName("#__jeprolab_address");
+        query += " AS address LEFT JOIN " + staticDataBaseObject.quoteName("#__jeprolab_country") + " AS country ON country.";
+        query += staticDataBaseObject.quoteName("country_id") + " = address." + staticDataBaseObject.quoteName("country_id");
+        query += " LEFT JOIN " + staticDataBaseObject.quoteName("#__jeprolab_state") + " AS state ON state.";
+        query += staticDataBaseObject.quoteName("state_id") + " = address." + staticDataBaseObject.quoteName("state_id");
+        query += " WHERE address." + staticDataBaseObject.quoteName("address_id") + " = " + addressId;
+
+        staticDataBaseObject.setQuery(query);
+        ResultSet zoneSet = staticDataBaseObject.loadObjectList();
+        if(zoneSet != null){
+            try{
+                if(zoneSet.next()) {
+                    JeproLabAddressModel.zones_ids.get(addressId).put("zone_id",
+                            (zoneSet.getInt("state_zone_id") > 0) ? zoneSet.getString("state_zone_id") : zoneSet.getString("zone_id"));
+                }
+            }catch(SQLException ignored){
+                ignored.printStackTrace();
+            }
+        }
+        return Integer.parseInt(JeproLabAddressModel.zones_ids.get(addressId).get("zone_id"));
     }
 
 

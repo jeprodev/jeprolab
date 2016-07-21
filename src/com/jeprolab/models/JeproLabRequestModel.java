@@ -43,6 +43,10 @@ public class JeproLabRequestModel extends JeproLabModel{
 
     public static Map<Integer, String> sample_matrix = new HashMap<>();
 
+    public static final int ROUND_ITEM = 1;
+    public static final int ROUND_LINE = 2;
+    public static final int ROUND_TOTAL = 3;
+
     public JeproLabRequestModel(){
         this(0);
     }

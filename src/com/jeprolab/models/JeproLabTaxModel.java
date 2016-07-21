@@ -406,7 +406,6 @@ public class JeproLabTaxModel extends JeproLabModel{
 
 
 
-
     public static class JeproLabTaxRuleModel extends JeproLabModel{
         public int tax_rules_group_id;
         public int country_id;
@@ -584,13 +583,13 @@ public class JeproLabTaxModel extends JeproLabModel{
     public static class JeproLabTaxCalculator {
         /**
          * COMBINE_METHOD sum taxes
-         * eg: 100€ * (10% + 15%)
+         * eg: 100ï¿½ * (10% + 15%)
          */
         private static int COMBINE_METHOD = 1;
 
         /**
          * ONE_AFTER_ANOTHER_METHOD apply taxes one after another
-         * eg: (100€ * 10%) * 15%
+         * eg: (100ï¿½ * 10%) * 15%
          */
         private static int ONE_AFTER_ANOTHER_METHOD = 2;
 
@@ -662,6 +661,18 @@ public class JeproLabTaxModel extends JeproLabModel{
             }
 
             return taxes;
+        }
+
+        public String getTaxesName(){
+            String name = "";
+            int langId = JeproLabContext.getContext().language.language_id;
+            for(JeproLabTaxModel tax : this.taxes) {
+                name += tax.name.get(langId) + " - ";
+            }
+
+            //$name = rtrim($name, ' - ');
+
+            return name;
         }
     }
 

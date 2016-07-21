@@ -366,7 +366,7 @@ public class JeproLabCountryModel extends JeproLabModel{
         return countries;
     }
 
-    public static int getByIso(String isoCode){
+    public static int getCountryIdByIso(String isoCode){
         return getCountryIdByIso(isoCode, false);
     }
 
@@ -379,7 +379,7 @@ public class JeproLabCountryModel extends JeproLabModel{
      */
     public static int getCountryIdByIso(String isoCode, boolean active) {
         if (!JeproLabTools.isLanguageIsoCode(isoCode)) {
-            JeproLabTools.displayError(500, JeproLab.getBundle().getString("JEPROLAB_MESSAGE")); //die(Tools::displayError());
+            JeproLabTools.displayError(500, JeproLab.getBundle().getString("JEPROLAB_WRONG_COUNTRY_CODE8MESSAGE")); //die(Tools::displayError());
         }
         if (staticDataBaseObject == null) {
             staticDataBaseObject = JeproLabFactory.getDataBaseConnector();
@@ -387,10 +387,10 @@ public class JeproLabCountryModel extends JeproLabModel{
 
         String query = "SELECT " + staticDataBaseObject.quoteName("country_id") + " FROM ";
         query += staticDataBaseObject.quoteName("#__jeprolab_country") + " WHERE " + staticDataBaseObject.quoteName("iso_code");
-        query += "= " + staticDataBaseObject.quote(isoCode.toUpperCase()) + (active ? " AND published = 1" : "");
+        query += " = " + staticDataBaseObject.quote(isoCode.toUpperCase()) + (active ? " AND published = 1" : "");
 
         staticDataBaseObject.setQuery(query);
-        return (int) staticDataBaseObject.loadValue("country_id");
+        return (int)staticDataBaseObject.loadValue("country_id");
     }
 
     public static int getZoneId(int countryId){
@@ -506,7 +506,7 @@ public class JeproLabCountryModel extends JeproLabModel{
         return 0;
     }
 
-    public static boolean getNeedZipCode(int countryId){
+    public static boolean needZipCode(int countryId){
         if (countryId <= 0) {
             return false;
         }
@@ -591,6 +591,8 @@ public class JeproLabCountryModel extends JeproLabModel{
         return staticDataBaseObject.loadValue("need_identification_number") > 0;
     }
 
+
+
     public static boolean containsStates(int countryId){
         if(staticDataBaseObject == null){
             staticDataBaseObject = JeproLabFactory.getDataBaseConnector();
@@ -622,6 +624,69 @@ public class JeproLabCountryModel extends JeproLabModel{
             dataBaseObject.setQuery(query);
 
             dataBaseObject.query(false);
+        }
+    }
+
+    public function add($autodate = true, $null_values = false){
+        $return = parent::add($autodate, $null_values) && JeproLabCountryModel.addModuleRestrictions(array(), array(array('id_country' => $this->id)), array());
+        return result;
+    }
+
+    public boolean delete(){
+        String query = "";
+        if(!parent::delete()){
+            return false;
+        }
+        query = "DELETE FROM " + dataBaseObject.quoteName("#__jeprolab_cart_rule_country") + " WHERE " + dataBaseObject.quoteName("country_id");
+        query += " = " + this.country_id;
+
+        dataBaseObject.setQuery(query);
+        return dataBaseObject.query(false);
+    }
+
+    public static function addModuleRestrictions(){
+        return addModuleRestrictions(new ArrayList<>(), new ArrayList<>(), new ArrayList<>());
+    }
+
+    public static function addModuleRestrictions(List labs){
+        return addModuleRestrictions(labs, new ArrayList<>(), new ArrayList<>());
+    }
+
+    public static function addModuleRestrictions(List labs, List countries){
+        return addModuleRestrictions(labs, countries, new ArrayList<>());
+    }
+
+    public static function addModuleRestrictions(List<Integer> labs, List countries, List modules){
+        if (labs.isEmpty()) {
+            labs = JeproLabLaboratoryModel.getLaboratories(true, 0, true);
+        }
+
+        if (countries.isEmpty()){
+            countries = JeproLabCountryModel.getCountries(JeproLabContext.getContext().cookie.language_id);
+        }
+
+        if (modules.isEmpty()) {
+            modules = JeproLabModule.getPaymentModules();
+        }
+
+        String queryValues = "";
+        for(Integer labId : labs) {
+            for(JeproLabCountryModel country : countries){
+                for(JeproLabModule module : modules) {
+                    queryValues += " (" + module.module_id + ", " + labId + ", " + country.country_id + "),";
+                }
+            }
+        }
+
+        if (!queryValues.equals("")) {
+            String query = "INSERT IGNORE INTO  " + staticDataBaseObject.quoteName("#__jeprolab_module_country") + " AS module_country ON (";
+            query += staticDataBaseObject.quoteName("module_id") + ", " + staticDataBaseObject.quoteName("lab_id") + ", ";
+            query += staticDataBaseObject.quoteName("country_id") + ") VALUES " + queryValues;
+
+            staticDataBaseObject.setQuery(query);
+            return Db::getInstance()->execute($sql);
+        } else {
+            return true;
         }
     }
 

@@ -422,6 +422,136 @@ public class JeproLabTools {
         return computedTemperature;
     }
 
+    public static function passWordGen(){
+        return passWordGen(8, "ALPHANUMERIC");
+    }
+
+    public static function passWordGen(int length){
+        return passWordGen(length, "ALPHANUMERIC");
+    }
+
+    /**
+     * Random password generator
+     *
+     * @param length Desired length (optional)
+     * @param flag Output type (NUMERIC, ALPHANUMERIC, NO_NUMERIC, RANDOM)
+     * @return bool|string Password
+     */
+    public static String passWordGen(int length, String flag){
+        if (length <= 0) {
+            return null;
+        }
+        String str;
+
+        switch (flag) {
+            case "NUMERIC":
+                str = "0123456789";
+                break;
+            case "NO_NUMERIC":
+                str = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+                break;
+            case "RANDOM":
+                numBytes = ceil($length * 0.75);
+                bytes = JeproLabTools.getBytes(numBytes);
+                return substr(rtrim(base64_encode($bytes), '='), 0, $length);
+            case "ALPHANUMERIC":
+            default:
+                str = "abcdefghijkmnopqrstuvwxyz0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+                break;
+        }
+        bytes = JeproLabTools.getBytes(length);
+        int position = 0;
+        String result = "";
+
+        for (int i = 0; i < length; i++) {
+            position = (position + ord($bytes[$i])) % str.length();
+            result += str.charAt(position);
+        }
+
+        return result;
+    }
+
+    /**
+     * Random bytes generator
+     *
+     * Thanks to Zend for entropy
+     *
+     * @param length Desired length of random bytes
+     * @return bool|string Random bytes
+     */
+    public static function getBytes(int length){
+        if (length <= 0) {
+            return false;
+        }
+
+        if (function_exists('openssl_random_pseudo_bytes')) {
+            $bytes = openssl_random_pseudo_bytes($length, $crypto_strong);
+
+            if ($crypto_strong === true) {
+                return $bytes;
+            }
+        }
+
+        if (function_exists('mcrypt_create_iv')) {
+            $bytes = mcrypt_create_iv($length, MCRYPT_DEV_URANDOM);
+
+            if ($bytes !== false && strlen($bytes) === $length) {
+                return $bytes;
+            }
+        }
+
+        // Else try to get $length bytes of entropy.
+        // Thanks to Zend
+        String result = "";
+        String entropy = "";
+        int msecPerRound = 400;
+        int bitsPerRound = 2;
+        int total = length;
+        int hashLength = 20;
+
+        while (result.length() < length) {
+            bytes  = (total > hashLength) ? hashLength : total;
+            total -= bytes;
+
+            for (int i=1; i < 3; i++) {
+                $t1 = microtime(true);
+                $seed = mt_rand();
+
+                for (int j=1; j < 50; j++) {
+                    $seed = sha1($seed);
+                }
+
+                $t2 = microtime(true);
+                $entropy .= $t1 . $t2;
+            }
+
+            $div = (int) (($t2 - $t1) * 1000000);
+
+            if ($div <= 0) {
+                $div = 400;
+            }
+
+            $rounds = (int) ($msec_per_round * 50 / $div);
+            $iter = $bytes * (int) (ceil(8 / $bits_per_round));
+
+            for ($i = 0; $i < $iter; $i ++) {
+                $t1 = microtime();
+                $seed = sha1(mt_rand());
+
+                for ($j = 0; $j < $rounds; $j++) {
+                    $seed = sha1($seed);
+                }
+
+                $t2 = microtime();
+                $entropy .= $t1 . $t2;
+            }
+
+            $result .= sha1($entropy, true);
+        }
+
+        return substr($result, 0, $length);
+    }
+
     /***************** Numeric Validation Limit the  characters to maxLength AND to ONLY DigitS *********************/
     public static EventHandler<KeyEvent> numericValidation(final Integer maxLength) {
         return e -> {
