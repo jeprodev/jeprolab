@@ -2255,7 +2255,7 @@ public class JeproLabAnalyzeModel extends JeproLabModel{
                     staticDataBaseObject = JeproLabFactory.getDataBaseConnector();
                 }
                 String query = "SELECT feature_id, analyze_id, feature_value_id FROM " + staticDataBaseObject.quoteName("#__jeprolab_feature_analyze");
-                query += " WHERE " + staticDataBaseObject.quoteName("analyze_id") + " IN (" + analyzeImplodeList + ") ";
+                query += " WHERE " + staticDataBaseObject.quoteName("analyze_id") + " IN (" + analyzeImplodedList + ") ";
 
                 staticDataBaseObject.setQuery(query);
                 ResultSet analyzeFeatureSet = staticDataBaseObject.loadObjectList();

@@ -1,7 +1,9 @@
 package com.jeprolab.models;
 
+import com.jeprolab.JeproLab;
 import com.jeprolab.assets.tools.JeproLabCache;
 import com.jeprolab.assets.tools.JeproLabContext;
+import com.jeprolab.assets.tools.JeproLabTools;
 import com.jeprolab.assets.tools.db.JeproLabDataBaseConnector;
 import com.jeprolab.models.core.JeproLabFactory;
 
@@ -171,6 +173,53 @@ public class JeproLabLanguageModel extends JeproLabModel {
         }
         return $languages;*/
         return LANGUAGES;
+    }
+
+    public static int getLanguageIdByIsoCode(String isoCode){
+        return getLanguageIdByIsoCode(isoCode, false);
+    }
+
+    /**
+     * Return id from iso code
+     *
+     * @param isoCode Iso code
+     * @param noCache
+     * @return false|null|string
+     */
+    public static int getLanguageIdByIsoCode(String isoCode, boolean noCache){
+        if (!JeproLabTools.isLanguageIsoCode(isoCode)){
+            JeproLabTools.displayError(500, JeproLab.getBundle().getString("JEPROLAB_FATAL_ERROR_ISO_CODE_IS_NOT_CORRECT_MESSAGE") + " " + JeproLabTools.safeOutput(isoCode));
+        }
+
+        String cacheKey = "jeprolab_language_model_get_id_by_iso_" +  isoCode;
+        if (noCache || !JeproLabCache.getInstance().isStored(cacheKey)){
+            if(staticDataBaseObject == null){
+                staticDataBaseObject = JeproLabFactory.getDataBaseConnector();
+            }
+
+            String query = "SELECT  " + staticDataBaseObject.quoteName("lang_id") + " FROM " + staticDataBaseObject.quoteName("#__language");
+            query += " WHERE " + staticDataBaseObject.quoteName("iso_code") + " = " + staticDataBaseObject.quote(isoCode.toLowerCase());
+
+            staticDataBaseObject.setQuery(query);
+            int langId = (int)staticDataBaseObject.loadValue("lang_id");
+
+            JeproLabCache.getInstance().store(cacheKey, langId);
+            return langId;
+        }
+        return (int)JeproLabCache.getInstance().retrieve(cacheKey);
+    }
+
+    /**
+     * Return iso code from id
+     *
+     * @param langId Language ID
+     * @return string Iso code
+     */
+    public static String getIsoCodeByLanguageId(int langId){
+        if (LANGUAGES.containsKey(langId)) {
+            return LANGUAGES.get(langId).iso_code;
+        }
+        return "";
     }
 
 }

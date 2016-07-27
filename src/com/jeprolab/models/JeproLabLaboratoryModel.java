@@ -783,4 +783,8 @@ public class JeproLabLaboratoryModel extends JeproLabModel{
         }
 
     }
+
+    public static class JeproLabLaboratoryUrlModel extends JeproLabModel{
+
+    }
 }

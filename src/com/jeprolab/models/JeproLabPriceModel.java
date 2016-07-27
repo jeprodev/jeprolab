@@ -35,7 +35,7 @@ public class JeproLabPriceModel extends JeproLabModel{
 
         public float price = 0;
 
-        public float price_without_reduction = 0;
+        public float price_with_out_reduction = 0;
 
         public float price_with_reduction = 0;
         public float price_with_reduction_without_tax = 0;

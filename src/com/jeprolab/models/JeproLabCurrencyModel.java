@@ -171,7 +171,20 @@ public class JeproLabCurrencyModel extends  JeproLabModel{
         if (this.conversion_rate <= 0) {
             return false;
         }
-        return parent::update($autodate, $nullValues);
+        if(dataBaseObject == null){
+            dataBaseObject = JeproLabFactory.getDataBaseConnector();
+        }
+        String query = "UPDATE " + dataBaseObject.quoteName("#__jeprolab_currency") + " SET " + dataBaseObject.quoteName("name");
+        query += " = " + dataBaseObject.quote(this.name) + ", " + dataBaseObject.quoteName("iso_code") + " = " ;
+        query += dataBaseObject.quoteName("iso_code_num") + " = " + this.iso_code_num + ", " + dataBaseObject.quoteName("sign");
+        query += " = " + dataBaseObject.quote(this.sign) + ", " + dataBaseObject.quoteName("blank") + " = " + (this.blank ? 1 : 0);
+        query += ", " + dataBaseObject.quoteName("decimals") + " = " + (this.decimals > 0 ? 1 : 0) + ", " + dataBaseObject.quoteName("published");
+        query += " = " + (this.published ? 1 : 0) + ", " + dataBaseObject.quoteName("conversion_rate") + " = " + this.conversion_rate;
+        query += ", " + dataBaseObject.quoteName("deleted") + " = " + (this.deleted ? 1 : 0) + " WHERE " + dataBaseObject.quoteName("customer_id");
+        query += " = " + this.currency_id;
+
+        dataBaseObject.setQuery(query);
+        return dataBaseObject.query(false);
     }
 
     public boolean deleteSelection(List<Integer> selection){
@@ -280,7 +293,7 @@ public class JeproLabCurrencyModel extends  JeproLabModel{
         return (int)JeproLabCache.getInstance().retrieve(cacheKey);
     }
 
-
+/*
     public static function getPaymentSpecialCurrencies(int moduleId){
         return getPaymentSpecialCurrencies(moduleId, 0);
     }
@@ -316,13 +329,13 @@ public class JeproLabCurrencyModel extends  JeproLabModel{
         return Db::getInstance()->executeS($sql);
     }
 
-    public static function checkPaymentCurrencies(int moduleId){
+    public static List<JeproLabModuleModel> checkPaymentCurrencies(int moduleId){
         return checkPaymentCurrencies(moduleId, 0);
     }
 
-    public static function checkPaymentCurrencies(int moduleId, int labId){
+    public static List<JeproLabModuleModel> checkPaymentCurrencies(int moduleId, int labId){
         if (moduleId <= 0) {
-            return false;
+            return new ArrayList<>();
         }
 
         if (labId <= 0) {
@@ -336,8 +349,33 @@ public class JeproLabCurrencyModel extends  JeproLabModel{
         String query  = "SELECT * FROM " + staticDataBaseObject.quoteName("#__jeprolab_module_currency") + " AS module_currency ";
         query += " WHERE " + staticDataBaseObject.quoteName("module_id") + " = " + moduleId + " AND " + staticDataBaseObject.quoteName("lab_id");
         query += " = " + labId;
-        return Db::getInstance(_PS_USE_SQL_SLAVE_)->executeS($sql);
-    }
+
+        staticDataBaseObject.setQuery(query);
+        ResultSet moduleCurrencySet = staticDataBaseObject.loadObjectList();
+        List<JeproLabModuleModel> moduleCurrencies = new ArrayList<>()
+
+        if(moduleCurrencySet != null){
+            try{
+                JeproLabModuleModel moduleCurrency;
+                while(moduleCurrencySet.next()){
+                    moduleCurrency = new JeproLabModuleModel();
+                    moduleCurrency.module_id = moduleCurrencySet.getInt("module_id");
+                    moduleCurrency.laboratory_id = moduleCurrencySet.getInt("lab_id");
+                    moduleCurrency.currency_id = moduleCurrencySet.getInt("currency_id");
+                    moduleCurrencies.add(moduleCurrency);
+                }
+            }catch(SQLException ignored){
+                ignored.printStackTrace();
+            }finally {
+                try{
+                    JeproLabDataBaseConnector.getInstance().closeConnexion();
+                }catch(Exception ignored){
+                    ignored.printStackTrace();
+                }
+            }
+        }
+        return moduleCurrencies;
+    } */
 
     public static JeproLabCurrencyModel getCurrency(int currencyId){
         if(staticDataBaseObject == null){
@@ -370,14 +408,14 @@ public class JeproLabCurrencyModel extends  JeproLabModel{
         return currency;
     }
 
-    /**
+    /*
      * Refresh the currency exchange rate
      * The XML file define exchange rate for each from a default currency ($isoCodeSource).
      *
      * @param SimpleXMLElement $data XML content which contains all the exchange rates
      * @param isoCodeSource The default currency used in the XML file
      * @param defaultCurrency The default currency object
-     */
+     * /
     public function refreshCurrency($data, String isoCodeSource, JeproLabCurrencyModel defaultCurrency){
         // fetch the exchange rate of the default currency
         float exchangeRate = 1;
@@ -394,7 +432,7 @@ public class JeproLabCurrencyModel extends  JeproLabModel{
         if (defaultCurrency.iso_code.equals(this.iso_code)){
             this.conversion_rate = 1;
         } else {
-            float rate;
+            float rate = 0;
             if (this.iso_code.equals(isoCodeSource)){
                 rate = 1;
             } else {
@@ -414,7 +452,7 @@ public class JeproLabCurrencyModel extends  JeproLabModel{
         if (tmp != this.conversion_rate){
             this.update();
         }
-    }
+    } */
 
     public static JeproLabCurrencyModel getDefaultCurrency(){
         int currencyId = JeproLabSettingModel.getIntValue("default_currency");
@@ -424,7 +462,7 @@ public class JeproLabCurrencyModel extends  JeproLabModel{
 
         return new JeproLabCurrencyModel(currencyId);
     }
-
+/*
     public static void refreshCurrencies() {
         // Parse
         $feed = JeproLabTools.simpleXmlLoadFile(JeproLabConfigurationSettings.JEPROLAB_CURRENCY_FEED_URL);
@@ -441,12 +479,12 @@ public class JeproLabCurrencyModel extends  JeproLabModel{
 
         List<JeproLabCurrencyModel> localCurrencies = JeproLabCurrencyModel.getCurrencies (true, false, true);
         for(JeproLabCurrencyModel currency : localCurrencies) {
-            /** @var Currency $currency */
+            /** @var Currency $currency * /
             if (currency.currency_id != defaultCurrency.currency_id) {
                 currency.refreshCurrency($feed -> list, isoCodeSource, defaultCurrency);
             }
         }
-    }
+    } */
 
     public String getCurrencySign(){
         return getCurrencySign(null);
@@ -647,14 +685,14 @@ public class JeproLabCurrencyModel extends  JeproLabModel{
         return (JeproLabCurrencyModel.countActiveCurrencies(labId) > 1);
     }
 
-    /**
+    /*
      * Replace letters of zip code format And check this format on the zip code
      * @param zipCode
      * @return (bool)
-     */
-    public function checkZipCode(String zipCode){
-        $zip_regexp = '/^'.$this->zip_code_format.'$/ui';
-        $zip_regexp = str_replace(' ', '( |)', $zipRegexp);
+     * /
+    public boolean checkZipCode(String zipCode){
+        String zipRegExp = '/^'. this.zip_code_format.'$/ui';
+        zipRegExp = str_replace(' ', '( |)', $zipRegexp);
         $zip_regexp = str_replace('-', '(-|)', $zipRegexp);
         $zip_regexp = str_replace('N', '[0-9]', $zipRegexp);
         $zip_regexp = str_replace('L', '[a-zA-Z]', $zipRegexp);
@@ -662,7 +700,7 @@ public class JeproLabCurrencyModel extends  JeproLabModel{
 
         return (bool)preg_match($zip_regexp, $zip_code);
     }
-
+*/
     public boolean save(){
         if(dataBaseObject == null){
             dataBaseObject = JeproLabFactory.getDataBaseConnector();

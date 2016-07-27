@@ -22,6 +22,7 @@ import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -88,6 +89,10 @@ public class JeproLabTools {
         dialogBox.showAndWait();
     }
 
+    public static boolean displayBarMessage(int code, String message){
+        return true;
+    }
+
     public static boolean isOrderBy(String order){
         String pattern = "/^[a-zA-Z0-9._-]+$/";
         return true; //order.matches(pattern);
@@ -149,13 +154,31 @@ public class JeproLabTools {
         }else{
             return true;
         }
-
-
         //return checkdate((int)$matches[2], (int)$matches[3], (int)$matches[1]);
     }
 
     public static LocalDate getLocaleDate(Date date){
         return date.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+    }
+
+    public static String safeOutput(String value){
+        return value;
+    }
+
+    public static boolean isSubmit(String value){
+        return false;
+    }
+
+    public static boolean isPassWord(String value){
+        return false;
+    }
+
+    public static boolean isMd5(String value){
+        return false;
+    }
+
+    public static String encrypt(String value){
+        return value;
     }
 
     public static boolean pregMatch(String search, String pattern){
@@ -422,11 +445,11 @@ public class JeproLabTools {
         return computedTemperature;
     }
 
-    public static function passWordGen(){
+    public static String passWordGen(){
         return passWordGen(8, "ALPHANUMERIC");
     }
 
-    public static function passWordGen(int length){
+    public static String passWordGen(int length){
         return passWordGen(length, "ALPHANUMERIC");
     }
 
@@ -441,7 +464,7 @@ public class JeproLabTools {
         if (length <= 0) {
             return null;
         }
-        String str;
+        String str, bytes;
 
         switch (flag) {
             case "NUMERIC":
@@ -451,9 +474,10 @@ public class JeproLabTools {
                 str = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
                 break;
             case "RANDOM":
-                numBytes = ceil($length * 0.75);
+                /*numBytes = ceil($length * 0.75);
                 bytes = JeproLabTools.getBytes(numBytes);
-                return substr(rtrim(base64_encode($bytes), '='), 0, $length);
+                return substr(rtrim(base64_encode($bytes), '='), 0, $length); */
+                return "";
             case "ALPHANUMERIC":
             default:
                 str = "abcdefghijkmnopqrstuvwxyz0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
@@ -464,7 +488,7 @@ public class JeproLabTools {
         String result = "";
 
         for (int i = 0; i < length; i++) {
-            position = (position + ord($bytes[$i])) % str.length();
+            //position = (position + ord($bytes[$i])) % str.length();
             result += str.charAt(position);
         }
 
@@ -479,12 +503,12 @@ public class JeproLabTools {
      * @param length Desired length of random bytes
      * @return bool|string Random bytes
      */
-    public static function getBytes(int length){
-        if (length <= 0) {
+    public static String getBytes(int length){
+        /*if (length <= 0) {
             return false;
         }
 
-        if (function_exists('openssl_random_pseudo_bytes')) {
+        /*if (function_exists('openssl_random_pseudo_bytes')) {
             $bytes = openssl_random_pseudo_bytes($length, $crypto_strong);
 
             if ($crypto_strong === true) {
@@ -498,7 +522,7 @@ public class JeproLabTools {
             if ($bytes !== false && strlen($bytes) === $length) {
                 return $bytes;
             }
-        }
+        } */
 
         // Else try to get $length bytes of entropy.
         // Thanks to Zend
@@ -508,7 +532,7 @@ public class JeproLabTools {
         int bitsPerRound = 2;
         int total = length;
         int hashLength = 20;
-
+/*
         while (result.length() < length) {
             bytes  = (total > hashLength) ? hashLength : total;
             total -= bytes;
@@ -548,8 +572,8 @@ public class JeproLabTools {
 
             $result .= sha1($entropy, true);
         }
-
-        return substr($result, 0, $length);
+*/
+        return result.substring(0, length);
     }
 
     /***************** Numeric Validation Limit the  characters to maxLength AND to ONLY DigitS *********************/
@@ -606,6 +630,19 @@ public class JeproLabTools {
 
     public static String getCleanDescription(String value){
         return value;
+    }
+
+    public static String simpleXmlLoadFile(String url){
+        return simpleXmlLoadFile(url, null);
+    }
+
+    public static String simpleXmlLoadFile(String url, Object obj){
+        String cacheKey = "jeprolab_simple_xml_load_file_" + url;
+        if(!JeproLabCache.getInstance().isStored(cacheKey)){
+
+        }
+        return (String)JeproLabCache.getInstance().retrieve(cacheKey);
+
     }
 
     public static String strReplace(String value, String search, String replaceWith){

@@ -626,7 +626,7 @@ public class JeproLabCountryModel extends JeproLabModel{
             dataBaseObject.query(false);
         }
     }
-
+/*
     public function add($autodate = true, $null_values = false){
         $return = parent::add($autodate, $null_values) && JeproLabCountryModel.addModuleRestrictions(array(), array(array('id_country' => $this->id)), array());
         return result;
@@ -644,19 +644,19 @@ public class JeproLabCountryModel extends JeproLabModel{
         return dataBaseObject.query(false);
     }
 
-    public static function addModuleRestrictions(){
+    public static boolean addModuleRestrictions(){
         return addModuleRestrictions(new ArrayList<>(), new ArrayList<>(), new ArrayList<>());
     }
 
-    public static function addModuleRestrictions(List labs){
+    public static boolean addModuleRestrictions(List labs){
         return addModuleRestrictions(labs, new ArrayList<>(), new ArrayList<>());
     }
 
-    public static function addModuleRestrictions(List labs, List countries){
+    public static boolean addModuleRestrictions(List<JeproLabLaboratoryModel> labs, List countries){
         return addModuleRestrictions(labs, countries, new ArrayList<>());
     }
 
-    public static function addModuleRestrictions(List<Integer> labs, List countries, List modules){
+    public static boolean addModuleRestrictions(List<JeproLabLaboratoryModel> labs, List countries, List modules){
         if (labs.isEmpty()) {
             labs = JeproLabLaboratoryModel.getLaboratories(true, 0, true);
         }
@@ -670,10 +670,10 @@ public class JeproLabCountryModel extends JeproLabModel{
         }
 
         String queryValues = "";
-        for(Integer labId : labs) {
+        for(JeproLabLaboratoryModel lab : labs) {
             for(JeproLabCountryModel country : countries){
                 for(JeproLabModule module : modules) {
-                    queryValues += " (" + module.module_id + ", " + labId + ", " + country.country_id + "),";
+                    queryValues += " (" + module.module_id + ", " + lab.laboratory_id + ", " + country.country_id + "),";
                 }
             }
         }
@@ -684,11 +684,11 @@ public class JeproLabCountryModel extends JeproLabModel{
             query += staticDataBaseObject.quoteName("country_id") + ") VALUES " + queryValues;
 
             staticDataBaseObject.setQuery(query);
-            return Db::getInstance()->execute($sql);
+            return staticDataBaseObject.query(false);
         } else {
             return true;
         }
-    }
+    } */
 
     public static class JeproLabStateModel extends JeproLabModel{
 

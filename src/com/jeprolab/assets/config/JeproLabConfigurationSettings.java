@@ -16,5 +16,6 @@ public class JeproLabConfigurationSettings {
     public static String JEPROLAB_CATEGORY_IMAGE_DIRECTORY = "";
     public static String JEPROLAB_ANALYZE_IMAGE_DIRECTORY = "";
     public static String JEPROLAB_TMP_IMAGE_DIRECTORY = "";
+    public static String JEPROLAB_MAILING_DIRECTORY = "";
     public static String JEPROLAB_CURRENCY_FEED_URL = "";
 }

@@ -5,6 +5,7 @@ import com.jeprolab.assets.config.JeproLabConfigurationSettings;
 import com.jeprolab.assets.tools.JeproLabCache;
 import com.jeprolab.assets.tools.JeproLabContext;
 import com.jeprolab.assets.tools.JeproLabTools;
+import com.jeprolab.assets.tools.db.JeproLaMail;
 import com.jeprolab.assets.tools.db.JeproLabDataBaseConnector;
 import com.jeprolab.models.core.JeproLabApplication;
 import com.jeprolab.models.core.JeproLabFactory;
@@ -86,6 +87,11 @@ public class JeproLabCustomerModel extends JeproLabModel{
     protected static Map<Integer, Integer> _defaultGroupId = new HashMap<>();
     protected static Map<String, Boolean> _customerHasAddress = new HashMap<>();
     protected static Map<Integer, List<Integer>> _customer_groups = new HashMap<>();
+
+    /**
+     * @var array Holds current customer's groups.
+     */
+    protected static List<Integer> current_customer_groups = new ArrayList<>();
 
     public JeproLabCustomerModel(){
         this(0);
@@ -357,6 +363,7 @@ public class JeproLabCustomerModel extends JeproLabModel{
         if(dataBaseObject == null){
             dataBaseObject = JeproLabFactory.getDataBaseConnector();
         }
+        String encryptedPass = JeproLabTools.encrypt(passWord);
 
         String query = "SELECT * FROM " + dataBaseObject.quoteName("#__jeprolab_customer") + " WHERE " + dataBaseObject.quoteName("email");
         query += " = '" + dataBaseObject.quoteName(email) + "' " + JeproLabLaboratoryModel.addSqlRestriction(JeproLabLaboratoryModel.SHARE_CUSTOMER);
@@ -412,7 +419,7 @@ public class JeproLabCustomerModel extends JeproLabModel{
     /**
      * Retrieve customers by email address
      *
-     * @param email customer email address
+     * @  param email customer email address
      * @return List
      * /
     public static JeproLabCustomerModel getCustomerByEmail(String email){
@@ -431,7 +438,7 @@ public class JeproLabCustomerModel extends JeproLabModel{
             try{
 
                 if(customersSet.next()){
-
+                    customer = new JeproLabCustomerModel();
                     return customer;
                 }
             }catch (SQLException ignored){
@@ -907,19 +914,22 @@ public class JeproLabCustomerModel extends JeproLabModel{
         }
     } */
 
+    /**
+     * Toggles object status in database
+     *
+     * @return bool Update result
+     */
     public boolean toggleStatus(){
         if(dataBaseObject != null){
             dataBaseObject = JeproLabFactory.getDataBaseConnector();
         }
-        String query = "";
-        parent::toggleStatus();
-        boolean result = true;
         /* Change status to active/inactive */
-        query = "UPDATE " + dataBaseObject.quoteName("#__jeprolab_customer") + " SET " + dataBaseObject.quoteName("date_upd");
-        query += " = NOW() WHERE " + dataBaseObject.quoteName("customer_id") + " = " + this.customer_id;
+        String query = "UPDATE " + dataBaseObject.quoteName("#__jeprolab_customer") + " SET " + dataBaseObject.quoteName("date_upd");
+        query += " = NOW(), " + dataBaseObject.quoteName("published") + (this.published ? 0 : 1) + " WHERE ";
+        query += dataBaseObject.quoteName("customer_id") + " = " + this.customer_id;
 
         dataBaseObject.setQuery(query);
-        return result && dataBaseObject.query(false);
+        return dataBaseObject.query(false);
     }
 
 
@@ -948,7 +958,7 @@ public class JeproLabCustomerModel extends JeproLabModel{
         this.password = JeproLabTools.encrypt(passWord);
         this.cleanGroups();
         List<Integer> groups = new ArrayList<>();
-        groups.add(JeproLabSettingModel.getIntValue("customer_group");
+        groups.add(JeproLabSettingModel.getIntValue("customer_group"));
         this.addGroups(groups); // add default customer group
         if(this.update()){
             Map<String, String> vars = new HashMap<>();
@@ -957,7 +967,7 @@ public class JeproLabCustomerModel extends JeproLabModel{
             vars.put("email", this.email);
             vars.put("passwd", passWord);
 
-            JeproLaMail.Send(langId, JeproLab.getBundle().getString("JEPROLAB_GUEST_TO_CUSTOMER_LABEL"),
+            JeproLaMail.send(langId, JeproLab.getBundle().getString("JEPROLAB_GUEST_TO_CUSTOMER_LABEL"),
                     JeproLab.getBundle().getString("JEPROLAB_YOUR_ACCOUNT_HAS_BEEN_TRANSFORMED_INTO_A_CUSTOMER_ACCOUNT_MESSAGE"),
                     vars, this.email, this.firstname + " " + this.lastname.toUpperCase(), null, null, null, null,
                     JeproLabConfigurationSettings.JEPROLAB_MAILING_DIRECTORY, false, this.laboratory_id
@@ -1089,8 +1099,8 @@ public class JeproLabCustomerModel extends JeproLabModel{
             JeproLabTools.displayError(500, JeproLab.getBundle().getString("JEPROLAB_"));
         }
         String cacheKey = "jeprolab_customer_check_password_" + customerId + "_" + passWord;
-        if (!JeproLabCache.getInstance().isStored(cacheKey)){
-            if(staticDataBaseObject == null){
+        if (!JeproLabCache.getInstance().isStored(cacheKey)) {
+            if (staticDataBaseObject == null) {
                 staticDataBaseObject = JeproLabFactory.getDataBaseConnector();
             }
 
@@ -1101,8 +1111,53 @@ public class JeproLabCustomerModel extends JeproLabModel{
             staticDataBaseObject.setQuery(query);
             boolean result = staticDataBaseObject.loadValue("customer_id") > 0;
             JeproLabCache.getInstance().store(cacheKey, result);
-        return result;
-    }
+            return result;
+        }
         return (boolean)JeproLabCache.getInstance().retrieve(cacheKey);
+    }
+
+    /**
+     * Sets and returns customer groups that the current customer(visitor) belongs to.
+     *
+     * @return array
+     */
+    public static List<Integer> getCurrentCustomerGroups(){
+        if (!JeproLabGroupModel.isFeaturePublished()) {
+            return new ArrayList<>();
+        }
+
+        JeproLabContext context = JeproLabContext.getContext();
+        if (context.customer == null || context.customer.customer_id <= 0) {
+            return new ArrayList<>();
+        }
+
+        if (JeproLabCustomerModel.current_customer_groups == null && JeproLabCustomerModel.current_customer_groups.isEmpty()) {
+            JeproLabCustomerModel.current_customer_groups = new ArrayList<>();
+            if(staticDataBaseObject == null){
+                staticDataBaseObject = JeproLabFactory.getDataBaseConnector();
+            }
+            String query = "SELECT " + staticDataBaseObject.quoteName("group_id") + " FROM " + staticDataBaseObject.quoteName("#__jeprolab_customer_group");
+            query += " WHERE " + staticDataBaseObject.quoteName("customer_id") + " = " + context.customer.customer_id;
+
+            staticDataBaseObject.setQuery(query);
+            ResultSet customerGroupSet = staticDataBaseObject.loadObjectList();
+
+            if(customerGroupSet != null){
+                try{
+                    while(customerGroupSet.next()){
+                        JeproLabCustomerModel.current_customer_groups.add(customerGroupSet.getInt("group_id"));
+                    }
+                }catch(SQLException ignored){
+                    ignored.printStackTrace();
+                }finally {
+                    try {
+                        JeproLabDataBaseConnector.getInstance().closeConnexion();
+                    }catch(Exception ignored){
+                        ignored.printStackTrace();
+                    }
+                }
+            }
+        }
+        return JeproLabCustomerModel.current_customer_groups;
     }
 }
