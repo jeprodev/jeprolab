@@ -2,6 +2,7 @@ package com.jeprolab.controllers;
 
 import com.jeprolab.JeproLab;
 import com.jeprolab.assets.extend.controls.JeproFormPanel;
+import com.jeprolab.assets.tools.JeproLabContext;
 import com.jeprolab.models.JeproLabCountryModel;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleIntegerProperty;
@@ -18,6 +19,7 @@ import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
 import javafx.util.Callback;
 
+import java.io.IOException;
 import java.net.URL;
 import java.util.List;
 import java.util.ResourceBundle;
@@ -29,6 +31,7 @@ import java.util.stream.Collectors;
  */
 public class JeproLabCountryZoneController extends JeproLabController{
     private CheckBox checkAll;
+    private Button addZoneButton, cancelButton;
     private ObservableList<JeproLabZoneRecord> zoneList;
 
 
@@ -80,18 +83,50 @@ public class JeproLabCountryZoneController extends JeproLabController{
         }
         List<JeproLabCountryModel.JeproLabZoneModel> zones = JeproLabCountryModel.JeproLabZoneModel.getZones();
         if(zones != null){
+            jeproLabZoneTableView.getItems().clear();
+            zoneList.clear();
             zoneList.addAll(zones.stream().map(JeproLabZoneRecord::new).collect(Collectors.toList()));
+            jeproLabZoneTableView.setItems(zoneList);
         }
-        jeproLabZoneTableView.setItems(zoneList);
+
+        updateToolBar();
+    }
+
+    @Override
+    public void updateToolBar(){
+        HBox commandWrapper = JeproLab.getInstance().getApplicationToolBarCommandWrapper();
+        commandWrapper.getChildren().clear();
+        commandWrapper.setSpacing(4);
+        addZoneButton = new Button(bundle.getString("JEPROLAB_ADD_NEW_LABEL"), new ImageView(new Image(JeproLab.class.getResourceAsStream("resources/images/add.png"))));
+        cancelButton = new Button(bundle.getString("JEPROLAB_CANCEL_LABEL"), new ImageView(new Image(JeproLab.class.getResourceAsStream("resources/images/add.png"))));
+        commandWrapper.getChildren().addAll(addZoneButton, cancelButton);
+        addEventListener();
+    }
+
+    private void addEventListener(){
+        addZoneButton.setOnAction(event ->{
+            try {
+                JeproLab.getInstance().goToForm(JeproLab.getInstance().getApplicationForms().addZoneForm);
+                JeproLabContext.getContext().controller.initializeContent();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        });
+
+        cancelButton.setOnAction(event -> {
+            try {
+                JeproLab.getInstance().goToForm(JeproLab.getInstance().getApplicationForms().dashBoardForm);
+                JeproLabContext.getContext().controller.initializeContent();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        });
     }
 
     public static class JeproLabZoneRecord{
         private SimpleIntegerProperty zoneId;
         private SimpleStringProperty zoneName;
         private SimpleBooleanProperty allowDelivery;
-        //private JeproLabActionCell<JeproLabZoneRecord> actionCommandWrapper;
-
-
 
         public JeproLabZoneRecord(JeproLabCountryModel.JeproLabZoneModel zone){
             zoneId = new SimpleIntegerProperty(zone.zone_id);
@@ -112,7 +147,7 @@ public class JeproLabCountryZoneController extends JeproLabController{
         }
     }
 
-    protected static class JeproLabActionCell<JeproLabZoneRecord> extends TableCell<JeproLabZoneRecord, HBox>{
+    protected static class JeproLabActionCell extends TableCell<JeproLabZoneRecord, HBox>{
         protected HBox commandContainer;
         public final double btnSize = 22;
         private Button editZone, deleteZone;
@@ -140,8 +175,18 @@ public class JeproLabCountryZoneController extends JeproLabController{
         @Override
         public void updateItem(HBox item, boolean empty){
             super.updateItem(item, empty);
-            ObservableList items = getTableView().getItems();
+            ObservableList<JeproLabZoneRecord> items = getTableView().getItems();
             if((items != null) && (getIndex() >= 0 && getIndex() < items.size())){
+                int itemId = items.get(getIndex()).getZoneId();
+                editZone.setOnAction( evt -> {
+                            JeproLab.request.setRequest("zone_id=" + itemId);
+                            try {
+                                JeproLab.getInstance().goToForm(JeproLab.getInstance().getApplicationForms().addZoneForm);
+                                JeproLabContext.getContext().controller.initializeContent();
+                            } catch (IOException ignored) {
+                                ignored.printStackTrace();
+                            }
+                        });
                 commandContainer.getChildren().addAll(editZone, deleteZone);
                 this.getTableRow().setPrefHeight(JeproLabController.rowHeight);
                 setGraphic(commandContainer);

@@ -100,11 +100,11 @@ public class JeproLabCategoryController extends JeproLabController{
             this.category = new JeproLabCategoryModel(context.category_id);
         } else {
             if (JeproLabLaboratoryModel.isFeaturePublished() && JeproLabLaboratoryModel.getLabContext() == JeproLabLaboratoryModel.LAB_CONTEXT) {
-                category = new JeproLabCategoryModel(context.laboratory.category_id);
+                this.category = new JeproLabCategoryModel(context.laboratory.category_id);
             } else if (JeproLabCategoryModel.getCategoriesWithoutParent().size() > 1 && JeproLabSettingModel.getIntValue("multi_lab_feature_active") > 1 && JeproLabLaboratoryModel.getLaboratories(true, 0, true).size() > 1) {
-                category = JeproLabCategoryModel.getTopCategory();
+                this.category = JeproLabCategoryModel.getTopCategory();
             } else {
-                category = new JeproLabCategoryModel(JeproLabSettingModel.getIntValue("root_category"));
+                this.category = new JeproLabCategoryModel(JeproLabSettingModel.getIntValue("root_category"));
             }
         }
 
@@ -162,6 +162,7 @@ public class JeproLabCategoryController extends JeproLabController{
             ObservableList<JeproLabCategoryRecord> categoryList = FXCollections.observableArrayList();
             categoryList.addAll(categories.stream().map(JeproLabCategoryRecord::new).collect(Collectors.toList()));
             categoryTableView.setItems(categoryList);
+            System.out.println(categoryList.size());
         }
     }
 

@@ -322,7 +322,7 @@ public class JeproLabCustomerController extends JeproLabController {
         private double btnSize = 18;
 
         public JeproLabActionCell(){
-            commandContainer = new HBox(3);
+            commandContainer = new HBox(10);
             editCustomer = new Button("", new ImageView(new Image(JeproLab.class.getResourceAsStream("resources/images/edit.png"))));
             editCustomer.setPrefSize(btnSize, btnSize);
             editCustomer.setMinSize(btnSize, btnSize);

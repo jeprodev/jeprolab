@@ -83,8 +83,8 @@ public class JeproLabCartModel extends JeproLabModel{
     public final static int BOTH_WITHOUT_SHIPPING = 4;
     public final static int ONLY_SHIPPING = 5;
     public final static int ONLY_WRAPPING = 6;
-    public final static int ONLY_PRODUCTS_WITHOUT_SHIPPING = 7;
-    public final static int ONLY_PHYSICAL_PRODUCTS_WITHOUT_SHIPPING = 8;
+    public final static int ONLY_ANALYZES_WITHOUT_SHIPPING = 7;
+    public final static int ONLY_PHYSICAL_ANALYZES_WITHOUT_SHIPPING = 8;
 
     public JeproLabCartModel(){
         this(0, 0);

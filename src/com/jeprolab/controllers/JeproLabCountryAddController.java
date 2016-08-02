@@ -94,11 +94,6 @@ public class JeproLabCountryAddController extends JeproLabController {
         isoCodeLabel.getStyleClass().add("input-label");
         countryNameLabel.setText(bundle.getString("JEPROLAB_COUNTRY_NAME_LABEL"));
         countryNameLabel.getStyleClass().add("input-label");
-        /*needZipCode, published, displayTaxLabel, needIdentificationNumber, containsStates;
-        isoCode, callPrefix, zipCodeFormat;
-        public TextArea addressLayoutFormat;
-        public ComboBox countryZone, defaultCurrency;
-        public MultiLangTextField countryName; */
 
 
         /**
@@ -127,6 +122,7 @@ public class JeproLabCountryAddController extends JeproLabController {
         List<JeproLabCountryModel.JeproLabZoneModel> zones = JeproLabCountryModel.JeproLabZoneModel.getZones(true);
         countryZone.setPrefWidth(120);
         countryZone.setPromptText(JeproLab.getBundle().getString("JEPROLAB_SELECT_LABEL"));
+        countryZone.getItems().clear();
         for(JeproLabCountryModel.JeproLabZoneModel zone : zones) {
             countryZone.getItems().add(zone.name);
             if(country.country_id > 0 && zone.zone_id == country.zone_id){
@@ -136,12 +132,36 @@ public class JeproLabCountryAddController extends JeproLabController {
 
         List<JeproLabCurrencyModel> currencies = JeproLabCurrencyModel.getCurrencies();
         defaultCurrency.setPrefWidth(120);
+        defaultCurrency.getItems().clear();
         defaultCurrency.setPromptText(JeproLab.getBundle().getString("JEPROLAB_SELECT_LABEL"));
         for(JeproLabCurrencyModel currency : currencies) {
             defaultCurrency.getItems().add(currency.name);
             if(country.country_id > 0 && currency.currency_id == country.currency_id){
                 defaultCurrency.setValue(currency.name);
             }
+        }
+
+        if(country.country_id > 0){
+            formTitleLabel.setText(bundle.getString("JEPROLAB_EDIT_COUNTRY_LABEL"));
+            countryName.setText(country.name);
+            callPrefix.setText(country.call_prefix);
+            zipCodeFormat.setText(country.zip_code_format);
+            isoCode.setText(country.iso_code);
+            published.setSelected(country.published);
+            //addressLayoutFormat.setText(country.);
+            needIdentificationNumber.setSelected(country.need_identification_number);
+            containsStates.setSelected(country.contains_states);
+            displayTaxLabel.setSelected(country.display_tax_label);
+        }else{
+            countryName.setText(null);
+            callPrefix.setText("");
+            zipCodeFormat.setText("");
+            isoCode.setText("");
+            published.setSelected(true);
+            //addressLayoutFormat.setText(country.);
+            needIdentificationNumber.setSelected(true);
+            containsStates.setSelected(true);
+            displayTaxLabel.setSelected(true);
         }
         updateToolBar();
     }
@@ -163,7 +183,22 @@ public class JeproLabCountryAddController extends JeproLabController {
     }
 
     private void addCommandListener(){
+        saveButton.setOnAction(evt -> {
+            country.name = countryName.getDataContent();
+            country.call_prefix = callPrefix.getText();
+            country.zip_code_format = zipCodeFormat.getText();
+            country.iso_code = isoCode.getText();
+            country.published = published.isSelected();
+            country.need_identification_number = needIdentificationNumber.isSelected();
+            country.contains_states = containsStates.isSelected();
+            country.display_tax_label = displayTaxLabel.isSelected();
 
+            if(country.country_id > 0) {
+                country.update();
+            }else{
+                country.save();
+            }
+        });
     }
 
     /**
@@ -176,23 +211,17 @@ public class JeproLabCountryAddController extends JeproLabController {
         if(context == null){
             context = JeproLabContext.getContext();
         }
-        int countryId = JeproLab.request.getPost().containsKey("country_id") ? Integer.parseInt(JeproLab.request.getPost().get("country_id")) : 0;
+        int countryId = JeproLab.request.getRequest().containsKey("country_id") ? Integer.parseInt(JeproLab.request.getRequest().get("country_id")) : 0;
         if (countryId > 0){
             if (this.country == null) {
                 this.country = new JeproLabCountryModel(countryId);
             }
-            //if (JeproshopTools::isLoadedObject($this->country, 'country_id'))
-            //return $this->country;
-            // throw exception
-            //JError::raiseError(500, 'The country cannot be loaded (or not found)');
-            //return false;
         } else if (option) {
             if (this.country == null)
                 this.country = new JeproLabCountryModel();
         } else {
             this.context.controller.has_errors = true;
             country = new JeproLabCountryModel();
-            //JError::raiseError('The country cannot be loaded (the identifier is missing or invalid)');
         }
     }
 }

@@ -302,7 +302,7 @@ public class JeproLabRequestAddController extends JeproLabController{
         jeproLabRequestSampleTab.setText(bundle.getString("JEPROLAB_SAMPLES_LABEL"));
 
         jeproLabSampleCheckBoxColumn.setGraphic(checkAll);
-        jeproLabSampleCheckBoxColumn.setPrefWidth(20);
+        jeproLabSampleCheckBoxColumn.setPrefWidth(30);
         Callback<TableColumn<JeproLabSampleRecord, Boolean>, TableCell<JeproLabSampleRecord, Boolean>> checkBoxCellFactory = param -> new JeproLabCheckBoxCell();
         jeproLabSampleCheckBoxColumn.setCellFactory(checkBoxCellFactory);
         jeproLabSampleReferenceColumn.setText(bundle.getString("JEPROLAB_REFERENCE_LABEL"));

@@ -30,7 +30,7 @@ public class JeproLabCountryModel extends JeproLabModel{
 
     public int currency_id = 0;
 
-    public char[] iso_code = new char[3];
+    public String iso_code = "";
 
     public Map<String, String> name;
 
@@ -115,7 +115,7 @@ public class JeproLabCountryModel extends JeproLabModel{
                         this.country_id =  countryData.getInt("country_id");
                         this.zone_id = countryData.getInt("zone_id");
                         this.currency_id = countryData.getInt("currency_id");
-                        this.iso_code = countryData.getString("iso_code").toCharArray();
+                        this.iso_code = countryData.getString("iso_code");
                         this.call_prefix = countryData.getString("call_prefix");
                         this.published = countryData.getInt("published") > 0;
                         this.contains_states = countryData.getInt("contains_states") > 0;
@@ -252,13 +252,13 @@ public class JeproLabCountryModel extends JeproLabModel{
                     country.country_id = countriesResultSet.getInt("country_id");
                     country.zone_id = countriesResultSet.getInt("zone_id");
                     country.name.put("lang_" + langId, countriesResultSet.getString("name"));
-                    //country.isoCode = countriesResultSet.getString("iso_code");
+                    country.iso_code = countriesResultSet.getString("iso_code");
                     country.call_prefix = countriesResultSet.getString("call_prefix");
                     country.published = countriesResultSet.getInt("published") > 0;
-                    //country.containsStates = countriesResultSet.getInt("contains_states") > 0;
-                    //country.needIdentificationNumber = countriesResultSet.getInt("need_identification_number") > 0;
-                    //country.needZipCode = countriesResultSet.getInt("need_zip_code") > 0;
-                    //country.displayTaxLabel = countriesResultSet.getInt("display_tax_label") > 0;
+                    //country.contains_states = countriesResultSet.getInt("contains_states") > 0;
+                    //country.need_identification_number = countriesResultSet.getInt("need_identification_number") > 0;
+                    //country.need_zip_code = countriesResultSet.getInt("need_zip_code") > 0;
+                    //country.display_tax_label = countriesResultSet.getInt("display_tax_label") > 0;
                     //country.name = countriesResultSet.getString("name");
                     /*country = countriesResultSet.;
                     country = countriesResultSet.;*/
@@ -449,7 +449,7 @@ public class JeproLabCountryModel extends JeproLabModel{
      * @param countryId Country ID
      * @return string Country iso
      */
-    public static String getIsoByCountryId(int countryId){
+    public static String getIsoCodeByCountryId(int countryId){
         if (!JeproLabCountryModel.cache_iso_by_id.containsKey(countryId)) {
             String query = "SELECT " + staticDataBaseObject.quoteName("iso_code") + " FROM " + staticDataBaseObject.quoteName("#__jeprolab_country");
             query += " WHERE " + staticDataBaseObject.quoteName("country_id") + " = " + countryId ;
@@ -625,6 +625,73 @@ public class JeproLabCountryModel extends JeproLabModel{
         }
     }
 
+    public boolean update(){
+        if(dataBaseObject == null){
+            dataBaseObject = JeproLabFactory.getDataBaseConnector();
+        }
+
+        String query = "UPDATE " + dataBaseObject.quoteName("#__jeprolab_country") + " SET " + dataBaseObject.quoteName("zone_id");
+        query += " = " + this.zone_id + ", " + dataBaseObject.quoteName("currency_id") + " = " + this.currency_id + ", ";
+        query += dataBaseObject.quoteName("iso_code") + " = " + dataBaseObject.quote(this.iso_code) + ", " + dataBaseObject.quoteName("call_prefix");
+        query += " = " + dataBaseObject.quote(this.call_prefix) + ", " + dataBaseObject.quoteName("published") + " = " + (this.published ? 1 : 0);
+        query += ", " + dataBaseObject.quoteName("contains_states") + " = " + (this.contains_states ? 1 : 0) + ", ";
+        query += dataBaseObject.quoteName("need_identification_number") + " = " + (this.need_identification_number ? 1 : 0) + ", ";
+        query += dataBaseObject.quoteName("need_zip_code") + " = " + (this.need_zip_code ? 1 : 0) + ", " + dataBaseObject.quoteName("zip_code_format");
+        query += " = " + dataBaseObject.quote(this.zip_code_format) + ", " + dataBaseObject.quoteName("display_tax_label") + " = ";
+        query += (this.display_tax_label ? 1 : 0) + " WHERE " + dataBaseObject.quoteName("country_id") + " = " + this.country_id;
+
+        dataBaseObject.setQuery(query);
+        boolean result = dataBaseObject.query(false);
+
+        /** saving country name for different language **/
+        String countryName;
+        for(Object o : JeproLabLanguageModel.getLanguages().entrySet()){
+            JeproLabLanguageModel lang = (JeproLabLanguageModel)(((Map.Entry) o).getValue());
+            countryName = this.name.containsKey("lang_" + lang.language_id) ? this.name.get("lang_" + lang.language_id) : "";
+            query = "UPDATE " + dataBaseObject.quoteName("#__jeprolab_country_lang") + " SET " + dataBaseObject.quoteName("name");
+            query += " = " + dataBaseObject.quote(countryName) + " WHERE " + dataBaseObject.quoteName("country_id") + " = ";
+            query += this.country_id + " AND " + dataBaseObject.quoteName("lang_id") + " = " + lang.language_id;
+
+            dataBaseObject.setQuery(query);
+            result &= dataBaseObject.query(false);
+        }
+        return result;
+    }
+
+    public boolean save(){
+        if(dataBaseObject == null){
+            dataBaseObject = JeproLabFactory.getDataBaseConnector();
+        }
+
+        String query = "INSERT INTO " + dataBaseObject.quoteName("#__jeprolab_country") + " (" + dataBaseObject.quoteName("zone_id") ;
+        query += ", " +dataBaseObject.quoteName("currency_id") + ", " + dataBaseObject.quoteName("iso_code") + ", " ;
+        query += dataBaseObject.quoteName("call_prefix") + ", " + dataBaseObject.quoteName("published") + ", ";
+        query += dataBaseObject.quoteName("contains_states") + ", " + dataBaseObject.quoteName("need_identification_number") + ", ";
+        query += dataBaseObject.quoteName("need_zip_code") + ", " + dataBaseObject.quoteName("zip_code_format") + ", ";
+        query += dataBaseObject.quoteName("display_tax_label") + ") VALUES (" + this.zone_id + ", " + this.currency_id + ", ";
+        query +=  ", " + dataBaseObject.quote(this.iso_code) + ", " + dataBaseObject.quote(this.call_prefix) + ", ";
+        query += (this.published ? 1 : 0) + ", " +  " = " + (this.contains_states ? 1 : 0) + ", " + (this.need_identification_number ? 1 : 0);
+        query += ", " + (this.need_zip_code ? 1 : 0) + ", " + dataBaseObject.quote(this.zip_code_format) + ", " + (this.display_tax_label ? 1 : 0) + ") ";
+
+        dataBaseObject.setQuery(query);
+        boolean result = dataBaseObject.query(true);
+        this.country_id = dataBaseObject.getGeneratedKey();
+
+        /** saving country name for different language **/
+        String countryName;
+        for(Object o : JeproLabLanguageModel.getLanguages().entrySet()){
+            JeproLabLanguageModel lang = (JeproLabLanguageModel)(((Map.Entry) o).getValue());
+            countryName = this.name.containsKey("lang_" + lang.language_id) ? this.name.get("lang_" + lang.language_id) : "";
+            query = "INSERT INTO " + dataBaseObject.quoteName("#__jeprolab_country_lang") + " (" + dataBaseObject.quoteName("country_id");
+            query += ", " + dataBaseObject.quoteName("lang_id") + dataBaseObject.quoteName("name") + ") VALUES (" + this.country_id;
+            query += ", " + lang.language_id + ", " + dataBaseObject.quote(countryName) + ")";
+
+            dataBaseObject.setQuery(query);
+            result &= dataBaseObject.query(false);
+        }
+        return result;
+    }
+
     public static class JeproLabStateModel extends JeproLabModel{
 
     }
@@ -650,7 +717,7 @@ public class JeproLabCountryModel extends JeproLabModel{
                     if(dataBaseObject == null) {
                         dataBaseObject = JeproLabFactory.getDataBaseConnector();
                     }
-                    String query = "SELECT * FROM " + dataBaseObject.quoteName("#__jeproshop_zone") + " AS zone WHERE ";
+                    String query = "SELECT zone.* FROM " + dataBaseObject.quoteName("#__jeprolab_zone") + " AS zone WHERE ";
                     query += dataBaseObject.quoteName("zone_id") + " = " + zoneId;
                     dataBaseObject.setQuery(query);
                     ResultSet zoneData = dataBaseObject.loadObjectList();
@@ -703,7 +770,7 @@ public class JeproLabCountryModel extends JeproLabModel{
                     staticDataBaseObject = JeproLabFactory.getDataBaseConnector();
                 }
                 String query = "SELECT * FROM " + staticDataBaseObject.quoteName("#__jeprolab_zone") + (allow_delivery ? " WHERE allow_delivery = 1 " : "");
-                query += " ORDER BY " + staticDataBaseObject.quoteName("name") + " ASC ";
+                query += " ORDER BY " + staticDataBaseObject.quoteName("zone_id") + " ASC ";
 
                 staticDataBaseObject.setQuery(query);
                 ResultSet result = staticDataBaseObject.loadObjectList();
@@ -728,7 +795,7 @@ public class JeproLabCountryModel extends JeproLabModel{
                 }
                 JeproLabCache.getInstance().store(cacheKey, zones);
             }
-            return (List)JeproLabCache.getInstance().retrieve(cacheKey);
+            return (List<JeproLabZoneModel>)JeproLabCache.getInstance().retrieve(cacheKey);
         }
 
         /**
@@ -806,6 +873,34 @@ public class JeproLabCountryModel extends JeproLabModel{
             }
 
             return false;
+        }
+
+        public boolean save(){
+            if(dataBaseObject == null){
+                dataBaseObject = JeproLabFactory.getDataBaseConnector();
+            }
+
+            String query = "INSERT INTO " + dataBaseObject.quoteName("#__jeprolab_zone") + " (" + dataBaseObject.quoteName("name") + ", ";
+            query += dataBaseObject.quoteName("allow_delivery") + ") VALUES (" + dataBaseObject.quote(this.name) + ", " ;
+            query += (this.allow_delivery ? 1 : 0) + ")";
+
+            dataBaseObject.setQuery(query);
+            boolean result = dataBaseObject.query(true);
+            this.zone_id = dataBaseObject.getGeneratedKey();
+            return result;
+        }
+
+        public boolean update(){
+            if(dataBaseObject == null){
+                dataBaseObject = JeproLabFactory.getDataBaseConnector();
+            }
+
+            String query = "UPDATE " + dataBaseObject.quoteName("#__jeprolab_zone") + " SET " + dataBaseObject.quoteName("name");
+            query += " = " + dataBaseObject.quote(this.name) + ", " + dataBaseObject.quoteName("allow_delivery") + " = ";
+            query += (this.allow_delivery ? 1 : 0) + " WHERE " + dataBaseObject.quoteName("zone_id") + " = " + this.zone_id;
+
+            dataBaseObject.setQuery(query);
+            return dataBaseObject.query(false);
         }
     }
 

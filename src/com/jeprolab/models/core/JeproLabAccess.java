@@ -5,8 +5,11 @@ import com.jeprolab.assets.tools.db.JeproLabDataBaseConnector;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
+ *
  * Created by jeprodev on 06/07/2016.
  */
 public class JeproLabAccess {
@@ -17,7 +20,7 @@ public class JeproLabAccess {
             //assetName = assetName.replaceAll("[\s\-]+#]", ".");
         }
 
-        if(assetName.isEmpty()){
+        if(assetName == null || assetName.isEmpty()){
             JeproLabDataBaseConnector connector = JeproLabFactory.getDataBaseConnector();
             //String query =
         }
@@ -46,6 +49,12 @@ public class JeproLabAccess {
 
             }catch (SQLException ignored){
                 ignored.printStackTrace();
+            }finally {
+                try{
+                    JeproLabDataBaseConnector.getInstance().closeConnexion();
+                }catch(Exception ignored){
+                    ignored.printStackTrace();
+                }
             }
         }
 
@@ -73,8 +82,10 @@ public class JeproLabAccess {
         return JeproLabAccess.root_id;
     }
 
-    public static void getAssetRules(boolean recursive){
+    public static void getAssetRules(String asset, boolean recursive){
         JeproLabDataBaseConnector dataBaseConnector = JeproLabFactory.getDataBaseConnector();
+        Pattern pattern = Pattern.compile("([0-9]*)");
+        Matcher matcher = pattern.matcher(asset);
 
         String query = "SELECT " + (recursive ? "asset_rec." : "asset.") + dataBaseConnector.quoteName("rules") + " FROM ";
         query += dataBaseConnector.quoteName("#__assets") + " AS asset ";
@@ -83,5 +94,41 @@ public class JeproLabAccess {
             query += " <= asset." + dataBaseConnector.quoteName("lft") + " AND asset_rec." + dataBaseConnector.quoteName("rgt") + " >= asset.";
             query += dataBaseConnector.quoteName("rgt");
         }
+
+        if(matcher.matches()) {
+            query += " WHERE asset." + dataBaseConnector.quoteName("id") + " = " + Integer.parseInt(asset);
+        }else{
+            query += " WHERE asset." +  dataBaseConnector.quoteName("name") + " = " + dataBaseConnector.quote(asset);
+        }
+
+        if(recursive) {
+            query += " GROUP BY asset_rec." + dataBaseConnector.quoteName("id") + ", asset_rec." + dataBaseConnector.quoteName("rules");
+            query += ", asset_rec." + dataBaseConnector.quoteName("left");
+        }else{
+            query += " GROUP BY asset_rec." + dataBaseConnector.quoteName("id") + ", asset_rec." + dataBaseConnector.quoteName("rules");
+            query += ", asset_rec." + dataBaseConnector.quoteName("left");
+        }
+
+        dataBaseConnector.setQuery(query);
+        ResultSet assetRuleSet = dataBaseConnector.loadObjectList();
+
+        if(assetRuleSet == null){
+            JeproLabAccess access = new JeproLabAccess();
+            query = "SELECT " + dataBaseConnector.quoteName("rules") + " FROM " + dataBaseConnector.quoteName("#__assets") ;
+            query += " WHERE " + dataBaseConnector.quoteName("id") + " = " + access.getRootId();
+
+            dataBaseConnector.quoteName(query);
+            dataBaseConnector.loadObjectList();
+        }
+
+    }
+
+    /*public static int getRootId(){
+
+    }*/
+
+
+    public static class JeproLabAccessRules{
+
     }
 }

@@ -1,5 +1,6 @@
 package com.jeprolab.assets.extend.controls;
 
+import com.jeprolab.JeproLab;
 import com.jeprolab.models.JeproLabLanguageModel;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Control;
@@ -10,6 +11,7 @@ import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
 
 import java.lang.reflect.Array;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
@@ -72,10 +74,14 @@ public class JeproMultiLang<T extends TextInputControl> extends Pane {
         }
         for (Object o : languages.entrySet()) {
             Map.Entry lang = (Map.Entry) o;
-            JeproLabLanguageModel language = (JeproLabLanguageModel) lang.getValue();
+            JeproLabLanguageModel language = (JeproLabLanguageModel)lang.getValue();
             for (T field : fields) {
                 if (field.getId().equals("language_" + language.language_id) && value != null) {
                     field.setText(value.containsKey("lang_" + language.language_id) ? value.get("lang_" + language.language_id) : "");
+                }else{
+                    if(value == null){
+                        field.setText("");
+                    }
                 }
             }
         }
@@ -94,6 +100,23 @@ public class JeproMultiLang<T extends TextInputControl> extends Pane {
             }
         }
         return "";
+    }
+
+    public Map<String, String> getDataContent(){
+        Map<String, String> content = new HashMap<>();
+        if(languages == null){
+            languages = JeproLabLanguageModel.getLanguages();
+        }
+        for(Object o : languages.entrySet()){
+            Map.Entry lang = (Map.Entry) o;
+            JeproLabLanguageModel language = (JeproLabLanguageModel)lang.getValue();
+            for(T field : fields){
+                if(field.getId().equals("language_" + language.language_id)){
+                    content.put("lang_" + language.language_id, field.getText());
+                }
+            }
+        }
+        return content;
     }
 
 }
