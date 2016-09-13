@@ -83,6 +83,11 @@ public class JeproLabCustomerModel extends JeproLabModel{
     protected static Map<String, Boolean> _customerHasAddress = new HashMap<>();
     protected static Map<Integer, List<Integer>> _customer_groups = new HashMap<>();
 
+    /**
+     * @var array Holds current customer's groups.
+     */
+    protected static List<Integer> current_customer_groups = new ArrayList<>();
+
     public JeproLabCustomerModel(){
         this(0);
     }
@@ -754,5 +759,50 @@ public class JeproLabCustomerModel extends JeproLabModel{
             }
         }
         return  "";
+    }
+
+    /**
+     * Sets and returns customer groups that the current customer(visitor) belongs to.
+     *
+     * @return array
+     */
+    public static List<Integer> getCurrentCustomerGroups(){
+        if (!JeproLabGroupModel.isFeaturePublished()) {
+            return new ArrayList<>();
+        }
+
+        JeproLabContext context = JeproLabContext.getContext();
+        if (context.customer == null || context.customer.customer_id <= 0) {
+            return new ArrayList<>();
+        }
+
+        if (JeproLabCustomerModel.current_customer_groups == null && JeproLabCustomerModel.current_customer_groups.isEmpty()) {
+            JeproLabCustomerModel.current_customer_groups = new ArrayList<>();
+            if(staticDataBaseObject == null){
+                staticDataBaseObject = JeproLabFactory.getDataBaseConnector();
+            }
+            String query = "SELECT " + staticDataBaseObject.quoteName("group_id") + " FROM " + staticDataBaseObject.quoteName("#__jeprolab_customer_group");
+            query += " WHERE " + staticDataBaseObject.quoteName("customer_id") + " = " + context.customer.customer_id;
+
+            staticDataBaseObject.setQuery(query);
+            ResultSet customerGroupSet = staticDataBaseObject.loadObjectList();
+
+            if(customerGroupSet != null){
+                try{
+                    while(customerGroupSet.next()){
+                        JeproLabCustomerModel.current_customer_groups.add(customerGroupSet.getInt("group_id"));
+                    }
+                }catch(SQLException ignored){
+                    ignored.printStackTrace();
+                }finally {
+                    try {
+                        JeproLabDataBaseConnector.getInstance().closeConnexion();
+                    }catch(Exception ignored){
+                        ignored.printStackTrace();
+                    }
+                }
+            }
+        }
+        return JeproLabCustomerModel.current_customer_groups;
     }
 }

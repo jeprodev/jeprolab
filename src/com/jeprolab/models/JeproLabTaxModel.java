@@ -1,5 +1,6 @@
 package com.jeprolab.models;
 
+import com.jeprolab.JeproLab;
 import com.jeprolab.assets.tools.JeproLabCache;
 import com.jeprolab.assets.tools.JeproLabContext;
 import com.jeprolab.assets.tools.db.JeproLabDataBaseConnector;
@@ -528,7 +529,7 @@ public class JeproLabTaxModel extends JeproLabModel{
                     taxRulesGroupModel = new JeproLabTaxRulesGroupModel();
                     taxRulesGroupModel.tax_rules_group_id = taxRulesGroups.getInt("tax_rules_group_id");
                     taxRulesGroupModel.published = taxRulesGroups.getInt("published") > 0;
-                    //taxRulesGroupModel. = taxRulesGroups.get("");
+                    taxRulesGroupModel.name = taxRulesGroups.getString("name");
                     taxRulesList.add(taxRulesGroupModel);
                 }
             }catch (SQLException ignored){
@@ -578,6 +579,34 @@ public class JeproLabTaxModel extends JeproLabModel{
             return taxRates;
         }
 
+        public boolean save(){
+            if(dataBaseObject == null){
+                dataBaseObject = JeproLabFactory.getDataBaseConnector();
+            }
+
+            String query = "INSERT INTO " + dataBaseObject.quoteName("#__jeprolab_tax_rules_group") + " (" + dataBaseObject.quoteName("name");
+            query += ", " + dataBaseObject.quoteName("published") + ") VALUES (" + dataBaseObject.quote(this.name) + ", ";
+            query += (this.published ? 1 : 0) + ") ";
+
+            dataBaseObject.setQuery(query);
+            boolean result = dataBaseObject.query(true);
+            this.tax_rules_group_id = dataBaseObject.getGeneratedKey();
+            return result;
+        }
+
+        public boolean update(){
+            if(dataBaseObject == null){
+                dataBaseObject = JeproLabFactory.getDataBaseConnector();
+            }
+
+            String query = "UPDATE " + dataBaseObject.quoteName("#__jeprolab_tax_rules_group") + " SET " + dataBaseObject.quoteName("name");
+            query += " = " + dataBaseObject.quote(this.name) + ", " + dataBaseObject.quoteName("published") + " = " + (this.published ? 1 : 0);
+            query += " WHERE " + dataBaseObject.quoteName("tax_rules_group_id") + " = " + this.tax_rules_group_id;
+
+            dataBaseObject.setQuery(query);
+            return dataBaseObject.query(false);
+        }
+
     }
 
 
@@ -608,15 +637,15 @@ public class JeproLabTaxModel extends JeproLabModel{
             this(new ArrayList<>());
         }
 
-        public JeproLabTaxCalculator(List taxes){
+        public JeproLabTaxCalculator(List<JeproLabTaxModel> taxes){
             this(taxes, JeproLabTaxCalculator.COMBINE_METHOD);
         }
 
         /**
-         * @param taxes
+         * @param taxes list of taxes
          * @param computationMethod (COMBINE_METHOD | ONE_AFTER_ANOTHER_METHOD)
          */
-        public JeproLabTaxCalculator(List taxes, int computationMethod){
+        public JeproLabTaxCalculator(List<JeproLabTaxModel> taxes, int computationMethod){
             this.taxes = taxes;
             this.computation_method = computationMethod;
         }

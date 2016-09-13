@@ -1,6 +1,7 @@
 package com.jeprolab.models;
 
 
+import com.jeprolab.JeproLab;
 import com.jeprolab.assets.tools.JeproLabCache;
 import com.jeprolab.assets.tools.JeproLabContext;
 import com.jeprolab.assets.tools.db.JeproLabDataBaseConnector;
@@ -29,7 +30,7 @@ public class JeproLabCurrencyModel extends  JeproLabModel{
     public String iso_code;
 
     /** @var string Iso code numeric */
-    public int iso_code_num;
+    public String iso_code_num;
 
     /** @var string Symbol for short display */
     public String sign;
@@ -87,16 +88,18 @@ public class JeproLabCurrencyModel extends  JeproLabModel{
                     try{
                         if(resultSet.next()){
                             this.currency_id = resultSet.getInt("currency_id");
-                            this.iso_code_num = resultSet.getInt("iso_code_num");
+                            this.iso_code_num = resultSet.getString("iso_code_num");
                             this.iso_code = resultSet.getString("iso_code");
                             this.sign = resultSet.getString("sign");
                             this.blank = resultSet.getInt("blank") > 0;
                             this.format = resultSet.getInt("format");
-                            //this = resultSet.get("");
+                            this.name = resultSet.getString("name");
                             this.decimals = resultSet.getInt("decimals");
                             this.conversion_rate = resultSet.getFloat("conversion_rate");
                             this.deleted = resultSet.getInt("deleted") > 0;
                             this.published = resultSet.getInt("published") > 0;
+
+                            JeproLabCache.getInstance().store(cacheKey, this);
                         }
                     }catch(SQLException ignored){
                         ignored.printStackTrace();
@@ -108,6 +111,19 @@ public class JeproLabCurrencyModel extends  JeproLabModel{
                         }
                     }
                 }
+            }else{
+                JeproLabCurrencyModel currency = (JeproLabCurrencyModel)JeproLabCache.getInstance().retrieve(cacheKey);
+                this.currency_id = currency.currency_id;
+                this.iso_code_num = currency.iso_code_num;
+                this.iso_code = currency.iso_code;
+                this.sign = currency.sign;
+                this.blank = currency.blank;
+                this.format = currency.format;
+                this.name = currency.name;
+                this.decimals = currency.decimals;
+                this.conversion_rate = currency.conversion_rate;
+                this.deleted = currency.deleted;
+                this.published = currency.published;
             }
         }
         this.prefix =  this.format % 2 != 0 ? this.sign + " " : "";
@@ -217,7 +233,7 @@ public class JeproLabCurrencyModel extends  JeproLabModel{
         query += JeproLabLaboratoryModel.addSqlAssociation("currency") + " WHERE " + staticDataBaseObject.quoteName("deleted");
         query += " = 0 " + (published ? " AND currency." + staticDataBaseObject.quoteName("published") + " = 1" : "");
         query += (groupBy ? " GROUP BY currency." + staticDataBaseObject.quoteName("currency_id") : "") + " ORDER BY ";
-        query += staticDataBaseObject.quoteName("name" ) + " ASC ";
+        query += staticDataBaseObject.quoteName("name") + " ASC ";
 
         staticDataBaseObject.setQuery(query);
         ResultSet currencySet = staticDataBaseObject.loadObjectList();
@@ -234,7 +250,7 @@ public class JeproLabCurrencyModel extends  JeproLabModel{
                     currency.currency_id = currencyId;
                     currency.name = currencySet.getString("name");
                     currency.iso_code = currencySet.getString("iso_code");
-                    currency.iso_code_num = currencySet.getInt("iso_code_num");
+                    currency.iso_code_num = currencySet.getString("iso_code_num");
                     currency.sign = currencySet.getString("sign");
                     currency.blank = currencySet.getInt("blank") > 0;
                     currency.format = currencySet.getInt("format");
@@ -281,7 +297,7 @@ public class JeproLabCurrencyModel extends  JeproLabModel{
                 currency.currency_id = currencySet.getInt("currency_id");
                 currency.name = currencySet.getString("name");
                 currency.iso_code = currencySet.getString("iso_code");
-                currency.iso_code_num = currencySet.getInt("iso_code_num");
+                currency.iso_code_num = currencySet.getString("iso_code_num");
                 currency.sign = currencySet.getString("sign");
                 currency.blank = currencySet.getInt("blank") > 0;
                 currency.format = currencySet.getInt("format");
@@ -349,5 +365,42 @@ public class JeproLabCurrencyModel extends  JeproLabModel{
 
     public static boolean isMultiCurrencyActivated(int labId){
         return (JeproLabCurrencyModel.countActiveCurrencies(labId) > 1);
+    }
+
+    public boolean save(){
+        if(dataBaseObject == null){
+            dataBaseObject = JeproLabFactory.getDataBaseConnector();
+        }
+
+        String query = "INSERT INTO " + dataBaseObject.quoteName("#__jeprolab_currency") + "(" + dataBaseObject.quoteName("name") + ", ";
+        query += dataBaseObject.quoteName("iso_code") + ", " + dataBaseObject.quoteName("iso_code_num") + ", " + dataBaseObject.quoteName("sign");
+        query += ", " + dataBaseObject.quoteName("blank") + ", " + dataBaseObject.quoteName("format") + ", " + dataBaseObject.quoteName("decimals") ;
+        query += ", " + dataBaseObject.quoteName("conversion_rate") + ", " + dataBaseObject.quoteName("deleted") + ", " + dataBaseObject.quoteName("published");
+        query += ") VALUES(" + dataBaseObject.quote(this.name) + ", " + dataBaseObject.quote(this.iso_code) + ", " + dataBaseObject.quote(this.iso_code_num);
+        query += ", " + dataBaseObject.quote(this.sign) + ", " + (this.blank ? 1 : 0) + ", " + this.format + ", " + this.decimals + ", " ;
+        query += this.conversion_rate + ", " + (this.deleted ? 1 : 0) + ", " + (this.published ? 1 : 0) + ")";
+
+        dataBaseObject.setQuery(query);
+        boolean result = dataBaseObject.query(true);
+        this.currency_id = dataBaseObject.getGeneratedKey();
+        return  result;
+    }
+
+    public boolean update(){
+        if(dataBaseObject == null){
+            dataBaseObject = JeproLabFactory.getDataBaseConnector();
+        }
+
+        String query = "UPDATE " + dataBaseObject.quoteName("#__jeprolab_currency") + " SET " + dataBaseObject.quoteName("name") + " = ";
+        query += dataBaseObject.quote(this.name) + ", " + dataBaseObject.quoteName("iso_code") + " = " + dataBaseObject.quote(this.iso_code);
+        query += ", " + dataBaseObject.quoteName("iso_code_num") + " = " +  dataBaseObject.quote(this.iso_code_num) + ", " + dataBaseObject.quoteName("sign");
+        query += " = " + dataBaseObject.quote(this.sign) + ", " + dataBaseObject.quoteName("blank") + " = " + (this.blank ? 1 : 0) + ", ";
+        query += dataBaseObject.quoteName("format") + " = " + this.format + ", " + dataBaseObject.quoteName("decimals") + " = " + this.decimals;
+        query += ", " + dataBaseObject.quoteName("conversion_rate") + " = " + this.conversion_rate + ", " + dataBaseObject.quoteName("deleted") ;
+        query += " = " + (this.deleted ? 1 : 0) + ", " + dataBaseObject.quoteName("published")+ " = " + (this.published ? 1 : 0);
+        query += " WHERE " + dataBaseObject.quoteName("currency_id") + " = "  + this.currency_id;
+
+        dataBaseObject.setQuery(query);
+        return dataBaseObject.query(false);
     }
 }

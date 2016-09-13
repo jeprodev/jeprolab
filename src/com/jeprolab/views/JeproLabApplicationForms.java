@@ -20,7 +20,7 @@ public class JeproLabApplicationForms {
     public JeproLabApplicationForm stateForm, addStateForm, countryForm, addCountryForm, addZoneForm, zonesForm;
     public JeproLabApplicationForm addRequestForm, sampleListForm, sampleForm, requestStatusForm;
     public JeproLabApplicationForm requestBillsForm, requestAddBillForm, requestComplainsForm, requestAddComplainForm;
-    public JeproLabApplicationForm requestAddRefundForm;
+    public JeproLabApplicationForm requestAddRefundForm, addTaxRuleForm, taxRulesForm;
 
     public JeproLabApplicationForms(){
         loginForm = new JeproLabApplicationForm("login.fxml");
@@ -65,6 +65,8 @@ public class JeproLabApplicationForms {
         addTaxForm = new JeproLabApplicationForm("taxes/add.fxml");
         taxesForm = new JeproLabApplicationForm("taxes/list.fxml");
         taxGroupForm = new JeproLabApplicationForm("taxes/groups.fxml");
+        taxRulesForm = new JeproLabApplicationForm("taxes/rules.fxml");
+        addTaxRuleForm = new JeproLabApplicationForm("taxes/add_rule.fxml");
         //addTaxGroupForm = new JeproLabApplicationForm("taxes/add_group.fxml");
         currencyForm = new JeproLabApplicationForm("currency/list.fxml");
         addCurrencyForm = new JeproLabApplicationForm("currency/add.fxml");

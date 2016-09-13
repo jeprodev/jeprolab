@@ -4,7 +4,7 @@
 <?import com.jeprolab.assets.extend.controls.JeproFormPanelContainer?>
 <?import javafx.scene.layout.GridPane?>
 <?import javafx.scene.control.Label?>
-<?import com.jeprolab.assets.extend.controls.JeproMultiLang?>
+<?import com.jeprolab.assets.extend.controls.JeproMultiLangTextField?>
 <JeproFormPanel xmlns:fx="http://javafx.com/fxml" fx:id="jeproLabRequestStatusFormWrapper" fx:controller="com.jeprolab.controllers.JeproLabRequestStatusController" >
     <HBox>
         <JeproFormPanel fx:id="jeproLabRequestStatusAddFormWrapper" >
@@ -12,7 +12,7 @@
             <JeproFormPanelContainer fx:id="jeproLabRequestStatusAddFormTitleContainer" >
                 <GridPane fx:id="jeproLabRequestStatusAddFormLayout" >
                     <Label fx:id="jeproLabRequestStatusNameLabel" styleClass="input-label" />
-                    <JeproMultiLang fx:id="jeproLabRequestStatusName" />
+                    <JeproMultiLangTextField fx:id="jeproLabRequestStatusName" />
                 </GridPane>
             </JeproFormPanelContainer>
         </JeproFormPanel>

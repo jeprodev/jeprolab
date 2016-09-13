@@ -7,9 +7,9 @@ import com.jeprolab.assets.tools.JeproLabContext;
 import com.jeprolab.assets.tools.JeproLabTools;
 import com.jeprolab.models.*;
 import com.jeprolab.models.core.JeproLabRequest;
+import javafx.beans.property.SimpleBooleanProperty;
+import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleStringProperty;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -18,11 +18,14 @@ import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.geometry.VPos;
 import javafx.scene.control.*;
+import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.*;
+import javafx.util.Callback;
 
+import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
@@ -56,8 +59,8 @@ public class JeproLabAnalyzeAddController extends JeproLabController {
 
     public GridPane jeproLabAnalyzeInformationLayout, jeproLabAnalyzePriceLayout, jeproLabSpecificPricePaneLayout, jeproLabAnalyzeOptionLayout;
     public GridPane jeproLabAnalyzeMethodSelectorLayout;
-    public Pane jeproLabAnalyzeSpecificPriceModification, jeproLabAnalyzePricePane, jeproLabSpecificPricePaneWrapper, jeproLabSpecificPricePaneTitle;
-    public Pane jeproLabSpecificPricePaneContent;
+    public Pane jeproLabSpecificPricePaneContent, jeproLabAnalyzePricePane, jeproLabSpecificPricePaneWrapper, jeproLabSpecificPricePaneTitle;
+    public ScrollPane jeproLabAnalyzeSpecificPriceModification;
     public TabPane jeproLabAnalyzeTabPane;
     public Tab jeproLabAnalyzeInformationTabForm, jeproLabAnalyzePriceTabForm, jeproLabAnalyzeAttachedFileTabForm;
     public Tab jeproLabAnalyzeSeoTabForm, jeproLabAnalyzeAssociationTabForm, jeproLabAnalyzeImageTabForm, jeproLabAnalyzeShippingTabForm;
@@ -75,14 +78,14 @@ public class JeproLabAnalyzeAddController extends JeproLabController {
     public Label jeproLabAnalyzeSpecificPriceCombinationLabel, jeproLabAnalyzeApplyDiscountOfLabel, jeproLabAnalyzeSpecificPriceFromLabel;
     public Label jeproLabAnalyzeFinalPriceWithoutTax, jeproLabAnalyzeSpecificPriceToLabel, jeproLabAnalyzeStartingAtLabel, jeproLabAnalyzeSpecificPriceLabel;
     public Label jeproLabAnalyzeDelayLabel, jeproLabDaysLabel, jeproLabAnalyzeSpecificPricePriorityLabel, jeproLabAnalyzeMethodSelectorLabel;
-    public Label jeproLabAnalyzeDelayHoursLabel;
+    public Label jeproLabAnalyzeDelayHoursLabel, jeproLabAnalyzeApplyDiscountAfterTaxLabel;
     public TextField jeproLabAnalyzeReference, jeproLabAnalyzeEan13, jeproLabAnalyzeUpc, jeproLabAnalyzeStartingAt, jeproLabAnalyzeDelay;
     public TextField jeproLabAnalyzeDelayHours;
     public ComboBox<String> jeproLabAnalyzeRedirect, jeproLabAnalyzeVisibility, jeproLabAnalyzeApplyDiscountOf;
-    public JeproMultiLang<TextArea> jeproLabAnalyzeShortDescription, jeproLabAnalyzeDescription;
+    public JeproMultiLangTextArea jeproLabAnalyzeShortDescription, jeproLabAnalyzeDescription;
     public CheckBox jeproLabAnalyzeLeaveBasePrice, jeproLabAnalyzeOnSale, jeproLabAnalyzeShowPrice, jeproLabAnalyzeAvailableForOrder, jeproLabAnalyzeIsOnSale;
     public DatePicker jeproLabAnalyzeSpecificPriceFrom, jeproLabAnalyzeSpecificPriceTo;
-    public JeproMultiLang<TextField> jeproLabAnalyzeName, jeproLabAnalyzeTags;
+    public JeproMultiLangTextField jeproLabAnalyzeName, jeproLabAnalyzeTags;
     public JeproSwitchButton jeproLabAnalyzePublished;
     public JeproImageChooser jeproLabAnalyzeImageChooser;
     public HBox jeproLabAnalyzePriceTaxRuleWrapper, jeproLabAnalyzeUnitPriceWrapper, jeproLabAnalyzeSpecificPriceCombinationWrapper;
@@ -91,12 +94,16 @@ public class JeproLabAnalyzeAddController extends JeproLabController {
     public JeproPriceBox jeproLabAnalyzeSpecificPrice;
     public Button jeproLabAnalyzeSpecificPriceModificationCommandSaveButton, jeproLabAnalyzeSpecificPriceModificationCommandCancelButton;
     public ScrollPane jeproLabAnalyzeMethodScrollPane;
+    public TableView<JeproLabAnalyzeImageRecord> jeproLabAnalyzeImageListTableView;
+    public TableColumn<JeproLabAnalyzeImageRecord, ImageView> jeproLabAnalyzeImageIconTableColumn;
+    public TableColumn<JeproLabAnalyzeImageRecord, String> jeproLabAnalyzeImageCaptionTableColumn, jeproLabAnalyzeImagePositionTableColumn;
+    public TableColumn<JeproLabAnalyzeImageRecord, Button> jeproLabAnalyzeImageCoverTableColumn, jeproLabAnalyzeImageActionTableColumn;
 
     @Override
     public void initialize(URL location, ResourceBundle resource) {
         super.initialize(location, resource);
         formWidth = 0.94 * JeproLab.APP_WIDTH;
-        formTitleLabel.setText(bundle.getString("JEPROLAB_ADD_NEW_ANALYSE_LABEL"));
+        formTitleLabel.setText(bundle.getString("JEPROLAB_ADD_NEW_ANALYZE_LABEL"));
         formTitleLabel.setPrefWidth(formWidth);
         formTitleLabel.setAlignment(Pos.CENTER);
         formTitleLabel.getStyleClass().add("form-title");
@@ -127,7 +134,12 @@ public class JeproLabAnalyzeAddController extends JeproLabController {
         }
         request = JeproLab.request;
         this.loadAnalyze(true);
+        if(analyze.analyze_id > 0){
+            formTitleLabel.setText(bundle.getString("JEPROLAB_EDIT_LABEL") + " " + bundle.getString("JEPROLAB_ANALYZE_LABEL"));
+        }
         renderMethodTab();
+        renderAssociationTab();
+        renderImageTab();
         updateToolBar();
         addEventListener();
         if(analyze.analyze_id > 0){
@@ -247,6 +259,42 @@ public class JeproLabAnalyzeAddController extends JeproLabController {
 
         jeproLabAnalyzeDelay.setPrefWidth(80);
         jeproLabAnalyzeDelayHours.setPrefWidth(80);
+    }
+
+    private void renderAssociationTab(){
+        jeproLabAnalyzeAssociationTabForm.setText(bundle.getString("JEPROLAB_CATEGORIES_LABEL"));
+    }
+
+    private void renderImageTab(){
+        jeproLabAnalyzeImageTabForm.setText(bundle.getString("JEPROLAB_IMAGES_LABEL"));
+        jeproLabAnalyzeImageListTableView.setPrefSize(0.98 * formWidth, 520);
+        VBox.setMargin(jeproLabAnalyzeImageListTableView, new Insets(10, (0.01 * formWidth), 0, (0.01 * formWidth)));
+
+        jeproLabAnalyzeImageIconTableColumn.setText(bundle.getString("JEPROLAB_ICON_LABEL"));
+        jeproLabAnalyzeImageIconTableColumn.setPrefWidth(100);
+        Callback<TableColumn<JeproLabAnalyzeImageRecord, ImageView>, TableCell<JeproLabAnalyzeImageRecord, ImageView>> iconFactory = param -> new JeproLabAnalyzeImageImageViewCell();
+        jeproLabAnalyzeImageIconTableColumn.setCellFactory(iconFactory);
+        tableCellAlign(jeproLabAnalyzeImageIconTableColumn, Pos.CENTER);
+
+        jeproLabAnalyzeImageCaptionTableColumn.setText(bundle.getString("JEPROLAB_CAPTION_LABEL"));
+        jeproLabAnalyzeImageCaptionTableColumn.setPrefWidth((0.98 * formWidth) - 280);
+        jeproLabAnalyzeImageCaptionTableColumn.setCellValueFactory(new PropertyValueFactory<>("imageCaption"));
+
+        jeproLabAnalyzeImagePositionTableColumn.setText(bundle.getString("JEPROLAB_POSITION_LABEL"));
+        jeproLabAnalyzeImagePositionTableColumn.setPrefWidth(60);
+        jeproLabAnalyzeImagePositionTableColumn.setCellValueFactory(new PropertyValueFactory<>("imagePosition"));
+        tableCellAlign(jeproLabAnalyzeImagePositionTableColumn, Pos.CENTER);
+
+        jeproLabAnalyzeImageCoverTableColumn.setText(bundle.getString("JEPROLAB_COVER_LABEL"));
+        jeproLabAnalyzeImageCoverTableColumn.setPrefWidth(60);
+        Callback<TableColumn<JeproLabAnalyzeImageRecord, Button>, TableCell<JeproLabAnalyzeImageRecord, Button>> isCoverFactory = param -> new JeproLabAnalyzeImageCoverCell();
+        jeproLabAnalyzeImageCoverTableColumn.setCellFactory(isCoverFactory);
+        tableCellAlign(jeproLabAnalyzeImageCoverTableColumn, Pos.CENTER);
+
+        jeproLabAnalyzeImageActionTableColumn.setPrefWidth(60);
+        Callback<TableColumn<JeproLabAnalyzeImageRecord, Button>, TableCell<JeproLabAnalyzeImageRecord, Button>> actionFactory = param -> new JeproLabAnalyzeImageActionCell();
+        jeproLabAnalyzeImageActionTableColumn.setCellFactory(actionFactory);
+        tableCellAlign(jeproLabAnalyzeImageActionTableColumn, Pos.CENTER);
     }
 
     private void renderMethodTab(){
@@ -406,17 +454,25 @@ public class JeproLabAnalyzeAddController extends JeproLabController {
         GridPane.setMargin(jeproLabAnalyzeSpecificPriceModificationCommandWrapper, new Insets(15, 0, 15, 0));
         GridPane.setMargin(jeproLabSpecificPricePriorityWrapper, new Insets(8, 0, 10, 0));
 
+        jeproLabAnalyzeStartingAt.setPrefWidth(80);
+        jeproLabAnalyzeStartingAt.setMaxWidth(80);
+        jeproLabAnalyzeStartingAt.setMinWidth(80);
+
         jeproLabAnalyzeSpecificPriceModificationCommandSaveButton.setText(bundle.getString("JEPROLAB_SAVE_LABEL"));
         jeproLabAnalyzeSpecificPriceModificationCommandSaveButton.setGraphic(new ImageView(new Image(JeproLab.class.getResourceAsStream("resources/images/floppy-icon.png"))));
         jeproLabAnalyzeSpecificPriceModificationCommandCancelButton.setText(bundle.getString("JEPROLAB_CANCEL_LABEL"));
         jeproLabAnalyzeSpecificPriceModificationCommandCancelButton.setGraphic(new ImageView(new Image(JeproLab.class.getResourceAsStream("resources/images/unpublished.png"))));
 
+        jeproLabAnalyzeApplyDiscountOf.setPromptText("----");
         jeproLabAnalyzeApplyDiscountOf.getItems().addAll(bundle.getString("JEPROLAB_PERCENTAGE_LABEL"), bundle.getString("JEPROLAB_AMOUNT_LABEL"));
 
         jeproLabAnalyzeSpecificPriceModificationLabel.setText(bundle.getString("JEPROLAB_SPECIFIC_PRICE_LABEL"));
         jeproLabAnalyzeSpecificPriceTabForm.setText(bundle.getString("JEPROLAB_SPECIFIC_PRICE_LABEL"));
 
-        jeproLabAnalyzeSpecificPriceModification.getChildren().add(specificPriceTableView);
+        jeproLabAnalyzeSpecificPriceModification.setContent(specificPriceTableView);
+        jeproLabAnalyzeSpecificPriceModification.setPrefSize(formWidth, 240);
+        jeproLabAnalyzeSpecificPriceModification.setMaxSize(formWidth, 240);
+        jeproLabAnalyzeSpecificPriceModification.setMinSize(formWidth, 240);
         jeproLabSpecificPricePriorityWrapper.getChildren().addAll(priorFirst, priorSecond, priorThird, priorFourth);
     }
 
@@ -482,7 +538,7 @@ public class JeproLabAnalyzeAddController extends JeproLabController {
     }
 
     private void setFormsLabel(){
-        jeproLabAnalyzeNameLabel.setText(bundle.getString("JEPROLAB_ANALYSE_NAME_LABEL"));
+        jeproLabAnalyzeNameLabel.setText(bundle.getString("JEPROLAB_ANALYZE_NAME_LABEL"));
         jeproLabAnalyzeNameLabel.getStyleClass().add("input-label");
         jeproLabAnalyzePublishedLabel.setText(bundle.getString("JEPROLAB_PUBLISHED_LABEL"));
         jeproLabAnalyzePublishedLabel.getStyleClass().add("input-label");
@@ -551,16 +607,17 @@ public class JeproLabAnalyzeAddController extends JeproLabController {
         jeproLabAnalyzeLeaveBasePrice.getStyleClass().add("input-label");
         jeproLabAnalyzeApplyDiscountOfLabel.setText(bundle.getString("JEPROLAB_APPLY_DISCOUNT_OF_LABEL"));
         jeproLabAnalyzeApplyDiscountOfLabel.getStyleClass().add("input-label");
+        GridPane.setValignment(jeproLabAnalyzeApplyDiscountOfLabel, VPos.TOP);
         jeproLabAnalyzeSpecificPricePriorityLabel.setText(bundle.getString("JEPROLAB_PRIORITY_LABEL"));
         jeproLabAnalyzeSpecificPricePriorityLabel.getStyleClass().add("input-label");
-        //todo jeproLabAnalyzeApplyDiscountOfLabel;
-        jeproLabAnalyzeSpecificPriceLabIdLabel.setText(bundle.getString("JEPROLAB_APPLY_DISCOUNT_OF_LABEL"));
+        jeproLabAnalyzeApplyDiscountAfterTaxLabel.setText(bundle.getString("JEPROLAB_APPLY_DISCOUNT_AFTER_TAX_LABEL"));
+        jeproLabAnalyzeSpecificPriceLabIdLabel.setText(bundle.getString("JEPROLAB_SPECIFIC_PRICE_LABORATORY_ID_LABEL"));
         jeproLabAnalyzeSpecificPriceLabIdLabel.getStyleClass().add("input-label");
-        jeproLabAnalyzeSpecificPriceCustomerIdLabel.setText(bundle.getString("JEPROLAB_APPLY_DISCOUNT_OF_LABEL"));
+        jeproLabAnalyzeSpecificPriceCustomerIdLabel.setText(bundle.getString("JEPROLAB_SPECIFIC_PRICE_CUSTOMER_ID_LABEL"));
         jeproLabAnalyzeSpecificPriceCustomerIdLabel.getStyleClass().add("input-label");
-        jeproLabAnalyzeSpecificPriceCombinationLabel.setText(bundle.getString("JEPROLAB_APPLY_DISCOUNT_OF_LABEL"));
+        jeproLabAnalyzeSpecificPriceCombinationLabel.setText(bundle.getString("JEPROLAB_SPECIFIC_PRICE_COMBINATION_LABEL"));
         jeproLabAnalyzeSpecificPriceCombinationLabel.getStyleClass().add("input-label");
-        jeproLabAnalyzeStartingAtLabel.setText(bundle.getString("JEPROLAB_APPLY_DISCOUNT_OF_LABEL"));
+        jeproLabAnalyzeStartingAtLabel.setText(bundle.getString("JEPROLAB_STARTING_AT_LABEL"));
         jeproLabAnalyzeStartingAtLabel.getStyleClass().add("input-label");
         jeproLabAnalyzeSpecificPriceLabel.setText(bundle.getString("JEPROLAB_APPLY_DISCOUNT_OF_LABEL"));
         jeproLabAnalyzeSpecificPriceLabel.getStyleClass().add("input-label");
@@ -695,6 +752,103 @@ public class JeproLabAnalyzeAddController extends JeproLabController {
 
         public static void setCurrencies(List<JeproLabCurrencyModel> currencyList){
             currencies = currencyList;
+        }
+    }
+
+    public static class JeproLabAnalyzeImageRecord{
+        private SimpleStringProperty imageCaption;
+        private SimpleIntegerProperty imageIndex, imagePosition;
+        private SimpleBooleanProperty imageIsCover;
+
+        public JeproLabAnalyzeImageRecord(JeproLabImageModel image){
+            imageIndex = new SimpleIntegerProperty(image.image_id);
+            imagePosition = new SimpleIntegerProperty(image.position);
+            imageCaption = new SimpleStringProperty(image.legend.get("lang_" + JeproLabContext.getContext().language.language_id));
+            imageIsCover = new SimpleBooleanProperty(image.cover);
+        }
+
+        public boolean isCoverImage(){
+            return imageIsCover.get();
+        }
+
+        public int getImageIndex(){
+            return imageIndex.get();
+        }
+
+        public String getImagePosition(){
+            return String.valueOf(imagePosition.get());
+        }
+
+        public String getImageCaption(){
+            return imageCaption.get();
+        }
+    }
+
+    public static class JeproLabAnalyzeImageImageViewCell extends TableCell<JeproLabAnalyzeImageRecord, ImageView>{
+        public JeproLabAnalyzeImageImageViewCell(){
+
+        }
+
+        public void updateItem(ImageView item, boolean empty){
+            super.updateItem(item, empty);
+        }
+    }
+
+    public static class JeproLabAnalyzeImageCoverCell extends TableCell<JeproLabAnalyzeImageRecord, Button>{
+        private HBox commandWrapper;
+        private Button switchCoverStatus;
+
+        public JeproLabAnalyzeImageCoverCell(){
+            commandWrapper = new HBox();
+            switchCoverStatus = new Button("");
+            commandWrapper.getChildren().add(switchCoverStatus);
+        }
+
+        public void updateItem(Button item, boolean empty){
+            super.updateItem(item, empty);
+            ObservableList<JeproLabAnalyzeImageRecord> items = getTableView().getItems();
+            if((items != null) && (getIndex() >= 0 && getIndex() < items.size())){
+                int itemId = items.get(getIndex()).getImageIndex();
+                switchCoverStatus.setOnAction(event -> {
+                    if(items.get(getIndex()).isCoverImage()) {
+                        switchCoverStatus.setGraphic(new ImageView(new Image(JeproLab.class.getResourceAsStream("resources/images/published.png"))));
+                    }else{
+                        switchCoverStatus.setGraphic(new ImageView(new Image(JeproLab.class.getResourceAsStream("resources/images/unpublished.png"))));
+                    }
+                });
+                setAlignment(Pos.CENTER);
+                setGraphic(commandWrapper);
+            }
+        }
+    }
+
+    public static class JeproLabAnalyzeImageActionCell extends TableCell<JeproLabAnalyzeImageRecord, Button>{
+        private Button deleteImage;
+        private HBox commandWrapper;
+
+        public JeproLabAnalyzeImageActionCell(){
+            deleteImage = new Button("");
+            deleteImage.getStyleClass().add("trash-btn");
+            commandWrapper = new HBox(0);
+        }
+
+        public void updateItem(Button item, boolean empty){
+            super.updateItem(item, empty);
+            ObservableList<JeproLabAnalyzeImageRecord> items = getTableView().getItems();
+            if((items != null) && (getIndex() >= 0 && getIndex() < items.size())){
+                int itemId = items.get(getIndex()).getImageIndex();
+                deleteImage.setOnAction(event -> {
+                    JeproLab.request.setRequest("image_id=" + itemId);
+                    try{
+                        JeproLab.getInstance().goToForm(JeproLab.getInstance().getApplicationForms().addAddressForm);
+                        JeproLabContext.getContext().controller.initializeContent();
+                    }catch (IOException ignored){
+                        ignored.printStackTrace();
+                    }
+                });
+                setGraphic(commandWrapper);
+                setAlignment(Pos.CENTER);
+            }
         }
     }
 }

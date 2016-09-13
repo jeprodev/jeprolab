@@ -179,7 +179,7 @@ public class JeproLabAddressController extends JeproLabController{
     /**
      *
      */
-    private static class JeproLabCheckBoxCell extends TableCell<JeproLabAddressRecord, Boolean>{
+    public static class JeproLabCheckBoxCell extends TableCell<JeproLabAddressRecord, Boolean>{
         private CheckBox addressCheckBox;
 
         public JeproLabCheckBoxCell(){
@@ -199,7 +199,7 @@ public class JeproLabAddressController extends JeproLabController{
     /**
      *
      */
-    private static class JeproLabActionCell extends TableCell<JeproLabAddressRecord, HBox>{
+    public static class JeproLabActionCell extends TableCell<JeproLabAddressRecord, HBox>{
         private Button editAddress, deleteAddress;
         private HBox commandWrapper;
         private double btnSize = 18;

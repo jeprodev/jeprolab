@@ -173,4 +173,17 @@ public class JeproLabLanguageModel extends JeproLabModel {
         return LANGUAGES;
     }
 
+    /**
+     * Return iso code from id
+     *
+     * @param langId Language ID
+     * @return string Iso code
+     */
+    public static String getIsoCodeByLanguageId(int langId){
+        if (LANGUAGES.containsKey(langId)) {
+            return LANGUAGES.get(langId).iso_code;
+        }
+        return "";
+    }
+
 }

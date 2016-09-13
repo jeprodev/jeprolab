@@ -4,7 +4,7 @@ import com.jeprolab.JeproLab;
 import com.jeprolab.assets.extend.controls.JeproFormPanel;
 import com.jeprolab.assets.extend.controls.JeproFormPanelContainer;
 import com.jeprolab.assets.extend.controls.JeproFormPanelTitle;
-import com.jeprolab.assets.extend.controls.JeproMultiLang;
+import com.jeprolab.assets.extend.controls.JeproMultiLangTextField;
 import com.jeprolab.assets.extend.controls.switchbutton.JeproSwitchButton;
 import com.jeprolab.assets.tools.JeproLabContext;
 import com.jeprolab.models.JeproLabCountryModel;
@@ -38,7 +38,7 @@ public class JeproLabCountryAddController extends JeproLabController {
     public TextField isoCode, callPrefix, zipCodeFormat;
     public TextArea addressLayoutFormat;
     public ComboBox<String> countryZone, defaultCurrency;
-    public JeproMultiLang<TextField> countryName;
+    public JeproMultiLangTextField countryName;
     public Button saveButton, cancelButton;
     public JeproFormPanelContainer countryFormContainerWrapper;
     public JeproFormPanelTitle countryFormTitleWrapper;

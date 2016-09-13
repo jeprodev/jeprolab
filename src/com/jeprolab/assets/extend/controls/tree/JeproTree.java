@@ -14,7 +14,7 @@ public class JeproTree extends Pane {
 
     protected String DEFAULT_NODE_FOLDER_TEMPLATE = "tree_node_folder";
 
-    protected  String DEFAULT_NODE_ITEM_TEMPLATE = "tree_node_template";
+    protected  String DEFAULT_NODE_ITEM_TEMPLATE = "tree_node_item";
 
     protected JeproLabContext context;
 

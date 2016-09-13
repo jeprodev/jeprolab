@@ -6,7 +6,7 @@
 <?import javafx.scene.control.Tab?>
 <?import javafx.scene.layout.GridPane?>
 <?import javafx.scene.control.Label?>
-<?import com.jeprolab.assets.extend.controls.JeproMultiLang?>
+<?import com.jeprolab.assets.extend.controls.JeproMultiLangTextField?>
 <?import javafx.scene.control.TextField?>
 <?import com.jeprolab.assets.extend.controls.switchbutton.JeproSwitchButton?>
 <?import com.jeprolab.assets.extend.controls.JeproImageChooser?>
@@ -21,6 +21,9 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.ScrollPane?>
+<?import com.jeprolab.assets.extend.controls.JeproMultiLangTextArea?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.TableColumn?>
 <JeproFormPanel  xmlns:fx="http://javafx.com/fxml" fx:id="jeproLabAddAnalyseFormWrapper" fx:controller="com.jeprolab.controllers.JeproLabAnalyzeAddController" >
     <JeproFormPanelTitle fx:id="jeproLabAddAnalyseFormTitleWrapper" />
     <JeproFormPanelContainer fx:id="jeproLabAddAnalyseFormContainerWrapper"  >
@@ -28,7 +31,7 @@
             <Tab fx:id="jeproLabAnalyzeInformationTabForm" closable="false" >
                 <GridPane fx:id="jeproLabAnalyzeInformationLayout">
                     <Label GridPane.columnIndex="0" GridPane.rowIndex="0" fx:id="jeproLabAnalyzeNameLabel" />
-                    <JeproMultiLang GridPane.columnIndex="1" GridPane.rowIndex="0" fx:id="jeproLabAnalyzeName"/>
+                    <JeproMultiLangTextField GridPane.columnIndex="1" GridPane.rowIndex="0" fx:id="jeproLabAnalyzeName"/>
                     <Label GridPane.columnIndex="2" GridPane.rowIndex="0" fx:id="jeproLabAnalyzePublishedLabel" />
                     <JeproSwitchButton GridPane.columnIndex="3" GridPane.rowIndex="0" fx:id="jeproLabAnalyzePublished" />
 
@@ -56,13 +59,13 @@
 
                     <!--Label GridPane.columnIndex="0" GridPane.rowIndex="0" fx:id="jeproLabAnalyze" / -->
                     <Label GridPane.columnIndex="0" GridPane.rowIndex="6" fx:id="jeproLabAnalyzeShortDescriptionLabel" />
-                    <JeproMultiLang GridPane.columnIndex="1" GridPane.rowIndex="6" GridPane.columnSpan="3" fx:id="jeproLabAnalyzeShortDescription" />
+                    <JeproMultiLangTextArea GridPane.columnIndex="1" GridPane.rowIndex="6" GridPane.columnSpan="3" fx:id="jeproLabAnalyzeShortDescription" />
                     <Label GridPane.columnIndex="0" GridPane.rowIndex="7" fx:id="jeproLabAnalyzeDescriptionLabel" />
-                    <JeproMultiLang GridPane.columnIndex="1" GridPane.rowIndex="7" GridPane.columnSpan="3" fx:id="jeproLabAnalyzeDescription" />
+                    <JeproMultiLangTextArea GridPane.columnIndex="1" GridPane.rowIndex="7" GridPane.columnSpan="3" fx:id="jeproLabAnalyzeDescription" />
                     <Label GridPane.columnIndex="0" GridPane.rowIndex="8" fx:id="jeproLabAnalyzeImagesLabel" />
                     <JeproImageSlider GridPane.columnIndex="1" GridPane.rowIndex="8" GridPane.columnSpan="3" fx:id="jeproLabAnalyzeSlider" />
                     <Label GridPane.columnIndex="0" GridPane.rowIndex="9" fx:id="jeproLabAnalyzeTagLabel" />
-                    <JeproMultiLang GridPane.columnIndex="1" GridPane.rowIndex="9" fx:id="jeproLabAnalyzeTags" />
+                    <JeproMultiLangTextField GridPane.columnIndex="1" GridPane.rowIndex="9" fx:id="jeproLabAnalyzeTags" />
                     <Label GridPane.columnIndex="2" GridPane.rowIndex="9" fx:id="jeproLabAnalyzeDelayLabel" />
                     <HBox GridPane.columnIndex="3" GridPane.rowIndex="9" spacing="5" fx:id="jeproLabAnalyzeDelayWrapper" >
                         <TextField fx:id="jeproLabAnalyzeDelay" />
@@ -79,6 +82,11 @@
                         <GridPane fx:id="jeproLabAnalyzeMethodSelectorLayout" />
                     </ScrollPane>
                 </VBox>
+            </Tab>
+            <Tab closable="false" fx:id="jeproLabAnalyzeAssociationTabForm" >
+                <GridPane>
+
+                </GridPane>
             </Tab>
             <Tab fx:id="jeproLabAnalyzePriceTabForm" closable="false" >
                 <VBox fx:id="jeproLabAnalyzePricePane" >
@@ -119,38 +127,52 @@
                         <Label GridPane.columnIndex="2" GridPane.rowIndex="3" fx:id="jeproLabAnalyzeSpecificPriceToLabel" />
                         <DatePicker GridPane.columnIndex="3" GridPane.rowIndex="3" fx:id="jeproLabAnalyzeSpecificPriceTo" />
                         <Label GridPane.columnIndex="0" GridPane.rowIndex="4" fx:id="jeproLabAnalyzeStartingAtLabel" />
-                        <TextField GridPane.columnIndex="1" GridPane.rowIndex="4" fx:id="jeproLabAnalyzeStartingAt" />
+                        <HBox GridPane.columnIndex="1" GridPane.rowIndex="4" fx:id="jeproLabAnalyzeStartingAtWrapper" >
+                            <TextField fx:id="jeproLabAnalyzeStartingAt" />
+                            <Label fx:id="jeproLabAnalyzeStartingAtUnitLabel" />
+                        </HBox>
                         <Label GridPane.columnIndex="0" GridPane.rowIndex="5" fx:id="jeproLabAnalyzeSpecificPriceLabel" />
                         <JeproPriceBox GridPane.columnIndex="1" GridPane.rowIndex="5" fx:id="jeproLabAnalyzeSpecificPrice" />
                         <CheckBox GridPane.columnIndex="1" GridPane.rowIndex="6" GridPane.columnSpan="3" fx:id="jeproLabAnalyzeLeaveBasePrice" />
                         <Label GridPane.columnIndex="2" GridPane.rowIndex="5" fx:id="jeproLabAnalyzeApplyDiscountOfLabel" />
-                        <ComboBox GridPane.columnIndex="3" GridPane.rowIndex="5" fx:id="jeproLabAnalyzeApplyDiscountOf" />
+                        <VBox GridPane.columnIndex="3" GridPane.rowIndex="5"  fx:id="jeproLabAnalyzeApplyDiscountOfWrapper" >
+                            <HBox spacing="10" >
+                                <TextField fx:id="jeproLabAnalyzeDiscountValue" />
+                                <ComboBox fx:id="jeproLabAnalyzeApplyDiscountOf" />
+                            </HBox>
+                            <Label fx:id="jeproLabAnalyzeApplyDiscountAfterTaxLabel" />
+                        </VBox>
                         <HBox GridPane.columnIndex="0" GridPane.rowIndex="7" GridPane.columnSpan="4" alignment="CENTER" spacing="40" fx:id="jeproLabAnalyzeSpecificPriceModificationCommandWrapper" >
                             <Button fx:id="jeproLabAnalyzeSpecificPriceModificationCommandSaveButton" />
                             <Button fx:id="jeproLabAnalyzeSpecificPriceModificationCommandCancelButton" />
                         </HBox>
                         <Label GridPane.columnIndex="0" GridPane.rowIndex="8" GridPane.columnSpan="4" fx:id="jeproLabAnalyzeSpecificPriceModificationLabel" />
-                        <Pane GridPane.columnIndex="0" GridPane.rowIndex="9" GridPane.columnSpan="4" fx:id="jeproLabAnalyzeSpecificPriceModification" />
+                        <ScrollPane GridPane.columnIndex="0" GridPane.rowIndex="9" GridPane.columnSpan="4" fx:id="jeproLabAnalyzeSpecificPriceModification" />
                         <Label GridPane.columnIndex="0" GridPane.rowIndex="10" fx:id="jeproLabAnalyzeSpecificPricePriorityLabel" />
                         <HBox GridPane.columnIndex="1" GridPane.rowIndex="10" GridPane.columnSpan="3" fx:id="jeproLabSpecificPricePriorityWrapper" spacing="5" />
                     </GridPane>
                 </Pane>
+            </Tab>
+            <Tab closable="false" fx:id="jeproLabAnalyzeImageTabForm" >
+                <VBox>
+                    <TableView fx:id="jeproLabAnalyzeImageListTableView" >
+                        <columns>
+                            <TableColumn resizable="false" editable="false" fx:id="jeproLabAnalyzeImageIconTableColumn" />
+                            <TableColumn resizable="false" editable="false" fx:id="jeproLabAnalyzeImageCaptionTableColumn" />
+                            <TableColumn resizable="false" editable="false" fx:id="jeproLabAnalyzeImagePositionTableColumn" />
+                            <TableColumn resizable="false" editable="false" fx:id="jeproLabAnalyzeImageCoverTableColumn" />
+                            <TableColumn resizable="false" editable="false" fx:id="jeproLabAnalyzeImageActionTableColumn" />
+                        </columns>
+                    </TableView>
+                </VBox>
             </Tab>
             <!--Tab fx:id="jeproLabAnalyzeSeoTabForm" >
                 <GridPane>
                     <Label GridPane.columnIndex="0" />
                 </GridPane>
             </Tab>
-            <Tab fx:id="jeproLabAnalyzeAssociationTabForm" >
-                <GridPane>
-                    <Label GridPane.columnIndex="0" />
-                </GridPane>
-            </Tab>
-            <Tab fx:id="jeproLabAnalyzeImageTabForm" >
-                <GridPane>
-                    <Label GridPane.columnIndex="0" />
-                </GridPane>
-            </Tab>
+
+
             <Tab fx:id="jeproLabAnalyzeAttachedFileTabForm" >
                 <GridPane>
                     <Label GridPane.columnIndex="0" />

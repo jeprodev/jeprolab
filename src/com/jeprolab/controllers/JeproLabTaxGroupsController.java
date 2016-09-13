@@ -103,6 +103,7 @@ public class JeproLabTaxGroupsController extends JeproLabController {
         ObservableList<JeproLabTaxRulesGroupRecord> taxRulesGroupRecordList = FXCollections.observableArrayList();
         if(!taxRulesGroupRecords.isEmpty()){
             taxRulesGroupRecordList.addAll(taxRulesGroupRecords.stream().map(JeproLabTaxRulesGroupRecord::new).collect(Collectors.toList()));
+            jeproLabTaxRulesGroupTableView.getItems().clear();
             jeproLabTaxRulesGroupTableView.setItems(taxRulesGroupRecordList);
         }
         updateToolBar();

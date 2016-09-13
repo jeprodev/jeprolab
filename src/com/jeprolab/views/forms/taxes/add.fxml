@@ -1,6 +1,6 @@
 <?import javafx.scene.layout.GridPane?>
 <?import javafx.scene.control.Label?>
-<?import com.jeprolab.assets.extend.controls.JeproMultiLang ?>
+<?import com.jeprolab.assets.extend.controls.JeproMultiLangTextField ?>
 <?import javafx.scene.control.TextField?>
 <?import com.jeprolab.assets.extend.controls.switchbutton.JeproSwitchButton?>
 <?import com.jeprolab.assets.extend.controls.JeproFormPanel?>
@@ -13,7 +13,7 @@
     <JeproFormPanelContainer fx:id="jeproLabFormPanelContainerWrapper" >
         <GridPane fx:id="jeproLabTaxLayout" >
             <Label GridPane.columnIndex="0" GridPane.rowIndex="0" fx:id="jeproLabTaxNameLabel" styleClass="input-label" />
-            <JeproMultiLang GridPane.columnIndex="1" GridPane.rowIndex="0" fx:id="jeproLabTaxName" />
+            <JeproMultiLangTextField GridPane.columnIndex="1" GridPane.rowIndex="0" fx:id="jeproLabTaxName" />
             <Label GridPane.columnIndex="0" GridPane.rowIndex="1" fx:id="jeproLabTaxRateLabel" styleClass="input-label" />
             <HBox GridPane.columnIndex="1" GridPane.rowIndex="1" fx:id="jeproLabTaxRateWrapper" spacing="5" >
                 <TextField fx:id="jeproLabTaxRate" />

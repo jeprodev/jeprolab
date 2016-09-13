@@ -1,10 +1,7 @@
 package com.jeprolab.controllers;
 
 import com.jeprolab.JeproLab;
-import com.jeprolab.assets.extend.controls.JeproFormPanel;
-import com.jeprolab.assets.extend.controls.JeproFormPanelContainer;
-import com.jeprolab.assets.extend.controls.JeproFormPanelTitle;
-import com.jeprolab.assets.extend.controls.JeproMultiLang;
+import com.jeprolab.assets.extend.controls.*;
 import javafx.fxml.FXML;
 import javafx.geometry.Insets;
 import javafx.geometry.VPos;
@@ -31,8 +28,8 @@ public class JeproLabFeedAddController extends JeproLabController {
     @FXML
     public Label jeproLabFeedTitleLabel, jeproLabFeedLinkLabel, jeproLabFeedDescriptionLabel, jeproLabFeedAuthorLabel;
     public TextField jeproLabFeedAuthor, jeproLabFeedLink;
-    public JeproMultiLang<TextField> jeproLabFeedTitle;
-    public JeproMultiLang<TextArea> jeproLabFeedDescription;
+    public JeproMultiLangTextField jeproLabFeedTitle;
+    public JeproMultiLangTextArea jeproLabFeedDescription;
     public GridPane jeproLabFeedLayout;
     public JeproFormPanel jeproLabFeedEditForm;
     public JeproFormPanelTitle jeproLabFeedPaneTitle;
