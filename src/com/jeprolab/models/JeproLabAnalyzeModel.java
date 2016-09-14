@@ -248,7 +248,7 @@ public class JeproLabAnalyzeModel extends JeproLabModel{
     protected static JeproLabAddressModel address = null;
     protected static JeproLabContext static_context = null;
 
-    public static Map<Integer, JeproLabFeatureValueModel > cache_features = new HashMap<>();
+    public static Map<Integer, JeproLabFeatureModel.JeproLabFeatureValueModel> cache_features = new HashMap<>();
 
     /**
      * Note:  prefix is "ANALYZE_TYPE" because TYPE_ is used in ObjectModel (definition)
@@ -357,6 +357,8 @@ public class JeproLabAnalyzeModel extends JeproLabModel{
                             this.link_rewrite = new HashMap<>();
                             this.available_later = new HashMap<>();
                             this.available_now = new HashMap<>();
+
+                            this.analyze_price = new JeproLabPriceModel();
 
                             if(langId <= 0) {
                                 if (languages == null) {
@@ -474,7 +476,7 @@ public class JeproLabAnalyzeModel extends JeproLabModel{
             this.is_new = this.isNew();
 
             // Keep base price
-            //this.analyze_price = new JeproLabPriceModel();
+            this.analyze_price = new JeproLabPriceModel();
             this.base_price = this.analyze_price.price;
 
             this.analyze_price.price = JeproLabAnalyzeModel.getStaticPrice(this.analyze_id, false, 0, 6, false, true, 1, false, 0, 0, 0);
@@ -702,19 +704,18 @@ public class JeproLabAnalyzeModel extends JeproLabModel{
         int addressInfoCountryId = 0;
         int addressInfoStateId = 0;
         String addressInfoZipCode = "";
-        int addressInfoVatNumber = 0;
+        String addressInfoVatNumber = "";
 
         if (addressId > 0) {
-            ResultSet addressInfo = JeproLabAddressModel.getCountryAndState(addressId);
+            Map<String, String> addressInfo = JeproLabAddressModel.getCountryAndState(addressId);
 
             try {
-                while(addressInfo.next()){
-                    addressInfoCountryId = addressInfo.getInt("country_id");
-                    addressInfoStateId = addressInfo.getInt("state_id");
-                    addressInfoZipCode = addressInfo.getString("postcode");
-                    addressInfoVatNumber = addressInfo.getInt("vat_number");
-                }
-            }catch (SQLException ignored){
+                assert addressInfo != null;
+                addressInfoCountryId = Integer.parseInt(addressInfo.get("country_id"));
+                addressInfoStateId = Integer.parseInt(addressInfo.get("state_id"));
+                addressInfoZipCode = addressInfo.get("postcode");
+                addressInfoVatNumber = addressInfo.get("vat_number");
+            }catch (NullPointerException ignored){
 
             }
             if (addressInfoCountryId > 0) {
@@ -732,7 +733,7 @@ public class JeproLabAnalyzeModel extends JeproLabModel{
             useTax = false;
         }
 
-        if (useTax && (addressInfoVatNumber <= 0) && addressInfoCountryId != JeproLabSettingModel.getIntValue("vat_number_country") && JeproLabSettingModel.getIntValue("vat_number_management") > 0){
+        if (useTax && (addressInfoVatNumber.equals("")) && addressInfoCountryId != JeproLabSettingModel.getIntValue("vat_number_country") && JeproLabSettingModel.getIntValue("vat_number_management") > 0){
             useTax = false;
         }
 
@@ -2244,16 +2245,21 @@ public class JeproLabAnalyzeModel extends JeproLabModel{
         if (!analyze.image_name.equals("")) {
             return analyze.analyze_id + "_" + analyze.image_name;
         }
-        return JeproLabLanguageModel.getIsoByLanguageId(langId) + "_default";
+        return JeproLabLanguageModel.getIsoCodeByLanguageId(langId) + "_default";
     }
 
     public static void cacheAnalyzesFeatures(List<Integer> analyzeIds){
-        if (!JeproLabFeatureValueModel.isFeaturePublished()) {
+        if (!JeproLabFeatureModel.JeproLabFeatureValueModel.isFeaturePublished()) {
             List<Integer> analyzeImplode = analyzeIds.stream().filter(analyzeId -> !JeproLabAnalyzeModel.cache_features.containsKey(analyzeId)).collect(Collectors.toList());
             if (analyzeImplode.size() > 0) {
                 if(staticDataBaseObject == null){
                     staticDataBaseObject = JeproLabFactory.getDataBaseConnector();
                 }
+                String analyzeImplodedList = "";
+                for(Integer id : analyzeImplode){
+                    analyzeImplodedList += id + ", ";
+                }
+                analyzeImplodedList = analyzeImplodedList.endsWith(", ") ? analyzeImplodedList.substring(0, analyzeImplodedList.length() - 3) : analyzeImplodedList;
                 String query = "SELECT feature_id, analyze_id, feature_value_id FROM " + staticDataBaseObject.quoteName("#__jeprolab_feature_analyze");
                 query += " WHERE " + staticDataBaseObject.quoteName("analyze_id") + " IN (" + analyzeImplodedList + ") ";
 
@@ -2262,10 +2268,10 @@ public class JeproLabAnalyzeModel extends JeproLabModel{
 
                 if(analyzeFeatureSet != null){
                     try{
-                        JeproLabFeatureValueModel feature;
+                        JeproLabFeatureModel.JeproLabFeatureValueModel featureValue;
                         while(analyzeFeatureSet.next()){
-                            feature = new JeproLabFeatureValueModel();
-                            JeproLabAnalyzeModel.cache_features.put(analyzeFeatureSet.getInt("analyze_id"), feature);
+                            featureValue = new JeproLabFeatureModel.JeproLabFeatureValueModel();
+                            JeproLabAnalyzeModel.cache_features.put(analyzeFeatureSet.getInt("analyze_id"), featureValue);
                         }
                     }catch(SQLException ignored){
                         ignored.printStackTrace();
@@ -2947,6 +2953,13 @@ public class JeproLabAnalyzeModel extends JeproLabModel{
                 }
             }
             return methodIds;
+        }
+    }
+
+
+    public static class JeproLabAnalyzeDownloadModel extends JeproLabModel{
+        public static boolean isFeaturePublished(){
+            return false;
         }
     }
 }

@@ -13,6 +13,28 @@ import java.util.*;
  * Created by jeprodev on 02/02/2014.
  */
 public class JeproLabPriceModel extends JeproLabModel{
+    public int price_id;
+    public float price;
+
+    public float price_with_out_reduction = 0;
+
+    public float total;
+    public float total_with_tax;
+    public float price_with_out_tax;
+
+    public float price_with_reduction = 0;
+    public float price_with_reduction_without_tax = 0;
+
+    public JeproLabPriceModel(){
+        this(0);
+    }
+
+    public JeproLabPriceModel(int priceId){
+
+    }
+
+
+
     public static class JeproLabSpecificPriceModel extends JeproLabModel{
         public int analyze_id;
         public int specific_price_id = 0;
@@ -35,13 +57,7 @@ public class JeproLabPriceModel extends JeproLabModel{
 
         public float price = 0;
 
-        public float price_with_out_reduction = 0;
 
-        public float price_with_reduction = 0;
-        public float price_with_reduction_without_tax = 0;
-        public float total;
-        public float total_with_tax;
-        public float price_with_out_tax;
 
         protected static Map<String, JeproLabSpecificPriceModel> _specificPriceCache = new HashMap<>();
         protected static Map<String, List<Integer>> _filterOutCache = new HashMap<>();

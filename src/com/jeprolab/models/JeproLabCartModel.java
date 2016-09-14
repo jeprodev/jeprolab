@@ -362,7 +362,7 @@ public class JeproLabCartModel extends JeproLabModel{
         // You can't add a cart rule that does not exist
         JeproLabCartRuleModel cartRule = new JeproLabCartRuleModel(cartRuleId, JeproLabContext.getContext().language.language_id);
 
-        if (cartRule == null || cartRule.cart_rule_id <= 0) {
+        if(cartRule.cart_rule_id <= 0) {
             return false;
         }
 
@@ -401,7 +401,7 @@ public class JeproLabCartModel extends JeproLabModel{
         JeproLabCache.getInstance().remove("jeprolab_cart_model_get_request_cart_rules_ids_" + this.cart_id + "_" + JeproLabCartRuleModel.FILTER_ACTION_GIFT + "_ids");
 
         if (cartRule.gift_analyze > 0) {
-            this.updateQuantity(1, cartRule.gift_analyze, cartRule.gift_analyze_attribute, false, "up", 0, null, false);
+            this.updateQuantity(1, cartRule.gift_analyze, cartRule.gift_analyze_attribute, 0, "up", 0, null, false);
         }
 
         return true;
@@ -476,7 +476,7 @@ public class JeproLabCartModel extends JeproLabModel{
         }
 
         if (analyze.analyze_id <= 0) {
-            die(Tools::displayError ());
+            JeproLabTools.displayBarMessage(404, JeproLab.getBundle().getString("JEPROLAB_ANALYZE_ID_MUST_BE_HIGHER_THAN_0_MESSAGE"));
         }
 
         if (JeproLabCartModel._number_of_analyzes.containsKey(this.cart_id)){
@@ -503,68 +503,69 @@ public class JeproLabCartModel extends JeproLabModel{
 */
         if (quantity <= 0) {
             return this.deleteAnalyze(analyzeId, analyzeAttributeId, customizationId);
-        } else if(!analyze.available_for_order || (JeproLabSettingModel.getIntValue("catalog_mode") && !defined('_PS_ADMIN_DIR_'))) {
-            return false;
         } else {
             /* Check if the product is already in the cart */
             boolean result = this.containsAnalyze(analyzeId, analyzeAttributeId, customizationId, deliveryAddressId);
 
             /* Update quantity if product already exist */
             if (result) {
-                if (operator.equals("up")) {
-                    if (dataBaseObject == null) {
-                        dataBaseObject = JeproLabFactory.getDataBaseConnector();
-                    }
-                    String query = "SELECT stock.out_of_stock, IFNULL(stock.quantity, 0) as quantity FROM " + dataBaseObject.quoteName("__jeprolab_analyze");
-                    query += " AS analyze " + JeproLabAnalyzeModel.queryStock("analyze", analyzeAttributeId, true, lab) + " WHERE analyze.";
-                    query += dataBaseObject.quoteName("analyze_id") + " = " + analyzeId;
+                switch (operator) {
+                    case "up":
+                        if (dataBaseObject == null) {
+                            dataBaseObject = JeproLabFactory.getDataBaseConnector();
+                        }
+                        String query = "SELECT stock.out_of_stock, IFNULL(stock.quantity, 0) as quantity FROM " + dataBaseObject.quoteName("__jeprolab_analyze");
+                        query += " AS analyze " + JeproLabAnalyzeModel.queryStock("analyze", analyzeAttributeId, true, lab) + " WHERE analyze.";
+                        query += dataBaseObject.quoteName("analyze_id") + " = " + analyzeId;
 
-                    dataBaseObject.setQuery(query);
-                    ResultSet resultSet = dataBaseObject.loadObjectList();
+                        dataBaseObject.setQuery(query);
+                        ResultSet resultSet = dataBaseObject.loadObjectList();
 
-                    if (resultSet != null) {
-                        try {
-                            while (resultSet.next()) {
-                                int analyzeQuantity = resultSet.getInt("quantity");
-                                // Quantity for product pack
-                                if (JeproLabAnalyzeModel.JeproLabAnalyzePackModel.isPack(analyzeId)) {
-                                    analyzeQuantity = JeproLabAnalyzeModel.JeproLabAnalyzePackModel.getQuantity(analyzeId, analyzeAttributeId);
-                                }
+                        if (resultSet != null) {
+                            try {
+                                while (resultSet.next()) {
+                                    int analyzeQuantity = resultSet.getInt("quantity");
+                                    // Quantity for product pack
+                                    if (JeproLabAnalyzeModel.JeproLabAnalyzePackModel.isPack(analyzeId)) {
+                                        analyzeQuantity = JeproLabAnalyzeModel.JeproLabAnalyzePackModel.getQuantity(analyzeId, analyzeAttributeId);
+                                    }
 
-                                newQty = analyzeQuantity + quantity;
-                                qty = "+ " + quantity;
+                                    newQty = analyzeQuantity + quantity;
+                                    qty = "+ " + quantity;
 
-                                if (!JeproLabAnalyzeModel.isAvailableWhenOutOfStock(resultSet.getInt("out_of_stock"))) {
-                                    if (newQty > analyzeQuantity) {
-                                        return false;
+                                    if (!JeproLabAnalyzeModel.isAvailableWhenOutOfStock(resultSet.getInt("out_of_stock"))) {
+                                        if (newQty > analyzeQuantity) {
+                                            return false;
+                                        }
                                     }
                                 }
-                            }
-                        } catch (SQLException ignored) {
-                            ignored.printStackTrace();
-                        } finally {
-                            try {
-                                JeproLabDataBaseConnector.getInstance().closeConnexion();
-                            } catch (Exception ignored) {
+                            } catch (SQLException ignored) {
                                 ignored.printStackTrace();
+                            } finally {
+                                try {
+                                    JeproLabDataBaseConnector.getInstance().closeConnexion();
+                                } catch (Exception ignored) {
+                                    ignored.printStackTrace();
+                                }
                             }
                         }
-                    }
-                } else if (operator.equals("down")) {
-                    qty = "- " + quantity;
-                    newQty = (int) $result['quantity'] - quantity;
-                    if (newQty < minimalQuantity && minimalQuantity > 1) {
-                        return -1;
-                    }
-                } else {
-                    return false;
+                        break;
+                    case "down":
+                        qty = "- " + quantity;
+                        newQty = (int) $result['quantity'] - quantity;
+                        if (newQty < minimalQuantity && minimalQuantity > 1) {
+                            return false;
+                        }
+                        break;
+                    default:
+                        return false;
                 }
 
                 /* Delete product from cart */
                 if (newQty <= 0) {
                     return this.deleteAnalyze(analyzeId, analyzeAttributeId, customizationId);
                 }else if(newQty < minimalQuantity) {
-                    return -1;
+                    return false;
                 }else{
                     String query = "UPDATE "  + dataBaseObject.quoteName("#__jeprolab_cart_analyze") + " SET " + dataBaseObject.quoteName("quantity");
                     query += " = " + dataBaseObject.quoteName("quantity") + qty + ", "  + dataBaseObject.quoteName("date_add") + " = NOW() WHERE ";
@@ -600,7 +601,7 @@ public class JeproLabCartModel extends JeproLabModel{
                             }
 
                             if (quantity < minimalQuantity) {
-                                return -1;
+                                return false;
                             }
 
                             query = "INSERT INTO " + dataBaseObject.quoteName("#__jeprolab_cart_analyze") + "( " + dataBaseObject.quoteName("analyze_id");
@@ -809,13 +810,13 @@ public class JeproLabCartModel extends JeproLabModel{
                             cartAnalyzeSet.getInt("analyze_id"), this.laboratory_id, this.currency_id,
                             countryId, this.laboratory_group_id, cartAnalyzeSet.getInt("cart_quantity"),
                             cartAnalyzeSet.getInt("analyze_attribute_id"), this.customer_id, this.cart_id);
-                    /*Map<Stri>
+                    Map<String, String> reductionTypeRow = new HashMap<>();
                     if(specificPrice != null) {
-                        $reductionTypeRow = array('reduction_type' = > specificPrice.reduction_type);
+                        reductionTypeRow.put("reduction_type", specificPrice.reduction_type);
                     } else {
-                        $reduction_type_row = array('reduction_type' = > 0);
+                        reductionTypeRow.put("reduction_type", "");
                     }
-
+/*
                     $result[$key] = array_merge($row, $reduction_type_row); */
                 }
             }catch (SQLException ignored){
@@ -836,116 +837,116 @@ public class JeproLabCartModel extends JeproLabModel{
         JeproLabContext cartLabContext;
         try{
             cartLabContext = JeproLabContext.getContext().cloneContext();
-        }catch (CloneNotSupportedException ignored){
-            ignored.printStackTrace();
-        }
-
-        if(cartAnalyzeSet != null) {
-            try {
-                int cartQuantity;
-                JeproLabAnalyzeModel analyze;
-                while (cartAnalyzeSet.next()) {
-                    analyze = new JeproLabAnalyzeModel();
-                    //if (isset($row['ecotax_attr']) && $row['ecotax_attr'] > 0) {
+            if(cartAnalyzeSet != null) {
+                try {
+                    int cartQuantity;
+                    JeproLabAnalyzeModel analyze;
+                    while (cartAnalyzeSet.next()) {
+                        analyze = new JeproLabAnalyzeModel();
+                        //if (isset($row['ecotax_attr']) && $row['ecotax_attr'] > 0) {
                         analyze.eco_tax = cartAnalyzeSet.getFloat("eco_tax_attr");
-                    //}
+                        //}
 
-                    analyze.stock_quantity = cartAnalyzeSet.getInt("quantity");
-                    analyze.quantity = cartAnalyzeSet.getInt("cart_quantity");
+                        analyze.stock_quantity = cartAnalyzeSet.getInt("quantity");
+                        analyze.quantity = cartAnalyzeSet.getInt("cart_quantity");
 
                     /*if (isset($row['id_product_attribute']) && (int) $row['id_product_attribute'] && isset($row['weight_attribute'])) {
                         $row['weight'] = (float) $row['weight_attribute'];
                     } */
-                    int addressId = JeproLabSettingModel.getStringValue("tax_address_type").equals("invoice_address_id") ? this.invoice_address_id : this.delivery_address_id;
+                        int addressId = JeproLabSettingModel.getStringValue("tax_address_type").equals("invoice_address_id") ? this.invoice_address_id : this.delivery_address_id;
 
 
-                    if (!JeproLabAddressModel.addressExists(addressId)) {
-                        addressId = 0;
-                    }
-
-                    if (cartLabContext.laboratory.laboratory_id != analyze.laboratory_id) {
-                        cartLabContext.laboratory = new JeproLabLaboratoryModel(analyze.laboratory_id);
-                    }
-
-                    JeproLabAddressModel address = JeproLabAddressModel.initialize(addressId, true);
-                    int taxRulesGroupId = JeproLabAnalyzeModel.getTaxRulesGroupIdByAnalyzeId(cartAnalyzeSet.getInt("analyze_id"), cartLabContext);
-                    JeproLabTaxModel.JeproLabTaxCalculator taxCalculator = JeproLabTaxModel.JeproLabTaxManagerFactory.getManager(address, taxRulesGroupId).getTaxCalculator();
-
-                    cartQuantity = cartAnalyzeSet.getInt("cart_quantity");
-
-                    analyze.analyze_price.price_without_reduction = JeproLabAnalyzeModel.getStaticPrice(
-                            cartAnalyzeSet.getInt("analyze_id"), true,
-                            ((cartAnalyzeSet.getInt("analyze_attribute_id") > 0) ? cartAnalyzeSet.getInt("analyze_attribute_id") : 0),
-                            6, null, false, false, cartQuantity, false, (this.customer_id > 0 ? this.customer_id : 0),
-                            this.cart_id, addressId, $specific_price_output, true, true, cartLabContext
-                    );
-
-                    analyze.analyze_price.price_with_reduction = JeproLabAnalyzeModel.getStaticPrice(
-                            cartAnalyzeSet.getInt("analyze_id"), true,
-                            ((cartAnalyzeSet.getInt("analyze_attribute_id") > 0) ? cartAnalyzeSet.getInt("analyze_attribute_id") : 0),
-                            6, null, false, true, cartQuantity, false, (this.customer_id > 0 ? this.customer_id : 0),
-                            this.cart_id, addressId, $specific_price_output, true, true, cartLabContext
-                    );
-
-                    analyze.analyze_price.price = analyze.analyze_price.price_with_reduction_without_tax = JeproLabAnalyzeModel.getStaticPrice(
-                            cartAnalyzeSet.getInt("analyze_id"), false,
-                            ((cartAnalyzeSet.getInt("analyze_attribute_id") > 0) ? cartAnalyzeSet.getInt("analyze_attribute_id") : 0),
-                            6, null, false, true, cartQuantity, false, (this.customer_id > 0 ? this.customer_id : 0),
-                            (int) this.cart_id, addressId, specific_price_output, true, true, cartLabContext
-                    );
-
-                    float priceWithReductionWithOutTax = cartAnalyzeSet.getFloat("price_with_reduction_without_tax");
-                    float priceWithReduction = cartAnalyzeSet.getFloat("price_with_reduction");
-
-                    switch (JeproLabSettingModel.getIntValue("round_type")) {
-                        case JeproLabRequestModel.ROUND_TOTAL:
-                            analyze.analyze_price.total = priceWithReductionWithOutTax * cartQuantity;
-                            analyze.analyze_price.total_with_tax = priceWithReduction * cartQuantity;
-                            break;
-                        case JeproLabRequestModel.ROUND_LINE:
-                            analyze.analyze_price.total = JeproLabTools.roundPrice(priceWithReductionWithOutTax * cartQuantity, JeproLabConfigurationSettings.JEPROLAB_PRICE_DISPLAY_PRECISION);
-                            analyze.analyze_price.total_with_tax = JeproLabTools.roundPrice(priceWithReduction * cartQuantity, JeproLabConfigurationSettings.JEPROLAB_PRICE_DISPLAY_PRECISION);
-                            break;
-
-                        case JeproLabRequestModel.ROUND_ITEM:
-                        default:
-                            analyze.analyze_price.total = JeproLabTools.roundPrice(priceWithReductionWithOutTax, JeproLabConfigurationSettings.JEPROLAB_PRICE_DISPLAY_PRECISION) * cartQuantity;
-                            analyze.analyze_price.total_with_tax = JeproLabTools.roundPrice(priceWithReduction, JeproLabConfigurationSettings.JEPROLAB_PRICE_DISPLAY_PRECISION) * cartQuantity;
-                            break;
-                    }
-
-                    analyze.analyze_price.price_with_out_reductiongtrf = priceWithReduction;
-                    analyze.short_description = Tools::nl2br ($row['description_short']);
-
-                    // check if a image associated with the attribute exists
-                    if (cartAnalyzeSet.getInt("analyze_attribute_id") > 0) {
-                        Map<String, String> rowData = JeproLabImageModel.getBestImageAttribute(analyze.laboratory_id, this.language_id, cartAnalyzeSet.getInt("analyze_id"), cartAnalyzeSet.getInt("analyze_attribute_id"));
-                        if (!rowData.isEmpty()) {
-                            if(rowData.containsKey("image_id")){
-                                analyze.image_name = rowData.get("image_id");
-                            }
-                            //analyze = array_merge($row, $row2);
+                        if (!JeproLabAddressModel.addressExists(addressId)) {
+                            addressId = 0;
                         }
+
+                        if (cartLabContext.laboratory.laboratory_id != analyze.laboratory_id) {
+                            cartLabContext.laboratory = new JeproLabLaboratoryModel(analyze.laboratory_id);
+                        }
+
+                        JeproLabAddressModel address = JeproLabAddressModel.initialize(addressId, true);
+                        int taxRulesGroupId = JeproLabAnalyzeModel.getTaxRulesGroupIdByAnalyzeId(cartAnalyzeSet.getInt("analyze_id"), cartLabContext);
+                        JeproLabTaxModel.JeproLabTaxCalculator taxCalculator = JeproLabTaxModel.JeproLabTaxManagerFactory.getManager(address, taxRulesGroupId).getTaxCalculator();
+
+                        cartQuantity = cartAnalyzeSet.getInt("cart_quantity");
+
+                        analyze.analyze_price.price_without_reduction = JeproLabAnalyzeModel.getStaticPrice(
+                                cartAnalyzeSet.getInt("analyze_id"), true,
+                                ((cartAnalyzeSet.getInt("analyze_attribute_id") > 0) ? cartAnalyzeSet.getInt("analyze_attribute_id") : 0),
+                                6, null, false, false, cartQuantity, false, (this.customer_id > 0 ? this.customer_id : 0),
+                                this.cart_id, addressId, $specific_price_output, true, true, cartLabContext
+                        );
+
+                        analyze.analyze_price.price_with_reduction = JeproLabAnalyzeModel.getStaticPrice(
+                                cartAnalyzeSet.getInt("analyze_id"), true,
+                                ((cartAnalyzeSet.getInt("analyze_attribute_id") > 0) ? cartAnalyzeSet.getInt("analyze_attribute_id") : 0),
+                                6, null, false, true, cartQuantity, false, (this.customer_id > 0 ? this.customer_id : 0),
+                                this.cart_id, addressId, $specific_price_output, true, true, cartLabContext
+                        );
+
+                        analyze.analyze_price.price = analyze.analyze_price.price_with_reduction_without_tax = JeproLabAnalyzeModel.getStaticPrice(
+                                cartAnalyzeSet.getInt("analyze_id"), false,
+                                ((cartAnalyzeSet.getInt("analyze_attribute_id") > 0) ? cartAnalyzeSet.getInt("analyze_attribute_id") : 0),
+                                6, null, false, true, cartQuantity, false, (this.customer_id > 0 ? this.customer_id : 0),
+                                (int) this.cart_id, addressId, specific_price_output, true, true, cartLabContext
+                        );
+
+                        float priceWithReductionWithOutTax = cartAnalyzeSet.getFloat("price_with_reduction_without_tax");
+                        float priceWithReduction = cartAnalyzeSet.getFloat("price_with_reduction");
+
+                        switch (JeproLabSettingModel.getIntValue("round_type")) {
+                            case JeproLabRequestModel.ROUND_TOTAL:
+                                analyze.analyze_price.total = priceWithReductionWithOutTax * cartQuantity;
+                                analyze.analyze_price.total_with_tax = priceWithReduction * cartQuantity;
+                                break;
+                            case JeproLabRequestModel.ROUND_LINE:
+                                analyze.analyze_price.total = JeproLabTools.roundPrice(priceWithReductionWithOutTax * cartQuantity, JeproLabConfigurationSettings.JEPROLAB_PRICE_DISPLAY_PRECISION);
+                                analyze.analyze_price.total_with_tax = JeproLabTools.roundPrice(priceWithReduction * cartQuantity, JeproLabConfigurationSettings.JEPROLAB_PRICE_DISPLAY_PRECISION);
+                                break;
+
+                            case JeproLabRequestModel.ROUND_ITEM:
+                            default:
+                                analyze.analyze_price.total = JeproLabTools.roundPrice(priceWithReductionWithOutTax, JeproLabConfigurationSettings.JEPROLAB_PRICE_DISPLAY_PRECISION) * cartQuantity;
+                                analyze.analyze_price.total_with_tax = JeproLabTools.roundPrice(priceWithReduction, JeproLabConfigurationSettings.JEPROLAB_PRICE_DISPLAY_PRECISION) * cartQuantity;
+                                break;
+                        }
+
+                        analyze.analyze_price.price_with_out_reduction = priceWithReduction;
+                        //analyze.short_description = Tools::nl2br ($row['description_short']);
+
+                        // check if a image associated with the attribute exists
+                        if (cartAnalyzeSet.getInt("analyze_attribute_id") > 0) {
+                            Map<String, String> rowData = JeproLabImageModel.getBestImageAttribute(analyze.laboratory_id, this.language_id, cartAnalyzeSet.getInt("analyze_id"), cartAnalyzeSet.getInt("analyze_attribute_id"));
+                            if (!rowData.isEmpty()) {
+                                if(rowData.containsKey("image_id")){
+                                    analyze.image_name = rowData.get("image_id");
+                                }
+                                //analyze = array_merge($row, $row2);
+                            }
+                        }
+
+                        analyze.reduction_applies = ($specific_price_output && (float) $specific_price_output['reduction']);
+                        analyze.quantity_discount_applies = ($specific_price_output && $row['cart_quantity'] >= (int) $specific_price_output['from_quantity']);
+                        analyze.image_name = JeproLabAnalyzeModel.defineAnalyzeImage(analyze, this.language_id);
+                        analyze.allow_out_of_stock_request = JeproLabAnalyzeModel.isAvailableWhenOutOfStock(cartAnalyzeSet.getInt("out_of_stock"));
+                        analyze.features = JeproLabAnalyzeModel.getStaticFeatures(cartAnalyzeSet.getInt("analyze_id"));
+
+                        if (JeproLabCartModel._attributesLists.containsKey(cartAnalyzeSet.getInt("analyze_attribute_id") + "_" + this.language_id)) {
+                            //$row = array_merge($row, self::$_attributesLists[$row['id_product_attribute']. '-'. this.language_id]);
+                        }
+
+                        analyze = JeproLabAnalyzeModel.getTaxesInformation(analyze, cartLabContext);
+
+                        this._analyzes.add(analyze);
                     }
-
-                    analyze.reduction_applies = ($specific_price_output && (float) $specific_price_output['reduction']);
-                    analyze.quantity_discount_applies = ($specific_price_output && $row['cart_quantity'] >= (int) $specific_price_output['from_quantity']);
-                    analyze.image_name = JeproLabAnalyzeModel.defineAnalyzeImage(analyze, this.language_id);
-                    analyze.allow_out_of_stock_request = JeproLabAnalyzeModel.isAvailableWhenOutOfStock(cartAnalyzeSet.getInt("out_of_stock"));
-                    analyze.features = JeproLabAnalyzeModel.getStaticFeatures(cartAnalyzeSet.getInt("analyze_id"));
-
-                    if (JeproLabCartModel._attributesLists.containsKey(cartAnalyzeSet.getInt("analyze_attribute_id") + "_" + this.language_id)) {
-                        //$row = array_merge($row, self::$_attributesLists[$row['id_product_attribute']. '-'. this.language_id]);
-                    }
-
-                    analyze = JeproLabAnalyzeModel.getTaxesInformation(analyze, cartLabContext);
-
-                    this._analyzes.add(analyze);
+                } catch (SQLException ignored) {
+                    ignored.printStackTrace();
                 }
-            } catch (SQLException ignored) {
-                ignored.printStackTrace();
             }
+        }catch (CloneNotSupportedException ignored){
+            ignored.printStackTrace();
         }
+
         return this._analyzes;
     }
 /* /
@@ -1506,11 +1507,9 @@ public class JeproLabCartModel extends JeproLabModel{
                 // Cart Rules array are merged manually in order to avoid doubles
                 for(JeproLabCartRuleModel tmpCartRule : this.getCartRules(JeproLabCartRuleModel.FILTER_ACTION_GIFT)){
                     flag = false;
-                    for(JeproLabCartRuleModel cartRule : cartRules){
-                        if (tmpCartRule.cart_rule_id == cartRule.cart_rule_id) {
-                            flag = true;
-                        }
-                    }
+                    cartRules.stream().filter(cartRule -> tmpCartRule.cart_rule_id == cartRule.cart_rule_id).forEach(cartRule -> {
+                        flag = true;
+                    });
                     if (!flag) {
                         cartRules.add(tmpCartRule);
                     }
@@ -2446,10 +2445,10 @@ public class JeproLabCartModel extends JeproLabModel{
                         query += ") ";
 
                         dataBaseObject.setQuery(query);
-                        int combinable = (int)dataBaseObject.loadValue("cart_rule_id_1");
-                        if (combinable <= 0) {
+                        int combined = (int)dataBaseObject.loadValue("cart_rule_id_1");
+                        if (combined <= 0) {
                             JeproLabCartRuleModel cartRule = new JeproLabCartRuleModel(otherCartRule.cart_rule_id, context.cart.language_id);
-                            // The cart rules are not combinable and the cart rule currently in the cart has priority over the one tested
+                            // The cart rules can't be combined and the cart rule currently in the cart has priority over the one tested
                             if (cartRule.priority <= this.priority) {
                                 return (!displayError) ? false : JeproLabTools.displayBarMessage(500, "This voucher is not combinable with an other voucher already in your cart:" + " " + cartRule.name);
                             }
@@ -2484,12 +2483,12 @@ public class JeproLabCartModel extends JeproLabModel{
         }
 
         protected boolean checkAnalyzeRestrictions(JeproLabContext context, boolean returnAnalyzes, boolean displayError, boolean alreadyInCart){
-            $selected_products = array();
+            List selectedAnalyzes = new ArrayList();
 
             // Check if the products chosen by the customer are usable with the cart rule
             if(this.analyze_restriction) {
                 analyzeRuleGroups = this.getAnalyzeRuleGroups();
-                for($product_rule_groups as $id_product_rule_group => $product_rule_group) {
+                for(analyzeRuleGroups : analyzeRuleGroup){
                     List<String> eligibleAnalyzeList = new ArrayList<>();
                     List<JeproLabAnalyzeModel> analyzes = new ArrayList<>();
                     if (context.cart != null && context.cart.cart_id > 0) {
@@ -2500,7 +2499,7 @@ public class JeproLabCartModel extends JeproLabModel{
                         return (!displayError) ? false : JeproLabTools.displayBarMessage(500, 'You cannot use this voucher in an empty cart');
                     }
 
-                    analyzeRules = this.getAnalyzeRules(analyzeRuleGroupId);
+                    analyzeRules = this.getAnalyzeRules(analyzeRuleGroup.analyze_rule_group_id);
                     if(dataBaseObject == null){
                         dataBaseObject = JeproLabFactory.getDataBaseConnector();
                     }

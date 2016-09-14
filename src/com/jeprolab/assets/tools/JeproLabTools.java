@@ -93,9 +93,6 @@ public class JeproLabTools {
         dialogBox.showAndWait();
     }
 
-    public static boolean displayBarMessage(int code, String message){
-        return true;
-    }
 
     public static boolean isOrderBy(String order){
         String pattern = "/^[a-zA-Z0-9._-]+$/";
