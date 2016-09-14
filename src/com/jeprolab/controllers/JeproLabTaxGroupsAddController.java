@@ -8,10 +8,14 @@ import com.jeprolab.assets.extend.controls.switchbutton.JeproSwitchButton;
 import com.jeprolab.models.JeproLabTaxModel;
 import javafx.fxml.FXML;
 import javafx.geometry.Insets;
+import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
+import javafx.scene.layout.HBox;
 
 import java.net.URL;
 import java.util.ResourceBundle;
@@ -22,6 +26,7 @@ import java.util.ResourceBundle;
  */
 public class JeproLabTaxGroupsAddController extends JeproLabController {
     private JeproLabTaxModel.JeproLabTaxRulesGroupModel tax_rules_group;
+    private Button saveTaxRulesGroup;
     @FXML
     public Label jeproLabTaxRulesGroupNameLabel, jeproLabTaxRulesGroupPublishedLabel;
     public TextField jeproLabTaxRulesGroupName;
@@ -64,6 +69,29 @@ public class JeproLabTaxGroupsAddController extends JeproLabController {
         loadTaxGroup();
         jeproLabTaxRulesGroupName.setText(tax_rules_group.name);
         jeproLabTaxRulesGroupPublished.setSelected(tax_rules_group.published);
+        updateToolBar();
+    }
+
+    @Override
+    public void updateToolBar(){
+        HBox commandWrapper = JeproLab.getInstance().getApplicationToolBarCommandWrapper();
+        commandWrapper.getChildren().clear();
+        saveTaxRulesGroup = new Button(bundle.getString("JEPROLAB_SAVE_LABEL"), new ImageView(new Image(JeproLab.class.getResourceAsStream("resources/images/floppy-icon.png"))));
+        commandWrapper.getChildren().addAll(saveTaxRulesGroup);
+        addCommandListener();
+    }
+
+    private void addCommandListener(){
+        saveTaxRulesGroup.setOnAction(event -> {
+            tax_rules_group.name = jeproLabTaxRulesGroupName.getText();
+            tax_rules_group.published = jeproLabTaxRulesGroupPublished.isSelected();
+
+            if(tax_rules_group.tax_rules_group_id > 0){
+                tax_rules_group.update();
+            }else{
+                tax_rules_group.save();
+            }
+        });
     }
 
     private void loadTaxGroup(){

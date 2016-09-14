@@ -53,8 +53,8 @@ public class JeproLab extends Application {
 
     public static final double APP_WIDTH = 1000;
     public static final double APP_HEIGHT = 800;
-    public static final int APP_INSTALLER_WIDTH = 543;
-    public static final int APP_INSTALLER_HEIGHT = 410;
+    //public static final int APP_INSTALLER_WIDTH = 543;
+    //public static final int APP_INSTALLER_HEIGHT = 410;
 
     private Scene scene;
     public static File configurationFile;
@@ -140,8 +140,8 @@ public class JeproLab extends Application {
 
         if (context.employee == null || !context.employee.isLogged) {
             //redirect user to the login form
-            //menuBar.setFormVisible(false);
-            //applicationToolBar.setVisible(false);
+            menuBar.setFormVisible(false);
+            applicationToolBar.setVisible(false);
             goToForm(applicationForms.loginForm);
             //goToForm(applicationForms.addressesForm);
         } else {

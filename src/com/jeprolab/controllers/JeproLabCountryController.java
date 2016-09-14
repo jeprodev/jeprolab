@@ -19,6 +19,7 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.util.Callback;
 
+import java.io.IOException;
 import java.net.URL;
 import java.util.Arrays;
 import java.util.List;
@@ -44,14 +45,18 @@ public class JeproLabCountryController extends JeproLabController{
     public TableColumn<JeproLabCountryRecord, String> jeproLabCountryCallPrefixColumn;
     public TableColumn<JeproLabCountryRecord, String> jeproLabCountryZoneColumn;
     public TableColumn<JeproLabCountryRecord, HBox> jeproLabCountryActionsColumn;
+    public HBox jeproLabCountrySearchWrapper;
+    public TextField jeproLabCountrySearch;
+    public Button jeproLabCountrySearchBtn;
 
 
     public  void initialize(URL location, ResourceBundle resource){
         super.initialize(location, resource);
         formWidth = 0.98 * JeproLab.APP_WIDTH;
-        double remainingWidth = formWidth - 274;
+        double remainingWidth = formWidth - 294;
 
         jeproLabCountryTableView.setPrefSize(formWidth, 600);
+        VBox.setMargin(jeproLabCountrySearchWrapper, new Insets(10, 0, 0,(0.01 * JeproLab.APP_WIDTH)));
         VBox.setMargin(jeproLabCountryTableView, new Insets(0, 0, 0,(0.01 * JeproLab.APP_WIDTH)));
 
         //jeproLabCountryTableView;
@@ -66,7 +71,7 @@ public class JeproLabCountryController extends JeproLabController{
         jeproLabCountryCheckBoxColumn.setGraphic(checkAll);
         Callback<TableColumn<JeproLabCountryRecord, Boolean>, TableCell<JeproLabCountryRecord, Boolean>> checkBoxFactory = param -> new JeproLabCheckBoxCell();
         jeproLabCountryCheckBoxColumn.setCellFactory(checkBoxFactory);
-        jeproLabCountryStatusColumn.setPrefWidth(40);
+        jeproLabCountryStatusColumn.setPrefWidth(60);
         jeproLabCountryStatusColumn.setText(bundle.getString("JEPROLAB_STATUS_LABEL"));
         tableCellAlign(jeproLabCountryStatusColumn, Pos.CENTER);
         Callback<TableColumn<JeproLabCountryRecord, Boolean>, TableCell<JeproLabCountryRecord, Boolean>> statusFactory = param -> new JeproLabStatusCell();
@@ -98,8 +103,10 @@ public class JeproLabCountryController extends JeproLabController{
         if(countryList == null) {
             countryList = FXCollections.observableArrayList();
         }
+
         List<JeproLabCountryModel> countries = JeproLabCountryModel.getCountries(context.language.language_id);
         if(countries != null){
+            countryList.clear();
             countryList.addAll(countries.stream().map(JeproLabCountryRecord::new).collect(Collectors.toList()));
         }
         jeproLabCountryTableView.setItems(countryList);
@@ -119,17 +126,17 @@ public class JeproLabCountryController extends JeproLabController{
 
     public static class JeproLabCountryRecord{
         private SimpleIntegerProperty countryId;
-        private SimpleBooleanProperty countryPublishrd;
+        private SimpleBooleanProperty countryPublished;
         private SimpleStringProperty countryName, countryIsoCode, countryCallPrefix, countryZone;
 
         public JeproLabCountryRecord(JeproLabCountryModel country){
             countryId = new SimpleIntegerProperty(country.country_id);
             countryName = new SimpleStringProperty(country.name.get("lang_" + JeproLabContext.getContext().language.language_id));
-            countryIsoCode = new SimpleStringProperty(String.valueOf(country.iso_code));
+            countryIsoCode = new SimpleStringProperty(country.iso_code);
             countryCallPrefix = new SimpleStringProperty(country.call_prefix);
             String zoneName = JeproLabCountryModel.JeproLabZoneModel.getNameByZoneId(country.zone_id);
             countryZone = new SimpleStringProperty(zoneName);
-            countryPublishrd = new SimpleBooleanProperty(country.published);
+            countryPublished = new SimpleBooleanProperty(country.published);
         }
 
         public int getCountryId(){
@@ -153,7 +160,7 @@ public class JeproLabCountryController extends JeproLabController{
         }
 
         public boolean getCountryPublished(){
-            return countryPublishrd.get();
+            return countryPublished.get();
         }
     }
 
@@ -163,7 +170,8 @@ public class JeproLabCountryController extends JeproLabController{
         private Button editBtn, deleteBtn;
 
         public JeproLabActionCell(){
-            commandContainer = new HBox(3);
+            commandContainer = new HBox(4);
+            commandContainer.setAlignment(Pos.CENTER);
             editBtn = new Button("", new ImageView(new Image(JeproLab.class.getResourceAsStream("resources/images/edit.png"))));
             editBtn.setPrefSize(btnSize, btnSize);
             editBtn.setMaxSize(btnSize, btnSize);
@@ -175,6 +183,7 @@ public class JeproLabCountryController extends JeproLabController{
             deleteBtn.setMaxSize(btnSize, btnSize);
             deleteBtn.setMinSize(btnSize, btnSize);
             deleteBtn.getStyleClass().add("icon-btn");
+            commandContainer.getChildren().addAll(editBtn, deleteBtn);
         }
 
         @Override
@@ -185,9 +194,18 @@ public class JeproLabCountryController extends JeproLabController{
         @Override
         public void updateItem(HBox item, boolean empty){
             super.updateItem(item, empty);
-            ObservableList items = getTableView().getItems();
+            ObservableList<JeproLabCountryRecord> items = getTableView().getItems();
             if((items != null) && (getIndex() >= 0 && getIndex() < items.size())){
-                commandContainer.getChildren().addAll(editBtn, deleteBtn);
+                int itemId =  items.get(getIndex()).getCountryId();
+                editBtn.setOnAction(event -> {
+                    JeproLab.request.setRequest("country_id=" + itemId);
+                    try{
+                        JeproLab.getInstance().goToForm(JeproLab.getInstance().getApplicationForms().addCountryForm);
+                        JeproLabContext.getContext().controller.initializeContent();
+                    }catch (IOException ignored){
+                        ignored.printStackTrace();
+                    }
+                });
                 this.getTableRow().setPrefHeight(JeproLabController.rowHeight);
                 setGraphic(commandContainer);
             }

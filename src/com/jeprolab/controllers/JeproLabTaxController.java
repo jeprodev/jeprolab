@@ -4,6 +4,7 @@ import com.jeprolab.JeproLab;
 import com.jeprolab.assets.tools.JeproLabContext;
 import com.jeprolab.models.JeproLabTaxModel;
 import javafx.beans.property.SimpleBooleanProperty;
+import javafx.beans.property.SimpleFloatProperty;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
@@ -31,7 +32,7 @@ import java.util.stream.Collectors;
  */
 public class JeproLabTaxController extends JeproLabController {
     private CheckBox checkAll;
-    private Button addTaxButton;
+    private Button addTaxButton, addTaxRuleButton;
     @FXML
     public TableView<JeproLabTaxRecord> jeproLabTaxTableView;
     public TableColumn<JeproLabTaxRecord, String> jeproLabTaxIndexColumn;
@@ -95,7 +96,7 @@ public class JeproLabTaxController extends JeproLabController {
     @Override
     public void initializeContent(){
         List<JeproLabTaxModel> taxRecords = JeproLabTaxModel.getTaxList();
-        System.out.println(taxRecords.size());
+
         ObservableList<JeproLabTaxRecord> taxRecordList = FXCollections.observableArrayList();
         if(!taxRecords.isEmpty()){
             taxRecordList.addAll(taxRecords.stream().map(JeproLabTaxRecord::new).collect(Collectors.toList()));
@@ -108,19 +109,47 @@ public class JeproLabTaxController extends JeproLabController {
     public void updateToolBar(){
         HBox commandWrapper = JeproLab.getInstance().getApplicationToolBarCommandWrapper();
         commandWrapper.getChildren().clear();
+        commandWrapper.setSpacing(10);
 
-        commandWrapper.getChildren().addAll(addTaxButton);
+        addTaxButton = new Button(bundle.getString("JEPROLAB_ADD_NEW_LABEL") + " " + bundle.getString("JEPROLAB_TAX_LABEL"));
+        addTaxButton.getStyleClass().add("add-btn");
+        addTaxRuleButton = new Button(bundle.getString("JEPROLAB_ADD_NEW_LABEL") + " " + bundle.getString("JEPROLAB_TAX_RULE_LABEL"));
+        addTaxRuleButton.getStyleClass().add("add-btn");
+        commandWrapper.getChildren().addAll(addTaxButton, addTaxRuleButton);
+        addCommandListener();
+    }
+
+    private void addCommandListener(){
+        addTaxButton.setOnAction(event -> {
+            try{
+                JeproLab.getInstance().goToForm(JeproLab.getInstance().getApplicationForms().addTaxForm);
+                JeproLabContext.getContext().controller.initializeContent();
+            }catch(Exception ignored){
+                ignored.printStackTrace();
+            }
+        });
+
+        addTaxRuleButton.setOnAction(event -> {
+            try{
+                JeproLab.getInstance().goToForm(JeproLab.getInstance().getApplicationForms().addTaxRuleForm);
+                JeproLabContext.getContext().controller.initializeContent();
+            }catch(Exception ignored){
+                ignored.printStackTrace();
+            }
+        });
     }
 
     public static class JeproLabTaxRecord{
         private SimpleIntegerProperty taxIndex;
         private SimpleStringProperty taxName;
         private SimpleBooleanProperty taxPublished;
+        private SimpleFloatProperty taxRate;
 
         public JeproLabTaxRecord(JeproLabTaxModel tax){
             taxIndex = new SimpleIntegerProperty(tax.tax_id);
             taxName = new SimpleStringProperty(tax.name.get("lang_" + JeproLabContext.getContext().language.language_id));
             taxPublished = new SimpleBooleanProperty(tax.published);
+            taxRate = new SimpleFloatProperty(tax.rate);
         }
 
         public int getTaxIndex(){
@@ -134,8 +163,11 @@ public class JeproLabTaxController extends JeproLabController {
         public boolean getTaxPublished(){
             return taxPublished.get();
         }
-    }
 
+        public String getTaxRate(){
+            return taxRate.get() + "%";
+        }
+    }
 
     private static class JeproLabStatusCell extends TableCell<JeproLabTaxRecord, Button>{
         private Button statusButton;

@@ -49,7 +49,6 @@ public class JeproLabRequestAddController extends JeproLabController{
     //private int firstContactId, secondContactId, thirdContactId, fourthContactId;
     private Button saveRequestBtn, cancelBtn, printCertificateBtn;
     private double fourthColumnWidth = 280;
-    //private final double formWidth = 0.98 * JeproLab.APP_WIDTH;
     private final double subFormWidth = 0.96 * JeproLab.APP_WIDTH;
     private int firstContactId, secondContactId, thirdContactId, fourthContactId;
 
@@ -192,12 +191,12 @@ public class JeproLabRequestAddController extends JeproLabController{
 
         jeproLabRequestDelay.setPrefWidth(fourthColumnWidth);
         jeproLabRequestDelay.getItems().addAll(
-                bundle.getString("JEPROLAB_ANALYSE_REGULAR_DELAY_LABEL"),
-                bundle.getString("JEPROLAB_ANALYSE_EXPRESS_DELAY_12_HOURS_LABEL"),
-                bundle.getString("JEPROLAB_ANALYSE_EXPRESS_DELAY_24_HOURS_LABEL"),
-                bundle.getString("JEPROLAB_ANALYSE_EXPRESS_DELAY_48_HOURS_LABEL")
+                bundle.getString("JEPROLAB_ANALYZE_REGULAR_DELAY_LABEL"),
+                bundle.getString("JEPROLAB_ANALYZE_EXPRESS_DELAY_12_HOURS_LABEL"),
+                bundle.getString("JEPROLAB_ANALYZE_EXPRESS_DELAY_24_HOURS_LABEL"),
+                bundle.getString("JEPROLAB_ANALYZE_EXPRESS_DELAY_48_HOURS_LABEL")
         );
-        jeproLabRequestDelay.setValue(bundle.getString("JEPROLAB_ANALYSE_REGULAR_DELAY_LABEL"));
+        jeproLabRequestDelay.setValue(bundle.getString("JEPROLAB_ANALYZE_REGULAR_DELAY_LABEL"));
 
         jeproLabRequestStatusLabel.setText(bundle.getString("JEPROLAB_REQUEST_STATUS_LABEL"));
         jeproLabRequestStatus.setPromptText(bundle.getString("JEPROLAB_SELECT_STATUS_LABEL"));
@@ -303,7 +302,7 @@ public class JeproLabRequestAddController extends JeproLabController{
         jeproLabRequestSampleTab.setText(bundle.getString("JEPROLAB_SAMPLES_LABEL"));
 
         jeproLabSampleCheckBoxColumn.setGraphic(checkAll);
-        jeproLabSampleCheckBoxColumn.setPrefWidth(20);
+        jeproLabSampleCheckBoxColumn.setPrefWidth(30);
         Callback<TableColumn<JeproLabSampleRecord, Boolean>, TableCell<JeproLabSampleRecord, Boolean>> checkBoxCellFactory = param -> new JeproLabCheckBoxCell();
         jeproLabSampleCheckBoxColumn.setCellFactory(checkBoxCellFactory);
         jeproLabSampleReferenceColumn.setText(bundle.getString("JEPROLAB_REFERENCE_LABEL"));
@@ -342,7 +341,7 @@ public class JeproLabRequestAddController extends JeproLabController{
         jeproLabSampleMatrixLabel.getStyleClass().add("input-label");
         jeproLabSampleTestDateLabel.setText(bundle.getString("JEPROLAB_REMOVAL_DATE_LABEL"));
         jeproLabSampleTestDateLabel.getStyleClass().add("input-label");
-        jeproLabSampleAnalyzeSelectorLabel.setText(bundle.getString("JEPROLAB_SELECT_ANALYSES_LABEL"));
+        jeproLabSampleAnalyzeSelectorLabel.setText(bundle.getString("JEPROLAB_SELECT_ANALYZES_LABEL"));
         jeproLabSampleAnalyzeSelectorLabel.getStyleClass().add("input-label");
         jeproLabRequestReferenceLabel.setText(bundle.getString("JEPROLAB_REFERENCE_LABEL"));
         jeproLabRequestReferenceLabel.getStyleClass().add("input-label");
@@ -394,6 +393,9 @@ public class JeproLabRequestAddController extends JeproLabController{
         }
         this.updateToolBar();
         this.addEventListeners();
+        if(!context.employee.isSuperAdmin()){
+            printCertificateBtn.setDisable(true);
+        }
     }
 
     private void loadRequest(){

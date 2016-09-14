@@ -38,7 +38,7 @@ import java.util.stream.Collectors;
 public class JeproLabCategoryController extends JeproLabController{
     private double rowHeight;
     CheckBox checkAll;
-    Button addCategoryBtn;
+    Button addCategoryBtn, addRootCategoryButton;
     JeproLabCategoryModel category;
     List<JeproLabCategoryModel> categories;
 
@@ -89,9 +89,6 @@ public class JeproLabCategoryController extends JeproLabController{
         categoryActionColumn.setPrefWidth(0.09 * remainingWidth);
         Callback<TableColumn<JeproLabCategoryRecord, HBox>, TableCell<JeproLabCategoryRecord, HBox>> actionFactory = param -> new JeproLabActionCell();
         categoryActionColumn.setCellFactory(actionFactory);
-
-
-
     }
 
     @Override
@@ -103,11 +100,11 @@ public class JeproLabCategoryController extends JeproLabController{
             this.category = new JeproLabCategoryModel(context.category_id);
         } else {
             if (JeproLabLaboratoryModel.isFeaturePublished() && JeproLabLaboratoryModel.getLabContext() == JeproLabLaboratoryModel.LAB_CONTEXT) {
-                category = new JeproLabCategoryModel(context.laboratory.category_id);
+                this.category = new JeproLabCategoryModel(context.laboratory.category_id);
             } else if (JeproLabCategoryModel.getCategoriesWithoutParent().size() > 1 && JeproLabSettingModel.getIntValue("multi_lab_feature_active") > 1 && JeproLabLaboratoryModel.getLaboratories(true, 0, true).size() > 1) {
-                category = JeproLabCategoryModel.getTopCategory();
+                this.category = JeproLabCategoryModel.getTopCategory();
             } else {
-                category = new JeproLabCategoryModel(JeproLabSettingModel.getIntValue("root_category"));
+                this.category = new JeproLabCategoryModel(JeproLabSettingModel.getIntValue("root_category"));
             }
         }
 
@@ -164,6 +161,7 @@ public class JeproLabCategoryController extends JeproLabController{
         if(!categories.isEmpty()){
             ObservableList<JeproLabCategoryRecord> categoryList = FXCollections.observableArrayList();
             categoryList.addAll(categories.stream().map(JeproLabCategoryRecord::new).collect(Collectors.toList()));
+            categoryTableView.getItems().clear();
             categoryTableView.setItems(categoryList);
         }
     }
@@ -172,8 +170,35 @@ public class JeproLabCategoryController extends JeproLabController{
     public void updateToolBar(){
         HBox commandWrapper = JeproLab.getInstance().getApplicationToolBarCommandWrapper();
         commandWrapper.getChildren().clear();
+        commandWrapper.setSpacing(10);
         addCategoryBtn = new Button(bundle.getString("JEPROLAB_ADD_NEW_LABEL"), new ImageView(new Image(JeproLab.class.getResourceAsStream("resources/images/add.png"))));
-        commandWrapper.getChildren().addAll(addCategoryBtn);
+        addRootCategoryButton = new Button(bundle.getString("JEPROLAB_ADD_NEW_LABEL") + " " + bundle.getString("JEPROLAB_ROOT_CATEGORY_LABEL"), new ImageView(new Image(JeproLab.class.getResourceAsStream("resources/images/add.png"))));
+
+        commandWrapper.getChildren().addAll(addCategoryBtn, addRootCategoryButton);
+        addCommandEventLister();
+    }
+
+    private void addCommandEventLister(){
+        addCategoryBtn.setOnAction(evt ->{
+            try {
+                JeproLab.request.getRequest().clear();
+                JeproLab.getInstance().goToForm(JeproLab.getInstance().getApplicationForms().addCategoryForm);
+                JeproLabContext.getContext().controller.initializeContent();
+            }catch (IOException ignored){
+                ignored.printStackTrace();
+            }
+        });
+
+        addRootCategoryButton.setOnAction(event -> {
+            try {
+                JeproLab.request.getRequest().clear();
+                JeproLab.request.setRequest("is_root_category=1");
+                JeproLab.getInstance().goToForm(JeproLab.getInstance().getApplicationForms().addCategoryForm);
+                JeproLabContext.getContext().controller.initializeContent();
+            }catch (IOException ignored){
+                ignored.printStackTrace();
+            }
+        });
     }
 
     public static class JeproLabCategoryRecord{
@@ -324,10 +349,10 @@ public class JeproLabCategoryController extends JeproLabController{
 
     public static class JeproLabActionCell extends TableCell<JeproLabCategoryRecord, HBox>{
         private HBox commandContainer;
-        private Button editCategory, deleteCategory, viewCategory;
+        private Button editCategory, deleteCategory;
 
         public JeproLabActionCell(){
-            commandContainer = new HBox(5);
+            commandContainer = new HBox(10);
             final int btnSize = 20;
             editCategory = new Button("", new ImageView(new Image(JeproLab.class.getResourceAsStream("resources/images/edit.png"))));
             editCategory.setPrefSize(btnSize, btnSize);
@@ -341,13 +366,13 @@ public class JeproLabCategoryController extends JeproLabController{
             deleteCategory.setMinSize(btnSize, btnSize);
             deleteCategory.getStyleClass().add("icon-btn");
 
-            viewCategory = new Button("", new ImageView(new Image(JeproLab.class.getResourceAsStream("resources/images/view.png"))));
+            /*viewCategory = new Button("", new ImageView(new Image(JeproLab.class.getResourceAsStream("resources/images/view.png"))));
             viewCategory.setPrefSize(btnSize, btnSize);
             viewCategory.setMaxSize(btnSize, btnSize);
             viewCategory.setMinSize(btnSize, btnSize);
-            viewCategory.getStyleClass().add("icon-btn");
+            viewCategory.getStyleClass().add("icon-btn"); */
 
-            commandContainer.getChildren().addAll(editCategory, viewCategory, deleteCategory);
+            commandContainer.getChildren().addAll(editCategory, deleteCategory);
         }
 
         @Override
@@ -371,7 +396,8 @@ public class JeproLabCategoryController extends JeproLabController{
                     }
                 });
 
-                viewCategory.setOnMouseClicked(event -> {
+                /*viewCategory.setOnAction(event -> {
+
                     System.out.println("editit function");
                     System.out.println("editit function");
                 });
@@ -379,7 +405,7 @@ public class JeproLabCategoryController extends JeproLabController{
 
                     //tooltip.setText(bundle.getString("JEPROLAB_VIEW_CATEGORY_MESSAGE"));
                     System.out.println("editit function");
-                });
+                }); */
                 deleteCategory.setOnMouseClicked(event -> {
                     //if(JeproLabCategoryModel.staticDelete(categoryId)){
                     items.remove(items.get(getIndex()));
@@ -391,6 +417,7 @@ public class JeproLabCategoryController extends JeproLabController{
                     //tooltip.setText(bundle.getString("JEPROLAB_DELETE_CATEGORY_MESSAGE"));
                     System.out.println("editit function");
                 });
+                commandContainer.setAlignment(Pos.CENTER);
                 setGraphic(commandContainer);
             }
         }

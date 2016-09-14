@@ -78,6 +78,10 @@ public class JeproLabTools {
         dialogBox.showAndWait();
     }
 
+    public static boolean displayBarMessage(int code, String message){
+        return true;
+    }
+
     public static void displayWarning(int errorCode, String errorMessage){
         if(dialogBox == null){
             dialogBox = new Alert(Alert.AlertType.WARNING);

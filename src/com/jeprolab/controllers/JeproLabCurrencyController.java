@@ -1,7 +1,9 @@
 package com.jeprolab.controllers;
 
 import com.jeprolab.JeproLab;
+import com.jeprolab.assets.tools.JeproLabContext;
 import com.jeprolab.models.JeproLabCurrencyModel;
+import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
@@ -139,21 +141,36 @@ public class JeproLabCurrencyController extends JeproLabController{
         commandWrapper.getChildren().clear();
         addCurrencyBtn = new Button(bundle.getString("JEPROLAB_ADD_NEW_LABEL"), new ImageView(new Image(JeproLab.class.getResourceAsStream("resources/images/add.png"))));
         commandWrapper.getChildren().addAll(addCurrencyBtn);
+        addCommandEventListener();
+    }
+
+    private void addCommandEventListener(){
+        addCurrencyBtn.setOnAction(event -> {
+            try{
+                JeproLab.getInstance().goToForm(JeproLab.getInstance().getApplicationForms().addCurrencyForm);
+                JeproLabContext.getContext().controller.initializeContent();
+            }catch(Exception ignored){
+                ignored.printStackTrace();
+            }
+        });
     }
 
     public static class JeproLabCurrencyRecord{
-        private SimpleIntegerProperty currencyIndex, currencyFormat, currencyNumericIsoCode;
-        private SimpleStringProperty currencyName, currencyIsoCode, currencySymbol, currencyConversionRate;
-        //private SimpleStringProperty;
+        private SimpleIntegerProperty currencyIndex, currencyFormat, currencyHasDecimals;
+        private SimpleStringProperty currencyName, currencyIsoCode, currencySymbol, currencyConversionRate, currencyNumericIsoCode;
+        private SimpleBooleanProperty currencyHasSpacing, currencyStatus;
 
         public JeproLabCurrencyRecord(JeproLabCurrencyModel currency){
             currencyIndex = new SimpleIntegerProperty(currency.currency_id);
             currencyName = new SimpleStringProperty(currency.name);
             currencyIsoCode = new SimpleStringProperty(currency.iso_code);
-            currencyNumericIsoCode = new SimpleIntegerProperty(currency.iso_code_num);
+            currencyNumericIsoCode = new SimpleStringProperty(currency.iso_code_num);
             currencySymbol =  new SimpleStringProperty(currency.sign);
             currencyConversionRate = new SimpleStringProperty(String.valueOf(currency.conversion_rate));
             currencyFormat = new SimpleIntegerProperty(currency.format);
+            currencyHasDecimals = new SimpleIntegerProperty(currency.decimals);
+            currencyHasSpacing = new SimpleBooleanProperty(currency.blank);
+            currencyStatus = new SimpleBooleanProperty(currency.published);
         }
 
         public int getCurrencyIndex(){
@@ -164,7 +181,7 @@ public class JeproLabCurrencyController extends JeproLabController{
             return currencyFormat.get();
         }
 
-        public int getCurrencyNumericIsoCode(){
+        public String getCurrencyNumericIsoCode(){
             return  currencyNumericIsoCode.get();
         }
 
@@ -184,43 +201,104 @@ public class JeproLabCurrencyController extends JeproLabController{
             return currencyConversionRate.get();
         }
 
-    }
+        public int getCurrencyHasDecimals(){
+            return currencyHasDecimals.get();
+        }
 
+        public boolean getCurrencyHasSpacing(){
+            return currencyHasSpacing.get();
+        }
+
+        public boolean getCurrencyStatus(){
+            return currencyStatus.get();
+        }
+    }
 
     private static class JeproLabHasDecimalCell extends TableCell<JeproLabCurrencyRecord, Button> {
+        private Button hasDecimalButton;
 
         public JeproLabHasDecimalCell(){
-
+            hasDecimalButton = new Button();
+            hasDecimalButton.setPrefSize(18, 18);
+            hasDecimalButton.setMinSize(18, 18);
+            hasDecimalButton.setMaxSize(18, 18);
+            hasDecimalButton.getStyleClass().addAll("icon-btn");
         }
 
         @Override
         public void updateItem(Button item, boolean empty){
+            super.updateItem(item, empty);
 
+            ObservableList<JeproLabCurrencyRecord> items = getTableView().getItems();
+
+            if(items != null && (getIndex() >= 0 && getIndex() < items.size())){
+                if(items.get(getIndex()).getCurrencyHasDecimals() > 0) {
+                    hasDecimalButton.setGraphic(new ImageView(new Image(JeproLab.class.getResourceAsStream("resources/images/published.png"))));
+                }else{
+                    hasDecimalButton.setGraphic(new ImageView(new Image(JeproLab.class.getResourceAsStream("resources/images/unpublished.png"))));
+                }
+                setGraphic(hasDecimalButton);
+                setAlignment(Pos.CENTER);
+            }
         }
     }
 
-
     private static class JeproLabStatusCell extends TableCell<JeproLabCurrencyRecord, Button> {
-        public JeproLabStatusCell(){
+        private Button currencyStatus;
 
+        public JeproLabStatusCell(){
+            currencyStatus = new Button();
+            currencyStatus.setPrefSize(18, 18);
+            currencyStatus.setMinSize(18, 18);
+            currencyStatus.setMaxSize(18, 18);
+            currencyStatus.getStyleClass().add("icon-btn");
         }
 
         @Override
         public void updateItem(Button item, boolean empty){
+            super.updateItem(item, empty);
 
+            ObservableList<JeproLabCurrencyRecord> items = getTableView().getItems();
+
+            if(items != null && (getIndex() >= 0 && getIndex() < items.size())){
+                if(items.get(getIndex()).getCurrencyStatus()) {
+                    currencyStatus.setGraphic(new ImageView(new Image(JeproLab.class.getResourceAsStream("resources/images/published.png"))));
+                }else{
+                   currencyStatus.setGraphic(new ImageView(new Image(JeproLab.class.getResourceAsStream("resources/images/unpublished.png"))));
+                }
+                setGraphic(currencyStatus);
+                setAlignment(Pos.CENTER);
+            }
         }
     }
 
 
     private static class JeproLabHasSpacingCell extends TableCell<JeproLabCurrencyRecord, Button> {
+        private Button hasSpacingButton;
 
         public JeproLabHasSpacingCell(){
-
+            hasSpacingButton = new Button();
+            hasSpacingButton.setPrefSize(18, 18);
+            hasSpacingButton.setMinSize(18, 18);
+            hasSpacingButton.setMaxSize(18, 18);
+            hasSpacingButton.getStyleClass().addAll("icon-btn");
         }
 
         @Override
         public void updateItem(Button item, boolean empty){
+            super.updateItem(item, empty);
 
+            ObservableList<JeproLabCurrencyRecord> items = getTableView().getItems();
+
+            if(items != null && (getIndex() >= 0 && getIndex() < items.size())){
+                if(items.get(getIndex()).getCurrencyHasSpacing()) {
+                    hasSpacingButton.setGraphic(new ImageView(new Image(JeproLab.class.getResourceAsStream("resources/images/published.png"))));
+                }else{
+                    hasSpacingButton.setGraphic(new ImageView(new Image(JeproLab.class.getResourceAsStream("resources/images/unpublished.png"))));
+                }
+                setGraphic(hasSpacingButton);
+                setAlignment(Pos.CENTER);
+            }
         }
     }
 
@@ -276,7 +354,17 @@ public class JeproLabCurrencyController extends JeproLabController{
             ObservableList<JeproLabCurrencyRecord> items = getTableView().getItems();
 
             if(items != null && (getIndex() >= 0 && getIndex() < items.size())){
-                 setGraphic(commandWrapper);
+                int itemId = items.get(getIndex()).getCurrencyIndex();
+                editCurrency.setOnAction(event -> {
+                    try{
+                        JeproLab.request.setRequest("currency_id=" + itemId);
+                        JeproLab.getInstance().goToForm(JeproLab.getInstance().getApplicationForms().addCurrencyForm);
+                        JeproLabContext.getContext().controller.initializeContent();
+                    }catch (Exception ignored){
+                        ignored.printStackTrace();
+                    }
+                });
+                setGraphic(commandWrapper);
                 setAlignment(Pos.CENTER);
             }
         }

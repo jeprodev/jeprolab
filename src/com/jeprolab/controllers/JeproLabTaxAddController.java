@@ -4,7 +4,7 @@ import com.jeprolab.JeproLab;
 import com.jeprolab.assets.extend.controls.JeproFormPanel;
 import com.jeprolab.assets.extend.controls.JeproFormPanelContainer;
 import com.jeprolab.assets.extend.controls.JeproFormPanelTitle;
-import com.jeprolab.assets.extend.controls.JeproMultiLang;
+import com.jeprolab.assets.extend.controls.JeproMultiLangTextField;
 import com.jeprolab.assets.extend.controls.switchbutton.JeproSwitchButton;
 import com.jeprolab.models.JeproLabTaxModel;
 import javafx.fxml.FXML;
@@ -31,7 +31,7 @@ public class JeproLabTaxAddController extends JeproLabController {
     private Button saveTaxButton, cancelButton;
     @FXML
     public Label jeproLabTaxNameLabel, jeproLabTaxRateLabel, jeproLabTaxRateUnitLabel, jeproLabTaxPublishedLabel;
-    public JeproMultiLang<TextField> jeproLabTaxName;
+    public JeproMultiLangTextField jeproLabTaxName;
     public TextField jeproLabTaxRate;
     public JeproSwitchButton jeproLabTaxPublished;
     public GridPane jeproLabTaxLayout;

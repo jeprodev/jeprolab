@@ -1,4 +1,10 @@
 <?import javafx.scene.layout.VBox?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.TableColumn?>
 <VBox xmlns:fx="http://javafx.com/fxml" fx:id="jeproLabCustomerListWrapper" fx:controller="com.jeprolab.controllers.JeproLabCustomerThreadsController" spacing="5" >
-
+    <TableView fx:id="jeproLabCustomerThreadsTableView" >
+        <columns>
+            <TableColumn resizable="false" editable="false" fx:id="jeproLabCustomerThreadTableColumn" />
+        </columns>
+    </TableView>
 </VBox>

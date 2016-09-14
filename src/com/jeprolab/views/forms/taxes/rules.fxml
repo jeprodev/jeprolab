@@ -1,0 +1,30 @@
+<?import com.jeprolab.assets.extend.controls.JeproFormPanel?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.TableColumn?>
+<JeproFormPanel xmlns:fx="http://javafx.com/fxml" fx:controller="com.jeprolab.controllers.JeproLabTaxRulesController"  >
+    <VBox spacing="10" >
+        <HBox spacing="5" fx:id="jeproLabTaxRulesSearchWrapper" >
+            <TextField fx:id="jeproLabTaxRulesSearch" />
+            <Button fx:id="jeproLabTaxRulesSearchBtn" styleClass="icon-btn, search-btn" />
+        </HBox>
+        <TableView fx:id="jeproLabTaxRulesTableView" >
+            <columns>
+                <TableColumn resizable="false" editable="false" fx:id="jeproLabTaxRuleIndexTableColumn" />
+                <TableColumn resizable="false" editable="false" fx:id="jeproLabTaxRuleCheckBoxTableColumn" />
+                <TableColumn resizable="false" editable="false" fx:id="jeproLabTaxRuleGroupTableColumn" />
+                <TableColumn resizable="false" editable="false" fx:id="jeproLabTaxRuleCountryTableColumn" />
+                <TableColumn resizable="false" editable="false" fx:id="jeproLabTaxRuleStateTableColumn" />
+                <TableColumn resizable="false" editable="false" fx:id="jeproLabTaxRuleZipCodeFromTableColumn" />
+                <TableColumn resizable="false" editable="false" fx:id="jeproLabTaxRuleZipCodeToTableColumn" />
+                <TableColumn resizable="false" editable="false" fx:id="jeproLabTaxRuleBehaviorTableColumn" />
+                <!-- TableColumn resizable="false" editable="false" fx:id="jeproLabTaxRuleTableColumn" />
+                <TableColumn resizable="false" editable="false" fx:id="jeproLabTaxRuleTableColumn" /-->
+                <TableColumn resizable="false" editable="false" fx:id="jeproLabTaxRuleActionTableColumn" />
+            </columns>
+        </TableView>
+    </VBox>
+</JeproFormPanel>

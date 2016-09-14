@@ -6,10 +6,8 @@ import com.jeprolab.assets.tools.JeproLabTools;
 import com.jeprolab.models.JeproLabCategoryModel;
 import com.jeprolab.models.JeproLabSettingModel;
 import javafx.geometry.Insets;
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
-import javafx.scene.control.TextField;
-import javafx.scene.control.TreeView;
+import javafx.scene.control.*;
+import javafx.scene.control.cell.CheckBoxTreeCell;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
@@ -135,9 +133,10 @@ public class JeproCategoryTree extends JeproTree{
 
     public List<JeproLabCategoryModel> getCategories(){
         if(this.categories == null || this.categories.isEmpty()){
-            this.setTreeCategories(JeproLabCategoryModel.getNestedCategories(
+            this.setTreeCategories(JeproLabCategoryModel.getRootCategory().getSubCategories(1, true)); //recurseLiteCategoryTree(12, 0, 1, null));
+            /*this.setTreeCategories(JeproLabCategoryModel.getNestedCategories(
                     this.getRootCategoryId(), this.getTreeLanguage(), false, null, this.useLaboratoryRestriction()
-            ));
+            ));*/
         }
         return this.categories;
     }
@@ -210,39 +209,60 @@ public class JeproCategoryTree extends JeproTree{
         render(null);
     }
 
-    private void renderNodes(List<JeproLabCategoryModel> categories){
+    private TreeItem renderNodes(List<JeproLabCategoryModel> categories){
         if(categories == null){ categories = getCategories(); }
         int rootCategoryId = JeproLabSettingModel.getIntValue("root_category");
         int langId = JeproLabContext.getContext().language.language_id;
         String templateNodeFolder = this.getNodeFolderTemplate();
         String templateNodeItem = this.getNodeItemTemplate();
+        JeproLabCategoryModel rootCategory = JeproLabCategoryModel.getRootCategory();
+        TreeItem catTree = new TreeItem(rootCategory.name.get("lang_"+ langId));
+        catTree.setExpanded(true);
         for(JeproLabCategoryModel category : categories){
+            System.out.println(category.children.size() + " children");
             if(!category.children.isEmpty()) {
-                if (templateNodeFolder.equals("tree_node_folder")) {
+                switch (templateNodeFolder) {
+                    case "tree_node_folder":
+                        JeproCheckBoxTreeItem item = new JeproCheckBoxTreeItem(category.category_id, category.name.get("lang_" + langId));
 
-                }else if(templateNodeFolder.equals("tree_node_folder_checkbox")){
+                        catTree.getChildren().add(item);
+                        break;
+                    case "tree_node_folder_checkbox":
 
-                }else if(templateNodeFolder.equals("tree_node_folder_checkbox_labs")){
+                        break;
+                    case "tree_node_folder_checkbox_labs":
 
-                }else if(templateNodeFolder.equals("tree_node_folder_radio")){
+                        break;
+                    case "tree_node_folder_radio":
 
+                        break;
                 }
+                //catTree.getChildren().add(item);
             }else{
-                if (templateNodeItem.equals("tree_node_item")) {
+                switch (templateNodeItem) {
+                    case "tree_node_item":
+                        JeproCheckBoxTreeItem item = new JeproCheckBoxTreeItem(category.category_id, category.name.get("lang_" + langId));
+                        renderNodes(category.children);
+                        catTree.getChildren().add(item);
+                        break;
+                    case "tree_node_item_checkbox":
 
-                }else if(templateNodeItem.equals("tree_node_item_checkbox")){
+                        break;
+                    case "tree_node_item_checkbox_labs":
 
-                }else if(templateNodeItem.equals("tree_node_item_checkbox_labs")){
+                        break;
+                    case "tree_node_item_radio":
 
-                }else if(templateNodeItem.equals("tree_node_item_radio")){
-
+                        break;
                 }
             }
         }
 
+
         if(this.getTreeTemplate().equals("associated_categories")){
 
         }
+        return catTree;
     }
 
     public void render(){
@@ -273,7 +293,7 @@ public class JeproCategoryTree extends JeproTree{
                 HBox.setMargin(treeTitleLabel, new Insets(4, 4, 4, 4));
                 titleWrapper.getChildren().addAll(treeIcon, treeTitleLabel);
             }
-
+/*
             if(this.useSearchBox()){
                 HBox searchFormWrapper = new HBox(2);
                 searchField = new TextField();
@@ -283,22 +303,25 @@ public class JeproCategoryTree extends JeproTree{
                 searchFormWrapper.getChildren().addAll(searchField, searchButton);
                 titleWrapper.getChildren().add(searchFormWrapper);
             }
-
+*/
             toolBarPane.getChildren().add(titleWrapper);
             toolBarPane.getStyleClass().add("form-panel-title-gray");
             toolBarPane.setPrefSize(this.getTreeWidth(), 25);
             this.getChildren().add(toolBarPane);
         }
-        categoryTreeView = new TreeView();
+        categoryTreeView = new TreeView(this.renderNodes(categories));
         categoryTreeView.setPrefSize(this.getTreeWidth(), 200);
-        this.renderNodes(categories);
+        if(this.use_check_box){
+            categoryTreeView.setCellFactory(CheckBoxTreeCell.<String>forTreeView());
+        }
 
         if(this.getTreeTemplate().equals("associated_categories")){
-
         }
         contentPane.getChildren().add(categoryTreeView);
         contentPane.setLayoutY(25);
-        this.getChildren().add(contentPane);
+        if(!this.getChildren().contains(contentPane)) {
+            this.getChildren().add(contentPane);
+        }
         this.setPrefWidth(this.getTreeWidth());
     }
 
@@ -310,5 +333,21 @@ public class JeproCategoryTree extends JeproTree{
     public JeproCategoryTree setUseSearchBox(boolean useSearchBox){
         this.use_search_box = useSearchBox;
         return this;
+    }
+
+
+    private class JeproCheckBoxTreeItem extends CheckBoxTreeItem<String> {
+        private CheckBox cellCheckBox;
+        private HBox cellBoxWrapper;
+        private int treeItemId;
+
+        public JeproCheckBoxTreeItem(int itemId, String label){
+            super(label);
+            this.treeItemId = itemId;
+            /*cellCheckBox = new CheckBox(label);
+            cellBoxWrapper = new HBox();
+            cellBoxWrapper.getChildren().add(cellCheckBox);
+            this.setGraphic(cellBoxWrapper);*/
+        }
     }
 }

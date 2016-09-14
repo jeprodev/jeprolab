@@ -25,7 +25,7 @@ public class JeproLabApplication {
     public static boolean login(String userName, String passWord, JeproLabAuthentication.JeproLabAuthenticationOption loginOptions){
         JeproLabAuthentication authenticator = JeproLabAuthentication.getInstance();
         JeproLabAuthentication.JeproLabAuthenticationResponse response = authenticator.authenticate(userName, passWord, loginOptions);
-        System.out.println(response.status);
+
         if(response.status == JeproLabAuthentication.SUCCESS_STATUS){
             /**
              * Validate that the user should be able to login (different to being authenticated).
@@ -57,6 +57,8 @@ public class JeproLabApplication {
             /**
              * Ok, the credentials are authentication
              */
+            loginOptions.employee = new JeproLabEmployeeModel();
+            loginOptions.employee.username = userName;
             boolean result = JeproLabLoginController.onUserLogin(response, loginOptions);
 
             /**
@@ -67,22 +69,21 @@ public class JeproLabApplication {
              */
             JeproLabEmployeeModel employee = JeproLabFactory.getEmployee();
             if(response.type.equals("Cookie")){
-                employee.setCookieLogin(true);
+                loginOptions.employee.setCookieLogin(true);
             }
 
             if(result){
-                loginOptions.employee = employee;
+                //loginOptions.employee = employee;
                 loginOptions.responseType = response.type;
-
                 loginOptions.length = response.length;
                 loginOptions.secure = response.secure;
                 loginOptions.lifeTime = response.life_time;
 
-                /**
-                 * The user is successfully logged in. Run the next step
-                 */
-                JeproLabLoginController.onUserLogged(loginOptions);
             }
+            /**
+             * The user is successfully logged in. Run the next step
+             */
+            JeproLabLoginController.onUserLogged(loginOptions);
             return true;
         }
 
