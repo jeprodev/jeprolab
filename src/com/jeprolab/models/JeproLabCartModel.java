@@ -239,7 +239,7 @@ public class JeproLabCartModel extends JeproLabModel{
         public final String BO_ORDER_CODE_PREFIX = "BO_ORDER_";
 
         /**
-         * @param customerId
+         * @param customerId the customer unique identifier
          * @return bool
          */
         public static boolean deleteByCustomerId(int customerId){
@@ -251,7 +251,7 @@ public class JeproLabCartModel extends JeproLabModel{
             query += " WHERE " + staticDataBaseObject.quoteName("customer_id") + " = " + customerId;
 
             staticDataBaseObject.setQuery(query);
-            result &= staticDataBaseObject.query(false);
+            result = staticDataBaseObject.query(false);
 
             return result;
         }
