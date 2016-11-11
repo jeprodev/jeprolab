@@ -372,7 +372,7 @@ public class JeproLabRequestModel extends JeproLabModel{
             String query = "SELECT * FROM " + staticDataBaseObject.quoteName("#__jeprolab_sample"); /* + " AS sample WHERE ";
             query += staticDataBaseObject.quoteName("#__jeprolab_request_sample") + " AS request_sample ON (sample." + staticDataBaseObject.quoteName("sample_id");
             query += " = request_sample." + staticDataBaseObject.quoteName("sample_id") + " AND request_sample." + staticDataBaseObject.quoteName("request_id");
-            query += " = " + requestId + ") WHERE sample." + staticDataBaseObject.quoteName("sample_id") + " = " + requestId; */
+            query += " = " + requestId + ") WHERE sample." + staticDataBaseObject.quoteName("request_id") + " = " + requestId; */
             query += " LIMIT 0, 24";
 
             staticDataBaseObject.setQuery(query);
@@ -478,11 +478,10 @@ public class JeproLabRequestModel extends JeproLabModel{
             if(dataBaseObject == null){
                 dataBaseObject = JeproLabFactory.getDataBaseConnector();
             }
-            String removalDate = "2014-06-12";
             String query = "INSERT INTO " + dataBaseObject.quoteName("#__jeprolab_sample") + " ( " + dataBaseObject.quoteName("matrix_id") + ", ";
             query += dataBaseObject.quoteName("designation") + ", " + dataBaseObject.quoteName("reference") + ", " + dataBaseObject.quoteName("removal_date");
             query += ") VALUES(" + this.matrix_id + ", " + dataBaseObject.quote(this.designation) + ", " + dataBaseObject.quote(this.reference) + ", ";
-            query += dataBaseObject.quote(removalDate) + ")";
+            query += dataBaseObject.quote(JeproLabTools.date("YYYY-MM-DD", this.removal_date)) + ")";
 
             dataBaseObject.setQuery(query);
             dataBaseObject.query(true);
@@ -504,7 +503,7 @@ public class JeproLabRequestModel extends JeproLabModel{
                 dataBaseObject = JeproLabFactory.getDataBaseConnector();
             }
             String query = "UPDATE " + dataBaseObject.quoteName("#__jeprolab_sample") + " SET " + dataBaseObject.quoteName("matrix_id") + " = " + this.matrix_id;
-            query += ", " + dataBaseObject.quoteName("designation") + " = " + this.designation + ", " + dataBaseObject.quoteName("temperature") +  " = " ;
+            query += ", " + dataBaseObject.quoteName("designation") + " = " + dataBaseObject.quote(this.designation) + ", " + dataBaseObject.quoteName("temperature") +  " = " ;
             query += dataBaseObject.quote(this.temperature) + ", "  + dataBaseObject.quoteName("temperature_unit") + " = " + dataBaseObject.quote(this.temperature_unit);
             query += ", " + dataBaseObject.quoteName("condition") + " = " + dataBaseObject.quote(this.condition);
             query += " WHERE " + dataBaseObject.quoteName("sample_id") + " = " + this.sample_id;
