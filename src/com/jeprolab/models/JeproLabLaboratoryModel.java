@@ -425,6 +425,10 @@ public class JeproLabLaboratoryModel extends JeproLabModel{
         }
         return " AND " + (!alias.equals("") ? alias + "." : "") + staticDataBaseObject.quoteName("lab_id") + " = " + labId;
     }
+    
+    public static String addSqlRestrictionOnLang(String alias, String filter){
+        //// TODO: 11/9/16 edit me 
+    }
 
     public static String addSqlAssociation(String table){
         return addSqlAssociation(table, true);

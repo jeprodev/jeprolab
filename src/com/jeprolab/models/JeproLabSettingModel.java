@@ -49,7 +49,7 @@ public class JeproLabSettingModel extends JeproLabModel {
         }
 
         String query = "SELECT setting." + staticDataBaseObject.quoteName("name") + ", setting." + staticDataBaseObject.quoteName("value");
-        query += " FROM " + staticDataBaseObject.quoteName("#__jeproshop_setting") + " AS setting";
+        query += " FROM " + staticDataBaseObject.quoteName("#__jeprolab_setting") + " AS setting";
 
         staticDataBaseObject.setQuery(query);
         ResultSet settingsParams = staticDataBaseObject.loadObjectList();
@@ -83,6 +83,29 @@ public class JeproLabSettingModel extends JeproLabModel {
                 ResultSet valueSet = getValue(key);
                 while(valueSet.next()){
                     value = valueSet.getInt("value");
+                    SETTINGS.put(key, value);
+                }
+                return value;
+            }catch (SQLException ignored){
+                return 0;
+            }
+
+        }
+    }
+
+    public static float getFloatValue(String key){
+        if(SETTINGS == null || SETTINGS.isEmpty()){
+            JeproLabSettingModel.loadSettings();
+        }
+
+        if(SETTINGS.containsKey(key)){
+            return Float.parseFloat(SETTINGS.get(key).toString());
+        }else{
+            float value = 0;
+            try{
+                ResultSet valueSet = getValue(key);
+                while(valueSet.next()){
+                    value = valueSet.getFloat("value");
                     SETTINGS.put(key, value);
                 }
                 return value;

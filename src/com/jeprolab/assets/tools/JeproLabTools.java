@@ -270,6 +270,45 @@ public class JeproLabTools {
         return price;
     }
 
+    public static float convertFullPrice(float amount){ return convertFullPrice(amount, null, null); }
+
+    public static float convertFullPrice(float amount, JeproLabCurrencyModel currencyFrom){
+        return convertFullPrice(amount, currencyFrom, null);
+    }
+
+    /**
+     *
+     * Convert amount from a currency to an other currency automatically
+     * @param amount
+     * @param currencyFrom if null we used the default currency
+     * @param currencyTo if null we used the default currency
+     */
+    public static float convertFullPrice(float amount, JeproLabCurrencyModel currencyFrom, JeproLabCurrencyModel currencyTo){
+        if(currencyFrom == currencyTo) {
+            return amount;
+        }
+
+        if (currencyFrom == null) {
+            currencyFrom = new JeproLabCurrencyModel(JeproLabSettingModel.getIntValue("default_currency"));
+        }
+
+        if (currencyTo == null) {
+            currencyTo = new JeproLabCurrencyModel(JeproLabSettingModel.getIntValue("default_currency"));
+        }
+
+        if (currencyFrom.currency_id == JeproLabSettingModel.getIntValue("default_currency")){
+            amount *= currencyTo.conversion_rate;
+        } else {
+            float conversionRate = (currencyFrom.conversion_rate == 0 ? 1 : currencyFrom.conversion_rate);
+            // Convert amount to default currency (using the old currency rate)
+            amount = amount / conversionRate;
+            // Convert to new currency
+            amount *= currencyTo.conversion_rate;
+        }
+        return JeproLabTools.roundPrice(amount, JeproLabConfigurationSettings.JEPROLAB_PRICE_DISPLAY_PRECISION);
+    }
+
+
     public static float roundPrice(float value){
         return roundPrice(value, 0);
     }

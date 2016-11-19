@@ -6,7 +6,9 @@ import com.jeprolab.assets.tools.JeproLabContext;
 import com.jeprolab.assets.tools.JeproLabTools;
 import com.jeprolab.assets.tools.db.JeproLabDataBaseConnector;
 import com.jeprolab.models.core.JeproLabFactory;
+import com.sun.xml.internal.bind.v2.TODO;
 
+import javax.security.auth.login.Configuration;
 import java.io.IOException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -189,6 +191,10 @@ public class JeproLabAnalyzeModel extends JeproLabModel{
 
     /*** @var array Tags */
     public Map<String, String> tags;
+
+    public int cart_quantity = 0;
+
+    public int delivery_address_id;
 
     /**
      * @var float Base price of the analyze
@@ -1449,6 +1455,18 @@ public class JeproLabAnalyzeModel extends JeproLabModel{
         }
     }
 
+    public static boolean isAvailableWhenOutOfStock(int outOfStock){
+        int stockManagement = JeproLabSettingModel.getIntValue("stock_management");
+
+        if (!( stockManagement <= 0)){
+            return true;
+        } else {
+            int orderOutOfStock = JeproLabSettingModel.getIntValue("order_out_of_stock");
+
+            return outOfStock == 2 ? (orderOutOfStock > 0) : (outOfStock > 0);
+        }
+    }
+
     public void save(){
         //Map<String, String> post = JeproLab.request.getPost();
 
@@ -2630,8 +2648,10 @@ public class JeproLabAnalyzeModel extends JeproLabModel{
         }
     }
 
-
-
+    public static int getAttributeMinimalQuantity(int analyzeAttributeId) {
+        //TODO Edit me
+        return 1;
+    }
 
 
     /**
@@ -2787,6 +2807,11 @@ public class JeproLabAnalyzeModel extends JeproLabModel{
          */
         public static boolean isFeaturePublished(){
             return JeproLabSettingModel.getIntValue("pack_feature_active") > 0;
+        }
+
+        public static int getQuantity(int analyzeId, int analyzeAttributeId) {
+            //TODO edit me
+            return 0;
         }
     }
 
@@ -2961,5 +2986,14 @@ public class JeproLabAnalyzeModel extends JeproLabModel{
         public static boolean isFeaturePublished(){
             return false;
         }
+    }
+
+    public static class JeproLabAnalyzeRuleModel extends JeproLabModel{
+        public String type;
+    }
+
+
+    public static class JeproLabAnalyzeRuleGroupModel extends JeproLabModel{
+
     }
 }

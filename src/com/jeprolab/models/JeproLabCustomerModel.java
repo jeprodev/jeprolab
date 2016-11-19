@@ -695,7 +695,7 @@ public class JeproLabCustomerModel extends JeproLabModel{
     public List<JeproLabAddressModel> getAddresses(int langId){
         boolean shareRequest = JeproLabContext.getContext().laboratory.getLaboratoryGroup().share_requests;
         String cacheKey = "jeprolab_customer_model_get_addresses_" + this.customer_id + "_" + langId + "_"  + (shareRequest ? 1 : 0);
-        if (!JeproLabCache.getInstance().isStored(cacheKey)) {
+        if(!JeproLabCache.getInstance().isStored(cacheKey)) {
             String query = "SELECT DISTINCT address.*, country_lang." + dataBaseObject.quoteName("name") + " AS country, state.name AS state_name,";
             query += " state.iso_code AS state_iso FROM " + dataBaseObject.quoteName("#__jeprolab_address") + " AS address LEFT JOIN ";
             query += dataBaseObject.quoteName("#__jeprolab_country")  + " AS country ON (address." + dataBaseObject.quoteName("country_id");
@@ -804,5 +804,37 @@ public class JeproLabCustomerModel extends JeproLabModel{
             }
         }
         return JeproLabCustomerModel.current_customer_groups;
+    }
+
+    public static boolean customerHasAddress(int customerId, int addressId){
+        String cacheKey = customerId + "_" + addressId;
+        if(!JeproLabCustomerModel._customerHasAddress.containsKey(cacheKey)){
+            if(staticDataBaseObject == null){
+                staticDataBaseObject = JeproLabFactory.getDataBaseConnector();
+            }
+            String query = "SELECT " + staticDataBaseObject.quoteName("address_id") + " FROM " + staticDataBaseObject.quoteName("#__jeprolab_address");
+            query += " WHERE " + staticDataBaseObject.quoteName("customer_id") + " = " + customerId + " AND " + staticDataBaseObject.quoteName("address_id");
+            query += " = " + addressId + " AND " + staticDataBaseObject.quoteName("deleted") + " = 0";
+
+            staticDataBaseObject.setQuery(query);
+            ResultSet resultSet = staticDataBaseObject.loadObjectList();
+
+            try{
+                if(resultSet.next()){
+                    int addr = resultSet.getInt("address_id");
+                    if(addr == addressId){ return true; }
+                }
+            }catch (SQLException ignored){
+                ignored.printStackTrace();
+                return false;
+            }finally {
+                try {
+                    JeproLabDataBaseConnector.getInstance().closeConnexion();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+        return false;
     }
 }
