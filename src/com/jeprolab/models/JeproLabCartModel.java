@@ -1,6 +1,7 @@
 package com.jeprolab.models;
 
 import com.jeprolab.JeproLab;
+import com.jeprolab.assets.config.JeproLabConfig;
 import com.jeprolab.assets.config.JeproLabConfigurationSettings;
 import com.jeprolab.assets.tools.JeproLabCache;
 import com.jeprolab.assets.tools.JeproLabContext;
@@ -1053,6 +1054,9 @@ public class JeproLabCartModel extends JeproLabModel{
             JeproLabCartModel._total_weight.remove(this.cart_id);
         }
 
+        String query, quantityQuery;
+        int analyzeQuantity = 0, outOfStock, newQuantity;
+
         if(quantity <= 0){
             return this.deleteAnalyze(analyzeId, analyzeAttributeId, customizationId);
         }else if(!analyze.available_for_order){
@@ -1067,15 +1071,15 @@ public class JeproLabCartModel extends JeproLabModel{
                     if(staticDataBaseObject == null){
                         staticDataBaseObject = JeproLabFactory.getDataBaseConnector();
                     }
-                    String query = "SELECT stock." + staticDataBaseObject.quoteName("out_of_stock") + ", IFNULL(stock.";
+                    query = "SELECT stock." + staticDataBaseObject.quoteName("out_of_stock") + ", IFNULL(stock.";
                     query += staticDataBaseObject.quoteName("quantity") + ", 0) as quantity FROM " + staticDataBaseObject.quoteName("#__jeprolab_analyze");
                     query += " AS analyze " + JeproLabAnalyzeModel.queryStock("analyze", analyzeAttributeId, true, lab) + " WHERE analyze.";
                     query += staticDataBaseObject.quoteName("analyze_id") + " = " + analyzeId;
 
                     staticDataBaseObject.setQuery(query);
                     ResultSet resultSet = staticDataBaseObject.loadObjectList();
-                    int analyzeQuantity = 0; //(int)staticDataBaseObject.loadValue("quantity");
-                    int outOfStock = 0;
+                    analyzeQuantity = 0; //(int)staticDataBaseObject.loadValue("quantity");
+                    outOfStock = 0;
                     if(resultSet != null){
                         try{
                             while(resultSet.next()){
@@ -1096,16 +1100,211 @@ public class JeproLabCartModel extends JeproLabModel{
                         analyzeQuantity = JeproLabAnalyzeModel.JeproLabAnalyzePackModel.getQuantity(analyzeId, analyzeAttributeId);
                     }
 
-                    int newQuantity = quantity; //// TODO: 11/21/16
+                    newQuantity = quantity; //// TODO: 11/21/16
 
                     if(!JeproLabAnalyzeModel.isAvailableWhenOutOfStock(outOfStock)){
                         if(newQuantity > analyzeQuantity){
                             return false;
                         }
                     }
+                }else if(operator.equals("down")){
+                    quantityQuery = " - " + quantity;
+                    newQuantity = //// TODO: 11/21/16
+                    if(newQuantity < minimalQuantity && minimalQuantity > 1){
+                        return false;
+                    }
+                }else{
+                    return false;
+                }
+
+                /** remove analyze from cart **/
+                if(newQuantity <= 0){
+                    return this.deleteAnalyze(analyzeId, analyzeAttributeId, customizationId);
+                }else if(newQuantity < minimalQuantity){
+                    return false;
+                }else{
+                    if(staticDataBaseObject == null){
+                        staticDataBaseObject = JeproLabFactory.getDataBaseConnector();
+                    }
+                    query = "UPDATE " + staticDataBaseObject.quoteName("#__jeprolab_cart_analyze") + " SET " + staticDataBaseObject.quoteName("quantity");
+                    query += " = " + staticDataBaseObject.quoteName("quantity") + quantityQuery + " WHERE " + staticDataBaseObject.quoteName("analyze_id");
+                    query += " = " + analyzeId + " AND " + staticDataBaseObject.quoteName("customization_id") + " = " + customizationId ;
+                    query += (analyzeAttributeId > 0 ? " AND " + staticDataBaseObject.quoteName("analyze_attribute_id") + " = " + analyzeAttributeId : "");
+                    query += " AND " + staticDataBaseObject.quoteName("cart_id") + " = " + this.cart_id;
+                    query += (JeproLabSettingModel.getIntValue("allow_multiple_result") && this.isMultiDeliveryAddress() ? " AND " + staticDataBaseObject.quoteName("delivery_address_id") + " = " + addressId : "");
+                    query += " LIMIT 1";
+
+                    staticDataBaseObject.setQuery(query);
+                    staticDataBaseObject.query(false);
+                }
+            }else if(operator.equals("up")){
+                if(staticDataBaseObject == null){
+                    staticDataBaseObject = JeproLabFactory.getDataBaseConnector();
+                }
+                query = "SELECT stock." + staticDataBaseObject.quoteName("out_of_stock") + ", IFNULL(stock." + staticDataBaseObject.quoteName("out_of_stock");
+                query += ", 0) AS quantity FROM "+ staticDataBaseObject.quoteName("#__jeprolab_analyze") + " AS analyze ";
+                query += JeproLabAnalyzeModel.queryStock("analyze", analyzeAttributeId, true, lab) + " WHERE analyze.";
+                query +=  staticDataBaseObject.quoteName("analyze_id") + " = " + addressId;
+
+                ResultSet resultSet = staticDataBaseObject.loadObjectList();
+                if(resultSet != null){
+                    try{
+                        while(resultSet.next()){
+                            outOfStock = resultSet.getInt("out_of_stock");
+                            analyzeQuantity = resultSet.getInt("quantity");
+                        }
+                    }catch(SQLException ignored){
+                        ignored.printStackTrace();
+                    }finally {
+                        try{
+                            JeproLabDataBaseConnector.getInstance().closeConnexion();
+                        } catch (Exception ignored) {
+                            ignored.printStackTrace();
+                        }
+                    }
+                }
+
+                //Pack analyze quantity
+                if(JeproLabAnalyzeModel.JeproLabAnalyzePackModel.isPack(analyzeId)){
+                    analyzeQuantity = JeproLabAnalyzeModel.JeproLabAnalyzePackModel.getQuantity(analyzeId, analyzeAttributeId);
+                }
+
+                if(!JeproLabAnalyzeModel.isAvailableWhenOutOfStock(outOfStock)){
+                    if(quantity > analyzeQuantity){
+                        return false;
+                    }
+                }
+
+                if(quantity < minimalQuantity){ return false; }
+
+                if(staticDataBaseObject == null){
+                    staticDataBaseObject = JeproLabFactory.getDataBaseConnector();
+                }
+                query = "INSERT INTO " + staticDataBaseObject.quoteName("#__jeprolab_cart_analyze") + " (" + staticDataBaseObject.quoteName("analyze_id");
+                query += ", " + staticDataBaseObject.quoteName("analyze_attribute_id") + ", " + staticDataBaseObject.quoteName("cart_id") + ", ";
+                query += staticDataBaseObject.quoteName("delivery_address_id") + ", " + staticDataBaseObject.quoteName("lab_id") + ", ";
+                query += staticDataBaseObject.quoteName("quantity") + ", " + staticDataBaseObject.quoteName("date_upd") + ", ";
+                query += staticDataBaseObject.quoteName("customisation_id") + ") VALUES (" + analyzeId + ", " + analyzeAttributeId + ", ";
+                query += this.cart_id + ", " + addressId + ", " + quantity + ", " + staticDataBaseObject.quoteName(JeproLabTools.date());
+                query += ", " + customizationId + ")";
+
+                staticDataBaseObject.setQuery(query);
+                if(!staticDataBaseObject.query(false)){ return false; }
+            }
+        }
+
+        /** refresh cache of analyzes **/
+        this._analyzes = this.getAnalyzes(true);
+        this.updateCart();
+        try {
+            JeproLabContext context = JeproLabContext.getContext().cloneContext();
+            context.cart = this;
+            JeproLabCache.getInstance().remove("get_context_value_*");
+            if(autoAddCartRule){
+                JeproLabCartRuleModel.autoAddToCart(context);
+            }
+
+            if(analyze.customizable){
+                return this.updateCustomizationQuantity(quantity, customizationId, analyzeId, analyzeAttributeId, addressId, operator);
+            }else{
+                return true;
+            }
+        } catch (CloneNotSupportedException ignored) {
+            ignored.printStackTrace();
+        }
+    }
+
+    /**
+     *
+     * @param quantity
+     * @param customizationId
+     * @param analyzeId
+     * @param analyzeAttributeId
+     * @param addressId
+     * @return
+     */
+    protected boolean updateCustomizationQuantity(int quantity, int customizationId, int analyzeId, int analyzeAttributeId, int addressId){
+        return updateCustomizationQuantity(quantity, customizationId, analyzeId, analyzeAttributeId, addressId, "up");
+    }
+
+    /**
+     *
+     * @param quantity
+     * @param customizationId
+     * @param analyzeId
+     * @param analyzeAttributeId
+     * @param addressId
+     * @param operator
+     * @return
+     */
+    protected boolean updateCustomizationQuantity(int quantity, int customizationId, int analyzeId, int analyzeAttributeId, int addressId, String operator){
+        String query;
+        if(customizationId <= 0){
+            List<JeproLabCombinationModel.JeproLabCustomizationModel> customizations = this.getAnalyzeCustomizations(analyzeId, null, true);
+            for(JeproLabCombinationModel.JeproLabCustomizationModel customization : customizations){
+                if(customization.quantity == 0){
+                    if(staticDataBaseObject == null){
+                        staticDataBaseObject = JeproLabFactory.getDataBaseConnector();
+                    }
+
+                    query = "UPDATE " + staticDataBaseObject.quoteName("#__jeprolab_customization") + " SET " + staticDataBaseObject.quoteName("quantity");
+                    query += " = " + quantity + ", " + staticDataBaseObject.quoteName("analyze_attribute_id") + " = " + analyzeAttributeId + ", ";
+                    query += staticDataBaseObject.quoteName("delivery_address_id") + " = " + addressId + ", " + staticDataBaseObject.quoteName("in_cart");
+                    query += " = 1 WHERE " + staticDataBaseObject.quoteName("customization_id") + " = " + customization.customization_id;
+
+                    staticDataBaseObject.setQuery(query);
+                    staticDataBaseObject.query(false);
                 }
             }
         }
+
+        if(customizationId > 0 && quantity < 1){
+            return this.deleteCustomization(customizationId, analyzeId, analyzeAttributeId);
+        }
+
+        /** quantity update **/
+        int customizationQuantity;
+        if(customizationId > 0){
+            if(staticDataBaseObject == null){
+                staticDataBaseObject = JeproLabFactory.getDataBaseConnector();
+            }
+
+            query = "SELECT " + staticDataBaseObject.quoteName("quantity") + " FROM " + staticDataBaseObject.quoteName("#__jeprolab_customization");
+            query += " WHERE " + staticDataBaseObject.quoteName("customization_id") + " = " + customizationId;
+
+            staticDataBaseObject.setQuery(query);
+            customizationQuantity = (int)staticDataBaseObject.loadValue("quantity");
+
+
+            if(customizationQuantity > 0){
+                if(operator.equals("down") && (customizationQuantity - quantity) < 0){
+                    query = "DELETE FROM " + staticDataBaseObject.quoteName("#__jeprolab_customization") + " WHERE ";
+                    query += staticDataBaseObject.quoteName("customization_id") + " = " + customizationId;
+
+                    staticDataBaseObject.quoteName(query);
+                    return staticDataBaseObject.query(false);
+                }
+
+                query = "UPDATE " + staticDataBaseObject.quoteName("#__jeprolab_customization") + " SET " + staticDataBaseObject.quoteName("quantity");
+                query += " = " + staticDataBaseObject.quoteName("quantity") + (operator.equals("up") ? "+ " : "- ") + quantity + ", ";
+                query += staticDataBaseObject.quoteName("analyze_attribute_id") + " = " + analyzeAttributeId + staticDataBaseObject.quoteName("delivery_address_id");
+                query += " = " + staticDataBaseObject.quoteName("in_cart") + " = 1 WHERE " + staticDataBaseObject.quoteName("customization_id") + " = " + customizationId;
+
+                staticDataBaseObject.setQuery(query);
+                return staticDataBaseObject.query(false);
+            }else{
+                query = "UPDATE " + staticDataBaseObject.quoteName("#__jeprolab_customization") + " SET " + staticDataBaseObject.quoteName("delivery_address_id");
+                query += " = " + addressId + ", " + staticDataBaseObject.quoteName("analyze_attribute_id") + " = " + analyzeAttributeId + ", ";
+                query += staticDataBaseObject.quoteName("in_cart") + " = 1 WHERE " + staticDataBaseObject.quoteName("customization_id") + " = " ;
+                query += customizationId;
+
+                staticDataBaseObject.setQuery(query);
+                staticDataBaseObject.query(false);
+            }
+        }
+        this._analyzes = this.getAnalyzes(true);
+        this.updateCart();
+        return true;
     }
 
     public static class JeproLabCartRuleModel extends JeproLabModel{
