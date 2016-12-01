@@ -1358,9 +1358,9 @@ public class JeproLabCartModel extends JeproLabModel{
 
         public int reduction_currency_id;
 
-        public reduction_percent;
-        public reduction_amount;
-        public reduction_;
+        public float reduction_percent;
+        public float reduction_amount;
+        public int reduction_analyze_id;
         public reduction_;
 
         public boolean lab_restriction;
@@ -1589,30 +1589,36 @@ public class JeproLabCartModel extends JeproLabModel{
             query += " AND (cart_rule." + staticDataBaseObject.quoteName("cart_rule_restriction") + " = 0 OR EXISTS ( SELECT 1 FROM ";
             query += staticDataBaseObject.quoteName("#__jeprolab_cart_rule_combination") + " WHERE cart_rule." + staticDataBaseObject.quoteName("cart_rule_id");
             query += " = " + staticDataBaseObject.quoteName("#__jeprolab_cart_rule_combination") + "." + staticDataBaseObject.quoteName("cart_rule_id_1");
-            AND '.(int)$this->id.' = id_cart_rule_2
-            )
-            OR EXISTS (
-                    SELECT 1
-            FROM '._DB_PREFIX_.'cart_rule_combination
-            WHERE cr.id_cart_rule = '._DB_PREFIX_.'cart_rule_combination.id_cart_rule_2 AND '.(int)$this->id.' = id_cart_rule_1
-            )
-            ) ORDER BY cr.id_cart_rule'.$sql_limit);
+            query += " AND " + this.cart_rule_id + " = " + staticDataBaseObject.quoteName("cart_rule_id_2") + " ) OR EXISTS (SELECT 1 FROM ";
+            query += staticDataBaseObject.quoteName("#__jeprolab_cart_rule_combination") + " WHERE cart_rule." + staticDataBaseObject.quoteName("cart_rule_id");
+            query += " = " + staticDataBaseObject.quoteName("#__jeprolab_cart_rule_combination") + "." + staticDataBaseObject.quoteName("cart_rule_id_2") ;
+            query += " AND " + this.cart_rule_id + " = " + staticDataBaseObject.quoteName("cart_rule_id_1") + ") ) ORDER BY cart_rule.";
+            query += staticDataBaseObject.quoteName("cart_rule_id") + queryLimit;
 
-            $array['unselected'] = Db::getInstance()->executeS('
-                    SELECT cr.*, crl.*, 1 as selected
-                    FROM '._DB_PREFIX_.'cart_rule cr
-            INNER JOIN '._DB_PREFIX_.'cart_rule_lang crl ON (cr.id_cart_rule = crl.id_cart_rule AND crl.id_lang = '.(int)Context::getContext()->language->id.')
-            LEFT JOIN '._DB_PREFIX_.'cart_rule_combination crc1 ON (cr.id_cart_rule = crc1.id_cart_rule_1 AND crc1.id_cart_rule_2 = '.(int)$this->id.')
-            LEFT JOIN '._DB_PREFIX_.'cart_rule_combination crc2 ON (cr.id_cart_rule = crc2.id_cart_rule_2 AND crc2.id_cart_rule_1 = '.(int)$this->id.')
-            WHERE cr.cart_rule_restriction = 1
-            AND cr.id_cart_rule != '.(int)$this->id.($search ? ' AND crl.name LIKE "%'.pSQL($search).'%"' : '').'
-            AND crc1.id_cart_rule_1 IS NULL
-            AND crc2.id_cart_rule_1 IS NULL  ORDER BY cr.id_cart_rule'.$sql_limit);
+            staticDataBaseObject.setQuery(query);
+            
+            ResultSet resultSet = staticDataBaseObject.loadObjectList();
 
+            //$array['unselected'] = Db::getInstance()->executeS('
+            query = "SELECT cart_rule.*, cart_rule_lang.*, 1 as selected FROM " + staticDataBaseObject.quoteName("#__jeprolab_cart_rule");
+            query += " As cart_rule INNER JOIN " + staticDataBaseObject.quoteName("#__jeprolab_cart_rule_lang") + " AS cart_rule_lang ON (cart_rule.";
+            query += staticDataBaseObject.quoteName("cart_rule_id") + " = cart_rule_lang." + staticDataBaseObject.quoteName("cart_rule_id");
+            query += " AND cart_rule_lang." + staticDataBaseObject.quoteName("lang_id") + " = " + JeproLabContext.getContext().language.language_id;
+            query += ") LEFT JOIN " + staticDataBaseObject.quoteName("#__jeprolab_cart_rule_combination") + " AS crc1 ON (cart_rule." ;
+            query += staticDataBaseObject.quoteName("cart_rule_id") + " = crc1." + staticDataBaseObject.quoteName("cart_rule_id_1") + " AND crc1.";
+            query += staticDataBaseObject.quoteName("cart_rule_id_2") + " = " + this.cart_rule_id + ") LEFT JOIN ";
+            query += staticDataBaseObject.quoteName("#__jeprolab_cart_rule_combination") + " AS crc2 ON (cart_rule.";
+            query += staticDataBaseObject.quoteName("cart_rule_id") + " = crc2." + staticDataBaseObject.quoteName("cart_rule__id_2");
+            query += " AND crc2." + staticDataBaseObject.quoteName("cart_rule_id_1") + " = " + this.cart_rule_id + ") WHERE cart_rule.";
+            query += staticDataBaseObject.quoteName("cart_rule_restriction") + " = 1 AND cart_rule." + staticDataBaseObject.quoteName("cart_rule_id") ;
+            query += " != " + this.cart_rule_id + (!search.equals("") ? " AND cart_rule_lang." + staticDataBaseObject.quoteName("name") + " LIKE '%" + staticDataBaseObject.quote(search) + "%'" : "");
+            query += " AND crc1." + staticDataBaseObject.quoteName("cart_rule_id_1") + " IS NULL AND crc2." + staticDataBaseObject.quoteName("cart_rule_id_1");
+            query += " IS NULL  ORDER BY cart_rule." + staticDataBaseObject.quoteName("cart_rule_id") + queryLimit;
 
+            staticDataBaseObject.setQuery(query);
+            resultSet = staticDataBaseObject.loadObjectList();
             return combinations;
         }
-
 
         public static void autoAddToCart(){
             autoAddToCart(null);
@@ -1670,13 +1676,24 @@ public class JeproLabCartModel extends JeproLabModel{
 
                 ResultSet resultSet = staticDataBaseObject.loadObjectList();
                 if (resultSet != null) {
-                    $cart_rules = ObjectModel::hydrateCollection('CartRule', $result);
-                    if ($cart_rules) {
-                        foreach ($cart_rules as $cart_rule) {
+                    //List<JeproLabCartRuleModel> cartRules = ObjectModel::hydrateCollection('CartRule', $result);
+                    try {
+                        JeproLabCartRuleModel cartRule;
+                        while (resultSet.next()){
                             /** @var CartRule $cart_rule */
-                            if ($cart_rule->checkValidity($context, false, false)) {
+                            if (cartRule.checkValidity(context, false, false)) {
                                 context.cart.addCartRule(cartRule.cart_rule_id);
                             }
+                        }
+                            
+                        
+                    }catch (SQLException ignored){
+                        ignored.printStackTrace();
+                    }finally {
+                        try{
+                            JeproLabDataBaseConnector.getInstance().closeConnexion();
+                        }catch (Exception ignored){
+                            ignored.printStackTrace();
                         }
                     }
                 }
@@ -1695,16 +1712,20 @@ public class JeproLabCartModel extends JeproLabModel{
             return getContextualValue(useTax, context, filter, null, true);
         }
 
+        public float getContextualValue(boolean useTax, JeproLabContext context, int filter, Map<String, List> pack){
+            return getContextualValue(useTax, context, filter, pack, true);
+        }
+
         /**
          * The reduction value is POSITIVE
          *
-         * @param bool    $use_tax   Apply taxes
+         * @param bool    useTax   Apply taxes
          * @param Context $context   Context instance
-         * @param bool    $use_cache Allow using cache to avoid multiple free gift using multishipping
+         * @param bool    useCache Allow using cache to avoid multiple free gift using multishipping
          *
          * @return float|int|string
          */
-        public float getContextualValue(boolean useTax, JeproLabContext context, int filter, $package = null, $use_cache = true){
+        public float getContextualValue(boolean useTax, JeproLabContext context, int filter, Map<String, List> pack, boolean useCache){
             if(!JeproLabCartRuleModel.isFeaturePublished()) {
                 return 0;
             }
@@ -1716,9 +1737,9 @@ public class JeproLabCartModel extends JeproLabModel{
             }
 
             List<JeproLabAnalyzeModel> allAnalyzes = context.cart.getAnalyzes();
-            List<JeproLabAnalyzeModel> packageAnalyzes = (is_null($package) ? $all_products : $package['products']);
+            List<JeproLabAnalyzeModel> packageAnalyzes = ((pack == null) ? allAnalyzes : pack.get("products"));
 
-            $all_cart_rules_ids = context.cart.getOrderedCartRulesIds();
+            List<Integer> allCartRulesIds = context.cart.getRequestCartRulesIds();
 
             float cartAmountTaxIncluded = context.cart.getRequestTotal(true, JeproLabCartModel.ONLY_ANALYZES);
             float cartAmountTaxExcluded = context.cart.getRequestTotal(false, JeproLabCartModel.ONLY_ANALYZES);
@@ -1737,9 +1758,9 @@ public class JeproLabCartModel extends JeproLabModel{
             }
 
             // Free shipping on selected carriers
-            if (this.free_shipping && in_array($filter, array(CartRule::FILTER_ACTION_ALL, CartRule::FILTER_ACTION_ALL_NOCAP, CartRule::FILTER_ACTION_SHIPPING))) {
+            if (this.free_shipping && (filter == JeproLabCartRuleModel.FILTER_ACTION_ALL || filter == JeproLabCartRuleModel.FILTER_ACTION_ALL_NOCAP || filter == JeproLabCartRuleModel.FILTER_ACTION_SHIPPING))) {
                 if (!this.carrier_restriction) {
-                    reductionValue += context.cart.getRequestTotal(useTax, JeproLabCartModel.ONLY_SHIPPING, is_null($package) ? null : $package['products'], is_null($package) ? null : $package['id_carrier']);
+                    reductionValue += context.cart.getRequestTotal(useTax, JeproLabCartModel.ONLY_SHIPPING, (pack == null) ? null : pack.get("products"), (pack == null) ? null : pack.get("carrier_id");
                 } else {
                     if(staticDataBaseObject == null){
                         staticDataBaseObject = JeproLabFactory.getDataBaseConnector();
@@ -1777,21 +1798,23 @@ public class JeproLabCartModel extends JeproLabModel{
 
             if (filter == JeproLabCartRuleModel.FILTER_ACTION_ALL || filter == JeproLabCartRuleModel.FILTER_ACTION_ALL_NOCAP || filter == JeproLabCartRuleModel.FILTER_ACTION_REDUCTION) {
                 // Discount (%) on the whole order
-                if(this.reduction_percent && this.reduction_analyze == 0) {
+                if(this.reduction_percent > 0 && this.reduction_analyze_id == 0) {
                     // Do not give a reduction on free analyzes!
                     requestTotal = context.cart.getRequestTotal(useTax, JeproLabCartModel.ONLY_ANALYZES, packageAnalyzes);
-                    foreach (context.cart.getCartRules(CartRule::FILTER_ACTION_GIFT) as $cart_rule) {
-                        requestTotal -= Tools::ps_round($cart_rule['obj']->getContextualValue($use_tax, $context, CartRule::FILTER_ACTION_GIFT, $package), _PS_PRICE_COMPUTE_PRECISION_);
+                    for(JeproLabCartRuleModel cartRule : context.cart.getCartRules(JeproLabCartRuleModel.FILTER_ACTION_GIFT)) {
+                        requestTotal -= JeproLabTools.roundPrice(
+                                cartRule.getContextualValue(useTax, context, JeproLabCartRuleModel.FILTER_ACTION_GIFT, pack),
+                                JeproLabConfigurationSettings.JEPROLAB_PRICE_DISPLAY_PRECISION);
                     }
 
                     // Remove products that are on special
                     if (this.reduction_exclude_special) {
-                        foreach ($package_products as $product) {
+                        for(JeproLabAnalyzeModel analyze : packageAnalyzes) {
                             if ($product['reduction_applies']) {
                                 if (useTax) {
-                                    requestTotal -= Tools::ps_round($product['total_wt'], _PS_PRICE_COMPUTE_PRECISION_);
+                                    requestTotal -= JeproLabTools.roundPrice(analyze.analyze_price.total_with_tax, JeproLabConfigurationSettings.JEPROLAB_PRICE_DISPLAY_PRECISION);
                                 } else {
-                                    requestTotal -= Tools::ps_round($product['total'], _PS_PRICE_COMPUTE_PRECISION_);
+                                    requestTotal -= JeproLabTools.roundPrice(analyze.analyze_price.total, JeproLabConfigurationSettings.JEPROLAB_PRICE_DISPLAY_PRECISION);
                                 }
                             }
                         }
@@ -1801,27 +1824,27 @@ public class JeproLabCartModel extends JeproLabModel{
                 }
 
                 // Discount (%) on a specific product
-                if (this.reduction_percent && this.reduction_analyze > 0) {
-                    foreach ($package_products as $product) {
-                        if ($product['id_product'] == $this->reduction_product && (($this->reduction_exclude_special && !$product['reduction_applies']) || !$this->reduction_exclude_special)) {
-                            $reduction_value += ($use_tax ? $product['total_wt'] : $product['total']) * $this->reduction_percent / 100;
+                if (this.reduction_percent > 0 && this.reduction_analyze_id > 0) {
+                    for (JeproLabAnalyzeModel analyze : packageAnalyzes) {
+                        if (analyze.analyze_id == this.reduction_analyze_id && ((this.reduction_exclude_special && !$product['reduction_applies']) || !this.reduction_exclude_special)) {
+                            reductionValue += (useTax ? analyze.analyze_price.total_with_tax : analyze.analyze_price.total) * this.reduction_percent / 100;
                         }
                     }
                 }
 
                 // Discount (%) on the cheapest product
-                if ($this->reduction_percent && $this->reduction_product == -1) {
-                    $minPrice = false;
+                if (this.reduction_percent > 0 && this.reduction_analyze_id == -1) {
+                    float minPrice = false;
                     $cheapest_product = null;
                     foreach ($all_products as $product) {
                         $price = $product['price'];
-                        if ($use_tax) {
+                        if (useTax) {
                             // since later on we won't be able to know the product the cart rule was applied to,
                             // use average cart VAT for price_wt
-                            $price *= (1 + $context->cart->getAverageProductsTaxRate());
+                            $price *= (1 + context.cart.getAverageAnalyzesTaxRate());
                         }
 
-                        if ($price > 0 && ($minPrice === false || $minPrice > $price) && (($this->reduction_exclude_special && !$product['reduction_applies']) || !$this->reduction_exclude_special)) {
+                        if ($price > 0 && (minPrice === false || $minPrice > $price) && ((this.reduction_exclude_special && !$product['reduction_applies']) || !this.reduction_exclude_special)) {
                             $minPrice = $price;
                             $cheapest_product = $product['id_product'].'-'.$product['id_product_attribute'];
                         }
@@ -1835,21 +1858,21 @@ public class JeproLabCartModel extends JeproLabModel{
                         }
                     }
                     if ($in_package) {
-                        $reduction_value += $minPrice * $this->reduction_percent / 100;
+                        reductionValue += minPrice * this.reduction_percent / 100;
                     }
                 }
 
                 // Discount (%) on the selection of products
-                if ($this->reduction_percent && $this->reduction_product == -2) {
+                if (this.reduction_percent && this.reduction_product == -2) {
                     $selected_products_reduction = 0;
-                    $selected_products = $this->checkProductRestrictions($context, true);
+                    $selected_products = this.checkProductRestrictions($context, true);
                     if (is_array($selected_products)) {
                         foreach ($package_products as $product) {
                             if (in_array($product['id_product'].'-'.$product['id_product_attribute'], $selected_products)
                             || in_array($product['id_product'].'-0', $selected_products)
-                            && (($this->reduction_exclude_special && !$product['reduction_applies']) || !$this->reduction_exclude_special)) {
+                            && ((this.reduction_exclude_special && !$product['reduction_applies']) || !this.reduction_exclude_special)) {
                                 $price = $product['price'];
-                                if ($use_tax) {
+                                if (useTax) {
                                     $infos = Product::getTaxesInformations($product, $context);
                                     $tax_rate = $infos['rate'] / 100;
                                     $price *= (1 + $tax_rate);
@@ -1859,49 +1882,49 @@ public class JeproLabCartModel extends JeproLabModel{
                             }
                         }
                     }
-                    $reduction_value += $selected_products_reduction * $this->reduction_percent / 100;
+                    $reduction_value += $selected_products_reduction * this.reduction_percent / 100;
                 }
 
                 // Discount (¤)
-                if ((float)$this->reduction_amount > 0) {
+                if (this.reduction_amount > 0) {
                     $prorata = 1;
                     if (!is_null($package) && count($all_products)) {
-                        $total_products = $context->cart->getOrderTotal($use_tax, Cart::ONLY_PRODUCTS);
+                        $total_products = context.cart.getRequestTotal(useTax, JeproLabCartModel.ONLY_ANALYZES);
                         if ($total_products) {
-                            $prorata = $context->cart->getOrderTotal($use_tax, Cart::ONLY_PRODUCTS, $package['products']) / $total_products;
+                            prorata = context.cart.getRequestTotal(useTax, JeproLabCartModel.ONLY_ANALYZES, $package['products']) / $total_products;
                         }
                     }
 
-                    $reduction_amount = $this->reduction_amount;
+                    float reductionAmount = this.reduction_amount;
                     // If we need to convert the voucher value to the cart currency
-                    if (isset($context->currency) && $this->reduction_currency != $context->currency->id) {
-                        $voucherCurrency = new Currency($this->reduction_currency);
+                    if ((context.currency != null) && this.reduction_currency_id != context.currency.currency_id) {
+                        JeproLabCurrencyModel voucherCurrency = new JeproLabCurrencyModel(this.reduction_currency_id);
 
                         // First we convert the voucher value to the default currency
-                        if ($reduction_amount == 0 || $voucherCurrency->conversion_rate == 0) {
-                            $reduction_amount = 0;
+                        if (reductionAmount == 0 || voucherCurrency.conversion_rate == 0) {
+                            reductionAmount = 0;
                         } else {
-                            $reduction_amount /= $voucherCurrency->conversion_rate;
+                            reductionAmount /= voucherCurrency.conversion_rate;
                         }
 
                         // Then we convert the voucher value in the default currency into the cart currency
-                        $reduction_amount *= $context->currency->conversion_rate;
-                        $reduction_amount = Tools::ps_round($reduction_amount, _PS_PRICE_COMPUTE_PRECISION_);
+                        reductionAmount *= context.currency.conversion_rate;
+                        reductionAmount = JeproLabTools.roundPrice(reductionAmount, JeproLabConfigurationSettings.JEPROLAB_PRICE_DISPLAY_PRECISION);
                     }
 
                     // If it has the same tax application that you need, then it's the right value, whatever the product!
-                    if ($this->reduction_tax == $use_tax) {
+                    if (this.reduction_tax == useTax) {
                         // The reduction cannot exceed the products total, except when we do not want it to be limited (for the partial use calculation)
                         if ($filter != CartRule::FILTER_ACTION_ALL_NOCAP) {
-                            $cart_amount = $context->cart->getOrderTotal($use_tax, Cart::ONLY_PRODUCTS);
-                            $reduction_amount = min($reduction_amount, $cart_amount);
+                            $cart_amount = context.cart.getRequestTotal(useTax, JeproLabCartModel.ONLY_ANALYZES);
+                            reductionAmount = Math.min(reductionAmount, cartAmount);
                         }
-                        $reduction_value += $prorata * $reduction_amount;
+                        reductionValue += $prorata * reductionAmount;
                     } else {
-                        if ($this->reduction_product > 0) {
-                            foreach ($context->cart->getProducts() as $product) {
-                                if ($product['id_product'] == $this->reduction_product) {
-                                    $product_price_ti = $product['price_wt'];
+                        if (this.reduction_analyze_id > 0) {
+                            for (JeproLabAnalyzeModel analyze : context.cart.getAnalyzes()) {
+                                if (analyze.analyze_id == this.reduction_analyze_id) {
+                                    analyzePriceTaxIncluded = $product['price_wt'];
                                     $product_price_te = $product['price'];
                                     $product_vat_amount = $product_price_ti - $product_price_te;
 
@@ -1911,66 +1934,68 @@ public class JeproLabCartModel extends JeproLabModel{
                                         $product_vat_rate = $product_vat_amount / $product_price_te;
                                     }
 
-                                    if ($this->reduction_tax && !$use_tax) {
-                                        $reduction_value += $prorata * $reduction_amount / (1 + $product_vat_rate);
-                                    } elseif (!$this->reduction_tax && $use_tax) {
-                                        $reduction_value += $prorata * $reduction_amount * (1 + $product_vat_rate);
+                                    if (this.reduction_tax && !useTax) {
+                                        reductionValue += $prorata * $reduction_amount / (1 + $product_vat_rate);
+                                    } else if (!this.reduction_tax && useTax) {
+                                        reductionValue += $prorata * $reduction_amount * (1 + $product_vat_rate);
                                     }
                                 }
                             }
                         }
                         // Discount (¤) on the whole order
-                        elseif ($this->reduction_product == 0) {
-                            $cart_amount_te = null;
-                            $cart_amount_ti = null;
-                            $cart_average_vat_rate = $context->cart->getAverageProductsTaxRate($cart_amount_te, $cart_amount_ti);
+                        else if (this.reduction_analyze == 0) {
+                            cartAmountTaxExcluded = 0;
+                            cartAmountTaxIncluded = 0;
+                            cartAverageVatRate = context.cart.getAverageAnalyzesTaxRate(cartAmountTaxExcluded, cartAmountTaxIncluded);
 
                             // The reduction cannot exceed the products total, except when we do not want it to be limited (for the partial use calculation)
-                            if ($filter != CartRule::FILTER_ACTION_ALL_NOCAP) {
-                                $reduction_amount = min($reduction_amount, $this->reduction_tax ? $cart_amount_ti : $cart_amount_te);
+                            if (filter != JeproLabCartRuleModel.FILTER_ACTION_ALL_NOCAP) {
+                                reductionAmount = Math.min(reductionAmount, this.reduction_tax ? $cart_amount_ti : $cart_amount_te);
                             }
 
-                            if ($this->reduction_tax && !$use_tax) {
-                                $reduction_value += $prorata * $reduction_amount / (1 + $cart_average_vat_rate);
-                            } elseif (!$this->reduction_tax && $use_tax) {
-                                $reduction_value += $prorata * $reduction_amount * (1 + $cart_average_vat_rate);
+                            if (this.reduction_tax && !useTax) {
+                                reductionValue += prorata * reductionAmount / (1 + cartAverageVatRate);
+                            } else if (!this.reduction_tax && useTax) {
+                                reductionValue += prorata * reductionAmount * (1 + cartAverageVatRate);
                             }
                         }
-                    /*
-                     * Reduction on the cheapest or on the selection is not really meaningful and has been disabled in the backend
-                     * Please keep this code, so it won't be considered as a bug
-                     * elseif ($this->reduction_product == -1)
-                     * elseif ($this->reduction_product == -2)
-                    */
+                        /*
+                         * Reduction on the cheapest or on the selection is not really meaningful and has been disabled in the backend
+                         * Please keep this code, so it won't be considered as a bug
+                         * elseif (this.reduction_product == -1)
+                         * elseif (this.reduction_product == -2)
+                        */
                     }
 
                     // Take care of the other cart rules values if the filter allow it
-                    if ($filter != CartRule::FILTER_ACTION_ALL_NOCAP) {
+                    if (filter != JeproLabCartRuleModel.FILTER_ACTION_ALL_NOCAP) {
                         // Cart values
-                        $cart = JeproLabContext.getContext().cart;
+                        JeproLabCartModel cart = JeproLabContext.getContext().cart;
 
-                        if (!Validate::isLoadedObject($cart)) {
-                            $cart = new JeproLabCartModel();
+                        if (!JeproLabTools.isLoadedObject(cart, "cart_id")) {
+                            cart = new JeproLabCartModel();
                         }
 
-                        $cart_average_vat_rate = $cart->getAverageProductsTaxRate();
-                        $current_cart_amount = $use_tax ? $cart_amount_ti : $cart_amount_te;
+                        float cartAverageVatRate = cart.getAverageAnalyzesTaxRate();
+                        float currentCartAmount = useTax ? cartAmountTaxIncluded : cartAmountTaxExcluded;
+                        float previousReductionAmount;
+                        JeproLabCartRuleModel previousCartRule;
 
-                        foreach ($all_cart_rules_ids as $current_cart_rule_id) {
-                            if ((int)$current_cart_rule_id['id_cart_rule'] == (int)$this->id) {
+                        for(int currentCartRuleId : allCartRulesIds) {
+                            if (currentCartRuleId == this.cart_rule_id) {
                                 break;
                             }
 
-                            $previous_cart_rule = new CartRule((int)$current_cart_rule_id['id_cart_rule']);
-                            $previous_reduction_amount = $previous_cart_rule->reduction_amount;
+                            previousCartRule = new JeproLabCartRuleModel(currentCartRuleId);
+                            previousReductionAmount = previousCartRule.reduction_amount;
 
-                            if ($previous_cart_rule->reduction_tax && !$use_tax) {
-                                $previous_reduction_amount = $prorata * $previous_reduction_amount / (1 + $cart_average_vat_rate);
-                            } elseif (!$previous_cart_rule->reduction_tax && $use_tax) {
-                                $previous_reduction_amount = $prorata * $previous_reduction_amount * (1 + $cart_average_vat_rate);
+                            if (previousCartRule.reduction_tax && !useTax) {
+                                previousReductionAmount = prorata * previousReductionAmount / (1 + cartAverageVatRate);
+                            } else if (!previousCartRule.reduction_tax && useTax) {
+                                previousReductionAmount = prorata * previousReductionAmount * (1 + cartAverageVatRate);
                             }
 
-                            $current_cart_amount = max($current_cart_amount - (float)$previous_reduction_amount, 0);
+                            currentCartAmount = Math.max(currentCartAmount - previousReductionAmount, 0);
                         }
 
                         reductionValue = Math.min(reductionValue, currentCartAmount);
@@ -1979,19 +2004,19 @@ public class JeproLabCartModel extends JeproLabModel{
             }
 
             // Free gift
-            if ((int)$this->gift_product && in_array($filter, array(CartRule::FILTER_ACTION_ALL, CartRule::FILTER_ACTION_ALL_NOCAP, CartRule::FILTER_ACTION_GIFT))) {
+            if ((int)this.gift_product && (filter == JeproLabCartRuleModel.FILTER_ACTION_ALL || filter == JeproLabCartRuleModel.FILTER_ACTION_ALL_NOCAP || filter == JeproLabCartRuleModel.FILTER_ACTION_GIFT)){
                 $id_address = (is_null($package) ? 0 : $package['id_address']);
                 foreach ($package_products as $product) {
-                    if ($product['id_product'] == $this->gift_product && ($product['id_product_attribute'] == $this->gift_product_attribute || !(int)$this->gift_product_attribute)) {
+                    if ($product['id_product'] == this.gift_product && ($product['id_product_attribute'] == this.gift_product_attribute || !(int)this.gift_product_attribute)) {
                         // The free gift coupon must be applied to one product only (needed for multi-shipping which manage multiple product lists)
-                        if (!isset(CartRule::$only_one_gift[$this->id.'-'.$this->gift_product])
-                        || CartRule::$only_one_gift[$this->id.'-'.$this->gift_product] == $id_address
-                                || CartRule::$only_one_gift[$this->id.'-'.$this->gift_product] == 0
+                        if (!isset(CartRule::$only_one_gift[this.id.'-'.this.gift_product])
+                        || CartRule::$only_one_gift[this.id.'-'.this.gift_product] == $id_address
+                                || CartRule::$only_one_gift[this.id.'-'.this.gift_product] == 0
                                 || $id_address == 0
-                                || !$use_cache) {
-                            $reduction_value += ($use_tax ? $product['price_wt'] : $product['price']);
-                            if ($use_cache && (!isset(CartRule::$only_one_gift[$this->id.'-'.$this->gift_product]) || CartRule::$only_one_gift[$this->id.'-'.$this->gift_product] == 0)) {
-                                CartRule::$only_one_gift[$this->id.'-'.$this->gift_product] = $id_address;
+                                || !useCache) {
+                            $reduction_value += (useTax ? $product['price_wt'] : $product['price']);
+                            if (useCache && (!isset(CartRule::$only_one_gift[this.id.'-'.this.gift_product]) || CartRule::$only_one_gift[this.id.'-'.this.gift_product] == 0)) {
+                                CartRule::$only_one_gift[this.id.'-'.this.gift_product] = $id_address;
                             }
                             break;
                         }
