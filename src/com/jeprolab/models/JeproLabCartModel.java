@@ -83,6 +83,8 @@ public class JeproLabCartModel extends JeproLabModel{
 
     protected static Map<Integer, Integer>_number_of_analyzes = new HashMap<>();
 
+    protected static Map<String, HashMap<String, String>> _attributes_lists = new HashMap<>();
+
     public final static int ONLY_ANALYZES = 1;
     public final static int ONLY_DISCOUNTS = 2;
     public final static int BOTH = 3;
@@ -387,6 +389,7 @@ public class JeproLabCartModel extends JeproLabModel{
         }
         return result;
     }
+
    /*
     public boolean toggleStatus(){
         if(staticDataBaseObject == null){
@@ -445,8 +448,24 @@ public class JeproLabCartModel extends JeproLabModel{
         return 0;
     }
 
+    public boolean requestExists(){
+        String cacheKey = "jeprolab_cart_model_request_exists_" + this.cart_id;
+        if(!JeproLabCache.getInstance().isStored(cacheKey)){
+            if(staticDataBaseObject == null){staticDataBaseObject = JeproLabFactory.getDataBaseConnector(); }
+            String query = "SELECT count(*) request FROM " + staticDataBaseObject.quoteName("#__jeprolab_request") ;
+            query += " WHERE " + staticDataBaseObject.quoteName("cart_id") + " = " + this.cart_id;
+
+            staticDataBaseObject.setQuery(query);
+            boolean result = (int)staticDataBaseObject.loadValue("request") > 0;
+            JeproLabCache.getInstance().store(cacheKey, result);
+            return result;
+        }
+        return (boolean)JeproLabCache.getInstance().retrieve(cacheKey);
+    }
+
 
     public float getAverageAnalyzesTaxRate(){ return getAverageAnalyzesTaxRate(0, 0); }
+
     public float getAverageAnalyzesTaxRate(float cartAmountTaxExcluded){ return  getAverageAnalyzesTaxRate(cartAmountTaxExcluded, 0); }
 
     /**
@@ -538,7 +557,7 @@ public class JeproLabCartModel extends JeproLabModel{
         return cartRules;
     }
 
-    public getDiscounts(){
+    public float getDiscounts(){
         return JeproLabCartRuleModel.getCustomerHighLightedDiscounts(this.language_id, this.customer_id, this);
     }
 
@@ -764,15 +783,13 @@ public class JeproLabCartModel extends JeproLabModel{
     public static void cacheSomeAttributesLists(List<Integer> analyzeAttributeIds, int langId){
         if(JeproLabCombinationModel.isFeaturePublished()){
             List<Integer> implodedIds = new ArrayList<>();
-            for(int analyzeAttributeId : analyzeAttributeIds){
-                if(analyzeAttributeId > 0 && !JeproLabCartModel._attributes_lists.containsKey(analyzeAttributeId + "_" + langId)){
-                    implodedIds.add(analyzeAttributeId);
-                    HashMap<String, String> attribute = new HashMap<>();
-                    attribute.put("attributes", "");
-                    attribute.put("attributes_small", "");
-                    JeproLabCartRuleModel._attributes_lists.put(analyzeAttributeId + "_" + langId, attribute);
-                }
-            }
+            analyzeAttributeIds.stream().filter(analyzeAttributeId -> analyzeAttributeId > 0 && !JeproLabCartModel._attributes_lists.containsKey(analyzeAttributeId + "_" + langId)).forEach(analyzeAttributeId -> {
+                implodedIds.add(analyzeAttributeId);
+                HashMap<String, String> attribute = new HashMap<>();
+                attribute.put("attributes", "");
+                attribute.put("attributes_small", "");
+                JeproLabCartRuleModel._attributes_lists.put(analyzeAttributeId + "_" + langId, attribute);
+            });
 
             if(implodedIds.size() > 0){
                 if(staticDataBaseObject == null){
@@ -1214,6 +1231,9 @@ public class JeproLabCartModel extends JeproLabModel{
         }
     }
 
+
+
+
     /**
      *
      * @param quantity
@@ -1312,7 +1332,56 @@ public class JeproLabCartModel extends JeproLabModel{
 
         public int language_id;
 
+        public int customer_id;
+
+        public Date date_from;
+
+        public Date date_to;
+
+        public int quantity = 1;
+
+        public int quantity_per_customer = 1;
+
+        public int priority = 1;
+
+        public int partial_use = 1;
+
+        public String code;
+
+        public float minimum_amount;
+
+        public float minimum_amount_tax;
+
+        public int minimum_amount_currency_id;
+
+        public float minimum_amount_shipping;
+
+        public int reduction_currency_id;
+
+        public reduction_percent;
+        public reduction_amount;
+        public reduction_;
+        public reduction_;
+
+        public boolean lab_restriction;
+
+        public boolean country_restriction;
+
+        public boolean group_restriction;
+
+        public boolean cart_rule_restriction;
+
+        public boolean published;
+
+        public Date date_add;
+
+        public Date date_up;
+
+
         public Map<String, String> name = new HashMap<>();
+        public Map<String, String> description = new HashMap<>();
+
+
         /* Filters used when retrieving the cart rules applied to a cart of when calculating the value of a reduction */
         public static final int FILTER_ACTION_ALL = 1;
         public static final int FILTER_ACTION_SHIPPING = 2;
@@ -1322,6 +1391,23 @@ public class JeproLabCartModel extends JeproLabModel{
 
         public final String BO_ORDER_CODE_PREFIX = "BO_ORDER_";
 
+        private static boolean IS_FEATURE_PUBLISHED = false;
+
+
+        /**
+         *
+         */
+        public boolean add(){
+            if(this.reduction_currency_id <= 0){
+                this.reduction_currency_id = JeproLabSettingModel.getIntValue("default_currency");
+            }
+
+            if(staticDataBaseObject == null){
+                staticDataBaseObject = JeproLabFactory.getDataBaseConnector();
+            }
+
+            return true;
+        }
 
         /**
          * @param customerId the customer unique identifier
@@ -1341,7 +1427,7 @@ public class JeproLabCartModel extends JeproLabModel{
             return result;
         }
 
-        /* When an entity associated to a analyze rule (product, category, attribute, supplier, manuacturer...) is deleted, the product rules must be updated */
+        /* When an entity associated to a analyze rule (analyze, category, attribute, supplier, manufacturer...) is deleted, the product rules must be updated */
         public static boolean cleanAnalyzeRuleIntegrity(String type, List<Integer> list){
             String[] fieldTypes = {"analyzes", "categories", "attributes", "manufacturers", "suppliers"};
             // Type must be available in the 'type' enum of the table cart_rule_product_rule
@@ -1391,6 +1477,590 @@ public class JeproLabCartModel extends JeproLabModel{
             staticDataBaseObject.query(false);
         }*/
             return true;
+        }
+
+        public static boolean isFeaturePublished(){
+            if(!JeproLabCartRuleModel.IS_FEATURE_PUBLISHED){
+                IS_FEATURE_PUBLISHED = JeproLabSettingModel.getIntValue("cart_rule_feature_active") > 0;
+            }
+            return IS_FEATURE_PUBLISHED;
+        }
+
+        public static List autoRemoveFromCart(){
+            return autoRemoveFromCart(null);
+        }
+
+        /**
+         * Automatically remove this CartRule from the Cart
+         *
+         * @param context|null $context Context instance
+         *
+         * @return array Error messages
+         */
+        public static List autoRemoveFromCart(JeproLabContext context){
+            if (context == null) {
+                context = JeproLabContext.getContext();
+            }
+            if (!JeproLabCartRuleModel.isFeaturePublished() || !JeproLabTools.isLoadedObject(context.cart, "cart_id")) {
+                return new ArrayList<>();
+            }
+
+            List errors = new ArrayList<>();
+            String error;
+            for(JeproLabCartRuleModel cartRule : context.cart.getCartRules()) {
+                error = cartRule.checkValidity(context, true);
+                if (!error.equals("")){
+                    context.cart.removeCartRule(cartRule.cart_rule_id);
+                    context.cart.update();
+                    errors.add(error);
+                }
+            }
+            return errors;
+        }
+
+        /**
+         * Make sure caches are empty
+         * Must be called before calling multiple time getContextualValue()
+         */
+        public static void cleanCache(){
+            JeproLabCartRuleModel.only_one_gift = new ArrayList<>();
+        }
+
+        /**
+         * Get CartRule combinations
+         *
+         *
+         * @return array CartRule search results
+         */
+        protected List getCartRuleCombinations() {
+            return getCartRuleCombinations(0, 0, "");
+        }
+
+
+        /**
+         * Get CartRule combinations
+         *
+         * @param offset Offset
+         *
+         * @return array CartRule search results
+         */
+
+        protected List getCartRuleCombinations(int offset){
+            return getCartRuleCombinations(offset, 0, "");
+        }
+
+        /**
+         * Get CartRule combinations
+         *
+         * @param offset Offset
+         * @param limit Limit
+         *
+         * @return array CartRule search results
+         */
+        protected List getCartRuleCombinations(int offset, int limit){
+            return getCartRuleCombinations(offset, limit, "");
+        }
+
+        /**
+         * Get CartRule combinations
+         *
+         * @param offset Offset
+         * @param limit Limit
+         * @param search Search query
+         *
+         * @return array CartRule search results
+         */
+        protected List getCartRuleCombinations(int offset, int limit, String search){
+            List combinations = new ArrayList<>();
+            String queryLimit = "";
+            if (offset >= 0 && limit >= 0) {
+                queryLimit = " LIMIT " + offset + ", " + (limit+1);
+            } else {
+                queryLimit = "";
+            }
+
+            //$array['selected'] = Db::getInstance()->executeS('
+            String query = "SELECT cart_rule.*, cart_rule_lang.*, 1 as selected FROM " + staticDataBaseObject.quoteName("#__jeprolab_cart_rule");
+            query += " AS cart_rule LEFT JOIN " + staticDataBaseObject.quoteName("#__jeprolab_cart_rule_lang") + " AS cart_rule_lang ON (cart_rule.";
+            query += staticDataBaseObject.quoteName("cart_rule_id") + " = cart_rule_lang." + staticDataBaseObject.quoteName("cart_rule_id");
+            query += " AND cart_rule_lang." + staticDataBaseObject.quoteName("lang_id") + " = " + JeproLabContext.getContext().language.language_id;
+            query += ") WHERE cart_rule." + staticDataBaseObject.quoteName("cart_rule_id") + " != " + this.cart_rule_id ;
+            query += (!search.equals("") ? " AND cart_rule_lang." + staticDataBaseObject.quoteName("name") + " LIKE '%" + staticDataBaseObject.quote(search) + "%'" : "");
+            query += " AND (cart_rule." + staticDataBaseObject.quoteName("cart_rule_restriction") + " = 0 OR EXISTS ( SELECT 1 FROM ";
+            query += staticDataBaseObject.quoteName("#__jeprolab_cart_rule_combination") + " WHERE cart_rule." + staticDataBaseObject.quoteName("cart_rule_id");
+            query += " = " + staticDataBaseObject.quoteName("#__jeprolab_cart_rule_combination") + "." + staticDataBaseObject.quoteName("cart_rule_id_1");
+            AND '.(int)$this->id.' = id_cart_rule_2
+            )
+            OR EXISTS (
+                    SELECT 1
+            FROM '._DB_PREFIX_.'cart_rule_combination
+            WHERE cr.id_cart_rule = '._DB_PREFIX_.'cart_rule_combination.id_cart_rule_2 AND '.(int)$this->id.' = id_cart_rule_1
+            )
+            ) ORDER BY cr.id_cart_rule'.$sql_limit);
+
+            $array['unselected'] = Db::getInstance()->executeS('
+                    SELECT cr.*, crl.*, 1 as selected
+                    FROM '._DB_PREFIX_.'cart_rule cr
+            INNER JOIN '._DB_PREFIX_.'cart_rule_lang crl ON (cr.id_cart_rule = crl.id_cart_rule AND crl.id_lang = '.(int)Context::getContext()->language->id.')
+            LEFT JOIN '._DB_PREFIX_.'cart_rule_combination crc1 ON (cr.id_cart_rule = crc1.id_cart_rule_1 AND crc1.id_cart_rule_2 = '.(int)$this->id.')
+            LEFT JOIN '._DB_PREFIX_.'cart_rule_combination crc2 ON (cr.id_cart_rule = crc2.id_cart_rule_2 AND crc2.id_cart_rule_1 = '.(int)$this->id.')
+            WHERE cr.cart_rule_restriction = 1
+            AND cr.id_cart_rule != '.(int)$this->id.($search ? ' AND crl.name LIKE "%'.pSQL($search).'%"' : '').'
+            AND crc1.id_cart_rule_1 IS NULL
+            AND crc2.id_cart_rule_1 IS NULL  ORDER BY cr.id_cart_rule'.$sql_limit);
+
+
+            return combinations;
+        }
+
+
+        public static void autoAddToCart(){
+            autoAddToCart(null);
+        }
+
+        public static void autoAddToCart(JeproLabContext context){
+            if(context == null){
+                context = JeproLabContext.getContext();
+            }
+
+            if(JeproLabCartRuleModel.isFeaturePublished() && JeproLabTools.isLoadedObject(context.cart, "cart_id")){
+                if(staticDataBaseObject == null){
+                    staticDataBaseObject = JeproLabFactory.getDataBaseConnector();
+                }
+
+                String query = "SELECT SQL_NO_CACHE cart_rule.* FROM " + staticDataBaseObject.quoteName("#__jeprolab_cart_rule") + " AS cart_rule LEFT JOIN ";
+                query += staticDataBaseObject.quoteName("__jeprolab_cart_rule_lab") + " AS cart_rule_lab ON cart_rule." + staticDataBaseObject.quoteName("cart_rule_id");
+                query += " = cart_rule_lab." + staticDataBaseObject.quoteName("cart_rule_id") ;
+                query += (context.customer.customer_id <= 0 && JeproLabGroupModel.isFeaturePublished() ? " LEFT JOIN " + staticDataBaseObject.quoteName("#__jeprolab_cart_rule_group crg")
+                    + " ON cart_rule." + staticDataBaseObject.quoteName("cart_rule_id") + " = cart_rule_group." + staticDataBaseObject.quoteName("cart_rule_id")  : "");
+                query += " LEFT JOIN " + staticDataBaseObject.quoteName("#__jeprolab_cart_rule_carrier") + " AS cart_rule_carrier ON cart_rule.";
+                query += staticDataBaseObject.quoteName("cart_rule_id") + " = cart_rule_carrier." + staticDataBaseObject.quoteName("cart_rule_id") ;
+                query += (context.cart.carrier_id > 0 ? " LEFT JOIN " + staticDataBaseObject.quoteName("#__jeprolab_carrier") + " AS carrier ON (carrier."
+                    + staticDataBaseObject.quoteName("reference_id") + " = cart_rule_carrier." + staticDataBaseObject.quoteName("carrier_id") + " AND carrier."
+                    + staticDataBaseObject.quoteName("deleted") + " = 0)" : "") + " LEFT JOIN " + staticDataBaseObject.quoteName("#__jeprolab_cart_rule_country");
+                query += " AS cart_rule_country ON cart_rule." + staticDataBaseObject.quoteName("cart_rule_id") + " = cart_rule_country." + staticDataBaseObject.quoteName("cart_rule_id");
+                query += " WHERE cart_rule." + staticDataBaseObject.quoteName("published") + " = 1 AND cart_rule." + staticDataBaseObject.quoteName("code");
+                query += "\"\" AND cart_rule." + staticDataBaseObject.quoteName("quantity") + " > 0 AND cart_rule." + staticDataBaseObject.quoteName("date_from");
+                query += " < " + staticDataBaseObject.quote(JeproLabTools.date() + " AND cart_rule." + staticDataBaseObject.quoteName("date_to") + "  > ";
+                query += staticDataBaseObject.quote(JeproLabTools.date()) + " AND (cart_rule." + staticDataBaseObject.quoteName("customer_id") + " = 0 ";
+                query += (context.customer.customer_id > 0 ? " OR cart_rule." + staticDataBaseObject.quoteName("customer_id") + " = " + context.cart.customer_id : "");
+                query += ") AND ( cart_rule." + staticDataBaseObject.quoteName("carrier_restriction") + " = 0 ";
+                query += (context.cart.carrier_id > 0 ? " OR cart." + staticDataBaseObject.quoteName("carrier_id") + " = " + context.cart.carrier_id : "");
+                query += " ) AND (cart_rule." + staticDataBaseObject.quoteName("lab_restriction") + " = 0 ";
+                query += ((JeproLabLaboratoryModel.isFeaturePublished() && context.laboratory.laboratory_id > 0) ? " OR cart_rule_lab." + staticDataBaseObject.quoteName("lab_id") + " = " + context.laboratory.laboratory_id : "");
+                query += ") AND ( cart_rule." + staticDataBaseObject.quoteName("group_restriction") + " = 0 ";
+                if(context.customer.customer_id > 0) {
+                    query += " OR EXISTS ( SELECT 1 FROM " + staticDataBaseObject.quoteName("#__jeprolab_customer_group") + " AS customer_group ";
+                    query += " INNER JOIN " + staticDataBaseObject.quoteName("#__jeprolab_cart_rule_group") + " AS cart_rule_group ON customer_group.";
+                    query += staticDataBaseObject.quoteName("group_id") + " = cart_rule_group." + staticDataBaseObject.quoteName("group_id") + " WHERE cart_rule.";
+                    query += staticDataBaseObject.quoteName("cart_rule_id") + " = cart_rule_group." + staticDataBaseObject.quoteName("cart_rule_id") + " AND customer_group.";
+                    query += staticDataBaseObject.quoteName("customer_id") + " = " + context.customer.customer_id + " LIMIT 1 )";
+                }else {
+                    query += (JeproLabGroupModel.isFeaturePublished() ? " OR cart_rule_group." + staticDataBaseObject.quoteName("group_id") + " = "
+                            + JeproLabSettingModel.getIntValue("unidentified_group") : "");
+                }
+                query += ") AND ( cart_rule." + staticDataBaseObject.quoteName("reduction_analyze") + " <= 0 OR EXISTS ( SELECT 1 FROM ";
+                query += staticDataBaseObject.quoteName("#__jeprolab_cart_analyze") + " WHERE cart_analyze." + staticDataBaseObject.quoteName("analyze_id");
+                query += " = cart_rule." + staticDataBaseObject.quoteName("reduction_analyze") + " AND " + staticDataBaseObject.quoteName("cart_id") + " = ";
+                query += context.cart.cart_id + ") ) AND NOT EXISTS (SELECT 1 FROM " + staticDataBaseObject.quoteName("#__jeprolab_cart_cart_rule") + " WHERE cart_rule.";
+                query += staticDataBaseObject.quoteName("cart_rule_id") + " = cart_cart_rule." + staticDataBaseObject.quoteName("cart_cart_rule_id")  + " AND " ;
+                query += staticDataBaseObject.quoteName("cart_id") + " = " + context.cart.cart_id + ") ORDER BY " + staticDataBaseObject.quoteName("priority");
+
+                staticDataBaseObject.setQuery(query);
+
+                ResultSet resultSet = staticDataBaseObject.loadObjectList();
+                if (resultSet != null) {
+                    $cart_rules = ObjectModel::hydrateCollection('CartRule', $result);
+                    if ($cart_rules) {
+                        foreach ($cart_rules as $cart_rule) {
+                            /** @var CartRule $cart_rule */
+                            if ($cart_rule->checkValidity($context, false, false)) {
+                                context.cart.addCartRule(cartRule.cart_rule_id);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        public float getContextualValue(boolean useTax){
+            return getContextualValue(useTax, null, 0, null, true);
+        }
+
+        public float getContextualValue(boolean useTax, JeproLabContext context){
+            return getContextualValue(useTax, context, 0, null, true);
+        }
+
+        public float getContextualValue(boolean useTax, JeproLabContext context, int filter){
+            return getContextualValue(useTax, context, filter, null, true);
+        }
+
+        /**
+         * The reduction value is POSITIVE
+         *
+         * @param bool    $use_tax   Apply taxes
+         * @param Context $context   Context instance
+         * @param bool    $use_cache Allow using cache to avoid multiple free gift using multishipping
+         *
+         * @return float|int|string
+         */
+        public float getContextualValue(boolean useTax, JeproLabContext context, int filter, $package = null, $use_cache = true){
+            if(!JeproLabCartRuleModel.isFeaturePublished()) {
+                return 0;
+            }
+            if (context == null){
+                context = JeproLabContext.getContext();
+            }
+            if (filter <= 0) {
+                filter = JeproLabCartRuleModel.FILTER_ACTION_ALL;
+            }
+
+            List<JeproLabAnalyzeModel> allAnalyzes = context.cart.getAnalyzes();
+            List<JeproLabAnalyzeModel> packageAnalyzes = (is_null($package) ? $all_products : $package['products']);
+
+            $all_cart_rules_ids = context.cart.getOrderedCartRulesIds();
+
+            float cartAmountTaxIncluded = context.cart.getRequestTotal(true, JeproLabCartModel.ONLY_ANALYZES);
+            float cartAmountTaxExcluded = context.cart.getRequestTotal(false, JeproLabCartModel.ONLY_ANALYZES);
+
+            float reductionValue = 0;
+
+            String cacheKey = "jeprolab_cart_model_get_contextual_value_" + this.cart_rule_id + "_" + (useTax ?  1 : 0) + "_";
+            cacheKey += context.cart.cart_id + "_" + filter;
+            for(JeproLabAnalyzeModel analyze : packageAnalyzes) {
+                cacheKey += "_" + analyze.analyze_id + "_" + analyze.analyze_attribute_id ;
+                cacheKey += (analyze.in_stock) ? "_" + analyze.in_stock : "";
+            }
+
+            if (JeproLabCache.getInstance().isStored(cacheKey)) {
+                return (float)JeproLabCache.getInstance().retrieve (cacheKey);
+            }
+
+            // Free shipping on selected carriers
+            if (this.free_shipping && in_array($filter, array(CartRule::FILTER_ACTION_ALL, CartRule::FILTER_ACTION_ALL_NOCAP, CartRule::FILTER_ACTION_SHIPPING))) {
+                if (!this.carrier_restriction) {
+                    reductionValue += context.cart.getRequestTotal(useTax, JeproLabCartModel.ONLY_SHIPPING, is_null($package) ? null : $package['products'], is_null($package) ? null : $package['id_carrier']);
+                } else {
+                    if(staticDataBaseObject == null){
+                        staticDataBaseObject = JeproLabFactory.getDataBaseConnector();
+                    }
+                    String query = "SELECT cart_rule_carrier." + staticDataBaseObject.quoteName("cart_rule_id") + ", carrier.";
+                    query += staticDataBaseObject.quoteName("carrier_id") + " FROM " + staticDataBaseObject.quoteName("#__jeprolab_cart_rule_carrier");
+                    query += " AS cart_rule_carrier INNER JOIN " + staticDataBaseObject.quoteName("#__jeprolab_carrier") + " AS carrier ";
+                    query += " ON (carrier." + staticDataBaseObject.quoteName("reference_id") + "  = cart_rule_carrier.";
+                    query += staticDataBaseObject.quoteName("carrier_id") + " AND cart." + staticDataBaseObject.quoteName("deleted");
+                    query += " = 0) WHERE cart_rule_carrier." + staticDataBaseObject.quoteName("cart_rule_id") + " = " + this.cart_rule_id;
+                    query += " AND carrier." + staticDataBaseObject.quoteName("carrier_id") + " = " + context.cart.carrier_id;
+
+                    staticDataBaseObject.setQuery(query);
+                    ResultSet resultSet = staticDataBaseObject.loadObjectList();
+
+                    if (resultSet != null) {
+                        try {
+                            while(resultSet.next()){
+                                reductionValue += context.cart.getCarrierCost(resultSet.getInt("carrier_id"), useTax, context.country);
+                            }
+                        }catch(SQLException ignored){
+                            ignored.printStackTrace();
+                        }finally {
+                            try {
+                                JeproLabDataBaseConnector.getInstance().closeConnexion();
+                            }catch(Exception ignored){
+                                ignored.printStackTrace();
+                            }
+                        }
+                    }
+                }
+            }
+
+            float requestTotal;
+
+            if (filter == JeproLabCartRuleModel.FILTER_ACTION_ALL || filter == JeproLabCartRuleModel.FILTER_ACTION_ALL_NOCAP || filter == JeproLabCartRuleModel.FILTER_ACTION_REDUCTION) {
+                // Discount (%) on the whole order
+                if(this.reduction_percent && this.reduction_analyze == 0) {
+                    // Do not give a reduction on free analyzes!
+                    requestTotal = context.cart.getRequestTotal(useTax, JeproLabCartModel.ONLY_ANALYZES, packageAnalyzes);
+                    foreach (context.cart.getCartRules(CartRule::FILTER_ACTION_GIFT) as $cart_rule) {
+                        requestTotal -= Tools::ps_round($cart_rule['obj']->getContextualValue($use_tax, $context, CartRule::FILTER_ACTION_GIFT, $package), _PS_PRICE_COMPUTE_PRECISION_);
+                    }
+
+                    // Remove products that are on special
+                    if (this.reduction_exclude_special) {
+                        foreach ($package_products as $product) {
+                            if ($product['reduction_applies']) {
+                                if (useTax) {
+                                    requestTotal -= Tools::ps_round($product['total_wt'], _PS_PRICE_COMPUTE_PRECISION_);
+                                } else {
+                                    requestTotal -= Tools::ps_round($product['total'], _PS_PRICE_COMPUTE_PRECISION_);
+                                }
+                            }
+                        }
+                    }
+
+                    reductionValue += requestTotal * this.reduction_percent / 100;
+                }
+
+                // Discount (%) on a specific product
+                if (this.reduction_percent && this.reduction_analyze > 0) {
+                    foreach ($package_products as $product) {
+                        if ($product['id_product'] == $this->reduction_product && (($this->reduction_exclude_special && !$product['reduction_applies']) || !$this->reduction_exclude_special)) {
+                            $reduction_value += ($use_tax ? $product['total_wt'] : $product['total']) * $this->reduction_percent / 100;
+                        }
+                    }
+                }
+
+                // Discount (%) on the cheapest product
+                if ($this->reduction_percent && $this->reduction_product == -1) {
+                    $minPrice = false;
+                    $cheapest_product = null;
+                    foreach ($all_products as $product) {
+                        $price = $product['price'];
+                        if ($use_tax) {
+                            // since later on we won't be able to know the product the cart rule was applied to,
+                            // use average cart VAT for price_wt
+                            $price *= (1 + $context->cart->getAverageProductsTaxRate());
+                        }
+
+                        if ($price > 0 && ($minPrice === false || $minPrice > $price) && (($this->reduction_exclude_special && !$product['reduction_applies']) || !$this->reduction_exclude_special)) {
+                            $minPrice = $price;
+                            $cheapest_product = $product['id_product'].'-'.$product['id_product_attribute'];
+                        }
+                    }
+
+                    // Check if the cheapest product is in the package
+                    $in_package = false;
+                    foreach ($package_products as $product) {
+                        if ($product['id_product'].'-'.$product['id_product_attribute'] == $cheapest_product || $product['id_product'].'-0' == $cheapest_product) {
+                            $in_package = true;
+                        }
+                    }
+                    if ($in_package) {
+                        $reduction_value += $minPrice * $this->reduction_percent / 100;
+                    }
+                }
+
+                // Discount (%) on the selection of products
+                if ($this->reduction_percent && $this->reduction_product == -2) {
+                    $selected_products_reduction = 0;
+                    $selected_products = $this->checkProductRestrictions($context, true);
+                    if (is_array($selected_products)) {
+                        foreach ($package_products as $product) {
+                            if (in_array($product['id_product'].'-'.$product['id_product_attribute'], $selected_products)
+                            || in_array($product['id_product'].'-0', $selected_products)
+                            && (($this->reduction_exclude_special && !$product['reduction_applies']) || !$this->reduction_exclude_special)) {
+                                $price = $product['price'];
+                                if ($use_tax) {
+                                    $infos = Product::getTaxesInformations($product, $context);
+                                    $tax_rate = $infos['rate'] / 100;
+                                    $price *= (1 + $tax_rate);
+                                }
+
+                                $selected_products_reduction += $price * $product['cart_quantity'];
+                            }
+                        }
+                    }
+                    $reduction_value += $selected_products_reduction * $this->reduction_percent / 100;
+                }
+
+                // Discount (¤)
+                if ((float)$this->reduction_amount > 0) {
+                    $prorata = 1;
+                    if (!is_null($package) && count($all_products)) {
+                        $total_products = $context->cart->getOrderTotal($use_tax, Cart::ONLY_PRODUCTS);
+                        if ($total_products) {
+                            $prorata = $context->cart->getOrderTotal($use_tax, Cart::ONLY_PRODUCTS, $package['products']) / $total_products;
+                        }
+                    }
+
+                    $reduction_amount = $this->reduction_amount;
+                    // If we need to convert the voucher value to the cart currency
+                    if (isset($context->currency) && $this->reduction_currency != $context->currency->id) {
+                        $voucherCurrency = new Currency($this->reduction_currency);
+
+                        // First we convert the voucher value to the default currency
+                        if ($reduction_amount == 0 || $voucherCurrency->conversion_rate == 0) {
+                            $reduction_amount = 0;
+                        } else {
+                            $reduction_amount /= $voucherCurrency->conversion_rate;
+                        }
+
+                        // Then we convert the voucher value in the default currency into the cart currency
+                        $reduction_amount *= $context->currency->conversion_rate;
+                        $reduction_amount = Tools::ps_round($reduction_amount, _PS_PRICE_COMPUTE_PRECISION_);
+                    }
+
+                    // If it has the same tax application that you need, then it's the right value, whatever the product!
+                    if ($this->reduction_tax == $use_tax) {
+                        // The reduction cannot exceed the products total, except when we do not want it to be limited (for the partial use calculation)
+                        if ($filter != CartRule::FILTER_ACTION_ALL_NOCAP) {
+                            $cart_amount = $context->cart->getOrderTotal($use_tax, Cart::ONLY_PRODUCTS);
+                            $reduction_amount = min($reduction_amount, $cart_amount);
+                        }
+                        $reduction_value += $prorata * $reduction_amount;
+                    } else {
+                        if ($this->reduction_product > 0) {
+                            foreach ($context->cart->getProducts() as $product) {
+                                if ($product['id_product'] == $this->reduction_product) {
+                                    $product_price_ti = $product['price_wt'];
+                                    $product_price_te = $product['price'];
+                                    $product_vat_amount = $product_price_ti - $product_price_te;
+
+                                    if ($product_vat_amount == 0 || $product_price_te == 0) {
+                                        $product_vat_rate = 0;
+                                    } else {
+                                        $product_vat_rate = $product_vat_amount / $product_price_te;
+                                    }
+
+                                    if ($this->reduction_tax && !$use_tax) {
+                                        $reduction_value += $prorata * $reduction_amount / (1 + $product_vat_rate);
+                                    } elseif (!$this->reduction_tax && $use_tax) {
+                                        $reduction_value += $prorata * $reduction_amount * (1 + $product_vat_rate);
+                                    }
+                                }
+                            }
+                        }
+                        // Discount (¤) on the whole order
+                        elseif ($this->reduction_product == 0) {
+                            $cart_amount_te = null;
+                            $cart_amount_ti = null;
+                            $cart_average_vat_rate = $context->cart->getAverageProductsTaxRate($cart_amount_te, $cart_amount_ti);
+
+                            // The reduction cannot exceed the products total, except when we do not want it to be limited (for the partial use calculation)
+                            if ($filter != CartRule::FILTER_ACTION_ALL_NOCAP) {
+                                $reduction_amount = min($reduction_amount, $this->reduction_tax ? $cart_amount_ti : $cart_amount_te);
+                            }
+
+                            if ($this->reduction_tax && !$use_tax) {
+                                $reduction_value += $prorata * $reduction_amount / (1 + $cart_average_vat_rate);
+                            } elseif (!$this->reduction_tax && $use_tax) {
+                                $reduction_value += $prorata * $reduction_amount * (1 + $cart_average_vat_rate);
+                            }
+                        }
+                    /*
+                     * Reduction on the cheapest or on the selection is not really meaningful and has been disabled in the backend
+                     * Please keep this code, so it won't be considered as a bug
+                     * elseif ($this->reduction_product == -1)
+                     * elseif ($this->reduction_product == -2)
+                    */
+                    }
+
+                    // Take care of the other cart rules values if the filter allow it
+                    if ($filter != CartRule::FILTER_ACTION_ALL_NOCAP) {
+                        // Cart values
+                        $cart = JeproLabContext.getContext().cart;
+
+                        if (!Validate::isLoadedObject($cart)) {
+                            $cart = new JeproLabCartModel();
+                        }
+
+                        $cart_average_vat_rate = $cart->getAverageProductsTaxRate();
+                        $current_cart_amount = $use_tax ? $cart_amount_ti : $cart_amount_te;
+
+                        foreach ($all_cart_rules_ids as $current_cart_rule_id) {
+                            if ((int)$current_cart_rule_id['id_cart_rule'] == (int)$this->id) {
+                                break;
+                            }
+
+                            $previous_cart_rule = new CartRule((int)$current_cart_rule_id['id_cart_rule']);
+                            $previous_reduction_amount = $previous_cart_rule->reduction_amount;
+
+                            if ($previous_cart_rule->reduction_tax && !$use_tax) {
+                                $previous_reduction_amount = $prorata * $previous_reduction_amount / (1 + $cart_average_vat_rate);
+                            } elseif (!$previous_cart_rule->reduction_tax && $use_tax) {
+                                $previous_reduction_amount = $prorata * $previous_reduction_amount * (1 + $cart_average_vat_rate);
+                            }
+
+                            $current_cart_amount = max($current_cart_amount - (float)$previous_reduction_amount, 0);
+                        }
+
+                        reductionValue = Math.min(reductionValue, currentCartAmount);
+                    }
+                }
+            }
+
+            // Free gift
+            if ((int)$this->gift_product && in_array($filter, array(CartRule::FILTER_ACTION_ALL, CartRule::FILTER_ACTION_ALL_NOCAP, CartRule::FILTER_ACTION_GIFT))) {
+                $id_address = (is_null($package) ? 0 : $package['id_address']);
+                foreach ($package_products as $product) {
+                    if ($product['id_product'] == $this->gift_product && ($product['id_product_attribute'] == $this->gift_product_attribute || !(int)$this->gift_product_attribute)) {
+                        // The free gift coupon must be applied to one product only (needed for multi-shipping which manage multiple product lists)
+                        if (!isset(CartRule::$only_one_gift[$this->id.'-'.$this->gift_product])
+                        || CartRule::$only_one_gift[$this->id.'-'.$this->gift_product] == $id_address
+                                || CartRule::$only_one_gift[$this->id.'-'.$this->gift_product] == 0
+                                || $id_address == 0
+                                || !$use_cache) {
+                            $reduction_value += ($use_tax ? $product['price_wt'] : $product['price']);
+                            if ($use_cache && (!isset(CartRule::$only_one_gift[$this->id.'-'.$this->gift_product]) || CartRule::$only_one_gift[$this->id.'-'.$this->gift_product] == 0)) {
+                                CartRule::$only_one_gift[$this->id.'-'.$this->gift_product] = $id_address;
+                            }
+                            break;
+                        }
+                    }
+                }
+            }
+
+            JeproLabCache.getInstance().store(cacheKey, reductionValue);
+            return reductionValue;
+        }
+
+
+        /**
+         *
+         * @param filterCode code to be searched
+         * @param langId lang id
+         * @return List of cart_rules
+         */
+        public static List<JeproLabCartRuleModel> getCartRuleByCode(String filterCode, int langId){
+            return getCartRuleByCode(filterCode, langId, false);
+        }
+
+        /**
+         *
+         * @param filterCode code to be searched
+         * @param langId lang id
+         * @param extended
+         * @return List of cart_rules
+         */
+        public static List<JeproLabCartRuleModel> getCartRuleByCode(String filterCode, int langId, boolean extended){
+            if(staticDataBaseObject == null){
+                staticDataBaseObject = JeproLabFactory.getDataBaseConnector();
+            }
+
+            String queryBase = "SELECT cart_rule.*, cart_rule_lang.* FROM " + staticDataBaseObject.quoteName("#__jeprolab_cart_rule");
+            queryBase += " AS cart_rule LEFT JOIN " + staticDataBaseObject.quoteName("#__jeprolab_cart_rule_lang") + " AS cart_rule_lang ";
+            queryBase += " ON (cart_rule." + staticDataBaseObject.quoteName("cart_rule_id") + " = cart_rule_lang." ;
+            queryBase += staticDataBaseObject.quoteName("cart_rule_id") + " AND cart_rule_lang." + staticDataBaseObject.quoteName("lang_id");
+            queryBase += " = " + langId + ") ";
+            String query;
+            if(extended) {
+                query = "(" + queryBase + " WHERE " + staticDataBaseObject.quoteName("code") + " LIKe '%" + filterCode + "%'  ) UNION (";
+                query += queryBase + " WHERE " + staticDataBaseObject.quoteName("name") + " LIKE '%" + filterCode + "%' )";
+            }else {
+                query = queryBase + " WHERE " + staticDataBaseObject.quoteName("code") + " LIKe '%" + filterCode  + "%' " ;
+            }
+
+            staticDataBaseObject.setQuery(query);
+            ResultSet resultSet = staticDataBaseObject.loadObjectList();
+            List<JeproLabCartRuleModel> cartRules = new ArrayList<>();
+            if(resultSet != null){
+                JeproLabCartRuleModel cartRule;
+                try{
+                    while(resultSet.next()){
+                        cartRule = new JeproLabCartRuleModel();
+                        cartRule.cart_rule_id = resultSet.getInt("cart_rule_id");
+                        cartRules.add(cartRule);
+                    }
+                }catch (SQLException ignored){
+                    ignored.printStackTrace();
+                }finally {
+                    try{
+                        JeproLabDataBaseConnector.getInstance().closeConnexion();
+                    }catch (Exception ignored){
+                        ignored.printStackTrace();
+                    }
+                }
+            }
+            return cartRules;
         }
     }
 }

@@ -155,14 +155,14 @@ public class JeproLabAnalyzeModel extends JeproLabModel{
     /** @var int Number of text fields */
     public int text_fields;
 
-    /** @var bool Product status */
+    /** @var bool Analyze status */
     public boolean published = true;
 
     public boolean get_lab_from_context = false;
 
     public String redirect_type = "";
 
-    /** @var bool Product statuts */
+    /** @var bool Analyze status */
     public int analyze_redirected_id = 0;
 
     /** @var bool Product available for order */
@@ -195,6 +195,8 @@ public class JeproLabAnalyzeModel extends JeproLabModel{
     public int cart_quantity = 0;
 
     public int delivery_address_id;
+
+    public int customization_id = 0;
 
     /**
      * @var float Base price of the analyze
@@ -553,59 +555,67 @@ public class JeproLabAnalyzeModel extends JeproLabModel{
      * @return price of the analyze
      */
     public static float getStaticPrice(int analyzeId){
-        return getStaticPrice(analyzeId, true, 0, 6, false, true, 1, false, 0, 0, 0, true, true, null, true);
+        return getStaticPrice(analyzeId, true);
     }
 
     public static float getStaticPrice(int analyzeId, boolean useTax){
-        return getStaticPrice(analyzeId, useTax, 0, 6, false, true, 1, false, 0, 0, 0, true, true, null, true);
+        return getStaticPrice(analyzeId, useTax, 0);
     }
 
     public static float getStaticPrice(int analyzeId, boolean useTax, int analyzeAttributeId){
-        return getStaticPrice(analyzeId, useTax, analyzeAttributeId, 6, false, true, 1, false, 0, 0, 0, true, true, null, true);
+        return getStaticPrice(analyzeId, useTax, analyzeAttributeId, 6);
     }
 
     public static float getStaticPrice(int analyzeId, boolean useTax, int analyzeAttributeId, int decimals){
-        return getStaticPrice(analyzeId, useTax, analyzeAttributeId, decimals = 6, false, true, 1, false, 0, 0, 0, true, true, null, true);
+        return getStaticPrice(analyzeId, useTax, analyzeAttributeId, decimals, false);
     }
 
     public static float getStaticPrice(int analyzeId, boolean useTax, int analyzeAttributeId, int decimals, boolean onlyReduction){
-        return getStaticPrice(analyzeId, useTax, analyzeAttributeId, decimals, onlyReduction, true, 1, false, 0, 0, 0, true, true, null, true);
+        return getStaticPrice(analyzeId, useTax, analyzeAttributeId, decimals, onlyReduction, true);
     }
 
     public static float getStaticPrice(int analyzeId, boolean useTax, int analyzeAttributeId, int decimals, boolean onlyReduction, boolean useReduction){
-        return getStaticPrice(analyzeId, useTax, analyzeAttributeId, decimals, onlyReduction, useReduction, 1, false, 0, 0, 0, true, true, null, true);
+        return getStaticPrice(analyzeId, useTax, analyzeAttributeId, decimals, onlyReduction, useReduction, 1);
     }
 
     public static float getStaticPrice(int analyzeId, boolean useTax, int analyzeAttributeId, int decimals, boolean onlyReduction, boolean useReduction, int quantity){
-        return getStaticPrice(analyzeId, useTax, analyzeAttributeId, decimals, onlyReduction, useReduction, quantity, false, 0, 0, 0, true, true, null, true);
+        return getStaticPrice(analyzeId, useTax, analyzeAttributeId, decimals, onlyReduction, useReduction, quantity, false);
     }
 
     public static float getStaticPrice(int analyzeId, boolean useTax, int analyzeAttributeId, int decimals, boolean onlyReduction, boolean useReduction, int quantity, boolean forceAssociateTax){
-        return getStaticPrice(analyzeId, useTax, analyzeAttributeId, decimals,onlyReduction,  useReduction, quantity, forceAssociateTax, 0, 0, 0, true, true, null, true);
+        return getStaticPrice(analyzeId, useTax, analyzeAttributeId, decimals,onlyReduction,  useReduction, quantity, forceAssociateTax, 0, 0, 0, null, true, true, null, true);
     }
 
     public static float getStaticPrice(int analyzeId, boolean useTax, int analyzeAttributeId, int decimals, boolean onlyReduction, boolean useReduction, int quantity, boolean forceAssociateTax, int customerId){
-        return getStaticPrice(analyzeId, useTax, analyzeAttributeId, decimals,  onlyReduction, useReduction , quantity, forceAssociateTax, customerId, 0, 0, true, true, null, true);
+        return getStaticPrice(analyzeId, useTax, analyzeAttributeId, decimals,  onlyReduction, useReduction , quantity, forceAssociateTax, customerId, 0, 0, null, true, true, null, true);
     }
 
     public static float getStaticPrice(int analyzeId, boolean useTax, int analyzeAttributeId, int decimals, boolean onlyReduction,  boolean useReduction, int quantity, boolean forceAssociateTax, int customerId, int cartId){
-        return getStaticPrice(analyzeId, useTax, analyzeAttributeId, decimals,  onlyReduction, useReduction , quantity, forceAssociateTax, customerId, cartId, 0, true, true, null, true);
+        return getStaticPrice(analyzeId, useTax, analyzeAttributeId, decimals,  onlyReduction, useReduction , quantity, forceAssociateTax, customerId, cartId, 0, null, true, true, null, true);
     }
 
     public static float getStaticPrice(int analyzeId, boolean useTax, int analyzeAttributeId, int decimals, boolean onlyReduction,  boolean useReduction, int quantity, boolean forceAssociateTax, int customerId, int cartId, int addressId){
-        return getStaticPrice(analyzeId, useTax, analyzeAttributeId, decimals,  onlyReduction, useReduction , quantity, forceAssociateTax, customerId, cartId, addressId, true, true, null, true);
+        return getStaticPrice(analyzeId, useTax, analyzeAttributeId, decimals,  onlyReduction, useReduction , quantity, forceAssociateTax, customerId, cartId, addressId, null, true, true, null, true);
     }
 
-    public static float getStaticPrice(int analyzeId, boolean useTax, int analyzeAttributeId, int decimals, boolean onlyReduction,  boolean useReduction, int quantity, boolean forceAssociateTax, int customerId, int cartId, int addressId, boolean withEcoTax){
-        return getStaticPrice(analyzeId, useTax, analyzeAttributeId, decimals, onlyReduction, useReduction , quantity, forceAssociateTax, customerId, cartId, addressId, withEcoTax, true, null, true);
+    public static float getStaticPrice(int analyzeId, boolean useTax, int analyzeAttributeId, int decimals, boolean onlyReduction,  boolean useReduction, int quantity, boolean forceAssociateTax, int customerId, int cartId, int addressId, JeproLabPriceModel.JeproLabSpecificPriceModel specificPrice){
+        return getStaticPrice(analyzeId, useTax, analyzeAttributeId, decimals,  onlyReduction, useReduction , quantity, forceAssociateTax, customerId, cartId, addressId, specificPrice, true, true, null, true);
     }
 
-    public static float getStaticPrice(int analyzeId, boolean useTax, int analyzeAttributeId, int decimals, boolean onlyReduction,  boolean useReduction, int quantity, boolean forceAssociatedTax, int customerId, int cartId, int addressId, boolean withEcoTax, boolean useGroupReduction){
-        return getStaticPrice(analyzeId, useTax, analyzeAttributeId, decimals, onlyReduction, useReduction , quantity, forceAssociatedTax, customerId, cartId, addressId, withEcoTax, useGroupReduction, null, true);
+    public static float getStaticPrice(int analyzeId, boolean useTax, int analyzeAttributeId, int decimals, boolean onlyReduction,  boolean useReduction, int quantity, boolean forceAssociateTax, int customerId, int cartId, int addressId, JeproLabPriceModel.JeproLabSpecificPriceModel specificPrice, boolean withEcoTax){
+        return getStaticPrice(analyzeId, useTax, analyzeAttributeId, decimals, onlyReduction, useReduction , quantity, forceAssociateTax, customerId, cartId, addressId, specificPrice, withEcoTax, true, null, true);
     }
 
-    public static float getStaticPrice(int analyzeId, boolean useTax, int analyzeAttributeId, int decimals, boolean onlyReduction,  boolean useReduction, int quantity, boolean forceAssociatedTax, int customerId, int cartId, int addressId, boolean withEcoTax, boolean useGroupReduction, JeproLabContext context){
-        return getStaticPrice(analyzeId, useTax, analyzeAttributeId, decimals, onlyReduction, useReduction, quantity, forceAssociatedTax, customerId, cartId, addressId, withEcoTax, useGroupReduction, context, true);
+    public static float getStaticPrice(int analyzeId, boolean useTax, int analyzeAttributeId, int decimals, boolean onlyReduction,  boolean useReduction, int quantity, boolean forceAssociatedTax, int customerId, int cartId, int addressId, JeproLabPriceModel.JeproLabSpecificPriceModel specificPrice, boolean withEcoTax, boolean useGroupReduction){
+        return getStaticPrice(analyzeId, useTax, analyzeAttributeId, decimals, onlyReduction, useReduction , quantity, forceAssociatedTax, customerId, cartId, addressId, specificPrice, withEcoTax, useGroupReduction, null, true);
+    }
+
+    public static float getStaticPrice(int analyzeId, boolean useTax, int analyzeAttributeId, int decimals, boolean onlyReduction,  boolean useReduction, int quantity, boolean forceAssociatedTax, int customerId, int cartId, int addressId, JeproLabPriceModel.JeproLabSpecificPriceModel specificPrice, boolean withEcoTax, boolean useGroupReduction, JeproLabContext context){
+        return getStaticPrice(analyzeId, useTax, analyzeAttributeId, decimals, onlyReduction, useReduction, quantity, forceAssociatedTax, customerId, cartId, addressId, specificPrice, withEcoTax, useGroupReduction, context, true);
+    }
+
+    public static float getStaticPrice(int analyzeId, boolean useTax, int analyzeAttributeId, int decimals, boolean onlyReduction,  boolean useReduction, int quantity, boolean forceAssociatedTax, int customerId, int cartId, int addressId, JeproLabPriceModel.JeproLabSpecificPriceModel specificPrice, boolean withEcoTax, boolean useGroupReduction, JeproLabContext context, boolean useCustomerPrice){
+        return getStaticPrice(analyzeId, useTax, analyzeAttributeId, decimals, onlyReduction, useReduction, quantity, forceAssociatedTax, customerId, cartId, addressId, specificPrice, withEcoTax, useGroupReduction, context, useCustomerPrice, 0);
     }
 
     /**
@@ -634,7 +644,7 @@ public class JeproLabAnalyzeModel extends JeproLabModel{
      * @param useCustomerPrice  use customer price
      * @return float             Analyze price
      */
-    public static float getStaticPrice(int analyzeId, boolean useTax, int analyzeAttributeId, int decimals, boolean onlyReduction, boolean useReduction, int quantity, boolean forceAssociatedTax, int customerId, int cartId, int addressId, boolean withEcoTax, boolean useGroupReduction, JeproLabContext context, boolean useCustomerPrice){
+    public static float getStaticPrice(int analyzeId, boolean useTax, int analyzeAttributeId, int decimals, boolean onlyReduction, boolean useReduction, int quantity, boolean forceAssociatedTax, int customerId, int cartId, int addressId, JeproLabPriceModel.JeproLabSpecificPriceModel specificPrice, boolean withEcoTax, boolean useGroupReduction, JeproLabContext context, boolean useCustomerPrice, int customizationId){
         if (context == null){
             context = JeproLabContext.getContext();
         }
@@ -657,8 +667,8 @@ public class JeproLabAnalyzeModel extends JeproLabModel{
         // If there is cart in context or if the specified id_cart is different from the context cart id
         if ((currentCart == null) || (cartId > 0 && currentCart.cart_id != cartId)) {
             /*
-            * When a user (e.g., guest, customer, Google...) is on PrestaShop, he has already its cart as the global (see /init.php)
-            * When a non-user calls directly this method (e.g., payment module...) is on PrestaShop, he does not have already it BUT knows the cart ID
+            * When a user (e.g., guest, customer, Google...) is on JeproLab, he has already its cart as the global (see /init.php)
+            * When a non-user calls directly this method (e.g., payment module...) is on JeproLab, he does not have already it BUT knows the cart ID
             * When called from the back office, cart ID can be in-existent
             */
             if (cartId > 0 && context.employee != null) {

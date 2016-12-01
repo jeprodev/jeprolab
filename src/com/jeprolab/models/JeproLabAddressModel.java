@@ -39,7 +39,6 @@ public class JeproLabAddressModel extends JeproLabModel{
     /** @var int Country id */
     public int country_id;
 
-
     /** @var int State id */
     public int state_id;
 
@@ -55,7 +54,7 @@ public class JeproLabAddressModel extends JeproLabModel{
     /** @var string Lastname */
     public String lastname;
 
-    /** @var string Firstname */
+    /** @var string First-name */
     public String firstname;
 
     /** @var string Address first line */
