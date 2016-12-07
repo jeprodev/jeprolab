@@ -79,6 +79,9 @@ public class JeproLabCartModel extends JeproLabModel{
     protected static JeproLabCustomerModel customer = null;
 
     protected static Map<Integer, Float> _total_weight = new HashMap<>();
+
+    private static Map<String, Float> _total_shipping;
+
     protected int tax_calculation_method = JeproLabConfigurationSettings.JEPROLAB_TAX_EXCLUDED;
 
     protected static Map<Integer, Integer>_number_of_analyzes = new HashMap<>();
@@ -470,8 +473,8 @@ public class JeproLabCartModel extends JeproLabModel{
 
     /**
      *
-     * @param cartAmountTaxExcluded
-     * @param cartAmountTaxIncluded
+     * @param cartAmountTaxExcluded price without tax
+     * @param cartAmountTaxIncluded price with tax
      * @return
      */
     public float getAverageAnalyzesTaxRate(float cartAmountTaxExcluded, float cartAmountTaxIncluded){
@@ -940,8 +943,8 @@ public class JeproLabCartModel extends JeproLabModel{
                     JeproLabCache.getInstance().remove("jeprolab_cart_model_get_request_cart_rules_ids_" + this.cart_id + "_" + JeproLabCartRuleModel.FILTER_ACTION_REDUCTION + "_ids");
                     JeproLabCache.getInstance().remove("jeprolab_cart_model_get_request_cart_rules_ids_" + this.cart_id + "_" + JeproLabCartRuleModel.FILTER_ACTION_SHIPPING + "_ids");
 
-                    if(cartRule.gift_analyze){
-                        this.updateQuantity(1, cartRule.gift_anlyze, cartRule.gift_analyze_attribute, false, "up", null, false);
+                    if(cartRule.gift_analyze_id > 0){
+                        this.updateQuantity(1, cartRule.gift_analyze_id, cartRule.gift_analyze_attribute_id, 0, "up", 0, null);
                     }
                     return true;
                 }
@@ -1056,7 +1059,7 @@ public class JeproLabCartModel extends JeproLabModel{
         if(analyzeAttributeId <= 0){
             minimalQuantity = JeproLabAttributeModel.getAttributeMinimalQuantity(analyzeAttributeId);
         }else{
-            minimalQuantity = analyze.minmal_quantity;
+            minimalQuantity = analyze.minimal_quantity;
         }
 
         if(!JeproLabTools.isLoadedObject(analyze, "analyze_id")){
@@ -1236,7 +1239,7 @@ public class JeproLabCartModel extends JeproLabModel{
 
     /**
      *
-     * @param quantity
+     * @param quantity int quantity to update
      * @param customizationId
      * @param analyzeId
      * @param analyzeAttributeId
@@ -1327,6 +1330,399 @@ public class JeproLabCartModel extends JeproLabModel{
         return true;
     }
 
+
+    public float getRequestTotal() {
+        return getRequestTotal(true, JeproLabCartModel.BOTH, null, 0, true);
+    }
+
+    /**
+     *
+     * @param withTaxes get total price with tax
+     * @return
+     */
+    public float getRequestTotal(boolean withTaxes) {
+        return getRequestTotal(withTaxes, JeproLabCartModel.BOTH, null, 0, true);
+    }
+
+    /**
+     *
+     * @param withTaxes get total price with tax
+     * @param type      Total type enum
+     *                        - JeproLabCartModel.ONLY_ANALYZES
+     *                        - JeproLabCartModel.ONLY_DISCOUNTS
+     *                        - JeproLabCartModel.BOTH
+     *                        - JeproLabCartModel.BOTH_WITHOUT_SHIPPING
+     *                        - JeproLabCartModel.ONLY_SHIPPING
+     *                        - JeproLabCartModel.ONLY_WRAPPING
+     *                        - JeproLabCartModel.ONLY_ANALYZES_WITHOUT_SHIPPING
+     *                        - JeproLabCartModel.ONLY_PHYSICAL_ANALYZES_WITHOUT_SHIPPING
+     * @return
+     */
+    public float getRequestTotal(boolean withTaxes, int type) {
+        return getRequestTotal(withTaxes, type, null, 0, true);
+    }
+
+    /**
+     *
+     * @param withTaxes
+     * @param type      Total type enum
+     *                        - JeproLabCartModel.ONLY_ANALYZES
+     *                        - JeproLabCartModel.ONLY_DISCOUNTS
+     *                        - JeproLabCartModel.BOTH
+     *                        - JeproLabCartModel.BOTH_WITHOUT_SHIPPING
+     *                        - JeproLabCartModel.ONLY_SHIPPING
+     *                        - JeproLabCartModel.ONLY_WRAPPING
+     *                        - JeproLabCartModel.ONLY_ANALYZES_WITHOUT_SHIPPING
+     *                        - JeproLabCartModel.ONLY_PHYSICAL_ANALYZES_WITHOUT_SHIPPING
+     * @param analyzes
+     * @return
+     */
+    public float getRequestTotal(boolean withTaxes, int type, List<JeproLabAnalyzeModel> analyzes) {
+        return getRequestTotal(withTaxes, type, analyzes, 0, true);
+    }
+
+    /**
+     *
+     * @param withTaxes With or without taxes
+     * @param type      Total type enum
+     *                        - JeproLabCartModel.ONLY_ANALYZES
+     *                        - JeproLabCartModel.ONLY_DISCOUNTS
+     *                        - JeproLabCartModel.BOTH
+     *                        - JeproLabCartModel.BOTH_WITHOUT_SHIPPING
+     *                        - JeproLabCartModel.ONLY_SHIPPING
+     *                        - JeproLabCartModel.ONLY_WRAPPING
+     *                        - JeproLabCartModel.ONLY_ANALYZES_WITHOUT_SHIPPING
+     *                        - JeproLabCartModel.ONLY_PHYSICAL_ANALYZES_WITHOUT_SHIPPING
+     * @param analyzes
+     * @param carrierId
+     * @return
+     */
+    public float getRequestTotal(boolean withTaxes , int type, List<JeproLabAnalyzeModel> analyzes, int carrierId) {
+        return getRequestTotal(withTaxes, type, analyzes, carrierId, true);
+    }
+
+    /**
+     * This function returns the total cart amount
+     *
+     * @param withTaxes With or without taxes
+     * @param type      Total type enum
+     *                        - JeproLabCartModel.ONLY_ANALYZES
+     *                        - JeproLabCartModel.ONLY_DISCOUNTS
+     *                        - JeproLabCartModel.BOTH
+     *                        - JeproLabCartModel.BOTH_WITHOUT_SHIPPING
+     *                        - JeproLabCartModel.ONLY_SHIPPING
+     *                        - JeproLabCartModel.ONLY_WRAPPING
+     *                        - JeproLabCartModel.ONLY_ANALYZES_WITHOUT_SHIPPING
+     *                        - JeproLabCartModel.ONLY_PHYSICAL_ANALYZES_WITHOUT_SHIPPING
+     * @param analyzes
+     * @param carrierId
+     * @param useCache Allow using cache of the method CartRule::getContextualValue
+     *
+     * @return float Order total
+     */
+    public float getRequestTotal(boolean withTaxes, int type, List<JeproLabAnalyzeModel> analyzes, int carrierId, boolean useCache) {
+        // Dependencies
+        $price_calculator = ServiceLocator::get ('\\PrestaShop\\PrestaShop\\Adapter\\Product\\PriceCalculator');
+
+        boolean useUcotax = JeproLabSettingModel.getIntValue("use_ecotax") > 0;
+        int roundType = JeproLabSettingModel.getIntValue("round_type");
+        int ecotaxTaxRulesGroupId = JeproLabSettingModel.getIntValue("ECOTAX_TAX_RULES_GROUP_ID");
+        int computePrecision = JeproLabSettingModel.getIntValue("price_compute_precision");
+
+        if(this.cart_id <= 0){ return 0; }
+
+        List<Integer> typeArray = new ArrayList<>();
+        typeArray.addAll(JeproLabCartModel.ONLY_ANALYZES, JeproLabCartModel.ONLY_DISCOUNTS, JeproLabCartModel.BOTH,
+                JeproLabCartModel.BOTH_WITHOUT_SHIPPING, JeproLabCartModel.ONLY_SHIPPING, JeproLabCartModel.ONLY_WRAPPING,
+                JeproLabCartModel.ONLY_ANALYZES_WITHOUT_SHIPPING, JeproLabCartModel.ONLY_PHYSICAL_ANALYZES_WITHOUT_SHIPPING);
+
+        // Define virtual context to prevent case where the cart is not the in the global context
+        try {
+            JeproLabContext virtualContext = JeproLabContext.getContext().cloneContext();
+            virtualContext.cart = this;
+
+            if (!typeArray.contains(type)) {
+               return 0; // die(Tools::displayError ());
+            }
+
+            boolean withShipping = (type == JeproLabCartModel.BOTH || type == JeproLabCartModel.ONLY_SHIPPING);
+
+            // if cart rules are not used
+            if (type == JeproLabCartModel.ONLY_DISCOUNTS && !JeproLabCartRuleModel.isFeaturePublished()){
+                return 0;
+            }
+
+            // no shipping cost if is a cart with only virtuals analyzes
+            boolean isVirtual = this.isVirtualCart();
+            if (isVirtual && type == JeproLabCartModel.ONLY_SHIPPING) {
+                return 0;
+            }
+
+            if (isVirtual && type == JeproLabCartModel.BOTH) {
+                type = JeproLabCartModel.BOTH_WITHOUT_SHIPPING;
+            }
+
+            float shippingFees = 0;
+            if (withShipping || type == JeproLabCartModel.ONLY_DISCOUNTS) {
+                if (analyzes == null && carrierId == 0) {
+                    shippingFees = this.getTotalShippingCost(null, withTaxes);
+                } else {
+                    shippingFees = this.getPackageShippingCost(carrierId, withTaxes, null, analyzes);
+                }
+            }
+
+            if (type == JeproLabCartModel.ONLY_SHIPPING) {
+                return shippingFees;
+            }
+
+            if (type == JeproLabCartModel.ONLY_ANALYZES_WITHOUT_SHIPPING) {
+                type = JeproLabCartModel.ONLY_ANALYZES;
+            }
+
+            $param_product = true;
+            if (analyzes == null) {
+                $param_product = false;
+                analyzes = this.getAnalyzes();
+            }
+
+            if (type == JeproLabCartModel.ONLY_PHYSICAL_ANALYZES_WITHOUT_SHIPPING){
+                for(JeproLabAnalyzeModel analyze : analyzes){
+                    if (analyze.is_virtual) {
+                        analyzes.remove(analyze);
+                    }
+                }
+                type = JeproLabCartModel.ONLY_ANALYZES;
+            }
+
+            float requestTotal = 0;
+            if (JeproLabTaxModel.excludeTaxOption()){
+                withTaxes = false;
+            }
+
+            Map<String, Float> analyzesTotal = new HashMap<>();
+            float ecotaxTotal = 0;
+            Map<String, Integer> analyzeLines = this.countAnalyzeLines(analyzes);
+
+            for(JeproLabAnalyzeModel analyze : analyzes) {
+                // products refer to the cart details
+
+                if (analyze.is_gift) {
+                    // products given away may appear twice if added manually
+                    // so we prevent adding their subtotal twice if another line is found
+                    String analyzeIndex = analyze.analyze_id + "_" + analyze.analyze_attribute_id;
+                    if (analyzeLines.get(analyzeIndex) > 1) {
+                        continue;
+                    }
+                }
+
+                if (virtualContext.laboratory.laboratory_id != analyze.laboratory_id) {
+                    virtualContext.laboratory = new JeproLabLaboratoryModel(analyze.laboratory_id);
+                }
+
+                int addressId = this.getAnalyzeAddressId(analyze);
+
+                // The $null variable below is not used,
+                // but it is necessary to pass it to getProductPrice because
+                // it expects a reference.
+                JeproLabPriceModel.JeproLabSpecificPriceModel specificPrice = new JeproLabPriceModel.JeproLabSpecificPriceModel();
+                float price = priceCalculator.getAnalyzePrice( analyze.analyze_id, withTaxes, analyze.analyze_attribute_id,
+                        6, null, false, true, analyze.cart_quantity, false, this.customer_id > 0 ? this.customer_id : 0,
+                        this.cart_id, addressId, specificPrice, useEcotax, true, virtualContext, true, analyze.customization_id
+                );
+
+                int taxRulesGroupId = this.findTaxRulesGroupId(withTaxes, analyze, virtualContext);
+
+                if (roundType == JeproLabRequestModel.ROUND_ITEM || roundType == JeproLabRequestModel.ROUND_LINE){
+                    if (!analyzesTotal.containsKey(taxRulesGroupId + "")) {
+                        analyzesTotal.put(taxRulesGroupId + "", (float)0);
+                    }
+                }else if(!analyzesTotal.containsKey(taxRulesGroupId + "_" + addressId)){
+                    analyzesTotal.put(taxRulesGroupId + "_" + addressId, (float)0);
+                }
+
+                switch (roundType) {
+                    case JeproLabRequestModel.ROUND_TOTAL:
+                        analyzesTotal.put(taxRulesGroupId + "_" + addressId, analyzesTotal.get(taxRulesGroupId + "_" + addressId) + (price * analyze.cart_quantity));
+                        break;
+
+                    case JeproLabRequestModel.ROUND_LINE:
+                        float analyzePrice  = price * analyze.cart_quantity;
+                        analyzesTotal.put(
+                                taxRulesGroupId + "",
+                                (analyzesTotal.get(taxRulesGroupId + "") + JeproLabTools.roundPrice(analyzePrice, computePrecision)));
+                        break;
+
+                    case JeproLabRequestModel.ROUND_ITEM:
+                    default:
+                        float analyzePrice = withTaxes ? taxCalculator.addTaxes(price) : price;
+                        analyzesTotal.put(taxRulesGroupId + "",
+                                (analyzesTotal.get(taxRulesGroupId + "") + (JeproLabTools.roundPrice(analyzePrice, computePrecision)* analyze.cart_quantity)));
+                        break;
+                }
+            }
+
+            for(Map.Entry<String, Float> entry : analyzesTotal.entrySet()){
+                requestTotal += entry.getValue();
+            }
+
+            float requestTotalAnalyzes = requestTotal;
+
+            if (type == JeproLabCartModel.ONLY_DISCOUNTS) {
+                requestTotal = 0;
+            }
+
+            float wrappingFees = this.calculateWrappingFees(withTaxes, type);
+            if (type == JeproLabCartModel.ONLY_WRAPPING) {
+                return wrappingFees;
+            }
+
+            float requestTotalDiscount = 0;
+            float requestShippingDiscount = 0;
+            if (((type != JeproLabCartModel.ONLY_SHIPPING && type != JeproLabCartModel.ONLY_ANALYZES)) && JeproLabCartRuleModel.isFeaturePublished()){
+                List<JeproLabCartRuleModel> cartRules = this.getTotalCalculationCartRules(type, withShipping);
+
+                Map<String, Object> pack = new HashMap<>();
+                pack.put("carrier_id", carrierId);
+                pack.put("address_id", this.getDeliveryAddressId(analyzes));
+                pack.put("analyzes", analyzes);
+
+                // Then, calculate the contextual value for each one
+                boolean flag = false;
+                for(JeproLabCartRuleModel cartRule : cartRules) {
+                    // If the cart rule offers free shipping, add the shipping cost
+                    if ((withShipping || type == JeproLabCartModel.ONLY_DISCOUNTS) && cartRule.free_shipping && !flag){
+                        requestShippingDiscount = JeproLabTools.roundPrice
+                        (cartRule.getContextualValue(withTaxes, virtualContext, JeproLabCartRuleModel.FILTER_ACTION_SHIPPING, ($param_product ? $package : null), useCache), computePrecision);
+                        flag = true;
+                    }
+
+                    // If the cart rule is a free gift, then add the free gift value only if the gift is in this package
+                    if (!this.should_exclude_gifts_discount && cartRule.gift_analyze_id > 0){
+                        boolean inRequest = false;
+                        if (analyzes == null) {
+                            inRequest = true;
+                        } else {
+                            for(JeproLabAnalyzeModel analyze : analyzes) {
+                                if (cartRule.gift_analyze_id == analyze.analyze_id && cartRule.gift_analyze_attribute_id == analyze.analyze_attribute_id){
+                                    inRequest = true;
+                                }
+                            }
+                        }
+
+                        if (inRequest) {
+                            requestTotalDiscount += cartRule.getContextualValue(withTaxes, virtualContext, JeproLabCartRuleModel.FILTER_ACTION_GIFT, $package, useCache);
+                        }
+                    }
+
+                    // If the cart rule offers a reduction, the amount is prorated (with the products in the package)
+                    if (cartRule.reduction_percent > 0 || cartRule.reduction_amount > 0){
+                        requestTotalDiscount += JeproLabTools.roundPrice
+                        (cartRule.getContextualValue(withTaxes, virtualContext, JeproLabCartRuleModel.FILTER_ACTION_REDUCTION, $package, useCache), computePrecision)
+                        ;
+                    }
+                }
+
+                requestTotalDiscount = Math.min(JeproLabTools.roundPrice(requestTotalDiscount, 2), requestTotalAnalyzes)
+                + requestShippingDiscount;
+                requestTotal -= requestTotalDiscount;
+            }
+
+            if (type == JeproLabCartModel.BOTH) {
+                requestTotal += shippingFees + wrappingFees;
+            }
+
+            if (requestTotal < 0 && type != JeproLabCartModel.ONLY_DISCOUNTS) {
+                return 0;
+            }
+
+            if (type == JeproLabCartModel.ONLY_DISCOUNTS) {
+                return requestTotalDiscount;
+            }
+
+            return JeproLabTools.roundPrice(requestTotal, computePrecision);
+        }catch(CloneNotSupportedException ignored){
+            ignored.printStackTrace();
+        }
+        return 0;
+    }
+
+
+    /**
+     * Check if cart contains only virtual products
+     *
+     * @return bool true if is a virtual cart or false
+     */
+    public boolean isVirtualCart(){
+        if (!JeproLabAnalyzeModel.JeproLabAnalyzeDownloadModel.isFeaturePublished()){
+            return false;
+        }
+
+        if (!JeproLabCartModel._isVirtualCart.containsKey(this.cart_id)) {
+            List<JeproLabAnalyzeModel> analyzes = this.getAnalyzes();
+            if (analyzes.size() <= 0) {
+                return false;
+            }
+
+            boolean isVirtual = true;
+            for(JeproLabAnalyzeModel analyze : analyzes) {
+                if (!analyze.is_virtual) {
+                    isVirtual = false;
+                }
+            }
+            JeproLabCartModel._isVirtualCart.put(this.cart_id, isVirtual);
+        }
+
+        return JeproLabCartModel._isVirtualCart.get(this.cart_id);
+    }
+
+    public float getTotalShippingCost($delivery_option = null){
+        return getTotalShippingCost(true, null);
+    }
+
+    public float getTotalShippingCost(deliveryOption, boolean useTax){
+        return getTotalShippingCost(deliveryOption, useTax, null);
+    }
+
+    /**
+     * Return shipping total for the cart
+     *
+     * @param deliveryOption Array of the delivery option for each address
+     * @param useTax         Use taxes
+     * @param defaultCountry Default Country
+     *
+     * @return float Shipping total
+     */
+    public float getTotalShippingCost(deliveryOtion, boolean useTax, JeproLabCountryModel defaultCountry = null){
+
+        if (JeproLabCartModel._total_shipping == null) {
+            if (JeproLabContext.getContext().cookie.country_id){
+                defaultCountry = new JeproLabCountryModel(JeproLabContext.getContext().cookie.country_id);
+            }
+            if (deliveryOption == null) {
+                deliveryOption = this.getDeliveryOption(defaultCountry, false, false);
+            }
+
+            JeproLabCartModel._total_shipping = new HashMap<>();
+            JeproLabCartModel._total_shipping.put("with_tax", (float) 0);
+            JeproLabCartModel._total_shipping.put("with_out_tax", (float)0);
+            deliveryOptionList = this.getDeliveryOptionList(defaultCountry);
+            for(deliveryOption as $id_address => $key) {
+                if (!deliveryOptionList.containsKey(addressId) || !deliveryOptionList.containsKey.get(addressId).containsKey(key)) {
+                    continue;
+                }
+
+                JeproLabCartModel._total_shipping.put("with_tax",
+                        (JeproLabCartModel._total_shipping.get("with_tax") + deliveryOptionList).get(key).get("total_price_with_tax"));
+                //+= $delivery_option_list[$id_address][$key]['total_price_with_tax'];
+                JeproLabCartModel._total_shipping.put("with_out_tax",
+                        (JeproLabCartModel._total_shipping.get("with_out_tax") + deliveryOptionList.get(key).get("total_price_without_tax")));
+                //+= $delivery_option_list[$id_address][$key]['total_price_without_tax'];
+            }
+        }
+
+        return (useTax) ? JeproLabCartModel._total_shipping.get("with_tax") : JeproLabCartModel._total_shipping.get("with_out_tax");
+    }
+
     public static class JeproLabCartRuleModel extends JeproLabModel{
         public int cart_rule_id;
 
@@ -1373,6 +1769,10 @@ public class JeproLabCartModel extends JeproLabModel{
         public boolean cart_rule_restriction;
 
         public boolean carrier_restriction;
+
+        public int gift_analyze_id;
+
+        public int gift_analyze_attribute_id;
 
         public boolean published;
 
@@ -1722,9 +2122,9 @@ public class JeproLabCartModel extends JeproLabModel{
         /**
          * The reduction value is POSITIVE
          *
-         * @param bool    useTax   Apply taxes
-         * @param Context $context   Context instance
-         * @param bool    useCache Allow using cache to avoid multiple free gift using multishipping
+         * @param useTax   Apply taxes
+         * @param context   Context instance
+         * @param useCache Allow using cache to avoid multiple free gift using multishipping
          *
          * @return float|int|string
          */
@@ -1857,7 +2257,7 @@ public class JeproLabCartModel extends JeproLabModel{
                     // Check if the cheapest product is in the package
                     boolean isInPack = false;
                     for (JeproLabAnalyzeModel analyze : packageAnalyzes) {
-                        if (cheapestAnalyze.equals(analyze.analyze_id + "_" + analyze.analyze_attribute_id)|| analyze.analyze_attribute_id + "_0".equals(cheapestAnalyze)) {
+                        if (cheapestAnalyze.equals(analyze.analyze_id + "_" + analyze.analyze_attribute_id)|| (analyze.analyze_attribute_id + "_0").equals(cheapestAnalyze)) {
                             isInPack = true;
                         }
                     }
