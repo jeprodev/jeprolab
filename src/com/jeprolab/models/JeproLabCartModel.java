@@ -1333,6 +1333,57 @@ public class JeproLabCartModel extends JeproLabModel{
         return true;
     }
 
+    protected boolean deleteCustomization(int customizationId){
+        boolean result = true;
+        if(staticDataBaseObject == null){
+            staticDataBaseObject = JeproLabFactory.getDataBaseConnector();
+        }
+        String query = "SELECT * FROM " + staticDataBaseObject.quoteName("#__jeprolab_customization") + " WHERE ";
+        query += staticDataBaseObject.quoteName("customization_id") + " = " + customizationId;
+
+        staticDataBaseObject.setQuery(query);
+        ResultSet customizationSet = staticDataBaseObject.loadObjectList();
+
+        if (customizationSet != null) {
+            $cust_data = Db::getInstance()->getRow('SELECT *
+                    FROM `'._DB_PREFIX_.'customized_data`
+            WHERE `id_customization` = '.(int)$id_customization);
+
+            // Delete customization picture if necessary
+            if (isset($cust_data['type']) && $cust_data['type'] == 0) {
+                $result &= (@unlink(_PS_UPLOAD_DIR_.$cust_data['value']) && @unlink(_PS_UPLOAD_DIR_.$cust_data['value'].'_small'));
+            }
+
+            $result &= Db::getInstance()->execute(
+                    'DELETE FROM `'._DB_PREFIX_.'customized_data`
+            WHERE `id_customization` = '.(int)$id_customization
+            );
+
+            if ($result) {
+                $result &= Db::getInstance()->execute(
+                        'UPDATE `'._DB_PREFIX_.'cart_product`
+                SET `quantity` = `quantity` - '.(int)$customization['quantity'].'
+                WHERE `id_cart` = '.(int)$this->id.'
+                AND `id_product` = '.(int)$id_product.
+                ((int)$id_product_attribute ? ' AND `id_product_attribute` = '.(int)$id_product_attribute : '').'
+                AND `id_address_delivery` = '.(int)$id_address_delivery
+                );
+            }
+
+            if (!$result) {
+                return false;
+            }
+
+            query = "DELETE FROM " + staticDataBaseObject.quoteName("#__jeprolab_customization") + " WHERE ";
+            query += staticDataBaseObject.quoteName("customization_id") + " = " + customizationId;
+
+            staticDataBaseObject.setQuery(query);
+            return staticDataBaseObject.query(false);
+        }
+
+        return true;
+    }
+
 
     public float getRequestTotal() {
         return getRequestTotal(true, JeproLabCartModel.BOTH, null, 0, true);
