@@ -8,6 +8,7 @@ import com.jeprolab.assets.tools.JeproLabContext;
 import com.jeprolab.assets.tools.JeproLabTools;
 import com.jeprolab.assets.tools.db.JeproLabDataBaseConnector;
 import com.jeprolab.models.core.JeproLabFactory;
+import com.sun.org.apache.xpath.internal.operations.Bool;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -85,6 +86,8 @@ public class JeproLabCartModel extends JeproLabModel{
     protected int tax_calculation_method = JeproLabConfigurationSettings.JEPROLAB_TAX_EXCLUDED;
 
     protected static Map<Integer, Integer>_number_of_analyzes = new HashMap<>();
+
+    protected static Map<Integer, Boolean> _is_virtual_cart = new HashMap<>();
 
     protected static Map<String, HashMap<String, String>> _attributes_lists = new HashMap<>();
 
@@ -1657,7 +1660,7 @@ public class JeproLabCartModel extends JeproLabModel{
             return false;
         }
 
-        if (!JeproLabCartModel._isVirtualCart.containsKey(this.cart_id)) {
+        if (!JeproLabCartModel._is_virtual_cart.containsKey(this.cart_id)) {
             List<JeproLabAnalyzeModel> analyzes = this.getAnalyzes();
             if (analyzes.size() <= 0) {
                 return false;
@@ -1669,14 +1672,14 @@ public class JeproLabCartModel extends JeproLabModel{
                     isVirtual = false;
                 }
             }
-            JeproLabCartModel._isVirtualCart.put(this.cart_id, isVirtual);
+            JeproLabCartModel._is_virtual_cart.put(this.cart_id, isVirtual);
         }
 
-        return JeproLabCartModel._isVirtualCart.get(this.cart_id);
+        return JeproLabCartModel._is_virtual_cart.get(this.cart_id);
     }
 
-    public float getTotalShippingCost($delivery_option = null){
-        return getTotalShippingCost(true, null);
+    public float getTotalShippingCost(){
+        return getTotalShippingCost(null, true, null);
     }
 
     public float getTotalShippingCost(deliveryOption, boolean useTax){
@@ -1740,13 +1743,13 @@ public class JeproLabCartModel extends JeproLabModel{
             return JeproLabCache.getInstance().retrieve(cacheKey);
         }
 
-        deliveryOptionList = this.getDeliveryOptionList(defaultCountry);
+        List deliveryOptionList = this.getDeliveryOptionList(defaultCountry);
 
         // The delivery option was selected
         if (isset($this -> delivery_option) && $this -> delivery_option != '') {
             deliveryOption = JeproLabTools.unSerialize(this.delivery_option);
             boolean validated = true;
-            foreach($delivery_option as $id_address = > $key){
+            for($delivery_option as $id_address = > $key){
                 if (!isset($delivery_option_list[$id_address][$key])) {
                     $validated = false;
                     break;
@@ -1765,7 +1768,7 @@ public class JeproLabCartModel extends JeproLabModel{
 
         // No delivery option selected or delivery option selected is not valid, get the better for all options
         $delivery_option = array();
-        foreach($delivery_option_list as $id_address = > $options){
+        for($delivery_option_list as $id_address = > $options){
             foreach($options as $key = > $option){
                 if (Configuration::get ('PS_CARRIER_DEFAULT') == -1 && $option['is_best_price']){
                     $delivery_option[$id_address] = $key;
@@ -1793,11 +1796,11 @@ public class JeproLabCartModel extends JeproLabModel{
         return deliveryOption;
     }
 
-    public function getDeliveryOptionList(){
+    public List getDeliveryOptionList(){
         return getDeliveryOptionList(null, false);
     }
 
-    public function getDeliveryOptionList(JeproLabCountryModel defaultCountry){
+    public List getDeliveryOptionList(JeproLabCountryModel defaultCountry){
         return getDeliveryOptionList(defaultCountry, false);
     }
 
@@ -1833,7 +1836,7 @@ public class JeproLabCartModel extends JeproLabModel{
      *               );
      *               If there are no carriers available for an address, return an empty  array
      */
-    public function getDeliveryOptionList(JeproLabCountryModel defaultCountry, boolean flush){
+    public List getDeliveryOptionList(JeproLabCountryModel defaultCountry, boolean flush){
         if (JeproLabCartModel._delivery_option_list.containsKey(this.cart_id) && !flush) {
             return JeproLabCartModel._delivery_option_list.get(this.cart_id);
         }
@@ -2424,6 +2427,8 @@ public class JeproLabCartModel extends JeproLabModel{
         public int reduction_analyze_id;
         public boolean reduction_tax = false;
         public reduction_;
+
+        public boolean analyze_restriction;
 
         public boolean lab_restriction;
 
@@ -3180,7 +3185,7 @@ public class JeproLabCartModel extends JeproLabModel{
          * @param displayError Display error
          * @return bool
          */
-        public boolean checkValidity(JeproLabContext context, boolean alreadyInCart = false, boolean displayError = true, boolean checkCarrier = true){
+        public boolean checkValidity(JeproLabContext context, boolean alreadyInCart, boolean displayError, boolean checkCarrier){
             if (!JeproLabCartRuleModel.isFeaturePublished()) {
                 return false;
             }
@@ -3194,7 +3199,7 @@ public class JeproLabCartModel extends JeproLabModel{
             }
             
             if (strtotime(this.date_from) > time()) {
-                return (!displayError) ? false : JeproLabTools.displayBarMessage(400, This voucher is not valid yet');
+                return (!displayError) ? false : JeproLabTools.displayBarMessage(400, 'This voucher is not valid yet');
             }
             if (strtotime(this.date_to) < time()) {
                 return (!displayError) ? false : JeproLabTools.displayBarMessage(400, 'This voucher has expired');
@@ -3263,16 +3268,21 @@ public class JeproLabCartModel extends JeproLabModel{
                     return (!displayError) ? false : JeproLabTools.displayBarMessage(400,'You must choose a carrier before applying this voucher to your order');
                 }
                 //$id_cart_rule = (int)Db::getInstance()->getValue('
-                query = "SELECT cart_rule_carrier." + staticDataBaseObject.quoteName("cart_rule_id") + " FROM " ._DB_PREFIX_.'cart_rule_carrier crc
-                INNER JOIN '._DB_PREFIX_.'carrier c ON (c.id_reference = crc.id_carrier AND c.deleted = 0)
+                query = "SELECT cart_rule_carrier." + staticDataBaseObject.quoteName("cart_rule_id") + " FROM " + staticDataBaseObject.quoteName("#__jeprolab_cart_rule_carrier");
+                query += " AS cart_rule_carrier INNER JOIN " + staticDataBaseObject.quoteName("#__jeprolab_carrier") + " AS carrier ON (carrier.";
+                query += staticDataBaseObject.quoteName("reference_id") = crc.id_carrier AND c.deleted = 0)
                 WHERE crc.id_cart_rule = '.(int)this.id.'
                 AND c.id_carrier = '.(int)$context->cart->id_carrier);
-                if (!$id_cart_rule) {
+
+
+                staticDataBaseObject.setQuery(query);
+                int cartRuleId = (int) staticDataBaseObject.loadValue("cart_rule_id");
+                if (cartRuleId <= 0) {
                     return (!displayError) ? false : JeproLabTools.displayBarMessage(400,'You cannot use this voucher with this carrier');
                 }
             }
 
-            // Check if the cart rules appliy to the shop browsed by the customer
+            // Check if the cart rules apply to the laboratory browsed by the customer
             if (this.lab_restriction && context.laboratory.laboratory_id > 0 && JeproLabLaboratoryModel.isFeaturePublished()) {
                 //$id_cart_rule = (int)Db::getInstance()->getValue('
                 query = "SELECT cart_rule_lab." + staticDataBaseObject.quoteName("cart_rule_id") + " FROM " + staticDataBaseObject.quoteName("#__jeprolab_cart_rule_lab");
@@ -3311,18 +3321,20 @@ public class JeproLabCartModel extends JeproLabModel{
                     minimumAmount = JeproLabTools.convertPriceFull(minimumAmount, new JeproLabCurrencyModel(this.minimum_amount_currency_id), JeproLabContext.getContext().currency);
                 }
 
-                float cartTotal = context.cart.getRequestTotal(this.minimum_amount_tax, JeproLabCartModel.ONLY_ANALYZES);
+                float cartTotal = context.cart.getRequestTotal(this.minimum_amount_tax > 0, JeproLabCartModel.ONLY_ANALYZES);
                 if (this.minimum_amount_shipping > 0) {
-                    cartTotal += context.cart.getRequestTotal(this.minimum_amount_tax, JeproLabCartModel.ONLY_SHIPPING);
+                    cartTotal += context.cart.getRequestTotal(this.minimum_amount_tax > 0, JeproLabCartModel.ONLY_SHIPPING);
                 }
                 List<JeproLabAnalyzeModel> analyzes = context.cart.getAnalyzes();
                 List<JeproLabCartRuleModel> cartRules = context.cart.getCartRules();
 
-                foreach ($cart_rules as &$cart_rule) {
-                    if ($cart_rule['gift_product']) {
-                        foreach ($products as $key => &$product) {
-                            if (empty($product['gift']) && $product['id_product'] == $cart_rule['gift_product'] && $product['id_product_attribute'] == $cart_rule['gift_product_attribute']) {
-                                cartTotal = JeproLabTools.ps_round(cartTotal - $product[this.minimum_amount_tax ? 'price_wt' : 'price'], (int)$context->currency->decimals * _PS_PRICE_COMPUTE_PRECISION_);
+                for(JeproLabCartRuleModel cartRule : cartRules) {
+                    if (cartRule.gift_analyze_id > 0) {
+                        for(JeproLabAnalyzeModel analyze : analyzes) {
+                            if (empty($product['gift']) && analyze.analyze_id == cartRule.gift_analyze_id && analyze.analyze_attribute_id == cartRule.gift_analyze_attribute_id) {
+                                cartTotal = JeproLabTools.roundPrice(
+                                        cartTotal - (this.minimum_amount_tax > 0 ? analyze.analyze_price.price_with_tax : analyze.analyze_price.price),
+                                        context.currency.decimals * JeproLabConfigurationSettings.JEPROLAB_PRICE_DISPLAY_PRECISION);
                             }
                         }
                     }
@@ -3387,5 +3399,617 @@ public class JeproLabCartModel extends JeproLabModel{
             }
         }
 
+        public static List<JeproLabCartRuleModel> getCustomerCartRules(int langId, int customerId){
+            return getCustomerCartRules(langId, customerId, false, true, false, null, false, false);
+        }
+
+        public static List<JeproLabCartRuleModel> getCustomerCartRules(int langId, int customerId, boolean activated){
+            return getCustomerCartRules(langId, customerId, activated, true, false, null, false, false);
+        }
+
+        public static List<JeproLabCartRuleModel> getCustomerCartRules(int langId, int customerId, boolean activated, boolean includeGeneric){
+            return getCustomerCartRules(langId, customerId, activated, includeGeneric, false, null, false, false);
+        }
+
+        public static List<JeproLabCartRuleModel> getCustomerCartRules(int langId, int customerId, boolean activated, boolean includeGeneric, boolean inStock){
+            return getCustomerCartRules(langId, customerId, activated, includeGeneric, inStock, null, false, false);
+        }
+
+        public static List<JeproLabCartRuleModel> getCustomerCartRules(int langId, int customerId, boolean activated, boolean includeGeneric, boolean inStock, JeproLabCartModel cart){
+            return getCustomerCartRules(langId, customerId, activated, includeGeneric, inStock, cart, false, false);
+        }
+
+        public static List<JeproLabCartRuleModel> getCustomerCartRules(int langId, int customerId, boolean activated, boolean includeGeneric, boolean inStock, JeproLabCartModel cart, boolean freeShippingOnly){
+            return getCustomerCartRules(langId, customerId, activated, includeGeneric, inStock, cart, freeShippingOnly, false);
+        }
+
+        /**
+         * @param langId
+         * @param customerId
+         * @param activated
+         * @param includeGeneric
+         * @param inStock
+         * @param cart
+         * @param freeShippingOnly
+         * @param highLightOnly
+         * @return array
+         */
+        public static List<JeproLabCartRuleModel> getCustomerCartRules(int langId, int customerId, boolean activated = false, boolean includeGeneric = true, boolean inStock = false, JeproLabCartModel cart = null, boolean freeShippingOnly = false, boolean highLightOnly = false){
+            if (!JeproLabCartRuleModel.isFeaturePublished()) {
+                return new ArrayList<>();
+            }
+
+            if(staticDataBaseObject == null){
+                staticDataBaseObject = JeproLabFactory.getDataBaseConnector();
+            }
+            String queryPart1 = "* FROM " + staticDataBaseObject.quoteName("#__jeprolab_cart_rule") + " AS cart_rule LEFT JOIN ";
+            queryPart1 += staticDataBaseObject.quoteName("#__jeprolab_cart_rule_lang") + " AS cart_rule_lang ON (cart_rule_lang.";
+            queryPart1 += staticDataBaseObject.quoteName("cart_rule_id") + " = cart_rule." + staticDataBaseObject.quoteName("cart_rule_id");
+            queryPart1 += " AND cart_rule_lang." + staticDataBaseObject.quoteName("lang_id") + " = " + langId + ") ";
+
+
+            String queryPart2 = " AND cart_rule." + staticDataBaseObject.quoteName("date_from") + " < " + JeproLabTools.date("Y-m-d H:i:s");
+            queryPart2 += " AND cart_rule." + staticDataBaseObject.quoteName("date_to") + " > " + JeproLabTools.date("Y-m-d H:i:s");
+            queryPart2 += (activated ? "AND cart_rule." + staticDataBaseObject.quoteName("published") + " = 1" : "") ;
+            queryPart2 += (inStock ? " AND cart_rule." + staticDataBaseObject.quoteName("quantity") + " > 0 " : "");
+
+            if(freeShippingOnly) {
+                queryPart2 += " AND " + staticDataBaseObject.quoteName("free_shipping") + " = 1 AND " + staticDataBaseObject.quoteName("carrier_restriction") + " = 1";
+            }
+
+            if (highLightOnly) {
+                queryPart2 += " AND " + staticDataBaseObject.quoteName("highlight") + " = 1 AND "  + staticDataBaseObject.quoteName("code");
+                queryPart2 += " NOT LIKE " + staticDataBaseObject.quote(JeproLabCartRuleModel.BO_REQUEST_CODE_PREFIX) + "'%'";
+            }
+
+            String query = "(SELECT SQL_NO_CACHE " + queryPart1 + " WHERE cart_rule." + staticDataBaseObject.quoteName("customer_id") + " = ";
+            query += customerId + " " + queryPart2 + ") UNION (SELECT " + queryPart1 + " WHERE cart_rule."  + staticDataBaseObject.quoteName("group_restriction");
+            query += " = 1 " + queryPart2  + ")";
+
+            if (includeGeneric && customerId != 0) {
+                query += " UNION (SELECT " + queryPart1 + " WHERE cart_rule." + staticDataBaseObject.quoteName("customer_id") + " = 0 " + queryPart2 + ") ";
+            }
+
+            staticDataBaseObject.setQuery(query);
+            ResultSet resultSet = staticDataBaseObject.loadObjectList();
+
+            //$result = Db::getInstance(_PS_USE_SQL_SLAVE_)->executeS($sql, true, false);
+
+            if(resultSet == null) {
+                return new ArrayList<>();
+            }else{
+                // Remove cart rule that does not match the customer groups
+                List<Integer> customerGroups = JeproLabCustomerModel.getStaticGroups(customerId);
+                List<JeproLabCartRuleModel> cartRules = new ArrayList<>();
+
+                try{
+                    JeproLabCartRuleModel cartRule;
+                    while(resultSet.next()){
+                        cartRule = new JeproLabCartRuleModel();
+                        cartRule.cart_rule_id = resultSet.getInt("cart_rule_id");
+                        cartRule.group_restriction = resultSet.getInt("group_restriction") > 0;
+                        if(cartRule.group_restriction){
+                            query = "SELECT " + staticDataBaseObject.quoteName("group_id") + " FROM " + staticDataBaseObject.quoteName("#__jeprolab_cart_rule_group");
+                            query += " AS cart_rule_group WHERE  cart_route_group." + staticDataBaseObject.quoteName("cart_rule_id") + " = " + cartRule.cart_rule_id;
+
+                            staticDataBaseObject.setQuery(query);
+                            ResultSet cartRuleGroupSet = staticDataBaseObject.loadObjectList();
+                            if(cartRuleGroupSet != null) {
+                                while (cartRuleGroupSet.next()){
+                                    if(customerGroups.contains(cartRuleGroupSet.getInt("group_id"))){
+                                        continue;
+                                    }
+                                }
+                            }
+                            unset($result[$key]);
+                        }
+                        cartRules.add(cartRule);
+                    }
+
+                    int quantityUsed;
+                    for(cartRule : cartRules){
+                        if (cartRule.quantity_per_customer > 0) {
+                            quantityUsed = JeproLabRequestModel.getDiscountsCustomer(customerId, cartRule.cart_rule_id);
+                            if (isset($cart) && isset(cart.cart_id)) {
+                                quantityUsed += cart.getDiscountsCustomer(cartRule.cart_rule_id);
+                            }
+                            cartRule.quantity_per_customer = cartRule.quantity_per_customer - quantityUsed;
+                        } else {
+                            cartRule.quantity_per_customer = 0;
+                        }
+                    }
+                    unset($cart_rule);
+
+                    for($result as $key => $cart_rule){
+                        if ($cart_rule['shop_restriction']) {
+                            $cartRuleShops = Db::getInstance () -> executeS('SELECT id_shop FROM '._DB_PREFIX_.
+                            'cart_rule_shop WHERE id_cart_rule = '. (int) $cart_rule['id_cart_rule']);
+                            foreach($cartRuleShops as $cartRuleShop) {
+                                if (JeproLabLaboratoryModel.isFeaturePublished() && (cartRuleLab.laboratory_id == JeproLabContext.getContext().laboratory.laboratory_id)){
+                                    continue 2;
+                                }
+                            }
+                            unset($result[$key]);
+                        }
+                    }
+
+                    if (isset($cart) && isset($cart->id)) {
+                        JeproLabCartRuleModel cr;
+                        for($result as $key = > $cart_rule){
+                            if (cartRule.analyze_restriction) {
+                                cr = new JeproLabCartRuleModel(cartRule.cart_rule_id);
+                                boolean restriction = cr.checkAnalyzeRestrictions(JeproLabContext.getContext(), false, false);
+                                if (restriction) {
+                                    continue;
+                                }
+                                unset($result[$key]);
+                            }
+                        }
+                    }
+
+                    $result_bak = $result;
+                    $result = array();
+                    boolean countryRestriction = false;
+                    for($result_bak as $key => $cart_rule) {
+                        if(cartRule.country_restriction) {
+                            $country_restriction = true;
+                            $countries = Db::getInstance()->ExecuteS('
+                                    SELECT `id_country`
+                                    FROM `'._DB_PREFIX_.'address`
+                            WHERE `id_customer` = '.(int)$id_customer.'
+                            AND `deleted` = 0'
+                            );
+
+                            if (is_array($countries) && count($countries)) {
+                                foreach ($countries as $country) {
+                                    $id_cart_rule = (bool)Db::getInstance()->getValue('
+                                            SELECT crc.id_cart_rule
+                                            FROM '._DB_PREFIX_.'cart_rule_country crc
+                                    WHERE crc.id_cart_rule = '.(int)$cart_rule['id_cart_rule'].'
+                                    AND crc.id_country = '.(int)$country['id_country']);
+                                    if ($id_cart_rule) {
+                                        $result[] = $result_bak[$key];
+                                        break;
+                                    }
+                                }
+                            }
+                        }else {
+                            $result[]=$result_bak[$key];
+                        }
+                    }
+
+                    if (!countryRestriction){   $result = $result_bak; }
+
+
+                    unset($cart_rule);
+
+                    return $result;
+                }catch(SQLException ignored){
+                    ignored.printStackTrace();
+                }finally {
+                    try{
+                        JeproLabDataBaseConnector.getInstance().closeConnexion();
+                    }catch (Exception ignored){
+                        ignored.printStackTrace();
+                    }
+                }
+            }
+        }
+
+
+        /**
+         * @param customerId
+         * @return bool
+         */
+        public boolean usedByCustomer(int customerId){
+            if(staticDataBaseObject == null){
+                staticDataBaseObject = JeproLabFactory.getDataBaseConnector();
+            }
+            String query = "SELECT " + staticDataBaseObject.quoteName("cart_rule_id") + " FROM " + staticDataBaseObject.quoteName("#__jeprolab_request_cart_rule");
+            query += " AS request_cart_rule LEFT JOIN " + staticDataBaseObject.quoteName("#__jeprolab_request") + " AS request ON (request_cart_rule.";
+            query += staticDataBaseObject.quoteName("request_d") + " = request." + staticDataBaseObject.quoteName("request_id") + " WHERE request_cart_rule.";
+            query += staticDataBaseObject.quoteName("cart_rule_id") + " = " + this.cart_rule_id + " AND request." + staticDataBaseObject.quoteName("customer_id");
+            query += " = " + customerId;
+
+            staticDataBaseObject.quoteName(query);
+            return staticDataBaseObject.loadValue("cart_rule_id") > 0;
+        }
+
+        /**
+         * @param name
+         * @return bool
+         */
+        public static boolean cartRuleExists(String name){
+            if (!JeproLabCartRuleModel.isFeaturePublished()) {
+                return false;
+            }
+
+            if(staticDataBaseObject == null){
+                staticDataBaseObject = JeproLabFactory.getDataBaseConnector();
+            }
+
+            String query = "SELECT " + staticDataBaseObject.quoteName("cart_rule_id") + " FROM " + staticDataBaseObject.quoteName("#__jeprolab_cart_rule");
+            query += " WHERE " + staticDataBaseObject.quoteName("code") + " = " + staticDataBaseObject.quote(name);
+
+            staticDataBaseObject.setQuery(query);
+
+            return staticDataBaseObject.loadValue("cart_rule_id") > 0;
+        }
+
+        /**
+         * @param customerId
+         * @return bool
+         * /
+        public static boolean deleteByCustomerId(int customerId){
+            boolean result = true;
+            $cart_rules = new PrestaShopCollection('CartRule');
+            $cart_rules->where('id_customer', '=', $id_customer);
+            foreach ($cart_rules as $cart_rule) {
+            $return &= $cart_rule->delete();
+            }
+            return result;
+        }
+
+        /**
+         * @return array
+         * /
+        public function getAnalyzeRuleGroups(){
+            if (!Validate::isLoadedObject($this) || $this->product_restriction == 0) {
+            return array();
+        }
+
+            $productRuleGroups = array();
+            if(staticDataBaseObject == null){
+                staticDataBaseObject = JeproLabFactory.getDataBaseConnector();
+            }
+            String query = "SELECT * FROM " + staticDataBaseObject.quoteName("#__jeprolab_cart_rule_analyze_rule_group");
+            query += " WHERE " + staticDataBaseObject.quoteName("cart_rule_id") + " = " + this.cart_rule_id;
+
+            staticDataBaseObject.setQuery(query);
+            ResultSet resultSet = staticDataBaseObject.loadObjectList();
+            if(resultSet != null) {
+                try {
+                    while(resultSet.next()) {
+                        if (!isset($productRuleGroups[resultSet.getInt("analyze_rule_group_id")])) {
+                            $productRuleGroups[$row['id_product_rule_group']] = array('id_product_rule_group' = > $row['id_product_rule_group'], 'quantity' =>
+                            $row['quantity']);
+                        }
+                        $productRuleGroups[$row['id_product_rule_group']]['product_rules'] = $this -> getProductRules($row['id_product_rule_group']);
+                    }
+                }catch (SQLException ignored){
+                    ignored.printStackTrace();
+                }finally {
+                    try{
+                        JeproLabDataBaseConnector.getInstance().closeConnexion();
+                    }catch (Exception ignored){
+                        ignored.printStackTrace();
+                    }
+                }
+            }
+            return $productRuleGroups;
+        }
+
+        /**
+         * @param analyzeRuleGroupId
+         * @return array ('type' => ? , 'values' => ?)
+         * /
+        public function getAnalyzeRules(int analyzeRuleGroupId){
+            if (!JeproLabTools.isLoadedObject(this, "cart_rule_id") || this.analyze_restriction) {
+                return array();
+            }
+
+            $productRules = array();
+            $results = Db::getInstance()->executeS('
+                SELECT *
+                        FROM '._DB_PREFIX_.'cart_rule_product_rule pr
+            LEFT JOIN '._DB_PREFIX_.'cart_rule_product_rule_value prv ON pr.id_product_rule = prv.id_product_rule
+            WHERE pr.id_product_rule_group = '.(int)$id_product_rule_group);
+            foreach ($results as $row) {
+                if (!isset($productRules[$row['id_product_rule']])) {
+                    $productRules[$row['id_product_rule']] = array('type' = > $row['type'], 'values' =>array());
+                }
+                $productRules[$row['id_product_rule']]['values'][]=$row['id_item'];
+            }
+            return $productRules;
+        }
+
+
+        protected boolean checkAnalyzeRestrictions(JeproLabContext context){
+            return checkAnalyzeRestrictions(context, false, true, false);
+        }
+
+        protected boolean checkAnalyzeRestrictions(JeproLabContext context, boolean setAnalyzes){
+            return checkAnalyzeRestrictions(context, setAnalyzes, true, false);
+        }
+
+        protected boolean checkAnalyzeRestrictions(JeproLabContext context, boolean setAnalyzes, boolean displayError){
+            return checkAnalyzeRestrictions(context, setAnalyzes, displayError, false);
+        }
+
+        protected boolean checkAnalyzeRestrictions(JeproLabContext context, boolean setAnalyzes, boolean displayError, boolean alreadyInCart){
+            $selected_products = array();
+
+            // Check if the products chosen by the customer are usable with the cart rule
+            if($this->product_restriction) {
+                $product_rule_groups = $this->getProductRuleGroups();
+                foreach ($product_rule_groups as $id_product_rule_group => $product_rule_group) {
+                    $eligible_products_list = array();
+                    if (isset($context->cart) && is_object($context->cart) && is_array($products = $context->cart->getProducts())) {
+                        foreach ($products as $product) {
+                            $eligible_products_list[] = (int)$product['id_product'].'-'.(int)$product['id_product_attribute'];
+                        }
+                    }
+                    if (!count($eligible_products_list)) {
+                        return (!$display_error) ? false : Tools::displayError('You cannot use this voucher in an empty cart');
+                    }
+
+                    $product_rules = $this->getProductRules($id_product_rule_group);
+                    foreach ($product_rules as $product_rule) {
+                        switch ($product_rule['type']) {
+                            case 'attributes':
+                                $cart_attributes = Db::getInstance()->executeS('
+                                    SELECT cp.quantity, cp.`id_product`, pac.`id_attribute`, cp.`id_product_attribute`
+                                    FROM `'._DB_PREFIX_.'cart_product` cp
+                                LEFT JOIN `'._DB_PREFIX_.'product_attribute_combination` pac ON cp.id_product_attribute = pac.id_product_attribute
+                                WHERE cp.`id_cart` = '.(int)$context->cart->id.'
+                                AND cp.`id_product` IN ('.implode(',', array_map('intval', $eligible_products_list)).')
+                                AND cp.id_product_attribute > 0');
+                                $count_matching_products = 0;
+                                $matching_products_list = array();
+                                foreach ($cart_attributes as $cart_attribute) {
+                                if (in_array($cart_attribute['id_attribute'], $product_rule['values'])) {
+                                    $count_matching_products += $cart_attribute['quantity'];
+                                    if ($already_in_cart && $this->gift_product == $cart_attribute['id_product']
+                                            && $this->gift_product_attribute == $cart_attribute['id_product_attribute']) {
+                                        --$count_matching_products;
+                                    }
+                                    $matching_products_list[] = $cart_attribute['id_product'].'-'.$cart_attribute['id_product_attribute'];
+                                }
+                            }
+                            if ($count_matching_products < $product_rule_group['quantity']) {
+                                return (!$display_error) ? false : Tools::displayError('You cannot use this voucher with these products');
+                            }
+                            $eligible_products_list = CartRule::array_uintersect($eligible_products_list, $matching_products_list);
+                            break;
+                            case 'products':
+                                $cart_products = Db::getInstance()->executeS('
+                                    SELECT cp.quantity, cp.`id_product`
+                                    FROM `'._DB_PREFIX_.'cart_product` cp
+                                WHERE cp.`id_cart` = '.(int)$context->cart->id.'
+                                AND cp.`id_product` IN ('.implode(',', array_map('intval', $eligible_products_list)).')');
+                                $count_matching_products = 0;
+                                $matching_products_list = array();
+                                foreach ($cart_products as $cart_product) {
+                                if (in_array($cart_product['id_product'], $product_rule['values'])) {
+                                    $count_matching_products += $cart_product['quantity'];
+                                    if ($already_in_cart && $this->gift_product == $cart_product['id_product']) {
+                                        --$count_matching_products;
+                                    }
+                                    $matching_products_list[] = $cart_product['id_product'].'-0';
+                                }
+                            }
+                            if ($count_matching_products < $product_rule_group['quantity']) {
+                                return (!$display_error) ? false : Tools::displayError('You cannot use this voucher with these products');
+                            }
+                            $eligible_products_list = CartRule::array_uintersect($eligible_products_list, $matching_products_list);
+                            break;
+                            case 'categories':
+                                $cart_categories = Db::getInstance()->executeS('
+                                    SELECT cp.quantity, cp.`id_product`, cp.`id_product_attribute`, catp.`id_category`
+                                    FROM `'._DB_PREFIX_.'cart_product` cp
+                                LEFT JOIN `'._DB_PREFIX_.'category_product` catp ON cp.id_product = catp.id_product
+                                WHERE cp.`id_cart` = '.(int)$context->cart->id.'
+                                AND cp.`id_product` IN ('.implode(',', array_map('intval', $eligible_products_list)).')
+                                AND cp.`id_product` <> '.(int)$this->gift_product);
+                                $count_matching_products = 0;
+                                $matching_products_list = array();
+                                foreach ($cart_categories as $cart_category) {
+                                if (in_array($cart_category['id_category'], $product_rule['values'])
+                                        /**
+                                         * We also check that the product is not already in the matching product list,
+                                         * because there are doubles in the query results (when the product is in multiple categories)
+                                         * /
+                                        && !in_array($cart_category['id_product'].'-'.$cart_category['id_product_attribute'], $matching_products_list)) {
+                                    $count_matching_products += $cart_category['quantity'];
+                                    $matching_products_list[] = $cart_category['id_product'].'-'.$cart_category['id_product_attribute'];
+                                }
+                            }
+                            if ($count_matching_products < $product_rule_group['quantity']) {
+                                return (!$display_error) ? false : Tools::displayError('You cannot use this voucher with these products');
+                            }
+                            // Attribute id is not important for this filter in the global list, so the ids are replaced by 0
+                            foreach ($matching_products_list as &$matching_product) {
+                                $matching_product = preg_replace('/^([0-9]+)-[0-9]+$/', '$1-0', $matching_product);
+                            }
+                            $eligible_products_list = CartRule::array_uintersect($eligible_products_list, $matching_products_list);
+                            break;
+                            case 'manufacturers':
+                                $cart_manufacturers = Db::getInstance()->executeS('
+                                    SELECT cp.quantity, cp.`id_product`, p.`id_manufacturer`
+                                    FROM `'._DB_PREFIX_.'cart_product` cp
+                                LEFT JOIN `'._DB_PREFIX_.'product` p ON cp.id_product = p.id_product
+                                WHERE cp.`id_cart` = '.(int)$context->cart->id.'
+                                AND cp.`id_product` IN ('.implode(',', array_map('intval', $eligible_products_list)).')');
+                                $count_matching_products = 0;
+                                $matching_products_list = array();
+                                foreach ($cart_manufacturers as $cart_manufacturer) {
+                                if (in_array($cart_manufacturer['id_manufacturer'], $product_rule['values'])) {
+                                    $count_matching_products += $cart_manufacturer['quantity'];
+                                    $matching_products_list[] = $cart_manufacturer['id_product'].'-0';
+                                }
+                            }
+                            if ($count_matching_products < $product_rule_group['quantity']) {
+                                return (!$display_error) ? false : Tools::displayError('You cannot use this voucher with these products');
+                            }
+                            $eligible_products_list = CartRule::array_uintersect($eligible_products_list, $matching_products_list);
+                            break;
+                            case 'suppliers':
+                                $cart_suppliers = Db::getInstance()->executeS('
+                                    SELECT cp.quantity, cp.`id_product`, p.`id_supplier`
+                                    FROM `'._DB_PREFIX_.'cart_product` cp
+                                LEFT JOIN `'._DB_PREFIX_.'product` p ON cp.id_product = p.id_product
+                                WHERE cp.`id_cart` = '.(int)$context->cart->id.'
+                                AND cp.`id_product` IN ('.implode(',', array_map('intval', $eligible_products_list)).')');
+                                $count_matching_products = 0;
+                                $matching_products_list = array();
+                                foreach ($cart_suppliers as $cart_supplier) {
+                                if (in_array($cart_supplier['id_supplier'], $product_rule['values'])) {
+                                    $count_matching_products += $cart_supplier['quantity'];
+                                    $matching_products_list[] = $cart_supplier['id_product'].'-0';
+                                }
+                            }
+                            if ($count_matching_products < $product_rule_group['quantity']) {
+                                return (!$display_error) ? false : Tools::displayError('You cannot use this voucher with these products');
+                            }
+                            $eligible_products_list = CartRule::array_uintersect($eligible_products_list, $matching_products_list);
+                            break;
+                        }
+
+                        if (!count($eligible_products_list)) {
+                            return (!$display_error) ? false : Tools::displayError('You cannot use this voucher with these products');
+                        }
+                    }
+                    $selected_products = array_merge($selected_products, $eligible_products_list);
+                }
+            }
+
+            if ($return_products) {
+                return $selected_products;
+            }
+            return (!displayError) ? true : false;
+        }
+
+        protected static function array_uintersect($array1, $array2)
+        {
+            $intersection = array();
+            foreach ($array1 as $value1) {
+            foreach ($array2 as $value2) {
+                if (CartRule::array_uintersect_compare($value1, $value2) == 0) {
+                    $intersection[] = $value1;
+                    break 1;
+                }
+            }
+        }
+            return $intersection;
+        }
+
+        protected static function array_uintersect_compare($a, $b)
+        {
+            if ($a == $b) {
+                return 0;
+            }
+
+            $asplit = explode('-', $a);
+            $bsplit = explode('-', $b);
+            if ($asplit[0] == $bsplit[0] && (!(int)$asplit[1] || !(int)$bsplit[1])) {
+                return 0;
+            }
+
+            return 1;
+        }
+
+
+
+        /**
+         * Make sure caches are empty
+         * Must be called before calling multiple time getContextualValue()
+         * /
+        public static function cleanCache(){
+            self::$only_one_gift = array();
+        }
+
+
+        /**
+         * @param type
+         * @param activeOnly
+         * @param bool   $i18n
+         * @param offset
+         * @param limit
+         * @param string $search_cart_rule_name
+         * @return array|bool
+         * @throws PrestaShopDatabaseException
+         * /
+        public function getAssociatedRestrictions(String type, boolean activeOnly, boolean i18n, int offset = null, int limit = null, String searchCartRuleName = ''){
+            $array = array('selected' => array(), 'unselected' => array());
+
+            if (!in_array($type, array('country', 'carrier', 'group', 'cart_rule', 'shop'))) {
+                return false;
+            }
+
+            $shop_list = '';
+            if ($type == 'shop') {
+                $shops = JeproLabContext.getContext().employee.getAssociatedLaboratories();
+                if (count($shops)) {
+                    $shop_list = ' AND t.id_shop IN ('.implode(array_map('intval', $shops), ',').') ';
+                }
+            }
+
+            if ($offset !== null && $limit !== null) {
+                $sql_limit = ' LIMIT '.(int)$offset.', '.(int)($limit+1);
+            } else {
+                $sql_limit = '';
+            }
+
+            if (!Validate::isLoadedObject($this) || $this->{$type.'_restriction'} == 0) {
+            $array['selected'] = Db::getInstance()->executeS('
+                    SELECT t.*'.($i18n ? ', tl.*' : '').', 1 as selected
+            FROM `'._DB_PREFIX_.$type.'` t
+            '.($i18n ? 'LEFT JOIN `'._DB_PREFIX_.$type.'_lang` tl ON (t.id_'.$type.' = tl.id_'.$type.' AND tl.id_lang = '.(int)Context::getContext()->language->id.')' : '').'
+            WHERE 1
+            '.($active_only ? 'AND t.active = 1' : '').'
+            '.(in_array($type, array('carrier', 'shop')) ? ' AND t.deleted = 0' : '').'
+            '.($type == 'cart_rule' ? 'AND t.id_cart_rule != '.(int)$this->id : '').
+            $shop_list.
+            (in_array($type, array('carrier', 'shop')) ? ' ORDER BY t.name ASC ' : '').
+            (in_array($type, array('country', 'group', 'cart_rule')) && $i18n ? ' ORDER BY tl.name ASC ' : '').
+                    $sql_limit);
+        } else {
+            if ($type == 'cart_rule') {
+                $array = $this->getCartRuleCombinations($offset, $limit, $search_cart_rule_name);
+            } else {
+                $resource = Db::getInstance()->query('
+                        SELECT t.*'.($i18n ? ', tl.*' : '').', IF(crt.id_'.$type.' IS NULL, 0, 1) as selected
+                FROM `'._DB_PREFIX_.$type.'` t
+                '.($i18n ? 'LEFT JOIN `'._DB_PREFIX_.$type.'_lang` tl ON (t.id_'.$type.' = tl.id_'.$type.' AND tl.id_lang = '.(int)Context::getContext()->language->id.')' : '').'
+                LEFT JOIN (SELECT id_'.$type.' FROM `'._DB_PREFIX_.'cart_rule_'.$type.'` WHERE id_cart_rule = '.(int)$this->id.') crt ON t.id_'.($type == 'carrier' ? 'reference' : $type).' = crt.id_'.$type.'
+                WHERE 1 '.($active_only ? ' AND t.active = 1' : '').
+                $shop_list
+                        .(in_array($type, array('carrier', 'shop')) ? ' AND t.deleted = 0' : '').
+                (in_array($type, array('carrier', 'shop')) ? ' ORDER BY t.name ASC ' : '').
+                (in_array($type, array('country', 'group', 'cart_rule')) && $i18n ? ' ORDER BY tl.name ASC ' : '').
+                        $sql_limit,
+                        false);
+                while ($row = Db::getInstance()->nextRow($resource)) {
+                    $array[($row['selected'] || $this->{$type.'_restriction'} == 0) ? 'selected' : 'unselected'][] = $row;
+                }
+            }
+        }
+            return $array;
+        }
+
+
+        /**
+         * Retrieves the id associated to the given code
+         *
+         * @param codeFilter
+         * @return int|bool
+         */
+        public static int getCartRuleIdByCode(String codeFilter){
+            if (!JeproLabTools.isCleanCode(codeFilter)) {
+                return 0;
+            }
+            if(staticDataBaseObject == null){
+                staticDataBaseObject = JeproLabFactory.getDataBaseConnector();
+            }
+            String query = "SELECT " + staticDataBaseObject.quoteName("cart_rule_id") + " FROM " + staticDataBaseObject.quoteName("#__jeprolab_cart_rule");
+            query += " WHERE " + staticDataBaseObject.quoteName("code") + " = " + staticDataBaseObject.quote(codeFilter);
+
+            staticDataBaseObject.setQuery(query);
+            return (int)staticDataBaseObject.loadValue("cart_rule_id");
+        }
+
+
     }
+
+
 }
