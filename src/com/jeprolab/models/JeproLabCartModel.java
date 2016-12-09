@@ -1442,7 +1442,7 @@ public class JeproLabCartModel extends JeproLabModel{
             virtualContext.cart = this;
 
             if (!typeArray.contains(type)) {
-               return 0; // die(Tools::displayError ());
+               return 0; // die(JeproLabTools.displayError ());
             }
 
             boolean withShipping = (type == JeproLabCartModel.BOTH || type == JeproLabCartModel.ONLY_SHIPPING);
@@ -1793,11 +1793,19 @@ public class JeproLabCartModel extends JeproLabModel{
         return deliveryOption;
     }
 
+    public function getDeliveryOptionList(){
+        return getDeliveryOptionList(null, false);
+    }
+
+    public function getDeliveryOptionList(JeproLabCountryModel defaultCountry){
+        return getDeliveryOptionList(defaultCountry, false);
+    }
+
 
     /**
      * Get all deliveries options available for the current cart
-     * @param Country $default_country
-     * @param bool $flush Force flushing cache
+     * @param defaultCountry
+     * @param flush Force flushing cache
      *
      * @return array array(
      *                   0 => array( // First address
@@ -1825,193 +1833,220 @@ public class JeproLabCartModel extends JeproLabModel{
      *               );
      *               If there are no carriers available for an address, return an empty  array
      */
-    public function getDeliveryOptionList(Country $default_country = null, $flush = false)
-    {
-        static $cache = array();
-        if (isset($cache[$this->id]) && !$flush) {
-            return $cache[$this->id];
+    public function getDeliveryOptionList(JeproLabCountryModel defaultCountry, boolean flush){
+        if (JeproLabCartModel._delivery_option_list.containsKey(this.cart_id) && !flush) {
+            return JeproLabCartModel._delivery_option_list.get(this.cart_id);
         }
 
-        $delivery_option_list = array();
-        $carriers_price = array();
+        $deliveryOptionList = array();
+        $carriersPrice = array();
         $carrier_collection = array();
-        $package_list = $this->getPackageList($flush);
+        $package_list = this.getPackageList(flush);
 
         // Foreach addresses
-        foreach ($package_list as $id_address => $packages) {
-        // Initialize vars
-        $delivery_option_list[$id_address] = array();
-        $carriers_price[$id_address] = array();
-        $common_carriers = null;
-        $best_price_carriers = array();
-        $best_grade_carriers = array();
-        $carriers_instance = array();
+        for($packageList as $id_address => $packages){
+            // Initialize vars
+            $delivery_option_list[$id_address] = array();
+            $carriers_price[$id_address] = array();
+            $common_carriers = null;
+            $best_price_carriers = array();
+            $best_grade_carriers = array();
+            $carriers_instance = array();
 
-        // Get country
-        if ($id_address) {
-            $address = new Address($id_address);
-            $country = new Country($address->id_country);
-        } else {
-            $country = $default_country;
-        }
-
-        // Foreach packages, get the carriers with best price, best position and best grade
-        foreach ($packages as $id_package => $package) {
-            // No carriers available
-            if (count($packages) == 1 && count($package['carrier_list']) == 1 && current($package['carrier_list']) == 0) {
-                $cache[$this->id] = array();
-                return $cache[$this->id];
-            }
-
-            $carriers_price[$id_address][$id_package] = array();
-
-            // Get all common carriers for each packages to the same address
-            if (is_null($common_carriers)) {
-                $common_carriers = $package['carrier_list'];
+            // Get country
+            JeproLabCountryModel country;
+            if (addressId > 0) {
+                JeproLabAddressModel address = new JeproLabAddressModel(addressId);
+                country = new JeproLabCountryModel(address.country_id);
             } else {
-                $common_carriers = array_intersect($common_carriers, $package['carrier_list']);
+                country = defaultCountry;
             }
 
-            $best_price = null;
-            $best_price_carrier = null;
-            $best_grade = null;
-            $best_grade_carrier = null;
-
-            // Foreach carriers of the package, calculate his price, check if it the best price, position and grade
-            foreach ($package['carrier_list'] as $id_carrier) {
-                if (!isset($carriers_instance[$id_carrier])) {
-                    $carriers_instance[$id_carrier] = new Carrier($id_carrier);
+            // Foreach packages, get the carriers with best price, best position and best grade
+            foreach($packages as $id_package = > $package){
+                // No carriers available
+                if (count($packages) == 1 && count($package['carrier_list']) == 1 && current($package['carrier_list']) == 0) {
+                    $cache[$this -> id] = array();
+                    return $cache[$this -> id];
                 }
 
-                $price_with_tax = $this->getPackageShippingCost((int)$id_carrier, true, $country, $package['product_list']);
-                $price_without_tax = $this->getPackageShippingCost((int)$id_carrier, false, $country, $package['product_list']);
-                if (is_null($best_price) || $price_with_tax < $best_price) {
-                    $best_price = $price_with_tax;
-                    $best_price_carrier = $id_carrier;
+                $carriers_price[$id_address][$id_package] = array();
+
+                // Get all common carriers for each packages to the same address
+                if (is_null($common_carriers)) {
+                    $common_carriers = $package['carrier_list'];
+                } else {
+                    $common_carriers = array_intersect($common_carriers, $package['carrier_list']);
                 }
-                $carriers_price[$id_address][$id_package][$id_carrier] = array(
-                        'without_tax' => $price_without_tax,
-                        'with_tax' => $price_with_tax);
 
-                $grade = $carriers_instance[$id_carrier]->grade;
-                if (is_null($best_grade) || $grade > $best_grade) {
-                    $best_grade = $grade;
-                    $best_grade_carrier = $id_carrier;
+                $best_price = null;
+                $best_price_carrier = null;
+                $best_grade = null;
+                $best_grade_carrier = null;
+
+                // Foreach carriers of the package, calculate his price, check if it the best price, position and grade
+                foreach($package['carrier_list']as $id_carrier) {
+                    if (!isset($carriers_instance[$id_carrier])) {
+                        $carriers_instance[$id_carrier] = new Carrier($id_carrier);
+                    }
+
+                    $price_with_tax = $this -> getPackageShippingCost((int) $id_carrier, true, $country, $package['product_list']);
+                    $price_without_tax = $this -> getPackageShippingCost((int) $id_carrier, false, $country, $package['product_list']);
+                    if (is_null($best_price) || $price_with_tax < $best_price) {
+                        $best_price = $price_with_tax;
+                        $best_price_carrier = $id_carrier;
+                    }
+                    $carriers_price[$id_address][$id_package][$id_carrier] = array(
+                            'without_tax' = > $price_without_tax,
+                            'with_tax' =>$price_with_tax);
+
+                    $grade = $carriers_instance[$id_carrier]->grade;
+                    if (is_null($best_grade) || $grade > $best_grade) {
+                        $best_grade = $grade;
+                        $best_grade_carrier = $id_carrier;
+                    }
                 }
+
+                $best_price_carriers[$id_package] = $best_price_carrier;
+                $best_grade_carriers[$id_package] = $best_grade_carrier;
             }
 
-            $best_price_carriers[$id_package] = $best_price_carrier;
-            $best_grade_carriers[$id_package] = $best_grade_carrier;
-        }
-
-        // Reset $best_price_carrier, it's now an array
-        $best_price_carrier = array();
-        $key = '';
-
-        // Get the delivery option with the lower price
-        foreach ($best_price_carriers as $id_package => $id_carrier) {
-            $key .= $id_carrier.',';
-            if (!isset($best_price_carrier[$id_carrier])) {
-                $best_price_carrier[$id_carrier] = array(
-                        'price_with_tax' => 0,
-                        'price_without_tax' => 0,
-                        'package_list' => array(),
-                        'product_list' => array(),
-                );
-            }
-            $best_price_carrier[$id_carrier]['price_with_tax'] += $carriers_price[$id_address][$id_package][$id_carrier]['with_tax'];
-            $best_price_carrier[$id_carrier]['price_without_tax'] += $carriers_price[$id_address][$id_package][$id_carrier]['without_tax'];
-            $best_price_carrier[$id_carrier]['package_list'][] = $id_package;
-            $best_price_carrier[$id_carrier]['product_list'] = array_merge($best_price_carrier[$id_carrier]['product_list'], $packages[$id_package]['product_list']);
-            $best_price_carrier[$id_carrier]['instance'] = $carriers_instance[$id_carrier];
-            $real_best_price = !isset($real_best_price) || $real_best_price > $carriers_price[$id_address][$id_package][$id_carrier]['with_tax'] ?
-                    $carriers_price[$id_address][$id_package][$id_carrier]['with_tax'] : $real_best_price;
-            $real_best_price_wt = !isset($real_best_price_wt) || $real_best_price_wt > $carriers_price[$id_address][$id_package][$id_carrier]['without_tax'] ?
-                    $carriers_price[$id_address][$id_package][$id_carrier]['without_tax'] : $real_best_price_wt;
-        }
-
-        // Add the delivery option with best price as best price
-        $delivery_option_list[$id_address][$key] = array(
-                'carrier_list' => $best_price_carrier,
-                'is_best_price' => true,
-                'is_best_grade' => false,
-                'unique_carrier' => (count($best_price_carrier) <= 1)
-        );
-
-        // Reset $best_grade_carrier, it's now an array
-        $best_grade_carrier = array();
-        $key = '';
-
-        // Get the delivery option with the best grade
-        foreach ($best_grade_carriers as $id_package => $id_carrier) {
-            $key .= $id_carrier.',';
-            if (!isset($best_grade_carrier[$id_carrier])) {
-                $best_grade_carrier[$id_carrier] = array(
-                        'price_with_tax' => 0,
-                        'price_without_tax' => 0,
-                        'package_list' => array(),
-                        'product_list' => array(),
-                );
-            }
-            $best_grade_carrier[$id_carrier]['price_with_tax'] += $carriers_price[$id_address][$id_package][$id_carrier]['with_tax'];
-            $best_grade_carrier[$id_carrier]['price_without_tax'] += $carriers_price[$id_address][$id_package][$id_carrier]['without_tax'];
-            $best_grade_carrier[$id_carrier]['package_list'][] = $id_package;
-            $best_grade_carrier[$id_carrier]['product_list'] = array_merge($best_grade_carrier[$id_carrier]['product_list'], $packages[$id_package]['product_list']);
-            $best_grade_carrier[$id_carrier]['instance'] = $carriers_instance[$id_carrier];
-        }
-
-        // Add the delivery option with best grade as best grade
-        if (!isset($delivery_option_list[$id_address][$key])) {
-            $delivery_option_list[$id_address][$key] = array(
-                    'carrier_list' => $best_grade_carrier,
-                    'is_best_price' => false,
-                    'unique_carrier' => (count($best_grade_carrier) <= 1)
-            );
-        }
-        $delivery_option_list[$id_address][$key]['is_best_grade'] = true;
-
-        // Get all delivery options with a unique carrier
-        foreach ($common_carriers as $id_carrier) {
+            // Reset $best_price_carrier, it's now an array
+            $best_price_carrier = array();
             $key = '';
-            $package_list = array();
-            $product_list = array();
-            $price_with_tax = 0;
-            $price_without_tax = 0;
 
-            foreach ($packages as $id_package => $package) {
-                $key .= $id_carrier.',';
-                $price_with_tax += $carriers_price[$id_address][$id_package][$id_carrier]['with_tax'];
-                $price_without_tax += $carriers_price[$id_address][$id_package][$id_carrier]['without_tax'];
-                $package_list[] = $id_package;
-                $product_list = array_merge($product_list, $package['product_list']);
+            // Get the delivery option with the lower price
+            foreach($best_price_carriers as $id_package = > $id_carrier){
+                $key. = $id_carrier. ',';
+                if (!isset($best_price_carrier[$id_carrier])) {
+                    $best_price_carrier[$id_carrier] = array(
+                            'price_with_tax' = > 0,
+                            'price_without_tax' =>0,
+                            'package_list' =>array(),
+                            'product_list' =>array(),
+                    );
+                }
+                $best_price_carrier[$id_carrier]['price_with_tax'] += $carriers_price[$id_address][$id_package][$id_carrier]['with_tax'];
+                $best_price_carrier[$id_carrier]['price_without_tax'] += $carriers_price[$id_address][$id_package][$id_carrier]['without_tax'];
+                $best_price_carrier[$id_carrier]['package_list'][]=$id_package;
+                $best_price_carrier[$id_carrier]['product_list'] = array_merge($best_price_carrier[$id_carrier]['product_list'], $packages[$id_package]['product_list']);
+                $best_price_carrier[$id_carrier]['instance'] = $carriers_instance[$id_carrier];
+                $real_best_price = !isset($real_best_price) || $real_best_price > $carriers_price[$id_address][$id_package][$id_carrier]['with_tax'] ?
+                        $carriers_price[$id_address][$id_package][$id_carrier]['with_tax'] : $real_best_price;
+                $real_best_price_wt = !isset($real_best_price_wt) || $real_best_price_wt > $carriers_price[$id_address][$id_package][$id_carrier]['without_tax'] ?
+                        $carriers_price[$id_address][$id_package][$id_carrier]['without_tax'] : $real_best_price_wt;
             }
 
+            // Add the delivery option with best price as best price
+            $delivery_option_list[$id_address][$key] = array(
+                    'carrier_list' = > $best_price_carrier,
+                    'is_best_price' =>true,
+                    'is_best_grade' =>false,
+                    'unique_carrier' =>(count($best_price_carrier) <= 1)
+            );
+
+            // Reset $best_grade_carrier, it's now an array
+            $best_grade_carrier = array();
+            $key = '';
+
+            // Get the delivery option with the best grade
+            foreach($best_grade_carriers as $id_package = > $id_carrier){
+                $key. = $id_carrier. ',';
+                if (!isset($best_grade_carrier[$id_carrier])) {
+                    $best_grade_carrier[$id_carrier] = array(
+                            'price_with_tax' = > 0,
+                            'price_without_tax' =>0,
+                            'package_list' =>array(),
+                            'product_list' =>array(),
+                    );
+                }
+                $best_grade_carrier[$id_carrier]['price_with_tax'] += $carriers_price[$id_address][$id_package][$id_carrier]['with_tax'];
+                $best_grade_carrier[$id_carrier]['price_without_tax'] += $carriers_price[$id_address][$id_package][$id_carrier]['without_tax'];
+                $best_grade_carrier[$id_carrier]['package_list'][]=$id_package;
+                $best_grade_carrier[$id_carrier]['product_list'] = array_merge($best_grade_carrier[$id_carrier]['product_list'], $packages[$id_package]['product_list']);
+                $best_grade_carrier[$id_carrier]['instance'] = $carriers_instance[$id_carrier];
+            }
+
+            // Add the delivery option with best grade as best grade
             if (!isset($delivery_option_list[$id_address][$key])) {
                 $delivery_option_list[$id_address][$key] = array(
-                        'is_best_price' => false,
-                        'is_best_grade' => false,
-                        'unique_carrier' => true,
-                        'carrier_list' => array(
-                        $id_carrier => array(
-                        'price_with_tax' => $price_with_tax,
-                        'price_without_tax' => $price_without_tax,
-                        'instance' => $carriers_instance[$id_carrier],
-                        'package_list' => $package_list,
-                        'product_list' => $product_list,
-                )
-                )
+                        'carrier_list' = > $best_grade_carrier,
+                        'is_best_price' =>false,
+                        'unique_carrier' =>(count($best_grade_carrier) <= 1)
                 );
-            } else {
-                $delivery_option_list[$id_address][$key]['unique_carrier'] = (count($delivery_option_list[$id_address][$key]['carrier_list']) <= 1);
+            }
+            $delivery_option_list[$id_address][$key]['is_best_grade'] = true;
+
+            // Get all delivery options with a unique carrier
+            foreach($common_carriers as $id_carrier) {
+                $key = '';
+                $package_list = array();
+                $product_list = array();
+                $price_with_tax = 0;
+                $price_without_tax = 0;
+
+                foreach($packages as $id_package = > $package){
+                    $key. = $id_carrier. ',';
+                    $price_with_tax += $carriers_price[$id_address][$id_package][$id_carrier]['with_tax'];
+                    $price_without_tax += $carriers_price[$id_address][$id_package][$id_carrier]['without_tax'];
+                    $package_list[]=$id_package;
+                    $product_list = array_merge($product_list, $package['product_list']);
+                }
+
+                if (!isset($delivery_option_list[$id_address][$key])) {
+                    $delivery_option_list[$id_address][$key] = array(
+                            'is_best_price' = > false,
+                            'is_best_grade' =>false,
+                            'unique_carrier' =>true,
+                            'carrier_list' =>array(
+                            $id_carrier = > array(
+                            'price_with_tax' = > $price_with_tax,
+                            'price_without_tax' =>$price_without_tax,
+                            'instance' =>$carriers_instance[$id_carrier],
+                            'package_list' =>$package_list,
+                            'product_list' =>$product_list,
+                    )
+                    )
+                    );
+                } else {
+                    $delivery_option_list[$id_address][$key]['unique_carrier'] = (count($delivery_option_list[$id_address][$key]['carrier_list']) <= 1);
+                }
             }
         }
-    }
 
-        $cart_rules = CartRule::getCustomerCartRules(Context::getContext()->cookie->id_lang, Context::getContext()->cookie->id_customer, true, true, false, $this, true);
+        List<JeproLabCartRuleModel> cartRules = JeproLabCartRuleModel.getCustomerCartRules(
+                JeproLabContext.getContext().cookie.language_id,
+                JeproLabContext.getContext().cookie.customer_id, true, true, false, this, true);
 
-        $result = false;
-        if ($this->id) {
-            $result = Db::getInstance()->executeS('SELECT * FROM '._DB_PREFIX_.'cart_cart_rule WHERE id_cart = '.(int)$this->id);
+        boolean result = false;
+        if (this.cart_id > 0) {
+            if(staticDataBaseObject == null){
+                staticDataBaseObject = JeproLabFactory.getDataBaseConnector();
+            }
+            String query = "SELECT * FROM " + staticDataBaseObject.quoteName("#__jeprolab_cart_cart_rule") + " WHERE ";
+            query += staticDataBaseObject.quoteName("cart_id") + " = " + this.cart_id;
+
+            staticDataBaseObject.setQuery(query);
+            staticDataBaseObject.loadObjectList();
+            ResultSet resultSet = staticDataBaseObject.loadObjectList();
+
+            //List<Map<>>
+
+            if(resultSet != null){
+                try{
+                    while(resultSet.next()){
+
+                    }
+                }catch (SQLException ignored){
+                    ignored.printStackTrace();
+                }finally {
+                    try{
+                        JeproLabDataBaseConnector.getInstance().closeConnexion();
+                    }catch(Exception ignored){
+                        ignored.printStackTrace();
+                    }
+                }
+            }
         }
 
         $cart_rules_in_cart = array();
@@ -2022,75 +2057,334 @@ public class JeproLabCartModel extends JeproLabModel{
             }
         }
 
-        $total_products_wt = $this->getOrderTotal(true, Cart::ONLY_PRODUCTS);
-        $total_products = $this->getOrderTotal(false, Cart::ONLY_PRODUCTS);
+        float totalAnalyzesWithTaxes = this.getRequestTotal(true, JeproLabCartModel.ONLY_ANALYZES);
+        float totalAnalyzes = this.getRequestTotal(false, JeproLabCartModel.ONLY_ANALYZES);
 
         $free_carriers_rules = array();
 
-        $context = Context::getContext();
-        foreach ($cart_rules as $cart_rule) {
-        $total_price = $cart_rule['minimum_amount_tax'] ? $total_products_wt : $total_products;
-        $total_price += $cart_rule['minimum_amount_tax'] && $cart_rule['minimum_amount_shipping'] ? $real_best_price : 0;
-        $total_price += !$cart_rule['minimum_amount_tax'] && $cart_rule['minimum_amount_shipping'] ? $real_best_price_wt : 0;
-        if ($cart_rule['free_shipping'] && $cart_rule['carrier_restriction']
-                && in_array($cart_rule['id_cart_rule'], $cart_rules_in_cart)
-                && $cart_rule['minimum_amount'] <= $total_price) {
-            $cr = new CartRule((int)$cart_rule['id_cart_rule']);
-            if (Validate::isLoadedObject($cr) &&
-                    $cr->checkValidity($context, in_array((int)$cart_rule['id_cart_rule'], $cart_rules_in_cart), false, false)) {
-                $carriers = $cr->getAssociatedRestrictions('carrier', true, false);
-                if (is_array($carriers) && count($carriers) && isset($carriers['selected'])) {
-                    foreach ($carriers['selected'] as $carrier) {
-                        if (isset($carrier['id_carrier']) && $carrier['id_carrier']) {
-                            $free_carriers_rules[] = (int)$carrier['id_carrier'];
+        JeproLabContext context = JeproLabContext.getContext();
+        float totalPrice;
+        for(JeproLabCartRuleModel cartRule : cartRules) {
+            totalPrice = cartRule.minimum_amount_tax > 0 ? totalAnalyzesWithTaxes : totalAnalyzes;
+            totalPrice += cartRule.minimum_amount_tax > 0 && cartRule.minimum_amount_shipping > 0 ? realBestPrice : 0;
+            totalPrice += cartRule.minimum_amount_tax <= 0 && cartRule.minimum_amount_shipping > 0 ? realBestPriceWithTaxes : 0;
+            if (cartRule.free_shipping && cartRule.carrier_restriction
+                    && in_array($cart_rule['id_cart_rule'], $cart_rules_in_cart)
+                    && cartRule.minimum_amount <= totalPrice) {
+                JeproLabCartRuleModel cr = new JeproLabCartRuleModel(cartRule.cart_rule_id);
+                if (JeproLabTools.isLoadedObject(cr, "cart_rule_id") &&
+                        cr.checkValidity(context, in_array((int) $cart_rule['id_cart_rule'], $cart_rules_in_cart), false, false)){
+                    carriers = cr.getAssociatedRestrictions('carrier', true, false);
+                    if (is_array($carriers) && count($carriers) && isset($carriers['selected'])) {
+                        for(JeproLabCarrierModel carrier : $carriers['selected']) {
+                            if (carrier.carrier_id) {
+                                $free_carriers_rules[]=(int) carrier.carrier_id;
+                            }
                         }
                     }
                 }
             }
         }
-    }
 
         // For each delivery options :
         //    - Set the carrier list
         //    - Calculate the price
         //    - Calculate the average position
-        foreach ($delivery_option_list as $id_address => $delivery_option) {
-        foreach ($delivery_option as $key => $value) {
-            $total_price_with_tax = 0;
-            $total_price_without_tax = 0;
-            $position = 0;
-            foreach ($value['carrier_list'] as $id_carrier => $data) {
-                $total_price_with_tax += $data['price_with_tax'];
-                $total_price_without_tax += $data['price_without_tax'];
-                $total_price_without_tax_with_rules = (in_array($id_carrier, $free_carriers_rules)) ? 0 : $total_price_without_tax;
+        for($delivery_option_list as $id_address => $delivery_option){
+            foreach($delivery_option as $key = > $value){
+                $total_price_with_tax = 0;
+                $total_price_without_tax = 0;
+                $position = 0;
+                foreach($value['carrier_list']as $id_carrier = > $data){
+                    $total_price_with_tax += $data['price_with_tax'];
+                    $total_price_without_tax += $data['price_without_tax'];
+                    $total_price_without_tax_with_rules = (in_array($id_carrier, $free_carriers_rules)) ? 0 : $total_price_without_tax;
 
-                if (!isset($carrier_collection[$id_carrier])) {
-                    $carrier_collection[$id_carrier] = new Carrier($id_carrier);
+                    if (!isset($carrier_collection[$id_carrier])) {
+                        $carrier_collection[$id_carrier] = new Carrier($id_carrier);
+                    }
+                    $delivery_option_list[$id_address][$key]['carrier_list'][$id_carrier]['instance'] = $carrier_collection[$id_carrier];
+
+                    if (file_exists(_PS_SHIP_IMG_DIR_.$id_carrier. '.jpg')){
+                        $delivery_option_list[$id_address][$key]['carrier_list'][$id_carrier]['logo'] = _THEME_SHIP_DIR_.$id_carrier.
+                        '.jpg';
+                    }else{
+                        $delivery_option_list[$id_address][$key]['carrier_list'][$id_carrier]['logo'] = false;
+                    }
+
+                    $position += $carrier_collection[$id_carrier]->position;
                 }
-                $delivery_option_list[$id_address][$key]['carrier_list'][$id_carrier]['instance'] = $carrier_collection[$id_carrier];
-
-                if (file_exists(_PS_SHIP_IMG_DIR_.$id_carrier.'.jpg')) {
-                    $delivery_option_list[$id_address][$key]['carrier_list'][$id_carrier]['logo'] = _THEME_SHIP_DIR_.$id_carrier.'.jpg';
-                } else {
-                    $delivery_option_list[$id_address][$key]['carrier_list'][$id_carrier]['logo'] = false;
-                }
-
-                $position += $carrier_collection[$id_carrier]->position;
+                $delivery_option_list[$id_address][$key]['total_price_with_tax'] = $total_price_with_tax;
+                $delivery_option_list[$id_address][$key]['total_price_without_tax'] = $total_price_without_tax;
+                $delivery_option_list[$id_address][$key]['is_free'] = !$total_price_without_tax_with_rules ? true : false;
+                $delivery_option_list[$id_address][$key]['position'] = $position / count($value['carrier_list']);
             }
-            $delivery_option_list[$id_address][$key]['total_price_with_tax'] = $total_price_with_tax;
-            $delivery_option_list[$id_address][$key]['total_price_without_tax'] = $total_price_without_tax;
-            $delivery_option_list[$id_address][$key]['is_free'] = !$total_price_without_tax_with_rules ? true : false;
-            $delivery_option_list[$id_address][$key]['position'] = $position / count($value['carrier_list']);
         }
-    }
 
         // Sort delivery option list
         foreach ($delivery_option_list as &$array) {
-        uasort($array, array('Cart', 'sortDeliveryOptionList'));
+            uasort($array, array('Cart', 'sortDeliveryOptionList'));
+        }
+
+        JeproLabCartModel._delivery_option_list.put(this.cart_id, deliveryOptionList);
+        return JeproLabCartModel._delivery_option_list.get(this.cart_id);
     }
 
-        $cache[$this->id] = $delivery_option_list;
-        return $cache[$this->id];
+    public function getPackageList(){ return getPackageList(false); }
+
+    /**
+     * Get products grouped by package and by addresses to be sent individualy (one package = one shipping cost).
+     *
+     * @return array array(
+     *                   0 => array( // First address
+     *                       0 => array(  // First package
+     *                           'product_list' => array(...),
+     *                           'carrier_list' => array(...),
+     *                           'id_warehouse' => array(...),
+     *                       ),
+     *                   ),
+     *               );
+     * @todo Add avaibility check
+     */
+    public function getPackageList(boolean flush){
+        String cacheKey = this.cart_id + "_" + this.delivery_address_id;
+        if(JeproLabCartModel._package_list.containsKey(cacheKey) && JeproLabCartModel._package_list.get(cacheKey) != null && !flush) {
+            return JeproLabCartModel._package_list.get(cacheKey);
+        }
+
+        List<JeproLabAnalyzeModel> analyzeList = this.getAnalyzes(flush);
+        // Step 1 : Get analyze information (warehouse_list and carrier_list), count warehouse
+        // Determine the best warehouse to determine the packages
+        // For that we count the number of time we can use a warehouse for a specific delivery address
+        $warehouseCountByAddress = array();
+
+        boolean stockManagementActive = JeproLabSettingModel.getIntValue("advanced_stock_management") > 0;
+
+        for(JeproLabAnalyzeModel analyze : analyzeList) {
+            if (analyze.delivery_address_id == 0) {
+                analyze.delivery_address_id = this.delivery_address_id;
+            }
+
+            if (!isset($warehouse_count_by_address[analyze.delivery_address_id])) {
+                $warehouse_count_by_address[analyze.delivery_address_id] = array();
+            }
+
+            $product['warehouse_list'] = array();
+
+            if(stockManagementActive && analyze.advanced_stock_management) {
+                $warehouseList = JeproLabWarehouseModel.getAnalyzeWarehouseList(analyze.analyze_id, analyze.analyze_attribute_id, this.laboratory_id);
+                if (count($warehouse_list) == 0) {
+                    $warehouse_list = JeproLabWarehouseModel.getAnalyzeWarehouseList(analyze.analyze_id, analyze.analyze_attribute_id);
+                }
+                // Does the product is in stock ?
+                // If yes, get only warehouse where the product is in stock
+
+                warehouseInStock = array();
+                JeproLabStockModel.JeproLabStockManager manager = JeproLabStockModel.JeproLabStockManagerFactory.getManager();
+                int analyzeRealQuantities;
+                for($warehouseList as $key = > $warehouse){
+                    analyzeRealQuantities = manager.getAnalyzeRealQuantities(
+                            analyze.analyze_id,
+                            analyze.analyze_attribute_id,
+                            array($warehouse['id_warehouse']),
+                            true
+                    );
+
+                    if (analyzeRealQuantities > 0 || JeproLabAnalyzeModel.JeproLabAnalyzePackModel.isPack (analyze.analyze_id)){
+                        $warehouse_in_stock[]=$warehouse;
+                    }
+                }
+
+                if (!empty($warehouse_in_stock)) {
+                    $warehouse_list = $warehouse_in_stock;
+                    analyze.in_stock = true;
+                } else {
+                    analyze.in_stock = false;
+                }
+            } else {
+                //simulate default warehouse
+                $warehouse_list = array(0 = > array('id_warehouse' = > 0));
+                analyze.in_stock = JeproLabStockModel.JeproLabStockAvailableModel.getQuantityAvailableByAnalyze(analyze.analyze_id, analyze.analyze_attribute_id) > 0;
+            }
+
+            foreach($warehouse_list as $warehouse) {
+                $product['warehouse_list'][$warehouse['id_warehouse']] = $warehouse['id_warehouse'];
+                if (!isset($warehouse_count_by_address[$product['id_address_delivery']][$warehouse['id_warehouse']])) {
+                    $warehouse_count_by_address[$product['id_address_delivery']][$warehouse['id_warehouse']] = 0;
+                }
+
+                $warehouse_count_by_address[$product['id_address_delivery']][$warehouse['id_warehouse']]++;
+            }
+        }
+        unset($product);
+
+        arsort($warehouse_count_by_address);
+
+        // Step 2 : Group product by warehouse
+        $grouped_by_warehouse = array();
+
+        for($product_list as &$product) {
+            if (!isset($grouped_by_warehouse[$product['id_address_delivery']])) {
+                $grouped_by_warehouse[$product['id_address_delivery']] = array(
+                        'in_stock' = > array(),
+                        'out_of_stock' =>array(),
+                );
+            }
+
+            $product['carrier_list'] = array();
+            $id_warehouse = 0;
+            foreach($warehouse_count_by_address[$product['id_address_delivery']]as $id_war = > $val){
+                if (array_key_exists((int) $id_war, $product['warehouse_list'])) {
+                    $product['carrier_list'] = JeproLabTools.array_replace
+                    ($product['carrier_list'], Carrier::getAvailableCarrierList
+                    (new Product($product['id_product']), $id_war, $product['id_address_delivery'], null, $this));
+                    if (!$id_warehouse) {
+                        $id_warehouse = (int) $id_war;
+                    }
+                }
+            }
+
+            if (!isset($grouped_by_warehouse[$product['id_address_delivery']]['in_stock'][$id_warehouse])) {
+                $grouped_by_warehouse[$product['id_address_delivery']]['in_stock'][$id_warehouse] = array();
+                $grouped_by_warehouse[$product['id_address_delivery']]['out_of_stock'][$id_warehouse] = array();
+            }
+
+            if (!$this -> allow_seperated_package) {
+                $key = 'in_stock';
+            } else {
+                $key = $product['in_stock'] ? 'in_stock' : 'out_of_stock';
+                $product_quantity_in_stock = StockAvailable::getQuantityAvailableByProduct
+                ($product['id_product'], $product['id_product_attribute']);
+                if ($product['in_stock'] && $product['cart_quantity'] > $product_quantity_in_stock) {
+                    $out_stock_part = $product['cart_quantity'] - $product_quantity_in_stock;
+                    $product_bis = $product;
+                    $product_bis['cart_quantity'] = $out_stock_part;
+                    $product_bis['in_stock'] = 0;
+                    $product['cart_quantity'] -= $out_stock_part;
+                    $grouped_by_warehouse[$product['id_address_delivery']]['out_of_stock'][$id_warehouse][]=
+                    $product_bis;
+                }
+            }
+
+            if (empty($product['carrier_list'])) {
+                $product['carrier_list'] = array(0 = > 0);
+            }
+
+            $grouped_by_warehouse[$product['id_address_delivery']][$key][$id_warehouse][]=$product;
+        }
+        unset($product);
+
+        // Step 3 : grouped product from grouped_by_warehouse by available carriers
+        $grouped_by_carriers = array();
+        for($grouped_by_warehouse as $id_address_delivery => $products_in_stock_list){
+            if (!isset($grouped_by_carriers[$id_address_delivery])) {
+                $grouped_by_carriers[$id_address_delivery] = array(
+                        'in_stock' = > array(),
+                        'out_of_stock' =>array(),
+                );
+            }
+            foreach($products_in_stock_list as $key = > $warehouse_list){
+                if (!isset($grouped_by_carriers[$id_address_delivery][$key])) {
+                    $grouped_by_carriers[$id_address_delivery][$key] = array();
+                }
+                foreach($warehouse_list as $id_warehouse = > $product_list){
+                    if (!isset($grouped_by_carriers[$id_address_delivery][$key][$id_warehouse])) {
+                        $grouped_by_carriers[$id_address_delivery][$key][$id_warehouse] = array();
+                    }
+                    foreach($product_list as $product) {
+                        $package_carriers_key = implode(',', $product['carrier_list']);
+
+                        if (!isset($grouped_by_carriers[$id_address_delivery][$key][$id_warehouse][$package_carriers_key])) {
+                            $grouped_by_carriers[$id_address_delivery][$key][$id_warehouse][$package_carriers_key] = array(
+                                    'product_list' = > array(),
+                                    'carrier_list' =>$product['carrier_list'],
+                                    'warehouse_list' =>$product['warehouse_list']
+                            );
+                        }
+
+                        $grouped_by_carriers[$id_address_delivery][$key][$id_warehouse][$package_carriers_key]['product_list'][]=
+                        $product;
+                    }
+                }
+            }
+        }
+
+        $package_list = array();
+        // Step 4 : merge product from grouped_by_carriers into $package to minimize the number of package
+        for($grouped_by_carriers as $id_address_delivery => $products_in_stock_list){
+            if (!isset($package_list[$id_address_delivery])) {
+                $package_list[$id_address_delivery] = array(
+                        'in_stock' = > array(),
+                        'out_of_stock' =>array(),
+                );
+            }
+
+            for($products_in_stock_list as $key = > $warehouse_list){
+                if (!isset($package_list[$id_address_delivery][$key])) {
+                    $package_list[$id_address_delivery][$key] = array();
+                }
+                // Count occurance of each carriers to minimize the number of packages
+                $carrier_count = array();
+                foreach($warehouse_list as $id_warehouse = > $products_grouped_by_carriers){
+                    foreach($products_grouped_by_carriers as $data) {
+                        foreach($data['carrier_list']as $id_carrier) {
+                            if (!isset($carrier_count[$id_carrier])) {
+                                $carrier_count[$id_carrier] = 0;
+                            }
+                            $carrier_count[$id_carrier]++;
+                        }
+                    }
+                }
+                arsort($carrier_count);
+                for($warehouse_list as $id_warehouse = > $products_grouped_by_carriers){
+                    if (!isset($package_list[$id_address_delivery][$key][$id_warehouse])) {
+                        $package_list[$id_address_delivery][$key][$id_warehouse] = array();
+                    }
+                    foreach($products_grouped_by_carriers as $data) {
+                        foreach($carrier_count as $id_carrier = > $rate){
+                            if (array_key_exists($id_carrier, $data['carrier_list'])) {
+                                if (!isset($package_list[$id_address_delivery][$key][$id_warehouse][$id_carrier])) {
+                                    $package_list[$id_address_delivery][$key][$id_warehouse][$id_carrier] = array(
+                                            'carrier_list' = > $data['carrier_list'],
+                                            'warehouse_list' =>$data['warehouse_list'],
+                                            'product_list' =>array(),
+                                    );
+                                }
+                                $package_list[$id_address_delivery][$key][$id_warehouse][$id_carrier]['carrier_list'] =
+                                        array_intersect($package_list[$id_address_delivery][$key][$id_warehouse][$id_carrier]['carrier_list'], $data['carrier_list']);
+                                $package_list[$id_address_delivery][$key][$id_warehouse][$id_carrier]['product_list'] =
+                                        array_merge($package_list[$id_address_delivery][$key][$id_warehouse][$id_carrier]['product_list'], $data['product_list']);
+
+                                break;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        // Step 5 : Reduce depth of $package_list
+        $final_package_list = array();
+        for($package_list as $id_address_delivery => $products_in_stock_list){
+            if (!isset($final_package_list[$id_address_delivery])) {
+                $final_package_list[$id_address_delivery] = array();
+            }
+
+            for($products_in_stock_list as $key = > $warehouse_list){
+                foreach($warehouse_list as $id_warehouse = > $products_grouped_by_carriers){
+                    foreach($products_grouped_by_carriers as $data) {
+                        $final_package_list[$id_address_delivery][]=array(
+                                'product_list' = > $data['product_list'],
+                                'carrier_list' =>$data['carrier_list'],
+                                'warehouse_list' =>$data['warehouse_list'],
+                                'id_warehouse' =>$id_warehouse,
+                        );
+                    }
+                }
+            }
+        }
+        $cache[$cache_key] = $final_package_list;
+        return finalPackageList;
     }
 
 
@@ -2282,7 +2576,7 @@ public class JeproLabCartModel extends JeproLabModel{
             List errors = new ArrayList<>();
             String error;
             for(JeproLabCartRuleModel cartRule : context.cart.getCartRules()) {
-                error = cartRule.checkValidity(context, true);
+                error = cartRule.checkValidity(context, true) ? "error for " + cartRule.cart_rule_id : "";
                 if (!error.equals("")){
                     context.cart.removeCartRule(cartRule.cart_rule_id);
                     context.cart.update();
@@ -2782,10 +3076,10 @@ public class JeproLabCartModel extends JeproLabModel{
             }
 
             // Free gift
-            if ((int)this.gift_product && (filter == JeproLabCartRuleModel.FILTER_ACTION_ALL || filter == JeproLabCartRuleModel.FILTER_ACTION_ALL_NOCAP || filter == JeproLabCartRuleModel.FILTER_ACTION_GIFT)){
+            if (this.gift_analyze_id > 0 && (filter == JeproLabCartRuleModel.FILTER_ACTION_ALL || filter == JeproLabCartRuleModel.FILTER_ACTION_ALL_NOCAP || filter == JeproLabCartRuleModel.FILTER_ACTION_GIFT)){
                 int addressId = (is_null($package) ? 0 : $package['id_address']);
                 for (JeproLabAnalyzeModel analyze : packageAnalyzes) {
-                    if ($product['id_product'] == this.gift_product && ($product['id_product_attribute'] == this.gift_product_attribute || !(int)this.gift_product_attribute)) {
+                    if (analyze.analyze_id == this.gift_analyze_id && (analyze.analyze_attribute_id == this.gift_analyze_attribute_id || !(int)this.gift_product_attribute)) {
                         // The free gift coupon must be applied to one product only (needed for multi-shipping which manage multiple product lists)
                         if (!isset(JeproLabCartRuleModel.only_one_gift[this.id.'-'.this.gift_product])
                         || JeproLabCartRuleModel.only_one_gift[this.cart_rule_id + "_" + this.gift_product] == $id_address
@@ -2865,5 +3159,233 @@ public class JeproLabCartModel extends JeproLabModel{
             }
             return cartRules;
         }
+
+        public boolean checkValidity(JeproLabContext context){
+            return checkValidity(context, false, true, true);
+        }
+
+        public boolean checkValidity(JeproLabContext context, boolean alreadyInCart){
+            return checkValidity(context, alreadyInCart, true, true);
+        }
+
+        public boolean checkValidity(JeproLabContext context, boolean alreadyInCart, boolean displayError){
+            return checkValidity(context, alreadyInCart, displayError, true);
+        }
+
+        /**
+         * Check if this cart rule can be applied
+         *
+         * @param context
+         * @param alreadyInCart Check if the voucher is already on the cart
+         * @param displayError Display error
+         * @return bool
+         */
+        public boolean checkValidity(JeproLabContext context, boolean alreadyInCart = false, boolean displayError = true, boolean checkCarrier = true){
+            if (!JeproLabCartRuleModel.isFeaturePublished()) {
+                return false;
+            }
+
+            if (!this.published){
+                return (!displayError) ? false : JeproLabTools.displayBarMessage(400, 'This voucher is disabled');
+            }
+            
+            if (this.quantity < 0) {
+                return (!displayError) ? false : JeproLabTools.displayBarMessage(400, 'This voucher has already been used');
+            }
+            
+            if (strtotime(this.date_from) > time()) {
+                return (!displayError) ? false : JeproLabTools.displayBarMessage(400, This voucher is not valid yet');
+            }
+            if (strtotime(this.date_to) < time()) {
+                return (!displayError) ? false : JeproLabTools.displayBarMessage(400, 'This voucher has expired');
+            }
+            String query;
+            if(context.cart.customer_id > 0) {
+                if(staticDataBaseObject == null){
+                    staticDataBaseObject = JeproLabFactory.getDataBaseConnector();
+                }
+                //$quantityUsed = Db::getInstance()->getValue('
+                query = "SELECT count(*) AS quantity FROM " + staticDataBaseObject.quoteName("#__jeprolab_request") + " AS request LEFT JOIN ";
+                query += staticDataBaseObject.quoteName("#__jeprolab_request_cart_rule") + " AS request_cart_rule ON (request_cart_rule.";
+                query += staticDataBaseObject.quoteName("request_id") + " = request." + staticDataBaseObject.quoteName("request_id");
+                query += ") WHERE request." + staticDataBaseObject.quoteName("customer_id") + " = " + context.cart.customer_id ;
+                query += " AND request_cart_rule." + staticDataBaseObject.quoteName("cart_rule_id") + " = " + this.cart_rule_id + " AND ";
+                query += JeproLabSettingModel.getStringValue("request_status_error") + " != request.";
+                query += staticDataBaseObject.quoteName("current_status");
+                
+                staticDataBaseObject.setQuery(query);
+                int quantityUsed = (int)staticDataBaseObject.loadValue("quantity");
+                if (quantityUsed + 1 > this.quantity_per_customer) {
+                    return (!displayError) ? false : JeproLabTools.displayBarMessage(400, 'You cannot use this voucher anymore (usage limit reached)');
+                }
+            }
+
+            // Get an intersection of the customer groups and the cart rule groups (if the customer is not logged in, the default group is Visitors)
+            if (this.group_restriction) {
+                //$id_cart_rule = (int)Db::getInstance()->getValue('
+                query = "SELECT cart_rule_group." + staticDataBaseObject.quoteName("cart_rule_id") + " FROM " ;
+                query += staticDataBaseObject.quoteName("#__jeprolab_cart_rule_group") + " AS cart_rule_group  WHERE cart_rule_group.";
+                query += staticDataBaseObject.quoteName("cart_rule_id") + " = " + this.cart_rule_id + " AND cart_rule_group.";
+                query += staticDataBaseObject.quoteName("group_id") + (context.cart.customer_id > 0 ? " IN (SELECT customer_group." +
+                        staticDataBaseObject.quoteName("group_id") + " FROM " + staticDataBaseObject.quoteName("#__jeprolab_customer_group") +
+                        " AS customer_group WHERE customer_group." + staticDataBaseObject.quoteName("customer_id") + " = " + context.cart.customer_id +
+                        ")" : " = " + JeproLabSettingModel.getIntValue("unidentified_group"));
+
+                staticDataBaseObject.setQuery(query);
+                int cartRuleId = (int)staticDataBaseObject.loadValue("cart_rule_id");
+                if (cartRuleId <= 0) {
+                    return (!displayError) ? false : JeproLabTools.displayBarMessage(400,'You cannot use this voucher');
+                }
+            }
+
+            // Check if the customer delivery address is usable with the cart rule
+            if (this.country_restriction) {
+                if (context.cart.delivery_address_id <= 0) {
+                    return (!displayError) ? false : JeproLabTools.displayBarMessage(400, 'You must choose a delivery address before applying this voucher to your order');
+                }
+                //$id_cart_rule = (int)Db::getInstance()->getValue('
+                query = "SELECT cart_rule_country." + staticDataBaseObject.quoteName("cart_rule_id") + " FROM "  + staticDataBaseObject.quoteName("#__jeprolab_cart_rule_country");
+                query += " AS cart_rule_country WHERE cart_rule_country." + staticDataBaseObject.quoteName("cart_rule _id") + " = " + this.cart_rule_id + " AND cart_rule_country.";
+                query += staticDataBaseObject.quoteName("country_id") + " = (SELECT address." + staticDataBaseObject.quoteName("country_id") + " FROM " ;
+                query += staticDataBaseObject.quoteName("#__jeprolab_address") + " AS address WHERE aaddress." + staticDataBaseObject.quoteName("address_id");
+                query += " = " + context.cart.delivery_address_id + " LIMIT 1)" ;
+                
+                staticDataBaseObject.setQuery(query);
+                int cartRuleId = (int)staticDataBaseObject.loadValue("cart_rule_id");
+                if (cartRuleId <= 0) {
+                    return (!displayError) ? false : JeproLabTools.displayBarMessage(400,'You cannot use this voucher in your country of delivery');
+                }
+            }
+
+            // Check if the carrier chosen by the customer is usable with the cart rule
+            if (this.carrier_restriction && checkCarrier) {
+                if (context.cart.carrier_id <= 0) {
+                    return (!displayError) ? false : JeproLabTools.displayBarMessage(400,'You must choose a carrier before applying this voucher to your order');
+                }
+                //$id_cart_rule = (int)Db::getInstance()->getValue('
+                query = "SELECT cart_rule_carrier." + staticDataBaseObject.quoteName("cart_rule_id") + " FROM " ._DB_PREFIX_.'cart_rule_carrier crc
+                INNER JOIN '._DB_PREFIX_.'carrier c ON (c.id_reference = crc.id_carrier AND c.deleted = 0)
+                WHERE crc.id_cart_rule = '.(int)this.id.'
+                AND c.id_carrier = '.(int)$context->cart->id_carrier);
+                if (!$id_cart_rule) {
+                    return (!displayError) ? false : JeproLabTools.displayBarMessage(400,'You cannot use this voucher with this carrier');
+                }
+            }
+
+            // Check if the cart rules appliy to the shop browsed by the customer
+            if (this.lab_restriction && context.laboratory.laboratory_id > 0 && JeproLabLaboratoryModel.isFeaturePublished()) {
+                //$id_cart_rule = (int)Db::getInstance()->getValue('
+                query = "SELECT cart_rule_lab." + staticDataBaseObject.quoteName("cart_rule_id") + " FROM " + staticDataBaseObject.quoteName("#__jeprolab_cart_rule_lab");
+                query += " AS cart_rule_lab WHERE cart_rule_lab." + staticDataBaseObject.quoteName("cart_rule_id") + " = " + this.cart_rule_id + " AND cart_rule_lab.";
+                query += staticDataBaseObject.quoteName("lab_id") + " = " + context.laboratory.laboratory_id;
+
+                staticDataBaseObject.setQuery(query);
+                int cartRuleId = (int) staticDataBaseObject.loadValue("cart_rule_id");
+                if (cartRuleId < 0) {
+                    return (!displayError) ? false : JeproLabTools.displayError('You cannot use this voucher');
+                }
+            }
+
+            // Check if the products chosen by the customer are usable with the cart rule
+            if (this.analyze_restriction) {
+                boolean restrictions = this.checkAnalyzeRestrictions(context, false, displayError, alreadyInCart);
+                if (restrictions !== false && displayError) {
+                    return restrictions;
+                } else if (!restrictions && !displayError) {
+                    return false;
+                }
+            }
+
+            // Check if the cart rule is only usable by a specific customer, and if the current customer is the right one
+            if (this.customer_id > 0 && context.cart.customer_id != this.customer_id) {
+                if (!JeproLabContext.getContext().customer.isLogged()) {
+                    return (!displayError) ? false : (JeproLabTools.displayBarMessage(400,'You cannot use this voucher').' - '.JeproLabTools.displayError('Please log in first'));
+                }
+                return (!displayError) ? false : JeproLabTools.displayBarMessage(400,'You cannot use this voucher');
+            }
+
+            if (this.minimum_amount > 0 && checkCarrier) {
+                // Minimum amount is converted to the contextual currency
+                float minimumAmount = this.minimum_amount;
+                if (this.minimum_amount_currency_id != JeproLabContext.getContext().currency.currency_id) {
+                    minimumAmount = JeproLabTools.convertPriceFull(minimumAmount, new JeproLabCurrencyModel(this.minimum_amount_currency_id), JeproLabContext.getContext().currency);
+                }
+
+                float cartTotal = context.cart.getRequestTotal(this.minimum_amount_tax, JeproLabCartModel.ONLY_ANALYZES);
+                if (this.minimum_amount_shipping > 0) {
+                    cartTotal += context.cart.getRequestTotal(this.minimum_amount_tax, JeproLabCartModel.ONLY_SHIPPING);
+                }
+                List<JeproLabAnalyzeModel> analyzes = context.cart.getAnalyzes();
+                List<JeproLabCartRuleModel> cartRules = context.cart.getCartRules();
+
+                foreach ($cart_rules as &$cart_rule) {
+                    if ($cart_rule['gift_product']) {
+                        foreach ($products as $key => &$product) {
+                            if (empty($product['gift']) && $product['id_product'] == $cart_rule['gift_product'] && $product['id_product_attribute'] == $cart_rule['gift_product_attribute']) {
+                                cartTotal = JeproLabTools.ps_round(cartTotal - $product[this.minimum_amount_tax ? 'price_wt' : 'price'], (int)$context->currency->decimals * _PS_PRICE_COMPUTE_PRECISION_);
+                            }
+                        }
+                    }
+                }
+
+                if (cartTotal < minimumAmount) {
+                    return (!displayError) ? false : JeproLabTools.displayError('You have not reached the minimum amount required to use this voucher');
+                }
+            }
+
+            /***
+                This loop checks:
+                - if the voucher is already in the cart
+                - if a non compatible voucher is in the cart
+                - if there are products in the cart (gifts excluded)
+                Important note: this MUST be the last check, because if the tested cart rule has priority over a non combinable one in the cart, we will switch them
+            */
+            int numberOfAnalyzes = JeproLabCartModel.getNumberOfAnalyzes(context.cart.cart_id);
+            List<JeproLabCartRuleModel> otherCartRules = new ArrayList<>();
+            if (checkCarrier) {
+                otherCartRules = context.cart.getCartRules();
+            }
+            if (otherCartRules.size() > 0) {
+                JeproLabCartRuleModel cartRule;
+                for(JeproLabCartRuleModel otherCartRule : otherCartRules) {
+                    if (otherCartRule.cart_rule_id == this.cart_rule_id && !alreadyInCart) {
+                        return (!displayError) ? false : JeproLabTools.displayError('This voucher is already in your cart');
+                    }
+                    if (otherCartRule.gift_analyze_id > 0) {
+                        --numberOfAnalyzes;
+                    }
+
+                    if (this.cart_rule_restriction && otherCartRule.cart_rule_restriction && otherCartRule.cart_rule_id != this.cart_rule_id) {
+                        query = "SELECT " + staticDataBaseObject.quoteName("cart_rule_id_1") + " FROM " + staticDataBaseObject.quoteName("#__jeprolab_cart_rule_combination");
+                        query += " WHERE (" + staticDataBaseObject.quoteName("cart_rule_id_1") + " = " + this.cart_rule_id + " AND " + staticDataBaseObject.quoteName("cart_rule_id_2");
+                        query += " = " + otherCartRule.cart_rule_id + ") OR (" + staticDataBaseObject.quoteName("cart_rule_id_2") + " = " + this.cart_rule_id + " AND ";
+                        query += staticDataBaseObject.quoteName("cart_rule_id_1") + " = " + otherCartRule.cart_rule_id + ")";
+
+                        staticDataBaseObject.setQuery(query);
+                        int combine = (int)staticDataBaseObject.loadValue("cart_rule_id_1");
+                        if (combine <= 0) {
+                            cartRule = new JeproLabCartRuleModel(otherCartRule.cart_rule_id, context.cart.language_id);
+                            // The cart rules are not combinable and the cart rule currently in the cart has priority over the one tested
+                            if (cartRule.priority <= this.priority) {
+                                return (!displayError) ? false : JeproLabTools.displayError('This voucher is not combinable with an other voucher already in your cart:') + " " + cartRule.name.get("lang_" + cartRule.language_id);
+                            }
+                            // But if the cart rule that is tested has priority over the one in the cart, we remove the one in the cart and keep this new one
+                            else {
+                                context.cart.removeCartRule(cartRule.cart_rule_id);
+                            }
+                        }
+                    }
+                }
+            }
+
+            if (numberOfAnalyzes <= 0) {
+                return (!displayError) ? false : JeproLabTools.displayBarMessage(400, 'Cart is empty');
+            }
+
+            if (!displayError) {
+                return true;
+            }
+        }
+
     }
 }
