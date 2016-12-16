@@ -52,6 +52,8 @@ public class JeproLabCountryModel extends JeproLabModel{
 
     public boolean multi_lang_lab = true;
 
+    public List<JeproLabStateModel> states;
+
     public String zip_code_format;
 
     private static Pagination pagination = null;

@@ -1,11 +1,14 @@
 package com.jeprolab.models;
 
 
+import com.jeprolab.JeproLab;
+import com.jeprolab.assets.config.JeproLabConfigurationSettings;
 import com.jeprolab.assets.tools.JeproLabCache;
 import com.jeprolab.assets.tools.JeproLabContext;
 import com.jeprolab.assets.tools.db.JeproLabDataBaseConnector;
 import com.jeprolab.models.core.JeproLabFactory;
 
+import java.io.File;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -386,7 +389,7 @@ public class JeproLabCarrierModel extends JeproLabModel{
         query += " = delivery." + staticDataBaseObject.quoteName(staticDataBaseObject.quote(rangeTable) + "_id") + " WHERE delivery.";
         query += staticDataBaseObject.quoteName("carrier_id") + " = " + carrierId + " AND delivery." + staticDataBaseObject.quoteName(staticDataBaseObject.quote(rangeTable) + "_id");.
         query += ") IS NOT NULL AND delivery." + staticDataBaseObject.quoteName(staticDataBaseObject.quote(rangeTable) + "_id");
-        query += " != 0 " + JeproLabCarrierModel.sqlDeliveryRangeShop(rangeTable) + " ORDER BY range_table.delimiter1";
+        query += " != 0 " + JeproLabCarrierModel.sqlDeliveryRangeLaboratory(rangeTable) + " ORDER BY range_table.delimiter1";
 
         staticDataBaseObject.setQuery(query);
         ResultSet resultSet = staticDataBaseObject.loadObjectList();
@@ -429,61 +432,65 @@ public class JeproLabCarrierModel extends JeproLabModel{
      * @param bool $active Returns only active carriers when true
      * @return array Carriers
      */
-    public static function getCarriers(int langId, $active = false, $delete = false, zoneId = false, $ids_group = null, $modules_filters = JeproLabCarrierModel.PS_CARRIERS_ONLY){
+    public static List<JeproLabCarrierModel> getCarriers(int langId, boolean active = false, boolean delete = false, int zoneId = false, $ids_group = null, int modulesFilters = JeproLabCarrierModel.CARRIERS_ONLY){
         // Filter by groups and no groups => return empty array
         if ($ids_group && (!is_array($ids_group) || !count($ids_group))) {
             return array();
         }
 
-        $sql = '
-        SELECT c.*, cl.delay
-        FROM  " + staticDataBaseObject.quoteName("#__jeprolab_carrier") c
-        LEFT JOIN  " + staticDataBaseObject.quoteName("#__jeprolab_carrier_lang") cl ON (c." + staticDataBaseObject.quoteName("carier_id") = cl." + staticDataBaseObject.quoteName("carier_id") AND cl." + staticDataBaseObject.quoteName("id_lang") = '.(int)langId.JeproLabLaboratoryModel.addSqlRestrictionOnLang('cl').')
-        LEFT JOIN  " + staticDataBaseObject.quoteName("#__jeprolab_carrier_zone") cz ON (cz." + staticDataBaseObject.quoteName("carier_id") = c." + staticDataBaseObject.quoteName("carier_id"))'.
-        (zoneId ? 'LEFT JOIN  " + staticDataBaseObject.quoteName("#__jeprolab_zone") z ON (z." + staticDataBaseObject.quoteName("zone_id") = '.(int)zoneId.')' : '').'
-        '.JeproLabLaboratoryModel.addSqlAssociation('carrier', 'c').'
-        WHERE c." + staticDataBaseObject.quoteName("deleted") = '.($delete ? '1' : '0');
-        if ($active) {
-            query += ' AND c." + staticDataBaseObject.quoteName("active") = 1 ';
+        if(staticDataBaseObject == null){ staticDataBaseObject = JeproLabFactory.getDataBaseConnector(); }
+
+        String query = "SELECT carrier.*, carrier_lang.delay FROM  " + staticDataBaseObject.quoteName("#__jeprolab_carrier") + " AS carrier LEFT JOIN ";
+        query += staticDataBaseObject.quoteName("#__jeprolab_carrier_lang") + " AS carrier_lang ON (carrier." + staticDataBaseObject.quoteName("carrier_id");
+        query += "= carrier_lang." + staticDataBaseObject.quoteName("carrier_id") + " AND carrier_lang." + staticDataBaseObject.quoteName("lang_id") + " = ";
+        query += langId + JeproLabLaboratoryModel.addSqlRestrictionOnLang("carrier_lang") + ") LEFT JOIN " + staticDataBaseObject.quoteName("#__jeprolab_carrier_zone");
+        query += " AS carrier_zone ON (carrier_zone." + staticDataBaseObject.quoteName("carrier_id") + " = carrier." + staticDataBaseObject.quoteName("carrier_id") + ")";
+        query += (zoneId > 0 ? "LEFT JOIN  " + staticDataBaseObject.quoteName("#__jeprolab_zone") + " AS zone ON (zone." + staticDataBaseObject.quoteName("zone_id") + " = " + zoneId + ")" : "");
+        query += JeproLabLaboratoryModel.addSqlAssociation("carrier") + " WHERE carrier." + staticDataBaseObject.quoteName("deleted") + " = " + (delete ? 1 : 0);
+
+        if (active) {
+            query += " AND carrier." + staticDataBaseObject.quoteName("published") + " = 1 ";
         }
-        if (zoneId) {
-            query += ' AND cz." + staticDataBaseObject.quoteName("zone_id") = '.(int)zoneId.' AND z." + staticDataBaseObject.quoteName("active") = 1 ';
+        if (zoneId > 0) {
+            query += " AND carrier_zone." + staticDataBaseObject.quoteName("zone_id") + " = " + zoneId + " AND zone." + staticDataBaseObject.quoteName("published") + " = 1 ";
         }
         if ($ids_group) {
-            query += ' AND EXISTS (SELECT 1 FROM '." + staticDataBaseObject.quoteName("#__jeprolab_.'carrier_group
+            query += " AND EXISTS (SELECT 1 FROM " + staticDataBaseObject.quoteName("#__jeprolab_carrier_group")
             WHERE '." + staticDataBaseObject.quoteName("#__jeprolab_.'carrier_group.carier_id = c.carier_id
             AND id_group IN ('.implode(',', array_map('intval', $ids_group)).')) ';
         }
 
-        switch ($modules_filters) {
+        switch (modulesFilters) {
             case 1 :
-                query += ' AND c.is_module = 0 ';
+                query += " AND carrier." + staticDataBaseObject.quoteName("is_module") + " = 0 ";
                 break;
             case 2 :
-                query += ' AND c.is_module = 1 ';
+                query += " AND carrier." + staticDataBaseObject.quoteName("is_module") + " = 1 ";
                 break;
             case 3 :
-                query += ' AND c.is_module = 1 AND c.need_range = 1 ';
+                query += " AND carrier." + staticDataBaseObject.quoteName("is_module") + " = 1 AND carrier.";
+                query += staticDataBaseObject.quoteName("need_range") + " = 1 ";
                 break;
             case 4 :
-                query += ' AND (c.is_module = 0 OR c.need_range = 1) ';
+                query += " AND(carrier." + staticDataBaseObject.quoteName("is_module") + "= 0 OR carrier.";
+                query += staticDataBaseObject.quoteName("need_range") + " = 1) + "= 0 OR c.need_range = 1) ';
                 break;
         }
-        query += ' GROUP BY c." + staticDataBaseObject.quoteName("carier_id") ORDER BY c." + staticDataBaseObject.quoteName("position") ASC';
+        query += " GROUP BY carrier." + staticDataBaseObject.quoteName("carrier_id") + " ORDER BY carrier." + staticDataBaseObject.quoteName("position") + " ASC";
 
         String cacheKey = 'JeproLabCarrierModel.getCarriers_'.md5($sql);
         if (!JeproLabCache.getInstance().isStored(cacheKey)) {
-        $carriers = Db::getInstance()->executeS($sql);
-        JeproLabCache.getInstance().store(cacheKey, $carriers);
-    } else {
-        $carriers = JeproLabCache.getInstance().retrieve(cacheKey);
-    }
-
-        foreach ($carriers as $key => $carrier) {
-        if ($carrier['name'] == '0') {
-            $carriers[$key]['name'] = JeproLabCarrierModel.getCarrierNameFromShopName();
+            $carriers = Db::getInstance () -> executeS($sql);
+            JeproLabCache.getInstance().store(cacheKey, $carriers);
+        } else {
+            $carriers = JeproLabCache.getInstance().retrieve(cacheKey);
         }
-    }
+
+        foreach ($carriers as $key => $carrier){
+            if ($carrier['name'] == '0') {
+                $carriers[$key]['name'] = JeproLabCarrierModel.getCarrierNameFromLaboratoryName();
+            }
+        }
         return $carriers;
     }
 
@@ -773,11 +780,11 @@ public class JeproLabCarrierModel extends JeproLabModel{
      * @return array Zone
      */
     public JeproLabCountryModel.JeproLabZoneModel getZone(int zoneId){
-        return Db::getInstance()->executeS('
-            SELECT *
-                    FROM  " + staticDataBaseObject.quoteName("#__jeprolab_carrier_zone")
-        WHERE ")carier_id") = '.(int)this.carrier_id.'
-        AND ")zone_id") = '.(int)zoneId);
+        if(staticDataBaseObject == null){ staticDataBaseObject = JeproLabFactory.getDataBaseConnector(); }
+        //return Db::getInstance()->executeS('
+        String query = "SELECT * FROM  " + staticDataBaseObject.quoteName("#__jeprolab_carrier_zone") + " WHERE ";
+        query += staticDataBaseObject.quoteName("carrier_id") + " = " + this.carrier_id + " AND " ;
+        query += staticDataBaseObject.quoteName("zone_id") + " = " + zoneId;
     }
 
     /**
@@ -787,11 +794,13 @@ public class JeproLabCarrierModel extends JeproLabModel{
      * @return int $position
      */
     public static int getHigherPosition(){
-        $sql = 'SELECT MAX(")position"))
-        FROM  " + staticDataBaseObject.quoteName("#__jeprolab_carrier")
-        WHERE ")deleted") = 0';
-        $position = DB::getInstance()->getValue($sql);
-        return (is_numeric($position)) ? $position : -1;
+        if(staticDataBaseObject == null){ staticDataBaseObject = JeproLabFactory.getDataBaseConnector(); }
+        String query = "SELECT MAX(" + staticDataBaseObject.quoteName("position") + " AS pos FROM  " + staticDataBaseObject.quoteName("#__jeprolab_carrier");
+        query += " WHERE " + staticDataBaseObject.quoteName("deleted") + " = 0 ";
+
+        staticDataBaseObject.setQuery(query);
+        int position = (int)staticDataBaseObject.loadValue("pos");
+        return (position > 0) ? position : -1;
     }
 
     public static List<JeproLabCarrierModel> getAvailableCarrierList(JeproLabAnalyzeModel analyze, int warehouseId, int deliveryAddressId){
@@ -822,14 +831,14 @@ public class JeproLabCarrierModel extends JeproLabModel{
         static $ps_country_default = null;
 
         if ($ps_country_default === null) {
-            $ps_country_default = Configuration::get('PS_COUNTRY_DEFAULT');
+            JeproLabCarrierModel.defaul_country_id = Configuration::get('PS_COUNTRY_DEFAULT');
         }
 
         if (is_null(labId)) {
             labId = JeproLabContext.getContext().laboratory.laboratory_id;
         }
-        if (is_null($cart)) {
-            $cart = JeproLabContext.getContext().cart;
+        if (cart == null) {
+            cart = JeproLabContext.getContext().cart;
         }
 
         if (is_null($error) || !is_array($error)) {
@@ -999,8 +1008,8 @@ public class JeproLabCarrierModel extends JeproLabModel{
         setGroups(groups, true);
     }
     
-    public function setGroups($groups, boolean delete = true){
-        if ($delete) {
+    public function setGroups($groups, boolean delete){
+        if (delete) {
             Db::getInstance()->execute('DELETE FROM '." + staticDataBaseObject.quoteName("#__jeprolab_.'carrier_group WHERE carier_id = '.(int)this.carrier_id);
         }
         if (!is_array($groups) || !count($groups)) {
@@ -1042,27 +1051,29 @@ public class JeproLabCarrierModel extends JeproLabModel{
         staticDataBaseObject.setQuery(query);
         if (staticDataBaseObject.query(true)) {
             // Get all ranges for this carrier
-            $ranges_price = RangePrice::getRanges (this.carrier_id);
-            $ranges_weight = RangeWeight::getRanges (this.carrier_id);
+            List rangesPrice = JeproLabRangePrice.getRanges(this.carrier_id);
+            List rangesWeight = JeproLabRangeWeight.getRanges(this.carrier_id);
             // Create row in ps_delivery table
-            if (count($ranges_price) || count($ranges_weight)) {
-                $sql = 'INSERT INTO  " + staticDataBaseObject.quoteName("#__jeprolab_delivery") (")carier_id"), ")id_range_price"), ")id_range_weight"), ")zone_id"), ")price")) VALUES ';
-                if (count($ranges_price)) {
+            if (rangesPrice.size() > 0 || rangesWeight.size() > 0) {
+                query = "INSERT INTO " + staticDataBaseObject.quoteName("#__jeprolab_delivery") + "(" + staticDataBaseObject.quoteName("carrier_id");
+                query += ", " + staticDataBaseObject.quoteName("range_price_id") + ", " + staticDataBaseObject.quoteName("range_weight_id") + ", ";
+                query += staticDataBaseObject.quoteName("zone_id") + ", " + staticDataBaseObject.quoteName("price") + ") VALUES ";
+                if (rangesPrice.size() > 0) {
                     foreach($ranges_price as $range) {
                         $sql. = '('. (int) this.carrier_id. ', '. (int) $range['id_range_price']. ', 0, '. (int) zoneId.
                         ', 0),';
                     }
                 }
 
-                if (count($ranges_weight)) {
+                if (rangesWeight.size() > 0){
                     foreach($ranges_weight as $range) {
                         $sql. = '('. (int) this.carrier_id. ', 0, '. (int) $range['id_range_weight']. ', '.
                         (int) zoneId. ', 0),';
                     }
                 }
                 $sql = rtrim($sql, ',' );
-
-                return Db::getInstance () -> execute($sql);
+                staticDataBaseObject.setQuery(query);
+                return staticDataBaseObject.query(false);
             }
             return true;
         }
@@ -1125,19 +1136,27 @@ public class JeproLabCarrierModel extends JeproLabModel{
      * @param rangeTable Table name to clean (weight or price according to shipping method)
      * @return bool Deletion result
      */
-    public function deleteDeliveryPrice(String rangeTable) {
-        $where = '")carier_id") = '. (int) this.carrier_id. ' AND (")id_'.bqSQL($range_table).
-        '") IS NOT NULL OR ")id_'.bqSQL($range_table). '") = 0) ';
+    public boolean deleteDeliveryPrice(String rangeTable) {
+        if(staticDataBaseObject == null){
+            staticDataBaseObject = JeproLabFactory.getDataBaseConnector();
+        }
+        String where = " WHERE " + staticDataBaseObject.quoteName("carrier_id") + " = " + this.carrier_id + " AND " ;
+        where += staticDataBaseObject.quoteName(staticDataBaseObject.quote(rangeTable + "_id")) + ") IS NOT NULL OR ";
+        where += staticDataBaseObject.quoteName(staticDataBaseObject.quote(rangeTable) + "_id") + " = 0) ";
 
-        if (JeproLabLaboratoryModel.getContext () == JeproLabLaboratoryModel.CONTEXT_ALL){
-            $where. = 'AND id_shop IS NULL AND id_shop_group IS NULL';
-        } elseif(JeproLabLaboratoryModel.getContext () == JeproLabLaboratoryModel.CONTEXT_GROUP){
-            $where. = 'AND id_shop IS NULL AND id_shop_group = '. (int) JeproLabLaboratoryModel.getContextShopGroupID ();
+        if(JeproLabLaboratoryModel.getLabContext() == JeproLabLaboratoryModel.ALL_CONTEXT){
+            where += " AND " + staticDataBaseObject.quoteName("lab_id") + " IS NULL AND " + staticDataBaseObject.quoteName("lab_group_id") + " IS NULL";
+        }else if(JeproLabLaboratoryModel.getLabContext () == JeproLabLaboratoryModel.GROUP_CONTEXT){
+            where += " AND " + staticDataBaseObject.quoteName("lab_id") + " IS NULL AND " + staticDataBaseObject.quoteName("lab_group_id");
+            where += " = " + JeproLabLaboratoryModel.getContextLabGroupId();
         }else{
-            $where. = 'AND id_shop = '. (int) JeproLabLaboratoryModel.getContextShopID ();
+            where += " AND " + staticDataBaseObject.quoteName("lab_id") + " = " + JeproLabLaboratoryModel.getContextLabId();
         }
 
-        return Db::getInstance () -> delete('delivery', $where);
+        String query = "DELETE  " + staticDataBaseObject.quoteName("#__jeprolab_delivery") + where;
+
+        staticDataBaseObject.setQuery(query);
+        return staticDataBaseObject.query(false);
     }
 
     /**
@@ -1146,10 +1165,11 @@ public class JeproLabCarrierModel extends JeproLabModel{
      * @param array $priceList Prices list in multiple arrays (changed to array since 1.5.0)
      * @return bool Insertion result
      */
-    public function addDeliveryPrice($price_list, $delete = false) {
+    public boolean addDeliveryPrice($price_list, $delete = false) {
         if (!$price_list) {
             return false;
         }
+        String query = "INSERT INTO " + staticDataBaseObject.quoteName("#__jeprolab_delivery");
 
         $keys = array_keys($price_list[0]);
         if (!in_array('id_shop', $keys)) {
@@ -1159,7 +1179,7 @@ public class JeproLabCarrierModel extends JeproLabModel{
             $keys[]='id_shop_group';
         }
 
-        $sql = 'INSERT INTO  " + staticDataBaseObject.quoteName("#__jeprolab_delivery") ('.implode(', ', $keys).
+        query =  ('.implode(', ', $keys).
         ') VALUES ';
         foreach($price_list as $values) {
             if (!isset($values['id_shop'])) {
@@ -1208,22 +1228,20 @@ public class JeproLabCarrierModel extends JeproLabModel{
      *
      * @param oldId Old id carrier (copy from that id)
      */
-    public function copyCarrierData(int oldId){
-        if (!Validate::isUnsignedId(oldId)) {
-        throw new PrestaShopException('Incorrect identifier for carrier');
-        }
-
-        if (!this.carrier_id) {
-        return false;
+    public boolean copyCarrierData(int oldId){
+        if (this.carrier_id <= 0 || oldId <= 0) {
+            return false;
         }
         String query;
+        ResultSet resultSet;
+        int rangeId;
 
-        $old_logo = _PS_SHIP_IMG_DIR_.'/'.(int)oldId.'.jpg';
+        String oldLogoPath = JeproLabConfigurationSettings.JEPROLAB_SHIPPING_IMAGE_DIRECTORY + File.separator + oldId + ".jpg";
         if (file_exists($old_logo)) {
-        copy($old_logo, _PS_SHIP_IMG_DIR_.'/'.(int)this.carrier_id.'.jpg');
+        copy($old_logo, _PS_SHIP_IMG_DIR_.'/'.(int)this.carrier_id + ".jpg");
         }
 
-        $old_tmp_logo = _PS_TMP_IMG_DIR_.'/carrier_mini_'.(int)oldId.'.jpg';
+        $old_tmp_logo = _PS_TMP_IMG_DIR + "carrier_mini_" + " + oldId + ".jpg"";
         if (file_exists($old_tmp_logo)) {
         if (!isset($_FILES['logo'])) {
         copy($old_tmp_logo, _PS_TMP_IMG_DIR_.'/carrier_mini_'.this.carrier_id.'.jpg');
@@ -1232,43 +1250,76 @@ public class JeproLabCarrierModel extends JeproLabModel{
         }
 
         // Copy existing ranges price
-        foreach (array('range_price', 'range_weight') as $range) {
-        $res = Db::getInstance()->executeS('
-        SELECT ")id_'.$range.'") as id_range, ")delimiter1"), ")delimiter2")
-        FROM ")'." + staticDataBaseObject.quoteName("#__jeprolab_.$range.'")
-        WHERE ")carier_id") = '.(int)oldId);
-        if (count($res)) {
-        foreach ($res as $val) {
-        Db::getInstance()->execute('
-        INSERT INTO ")'." + staticDataBaseObject.quoteName("#__jeprolab_.$range.'") (")carier_id"), ")delimiter1"), ")delimiter2"))
-        VALUES ('.this.carrier_id.','.(float)$val['delimiter1'].','.(float)$val['delimiter2'].')');
-        $range_id = (int)Db::getInstance()->Insert_ID();
+        List<String> rangeTypes = new ArrayList<>();
+        rangeTypes.add("range_price");
+        rangeTypes.add("range_weight");
+        String rangePriceId, rangeWeightId;
 
-        $range_price_id = ($range == 'range_price') ? $range_id : 'NULL';
-        $range_weight_id = ($range == 'range_weight') ? $range_id : 'NULL';
+        for(String rangeType : rangeTypes){
+        //$res = Db::getInstance()->executeS('
+            query = "SELECT " + staticDataBaseObject.quoteName(rangeType + "_id") + " AS range_id, " + staticDataBaseObject.quoteName("delimiter_1");
+            query += ", " + staticDataBaseObject.quoteName("delimiter_2") + " FROM " + staticDataBaseObject.quoteName("#__jeprolab_" + rangeType);
+            query += " WHERE " + staticDataBaseObject.quoteName("carrier_id") + " = " + oldId;
 
-        Db::getInstance()->execute('
-        INSERT INTO  " + staticDataBaseObject.quoteName("#__jeprolab_delivery") (")carier_id"), ")id_shop"), ")id_shop_group"), ")id_range_price"), ")id_range_weight"), ")zone_id"), ")price")) (
-        SELECT '.(int)this.carrier_id.', ")id_shop"), ")id_shop_group"), '.(int)$range_price_id.', '.(int)$range_weight_id.', ")zone_id"), ")price")
-        FROM  " + staticDataBaseObject.quoteName("#__jeprolab_delivery")
-        WHERE ")carier_id") = '.(int)oldId.'
-        AND ")id_'.$range.'") = '.(int)$val['id_range'].'
-        )
-        ');
-        }
-        }
+            staticDataBaseObject.setQuery(query);
+            resultSet = staticDataBaseObject.loadObjectList();
+            if(resultSet != null){
+                try {
+                    while(resultSet.next()){
+                        query = "INSERT INTO " + staticDataBaseObject.quoteName("#__jeprolab_" + rangeType) + "(" + staticDataBaseObject.quoteName("carrier_id");
+                        query += ", " + staticDataBaseObject.quoteName("delimiter_1") + ", " + staticDataBaseObject.quoteName("delimiter_2") + ") VALUES (";
+                        query += this.carrier_id + ", " + resultSet.getFloat("delimiter_1") + ", " + resultSet.getFloat("delimiter_2") + ")";
+
+                        staticDataBaseObject.setQuery(query);
+                        staticDataBaseObject.query(true);
+                        rangeId = staticDataBaseObject.getGeneratedKey();
+
+                        rangePriceId = (rangeType.equals("range_price")) ? String.valueOf(rangeId) : "NULL";
+                        rangeWeightId = (rangeType.equals("range_weight")) ? String.valueOf(rangeId) : "NULL";
+
+                        query = "INSERT INTO " + staticDataBaseObject.quoteName("#__jeprolab_delivery") + "(" + staticDataBaseObject.quoteName("carrier_id");
+                        query += ", " + staticDataBaseObject.quoteName("lab_id") + ", " + staticDataBaseObject.quoteName("lab_group_id") + ", ";
+                        query += staticDataBaseObject.quoteName("range_price_id") + ", " + staticDataBaseObject.quoteName("range_weight_id") + ", ";
+                        query += staticDataBaseObject.quoteName("zone_id") + ", " + staticDataBaseObject.quoteName("price") + ") VALUES ( SELECT ";
+                        query += staticDataBaseObject.quoteName("carrier_id") + ", " + staticDataBaseObject.quoteName("lab_id") + ", ";
+                        query += staticDataBaseObject.quoteName("lab_group_id") + ", " + rangePriceId + ", " + rangeWeightId + ", ";
+                        query += staticDataBaseObject.quoteName("zone_id") + ", " + staticDataBaseObject.quoteName("price") + " FROM ";
+                        query += staticDataBaseObject.quoteName("#__jeprolab_delivery") + " WHERE " + staticDataBaseObject.quoteName("carrier_id");
+                        query += " = " + oldId + " AND " + staticDataBaseObject.quoteName(rangeType + "_id") + " = " + resultSet.getInt("range_id") + ") ";
+
+                        staticDataBaseObject.setQuery(query);
+                        staticDataBaseObject.query(false);
+                    }
+                }catch(SQLException ignored){
+                    ignored.printStackTrace();
+                }
+            }
         }
 
         // Copy existing zones
-        $res = Db::getInstance()->executeS('
-        SELECT *
-        FROM  " + staticDataBaseObject.quoteName("#__jeprolab_carrier_zone")
-        WHERE carier_id = '.(int)oldId);
-        foreach ($res as $val) {
-        Db::getInstance()->execute('
-        INSERT INTO  " + staticDataBaseObject.quoteName("#__jeprolab_carrier_zone") (")carier_id"), ")zone_id"))
-        VALUES ('.this.carrier_id.','.(int)$val['zone_id'].')
-        ');
+        query = "SELECT * FROM " + staticDataBaseObject.quoteName("#__jeprolab_carrier_zone") + " WHERE " ;
+        query += staticDataBaseObject.quoteName("carrier_id") + " = " + oldId;
+
+        staticDataBaseObject.setQuery(query);
+        resultSet = staticDataBaseObject.loadObjectList();
+        if(resultSet != null){
+            try{
+                while(resultSet.next()) {
+                    query = "INSERT INTO " + staticDataBaseObject.quoteName("#__jeprolab_carrier_zone") + "(" + staticDataBaseObject.quoteName("carrier_id");
+                    query += ", " + staticDataBaseObject.quoteName("zone_id") + ") VALUES (" + this.carrier_id + ", " + resultSet.getInt("'zone_id") + ")";
+
+                    staticDataBaseObject.setQuery(query);
+                    staticDataBaseObject.query(false);
+                }
+            }catch(SQLException ignored){
+                ignored.printStackTrace();
+            }finally {
+                try{
+                    JeproLabDataBaseConnector.getInstance().closeConnexion();
+                }catch(Exception ignored){
+                    ignored.printStackTrace();
+                }
+            }
         }
 
         //Copy default carrier
@@ -1283,10 +1334,12 @@ public class JeproLabCarrierModel extends JeproLabModel{
         staticDataBaseObject.setQuery(query);
         this.reference_id = (int)staticDataBaseObject.loadValue("reference_id");
 
-        Db::getInstance()->execute('
-        UPDATE ")'." + staticDataBaseObject.quoteName("#__jeprolab_.this->def['table'].'")
-        SET ")id_reference") = '.(int)$id_reference.'
-        WHERE ")carier_id") = '.(int)this.carrier_id);
+        //Db::getInstance()->execute('
+        query = "UPDATE " + staticDataBaseObject.quoteName("#__jeprolab_carrier") + " SET " + staticDataBaseObject.quoteName("reference_id");
+        query += " = " + this.reference_id + " WHERE " + staticDataBaseObject.quoteName("carrier_id") + " = " + this.carrier_id;
+
+        staticDataBaseObject.setQuery(query);
+        staticDataBaseObject.query(false);
 
 
         // Copy tax rules group
@@ -1297,7 +1350,7 @@ public class JeproLabCarrierModel extends JeproLabModel{
         query += " WHERE " + staticDataBaseObject.quoteName("carrier_id") + " = " + oldId + ")";
 
         staticDataBaseObject.setQuery(query);
-        staticDataBaseObject.query(false);
+        return staticDataBaseObject.query(false);
     }
 
     /**
