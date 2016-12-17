@@ -7,7 +7,9 @@ import com.jeprolab.models.core.JeproLabFactory;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -35,13 +37,13 @@ public class JeproLabLanguageModel extends JeproLabModel {
         this(0);
     }
 
-    public JeproLabLanguageModel(int lang_id){
+    public JeproLabLanguageModel(int langId){
         super();
-        if(lang_id > 0){
-            String cacheKey = "jeprolab_language_model_" + lang_id;
+        if(langId > 0){
+            String cacheKey = "jeprolab_language_model_" + langId;
             if(!JeproLabCache.getInstance().isStored(cacheKey)){
                 String query = "SELECT * FROM " + dataBaseObject.quoteName("#__languages") + " lang WHERE lang.lang_id = ";
-                query += lang_id ;
+                query += langId ;
 
                 dataBaseObject.setQuery(query);
                 ResultSet languageDataSet = dataBaseObject.loadObjectList();
@@ -184,6 +186,35 @@ public class JeproLabLanguageModel extends JeproLabModel {
             return LANGUAGES.get(langId).iso_code;
         }
         return "";
+    }
+
+    public static List<Integer> getLanguageIds(){
+        List<Integer> ids = new ArrayList<>();
+
+        if(staticDataBaseObject == null){
+            staticDataBaseObject = JeproLabFactory.getDataBaseConnector();
+        }
+        String query = " SELECT " + staticDataBaseObject.quoteName("lang_id") + " FROM " + staticDataBaseObject.quoteName("#__languages") ;
+
+        staticDataBaseObject.setQuery(query);
+        ResultSet languages = staticDataBaseObject.loadObjectList();
+        if(languages != null) {
+            try {
+                while (languages.next()) {
+                    ids.add(languages.getInt("lang_id"));
+                }
+            }catch (SQLException ignored) {
+                ignored.printStackTrace();
+            }finally {
+                try {
+                    JeproLabDataBaseConnector.getInstance().closeConnexion();
+                }catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+
+        return ids;
     }
 
 }
