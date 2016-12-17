@@ -760,7 +760,11 @@ public class JeproLabCountryModel extends JeproLabModel{
     }
 
     public static class JeproLabStateModel extends JeproLabModel{
+        public int state_id;
 
+        public int country_id;
+
+        public boolean published;
     }
 
 
