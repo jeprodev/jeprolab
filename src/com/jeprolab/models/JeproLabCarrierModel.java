@@ -1,16 +1,12 @@
 package com.jeprolab.models;
 
 
-import com.jeprolab.JeproLab;
-import com.jeprolab.assets.config.JeproLabConfigurationSettings;
 import com.jeprolab.assets.tools.JeproLabCache;
 import com.jeprolab.assets.tools.JeproLabContext;
 import com.jeprolab.assets.tools.JeproLabTools;
 import com.jeprolab.assets.tools.db.JeproLabDataBaseConnector;
 import com.jeprolab.models.core.JeproLabFactory;
-import com.sun.org.apache.xpath.internal.operations.Bool;
 
-import java.io.File;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -289,8 +285,31 @@ public class JeproLabCarrierModel extends JeproLabModel{
         if(staticDataBaseObject == null){ staticDataBaseObject = JeproLabFactory.getDataBaseConnector(); }
         this.clearCache("carrier", this.carrier_id);
         boolean result = true;
-        String query;
-        if (!parent::delete ()){
+
+        List<Integer> labIds = JeproLabLaboratoryModel.getContextListLaboratoryIds();
+        String query = "DELETE " + staticDataBaseObject.quoteName("#__jeprolab_carrier_lab") + " WHERE " + staticDataBaseObject.quoteName("carrier_id");
+        query += " = " + this.carrier_id + " AND " + staticDataBaseObject.quoteName("lab_id") + " = ";
+
+        for(int labId : labIds){
+            staticDataBaseObject.setQuery(query + labId);
+            result &= staticDataBaseObject.query(false);
+        }
+
+        query = "DELETE " + staticDataBaseObject.quoteName("#__jeprolab_carrier_lang") + " WHERE " + staticDataBaseObject.quoteName("carrier_id");
+        query += " = " + this.carrier_id + " AND " + staticDataBaseObject.quoteName("lang_id") + " = ";
+
+        for(int langId : JeproLabLanguageModel.getLanguageIds()){
+            staticDataBaseObject.setQuery(query + langId);
+            result &= staticDataBaseObject.query(false);
+        }
+
+        query = "DELETE " + staticDataBaseObject.quoteName("#__jeprolab_carrier") + " WHERE " + staticDataBaseObject.quoteName("carrier_id");
+        query += " = " + this.carrier_id;
+
+        staticDataBaseObject.setQuery(query);
+        result &= staticDataBaseObject.query(false);
+
+        if (!result){
             return false;
         }
         JeproLabCarrierModel.cleanPositions();
@@ -1237,15 +1256,15 @@ public class JeproLabCarrierModel extends JeproLabModel{
     }
 
     public boolean setGroups(List<Integer> groupIds){
-        setGroups(groupIds, true);
+        return setGroups(groupIds, true);
     }
     
     public boolean setGroups(List<Integer> groupIds, boolean delete){
         if(staticDataBaseObject == null){ staticDataBaseObject = JeproLabFactory.getDataBaseConnector(); }
         String query;
         if (delete) {
-            query = "DELETE FROM " + staticDataBaseObject.quoteName("#__jeprolab_carrier_group") + " WHERE " + staticDataBaseObject.quoteName("carrier_id");
-            query += " = " + this.carrier_id;
+            query = "DELETE FROM " + staticDataBaseObject.quoteName("#__jeprolab_carrier_group") + " WHERE " ;
+            query += staticDataBaseObject.quoteName("carrier_id") + " = " + this.carrier_id;
 
             staticDataBaseObject.setQuery(query);
             staticDataBaseObject.query(false);
@@ -1260,7 +1279,7 @@ public class JeproLabCarrierModel extends JeproLabModel{
         for(int groupId : groupIds) {
             query += "(" + this.carrier_id + ", " + groupId + "), ";
         }
-         query = query.endsWith(", ") ? query.substring(0, query.length() - 2) : query;
+         query = (query.endsWith(", ") ? query.substring(0, query.length() - 2) : query ) ;
 
         staticDataBaseObject.setQuery(query);
 

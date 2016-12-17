@@ -1,14 +1,12 @@
 package com.jeprolab.models;
 
 import com.jeprolab.JeproLab;
-import com.jeprolab.assets.config.JeproLabConfig;
 import com.jeprolab.assets.config.JeproLabConfigurationSettings;
 import com.jeprolab.assets.tools.JeproLabCache;
 import com.jeprolab.assets.tools.JeproLabContext;
 import com.jeprolab.assets.tools.JeproLabTools;
 import com.jeprolab.assets.tools.db.JeproLabDataBaseConnector;
 import com.jeprolab.models.core.JeproLabFactory;
-import com.sun.org.apache.xpath.internal.operations.Bool;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -90,6 +88,7 @@ public class JeproLabCartModel extends JeproLabModel{
     protected static Map<Integer, Boolean> _is_virtual_cart = new HashMap<>();
 
     protected static Map<String, HashMap<String, String>> _attributes_lists = new HashMap<>();
+    protected static Map<Integer, String> _delivery_option_list = new HashMap<>();
 
     public final static int ONLY_ANALYZES = 1;
     public final static int ONLY_DISCOUNTS = 2;
@@ -697,9 +696,9 @@ public class JeproLabCartModel extends JeproLabModel{
 
         float customizationWeight = JeproLabCustomerModel.getCustomizationWeight(analyze.customization_id);
 
-        if(analyze.analyze_attribute_id > 0 &&  analyze.weight_attribute > 0){
-            analyze.weight_attribute += customizationWeight;
-            analyze.weight = analyze.weight_attribute;
+        if(analyze.analyze_attribute_id > 0 &&  analyze.attribute_weight > 0){
+            analyze.attribute_weight += customizationWeight;
+            analyze.weight = analyze.attribute_weight;
         }else{
             analyze.weight += customizationWeight;
         }
@@ -780,7 +779,7 @@ public class JeproLabCartModel extends JeproLabModel{
         analyze.features = JeproLabAnalyzeModel.getStaticFeatures(analyze.analyze_id);
 
         if(JeproLabCartModel._attributes_lists.containsKey(analyze.analyze_attribute_id + "_" + this.language_id)){
-            Jepro
+            //Jepro
         }
         return JeproLabAnalyzeModel.getTaxesInformation(analyze, labContext);
     }
@@ -3848,14 +3847,14 @@ public class JeproLabCartModel extends JeproLabModel{
                 staticDataBaseObject.setQuery(query);
                 int cartRuleId = (int)staticDataBaseObject.loadValue("cart_rule_id");
                 if (cartRuleId <= 0) {
-                    return (!displayError) ? false : JeproLabTools.displayBarMessage(400,'You cannot use this voucher');
+                    return (!displayError) ? false : JeproLabTools.displayBarMessage(400,"You cannot use this voucher");
                 }
             }
 
             // Check if the customer delivery address is usable with the cart rule
             if (this.country_restriction) {
                 if (context.cart.delivery_address_id <= 0) {
-                    return (!displayError) ? false : JeproLabTools.displayBarMessage(400, 'You must choose a delivery address before applying this voucher to your order');
+                    return (!displayError) ? false : JeproLabTools.displayBarMessage(400, "You must choose a delivery address before applying this voucher to your order");
                 }
                 //$id_cart_rule = (int)Db::getInstance()->getValue('
                 query = "SELECT cart_rule_country." + staticDataBaseObject.quoteName("cart_rule_id") + " FROM "  + staticDataBaseObject.quoteName("#__jeprolab_cart_rule_country");
@@ -3867,27 +3866,27 @@ public class JeproLabCartModel extends JeproLabModel{
                 staticDataBaseObject.setQuery(query);
                 int cartRuleId = (int)staticDataBaseObject.loadValue("cart_rule_id");
                 if (cartRuleId <= 0) {
-                    return (!displayError) ? false : JeproLabTools.displayBarMessage(400,'You cannot use this voucher in your country of delivery');
+                    return (!displayError) ? false : JeproLabTools.displayBarMessage(400,"You cannot use this voucher in your country of delivery");
                 }
             }
 
             // Check if the carrier chosen by the customer is usable with the cart rule
             if (this.carrier_restriction && checkCarrier) {
                 if (context.cart.carrier_id <= 0) {
-                    return (!displayError) ? false : JeproLabTools.displayBarMessage(400,'You must choose a carrier before applying this voucher to your order');
+                    return (!displayError) ? false : JeproLabTools.displayBarMessage(400,"You must choose a carrier before applying this voucher to your order");
                 }
                 //$id_cart_rule = (int)Db::getInstance()->getValue('
                 query = "SELECT cart_rule_carrier." + staticDataBaseObject.quoteName("cart_rule_id") + " FROM " + staticDataBaseObject.quoteName("#__jeprolab_cart_rule_carrier");
                 query += " AS cart_rule_carrier INNER JOIN " + staticDataBaseObject.quoteName("#__jeprolab_carrier") + " AS carrier ON (carrier.";
-                query += staticDataBaseObject.quoteName("reference_id") = crc.id_carrier AND c.deleted = 0)
-                WHERE crc.id_cart_rule = '.(int)this.id.'
-                AND c.id_carrier = '.(int)$context->cart->id_carrier);
+                query += staticDataBaseObject.quoteName("reference_id") + " = cart_rule_carrier." + staticDataBaseObject.quoteName("carrier_id") + " AND carrier.";
+                query += staticDataBaseObject.quoteName("deleted") + " = 0) WHERE cart_rule_carrier." + staticDataBaseObject.quoteName("cart_rule_id") + " = ";
+                query += this.cart_rule_id + " AND carrier." + staticDataBaseObject.quoteName("carrier_id") + " = " + context.cart.carrier_id;
 
 
                 staticDataBaseObject.setQuery(query);
                 int cartRuleId = (int) staticDataBaseObject.loadValue("cart_rule_id");
                 if (cartRuleId <= 0) {
-                    return (!displayError) ? false : JeproLabTools.displayBarMessage(400,'You cannot use this voucher with this carrier');
+                    return (!displayError) ? false : JeproLabTools.displayBarMessage(400,"You cannot use this voucher with this carrier");
                 }
             }
 
@@ -3901,14 +3900,14 @@ public class JeproLabCartModel extends JeproLabModel{
                 staticDataBaseObject.setQuery(query);
                 int cartRuleId = (int) staticDataBaseObject.loadValue("cart_rule_id");
                 if (cartRuleId < 0) {
-                    return (!displayError) ? false : JeproLabTools.displayError('You cannot use this voucher');
+                    return (!displayError) ? false : JeproLabTools.displayBarMessage(400, "You cannot use this voucher");
                 }
             }
 
             // Check if the products chosen by the customer are usable with the cart rule
             if (this.analyze_restriction) {
                 boolean restrictions = this.checkAnalyzeRestrictions(context, false, displayError, alreadyInCart);
-                if (restrictions !== false && displayError) {
+                if (restrictions && displayError) {
                     return restrictions;
                 } else if (!restrictions && !displayError) {
                     return false;
@@ -3918,9 +3917,9 @@ public class JeproLabCartModel extends JeproLabModel{
             // Check if the cart rule is only usable by a specific customer, and if the current customer is the right one
             if (this.customer_id > 0 && context.cart.customer_id != this.customer_id) {
                 if (!JeproLabContext.getContext().customer.isLogged()) {
-                    return (!displayError) ? false : (JeproLabTools.displayBarMessage(400,'You cannot use this voucher').' - '.JeproLabTools.displayError('Please log in first'));
+                    return (!displayError) ? false : (JeproLabTools.displayBarMessage(400,"You cannot use this voucher") + " - " + JeproLabTools.displayError("Please log in first"));
                 }
-                return (!displayError) ? false : JeproLabTools.displayBarMessage(400,'You cannot use this voucher');
+                return (!displayError) ? false : JeproLabTools.displayBarMessage(400,"You cannot use this voucher");
             }
 
             if (this.minimum_amount > 0 && checkCarrier) {
@@ -3950,7 +3949,7 @@ public class JeproLabCartModel extends JeproLabModel{
                 }
 
                 if (cartTotal < minimumAmount) {
-                    return (!displayError) ? false : JeproLabTools.displayError('You have not reached the minimum amount required to use this voucher');
+                    return (!displayError) ? false : JeproLabTools.displayBarMessage(400,"You have not reached the minimum amount required to use this voucher");
                 }
             }
 
@@ -3970,7 +3969,7 @@ public class JeproLabCartModel extends JeproLabModel{
                 JeproLabCartRuleModel cartRule;
                 for(JeproLabCartRuleModel otherCartRule : otherCartRules) {
                     if (otherCartRule.cart_rule_id == this.cart_rule_id && !alreadyInCart) {
-                        return (!displayError) ? false : JeproLabTools.displayError('This voucher is already in your cart');
+                        return (!displayError) ? false : JeproLabTools.displayBarMessage(400,"This voucher is already in your cart");
                     }
                     if (otherCartRule.gift_analyze_id > 0) {
                         --numberOfAnalyzes;
@@ -3988,7 +3987,7 @@ public class JeproLabCartModel extends JeproLabModel{
                             cartRule = new JeproLabCartRuleModel(otherCartRule.cart_rule_id, context.cart.language_id);
                             // The cart rules are not combinable and the cart rule currently in the cart has priority over the one tested
                             if (cartRule.priority <= this.priority) {
-                                return (!displayError) ? false : JeproLabTools.displayError('This voucher is not combinable with an other voucher already in your cart:') + " " + cartRule.name.get("lang_" + cartRule.language_id);
+                                return (!displayError) ? false : JeproLabTools.displayBarMessage(400,"This voucher is not combinable with an other voucher already in your cart: " + " " + cartRule.name.get("lang_" + cartRule.language_id));
                             }
                             // But if the cart rule that is tested has priority over the one in the cart, we remove the one in the cart and keep this new one
                             else {
@@ -4000,7 +3999,7 @@ public class JeproLabCartModel extends JeproLabModel{
             }
 
             if (numberOfAnalyzes <= 0) {
-                return (!displayError) ? false : JeproLabTools.displayBarMessage(400, 'Cart is empty');
+                return (!displayError) ? false : JeproLabTools.displayBarMessage(400, "Cart is empty");
             }
 
             if (!displayError) {
@@ -4043,7 +4042,7 @@ public class JeproLabCartModel extends JeproLabModel{
          * @param highLightOnly
          * @return array
          */
-        public static List<JeproLabCartRuleModel> getCustomerCartRules(int langId, int customerId, boolean activated = false, boolean includeGeneric = true, boolean inStock = false, JeproLabCartModel cart = null, boolean freeShippingOnly = false, boolean highLightOnly = false){
+        public static List<JeproLabCartRuleModel> getCustomerCartRules(int langId, int customerId, boolean activated, boolean includeGeneric, boolean inStock, JeproLabCartModel cart, boolean freeShippingOnly, boolean highLightOnly){
             if (!JeproLabCartRuleModel.isFeaturePublished()) {
                 return new ArrayList<>();
             }
@@ -4068,7 +4067,7 @@ public class JeproLabCartModel extends JeproLabModel{
 
             if (highLightOnly) {
                 queryPart2 += " AND " + staticDataBaseObject.quoteName("highlight") + " = 1 AND "  + staticDataBaseObject.quoteName("code");
-                queryPart2 += " NOT LIKE " + staticDataBaseObject.quote(JeproLabCartRuleModel.BO_REQUEST_CODE_PREFIX) + "'%'";
+                queryPart2 += " NOT LIKE " + staticDataBaseObject.quote(JeproLabCartRuleModel.JEPROLAB_REQUEST_CODE_PREFIX) + "'%'";
             }
 
             String query = "(SELECT SQL_NO_CACHE " + queryPart1 + " WHERE cart_rule." + staticDataBaseObject.quoteName("customer_id") + " = ";
@@ -4118,8 +4117,8 @@ public class JeproLabCartModel extends JeproLabModel{
                     int quantityUsed;
                     for(cartRule : cartRules){
                         if (cartRule.quantity_per_customer > 0) {
-                            quantityUsed = JeproLabRequestModel.getDiscountsCustomer(customerId, cartRule.cart_rule_id);
-                            if (isset($cart) && isset(cart.cart_id)) {
+                            quantityUsed = JeproLabRequestModel.getCustomerDiscounts(customerId, cartRule.cart_rule_id);
+                            if (cart != null && cart.cart_id > 0) {
                                 quantityUsed += cart.getDiscountsCustomer(cartRule.cart_rule_id);
                             }
                             cartRule.quantity_per_customer = cartRule.quantity_per_customer - quantityUsed;
@@ -4301,27 +4300,50 @@ public class JeproLabCartModel extends JeproLabModel{
         /**
          * @param analyzeRuleGroupId
          * @return array ('type' => ? , 'values' => ?)
-         * /
-        public function getAnalyzeRules(int analyzeRuleGroupId){
+         */
+        public Map<Integer, Map<String, Object>> getAnalyzeRules(int analyzeRuleGroupId){
             if (!JeproLabTools.isLoadedObject(this, "cart_rule_id") || this.analyze_restriction) {
-                return array();
+                return new HashMap<>();
             }
 
-            $productRules = array();
-            $results = Db::getInstance()->executeS('
-                SELECT *
-                        FROM '._DB_PREFIX_.'cart_rule_product_rule pr
-            LEFT JOIN '._DB_PREFIX_.'cart_rule_product_rule_value prv ON pr.id_product_rule = prv.id_product_rule
-            WHERE pr.id_product_rule_group = '.(int)$id_product_rule_group);
-            foreach ($results as $row) {
-                if (!isset($productRules[$row['id_product_rule']])) {
-                    $productRules[$row['id_product_rule']] = array('type' = > $row['type'], 'values' =>array());
+            Map<Integer, Map<String, Object>> analyzeRules = new HashMap<>();
+            //$results = Db::getInstance()->executeS('
+            String query = "SELECT * FROM " + staticDataBaseObject.quoteName("#__jeprolab_cart_rule_analyze_rule") + " AS analyze_rule ";
+            query += " LEFT JOIN " + staticDataBaseObject.quoteName("#__jeprolab_cart_rule_analyze_rule_value") + " AS analyze_rule_value ";
+            query += " ON analyze_rule." + staticDataBaseObject.quoteName("analyze_rule_id") + " = analyze_rule_value." ;
+            query += staticDataBaseObject.quoteName("analyze_rule_id") + " WHERE analyze_rule." + staticDataBaseObject.quoteName("analyze_rule_group_id");
+            query += " = " + analyzeRuleGroupId;
+
+            staticDataBaseObject.setQuery(query);
+            ResultSet rulesSet = staticDataBaseObject.loadObjectList();
+            if(rulesSet != null) {
+                try {
+                    List<Integer> values;
+                    Map<String, Object> field;
+                    while(rulesSet.next()) {
+                        if (!analyzeRules.containsKey(rulesSet.getInt("analyze_rule_id"))){
+                            values = new ArrayList<>();
+                            field = new HashMap<>();
+                            field.put("type", rulesSet.getString("type"));
+                            field.put("values", values);
+                            analyzeRules.put(rulesSet.getInt("analyze_rule_id"), field);
+                        }
+                        values = (List<Integer>)analyzeRules.get(rulesSet.getInt("analyze_rule_id")).get("values");
+                        values.add(rulesSet.getInt("item_id"));
+                        analyzeRules.get(rulesSet.getInt("analyze_rule_id")).put("values", values);
+                    }
+                }catch (SQLException ignored){
+                    ignored.printStackTrace();
+                }finally {
+                    try {
+                        JeproLabDataBaseConnector.getInstance().closeConnexion();
+                    }catch(Exception ignored){
+                        ignored.printStackTrace();
+                    }
                 }
-                $productRules[$row['id_product_rule']]['values'][]=$row['id_item'];
             }
-            return $productRules;
+            return analyzeRules;
         }
-
 
         protected boolean checkAnalyzeRestrictions(JeproLabContext context){
             return checkAnalyzeRestrictions(context, false, true, false);
@@ -4338,9 +4360,10 @@ public class JeproLabCartModel extends JeproLabModel{
         protected boolean checkAnalyzeRestrictions(JeproLabContext context, boolean setAnalyzes, boolean displayError, boolean alreadyInCart){
             $selected_products = array();
 
+            String query;
             // Check if the products chosen by the customer are usable with the cart rule
-            if(this.product_restriction) {
-                $product_rule_groups = this.getProductRuleGroups();
+            if(this.analyze_restriction) {
+                $product_rule_groups = this.getAnalyzeRuleGroups();
                 foreach ($product_rule_groups as $id_product_rule_group => $product_rule_group) {
                     $eligible_products_list = array();
                     if (isset($context->cart) && is_object($context->cart) && is_array($products = $context->cart->getProducts())) {
@@ -4348,41 +4371,62 @@ public class JeproLabCartModel extends JeproLabModel{
                             $eligible_products_list[] = (int)$product['id_product'].'-'.(int)$product['id_product_attribute'];
                         }
                     }
-                    if (!count($eligible_products_list)) {
-                        return (!$display_error) ? false : Tools::displayError('You cannot use this voucher in an empty cart');
+                    if (eligibleAnalyzesList.isEmpty()){
+                        return (!displayError) ? false : Tools::displayError('You cannot use this voucher in an empty cart');
                     }
 
-                    $product_rules = this.getProductRules($id_product_rule_group);
-                    foreach ($product_rules as $product_rule) {
-                        switch ($product_rule['type']) {
-                            case 'attributes':
-                                $cart_attributes = Db::getInstance()->executeS('
-                                    SELECT cp.quantity, cp.`id_product`, pac.`id_attribute`, cp.`id_product_attribute`
-                                    FROM `'._DB_PREFIX_.'cart_product` cp
-                                LEFT JOIN `'._DB_PREFIX_.'product_attribute_combination` pac ON cp.id_product_attribute = pac.id_product_attribute
-                                WHERE cp.`id_cart` = '.(int)$context->cart->id.'
-                                AND cp.`id_product` IN ('.implode(',', array_map('intval', $eligible_products_list)).')
-                                AND cp.id_product_attribute > 0');
-                                $count_matching_products = 0;
-                                $matching_products_list = array();
-                                foreach ($cart_attributes as $cart_attribute) {
-                                if (in_array($cart_attribute['id_attribute'], $product_rule['values'])) {
-                                    $count_matching_products += $cart_attribute['quantity'];
-                                    if ($already_in_cart && this.gift_product == $cart_attribute['id_product']
-                                            && this.gift_product_attribute == $cart_attribute['id_product_attribute']) {
-                                        --$count_matching_products;
+                    int countMatchingAnalyzes = 0;
+                    List matchingAnalyzesList = new ArrayList<>();
+                    ResultSet cartAttributes;
+                    Map<Integer, Map<String, Object>> analyzeRules = this.getAnalyzeRules($id_product_rule_group);
+                    String ruleType;
+                    for(Map.Entry entry : analyzeRules.entrySet()){ //$product_rules as $product_rule) {
+                        ruleType = entry.getKey().toString().equals("type") ? entry.getValue().toString() : "";
+                        switch (ruleType){
+                            case "attributes" :
+                                //$cart_attributes = Db::getInstance()->executeS('
+                                query = "SELECT cart_analyze." + staticDataBaseObject.quoteName("quantity") + ", cart_analyze." + staticDataBaseObject.quoteName("analyze_id");
+                                query += ", analyze_attribute_combination." + staticDataBaseObject.quoteName("attribute_id") + ", cart_analyze." + staticDataBaseObject.quoteName("analyze_attribute_id");
+                                query += " FROM " + staticDataBaseObject.quoteName("#__jeprolab_cart_analyze") + " AS cart_analyze LEFT JOIN ";
+                                query += staticDataBaseObject.quoteName("#__jeprolab_analyze_attribute_combination") + " AS analyze_attribute_combination ON cart_analyze.";
+                                query += staticDataBaseObject.quoteName("analyze_attribute_id") + " = analyze_attribute_combination." + staticDataBaseObject.quoteName("attribute_attribute_id");
+                                query += " WHERE cart_analyze." + staticDataBaseObject.quoteName("cart_id") + " = " + context.cart.cart_id + " AND cart_analyze.";
+                                query += staticDataBaseObject.quoteName("analyze_id") + " IN (".implode(',', array_map('intval', $eligible_products_list)) + ") AND cart_analyze.";
+                                query += staticDataBaseObject.quoteName("analyze_attribute_id") + "> 0";
+                                
+                                staticDataBaseObject.setQuery(query);
+                                cartAttributes = staticDataBaseObject.loadObjectList();
+                                //List<String> matchingAnalyzesList = new ArrayList<>();
+                                if(cartAttributes !=null) {
+                                    try {
+                                        while(cartAttributes.next()){ // as $cart_attribute) {
+                                            if (in_array(cartAttributes.getInt("attribute_id"), $product_rule['values'])) {
+                                                countMatchingAnalyzes += cartAttributes.getInt("quantity");
+                                                if (alreadyInCart && this.gift_analyze_id == cartAttributes.getInt("analyze_id")
+                                                        && this.gift_analyze_attribute_id == cartAttributes.getInt("analyze_attribute_id")){
+                                                    --countMatchingAnalyzes;
+                                                }
+                                                matchingAnalyzesList.add(cartAttributes.getInt("analyze_id") + "_" + cartAttributes.getInt("analyze_attribute_id"));
+                                            }
+                                        }
+                                    }catch(SQLException ignored){
+                                        ignored.printStackTrace();
+                                    }finally {
+                                        try {
+                                            JeproLabDataBaseConnector.getInstance().closeConnexion();
+                                        }catch(Exception ignored){
+                                            ignored.printStackTrace();
+                                        }
                                     }
-                                    $matching_products_list[] = $cart_attribute['id_product'].'-'.$cart_attribute['id_product_attribute'];
                                 }
-                            }
-                            if ($count_matching_products < $product_rule_group['quantity']) {
-                                return (!$display_error) ? false : Tools::displayError('You cannot use this voucher with these products');
-                            }
-                            $eligible_products_list = CartRule::array_uintersect($eligible_products_list, $matching_products_list);
+                                if (countMatchingAnalyzes < $product_rule_group['quantity']) {
+                                    return (!displayError) ? false : Tools::displayError('You cannot use this voucher with these products');
+                                }
+                                eligibleAnalyzesList = JeproLabCartRuleModel.array_uintersect($eligible_products_list, $matching_products_list);
                             break;
-                            case 'products':
-                                $cart_products = Db::getInstance()->executeS('
-                                    SELECT cp.quantity, cp.`id_product`
+                            case "analyzes":
+                                //$cart_products = Db::getInstance()->executeS('
+                                query = "SELECT cp.quantity, cp.`id_product`
                                     FROM `'._DB_PREFIX_.'cart_product` cp
                                 WHERE cp.`id_cart` = '.(int)$context->cart->id.'
                                 AND cp.`id_product` IN ('.implode(',', array_map('intval', $eligible_products_list)).')');
@@ -4398,11 +4442,11 @@ public class JeproLabCartModel extends JeproLabModel{
                                 }
                             }
                             if ($count_matching_products < $product_rule_group['quantity']) {
-                                return (!$display_error) ? false : Tools::displayError('You cannot use this voucher with these products');
+                                return (!displayError) ? false : Tools::displayError('You cannot use this voucher with these products');
                             }
                             $eligible_products_list = CartRule::array_uintersect($eligible_products_list, $matching_products_list);
                             break;
-                            case 'categories':
+                            case "categories":
                                 $cart_categories = Db::getInstance()->executeS('
                                     SELECT cp.quantity, cp.`id_product`, cp.`id_product_attribute`, catp.`id_category`
                                     FROM `'._DB_PREFIX_.'cart_product` cp
@@ -4417,14 +4461,14 @@ public class JeproLabCartModel extends JeproLabModel{
                                         /**
                                          * We also check that the product is not already in the matching product list,
                                          * because there are doubles in the query results (when the product is in multiple categories)
-                                         * /
+                                         */
                                         && !in_array($cart_category['id_product'].'-'.$cart_category['id_product_attribute'], $matching_products_list)) {
                                     $count_matching_products += $cart_category['quantity'];
                                     $matching_products_list[] = $cart_category['id_product'].'-'.$cart_category['id_product_attribute'];
                                 }
                             }
                             if ($count_matching_products < $product_rule_group['quantity']) {
-                                return (!$display_error) ? false : Tools::displayError('You cannot use this voucher with these products');
+                                return (!displayError) ? false : Tools::displayError('You cannot use this voucher with these products');
                             }
                             // Attribute id is not important for this filter in the global list, so the ids are replaced by 0
                             foreach ($matching_products_list as &$matching_product) {
@@ -4432,7 +4476,7 @@ public class JeproLabCartModel extends JeproLabModel{
                             }
                             $eligible_products_list = CartRule::array_uintersect($eligible_products_list, $matching_products_list);
                             break;
-                            case 'manufacturers':
+                            case "manufacturers":
                                 $cart_manufacturers = Db::getInstance()->executeS('
                                     SELECT cp.quantity, cp.`id_product`, p.`id_manufacturer`
                                     FROM `'._DB_PREFIX_.'cart_product` cp
@@ -4448,11 +4492,11 @@ public class JeproLabCartModel extends JeproLabModel{
                                 }
                             }
                             if ($count_matching_products < $product_rule_group['quantity']) {
-                                return (!$display_error) ? false : Tools::displayError('You cannot use this voucher with these products');
+                                return (!displayError) ? false : Tools::displayError('You cannot use this voucher with these products');
                             }
                             $eligible_products_list = CartRule::array_uintersect($eligible_products_list, $matching_products_list);
                             break;
-                            case 'suppliers':
+                            case "suppliers":
                                 $cart_suppliers = Db::getInstance()->executeS('
                                     SELECT cp.quantity, cp.`id_product`, p.`id_supplier`
                                     FROM `'._DB_PREFIX_.'cart_product` cp
@@ -4468,14 +4512,14 @@ public class JeproLabCartModel extends JeproLabModel{
                                 }
                             }
                             if ($count_matching_products < $product_rule_group['quantity']) {
-                                return (!$display_error) ? false : Tools::displayError('You cannot use this voucher with these products');
+                                return (!displayError) ? false : Tools::displayError('You cannot use this voucher with these products');
                             }
                             $eligible_products_list = CartRule::array_uintersect($eligible_products_list, $matching_products_list);
                             break;
                         }
 
                         if (!count($eligible_products_list)) {
-                            return (!$display_error) ? false : Tools::displayError('You cannot use this voucher with these products');
+                            return (!displayError) ? false : Tools::displayError('You cannot use this voucher with these products');
                         }
                     }
                     $selected_products = array_merge($selected_products, $eligible_products_list);
@@ -4487,7 +4531,7 @@ public class JeproLabCartModel extends JeproLabModel{
             }
             return (!displayError) ? true : false;
         }
-
+/*
         protected static function array_uintersect($array1, $array2)
         {
             $intersection = array();

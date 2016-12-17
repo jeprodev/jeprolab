@@ -121,6 +121,8 @@ public class JeproLabAnalyzeModel extends JeproLabModel{
     /** @var string Ean-13 barcode */
     public String ean13;
 
+    public float attribute_weight;
+
     /** @var string Upc barcode */
     public String upc;
 
