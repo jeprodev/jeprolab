@@ -4260,13 +4260,13 @@ public class JeproLabCartModel extends JeproLabModel{
 
         /**
          * @return array
-         * /
-        public function getAnalyzeRuleGroups(){
-            if (!Validate::isLoadedObject($this) || this.product_restriction == 0) {
-            return array();
-        }
+         */
+        public Map<Integer, Map<String, Object>> getAnalyzeRuleGroups(){
+            if (!JeproLabTools.isLoadedObject(this, "cart_rule_id") || !this.analyze_restriction){
+                return new HashMap<>();
+            }
 
-            $productRuleGroups = array();
+            Map<Integer, Map<String, Object>> analyzeRuleGroups = new HashMap<>();
             if(staticDataBaseObject == null){
                 staticDataBaseObject = JeproLabFactory.getDataBaseConnector();
             }
@@ -4277,12 +4277,17 @@ public class JeproLabCartModel extends JeproLabModel{
             ResultSet resultSet = staticDataBaseObject.loadObjectList();
             if(resultSet != null) {
                 try {
+                    Map<String, Object> values;
                     while(resultSet.next()) {
-                        if (!isset($productRuleGroups[resultSet.getInt("analyze_rule_group_id")])) {
-                            $productRuleGroups[$row['id_product_rule_group']] = array('id_product_rule_group' = > $row['id_product_rule_group'], 'quantity' =>
-                            $row['quantity']);
+                        if (!analyzeRuleGroups.containsKey(resultSet.getInt("analyze_rule_group_id"))){
+                            values = new HashMap<>();
+                            values.put("analyze_rule_group_id", resultSet.getInt("analyze_rule_group_id"));
+                            values.put("quantity", resultSet.getInt("quantity"));
+                            analyzeRuleGroups.put(resultSet.getInt("analyze_rule_group_id"), values);
                         }
-                        $productRuleGroups[$row['id_product_rule_group']]['product_rules'] = $this -> getProductRules($row['id_product_rule_group']);
+                        values = analyzeRuleGroups.get(resultSet.getInt("analyze_rule_rule_id"));
+                        values.put("analyze_rules", this.getAnalyzeRules(resultSet.getInt("analyze_rule_rule_id")));
+                        analyzeRuleGroups.put(resultSet.getInt("analyze_rule_group_id"), values);
                     }
                 }catch (SQLException ignored){
                     ignored.printStackTrace();
@@ -4294,7 +4299,7 @@ public class JeproLabCartModel extends JeproLabModel{
                     }
                 }
             }
-            return $productRuleGroups;
+            return analyzeRuleGroups;
         }
 
         /**
@@ -4363,22 +4368,25 @@ public class JeproLabCartModel extends JeproLabModel{
             String query;
             // Check if the products chosen by the customer are usable with the cart rule
             if(this.analyze_restriction) {
-                $product_rule_groups = this.getAnalyzeRuleGroups();
-                foreach ($product_rule_groups as $id_product_rule_group => $product_rule_group) {
-                    $eligible_products_list = array();
-                    if (isset($context->cart) && is_object($context->cart) && is_array($products = $context->cart->getProducts())) {
-                        foreach ($products as $product) {
-                            $eligible_products_list[] = (int)$product['id_product'].'-'.(int)$product['id_product_attribute'];
-                        }
+                Map<Integer, Map<String, Object>> analyzeRuleGroups = this.getAnalyzeRuleGroups();
+                List<String> eligibleAnalyzesList;
+                List<JeproLabAnalyzeModel> analyzes;
+                int analyzeRuleGroupId;
+                for(Map.Entry entryGroup : analyzeRuleGroups.entrySet()){
+                    analyzeRuleGroupId = (int)entryGroup.getKey();
+                    eligibleAnalyzesList = new ArrayList<>();
+                    if (context.cart != null){
+                        analyzes = context.cart.getAnalyzes();
+                        eligibleAnalyzesList.addAll(analyzes.stream().map(analyze -> analyze.analyze_id + "_" + analyze.analyze_attribute_id).collect(Collectors.toList()));
                     }
                     if (eligibleAnalyzesList.isEmpty()){
-                        return (!displayError) ? false : Tools::displayError('You cannot use this voucher in an empty cart');
+                        return (!displayError) ? false : JeproLabTools.displayBarMessage(400, "You cannot use this voucher in an empty cart");
                     }
 
                     int countMatchingAnalyzes = 0;
                     List matchingAnalyzesList = new ArrayList<>();
                     ResultSet cartAttributes;
-                    Map<Integer, Map<String, Object>> analyzeRules = this.getAnalyzeRules($id_product_rule_group);
+                    Map<Integer, Map<String, Object>> analyzeRules = this.getAnalyzeRules(analyzeRuleGroupId);
                     String ruleType;
                     for(Map.Entry entry : analyzeRules.entrySet()){ //$product_rules as $product_rule) {
                         ruleType = entry.getKey().toString().equals("type") ? entry.getValue().toString() : "";
@@ -4497,39 +4505,62 @@ public class JeproLabCartModel extends JeproLabModel{
                             $eligible_products_list = CartRule::array_uintersect($eligible_products_list, $matching_products_list);
                             break;
                             case "suppliers":
-                                $cart_suppliers = Db::getInstance()->executeS('
-                                    SELECT cp.quantity, cp.`id_product`, p.`id_supplier`
-                                    FROM `'._DB_PREFIX_.'cart_product` cp
-                                LEFT JOIN `'._DB_PREFIX_.'product` p ON cp.id_product = p.id_product
-                                WHERE cp.`id_cart` = '.(int)$context->cart->id.'
-                                AND cp.`id_product` IN ('.implode(',', array_map('intval', $eligible_products_list)).')');
-                                $count_matching_products = 0;
-                                $matching_products_list = array();
-                                foreach ($cart_suppliers as $cart_supplier) {
+                                //$cart_suppliers = Db::getInstance()->executeS('
+                                query = "SELECT cart_analyze." + staticDataBaseObject.quoteName("quantity") + ", cart_analyze." + staticDataBaseObject.quoteName("analyze_id");
+                                query += ", analyze." + staticDataBaseObject.quoteName("supplier_id") + " FROM " + staticDataBaseObject.quoteName("#__jeprolab_cart_analyze");
+                                query += " AS cart_analyze LEFT JOIN " + staticDataBaseObject.quoteName("#__jeprolab_analyze") + " AS analyze ON cart_analyze.";
+                                query += staticDataBaseObject.quoteName("analyze_id") + " = analyze." + staticDataBaseObject.quoteName("analyze_id") + " WHERE cart_analyze.";
+                                query += staticDataBaseObject.quoteName("cart_id") + " = " + context.cart.cart_id + " AND cart_analyze." + staticDataBaseObject.quoteName("analyze_id");
+                                query += " IN (" .implode(',', array_map('intval', $eligible_products_list)) + ")";
+
+                                countMatchingAnalyzes = 0;
+
+                                staticDataBaseObject.setQuery(query);
+                                ResultSet cartSuppliers = staticDataBaseObject.loadObjectList();
+
+                                if(cartSuppliers !=null) {
+                                    try {
+                                        while(cartSuppliers.next()) {
+                                            if(analyzeRulesValues.contains(cartSuppliers.getInt("supplier_id"))){
+                                                countMatchingAnalyzes += cartSuppliers.getInt("quantity");
+                                                matchingAnalyzesList.add(cartSuppliers.getInt("analyze_id") + "_0");
+                                            }
+                                        }
+                                    }catch(SQLException ignored){
+                                        ignored.printStackTrace();
+                                    }finally {
+                                        try {
+                                            JeproLabDataBaseConnector.getInstance().closeConnexion();
+                                        }catch(Exception ignored){
+                                            ignored.printStackTrace();
+                                        }
+                                    }
+                                }
+                                /*foreach ($cart_suppliers as $cart_supplier) {
                                 if (in_array($cart_supplier['id_supplier'], $product_rule['values'])) {
                                     $count_matching_products += $cart_supplier['quantity'];
                                     $matching_products_list[] = $cart_supplier['id_product'].'-0';
                                 }
-                            }
-                            if ($count_matching_products < $product_rule_group['quantity']) {
-                                return (!displayError) ? false : Tools::displayError('You cannot use this voucher with these products');
-                            }
-                            $eligible_products_list = CartRule::array_uintersect($eligible_products_list, $matching_products_list);
+                            }*/
+                                if(countMatchingAnalyzes < $product_rule_group['quantity']) {
+                                    return (!displayError) ? false : Tools::displayError('You cannot use this voucher with these products');
+                                }
+                                eligibleAnalyzesList = CartRule::array_uintersect($eligible_products_list, $matching_products_list);
                             break;
                         }
 
-                        if (!count($eligible_products_list)) {
+                        if (eligibleAnalyzesList.size() == 0)
                             return (!displayError) ? false : Tools::displayError('You cannot use this voucher with these products');
                         }
                     }
                     $selected_products = array_merge($selected_products, $eligible_products_list);
                 }
             }
-
+            /*
             if ($return_products) {
                 return $selected_products;
-            }
-            return (!displayError) ? true : false;
+            } */
+            return (!displayError ? true : false);
         }
 /*
         protected static function array_uintersect($array1, $array2)
