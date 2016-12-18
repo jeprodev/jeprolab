@@ -87,8 +87,11 @@ public class JeproLabCartModel extends JeproLabModel{
 
     protected static Map<Integer, Boolean> _is_virtual_cart = new HashMap<>();
 
+    protected static Map<String, Boolean> _package_list = new HashMap<>();
+
     protected static Map<String, HashMap<String, String>> _attributes_lists = new HashMap<>();
     protected static Map<Integer, String> _delivery_option_list = new HashMap<>();
+    protected static Map<Integer, JeproLabCarrierModel> _carriers = new HashMap<>();
 
     public final static int ONLY_ANALYZES = 1;
     public final static int ONLY_DISCOUNTS = 2;
@@ -1690,10 +1693,8 @@ public class JeproLabCartModel extends JeproLabModel{
      * @return float Order total
      */
     public float getRequestTotal(boolean withTaxes, int type, List<JeproLabAnalyzeModel> analyzes, int carrierId, boolean useCache) {
-        // Dependencies
-        $price_calculator = ServiceLocator::get ('\\PrestaShop\\PrestaShop\\Adapter\\Product\\PriceCalculator');
 
-        boolean useUcotax = JeproLabSettingModel.getIntValue("use_ecotax") > 0;
+        boolean useEcotax = JeproLabSettingModel.getIntValue("use_ecotax") > 0;
         int roundType = JeproLabSettingModel.getIntValue("round_type");
         int ecotaxTaxRulesGroupId = JeproLabSettingModel.getIntValue("ECOTAX_TAX_RULES_GROUP_ID");
         int computePrecision = JeproLabSettingModel.getIntValue("price_compute_precision");
@@ -1701,9 +1702,14 @@ public class JeproLabCartModel extends JeproLabModel{
         if(this.cart_id <= 0){ return 0; }
 
         List<Integer> typeArray = new ArrayList<>();
-        typeArray.addAll(JeproLabCartModel.ONLY_ANALYZES, JeproLabCartModel.ONLY_DISCOUNTS, JeproLabCartModel.BOTH,
-                JeproLabCartModel.BOTH_WITHOUT_SHIPPING, JeproLabCartModel.ONLY_SHIPPING, JeproLabCartModel.ONLY_WRAPPING,
-                JeproLabCartModel.ONLY_ANALYZES_WITHOUT_SHIPPING, JeproLabCartModel.ONLY_PHYSICAL_ANALYZES_WITHOUT_SHIPPING);
+        typeArray.add(JeproLabCartModel.ONLY_ANALYZES);
+        typeArray.add(JeproLabCartModel.ONLY_DISCOUNTS);
+        typeArray.add(JeproLabCartModel.BOTH);
+        typeArray.add(JeproLabCartModel.BOTH_WITHOUT_SHIPPING);
+        typeArray.add(JeproLabCartModel.ONLY_SHIPPING);
+        typeArray.add(JeproLabCartModel.ONLY_WRAPPING);
+        typeArray.add(JeproLabCartModel.ONLY_ANALYZES_WITHOUT_SHIPPING);
+        typeArray.add(JeproLabCartModel.ONLY_PHYSICAL_ANALYZES_WITHOUT_SHIPPING);
 
         // Define virtual context to prevent case where the cart is not the in the global context
         try {
@@ -1721,7 +1727,7 @@ public class JeproLabCartModel extends JeproLabModel{
                 return 0;
             }
 
-            // no shipping cost if is a cart with only virtuals analyzes
+            // no shipping cost if is a cart with only virtual analyzes
             boolean isVirtual = this.isVirtualCart();
             if (isVirtual && type == JeproLabCartModel.ONLY_SHIPPING) {
                 return 0;
@@ -1794,7 +1800,7 @@ public class JeproLabCartModel extends JeproLabModel{
                 // but it is necessary to pass it to getProductPrice because
                 // it expects a reference.
                 JeproLabPriceModel.JeproLabSpecificPriceModel specificPrice = new JeproLabPriceModel.JeproLabSpecificPriceModel();
-                float price = priceCalculator.getAnalyzePrice( analyze.analyze_id, withTaxes, analyze.analyze_attribute_id,
+                float price = JeproLabAnalyzeModel.getStaticPrice(analyze.analyze_id, withTaxes, analyze.analyze_attribute_id,
                         6, null, false, true, analyze.cart_quantity, false, this.customer_id > 0 ? this.customer_id : 0,
                         this.cart_id, addressId, specificPrice, useEcotax, true, virtualContext, true, analyze.customization_id
                 );
@@ -1823,7 +1829,7 @@ public class JeproLabCartModel extends JeproLabModel{
 
                     case JeproLabRequestModel.ROUND_ITEM:
                     default:
-                        float analyzePrice = withTaxes ? taxCalculator.addTaxes(price) : price;
+                        analyzePrice = withTaxes ? taxCalculator.addTaxes(price) : price;
                         analyzesTotal.put(taxRulesGroupId + "",
                                 (analyzesTotal.get(taxRulesGroupId + "") + (JeproLabTools.roundPrice(analyzePrice, computePrecision)* analyze.cart_quantity)));
                         break;
@@ -1961,7 +1967,7 @@ public class JeproLabCartModel extends JeproLabModel{
      *
      * @return float Shipping total
      */
-    public float getTotalShippingCost(deliveryOtion, boolean useTax, JeproLabCountryModel defaultCountry = null){
+    public float getTotalShippingCost(deliveryOtion, boolean useTax, JeproLabCountryModel defaultCountry){
 
         if (JeproLabCartModel._total_shipping == null) {
             if (JeproLabContext.getContext().cookie.country_id){
@@ -2049,8 +2055,7 @@ public class JeproLabCartModel extends JeproLabModel{
         if(JeproLabSettingModel.getStringValue("tax_address_type").equals("invoice_address_id")) {
             addressId = this.invoice_address_id;
         } else if (analyzeList.size() > 0) {
-            $prod = current(analyzeList);
-            addressId = (int) $prod['id_address_delivery'];
+            addressId = analyzeList.get(0).delivery_address_id;
         } else {
             addressId = 0;
         }
@@ -2125,12 +2130,12 @@ public class JeproLabCartModel extends JeproLabModel{
                     continue;
                 }
 
-                if (!isset(self::$_carriers[carrier.carrier_id])) {
-                    self::$_carriers[carrier.carrier_id] = new JeproLabCarrierModel(carrier.carrier_id);
+                if (!JeproLabCartModel._carriers.containsKey(carrier.carrier_id)){
+                    JeproLabCartModel._carriers.put(carrier.carrier_id, new JeproLabCarrierModel(carrier.carrier_id));
                 }
 
                 /** @var Carrier $carrier */
-                carrier = self::$_carriers[carrier.carrier_id];
+                carrier = JeproLabCartModel._carriers.get(carrier.carrier_id);
 
                 shippingMethod = carrier.getShippingMethod();
                 // Get only carriers that are compliant with shipping method
@@ -2141,11 +2146,12 @@ public class JeproLabCartModel extends JeproLabModel{
                 }
 
                 // If out-of-range behavior carrier is set on "Desactivate carrier"
-                if (carrier.range_behavior) {
-                    checkDeliveryPriceByWeight = JeproLabCarrierModel.checkDeliveryPriceByWeight(carrier.carrier_id, this.getTotalWeight(), zoneId);
+                float totalRequest = 0;
+                if (carrier.range_behavior > 0) {
+                    boolean checkDeliveryPriceByWeight = JeproLabCarrierModel.checkDeliveryPriceByWeight(carrier.carrier_id, this.getTotalWeight(), zoneId);
 
                     totalRequest = totalPackageWithOutShippingTaxIncluded;
-                    checkDeliveryPriceByPrice = JeproLabCarrierModel.checkDeliveryPriceByPrice(carrier.carrier_id, totalRequest, zoneId, (int)this.id_currency);
+                    boolean checkDeliveryPriceByPrice = JeproLabCarrierModel.checkDeliveryPriceByPrice(carrier.carrier_id, totalRequest, zoneId, this.currency_id);
 
                     // Get only carriers that have a range compatible with cart
                     if ((shippingMethod == JeproLabCarrierModel.JEPROLAB_SHIPPING_METHOD_WEIGHT && !checkDeliveryPriceByWeight)
@@ -2155,8 +2161,10 @@ public class JeproLabCartModel extends JeproLabModel{
                     }
                 }
 
+                float shipping;
+
                 if (shippingMethod == JeproLabCarrierModel.JEPROLAB_SHIPPING_METHOD_WEIGHT) {
-                    shipping = $carrier.getDeliveryPriceByWeight(this.getTotalWeight(analyzeList), zoneId);
+                    shipping = carrier.getDeliveryPriceByWeight(this.getTotalWeight(analyzeList), zoneId);
                 } else {
                     shipping = carrier.getDeliveryPriceByPrice(requestTotal, zoneId, this.currency_id);
                 }
@@ -2176,18 +2184,18 @@ public class JeproLabCartModel extends JeproLabModel{
             carrierId = JeproLabSettingModel.getIntValue("default_carrier");
         }
 
-        if (!isset(self::$_carriers[carrierId])){
-            self::$_carriers[carrierId]= new JeproLabCarrierModel(carrierId, JeproLabSettingModel.getIntValue("default_lang"));
+        if (!JeproLabCartModel._carriers.containsKey(carrierId)){
+            JeproLabCartModel._carriers.put(carrierId, new JeproLabCarrierModel(carrierId, JeproLabSettingModel.getIntValue("default_lang")));
         }
 
-        JeproLabCarrierModel carrier = self::$_carriers[carrierId];
+        JeproLabCarrierModel carrier = JeproLabCartModel._carriers.get(carrierId);
 
         // No valid Carrier or carrierId <= 0 ?
         if (!JeproLabTools.isLoadedObject(carrier, "carrier_id")){
             JeproLabCache.getInstance().store(cacheKey, 0);
             return 0;
         }
-        shippingMethod = carrier.getShippingMethod();
+        int shippingMethod = carrier.getShippingMethod();
 
         if (!carrier.published) {
             JeproLabCache.getInstance().store(cacheKey, shippingCost);
@@ -2213,18 +2221,18 @@ public class JeproLabCartModel extends JeproLabModel{
             }
         }
 
-        $configuration = Configuration::getMultiple(array(
-            'PS_SHIPPING_FREE_PRICE',
-            'PS_SHIPPING_HANDLING',
-            'PS_SHIPPING_METHOD',
-            'PS_SHIPPING_FREE_WEIGHT'
-    ));
+        //Map<String, Integer> configuration =
+                //Configuration::getMultiple(array(
+        float CONFIGURATION_SHIPPING_FREE_PRICE = JeproLabSettingModel.getFloatValue("shipping_free_price");
+        float CONFIGURATION_SHIPPING_HANDLING = JeproLabSettingModel.getFloatValue("shipping_handling");
+        int CONFIGURATION_SHIPPING_METHOD = JeproLabSettingModel.getIntValue("shipping_method");
+        float CONFIGURATION_SHIPPING_FREE_WEIGHT = JeproLabSettingModel.getFloatValue("shipping_free_weight");
+    //));
 
         // Free fees
         float freeFeesPrice = 0;
-        if (isset($configuration['PS_SHIPPING_FREE_PRICE'])) {
-            freeFeesPrice = JeproLabTools.convertPrice((float)$configuration['PS_SHIPPING_FREE_PRICE'],
-                    JeproLabCurrencyModel.getCurrencyInstance(this.currency_id));
+        if (CONFIGURATION_SHIPPING_FREE_PRICE > 0) {
+            freeFeesPrice = JeproLabTools.convertPrice(CONFIGURATION_SHIPPING_FREE_PRICE, this.currency_id);
         }
         float orderTotalWithDiscounts = this.getRequestTotal(true, JeproLabCartModel.BOTH_WITHOUT_SHIPPING, null, 0, false);
         if (orderTotalWithDiscounts >= freeFeesPrice && freeFeesPrice > 0) {
@@ -2232,15 +2240,13 @@ public class JeproLabCartModel extends JeproLabModel{
             return shippingCost;
         }
 
-        if (isset($configuration['PS_SHIPPING_FREE_WEIGHT'])
-                && this.getTotalWeight() >= (float)$configuration['PS_SHIPPING_FREE_WEIGHT']
-                && (float)$configuration['PS_SHIPPING_FREE_WEIGHT'] > 0) {
+        if (CONFIGURATION_SHIPPING_FREE_WEIGHT > 0 && this.getTotalWeight() >= CONFIGURATION_SHIPPING_FREE_WEIGHT) {
             JeproLabCache.getInstance().store(cacheKey, shippingCost);
             return shippingCost;
         }
 
         // Get shipping cost using correct method
-        if (carrier.range_behavior) {
+        if (carrier.range_behavior > 0) {
             if (zoneId <= 0) {
                 // Get id zone
                 if (this.delivery_address_id > 0 && JeproLabCustomerModel.customerHasAddress(this.customer_id, this.delivery_address_id)) {
@@ -2269,25 +2275,23 @@ public class JeproLabCartModel extends JeproLabModel{
             }
         }
         // Adding handling charges
-        if (isset($configuration['PS_SHIPPING_HANDLING']) && carrier.shipping_handling) {
-            shippingCost += (float)$configuration['PS_SHIPPING_HANDLING'];
+        if (CONFIGURATION_SHIPPING_HANDLING > 0 && carrier.shipping_handling) {
+            shippingCost += CONFIGURATION_SHIPPING_HANDLING;
         }
 
         // Additional Shipping Cost per analyze
-        for(JeproLabAnalyzeModel analyze : analyzeList) {
-            if (!analyze.is_virtual){
-                shippingCost += analyze.additional_shipping_cost * analyze.cart_quantity;
-            }
-        }
+        analyzeList.stream().filter(analyze -> !analyze.is_virtual).forEach(analyze -> {
+            shippingCost += analyze.additional_shipping_cost * analyze.cart_quantity;
+        });
 
         shippingCost = JeproLabTools.convertPrice(shippingCost, this.currency_id);
 
-        //get external shipping cost from module
+        /*/get external shipping cost from module
         if (carrier.shipping_external) {
-            $module_name = $carrier->external_module_name;
+            String moduleSame = carrier.external_module_name;
 
-            /** @var CarrierModule $module */
-            $module = Module::getInstanceByName($module_name);
+            /** @var CarrierModule $module * /
+            $module = JeproLabModuleModel.getInstanceByName(moduleName);
 
             if (Validate::isLoadedObject($module)) {
                 if (array_key_exists('id_carrier', $module)) {
@@ -2313,7 +2317,7 @@ public class JeproLabCartModel extends JeproLabModel{
                 return false;
             }
         }
-
+* /
         if (Configuration::get('PS_ATCP_SHIPWRAP')){
             if (!useTax) {
                 // With PS_ATCP_SHIPWRAP, we deduce the pre-tax price from the post-tax
@@ -2326,12 +2330,138 @@ public class JeproLabCartModel extends JeproLabModel{
                 shippingCost *= 1 + (carrierTax / 100);
             }
         }
-
+*/
         shippingCost = JeproLabTools.roundPrice(shippingCost, 
                 (JeproLabCurrencyModel.getCurrencyInstance(this.currency_id).decimals * JeproLabConfigurationSettings.JEPROLAB_PRICE_DISPLAY_PRECISION));
         JeproLabCache.getInstance().store(cacheKey, shippingCost);
 
         return shippingCost;
+    }
+
+    /**
+     * isCarrierInRange
+     *
+     * Check if the specified carrier is in range
+     *
+     * @id_carrier int
+     * @id_zone int
+     */
+    public boolean isCarrierInRange(int carrierId, int zoneId){
+        JeproLabCarrierModel carrier = new JeproLabCarrierModel(carrierId, JeproLabSettingModel.getIntValue("default_lang"));
+        int shippingMethod = carrier.getShippingMethod();
+        if (carrier.range_behavior <= 0) {
+            return true;
+        }
+
+        if (shippingMethod == JeproLabCarrierModel.JEPROLAB_SHIPPING_METHOD_FREE) {
+            return true;
+        }
+
+        boolean checkDeliveryPriceByWeight = JeproLabCarrierModel.checkDeliveryPriceByWeight(
+            carrierId, this.getTotalWeight(), zoneId
+        );
+
+        if (shippingMethod == JeproLabCarrierModel.JEPROLAB_SHIPPING_METHOD_WEIGHT && checkDeliveryPriceByWeight) {
+            return true;
+        }
+
+        boolean checkDeliveryPriceByPrice = JeproLabCarrierModel.checkDeliveryPriceByPrice(
+            carrierId,
+            this.getRequestTotal(true, JeproLabCartModel.BOTH_WITHOUT_SHIPPING),
+            zoneId, this.currency_id
+        );
+
+        if (shippingMethod == JeproLabCarrierModel.JEPROLAB_SHIPPING_METHOD_PRICE && checkDeliveryPriceByPrice) {
+            return true;
+        }
+
+        return false;
+    }
+
+
+    public float getTotalWeight(){ return getTotalWeight(null); }
+
+    /**
+     * Return total Cart weight
+     *
+     * @return float Total Cart weight
+     */
+    public float getTotalWeight(List<JeproLabAnalyzeModel> analyzes){
+        if(analyzes != null) {
+            float totalWeight = 0;
+            for(JeproLabAnalyzeModel analyze : analyzes) {
+                if (analyze.attribute_weight <= 0){
+                    totalWeight += analyze.weight * analyze.cart_quantity;
+                } else {
+                    totalWeight += analyze.attribute_weight * analyze.cart_quantity;
+                }
+            }
+            return totalWeight;
+        }
+
+        if (JeproLabCartModel._total_weight.containsKey(this.cart_id)) {
+            this.updateAnalyzeWeight(this.cart_id);
+        }
+
+        return JeproLabCartModel._total_weight.get(this.cart_id);
+    }
+
+    /**
+     * @param cartId
+     */
+    protected void updateAnalyzeWeight(int cartId){
+        String query;
+        float weighAnalyzeWithAttribute = 0;
+        if (JeproLabCombinationModel.isFeaturePublished()) {
+            //$weight_product_with_attribute = Db::getInstance()->getValue('
+            query = "SELECT SUM((analyze." + staticDataBaseObject.quoteName("weight") + " + analyze_attribute." + staticDataBaseObject.quoteName("weight");
+            query += ") * cart_analyze." + staticDataBaseObject.quoteName("quantity") + ") AS nb FROM " + staticDataBaseObject.quoteName("#__jeprolab_cart_analyze");
+            query += " AS cart_analyze LEFT JOIN " + staticDataBaseObject.quoteName("# _jeprolab_analyze") + " AS analyze ON (cart_analyze.";
+            query += staticDataBaseObject.quoteName("analyze_id") + " = analyze." + staticDataBaseObject.quoteName("analyze_id") + ") LEFT JOIN ";
+            query += staticDataBaseObject.quoteName("#__jeprolab_analyze_attribute") + " AS analyze_attribute ON (cart_analyze.";
+            query += staticDataBaseObject.quoteName("analyze_attribute_id") + " = analyze_attribute." + staticDataBaseObject.quoteName("analyze_attribute_id");
+            query += ") WHERE (cart_analyze." + staticDataBaseObject.quoteName("analyze_attribute_id") + " IS NOT NULL AND cart_analyze.";
+            query += staticDataBaseObject.quoteName("analyze_attribute_id") + " != 0) AND cart_analyze." + staticDataBaseObject.quoteName("cart_id") + " = " + cartId;
+
+            staticDataBaseObject.setQuery(query);
+            weighAnalyzeWithAttribute = (float)staticDataBaseObject.loadValue("nb");
+        }
+
+        // = Db::getInstance()->getValue('
+        query = "SELECT SUM(analyze."  + staticDataBaseObject.quoteName("weight") + " * cart_quantity." + staticDataBaseObject.quoteName("quantity") ;
+        query += " AS nb FROM " + staticDataBaseObject.quoteName("#__jeprolab_cart_analyze") + " AS cart_analyze LEFT JOIN ";
+        query += staticDataBaseObject.quoteName("#__jeprolab_analyze") + " AS analyze ON (cart_analyze." + staticDataBaseObject.quoteName("analyze_id");
+        query += " = analyze." + staticDataBaseObject.quoteName("analyze_id") + ") WHERE (cart_analyze." + staticDataBaseObject.quoteName("analyze_attribute_id");
+        query += " IS NULL OR cart_analyze." + staticDataBaseObject.quoteName("analyze_attribute_id") + " = 0) AND cart_analyze.";
+        query += staticDataBaseObject.quoteName("cart_id") + " = " + cartId;
+
+        staticDataBaseObject.setQuery(query);
+        float weighAnalyzeWithoutAttribute = (float)staticDataBaseObject.loadValue("nb");
+
+        //$weight_cart_customizations = Db::getInstance()->getValue('
+        query = "SELECT SUM(customized_data." + staticDataBaseObject.quoteName("weight") + " * customization." + staticDataBaseObject.quoteName("quantity");
+        query += ") AS nb FROM " + staticDataBaseObject.quoteName("#__jeprolab_customization") + " AS customization  LEFT JOIN ";
+        query += staticDataBaseObject.quoteName("#__jeprolab_customized_data") + " AS customized_data ON (customization.";
+        query += staticDataBaseObject.quoteName("customization_id") + " = customized_data." + staticDataBaseObject.quoteName("customization_id") ;
+        query += ") WHERE customization." + staticDataBaseObject.quoteName("in_cart") + " = 1 AND customization.";
+        query += staticDataBaseObject.quoteName("cart_id") + " = " + cartId;
+
+        staticDataBaseObject.setQuery(query);
+        float weighCartCustomizations = (float)staticDataBaseObject.loadValue("nb");
+        JeproLabCartModel._total_weight.put(cartId, (weighAnalyzeWithAttribute + weighAnalyzeWithoutAttribute + weighCartCustomizations));
+    }
+
+
+    public function getDeliveryOption() {
+        return getDeliveryOption(null, false, true);
+    }
+
+    public function getDeliveryOption(JeproLabCountryModel defaultCountry) {
+        return getDeliveryOption(defaultCountry, false, true);
+    }
+
+    public function getDeliveryOption(JeproLabCountryModel defaultCountry, boolean doNotAutoSelectOptions) {
+        return getDeliveryOption(defaultCountry, doNotAutoSelectOptions, true);
     }
 
     /**
@@ -2344,9 +2474,9 @@ public class JeproLabCartModel extends JeproLabModel{
      *
      * @return array|bool|mixed Delivery option
      */
-    public function getDeliveryOption(JeproLabCountryModel defaultCountry = null, boolean doNotAutoSelectOptions = false, boolean useCache = true) {
+    public function getDeliveryOption(JeproLabCountryModel defaultCountry, boolean doNotAutoSelectOptions, boolean useCache) {
         static $cache=array();
-        String cacheKey = (int) (is_object($default_country) ? defaultCountry.country_id : 0). '-'. (int) $dontAutoSelectOptions;
+        String cacheKey = ((defaultCountry != null) ? defaultCountry.country_id : 0) + "_"  + (doNotAutoSelectOptions ? 1 : 0);
         if (JeproLabCache.getInstance().isStored(cacheKey) && useCache) {
             return JeproLabCache.getInstance().retrieve(cacheKey);
         }
@@ -2354,12 +2484,12 @@ public class JeproLabCartModel extends JeproLabModel{
         List deliveryOptionList = this.getDeliveryOptionList(defaultCountry);
 
         // The delivery option was selected
-        if (isset($this -> delivery_option) && $this -> delivery_option != '') {
+        if ((this.delivery_option != null) && $this -> delivery_option != '') {
             deliveryOption = JeproLabTools.unSerialize(this.delivery_option);
             boolean validated = true;
             for($delivery_option as $id_address = > $key){
                 if (!isset($delivery_option_list[$id_address][$key])) {
-                    $validated = false;
+                    validated = false;
                     break;
                 }
             }
@@ -2378,16 +2508,13 @@ public class JeproLabCartModel extends JeproLabModel{
         $delivery_option = array();
         for($delivery_option_list as $id_address = > $options){
             foreach($options as $key = > $option){
-                if (Configuration::get ('PS_CARRIER_DEFAULT') == -1 && $option['is_best_price']){
+                if(JeproLabSettingModel.getIntValue("default_carrier") == -1 && $option['is_best_price']){
                     $delivery_option[$id_address] = $key;
                     break;
-                }
-                elseif(Configuration::get ('PS_CARRIER_DEFAULT') == -2 && $option['is_best_grade']){
+                }else if(JeproLabSettingModel.getIntValue("default_carrier") == -2 && $option['is_best_grade']){
                     $delivery_option[$id_address] = $key;
                     break;
-                }
-                elseif($option['unique_carrier'] && in_array(Configuration::get
-                ('PS_CARRIER_DEFAULT'), array_keys($option['carrier_list']))){
+                }else if($option['unique_carrier'] && in_array(Configuration::get('PS_CARRIER_DEFAULT'), array_keys($option['carrier_list']))){
                     $delivery_option[$id_address] = $key;
                     break;
                 }
@@ -2452,7 +2579,7 @@ public class JeproLabCartModel extends JeproLabModel{
         $deliveryOptionList = array();
         $carriersPrice = array();
         $carrier_collection = array();
-        $package_list = this.getPackageList(flush);
+        packageList = this.getPackageList(flush);
 
         // Foreach addresses
         for($packageList as $id_address => $packages){
@@ -2501,8 +2628,8 @@ public class JeproLabCartModel extends JeproLabModel{
                         $carriers_instance[carrierId] = new Carrier(carrierId);
                     }
 
-                    $price_with_tax = $this -> getPackageShippingCost((int) carrierId, true, $country, $package['product_list']);
-                    $price_without_tax = $this -> getPackageShippingCost((int) carrierId, false, $country, $package['product_list']);
+                    priceWithTax = this.getPackageShippingCost(carrierId, true, country, $package['product_list']);
+                    priceWithoutTax = this.getPackageShippingCost(carrierId, false, country, $package['product_list']);
                     if (is_null($best_price) || $price_with_tax < $best_price) {
                         $best_price = $price_with_tax;
                         $best_price_carrier = carrierId;
@@ -2767,7 +2894,7 @@ public class JeproLabCartModel extends JeproLabModel{
         // Step 1 : Get analyze information (warehouse_list and carrier_list), count warehouse
         // Determine the best warehouse to determine the packages
         // For that we count the number of time we can use a warehouse for a specific delivery address
-        $warehouseCountByAddress = array();
+        Map<Integer, Map<Integer, Integer>> warehouseCountByAddress = new HashMap<>();
 
         boolean stockManagementActive = JeproLabSettingModel.getIntValue("advanced_stock_management") > 0;
 
@@ -2776,16 +2903,16 @@ public class JeproLabCartModel extends JeproLabModel{
                 analyze.delivery_address_id = this.delivery_address_id;
             }
 
-            if (!isset($warehouse_count_by_address[analyze.delivery_address_id])) {
-                $warehouse_count_by_address[analyze.delivery_address_id] = array();
+            if (!warehouseCountByAddress.containsKey(analyze.delivery_address_id)) {
+                warehouseCountByAddress.put(analyze.delivery_address_id, new HashMap<Integer, Integer>());
             }
 
             $product['warehouse_list'] = array();
-
+            List<JeproLabWarehouseModel> warehouseList;
             if(stockManagementActive && analyze.advanced_stock_management) {
-                $warehouseList = JeproLabWarehouseModel.getAnalyzeWarehouseList(analyze.analyze_id, analyze.analyze_attribute_id, this.laboratory_id);
-                if (count($warehouse_list) == 0) {
-                    $warehouse_list = JeproLabWarehouseModel.getAnalyzeWarehouseList(analyze.analyze_id, analyze.analyze_attribute_id);
+                warehouseList = JeproLabWarehouseModel.getAnalyzeWarehouseList(analyze.analyze_id, analyze.analyze_attribute_id, this.laboratory_id);
+                if (warehouseList.size() == 0) {
+                    warehouseList = JeproLabWarehouseModel.getAnalyzeWarehouseList(analyze.analyze_id, analyze.analyze_attribute_id);
                 }
                 // Does the product is in stock ?
                 // If yes, get only warehouse where the product is in stock
@@ -2814,17 +2941,19 @@ public class JeproLabCartModel extends JeproLabModel{
                 }
             } else {
                 //simulate default warehouse
-                $warehouse_list = array(0 = > array('id_warehouse' = > 0));
+                warehouseList = array(0 = > array('id_warehouse' = > 0));
                 analyze.in_stock = JeproLabStockModel.JeproLabStockAvailableModel.getQuantityAvailableByAnalyze(analyze.analyze_id, analyze.analyze_attribute_id) > 0;
             }
 
-            foreach($warehouse_list as $warehouse) {
+            for(JeproLabWarehouseModel warehouse : warehouseList) {
                 $product['warehouse_list'][$warehouse['id_warehouse']] = $warehouse['id_warehouse'];
-                if (!isset($warehouse_count_by_address[$product['id_address_delivery']][$warehouse['id_warehouse']])) {
-                    $warehouse_count_by_address[$product['id_address_delivery']][$warehouse['id_warehouse']] = 0;
+                if (!warehouseCountByAddress.get(analyze.delivery_address_id).containsKey(warehouse.warehouse_id)){
+                    warehouseCountByAddress.get(analyze.delivery_address_id).put(warehouse.warehouse_id, 0);
                 }
 
-                $warehouse_count_by_address[$product['id_address_delivery']][$warehouse['id_warehouse']]++;
+                warehouseCountByAddress.get(analyze.delivery_address_id).put(
+                        warehouse.warehouse_id, (warehouseCountByAddress.get(analyze.delivery_address_id).get(warehouse.warehouse_id)++)
+                );
             }
         }
         unset($product);
@@ -2844,7 +2973,7 @@ public class JeproLabCartModel extends JeproLabModel{
 
             $product['carrier_list'] = array();
             $id_warehouse = 0;
-            foreach($warehouse_count_by_address[$product['id_address_delivery']]as $id_war = > $val){
+            foreach(warehouseCountByAddress[$product['id_address_delivery']]as $id_war = > $val){
                 if (array_key_exists((int) $id_war, $product['warehouse_list'])) {
                     $product['carrier_list'] = JeproLabTools.array_replace
                     ($product['carrier_list'], Carrier::getAvailableCarrierList
@@ -3062,6 +3191,8 @@ public class JeproLabCartModel extends JeproLabModel{
         public Map<String, String> name = new HashMap<>();
         public Map<String, String> description = new HashMap<>();
 
+        public static Map<String, Integer> only_one_gift = new HashMap<>();
+
 
         /* Filters used when retrieving the cart rules applied to a cart of when calculating the value of a reduction */
         public static final int FILTER_ACTION_ALL = 1;
@@ -3116,12 +3247,12 @@ public class JeproLabCartModel extends JeproLabModel{
                 return false;
             }
 /*
-        // This check must not be removed because this var is used a few lines below
-        $list = (is_array($list) ? implode(',', array_map('intval', $list)) : (int)$list);
-        if (!preg_match('/^[0-9,]+$/', $list)) {
-            return false;
-        }
-
+            // This check must not be removed because this var is used a few lines below
+            $list = (is_array($list) ? implode(',', array_map('intval', $list)) : (int)$list);
+            if (!preg_match('/^[0-9,]+$/', $list)) {
+                return false;
+            }
+/*
         // Delete associated restrictions on cart rules
         String query = "DELETE cart_rule_analyze_rule_value FROM " + staticDataBaseObject.quoteName("#__jeprolab_cart_rule_analyze_rule");
         query += " AS cart_rule_analyze_rule LEFT JOIN " + staticDataBaseObject.quoteName("#__jeprolab_cart_rule_analyze_rule_value");
@@ -3204,7 +3335,7 @@ public class JeproLabCartModel extends JeproLabModel{
          * Must be called before calling multiple time getContextualValue()
          */
         public static void cleanCache(){
-            JeproLabCartRuleModel.only_one_gift = new ArrayList<>();
+            JeproLabCartRuleModel.only_one_gift = new HashMap<>();
         }
 
         /**
@@ -3548,7 +3679,7 @@ public class JeproLabCartModel extends JeproLabModel{
                 if (this.reduction_percent > 0 && this.reduction_analyze_id == -2) {
                     float selectedAnalyzesReduction = 0;
                     float price = 0;
-                    float taxRate = 0
+                    float taxRate = 0;
                     Map<String, List<JeproLabAnalyzeModel>> selectedAnalyzes = this.checkAnalyzeRestrictions(context, true);
                     if (selectedAnalyzes.size() > 0) {
                         for (JeproLabAnalyzeModel analyze : packageAnalyzes) {
@@ -3692,16 +3823,16 @@ public class JeproLabCartModel extends JeproLabModel{
             if (this.gift_analyze_id > 0 && (filter == JeproLabCartRuleModel.FILTER_ACTION_ALL || filter == JeproLabCartRuleModel.FILTER_ACTION_ALL_NOCAP || filter == JeproLabCartRuleModel.FILTER_ACTION_GIFT)){
                 int addressId = (is_null($package) ? 0 : $package['id_address']);
                 for (JeproLabAnalyzeModel analyze : packageAnalyzes) {
-                    if (analyze.analyze_id == this.gift_analyze_id && (analyze.analyze_attribute_id == this.gift_analyze_attribute_id || !(int)this.gift_product_attribute)) {
+                    if (analyze.analyze_id == this.gift_analyze_id && (analyze.analyze_attribute_id == this.gift_analyze_attribute_id || this.gift_analyze_attribute_id <= 0)) {
                         // The free gift coupon must be applied to one product only (needed for multi-shipping which manage multiple product lists)
-                        if (!isset(JeproLabCartRuleModel.only_one_gift[this.id.'-'.this.gift_product])
-                        || JeproLabCartRuleModel.only_one_gift[this.cart_rule_id + "_" + this.gift_product] == $id_address
-                                || JeproLabCartRuleModel.only_one_gift[this.cart_rule_id + "_" + this.gift_product] == 0
+                        if (!JeproLabCartRuleModel.only_one_gift.containsKey(this.cart_rule_id + "_" + this.gift_analyze_id)
+                        || JeproLabCartRuleModel.only_one_gift.get(this.cart_rule_id + "_" + this.gift_analyze_id) == addressId
+                                || JeproLabCartRuleModel.only_one_gift.get(this.cart_rule_id + "_" + this.gift_analyze_id) == 0
                                 || addressId == 0
                                 || !useCache) {
-                            reductionValue += (useTax ? $product['price_wt'] : $product['price']);
-                            if (useCache && (!isset(JeproLabCartRuleModel.only_one_gift[this.cart_rule_id + "_" + this.gift_product]) || JeproLabCartRuleModel.only_one_gift[this.cart_rule_id + "_" + this.gift_product] == 0)) {
-                                JeproLabCartRuleModel::$only_one_gift[this.cart_rule_id + "_" + this.gift_product] = addressId;
+                            reductionValue += (useTax ? analyze.analyze_price.price_with_tax : analyze.analyze_price.price);
+                            if (useCache && (!(JeproLabCartRuleModel.only_one_gift.containsKey(this.cart_rule_id + "_" + this.gift_analyze_id)) || JeproLabCartRuleModel.only_one_gift.containsKey(this.cart_rule_id + "_" + this.gift_analyze_id) == 0)) {
+                                JeproLabCartRuleModel.only_one_gift.containsKey(this.cart_rule_id + "_" + this.gift_analyze_id) = addressId;
                             }
                             break;
                         }
@@ -4161,24 +4292,33 @@ public class JeproLabCartModel extends JeproLabModel{
                     for($result_bak as $key => $cart_rule) {
                         if(cartRule.country_restriction) {
                             $country_restriction = true;
-                            $countries = Db::getInstance()->ExecuteS('
-                                    SELECT `id_country`
-                                    FROM `'._DB_PREFIX_.'address`
-                            WHERE `id_customer` = '.(int)$id_customer.'
-                            AND `deleted` = 0'
-                            );
+                            //$countries = Db::getInstance()->ExecuteS('
+                            query = "SELECT " + staticDataBaseObject.quoteName("country_id") + " FROM " + staticDataBaseObject.quoteName("__jeprolab_address");
+                            query += " WHERE " + staticDataBaseObject.quoteName("customer_id") + " = " + customerId + " AND " + staticDataBaseObject.quoteName("deleted") + "= 0";
 
-                            if (is_array($countries) && count($countries)) {
-                                foreach ($countries as $country) {
-                                    $id_cart_rule = (bool)Db::getInstance()->getValue('
-                                            SELECT crc.id_cart_rule
-                                            FROM '._DB_PREFIX_.'cart_rule_country crc
-                                    WHERE crc.id_cart_rule = '.(int)$cart_rule['id_cart_rule'].'
-                                    AND crc.id_country = '.(int)$country['id_country']);
-                                    if ($id_cart_rule) {
-                                        $result[] = $result_bak[$key];
-                                        break;
+                            staticDataBaseObject.setQuery(query);
+                            ResultSet countriesSet = staticDataBaseObject.loadObjectList();
+
+                            if (countriesSet != null) {
+                                try{
+                                    int cartRuleId;
+                                    while(countriesSet.next()) {
+                                        //$id_cart_rule = (bool)Db::getInstance()->getValue('
+                                        query = "SELECT cart_rule_country." + staticDataBaseObject.quoteName("cart_rule_id");
+                                        query += " FROM " + staticDataBaseObject.quoteName("#__jeprolab_cart_rule_country");
+                                        query += " AS cart_rule_country WHERE cart_rule_country." + staticDataBaseObject.quoteName("cart_rule_id");
+                                        query += " = " + cartRule.cart_rule_id + " AND cart_rule_country." + staticDataBaseObject.quoteName("country_id");
+                                        query += " = " + countriesSet.getInt("country_id");
+
+                                        staticDataBaseObject.setQuery(query);
+                                        cartRuleId = (int)staticDataBaseObject.loadValue("cart_rule_id");
+                                        if (cartRuleId > 0) {
+                                            $result[] = $result_bak[$key];
+                                            break;
+                                        }
                                     }
+                                }catch(SQLException ignored){
+                                    ignored.printStackTrace();
                                 }
                             }
                         }else {
@@ -4390,6 +4530,7 @@ public class JeproLabCartModel extends JeproLabModel{
                     String ruleType;
                     for(Map.Entry entry : analyzeRules.entrySet()){ //$product_rules as $product_rule) {
                         ruleType = entry.getKey().toString().equals("type") ? entry.getValue().toString() : "";
+                        //entry.
                         switch (ruleType){
                             case "attributes" :
                                 //$cart_attributes = Db::getInstance()->executeS('
@@ -4507,7 +4648,7 @@ public class JeproLabCartModel extends JeproLabModel{
                                         foreach ($matching_products_list as &$matching_product) {
                                             $matching_product = preg_replace('/^([0-9]+)-[0-9]+$/', '$1-0', $matching_product);
                                         }
-                                        eligibleAnalyzesList = JeproLabCartRuleModel.arrayUIntersect($eligible_products_list, $matching_products_list);
+                                        eligibleAnalyzesList = JeproLabCartRuleModel.arrayUIntersect(eligibleAnalyzesList, matchingAnalyzesList);
                                     }catch(SQLException ignored){
                                         ignored.printStackTrace();
                                     }finally {
@@ -4545,7 +4686,7 @@ public class JeproLabCartModel extends JeproLabModel{
                                             ('You cannot use this voucher with these products');
                                         }
 
-                                        eligibleAnalyzesList = JeproLabCartRuleModel.arrayUIntersectCompare(eligibleAnalyzesList, matchingAnalyzesList);
+                                        eligibleAnalyzesList = JeproLabCartRuleModel.arrayUIntersect(eligibleAnalyzesList, matchingAnalyzesList);
                                     }catch(SQLException ignored){
                                         ignored.printStackTrace();
                                     }finally {
@@ -4614,7 +4755,7 @@ public class JeproLabCartModel extends JeproLabModel{
             if ($return_products) {
                 return $selected_products;
             } */
-            return (!displayError ? true : false);
+            return (! displayError);
         }
 
         protected static List<String> arrayUIntersect(List<String> array1, List<String> array2){

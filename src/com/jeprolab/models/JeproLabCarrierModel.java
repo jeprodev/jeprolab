@@ -116,7 +116,7 @@ public class JeproLabCarrierModel extends JeproLabModel{
     private static Map<String, Float> _price_by_weight = new HashMap<>();
     private static Map<String, Boolean> _price_by_weight_2 = new HashMap<>();
     private static Map<String, Float> _price_by_price = new HashMap<>();
-    private static Map<String, Float> _price_by_price_2 = new HashMap<>();
+    private static Map<String, Boolean> _price_by_price_2 = new HashMap<>();
 
     public JeproLabCarrierModel(){ this(0, 0); }
     
@@ -474,7 +474,7 @@ public class JeproLabCarrierModel extends JeproLabModel{
         return JeproLabCarrierModel._price_by_price.get(cacheKey);
     }
 
-    public static float checkDeliveryPriceByPrice(int carrierId, float requestTotal, int zoneId) {
+    public static boolean checkDeliveryPriceByPrice(int carrierId, float requestTotal, int zoneId) {
         return checkDeliveryPriceByPrice(carrierId, requestTotal, zoneId, 0);
     }
 
@@ -487,7 +487,7 @@ public class JeproLabCarrierModel extends JeproLabModel{
      * @param currencyId
      * @return float Delivery price
      */
-    public static float checkDeliveryPriceByPrice(int carrierId, float requestTotal, int zoneId, int currencyId) {
+    public static boolean checkDeliveryPriceByPrice(int carrierId, float requestTotal, int zoneId, int currencyId) {
         String cacheKey = carrierId + "_" + requestTotal + "_" + zoneId + "_" + currencyId;
         if (!JeproLabCarrierModel._price_by_price_2.containsKey(cacheKey)){
             if (currencyId > 0) {
@@ -508,7 +508,7 @@ public class JeproLabCarrierModel extends JeproLabModel{
             staticDataBaseObject.setQuery(query);
 
             float price = (float)staticDataBaseObject.loadValue("price");
-            JeproLabCarrierModel._price_by_price_2.put(cacheKey, price);
+            JeproLabCarrierModel._price_by_price_2.put(cacheKey, price > 0);
         }
 
         /*$price_by_price = Hook::exec ('actionDeliveryPriceByPrice', array('carier_id' = > carrierId, 'order_total' =>
@@ -517,7 +517,7 @@ public class JeproLabCarrierModel extends JeproLabModel{
             JeproLabCarrierModel.$price_by_price2[cacheKey]=$price_by_price;
         }*/
 
-        return (float)JeproLabCarrierModel._price_by_price_2.get(cacheKey);
+        return JeproLabCarrierModel._price_by_price_2.get(cacheKey);
     }
 
     public float getMaxDeliveryPriceByPrice(int zoneId) {
