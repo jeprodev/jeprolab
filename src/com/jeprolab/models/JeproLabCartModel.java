@@ -4430,79 +4430,132 @@ public class JeproLabCartModel extends JeproLabModel{
                                 if (countMatchingAnalyzes < $product_rule_group['quantity']) {
                                     return (!displayError) ? false : Tools::displayError('You cannot use this voucher with these products');
                                 }
-                                eligibleAnalyzesList = JeproLabCartRuleModel.array_uintersect($eligible_products_list, $matching_products_list);
+                                eligibleAnalyzesList = JeproLabCartRuleModel.arrayIUntersect($eligible_products_list, $matching_products_list);
                             break;
                             case "analyzes":
                                 //$cart_products = Db::getInstance()->executeS('
-                                query = "SELECT cp.quantity, cp.`id_product`
-                                    FROM `'._DB_PREFIX_.'cart_product` cp
-                                WHERE cp.`id_cart` = '.(int)$context->cart->id.'
-                                AND cp.`id_product` IN ('.implode(',', array_map('intval', $eligible_products_list)).')');
-                                $count_matching_products = 0;
-                                $matching_products_list = array();
-                                foreach ($cart_products as $cart_product) {
-                                if (in_array($cart_product['id_product'], $product_rule['values'])) {
-                                    $count_matching_products += $cart_product['quantity'];
-                                    if ($already_in_cart && this.gift_product == $cart_product['id_product']) {
-                                        --$count_matching_products;
+                                query = "SELECT cart_analyze." + staticDataBaseObject.quoteName("quantity") + ", cart_analyze." + staticDataBaseObject.quoteName("analyze_id");
+                                query += " FROM " + staticDataBaseObject.quoteName("#__jeprolab_cart_analyze") + " AS cart_analyze WHERE cart_analyze.";
+                                query += staticDataBaseObject.quoteName("cart_id") + " = " + context.cart.cart_id + " AND cart_analyze." + staticDataBaseObject.quoteName("analyze_id");
+                                query += "IN (" .implode(',', array_map('intval', $eligible_products_list)) + ")";
+
+                                countMatchingAnalyzes = 0;
+                                //$matching_products_list = array();
+                                staticDataBaseObject.setQuery(query);
+                                ResultSet cartAnalyzesSet = staticDataBaseObject.loadObjectList();
+                                if(cartAnalyzesSet != null) {
+                                    try {
+                                        while(cartAnalyzesSet.next()) {
+                                            if (in_array($cart_product['id_product'], $product_rule['values'])) {
+                                                countMatchingAnalyzes += cartAnalyzesSet.getInt("quantity");
+                                                if (alreadyInCart && this.gift_analyze_id == cartAnalyzesSet.getInt("analyze_id")) {
+                                                    --countMatchingAnalyzes;
+                                                }
+                                                matchingAnalyzesList.add(cartAnalyzesSet.getInt("anlyze_id") + "_0");
+                                            }
+                                        }
+                                        if (countMatchingAnalyzes < $product_rule_group['quantity']) {
+                                            return (!displayError) ? false : Tools::displayError
+                                            ('You cannot use this voucher with these products');
+                                        }
+                                        eligibleAnalyzesList = JeproLabCartRuleModel.arrayUIntersect(eligibleAnalyzesList, matchingAnalyzesList);
+                                    }catch(SQLException ignored){
+                                        ignored.printStackTrace();
+                                    }finally {
+                                        try {
+                                            JeproLabDataBaseConnector.getInstance().closeConnexion();
+                                        }catch(Exception ignored){
+                                            ignored.printStackTrace();
+                                        }
                                     }
-                                    $matching_products_list[] = $cart_product['id_product'].'-0';
                                 }
-                            }
-                            if ($count_matching_products < $product_rule_group['quantity']) {
-                                return (!displayError) ? false : Tools::displayError('You cannot use this voucher with these products');
-                            }
-                            $eligible_products_list = CartRule::array_uintersect($eligible_products_list, $matching_products_list);
                             break;
                             case "categories":
-                                $cart_categories = Db::getInstance()->executeS('
-                                    SELECT cp.quantity, cp.`id_product`, cp.`id_product_attribute`, catp.`id_category`
-                                    FROM `'._DB_PREFIX_.'cart_product` cp
-                                LEFT JOIN `'._DB_PREFIX_.'category_product` catp ON cp.id_product = catp.id_product
-                                WHERE cp.`id_cart` = '.(int)$context->cart->id.'
-                                AND cp.`id_product` IN ('.implode(',', array_map('intval', $eligible_products_list)).')
-                                AND cp.`id_product` <> '.(int)this.gift_product);
-                                $count_matching_products = 0;
-                                $matching_products_list = array();
-                                foreach ($cart_categories as $cart_category) {
-                                if (in_array($cart_category['id_category'], $product_rule['values'])
-                                        /**
-                                         * We also check that the product is not already in the matching product list,
-                                         * because there are doubles in the query results (when the product is in multiple categories)
-                                         */
-                                        && !in_array($cart_category['id_product'].'-'.$cart_category['id_product_attribute'], $matching_products_list)) {
-                                    $count_matching_products += $cart_category['quantity'];
-                                    $matching_products_list[] = $cart_category['id_product'].'-'.$cart_category['id_product_attribute'];
+                                //$cart_categories = Db::getInstance()->executeS('
+                                query = "SELECT cart_analyze." + staticDataBaseObject.quoteName("quantity") + ", cart_analyze." + staticDataBaseObject.quoteName("analyze_id");
+                                query += ", cart_analyze." + staticDataBaseObject.quoteName("analyze_attribute_id") + ", analyze_category." ;
+                                query += staticDataBaseObject.quoteName("category_id") + " FROM " + staticDataBaseObject.quoteName("#__jeprolab_cart_analyze");
+                                query += " AS cart_analyze LEFT JOIN " + staticDataBaseObject.quoteName("#__jeprolab_analyze_category") + " AS analyze_category ";
+                                query += " ON analyze_category." + staticDataBaseObject.quoteName("analyze_id") + " = analyze_category.";
+                                query += staticDataBaseObject.quoteName("analyze_id") + " WHERE analyze_category." + staticDataBaseObject.quoteName("cart_id");
+                                query += " = "+ context.cart.cart_id + " AND analyze_category." + staticDataBaseObject.quoteName("analyze_id") + " IN (" ;
+                                query += implode(',', array_map('intval', $eligible_products_list)) + ") AND analyze_category." + staticDataBaseObject.quoteName("analyze_id") + " <> ";
+                                query += this.gift_analyze_id;
+
+                                staticDataBaseObject.setQuery(query);
+                                ResultSet cartCategorySet = staticDataBaseObject.loadObjectList();
+                                countMatchingAnalyzes = 0;
+                                matchingAnalyzesList = new ArrayList<>();
+                                if(cartCategorySet != null) {
+                                    try {
+                                        String key;
+                                        while(cartCategorySet.next()){
+                                            key = cartCategorySet.getInt("analyze_id") + "_" + cartCategorySet.getInt("analyze_attribute_id");
+                                            if (in_array(cartCategorySet.getInt("category_id"), $product_rule['values']) && !matchingAnalyzesList.contains(key)){
+                                                /**
+                                                 * We also check that the product is not already in the matching product list,
+                                                 * because there are doubles in the query results (when the product is in multiple categories)
+                                                 */
+                                                countMatchingAnalyzes += cartCategorySet.getInt("quantity");
+                                                matchingAnalyzesList.add(key);
+                                            }
+                                        }
+                                        if (countMatchingAnalyzes < $product_rule_group['quantity']) {
+                                            return (!displayError) ? false : Tools::displayError('You cannot use this voucher with these products');
+                                        }
+                                        // Attribute id is not important for this filter in the global list, so the ids are replaced by 0
+                                        foreach ($matching_products_list as &$matching_product) {
+                                            $matching_product = preg_replace('/^([0-9]+)-[0-9]+$/', '$1-0', $matching_product);
+                                        }
+                                        eligibleAnalyzesList = JeproLabCartRuleModel.arrayUIntersect($eligible_products_list, $matching_products_list);
+                                    }catch(SQLException ignored){
+                                        ignored.printStackTrace();
+                                    }finally {
+                                        try {
+                                            JeproLabDataBaseConnector.getInstance().closeConnexion();
+                                        }catch(Exception ignored){
+                                            ignored.printStackTrace();
+                                        }
+                                    }
                                 }
-                            }
-                            if ($count_matching_products < $product_rule_group['quantity']) {
-                                return (!displayError) ? false : Tools::displayError('You cannot use this voucher with these products');
-                            }
-                            // Attribute id is not important for this filter in the global list, so the ids are replaced by 0
-                            foreach ($matching_products_list as &$matching_product) {
-                                $matching_product = preg_replace('/^([0-9]+)-[0-9]+$/', '$1-0', $matching_product);
-                            }
-                            $eligible_products_list = CartRule::array_uintersect($eligible_products_list, $matching_products_list);
-                            break;
+                                break;
                             case "manufacturers":
-                                $cart_manufacturers = Db::getInstance()->executeS('
-                                    SELECT cp.quantity, cp.`id_product`, p.`id_manufacturer`
-                                    FROM `'._DB_PREFIX_.'cart_product` cp
-                                LEFT JOIN `'._DB_PREFIX_.'product` p ON cp.id_product = p.id_product
-                                WHERE cp.`id_cart` = '.(int)$context->cart->id.'
-                                AND cp.`id_product` IN ('.implode(',', array_map('intval', $eligible_products_list)).')');
-                                $count_matching_products = 0;
-                                $matching_products_list = array();
-                                foreach ($cart_manufacturers as $cart_manufacturer) {
-                                if (in_array($cart_manufacturer['id_manufacturer'], $product_rule['values'])) {
-                                    $count_matching_products += $cart_manufacturer['quantity'];
-                                    $matching_products_list[] = $cart_manufacturer['id_product'].'-0';
+                                //$cart_manufacturers = Db::getInstance()->executeS('
+                                query = "SELECT cart_analyze." + staticDataBaseObject.quoteName("quantity") + ", cart_analyze." + staticDataBaseObject.quoteName("analyze_id");
+                                query += ", analyze." + staticDataBaseObject.quoteName("manufacturer_id") + " FROM " + staticDataBaseObject.quoteName("#__jeprolab_cart_analyze");
+                                query += " AS cart_analyze LEFT JOIN " + staticDataBaseObject.quoteName("#__jeprolab_analyze") + " AS analyze ON cart_analyze.";
+                                query += staticDataBaseObject.quoteName("analyze_id") + " = analyze." + staticDataBaseObject.quoteName("analyze_id") + " WHERE cart_analyze.";
+                                query += staticDataBaseObject.quoteName("cart_id") + " = " + context.cart.cart_id + " AND cart_analyze." + staticDataBaseObject.quoteName("analyze_id");
+                                query += " IN (" +.implode(',', array_map('intval', $eligible_products_list)) + ")";
+
+                                staticDataBaseObject.setQuery(query);
+                                ResultSet cartManufacturersSet = staticDataBaseObject.loadObjectList();
+                                countMatchingAnalyzes = 0;
+                                //$matching_products_list = array();
+                                if(cartManufacturersSet != null) {
+                                    try {
+                                        while(cartManufacturersSet.next()) {
+                                            if (in_array($cart_manufacturer['id_manufacturer'], $product_rule['values'])) {
+                                                countMatchingAnalyzes += cartManufacturersSet.getInt("quantity");
+                                                matchingAnalyzesList.add(cartManufacturersSet.getInt("analyze_id") + "_0");
+                                            }
+                                        }
+                                        if (countMatchingAnalyzes < $product_rule_group['quantity']) {
+                                            return (!displayError) ? false : Tools::displayError
+                                            ('You cannot use this voucher with these products');
+                                        }
+
+                                        eligibleAnalyzesList = JeproLabCartRuleModel.arrayUIntersectCompare(eligibleAnalyzesList, matchingAnalyzesList);
+                                    }catch(SQLException ignored){
+                                        ignored.printStackTrace();
+                                    }finally {
+                                        try {
+                                            JeproLabDataBaseConnector.getInstance().closeConnexion();
+                                        }catch(Exception ignored){
+                                            ignored.printStackTrace();
+                                        }
+                                    }
                                 }
-                            }
-                            if ($count_matching_products < $product_rule_group['quantity']) {
-                                return (!displayError) ? false : Tools::displayError('You cannot use this voucher with these products');
-                            }
-                            $eligible_products_list = CartRule::array_uintersect($eligible_products_list, $matching_products_list);
                             break;
                             case "suppliers":
                                 //$cart_suppliers = Db::getInstance()->executeS('
@@ -4526,6 +4579,10 @@ public class JeproLabCartModel extends JeproLabModel{
                                                 matchingAnalyzesList.add(cartSuppliers.getInt("analyze_id") + "_0");
                                             }
                                         }
+                                        if(countMatchingAnalyzes < $product_rule_group['quantity']) {
+                                            return (!displayError) ? false : Tools::displayError('You cannot use this voucher with these products');
+                                        }
+                                        eligibleAnalyzesList = JeproLabCartRuleModel.arrayUIntersectCompare(eligibleAnalyzesList, matchingAnalyzesList);
                                     }catch(SQLException ignored){
                                         ignored.printStackTrace();
                                     }finally {
@@ -4542,14 +4599,11 @@ public class JeproLabCartModel extends JeproLabModel{
                                     $matching_products_list[] = $cart_supplier['id_product'].'-0';
                                 }
                             }*/
-                                if(countMatchingAnalyzes < $product_rule_group['quantity']) {
-                                    return (!displayError) ? false : Tools::displayError('You cannot use this voucher with these products');
-                                }
-                                eligibleAnalyzesList = CartRule::array_uintersect($eligible_products_list, $matching_products_list);
+
                             break;
                         }
 
-                        if (eligibleAnalyzesList.size() == 0)
+                        if (eligibleAnalyzesList.size() == 0){
                             return (!displayError) ? false : Tools::displayError('You cannot use this voucher with these products');
                         }
                     }
@@ -4562,34 +4616,32 @@ public class JeproLabCartModel extends JeproLabModel{
             } */
             return (!displayError ? true : false);
         }
-/*
-        protected static function array_uintersect($array1, $array2)
-        {
-            $intersection = array();
-            foreach ($array1 as $value1) {
-            foreach ($array2 as $value2) {
-                if (CartRule::array_uintersect_compare($value1, $value2) == 0) {
-                    $intersection[] = $value1;
-                    break 1;
+
+        protected static List<String> arrayUIntersect(List<String> array1, List<String> array2){
+            List<String> intersection = new ArrayList<>();
+            for(String value1 : array1) {
+                for(String value2 : array2) {
+                    if (JeproLabCartRuleModel.arrayUIntersectCompare(value1, value2)){
+                        intersection.add(value1);
+                        break;
+                    }
                 }
             }
-        }
-            return $intersection;
+            return intersection;
         }
 
-        protected static function array_uintersect_compare($a, $b)
-        {
-            if ($a == $b) {
-                return 0;
+        protected static boolean arrayUIntersectCompare(String a, String b){
+            if (a.equals(b)) {
+                return true;
             }
 
-            $asplit = explode('-', $a);
-            $bsplit = explode('-', $b);
-            if ($asplit[0] == $bsplit[0] && (!(int)$asplit[1] || !(int)$bsplit[1])) {
-                return 0;
+            String[] aSplit = a.split("_"); //explode('-', $a);
+            String[] bSplit = b.split("_"); //explode('-', $b);
+            if (aSplit[0] == bSplit[0] && (Integer.parseInt(aSplit[1]) <= 0 || Integer.parseInt(bSplit[1]) <= 0)) {
+                return true;
             }
 
-            return 1;
+            return false;
         }
 
 
