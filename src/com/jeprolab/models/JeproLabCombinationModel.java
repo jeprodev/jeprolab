@@ -119,6 +119,8 @@ public class JeproLabCombinationModel extends JeproLabModel{
     }
 
     public static class JeproLabCustomizationModel extends  JeproLabModel{
+        public int customization_id;
+
         /** @var int */
         public int analyze_attribute_id;
         /** @var int */
@@ -143,6 +145,46 @@ public class JeproLabCombinationModel extends JeproLabModel{
          */
         public static boolean isFeaturePublished(){
             return JeproLabSettingModel.getIntValue("customization_feature_active") > 0;
+        }
+
+        /**
+         * Get price of Customization
+         *
+         * @param customizationId Customization ID
+         *
+         * @return float|int Price of customization
+         * /
+        public static function getCustomizationPrice($idCustomization)
+        {
+            if (!(int) $idCustomization) {
+                return 0;
+            }
+
+            return (float) Db::getInstance()->getValue('
+            SELECT SUM(`price`) FROM `'._DB_PREFIX_.'customized_data`
+            WHERE `id_customization` = '.(int) $idCustomization
+            );
+        }
+
+        /**
+         * Get weight of Customization
+         *
+         * @param customizationId Customization ID
+         *
+         * @return float|int Weight
+         */
+        public static float getCustomizationWeight(int customizationId){
+            if (customizationId <= 0) {
+                return 0;
+            }
+
+            if(dataBaseObject == null){ dataBaseObject = JeproLabFactory.getDataBaseConnector(); }
+
+            String query = "SELECT SUM(" + dataBaseObject.quoteName("weight") + ") FROM " + dataBaseObject.quoteName("#__jeprolab_customized_data");
+            query += " WHERE " + dataBaseObject.quoteName("customization_id") + " = " + customizationId;
+
+            dataBaseObject.setQuery(query);
+            return (float)dataBaseObject.loadValue("weight");
         }
 
     }

@@ -161,12 +161,12 @@ public class JeproLabEmployeeModel extends JeproLabModel {
         }
 
         List<Integer> labs = new ArrayList<>();
-        if(staticDataBaseObject == null){
-            staticDataBaseObject = JeproLabFactory.getDataBaseConnector();
+        if(dataBaseObject == null){
+            dataBaseObject = JeproLabFactory.getDataBaseConnector();
         }
-        String query = "SELECT lab_id FROM " + staticDataBaseObject.quoteName("#__jeproLab_employee_lab") + " WHERE employee_id = " + this.employee_id;
+        String query = "SELECT lab_id FROM " + dataBaseObject.quoteName("#__jeproLab_employee_lab") + " WHERE employee_id = " + this.employee_id;
         dataBaseObject.setQuery(query);
-        ResultSet labSet = staticDataBaseObject.loadObjectList();
+        ResultSet labSet = dataBaseObject.loadObjectList();
         if(labSet != null){
             try{
                 while(labSet.next()){
@@ -195,30 +195,30 @@ public class JeproLabEmployeeModel extends JeproLabModel {
     public boolean isSuperAdmin(){ return true;}
 
     public static int getEmployeeIdByUsername(String userName){
-        if(staticDataBaseObject == null){
-            staticDataBaseObject = JeproLabFactory.getDataBaseConnector();
+        if(dataBaseObject == null){
+            dataBaseObject = JeproLabFactory.getDataBaseConnector();
         }
 
-        String query = "SELECT " + staticDataBaseObject.quoteName("id") + " FROM " + staticDataBaseObject.quoteName("#__users");
-        query += " WHERE " + staticDataBaseObject.quoteName("username") + " = " + staticDataBaseObject.quote(userName);
+        String query = "SELECT " + dataBaseObject.quoteName("id") + " FROM " + dataBaseObject.quoteName("#__users");
+        query += " WHERE " + dataBaseObject.quoteName("username") + " = " + dataBaseObject.quote(userName);
 
-        staticDataBaseObject.setQuery(query, 0, 1);
+        dataBaseObject.setQuery(query, 0, 1);
 
-        int id = (int)staticDataBaseObject.loadValue("id");
+        int id = (int)dataBaseObject.loadValue("id");
         return (id > 0) ? id : 0;
     }
 
     public static Map<String, String> getEmployeeIdAndPasswordByUsername(String userName){
-        if(staticDataBaseObject == null){
-            staticDataBaseObject = JeproLabFactory.getDataBaseConnector();
+        if(dataBaseObject == null){
+            dataBaseObject = JeproLabFactory.getDataBaseConnector();
         }
 
-        String query = "SELECT " + staticDataBaseObject.quoteName("id") + ", " + staticDataBaseObject.quoteName("password") + " FROM ";
-        query += staticDataBaseObject.quoteName("#__users") + " WHERE " + staticDataBaseObject.quoteName("username") + " = ";
-        query += staticDataBaseObject.quote(userName);
+        String query = "SELECT " + dataBaseObject.quoteName("id") + ", " + dataBaseObject.quoteName("password") + " FROM ";
+        query += dataBaseObject.quoteName("#__users") + " WHERE " + dataBaseObject.quoteName("username") + " = ";
+        query += dataBaseObject.quote(userName);
 
-        staticDataBaseObject.setQuery(query);
-        ResultSet credentialSet = staticDataBaseObject.loadObjectList();
+        dataBaseObject.setQuery(query);
+        ResultSet credentialSet = dataBaseObject.loadObjectList();
         Map<String, String> credential = new HashMap<>();
         if(credentialSet != null){
             try{

@@ -159,7 +159,7 @@ public class JeproLabAnalyzeController extends JeproLabController {
             analyzeName = new SimpleStringProperty(analyze.name.get("lang_" + langId));
             analyzeReference = new SimpleStringProperty(analyze.reference);
             analyzeCategory = new SimpleStringProperty(analyze.category_name);
-            analyzePrice = new SimpleStringProperty(Float.toString(analyze.price));
+            analyzePrice = new SimpleStringProperty(Float.toString(analyze.analyze_price.price));
             analyzeBasePrice = new SimpleStringProperty(Float.toString(analyze.base_price));
         }
 

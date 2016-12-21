@@ -15,5 +15,7 @@
     <orderEntry type="library" name="bcpkix-jdk15on-154" level="project" />
     <orderEntry type="library" name="mysql-connector-java-5.1.39-bin" level="project" />
     <orderEntry type="library" name="commons-collections4-4.1" level="project" />
+    <orderEntry type="library" name="commons-collections4-4.1 (2)" level="project" />
+    <orderEntry type="library" name="bcmail-jdk15on-153" level="project" />
   </component>
 </module>

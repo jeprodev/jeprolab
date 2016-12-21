@@ -46,6 +46,8 @@ public class JeproLabCustomerModel extends JeproLabModel{
 
     public boolean is_guest;
 
+    public boolean is_logged;
+
     public String website;
 
     public String company;
@@ -180,16 +182,16 @@ public class JeproLabCustomerModel extends JeproLabModel{
      * @return array
      */
     public static List<JeproLabCustomerModel> getCustomersByCompany(String company){
-        if(staticDataBaseObject == null){
-            staticDataBaseObject = JeproLabFactory.getDataBaseConnector();
+        if(dataBaseObject == null){
+            dataBaseObject = JeproLabFactory.getDataBaseConnector();
         }
         List<JeproLabCustomerModel> customers = new ArrayList<>();
-        String query = "SELECT * FROM " + staticDataBaseObject.quoteName("#__jeprolab_customer") + " WHERE ";
-        query += staticDataBaseObject.quoteName("company") + " = " + staticDataBaseObject.quote(company);
+        String query = "SELECT * FROM " + dataBaseObject.quoteName("#__jeprolab_customer") + " WHERE ";
+        query += dataBaseObject.quoteName("company") + " = " + dataBaseObject.quote(company);
         query += JeproLabLaboratoryModel.addSqlRestriction(JeproLabLaboratoryModel.SHARE_CUSTOMER);
 
-        staticDataBaseObject.setQuery(query);
-        ResultSet customersSet = staticDataBaseObject.loadObjectList();
+        dataBaseObject.setQuery(query);
+        ResultSet customersSet = dataBaseObject.loadObjectList();
 
         if(customersSet != null){
             try{
@@ -243,15 +245,15 @@ public class JeproLabCustomerModel extends JeproLabModel{
         }
 
         if (!JeproLabCustomerModel._defaultGroupId.containsKey(customerId)){
-            if(staticDataBaseObject == null){
-                staticDataBaseObject = JeproLabFactory.getDataBaseConnector();
+            if(dataBaseObject == null){
+                dataBaseObject = JeproLabFactory.getDataBaseConnector();
             }
 
-            String query = "SELECT " + staticDataBaseObject.quoteName("default_group_id") + " FROM " + staticDataBaseObject.quoteName("#__jeprolab_customer");
-            query += " WHERE " + staticDataBaseObject.quoteName("customer_id") +  " = " + customerId;
+            String query = "SELECT " + dataBaseObject.quoteName("default_group_id") + " FROM " + dataBaseObject.quoteName("#__jeprolab_customer");
+            query += " WHERE " + dataBaseObject.quoteName("customer_id") +  " = " + customerId;
 
-            staticDataBaseObject.setQuery(query);
-            JeproLabCustomerModel._defaultGroupId.put(customerId, (int)staticDataBaseObject.loadValue("default_group_id"));
+            dataBaseObject.setQuery(query);
+            JeproLabCustomerModel._defaultGroupId.put(customerId, (int)dataBaseObject.loadValue("default_group_id"));
         }
         return JeproLabCustomerModel._defaultGroupId.get(customerId);
     }
@@ -267,24 +269,24 @@ public class JeproLabCustomerModel extends JeproLabModel{
      * @return array Customers
      */
     public static List<JeproLabCustomerModel> getCustomers(boolean onlyActive){
-        if(staticDataBaseObject == null){
-            staticDataBaseObject = JeproLabFactory.getDataBaseConnector();
+        if(dataBaseObject == null){
+            dataBaseObject = JeproLabFactory.getDataBaseConnector();
         }
         List<JeproLabCustomerModel> customers = new ArrayList<>();
 
-        /*String query = "SELECT " + staticDataBaseObject.quoteName("customer_id") + ", " + staticDataBaseObject.quoteName("email");
-        query += ", " + staticDataBaseObject.quoteName("firstname") + ", " + staticDataBaseObject.quoteName("lastname") + " FROM ";
-        query += staticDataBaseObject.quoteName("#__jeprolab_customer") + " WHERE 1 " + JeproLabLaboratoryModel.addSqlRestriction(JeproLabLaboratoryModel.SHARE_CUSTOMER);
-        query += (onlyActive ? " AND " + staticDataBaseObject.quoteName("published") + " = 1" : "") + " ORDER BY ";
-        query += staticDataBaseObject.quoteName("customer_id") + " ASC";*/
+        /*String query = "SELECT " + dataBaseObject.quoteName("customer_id") + ", " + dataBaseObject.quoteName("email");
+        query += ", " + dataBaseObject.quoteName("firstname") + ", " + dataBaseObject.quoteName("lastname") + " FROM ";
+        query += dataBaseObject.quoteName("#__jeprolab_customer") + " WHERE 1 " + JeproLabLaboratoryModel.addSqlRestriction(JeproLabLaboratoryModel.SHARE_CUSTOMER);
+        query += (onlyActive ? " AND " + dataBaseObject.quoteName("published") + " = 1" : "") + " ORDER BY ";
+        query += dataBaseObject.quoteName("customer_id") + " ASC";*/
 
-        String query = "SELECT * FROM " + staticDataBaseObject.quoteName("#__jeprolab_customer") + " WHERE 1 ";
+        String query = "SELECT * FROM " + dataBaseObject.quoteName("#__jeprolab_customer") + " WHERE 1 ";
         query += JeproLabLaboratoryModel.addSqlRestriction(JeproLabLaboratoryModel.SHARE_CUSTOMER);
-        query += (onlyActive ? " AND " + staticDataBaseObject.quoteName("published") + " = 1" : "") + " ORDER BY ";
-        query += staticDataBaseObject.quoteName("customer_id") + " ASC";
+        query += (onlyActive ? " AND " + dataBaseObject.quoteName("published") + " = 1" : "") + " ORDER BY ";
+        query += dataBaseObject.quoteName("customer_id") + " ASC";
 
-        staticDataBaseObject.setQuery(query);
-        ResultSet customerSet = staticDataBaseObject.loadObjectList();
+        dataBaseObject.setQuery(query);
+        ResultSet customerSet = dataBaseObject.loadObjectList();
 
         if(customerSet != null){
             try{
@@ -324,15 +326,15 @@ public class JeproLabCustomerModel extends JeproLabModel{
     }
 
     public static int getCustomerIdByEmail(String email){
-        if(staticDataBaseObject == null){
-            staticDataBaseObject = JeproLabFactory.getDataBaseConnector();
+        if(dataBaseObject == null){
+            dataBaseObject = JeproLabFactory.getDataBaseConnector();
         }
-        String query = "SELECT customer_id FROM " + staticDataBaseObject.quoteName("#__jeprolab_customer") + " WHERE ";
-        query += staticDataBaseObject.quoteName("email") + " = " + staticDataBaseObject.quote(email);
+        String query = "SELECT customer_id FROM " + dataBaseObject.quoteName("#__jeprolab_customer") + " WHERE ";
+        query += dataBaseObject.quoteName("email") + " = " + dataBaseObject.quote(email);
         query += JeproLabLaboratoryModel.addSqlRestriction(JeproLabLaboratoryModel.SHARE_CUSTOMER);
 
-        staticDataBaseObject.setQuery(query);
-        return (int)staticDataBaseObject.loadValue("customer_id");
+        dataBaseObject.setQuery(query);
+        return (int)dataBaseObject.loadValue("customer_id");
     }
 
     /**
@@ -342,16 +344,16 @@ public class JeproLabCustomerModel extends JeproLabModel{
      * @return List
      */
     public static JeproLabCustomerModel getCustomerByEmail(String email){
-        if(staticDataBaseObject == null){
-            staticDataBaseObject = JeproLabFactory.getDataBaseConnector();
+        if(dataBaseObject == null){
+            dataBaseObject = JeproLabFactory.getDataBaseConnector();
         }
         List<JeproLabCustomerModel> customers = new ArrayList<>();
-        String query = "SELECT * FROM " + staticDataBaseObject.quoteName("#__jeprolab_customer") + " WHERE ";
-        query += staticDataBaseObject.quoteName("email") + " = " + staticDataBaseObject.quote(email);
+        String query = "SELECT * FROM " + dataBaseObject.quoteName("#__jeprolab_customer") + " WHERE ";
+        query += dataBaseObject.quoteName("email") + " = " + dataBaseObject.quote(email);
         query += JeproLabLaboratoryModel.addSqlRestriction(JeproLabLaboratoryModel.SHARE_CUSTOMER);
 
-        staticDataBaseObject.setQuery(query);
-        ResultSet customersSet = staticDataBaseObject.loadObjectList();
+        dataBaseObject.setQuery(query);
+        ResultSet customersSet = dataBaseObject.loadObjectList();
         JeproLabCustomerModel customer;
         if(customersSet != null){
             try{
@@ -512,14 +514,14 @@ public class JeproLabCustomerModel extends JeproLabModel{
         }
 
         if (!JeproLabCustomerModel._customer_groups.containsKey(customerId)){
-            if(staticDataBaseObject == null){
-                staticDataBaseObject = JeproLabFactory.getDataBaseConnector();
+            if(dataBaseObject == null){
+                dataBaseObject = JeproLabFactory.getDataBaseConnector();
             }
-            String query = "SELECT customer_group." + staticDataBaseObject.quoteName("group_id") + " FROM " + staticDataBaseObject.quoteName("#__jeprolab_customer_group");
-            query += " AS customer_group WHERE customer_group." + staticDataBaseObject.quoteName("customer_id") + " = " + customerId;
+            String query = "SELECT customer_group." + dataBaseObject.quoteName("group_id") + " FROM " + dataBaseObject.quoteName("#__jeprolab_customer_group");
+            query += " AS customer_group WHERE customer_group." + dataBaseObject.quoteName("customer_id") + " = " + customerId;
 
-            staticDataBaseObject.setQuery(query);
-            ResultSet groupSet = staticDataBaseObject.loadObjectList();
+            dataBaseObject.setQuery(query);
+            ResultSet groupSet = dataBaseObject.loadObjectList();
             if(groupSet != null){
                 try{
                     groups = new ArrayList<>();
@@ -733,16 +735,16 @@ public class JeproLabCustomerModel extends JeproLabModel{
     }
 
     public static String getNameByCustomerId(int customerId) {
-        if(staticDataBaseObject == null){
-            staticDataBaseObject = JeproLabFactory.getDataBaseConnector();
+        if(dataBaseObject == null){
+            dataBaseObject = JeproLabFactory.getDataBaseConnector();
         }
 
-        String query = "SELECT " + staticDataBaseObject.quoteName("firstname") + ", " + staticDataBaseObject.quoteName("lastname") + " FROM ";
-        query += staticDataBaseObject.quoteName("#__jeprolab_customer") + " WHERE " + staticDataBaseObject.quoteName("customer_id") + " = ";
+        String query = "SELECT " + dataBaseObject.quoteName("firstname") + ", " + dataBaseObject.quoteName("lastname") + " FROM ";
+        query += dataBaseObject.quoteName("#__jeprolab_customer") + " WHERE " + dataBaseObject.quoteName("customer_id") + " = ";
         query += customerId;
 
-        staticDataBaseObject.setQuery(query);
-        ResultSet customerSet = staticDataBaseObject.loadObjectList();
+        dataBaseObject.setQuery(query);
+        ResultSet customerSet = dataBaseObject.loadObjectList();
         if(customerSet != null){
             try{
                 if(customerSet.next()){
@@ -778,14 +780,14 @@ public class JeproLabCustomerModel extends JeproLabModel{
 
         if (JeproLabCustomerModel.current_customer_groups == null && JeproLabCustomerModel.current_customer_groups.isEmpty()) {
             JeproLabCustomerModel.current_customer_groups = new ArrayList<>();
-            if(staticDataBaseObject == null){
-                staticDataBaseObject = JeproLabFactory.getDataBaseConnector();
+            if(dataBaseObject == null){
+                dataBaseObject = JeproLabFactory.getDataBaseConnector();
             }
-            String query = "SELECT " + staticDataBaseObject.quoteName("group_id") + " FROM " + staticDataBaseObject.quoteName("#__jeprolab_customer_group");
-            query += " WHERE " + staticDataBaseObject.quoteName("customer_id") + " = " + context.customer.customer_id;
+            String query = "SELECT " + dataBaseObject.quoteName("group_id") + " FROM " + dataBaseObject.quoteName("#__jeprolab_customer_group");
+            query += " WHERE " + dataBaseObject.quoteName("customer_id") + " = " + context.customer.customer_id;
 
-            staticDataBaseObject.setQuery(query);
-            ResultSet customerGroupSet = staticDataBaseObject.loadObjectList();
+            dataBaseObject.setQuery(query);
+            ResultSet customerGroupSet = dataBaseObject.loadObjectList();
 
             if(customerGroupSet != null){
                 try{
@@ -809,15 +811,15 @@ public class JeproLabCustomerModel extends JeproLabModel{
     public static boolean customerHasAddress(int customerId, int addressId){
         String cacheKey = customerId + "_" + addressId;
         if(!JeproLabCustomerModel._customerHasAddress.containsKey(cacheKey)){
-            if(staticDataBaseObject == null){
-                staticDataBaseObject = JeproLabFactory.getDataBaseConnector();
+            if(dataBaseObject == null){
+                dataBaseObject = JeproLabFactory.getDataBaseConnector();
             }
-            String query = "SELECT " + staticDataBaseObject.quoteName("address_id") + " FROM " + staticDataBaseObject.quoteName("#__jeprolab_address");
-            query += " WHERE " + staticDataBaseObject.quoteName("customer_id") + " = " + customerId + " AND " + staticDataBaseObject.quoteName("address_id");
-            query += " = " + addressId + " AND " + staticDataBaseObject.quoteName("deleted") + " = 0";
+            String query = "SELECT " + dataBaseObject.quoteName("address_id") + " FROM " + dataBaseObject.quoteName("#__jeprolab_address");
+            query += " WHERE " + dataBaseObject.quoteName("customer_id") + " = " + customerId + " AND " + dataBaseObject.quoteName("address_id");
+            query += " = " + addressId + " AND " + dataBaseObject.quoteName("deleted") + " = 0";
 
-            staticDataBaseObject.setQuery(query);
-            ResultSet resultSet = staticDataBaseObject.loadObjectList();
+            dataBaseObject.setQuery(query);
+            ResultSet resultSet = dataBaseObject.loadObjectList();
 
             try{
                 if(resultSet.next()){
@@ -836,5 +838,58 @@ public class JeproLabCustomerModel extends JeproLabModel{
             }
         }
         return false;
+    }
+
+    public boolean isLogged(){
+        return isLogged(false);
+    }
+
+    /**
+     * Check customer information and return customer validity.
+     *
+     * @since 1.5.0
+     *
+     * @param withGuest
+     *
+     * @return bool customer validity
+     */
+    public boolean isLogged(boolean withGuest) {
+        if (!withGuest && this.is_guest) {
+            return false;
+        }
+
+        /* Customer is valid only if it can be load and if object password is the same as database one */
+        return this.is_logged  && this.customer_id > 0  && JeproLabCustomerModel.checkPassword(this.customer_id, this.password);
+    }
+
+    /**
+     * Check if customer password is the right one.
+     *
+     * @param customerId   Customer ID
+     * @param  passwordHash Hashed password
+     *
+     * @return bool result
+     */
+    public static boolean checkPassword(int customerId, String passwordHash){
+        /*if (!Validate::isUnsignedId($idCustomer)) {
+        die(Tools::displayError());
+    }*/
+        String cacheKey = "jeprolab_customer_check_password_"+ customerId + "_" + passwordHash;
+        if (!JeproLabCache.getInstance().isStored(cacheKey)) {
+            //$sql = new DbQuery();
+            String query = "SELECT customer." + dataBaseObject.quoteName("customer_id") + " FROM " + dataBaseObject.quoteName("#__jeprolab_customer");
+            query += " WHERE customer." + dataBaseObject.quoteName("customer_id") + "= " + customerId + " AND customer.";
+            query += dataBaseObject.quoteName("psswd") + " = " + dataBaseObject.quote(passwordHash);
+
+            dataBaseObject.setQuery(query);
+
+            boolean result = dataBaseObject.loadValue("customer_id") > 0;
+
+            JeproLabCache.getInstance().store(cacheKey, result);
+
+            return result;
+        }
+
+        return (boolean)JeproLabCache.getInstance().retrieve(cacheKey);
     }
 }

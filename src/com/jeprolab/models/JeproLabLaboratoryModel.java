@@ -165,8 +165,8 @@ public class JeproLabLaboratoryModel extends JeproLabModel{
             labId = JeproLabContext.getContext().laboratory.laboratory_id;
         }
         if(labId <= 0) {
-            if(staticDataBaseObject == null){
-                staticDataBaseObject = JeproLabFactory.getDataBaseConnector();
+            if(dataBaseObject == null){
+                dataBaseObject = JeproLabFactory.getDataBaseConnector();
             }
 
             //find current lab from url
@@ -174,15 +174,15 @@ public class JeproLabLaboratoryModel extends JeproLabModel{
             String host = "";
             //$request_uri = rawurldecode($_SERVER['REQUEST_URI']);
 
-            String query = "SELECT lab." + staticDataBaseObject.quoteName("lab_id") +  ", CONCAT(lab_url." + staticDataBaseObject.quoteName("physical_uri");
-            query += ", lab_url." + staticDataBaseObject.quoteName("virtual_uri") + ") AS uri, lab_url." + staticDataBaseObject.quoteName("domain") +  ", lab_url.";
-            query += staticDataBaseObject.quoteName("main") +  " FROM " + staticDataBaseObject.quoteName("#__jeprolab_lab_url") + " AS lab_url LEFT JOIN ";
-            query += staticDataBaseObject.quoteName("#__jeprolab_lab") + " AS lab ON (lab.lab_id = lab_url.lab_id) WHERE (lab_url.domain = ";
-            query += staticDataBaseObject.quote(host) + " OR lab_url.ssl_domain = " + staticDataBaseObject.quote(host) + ") AND lab.published = 1 AND ";
+            String query = "SELECT lab." + dataBaseObject.quoteName("lab_id") +  ", CONCAT(lab_url." + dataBaseObject.quoteName("physical_uri");
+            query += ", lab_url." + dataBaseObject.quoteName("virtual_uri") + ") AS uri, lab_url." + dataBaseObject.quoteName("domain") +  ", lab_url.";
+            query += dataBaseObject.quoteName("main") +  " FROM " + dataBaseObject.quoteName("#__jeprolab_lab_url") + " AS lab_url LEFT JOIN ";
+            query += dataBaseObject.quoteName("#__jeprolab_lab") + " AS lab ON (lab.lab_id = lab_url.lab_id) WHERE (lab_url.domain = ";
+            query += dataBaseObject.quote(host) + " OR lab_url.ssl_domain = " + dataBaseObject.quote(host) + ") AND lab.published = 1 AND ";
             query += "lab.deleted = 0 ORDER BY LENGTH (CONCAT(lab_url.physical_uri, lab_url.virtual_uri)) DESC";
 
-            staticDataBaseObject.setQuery(query);
-            ResultSet results = staticDataBaseObject.loadObjectList();
+            dataBaseObject.setQuery(query);
+            ResultSet results = dataBaseObject.loadObjectList();
             boolean through = false;
             List resultLabs = new ArrayList<>();
             boolean isMainUri = false;
@@ -336,17 +336,17 @@ public class JeproLabLaboratoryModel extends JeproLabModel{
 
     public static boolean isFeaturePublished(){
         try {
-            staticDataBaseObject = JeproLabDataBaseConnector.getInstance();
+            dataBaseObject = JeproLabDataBaseConnector.getInstance();
         } catch (Exception e) {
             e.printStackTrace();
         }
         if(!feature_published){
-            String query = "SELECT COUNT(*) FROM " + staticDataBaseObject.quoteName("#__jeprolab_lab");
-            staticDataBaseObject.setQuery(query);
+            String query = "SELECT COUNT(*) FROM " + dataBaseObject.quoteName("#__jeprolab_lab");
+            dataBaseObject.setQuery(query);
 
             int nbObject = 0;
             try {
-                ResultSet data = staticDataBaseObject.loadObjectList();
+                ResultSet data = dataBaseObject.loadObjectList();
                 while (data.next()) {
                     nbObject++;
                 }
@@ -420,15 +420,21 @@ public class JeproLabLaboratoryModel extends JeproLabModel{
         if(labId <= 0){
             labId = JeproLabSettingModel.getIntValue("default_lab");
         }
-        if(staticDataBaseObject == null){
-            staticDataBaseObject = JeproLabFactory.getDataBaseConnector();
+        if(dataBaseObject == null){
+            dataBaseObject = JeproLabFactory.getDataBaseConnector();
         }
-        return " AND " + (!alias.equals("") ? alias + "." : "") + staticDataBaseObject.quoteName("lab_id") + " = " + labId;
+        return " AND " + (!alias.equals("") ? alias + "." : "") + dataBaseObject.quoteName("lab_id") + " = " + labId;
     }
     
-    public static String addSqlRestrictionOnLang(String alias, String filter){
-        //// TODO: 11/9/16 edit me 
-    }
+   /* public static String addSqlRestrictionOnLang(String alias, int labId){
+        if (JeproLabContext.getContext().laboratory != null && labId > 0)
+            labId = JeproLabContext.getContext().laboratory.laboratory_id;
+        if (labId <= 0)
+            labId = JeproLabSettingModel.getIntValue("default_lab");
+
+        return " AND " + (!(alias.equals("")) ? alias + "." : "") + dataBaseObject.quoteName("lab_id")  + " = " + labId;
+        return "";
+    }*/
 
     public static String addSqlAssociation(String table){
         return addSqlAssociation(table, true);
@@ -586,8 +592,8 @@ public class JeproLabLaboratoryModel extends JeproLabModel{
         }
         if((JeproLabLaboratoryModel.labGroups.isEmpty())  || refresh) {
 
-            if(staticDataBaseObject == null) {
-                staticDataBaseObject = JeproLabFactory.getDataBaseConnector();
+            if(dataBaseObject == null) {
+                dataBaseObject = JeproLabFactory.getDataBaseConnector();
             }
             String from = "";
             String where = "";
@@ -596,18 +602,18 @@ public class JeproLabLaboratoryModel extends JeproLabModel{
 
             //to do set back with login If the profile isn't a superAdmin
             /*if (employee.employee_id > 0){ // && employee.profile_id != _PS_ADMIN_PROFILE_){
-                from += " LEFT JOIN " + staticDataBaseObject.quoteName("#__jeprolab_employee_lab") + " AS employee_lab ON employee_lab.lab_id = lab.lab_id";
+                from += " LEFT JOIN " + dataBaseObject.quoteName("#__jeprolab_employee_lab") + " AS employee_lab ON employee_lab.lab_id = lab.lab_id";
                 where += " AND employee_lab.employee_id = " + employee.employee_id;
             } */
 
             String query = "SELECT lab_group.*, lab.*, lab_group.lab_group_name AS group_name, lab.lab_name AS lab_name, lab.published, ";
-            query += "lab_url.domain, lab_url.ssl_domain, lab_url.physical_uri, lab_url.virtual_uri FROM " + staticDataBaseObject.quoteName("#__jeprolab_lab_group");
-            query += " AS lab_group LEFT JOIN " + staticDataBaseObject.quoteName("#__jeprolab_lab") + " AS lab ON lab.lab_group_id = lab_group.lab_group_id  LEFT JOIN ";
-            query += staticDataBaseObject.quoteName("#__jeprolab_lab_url") + " AS lab_url ON lab.lab_id = lab_url.lab_id AND lab_url.main = 1 " + from + " WHERE lab.deleted";
+            query += "lab_url.domain, lab_url.ssl_domain, lab_url.physical_uri, lab_url.virtual_uri FROM " + dataBaseObject.quoteName("#__jeprolab_lab_group");
+            query += " AS lab_group LEFT JOIN " + dataBaseObject.quoteName("#__jeprolab_lab") + " AS lab ON lab.lab_group_id = lab_group.lab_group_id  LEFT JOIN ";
+            query += dataBaseObject.quoteName("#__jeprolab_lab_url") + " AS lab_url ON lab.lab_id = lab_url.lab_id AND lab_url.main = 1 " + from + " WHERE lab.deleted";
             query += " = 0 AND lab_group.deleted = 0 " + where + " ORDER BY lab_group.lab_group_name, lab.lab_name";
 
-            staticDataBaseObject.setQuery(query);
-            ResultSet results = staticDataBaseObject.loadObjectList();
+            dataBaseObject.setQuery(query);
+            ResultSet results = dataBaseObject.loadObjectList();
 
             try {
                 JeproLabLaboratoryGroupModel labGroup;
@@ -749,17 +755,17 @@ public class JeproLabLaboratoryModel extends JeproLabModel{
         }
 
         public static List<JeproLabLaboratoryGroupModel> getLaboratoryGroups(boolean activated){
-            if(staticDataBaseObject == null){
-                staticDataBaseObject = JeproLabFactory.getDataBaseConnector();
+            if(dataBaseObject == null){
+                dataBaseObject = JeproLabFactory.getDataBaseConnector();
             }
 
-            String query = "SELECT * FROM " + staticDataBaseObject.quoteName("#__jeprolab_lab_group") + " WHERE 1 ";
+            String query = "SELECT * FROM " + dataBaseObject.quoteName("#__jeprolab_lab_group") + " WHERE 1 ";
             if(activated){
-                query += " AND " + staticDataBaseObject.quoteName("published") + " = 1 ";
+                query += " AND " + dataBaseObject.quoteName("published") + " = 1 ";
             }
             List<JeproLabLaboratoryGroupModel> laboratoryGroups = new ArrayList<>();
-            staticDataBaseObject.setQuery(query);
-            ResultSet results = staticDataBaseObject.loadObjectList();
+            dataBaseObject.setQuery(query);
+            ResultSet results = dataBaseObject.loadObjectList();
             try {
                 JeproLabLaboratoryGroupModel laboratoryGroup;
                 while(results.next()){

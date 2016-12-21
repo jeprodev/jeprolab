@@ -130,20 +130,20 @@ public class JeproLabCarrierModel extends JeproLabModel{
         if(carrierId > 0){
             String cacheKey = "jeprolab_model_carrier_" + carrierId + "_" + langId;
             if(!JeproLabCache.getInstance().isStored(cacheKey)){
-                if(staticDataBaseObject == null){
-                    staticDataBaseObject = JeproLabFactory.getDataBaseConnector();
+                if(dataBaseObject == null){
+                    dataBaseObject = JeproLabFactory.getDataBaseConnector();
                 }
-                String query = "SELECT carrier.* FROM " + staticDataBaseObject.quoteName("#__jeprolab_carrier") + " AS carrier ";
+                String query = "SELECT carrier.* FROM " + dataBaseObject.quoteName("#__jeprolab_carrier") + " AS carrier ";
                 if(langId > 0){
-                    query += " LEFT JOIN " + staticDataBaseObject.quoteName("#__jeprolab_carrier_lang") + " AS carrier_lang ON (carrier." ;
-                    query += staticDataBaseObject.quoteName("carrier_id") + " = carrier_lang." + staticDataBaseObject.quoteName("carrier_id");
-                    query += " AND carrier_lang." + staticDataBaseObject.quoteName("lang_id") + " = " + langId + " AND carrier_lang.";
-                    query += staticDataBaseObject.quoteName("lab_id") + " = " + JeproLabContext.getContext().laboratory.laboratory_id;
+                    query += " LEFT JOIN " + dataBaseObject.quoteName("#__jeprolab_carrier_lang") + " AS carrier_lang ON (carrier." ;
+                    query += dataBaseObject.quoteName("carrier_id") + " = carrier_lang." + dataBaseObject.quoteName("carrier_id");
+                    query += " AND carrier_lang." + dataBaseObject.quoteName("lang_id") + " = " + langId + " AND carrier_lang.";
+                    query += dataBaseObject.quoteName("lab_id") + " = " + JeproLabContext.getContext().laboratory.laboratory_id;
                 }
-                query += " WHERE carrier." + staticDataBaseObject.quoteName("carrier_id") + " = " + carrierId;
+                query += " WHERE carrier." + dataBaseObject.quoteName("carrier_id") + " = " + carrierId;
 
-                staticDataBaseObject.setQuery(query);
-                ResultSet carrierSet = staticDataBaseObject.loadObjectList();
+                dataBaseObject.setQuery(query);
+                ResultSet carrierSet = dataBaseObject.loadObjectList();
                 if(carrierSet != null){
                     try{
                         if(carrierSet.next()){
@@ -218,51 +218,51 @@ public class JeproLabCarrierModel extends JeproLabModel{
             this.position = JeproLabCarrierModel.getHigherPosition () + 1;
         }
 
-        if(staticDataBaseObject == null){ staticDataBaseObject = JeproLabFactory.getDataBaseConnector(); }
+        if(dataBaseObject == null){ dataBaseObject = JeproLabFactory.getDataBaseConnector(); }
 
-        String query = "INSERT INTO " + staticDataBaseObject.quoteName("#__jeprolab_carrier") + "(" + staticDataBaseObject.quoteName("reference_id");
-        query += ", " + staticDataBaseObject.quoteName("tax_rules_group_id") + ", " + staticDataBaseObject.quoteName("name") + ", " ;
-        query += staticDataBaseObject.quoteName("url") + ", " + staticDataBaseObject.quoteName("published") + ", " + staticDataBaseObject.quoteName("deleted");
-        query += ", " + staticDataBaseObject.quoteName("shipping_handling") + ", " + staticDataBaseObject.quoteName("range_behavior") + ", ";
-        query += staticDataBaseObject.quoteName("is_module") + ", " + staticDataBaseObject.quoteName("is_free") + ", " + staticDataBaseObject.quoteName("shipping_external");
-        query += ", " + staticDataBaseObject.quoteName("need_range") + ", " + staticDataBaseObject.quoteName("external_module_name") + ", ";
-        query += staticDataBaseObject.quoteName("shipping_method") + ", "  + staticDataBaseObject.quoteName("position") + ", " + staticDataBaseObject.quoteName("max_width");
-        query += ", " + staticDataBaseObject.quoteName("max_height") + ", " + staticDataBaseObject.quoteName("max_depth") + ", " ;
-        query += staticDataBaseObject.quoteName("max_weight") + ", " + staticDataBaseObject.quoteName("grade") +  ") VALUES (" + this.reference_id ;
-        query += ", " + this.tax_rules_group_id + ", " + staticDataBaseObject.quote(this.name) + ", " + staticDataBaseObject.quote(this.url) + ", " ;
+        String query = "INSERT INTO " + dataBaseObject.quoteName("#__jeprolab_carrier") + "(" + dataBaseObject.quoteName("reference_id");
+        query += ", " + dataBaseObject.quoteName("tax_rules_group_id") + ", " + dataBaseObject.quoteName("name") + ", " ;
+        query += dataBaseObject.quoteName("url") + ", " + dataBaseObject.quoteName("published") + ", " + dataBaseObject.quoteName("deleted");
+        query += ", " + dataBaseObject.quoteName("shipping_handling") + ", " + dataBaseObject.quoteName("range_behavior") + ", ";
+        query += dataBaseObject.quoteName("is_module") + ", " + dataBaseObject.quoteName("is_free") + ", " + dataBaseObject.quoteName("shipping_external");
+        query += ", " + dataBaseObject.quoteName("need_range") + ", " + dataBaseObject.quoteName("external_module_name") + ", ";
+        query += dataBaseObject.quoteName("shipping_method") + ", "  + dataBaseObject.quoteName("position") + ", " + dataBaseObject.quoteName("max_width");
+        query += ", " + dataBaseObject.quoteName("max_height") + ", " + dataBaseObject.quoteName("max_depth") + ", " ;
+        query += dataBaseObject.quoteName("max_weight") + ", " + dataBaseObject.quoteName("grade") +  ") VALUES (" + this.reference_id ;
+        query += ", " + this.tax_rules_group_id + ", " + dataBaseObject.quote(this.name) + ", " + dataBaseObject.quote(this.url) + ", " ;
         query += (this.published ? 1 : 0) + ", " + (this.deleted ? 1 : 0) + ", "  +  (this.shipping_handling ? 1 : 0) + ", " + this.range_behavior + ", ";
         query += (this.is_module ? 1 : 0) + ", " + (this.is_free ? 1 : 0) + ", " + (this.shipping_external ? 1 : 0) + ", " + (this.need_range ? 1 : 0) + ", ";
-        query += staticDataBaseObject.quote(this.external_module_name) + ", " + this.shipping_method + ", 0, " + this.max_width + ", " + this.max_height + ", ";
+        query += dataBaseObject.quote(this.external_module_name) + ", " + this.shipping_method + ", 0, " + this.max_width + ", " + this.max_height + ", ";
         query += this.max_depth + ", " + this.max_weight + ", " + this.grade + ") ";
 
         boolean result = true;
-        staticDataBaseObject.setQuery(query);
-        if (!staticDataBaseObject.query(true)){
+        dataBaseObject.setQuery(query);
+        if (!dataBaseObject.query(true)){
             return false;
         }else{
-            this.carrier_id = staticDataBaseObject.getGeneratedKey();
+            this.carrier_id = dataBaseObject.getGeneratedKey();
             if(this.carrier_id < 0){
                 return false;
             }else{
                 for(int labId : JeproLabLaboratoryModel.getContextListLaboratoryIds()) {
                     for (int langId : JeproLabLanguageModel.getLanguageIds()) {
-                        query = "INSERT INTO " + staticDataBaseObject.quoteName("#__jeprolab_carrier_lang") + "(" + staticDataBaseObject.quoteName("carrier_id");
-                        query += ", " + staticDataBaseObject.quoteName("lang_id") + ", " + staticDataBaseObject.quoteName("lab_id") + ", ";
-                        query += staticDataBaseObject.quoteName("delay") + ") VALUES (" + this.carrier_id + ", " + langId + ", " + labId + ", ";
-                        query += staticDataBaseObject.quote(this.delay) + ") ";
+                        query = "INSERT INTO " + dataBaseObject.quoteName("#__jeprolab_carrier_lang") + "(" + dataBaseObject.quoteName("carrier_id");
+                        query += ", " + dataBaseObject.quoteName("lang_id") + ", " + dataBaseObject.quoteName("lab_id") + ", ";
+                        query += dataBaseObject.quoteName("delay") + ") VALUES (" + this.carrier_id + ", " + langId + ", " + labId + ", ";
+                        query += dataBaseObject.quote(this.delay) + ") ";
 
-                        staticDataBaseObject.setQuery(query);
-                        result &= staticDataBaseObject.query(false);
+                        dataBaseObject.setQuery(query);
+                        result &= dataBaseObject.query(false);
                     }
                 }
             }
         }
 
-        query = "SELECT count(" + staticDataBaseObject.quoteName("carrier_id")  + ") AS carriers FROM " + staticDataBaseObject.quoteName("#__jeprolab_carrier");
-        query += " WHERE " + staticDataBaseObject.quoteName("deleted") + " = 0";
+        query = "SELECT count(" + dataBaseObject.quoteName("carrier_id")  + ") AS carriers FROM " + dataBaseObject.quoteName("#__jeprolab_carrier");
+        query += " WHERE " + dataBaseObject.quoteName("deleted") + " = 0";
 
-        staticDataBaseObject.setQuery(query);
-        int count = (int)staticDataBaseObject.loadValue("carriers");
+        dataBaseObject.setQuery(query);
+        int count = (int)dataBaseObject.loadValue("carriers");
         if (count <= 0){
             return false;
         }
@@ -271,53 +271,53 @@ public class JeproLabCarrierModel extends JeproLabModel{
         }
 
         // Register reference
-        query = "UPDATE " + staticDataBaseObject.quoteName("#__jeprolab_carrier") + "SET " + staticDataBaseObject.quoteName("reference_id");
-        query += " = " + this.carrier_id + " WHERE " + staticDataBaseObject.quoteName("carrier_id") + " = " + this.carrier_id;
+        query = "UPDATE " + dataBaseObject.quoteName("#__jeprolab_carrier") + "SET " + dataBaseObject.quoteName("reference_id");
+        query += " = " + this.carrier_id + " WHERE " + dataBaseObject.quoteName("carrier_id") + " = " + this.carrier_id;
 
-        staticDataBaseObject.setQuery(query);
-        return result & staticDataBaseObject.query(false);
+        dataBaseObject.setQuery(query);
+        return result & dataBaseObject.query(false);
     }
 
     /**
      *
      */
     public boolean delete() {
-        if(staticDataBaseObject == null){ staticDataBaseObject = JeproLabFactory.getDataBaseConnector(); }
+        if(dataBaseObject == null){ dataBaseObject = JeproLabFactory.getDataBaseConnector(); }
         this.clearCache("carrier", this.carrier_id);
         boolean result = true;
 
         List<Integer> labIds = JeproLabLaboratoryModel.getContextListLaboratoryIds();
-        String query = "DELETE " + staticDataBaseObject.quoteName("#__jeprolab_carrier_lab") + " WHERE " + staticDataBaseObject.quoteName("carrier_id");
-        query += " = " + this.carrier_id + " AND " + staticDataBaseObject.quoteName("lab_id") + " = ";
+        String query = "DELETE " + dataBaseObject.quoteName("#__jeprolab_carrier_lab") + " WHERE " + dataBaseObject.quoteName("carrier_id");
+        query += " = " + this.carrier_id + " AND " + dataBaseObject.quoteName("lab_id") + " = ";
 
         for(int labId : labIds){
-            staticDataBaseObject.setQuery(query + labId);
-            result &= staticDataBaseObject.query(false);
+            dataBaseObject.setQuery(query + labId);
+            result &= dataBaseObject.query(false);
         }
 
-        query = "DELETE " + staticDataBaseObject.quoteName("#__jeprolab_carrier_lang") + " WHERE " + staticDataBaseObject.quoteName("carrier_id");
-        query += " = " + this.carrier_id + " AND " + staticDataBaseObject.quoteName("lang_id") + " = ";
+        query = "DELETE " + dataBaseObject.quoteName("#__jeprolab_carrier_lang") + " WHERE " + dataBaseObject.quoteName("carrier_id");
+        query += " = " + this.carrier_id + " AND " + dataBaseObject.quoteName("lang_id") + " = ";
 
         for(int langId : JeproLabLanguageModel.getLanguageIds()){
-            staticDataBaseObject.setQuery(query + langId);
-            result &= staticDataBaseObject.query(false);
+            dataBaseObject.setQuery(query + langId);
+            result &= dataBaseObject.query(false);
         }
 
-        query = "DELETE " + staticDataBaseObject.quoteName("#__jeprolab_carrier") + " WHERE " + staticDataBaseObject.quoteName("carrier_id");
+        query = "DELETE " + dataBaseObject.quoteName("#__jeprolab_carrier") + " WHERE " + dataBaseObject.quoteName("carrier_id");
         query += " = " + this.carrier_id;
 
-        staticDataBaseObject.setQuery(query);
-        result &= staticDataBaseObject.query(false);
+        dataBaseObject.setQuery(query);
+        result &= dataBaseObject.query(false);
 
         if (!result){
             return false;
         }
         JeproLabCarrierModel.cleanPositions();
-        query = "DELETE FROM " + staticDataBaseObject.quoteName("#__jeprolab_cart_rule_carrier") + " WHERE ";
-        query += staticDataBaseObject.quoteName("carrier_id") + " = " + this.carrier_id;
+        query = "DELETE FROM " + dataBaseObject.quoteName("#__jeprolab_cart_rule_carrier") + " WHERE ";
+        query += dataBaseObject.quoteName("carrier_id") + " = " + this.carrier_id;
 
-        staticDataBaseObject.setQuery(query);
-        return (staticDataBaseObject.query(false) && this.deleteTaxRulesGroupId(JeproLabLaboratoryModel.getLaboratoryIds(true, 0)));
+        dataBaseObject.setQuery(query);
+        return (dataBaseObject.query(false) && this.deleteTaxRulesGroupId(JeproLabLaboratoryModel.getLaboratoryIds(true, 0)));
     }
 
     /**
@@ -326,12 +326,12 @@ public class JeproLabCarrierModel extends JeproLabModel{
      * @param oldId Old id carrier
      */
     public void setConfiguration(int oldId){
-        if(staticDataBaseObject == null){ staticDataBaseObject = JeproLabFactory.getDataBaseConnector(); }
-        String query = "UPDATE " + staticDataBaseObject.quoteName("#__jeprolab_delivery") + " SET " + staticDataBaseObject.quoteName("carrier_id");
-        query += " = " + this.carrier_id + " WHERE " + staticDataBaseObject.quoteName("carrier_id") + " = " + oldId;
+        if(dataBaseObject == null){ dataBaseObject = JeproLabFactory.getDataBaseConnector(); }
+        String query = "UPDATE " + dataBaseObject.quoteName("#__jeprolab_delivery") + " SET " + dataBaseObject.quoteName("carrier_id");
+        query += " = " + this.carrier_id + " WHERE " + dataBaseObject.quoteName("carrier_id") + " = " + oldId;
 
-        staticDataBaseObject.setQuery(query);
-        staticDataBaseObject.query(false);
+        dataBaseObject.setQuery(query);
+        dataBaseObject.query(false);
     }
 
     /**
@@ -345,19 +345,19 @@ public class JeproLabCarrierModel extends JeproLabModel{
         int carrierId = this.carrier_id;
         String cacheKey = carrierId + "_" + totalWeight + "_" + zoneId;
         if (!JeproLabCarrierModel._price_by_weight.containsKey(cacheKey)){
-            if(staticDataBaseObject == null){
-                staticDataBaseObject = JeproLabFactory.getDataBaseConnector();
+            if(dataBaseObject == null){
+                dataBaseObject = JeproLabFactory.getDataBaseConnector();
             }
-            String query = "SELECT delivery." + staticDataBaseObject.quoteName("price") + " AS price FROM " + staticDataBaseObject.quoteName("#__jeprolab_delivery");
-            query += " AS delivery LEFT JOIN " + staticDataBaseObject.quoteName("#__jeprolab_range_weight") + " AS range_weight ON (delivery.";
-            query += staticDataBaseObject.quoteName("range_weight_id") + " = range_weight." + staticDataBaseObject.quoteName("range_weight_id");
-            query += ") WHERE delivery." + staticDataBaseObject.quoteName("zone_id") + " = " + zoneId + " AND " + totalWeight + " >= range_weight.";
-            query += staticDataBaseObject.quoteName("delimiter1") + " AND " + totalWeight + " < range_weight." + staticDataBaseObject.quoteName("delimiter2");
-            query += " AND delivery." + staticDataBaseObject.quoteName("carrier_id") + " = " + carrierId + JeproLabCarrierModel.sqlDeliveryRangeLaboratory("range_weight");
-            query += " ORDER BY w." + staticDataBaseObject.quoteName("delimiter_1") + " ASC ";
+            String query = "SELECT delivery." + dataBaseObject.quoteName("price") + " AS price FROM " + dataBaseObject.quoteName("#__jeprolab_delivery");
+            query += " AS delivery LEFT JOIN " + dataBaseObject.quoteName("#__jeprolab_range_weight") + " AS range_weight ON (delivery.";
+            query += dataBaseObject.quoteName("range_weight_id") + " = range_weight." + dataBaseObject.quoteName("range_weight_id");
+            query += ") WHERE delivery." + dataBaseObject.quoteName("zone_id") + " = " + zoneId + " AND " + totalWeight + " >= range_weight.";
+            query += dataBaseObject.quoteName("delimiter1") + " AND " + totalWeight + " < range_weight." + dataBaseObject.quoteName("delimiter2");
+            query += " AND delivery." + dataBaseObject.quoteName("carrier_id") + " = " + carrierId + JeproLabCarrierModel.sqlDeliveryRangeLaboratory("range_weight");
+            query += " ORDER BY w." + dataBaseObject.quoteName("delimiter_1") + " ASC ";
 
-            staticDataBaseObject.setQuery(query);
-            float resultPrice = (float)staticDataBaseObject.loadValue("price");
+            dataBaseObject.setQuery(query);
+            float resultPrice = (float)dataBaseObject.loadValue("price");
             if (resultPrice <= 0) {
                 JeproLabCarrierModel._price_by_weight.put(cacheKey, this.getMaxDeliveryPriceByWeight(zoneId));
             } else {
@@ -377,20 +377,20 @@ public class JeproLabCarrierModel extends JeproLabModel{
 
     public static boolean checkDeliveryPriceByWeight(int carrierId, float totalWeight, int zoneId) {
         String cacheKey = carrierId + "_" + totalWeight + "_" + zoneId;
-        if(staticDataBaseObject == null){
-            staticDataBaseObject = JeproLabFactory.getDataBaseConnector();
+        if(dataBaseObject == null){
+            dataBaseObject = JeproLabFactory.getDataBaseConnector();
         }
         if (!JeproLabCarrierModel._price_by_weight_2.containsKey(cacheKey)){
-            String query = "SELECT delivery." + staticDataBaseObject.quoteName("price") + " AS price FROM " + staticDataBaseObject.quoteName("#__jeprolab_ delivery");
-            query += " AS delivery LEFT JOIN " + staticDataBaseObject.quoteName("#__jeprolab_ range_weight") + " AS range_weight ON delivery." ;
-            query += staticDataBaseObject.quoteName("range_weight_id") + " = weight." + staticDataBaseObject.quoteName("range_weight_id");
-            query += " WHERE delivery." + staticDataBaseObject.quoteName("zone_id") + " = " + zoneId + " AND " + totalWeight + " >= range_weight.";
-            query += staticDataBaseObject.quoteName("delimiter_1") + " AND " + totalWeight + " < range_weight." + staticDataBaseObject.quoteName("delimiter_2");
-            query += " AND delivery." + staticDataBaseObject.quoteName("carrier_id") + " = " + carrierId + JeproLabCarrierModel.sqlDeliveryRangeLaboratory("range_weight");
-            query += " ORDER BY range_weight." + staticDataBaseObject.quoteName("delimiter_1") + " ASC ";
+            String query = "SELECT delivery." + dataBaseObject.quoteName("price") + " AS price FROM " + dataBaseObject.quoteName("#__jeprolab_ delivery");
+            query += " AS delivery LEFT JOIN " + dataBaseObject.quoteName("#__jeprolab_ range_weight") + " AS range_weight ON delivery." ;
+            query += dataBaseObject.quoteName("range_weight_id") + " = weight." + dataBaseObject.quoteName("range_weight_id");
+            query += " WHERE delivery." + dataBaseObject.quoteName("zone_id") + " = " + zoneId + " AND " + totalWeight + " >= range_weight.";
+            query += dataBaseObject.quoteName("delimiter_1") + " AND " + totalWeight + " < range_weight." + dataBaseObject.quoteName("delimiter_2");
+            query += " AND delivery." + dataBaseObject.quoteName("carrier_id") + " = " + carrierId + JeproLabCarrierModel.sqlDeliveryRangeLaboratory("range_weight");
+            query += " ORDER BY range_weight." + dataBaseObject.quoteName("delimiter_1") + " ASC ";
 
-            staticDataBaseObject.setQuery(query);
-            float resultPrice = (float)staticDataBaseObject.loadValue("price");
+            dataBaseObject.setQuery(query);
+            float resultPrice = (float)dataBaseObject.loadValue("price");
             JeproLabCarrierModel._price_by_weight_2.put(cacheKey, (resultPrice > 0));
         }
 
@@ -408,15 +408,15 @@ public class JeproLabCarrierModel extends JeproLabModel{
     public float getMaxDeliveryPriceByWeight(int zoneId){
         String cacheKey = "jeprolab_carrier_model_get_max_delivery_price_by_weight_" + this.carrier_id + "_" + zoneId;
         if (!JeproLabCache.getInstance().isStored(cacheKey)) {
-            String query = "SELECT delivery." + staticDataBaseObject.quoteName("price") + " AS price FROM " + staticDataBaseObject.quoteName("#__jeprolab_delivery");
-            query += " AS delivery INNER JOIN " + staticDataBaseObject.quoteName("#__jeprolab_range_weight") + " AS range_weight ON delivery.";
-            query += staticDataBaseObject.quoteName("range_weight_id") + " = range_weight." + staticDataBaseObject.quoteName("range_weight_id");
-            query += " WHERE delivery." + staticDataBaseObject.quoteName(" zone_id ") + " = " + zoneId + " AND delivery." + staticDataBaseObject.quoteName("carrier_id");
+            String query = "SELECT delivery." + dataBaseObject.quoteName("price") + " AS price FROM " + dataBaseObject.quoteName("#__jeprolab_delivery");
+            query += " AS delivery INNER JOIN " + dataBaseObject.quoteName("#__jeprolab_range_weight") + " AS range_weight ON delivery.";
+            query += dataBaseObject.quoteName("range_weight_id") + " = range_weight." + dataBaseObject.quoteName("range_weight_id");
+            query += " WHERE delivery." + dataBaseObject.quoteName(" zone_id ") + " = " + zoneId + " AND delivery." + dataBaseObject.quoteName("carrier_id");
             query += " = " + this.carrier_id + JeproLabCarrierModel.sqlDeliveryRangeLaboratory("range_weight") + " ORDER BY range_weight. ";
-            query += staticDataBaseObject.quoteName("delimiter_2") + " DESC ";
+            query += dataBaseObject.quoteName("delimiter_2") + " DESC ";
 
-            staticDataBaseObject.setQuery(query);
-            float resultPrice = (float)staticDataBaseObject.loadValue("price");
+            dataBaseObject.setQuery(query);
+            float resultPrice = (float)dataBaseObject.loadValue("price");
 
             JeproLabCache.getInstance().store(cacheKey, resultPrice);
             return resultPrice;
@@ -444,20 +444,20 @@ public class JeproLabCarrierModel extends JeproLabModel{
             if (currencyId > 0) {
                 requestTotal = JeproLabTools.convertPrice(requestTotal, currencyId, false);
             }
-            if(staticDataBaseObject == null) {
-                staticDataBaseObject = JeproLabFactory.getDataBaseConnector();
+            if(dataBaseObject == null) {
+                dataBaseObject = JeproLabFactory.getDataBaseConnector();
             }
 
-            String query = "SELECT delivery." + staticDataBaseObject.quoteName("price") + " AS price FROM " + staticDataBaseObject.quoteName("#__jeprolab_delivery");
-            query += " AS  delivery LEFT JOIN " + staticDataBaseObject.quoteName("#__jeprolab_range_price") + " AS range_price ON delivery.";
-            query += staticDataBaseObject.quoteName("range_price_id") + " = range_price." + staticDataBaseObject.quoteName("range_price_id");
-            query += " WHERE delivery." + staticDataBaseObject.quoteName("zone_id") + " = " + zoneId + " AND " + requestTotal + " >= range_price.";
-            query += staticDataBaseObject.quoteName("delimiter_1") + " AND " + requestTotal + " < range_price." + staticDataBaseObject.quoteName("delimiter_2");
-            query += " AND delivery." + staticDataBaseObject.quoteName("carrier_id") + " = " + carrierId + JeproLabCarrierModel.sqlDeliveryRangeLaboratory("range_price");
-            query += " ORDER BY range_price." + staticDataBaseObject.quoteName("delimiter_1") + " ASC ";
+            String query = "SELECT delivery." + dataBaseObject.quoteName("price") + " AS price FROM " + dataBaseObject.quoteName("#__jeprolab_delivery");
+            query += " AS  delivery LEFT JOIN " + dataBaseObject.quoteName("#__jeprolab_range_price") + " AS range_price ON delivery.";
+            query += dataBaseObject.quoteName("range_price_id") + " = range_price." + dataBaseObject.quoteName("range_price_id");
+            query += " WHERE delivery." + dataBaseObject.quoteName("zone_id") + " = " + zoneId + " AND " + requestTotal + " >= range_price.";
+            query += dataBaseObject.quoteName("delimiter_1") + " AND " + requestTotal + " < range_price." + dataBaseObject.quoteName("delimiter_2");
+            query += " AND delivery." + dataBaseObject.quoteName("carrier_id") + " = " + carrierId + JeproLabCarrierModel.sqlDeliveryRangeLaboratory("range_price");
+            query += " ORDER BY range_price." + dataBaseObject.quoteName("delimiter_1") + " ASC ";
 
-            staticDataBaseObject.setQuery(query);
-            float resultPrice = (float)staticDataBaseObject.loadValue("price");
+            dataBaseObject.setQuery(query);
+            float resultPrice = (float)dataBaseObject.loadValue("price");
 
             if (resultPrice < 0) {
                 JeproLabCarrierModel._price_by_price.put(cacheKey, this.getMaxDeliveryPriceByPrice(zoneId));
@@ -493,21 +493,21 @@ public class JeproLabCarrierModel extends JeproLabModel{
             if (currencyId > 0) {
                 requestTotal = JeproLabTools.convertPrice(requestTotal, currencyId, false);
             }
-            if(staticDataBaseObject == null){
-                staticDataBaseObject = JeproLabFactory.getDataBaseConnector();
+            if(dataBaseObject == null){
+                dataBaseObject = JeproLabFactory.getDataBaseConnector();
             }
 
-            String query = "SELECT delivery." + staticDataBaseObject.quoteName("price") + " AS price FROM " + staticDataBaseObject.quoteName("#__jeprolab_delivery");
-            query += " AS delivery LEFT JOIN " + staticDataBaseObject.quoteName("#__jeprolab_range_price") + " AS range_price ON delivery.";
-            query += staticDataBaseObject.quoteName("range_price_id") + " = range_price." + staticDataBaseObject.quoteName("range_price_id");
-            query += " WHERE delivery." + staticDataBaseObject.quoteName("zone_id") + " = " + zoneId + " AND " + requestTotal + " >= range_price." ;
-            query += staticDataBaseObject.quoteName("delimiter_1") + " AND " + requestTotal + " < range_price." + staticDataBaseObject.quoteName("delimiter_2");
-            query += " AND delivery." + staticDataBaseObject.quoteName("carrier_id") + " = " + carrierId + JeproLabCarrierModel.sqlDeliveryRangeLaboratory("range_price");
-            query += " ORDER BY range_price." + staticDataBaseObject.quoteName("delimiter_1") + " ASC ";
+            String query = "SELECT delivery." + dataBaseObject.quoteName("price") + " AS price FROM " + dataBaseObject.quoteName("#__jeprolab_delivery");
+            query += " AS delivery LEFT JOIN " + dataBaseObject.quoteName("#__jeprolab_range_price") + " AS range_price ON delivery.";
+            query += dataBaseObject.quoteName("range_price_id") + " = range_price." + dataBaseObject.quoteName("range_price_id");
+            query += " WHERE delivery." + dataBaseObject.quoteName("zone_id") + " = " + zoneId + " AND " + requestTotal + " >= range_price." ;
+            query += dataBaseObject.quoteName("delimiter_1") + " AND " + requestTotal + " < range_price." + dataBaseObject.quoteName("delimiter_2");
+            query += " AND delivery." + dataBaseObject.quoteName("carrier_id") + " = " + carrierId + JeproLabCarrierModel.sqlDeliveryRangeLaboratory("range_price");
+            query += " ORDER BY range_price." + dataBaseObject.quoteName("delimiter_1") + " ASC ";
 
-            staticDataBaseObject.setQuery(query);
+            dataBaseObject.setQuery(query);
 
-            float price = (float)staticDataBaseObject.loadValue("price");
+            float price = (float)dataBaseObject.loadValue("price");
             JeproLabCarrierModel._price_by_price_2.put(cacheKey, price > 0);
         }
 
@@ -523,18 +523,18 @@ public class JeproLabCarrierModel extends JeproLabModel{
     public float getMaxDeliveryPriceByPrice(int zoneId) {
         String cacheKey = "jeprolab_carrier_model_get_max_delivery_price_by_price_" + this.carrier_id + "_" + zoneId;
         if (!JeproLabCache.getInstance().isStored(cacheKey)){
-            if(staticDataBaseObject == null){
-                staticDataBaseObject = JeproLabFactory.getDataBaseConnector();
+            if(dataBaseObject == null){
+                dataBaseObject = JeproLabFactory.getDataBaseConnector();
             }
-            String query = "SELECT delivery." + staticDataBaseObject.quoteName("price") + " FROM " + staticDataBaseObject.quoteName("#__jeprolab_delivery");
-            query += " AS delivery INNER JOIN " + staticDataBaseObject.quoteName("#__jeprolab_range_price") + " AS range_price ON delivery.";
-            query += staticDataBaseObject.quoteName("range_price_id") + " = range_price." + staticDataBaseObject.quoteName("range_price_id");
-            query += " WHERE delivery." + staticDataBaseObject.quoteName("zone_id") + " = " + zoneId + " AND delivery." + staticDataBaseObject.quoteName("carrier_id");
+            String query = "SELECT delivery." + dataBaseObject.quoteName("price") + " FROM " + dataBaseObject.quoteName("#__jeprolab_delivery");
+            query += " AS delivery INNER JOIN " + dataBaseObject.quoteName("#__jeprolab_range_price") + " AS range_price ON delivery.";
+            query += dataBaseObject.quoteName("range_price_id") + " = range_price." + dataBaseObject.quoteName("range_price_id");
+            query += " WHERE delivery." + dataBaseObject.quoteName("zone_id") + " = " + zoneId + " AND delivery." + dataBaseObject.quoteName("carrier_id");
             query += "= " + this.carrier_id + JeproLabCarrierModel.sqlDeliveryRangeLaboratory("range_price") + " ORDER BY range_price.";
-            query += staticDataBaseObject.quoteName("delimiter2") + " DESC ";
+            query += dataBaseObject.quoteName("delimiter2") + " DESC ";
 
-            staticDataBaseObject.setQuery(query);
-            float price = (float)staticDataBaseObject.loadValue("price");
+            dataBaseObject.setQuery(query);
+            float price = (float)dataBaseObject.loadValue("price");
 
             JeproLabCache.getInstance().store(cacheKey, price);
         }
@@ -548,21 +548,21 @@ public class JeproLabCarrierModel extends JeproLabModel{
      * @return array Delivery prices
      */
     public static List<Map<String, Float>> getDeliveryPriceByRanges(String rangeTable, int carrierId){
-        if(staticDataBaseObject == null){
-            staticDataBaseObject = JeproLabFactory.getDataBaseConnector();
+        if(dataBaseObject == null){
+            dataBaseObject = JeproLabFactory.getDataBaseConnector();
         }
-        String query = "SELECT delivery." + staticDataBaseObject.quoteName(staticDataBaseObject.quote(rangeTable) + "_id");
-        query += ", delivery." + staticDataBaseObject.quoteName("carrier_id") + ", delivery." + staticDataBaseObject.quoteName("zone_id");
-        query += ", delivery." + staticDataBaseObject.quoteName("price") + " FROM " + staticDataBaseObject.quoteName("#__jeprolab_delivery");
-        query += " AS delivery LEFT JOIN " + staticDataBaseObject.quoteName("#__jeprolab_" + staticDataBaseObject.quote(rangeTable) + "_id");
-        query += " AS range_table ON range_table." + staticDataBaseObject.quoteName(staticDataBaseObject.quote(rangeTable) + "_id") ;
-        query += " = delivery." + staticDataBaseObject.quoteName(staticDataBaseObject.quote(rangeTable) + "_id") + " WHERE delivery.";
-        query += staticDataBaseObject.quoteName("carrier_id") + " = " + carrierId + " AND delivery." + staticDataBaseObject.quoteName(staticDataBaseObject.quote(rangeTable) + "_id");
-        query += ") IS NOT NULL AND delivery." + staticDataBaseObject.quoteName(staticDataBaseObject.quote(rangeTable) + "_id");
+        String query = "SELECT delivery." + dataBaseObject.quoteName(dataBaseObject.quote(rangeTable) + "_id");
+        query += ", delivery." + dataBaseObject.quoteName("carrier_id") + ", delivery." + dataBaseObject.quoteName("zone_id");
+        query += ", delivery." + dataBaseObject.quoteName("price") + " FROM " + dataBaseObject.quoteName("#__jeprolab_delivery");
+        query += " AS delivery LEFT JOIN " + dataBaseObject.quoteName("#__jeprolab_" + dataBaseObject.quote(rangeTable) + "_id");
+        query += " AS range_table ON range_table." + dataBaseObject.quoteName(dataBaseObject.quote(rangeTable) + "_id") ;
+        query += " = delivery." + dataBaseObject.quoteName(dataBaseObject.quote(rangeTable) + "_id") + " WHERE delivery.";
+        query += dataBaseObject.quoteName("carrier_id") + " = " + carrierId + " AND delivery." + dataBaseObject.quoteName(dataBaseObject.quote(rangeTable) + "_id");
+        query += ") IS NOT NULL AND delivery." + dataBaseObject.quoteName(dataBaseObject.quote(rangeTable) + "_id");
         query += " != 0 " + JeproLabCarrierModel.sqlDeliveryRangeLaboratory(rangeTable) + " ORDER BY range_table.delimiter1";
 
-        staticDataBaseObject.setQuery(query);
-        ResultSet resultSet = staticDataBaseObject.loadObjectList();
+        dataBaseObject.setQuery(query);
+        ResultSet resultSet = dataBaseObject.loadObjectList();
         List<Map<String, Float>> pricesByRanges = new ArrayList<>();
         if(resultSet != null) {
             Map<String, Float> data;
@@ -601,6 +601,10 @@ public class JeproLabCarrierModel extends JeproLabModel{
         return getCarriers(langId, active, delete, 0, null, JeproLabCarrierModel.JEPROLAB_CARRIERS_ONLY);
     }
 
+    public static List<JeproLabCarrierModel> getCarriers(int langId, boolean active, boolean delete, int zoneId){
+        return getCarriers(langId, active, delete, zoneId, null, JeproLabCarrierModel.JEPROLAB_CARRIERS_ONLY);
+    }
+
     public static List<JeproLabCarrierModel> getCarriers(int langId, boolean active, boolean delete, int zoneId, List<Integer>groupIds){
         return getCarriers(langId, active, delete, zoneId, groupIds, JeproLabCarrierModel.JEPROLAB_CARRIERS_ONLY);
     }
@@ -624,27 +628,27 @@ public class JeproLabCarrierModel extends JeproLabModel{
             return new ArrayList<>();
         }
 
-        if(staticDataBaseObject == null){ staticDataBaseObject = JeproLabFactory.getDataBaseConnector(); }
+        if(dataBaseObject == null){ dataBaseObject = JeproLabFactory.getDataBaseConnector(); }
 
-        String query = "SELECT carrier.*, carrier_lang.delay FROM  " + staticDataBaseObject.quoteName("#__jeprolab_carrier") + " AS carrier LEFT JOIN ";
-        query += staticDataBaseObject.quoteName("#__jeprolab_carrier_lang") + " AS carrier_lang ON (carrier." + staticDataBaseObject.quoteName("carrier_id");
-        query += "= carrier_lang." + staticDataBaseObject.quoteName("carrier_id") + " AND carrier_lang." + staticDataBaseObject.quoteName("lang_id") + " = ";
-        query += langId + JeproLabLaboratoryModel.addSqlRestrictionOnLang("carrier_lang") + ") LEFT JOIN " + staticDataBaseObject.quoteName("#__jeprolab_carrier_zone");
-        query += " AS carrier_zone ON (carrier_zone." + staticDataBaseObject.quoteName("carrier_id") + " = carrier." + staticDataBaseObject.quoteName("carrier_id") + ")";
-        query += (zoneId > 0 ? "LEFT JOIN  " + staticDataBaseObject.quoteName("#__jeprolab_zone") + " AS zone ON (zone." + staticDataBaseObject.quoteName("zone_id") + " = " + zoneId + ")" : "");
-        query += JeproLabLaboratoryModel.addSqlAssociation("carrier") + " WHERE carrier." + staticDataBaseObject.quoteName("deleted") + " = " + (delete ? 1 : 0);
+        String query = "SELECT carrier.*, carrier_lang.delay FROM  " + dataBaseObject.quoteName("#__jeprolab_carrier") + " AS carrier LEFT JOIN ";
+        query += dataBaseObject.quoteName("#__jeprolab_carrier_lang") + " AS carrier_lang ON (carrier." + dataBaseObject.quoteName("carrier_id");
+        query += "= carrier_lang." + dataBaseObject.quoteName("carrier_id") + " AND carrier_lang." + dataBaseObject.quoteName("lang_id") + " = ";
+        query += langId + JeproLabLaboratoryModel.addSqlRestrictionOnLang("carrier_lang") + ") LEFT JOIN " + dataBaseObject.quoteName("#__jeprolab_carrier_zone");
+        query += " AS carrier_zone ON (carrier_zone." + dataBaseObject.quoteName("carrier_id") + " = carrier." + dataBaseObject.quoteName("carrier_id") + ")";
+        query += (zoneId > 0 ? "LEFT JOIN  " + dataBaseObject.quoteName("#__jeprolab_zone") + " AS zone ON (zone." + dataBaseObject.quoteName("zone_id") + " = " + zoneId + ")" : "");
+        query += JeproLabLaboratoryModel.addSqlAssociation("carrier") + " WHERE carrier." + dataBaseObject.quoteName("deleted") + " = " + (delete ? 1 : 0);
 
         if (active) {
-            query += " AND carrier." + staticDataBaseObject.quoteName("published") + " = 1 ";
+            query += " AND carrier." + dataBaseObject.quoteName("published") + " = 1 ";
         }
         if (zoneId > 0) {
-            query += " AND carrier_zone." + staticDataBaseObject.quoteName("zone_id") + " = " + zoneId + " AND zone." + staticDataBaseObject.quoteName("published") + " = 1 ";
+            query += " AND carrier_zone." + dataBaseObject.quoteName("zone_id") + " = " + zoneId + " AND zone." + dataBaseObject.quoteName("published") + " = 1 ";
         }
 
         if(groupIds.size() > 0) {
-            query += " AND EXISTS (SELECT 1 FROM " + staticDataBaseObject.quoteName("#__jeprolab_carrier_group") + " WHERE '." + staticDataBaseObject.quoteName("#__jeprolab_carrier_group");
-            query += "." + staticDataBaseObject.quoteName("carrier_id") + " = carrier." + staticDataBaseObject.quoteName("carrier_id") + " AND " ;
-            query += staticDataBaseObject.quoteName("group_id") + "  IN (";
+            query += " AND EXISTS (SELECT 1 FROM " + dataBaseObject.quoteName("#__jeprolab_carrier_group") + " WHERE '." + dataBaseObject.quoteName("#__jeprolab_carrier_group");
+            query += "." + dataBaseObject.quoteName("carrier_id") + " = carrier." + dataBaseObject.quoteName("carrier_id") + " AND " ;
+            query += dataBaseObject.quoteName("group_id") + "  IN (";
             String groupFilter = "";
             for(int groupId : groupIds){
                 groupFilter += groupId + ", ";
@@ -656,27 +660,27 @@ public class JeproLabCarrierModel extends JeproLabModel{
 
         switch (modulesFilters) {
             case 1 :
-                query += " AND carrier." + staticDataBaseObject.quoteName("is_module") + " = 0 ";
+                query += " AND carrier." + dataBaseObject.quoteName("is_module") + " = 0 ";
                 break;
             case 2 :
-                query += " AND carrier." + staticDataBaseObject.quoteName("is_module") + " = 1 ";
+                query += " AND carrier." + dataBaseObject.quoteName("is_module") + " = 1 ";
                 break;
             case 3 :
-                query += " AND carrier." + staticDataBaseObject.quoteName("is_module") + " = 1 AND carrier.";
-                query += staticDataBaseObject.quoteName("need_range") + " = 1 ";
+                query += " AND carrier." + dataBaseObject.quoteName("is_module") + " = 1 AND carrier.";
+                query += dataBaseObject.quoteName("need_range") + " = 1 ";
                 break;
             case 4 :
-                query += " AND(carrier." + staticDataBaseObject.quoteName("is_module") + "= 0 OR carrier.";
-                query += staticDataBaseObject.quoteName("need_range") + " = 1) = 0 OR carrier." + staticDataBaseObject.quoteName("need_range") + " = 1) ";
+                query += " AND(carrier." + dataBaseObject.quoteName("is_module") + "= 0 OR carrier.";
+                query += dataBaseObject.quoteName("need_range") + " = 1) = 0 OR carrier." + dataBaseObject.quoteName("need_range") + " = 1) ";
                 break;
         }
-        query += " GROUP BY carrier." + staticDataBaseObject.quoteName("carrier_id") + " ORDER BY carrier." + staticDataBaseObject.quoteName("position") + " ASC";
+        query += " GROUP BY carrier." + dataBaseObject.quoteName("carrier_id") + " ORDER BY carrier." + dataBaseObject.quoteName("position") + " ASC";
 
         String cacheKey = "jeprolab_carrier_model_get_carriers_" + JeproLabTools.md5(query);
         List<JeproLabCarrierModel> carriers = new ArrayList<>();
         if (!JeproLabCache.getInstance().isStored(cacheKey)){
-            staticDataBaseObject.setQuery(query);
-            ResultSet carrierSet = staticDataBaseObject.loadObjectList();
+            dataBaseObject.setQuery(query);
+            ResultSet carrierSet = dataBaseObject.loadObjectList();
             if(carrierSet != null){
                 JeproLabCarrierModel carrier;
                 try{
@@ -742,11 +746,11 @@ public class JeproLabCarrierModel extends JeproLabModel{
     }
 
     public static List<JeproLabCountryModel> getDeliveredCountries(int langId, boolean activeCountries, boolean activeCarriers, boolean containsStates){
-        String query = "SELECT state.* FROM " + staticDataBaseObject.quoteName("#__jeprolab_state") + " AS state ORDER BY state.";
-        query += staticDataBaseObject.quoteName("name") + " ASC";
+        String query = "SELECT state.* FROM " + dataBaseObject.quoteName("#__jeprolab_state") + " AS state ORDER BY state.";
+        query += dataBaseObject.quoteName("name") + " ASC";
 
-        staticDataBaseObject.setQuery(query);
-        ResultSet statesSet = staticDataBaseObject.loadObjectList();
+        dataBaseObject.setQuery(query);
+        ResultSet statesSet = dataBaseObject.loadObjectList();
         List<JeproLabCountryModel.JeproLabStateModel> states = new ArrayList<>();
         if(statesSet != null){
             try{
@@ -762,21 +766,21 @@ public class JeproLabCarrierModel extends JeproLabModel{
         }
 
         //$result = Db::getInstance(_PS_USE_SQL_SLAVE_)->executeS('
-        query = "SELECT country_lang.*, country.*, country_lang." + staticDataBaseObject.quoteName("name") + " AS country_name, zone.";
-        query += staticDataBaseObject.quoteName("name") + " AS zone_name FROM  " + staticDataBaseObject.quoteName("#__jeprolab_country") ;
-        query += " AS country " + JeproLabLaboratoryModel.addSqlAssociation("country") + " LEFT JOIN  " + staticDataBaseObject.quoteName("#__jeprolab_country_lang");
-        query += " AS country_lang ON (country." + staticDataBaseObject.quoteName("country_id") + " = country_lang." + staticDataBaseObject.quoteName("country_id");
-        query += " AND country_lang." + staticDataBaseObject.quoteName("lang_id") + " = " + langId + ") INNER JOIN ( " + staticDataBaseObject.quoteName("#__jeprolab_carrier_zone") ;
-        query += " AS carrier_zone INNER JOIN  " + staticDataBaseObject.quoteName("#__jeprolab_carrier") + " AS carrier ON (carrier.";
-        query += staticDataBaseObject.quoteName("carrier_id") + " = carrier_zone." + staticDataBaseObject.quoteName("carrier_id") + " AND carrier.";
-        query += staticDataBaseObject.quoteName("deleted") + " = 0 " + (activeCarriers ? "AND carrier." + staticDataBaseObject.quoteName("published") + " = 1) " : ") ");
-        query += " LEFT JOIN " + staticDataBaseObject.quoteName("#__jeprolab_zone") + " AS zone ON carrier_zone." + staticDataBaseObject.quoteName("zone_id");
-        query += " = zone." + staticDataBaseObject.quoteName("zone_id") + " ON zone." + staticDataBaseObject.quoteName("zone_id") + " = country.";
-        query += staticDataBaseObject.quoteName("zone_id") + " WHERE 1 " + (activeCountries ? " AND country." + staticDataBaseObject.quoteName("published") + " = 1" : "");
-        query += (containsStates ? " AND country." + staticDataBaseObject.quoteName("contains_states") + " = 1 " : "") + " ORDER BY country_lang.name ASC";
+        query = "SELECT country_lang.*, country.*, country_lang." + dataBaseObject.quoteName("name") + " AS country_name, zone.";
+        query += dataBaseObject.quoteName("name") + " AS zone_name FROM  " + dataBaseObject.quoteName("#__jeprolab_country") ;
+        query += " AS country " + JeproLabLaboratoryModel.addSqlAssociation("country") + " LEFT JOIN  " + dataBaseObject.quoteName("#__jeprolab_country_lang");
+        query += " AS country_lang ON (country." + dataBaseObject.quoteName("country_id") + " = country_lang." + dataBaseObject.quoteName("country_id");
+        query += " AND country_lang." + dataBaseObject.quoteName("lang_id") + " = " + langId + ") INNER JOIN ( " + dataBaseObject.quoteName("#__jeprolab_carrier_zone") ;
+        query += " AS carrier_zone INNER JOIN  " + dataBaseObject.quoteName("#__jeprolab_carrier") + " AS carrier ON (carrier.";
+        query += dataBaseObject.quoteName("carrier_id") + " = carrier_zone." + dataBaseObject.quoteName("carrier_id") + " AND carrier.";
+        query += dataBaseObject.quoteName("deleted") + " = 0 " + (activeCarriers ? "AND carrier." + dataBaseObject.quoteName("published") + " = 1) " : ") ");
+        query += " LEFT JOIN " + dataBaseObject.quoteName("#__jeprolab_zone") + " AS zone ON carrier_zone." + dataBaseObject.quoteName("zone_id");
+        query += " = zone." + dataBaseObject.quoteName("zone_id") + " ON zone." + dataBaseObject.quoteName("zone_id") + " = country.";
+        query += dataBaseObject.quoteName("zone_id") + " WHERE 1 " + (activeCountries ? " AND country." + dataBaseObject.quoteName("published") + " = 1" : "");
+        query += (containsStates ? " AND country." + dataBaseObject.quoteName("contains_states") + " = 1 " : "") + " ORDER BY country_lang.name ASC";
 
-        staticDataBaseObject.setQuery(query);
-        ResultSet countriesSet = staticDataBaseObject.loadObjectList();
+        dataBaseObject.setQuery(query);
+        ResultSet countriesSet = dataBaseObject.loadObjectList();
 
         List<JeproLabCountryModel> countries = new ArrayList<>();
 
@@ -957,17 +961,17 @@ public class JeproLabCarrierModel extends JeproLabModel{
     public static boolean checkCarrierZone(int carrierId, int zoneId){
         String cacheKey = "jeprolab_carrier_model_check_carrier_zone_" + carrierId + "_" +zoneId;
         if (!JeproLabCache.getInstance().isStored(cacheKey)) {
-            if(staticDataBaseObject == null){ staticDataBaseObject = JeproLabFactory.getDataBaseConnector(); }
-            String query = "SELECT carrier." + staticDataBaseObject.quoteName("carrier_id") + " FROM " + staticDataBaseObject.quoteName("#__jeprolab_carrier");
-            query += " AS carrier LEFT JOIN " + staticDataBaseObject.quoteName("#__jeprolab_carrier_zone")  + " AS carrier_zone ON (carrier_zone.";
-            query += staticDataBaseObject.quoteName("carrier_id") + " = carrier." + staticDataBaseObject.quoteName("carrier_id") + ") LEFT JOIN ";
-            query += staticDataBaseObject.quoteName("#__jeprolab_zone") + " AS zone ON (zone." + staticDataBaseObject.quoteName("zone_id") + " = " + zoneId;
-            query += ") WHERE carrier." + staticDataBaseObject.quoteName("carrier_id") + " = " + carrierId + " AND carrier." ;
-            query += staticDataBaseObject.quoteName("deleted") + " = 0 AND carrier." + staticDataBaseObject.quoteName("published") + " = 1 AND carrier_zone.";
-            query += staticDataBaseObject.quoteName("zone_id") + " = " + zoneId + " AND zone." + staticDataBaseObject.quoteName("published") + " = 1 ";
+            if(dataBaseObject == null){ dataBaseObject = JeproLabFactory.getDataBaseConnector(); }
+            String query = "SELECT carrier." + dataBaseObject.quoteName("carrier_id") + " FROM " + dataBaseObject.quoteName("#__jeprolab_carrier");
+            query += " AS carrier LEFT JOIN " + dataBaseObject.quoteName("#__jeprolab_carrier_zone")  + " AS carrier_zone ON (carrier_zone.";
+            query += dataBaseObject.quoteName("carrier_id") + " = carrier." + dataBaseObject.quoteName("carrier_id") + ") LEFT JOIN ";
+            query += dataBaseObject.quoteName("#__jeprolab_zone") + " AS zone ON (zone." + dataBaseObject.quoteName("zone_id") + " = " + zoneId;
+            query += ") WHERE carrier." + dataBaseObject.quoteName("carrier_id") + " = " + carrierId + " AND carrier." ;
+            query += dataBaseObject.quoteName("deleted") + " = 0 AND carrier." + dataBaseObject.quoteName("published") + " = 1 AND carrier_zone.";
+            query += dataBaseObject.quoteName("zone_id") + " = " + zoneId + " AND zone." + dataBaseObject.quoteName("published") + " = 1 ";
 
-            staticDataBaseObject.setQuery(query);
-            JeproLabCache.getInstance().store(cacheKey, staticDataBaseObject.loadValue("carrier_id") > 0);
+            dataBaseObject.setQuery(query);
+            JeproLabCache.getInstance().store(cacheKey, dataBaseObject.loadValue("carrier_id") > 0);
         }
         return (boolean)JeproLabCache.getInstance().retrieve(cacheKey);
     }
@@ -979,15 +983,15 @@ public class JeproLabCarrierModel extends JeproLabModel{
      */
     public List<JeproLabCountryModel.JeproLabZoneModel> getZones(){
         //return Db::getInstance()->executeS('
-        if(staticDataBaseObject == null){ staticDataBaseObject = JeproLabFactory.getDataBaseConnector(); }
+        if(dataBaseObject == null){ dataBaseObject = JeproLabFactory.getDataBaseConnector(); }
 
-        String query = "SELECT * FROM " + staticDataBaseObject.quoteName("#__jeprolab_carrier_zone") + " AS carrier_zone LEFT JOIN ";
-        query += staticDataBaseObject.quoteName("#__jeprolab_zone") + " AS zone ON carrier_zone." + staticDataBaseObject.quoteName("zone_id");
-        query += " = zone." + staticDataBaseObject.quoteName("zone_id") + " WHERE carrier_zone." + staticDataBaseObject.quoteName("carrier_id");
+        String query = "SELECT * FROM " + dataBaseObject.quoteName("#__jeprolab_carrier_zone") + " AS carrier_zone LEFT JOIN ";
+        query += dataBaseObject.quoteName("#__jeprolab_zone") + " AS zone ON carrier_zone." + dataBaseObject.quoteName("zone_id");
+        query += " = zone." + dataBaseObject.quoteName("zone_id") + " WHERE carrier_zone." + dataBaseObject.quoteName("carrier_id");
         query += " = " + this.carrier_id;
 
-        staticDataBaseObject.setQuery(query);
-        ResultSet zonesSet = staticDataBaseObject.loadObjectList();
+        dataBaseObject.setQuery(query);
+        ResultSet zonesSet = dataBaseObject.loadObjectList();
         List<JeproLabCountryModel.JeproLabZoneModel> zones = new ArrayList<>();
 
         if(zonesSet != null){
@@ -1016,11 +1020,11 @@ public class JeproLabCarrierModel extends JeproLabModel{
      * @return array Zone
      */
     public JeproLabCountryModel.JeproLabZoneModel getZone(int zoneId){
-        if(staticDataBaseObject == null){ staticDataBaseObject = JeproLabFactory.getDataBaseConnector(); }
+        if(dataBaseObject == null){ dataBaseObject = JeproLabFactory.getDataBaseConnector(); }
         //return Db::getInstance()->executeS('
-        String query = "SELECT * FROM  " + staticDataBaseObject.quoteName("#__jeprolab_carrier_zone") + " WHERE ";
-        query += staticDataBaseObject.quoteName("carrier_id") + " = " + this.carrier_id + " AND " ;
-        query += staticDataBaseObject.quoteName("zone_id") + " = " + zoneId;
+        String query = "SELECT * FROM  " + dataBaseObject.quoteName("#__jeprolab_carrier_zone") + " WHERE ";
+        query += dataBaseObject.quoteName("carrier_id") + " = " + this.carrier_id + " AND " ;
+        query += dataBaseObject.quoteName("zone_id") + " = " + zoneId;
 
         return  null;
     }
@@ -1032,12 +1036,12 @@ public class JeproLabCarrierModel extends JeproLabModel{
      * @return int $position
      */
     public static int getHigherPosition(){
-        if(staticDataBaseObject == null){ staticDataBaseObject = JeproLabFactory.getDataBaseConnector(); }
-        String query = "SELECT MAX(" + staticDataBaseObject.quoteName("position") + " AS pos FROM  " + staticDataBaseObject.quoteName("#__jeprolab_carrier");
-        query += " WHERE " + staticDataBaseObject.quoteName("deleted") + " = 0 ";
+        if(dataBaseObject == null){ dataBaseObject = JeproLabFactory.getDataBaseConnector(); }
+        String query = "SELECT MAX(" + dataBaseObject.quoteName("position") + " AS pos FROM  " + dataBaseObject.quoteName("#__jeprolab_carrier");
+        query += " WHERE " + dataBaseObject.quoteName("deleted") + " = 0 ";
 
-        staticDataBaseObject.setQuery(query);
-        int position = (int)staticDataBaseObject.loadValue("pos");
+        dataBaseObject.setQuery(query);
+        int position = (int)dataBaseObject.loadValue("pos");
         return (position > 0) ? position : -1;
     }
 
@@ -1100,17 +1104,17 @@ public class JeproLabCarrierModel extends JeproLabModel{
         String cacheKey = "jeproLab_carrier_model_get_available_carrier_list_" + analyze.analyze_id + "_" + labId;
         String query;
         List<Integer> carriersForAnalyze = new ArrayList<>();
-        if(staticDataBaseObject == null){ staticDataBaseObject = JeproLabFactory.getDataBaseConnector(); }
+        if(dataBaseObject == null){ dataBaseObject = JeproLabFactory.getDataBaseConnector(); }
         if (!JeproLabCache.getInstance().isStored(cacheKey)) {
-            query = "SELECT " + staticDataBaseObject.quoteName("carrier_id") + " FROM " + staticDataBaseObject.quoteName("#__jeprolab_analyze_carrier");
-            query += " AS analyze_carrier INNER JOIN " + staticDataBaseObject.quoteName("#__jeprolab_carrier") + " AS carrier ON carrier.";
-            query += staticDataBaseObject.quoteName("reference_id") + " = analyze_carrier." + staticDataBaseObject.quoteName("carrier_id");
-            query += " AND carrier." + staticDataBaseObject.quoteName("deleted") + " = 0 AND carrier." + staticDataBaseObject.quoteName("published");
-            query += " = 1 WHERE analyze_carrier." + staticDataBaseObject.quoteName("analyze_id") + " = " + analyze.analyze_id;
-            query += " AND analyze_carrier." + staticDataBaseObject.quoteName("lab_id") + " = " + labId;
+            query = "SELECT " + dataBaseObject.quoteName("carrier_id") + " FROM " + dataBaseObject.quoteName("#__jeprolab_analyze_carrier");
+            query += " AS analyze_carrier INNER JOIN " + dataBaseObject.quoteName("#__jeprolab_carrier") + " AS carrier ON carrier.";
+            query += dataBaseObject.quoteName("reference_id") + " = analyze_carrier." + dataBaseObject.quoteName("carrier_id");
+            query += " AND carrier." + dataBaseObject.quoteName("deleted") + " = 0 AND carrier." + dataBaseObject.quoteName("published");
+            query += " = 1 WHERE analyze_carrier." + dataBaseObject.quoteName("analyze_id") + " = " + analyze.analyze_id;
+            query += " AND analyze_carrier." + dataBaseObject.quoteName("lab_id") + " = " + labId;
 
-            staticDataBaseObject.setQuery(query);
-            ResultSet resultSet = staticDataBaseObject.loadObjectList();
+            dataBaseObject.setQuery(query);
+            ResultSet resultSet = dataBaseObject.loadObjectList();
 
             if(resultSet != null){
 
@@ -1231,12 +1235,12 @@ public class JeproLabCarrierModel extends JeproLabModel{
         }
 
         //Db::getInstance()->execute('
-        String query = "DELETE FROM " + staticDataBaseObject.quoteName("#__jeprolab_carrier_group") + " WHERE " + staticDataBaseObject.quoteName("group_id");
+        String query = "DELETE FROM " + dataBaseObject.quoteName("#__jeprolab_carrier_group") + " WHERE " + dataBaseObject.quoteName("group_id");
         query += " IN ('.join(',', $id_group_list).')');
 
         //$carrier_list = Db::getInstance()->executeS('
-        query = "SELECT "  + staticDataBaseObject.quoteName("carrier_id") + " FROM  " + staticDataBaseObject.quoteName("#__jeprolab_carrier");
-        query += " WHERE " + staticDataBaseObject.quoteName("deleted") + " = 0 ";
+        query = "SELECT "  + dataBaseObject.quoteName("carrier_id") + " FROM  " + dataBaseObject.quoteName("#__jeprolab_carrier");
+        query += " WHERE " + dataBaseObject.quoteName("deleted") + " = 0 ";
         '.(is_array($exception) ? 'AND carier_id NOT IN ('.join(',', $exception).')' : ''));
 
         if ($carrier_list) {
@@ -1260,30 +1264,30 @@ public class JeproLabCarrierModel extends JeproLabModel{
     }
     
     public boolean setGroups(List<Integer> groupIds, boolean delete){
-        if(staticDataBaseObject == null){ staticDataBaseObject = JeproLabFactory.getDataBaseConnector(); }
+        if(dataBaseObject == null){ dataBaseObject = JeproLabFactory.getDataBaseConnector(); }
         String query;
         if (delete) {
-            query = "DELETE FROM " + staticDataBaseObject.quoteName("#__jeprolab_carrier_group") + " WHERE " ;
-            query += staticDataBaseObject.quoteName("carrier_id") + " = " + this.carrier_id;
+            query = "DELETE FROM " + dataBaseObject.quoteName("#__jeprolab_carrier_group") + " WHERE " ;
+            query += dataBaseObject.quoteName("carrier_id") + " = " + this.carrier_id;
 
-            staticDataBaseObject.setQuery(query);
-            staticDataBaseObject.query(false);
+            dataBaseObject.setQuery(query);
+            dataBaseObject.query(false);
         }
 
         if (groupIds == null || groupIds.size() == 0){
             return true;
         }
 
-        query = "INSERT INTO " + staticDataBaseObject.quoteName("#__jeprolab_carrier_group") +"(" + staticDataBaseObject.quoteName("carrier_id");
-        query += ", " + staticDataBaseObject.quoteName("group_id") + ") VALUES ";
+        query = "INSERT INTO " + dataBaseObject.quoteName("#__jeprolab_carrier_group") +"(" + dataBaseObject.quoteName("carrier_id");
+        query += ", " + dataBaseObject.quoteName("group_id") + ") VALUES ";
         for(int groupId : groupIds) {
             query += "(" + this.carrier_id + ", " + groupId + "), ";
         }
          query = (query.endsWith(", ") ? query.substring(0, query.length() - 2) : query ) ;
 
-        staticDataBaseObject.setQuery(query);
+        dataBaseObject.setQuery(query);
 
-        return staticDataBaseObject.query(false);
+        return dataBaseObject.query(false);
     }
 
     /**
@@ -1306,22 +1310,22 @@ public class JeproLabCarrierModel extends JeproLabModel{
      * Add zone
      */
     public boolean addZone(int zoneId) {
-        if (staticDataBaseObject == null) {
-            staticDataBaseObject = JeproLabFactory.getDataBaseConnector();
+        if (dataBaseObject == null) {
+            dataBaseObject = JeproLabFactory.getDataBaseConnector();
         }
-        String query = "INSERT INTO " + staticDataBaseObject.quoteName("#__jeprolab_carrier_zone") + "( ";
-        query += staticDataBaseObject.quoteName("carrier_id") + ", " + staticDataBaseObject.quoteName("zone_id");
+        String query = "INSERT INTO " + dataBaseObject.quoteName("#__jeprolab_carrier_zone") + "( ";
+        query += dataBaseObject.quoteName("carrier_id") + ", " + dataBaseObject.quoteName("zone_id");
         query += ") VALUES (" + this.carrier_id + ", " + zoneId + ") ";
-        staticDataBaseObject.setQuery(query);
-        if (staticDataBaseObject.query(true)) {
+        dataBaseObject.setQuery(query);
+        if (dataBaseObject.query(true)) {
             // Get all ranges for this carrier
             List rangesPrice = JeproLabRangePrice.getRanges(this.carrier_id);
             List rangesWeight = JeproLabRangeWeight.getRanges(this.carrier_id);
             // Create row in ps_delivery table
             if (rangesPrice.size() > 0 || rangesWeight.size() > 0) {
-                query = "INSERT INTO " + staticDataBaseObject.quoteName("#__jeprolab_delivery") + "(" + staticDataBaseObject.quoteName("carrier_id");
-                query += ", " + staticDataBaseObject.quoteName("range_price_id") + ", " + staticDataBaseObject.quoteName("range_weight_id") + ", ";
-                query += staticDataBaseObject.quoteName("zone_id") + ", " + staticDataBaseObject.quoteName("price") + ") VALUES ";
+                query = "INSERT INTO " + dataBaseObject.quoteName("#__jeprolab_delivery") + "(" + dataBaseObject.quoteName("carrier_id");
+                query += ", " + dataBaseObject.quoteName("range_price_id") + ", " + dataBaseObject.quoteName("range_weight_id") + ", ";
+                query += dataBaseObject.quoteName("zone_id") + ", " + dataBaseObject.quoteName("price") + ") VALUES ";
                 /*if (rangesPrice.size() > 0) {
                     foreach($ranges_price as $range) {
                         $sql. = '('. (int) this.carrier_id. ', '. (int) $range['id_range_price']. ', 0, '. (int) zoneId.
@@ -1336,8 +1340,8 @@ public class JeproLabCarrierModel extends JeproLabModel{
                     }
                 }
                 $sql = rtrim($sql, ',' ); */
-                staticDataBaseObject.setQuery(query);
-                return staticDataBaseObject.query(false);
+                dataBaseObject.setQuery(query);
+                return dataBaseObject.query(false);
             }
             return true;
         }
@@ -1348,19 +1352,19 @@ public class JeproLabCarrierModel extends JeproLabModel{
      * Delete zone
      */
     public boolean deleteZone(int zoneId){
-        if(staticDataBaseObject == null){
-            staticDataBaseObject = JeproLabFactory.getDataBaseConnector();
+        if(dataBaseObject == null){
+            dataBaseObject = JeproLabFactory.getDataBaseConnector();
         }
-        String query = "DELETE FROM " + staticDataBaseObject.quoteName("#__jeprolab_carrier_zone") + " WHERE " + staticDataBaseObject.quoteName("carrier_id") ;
-        query += " = " + this.carrier_id + " AND " + staticDataBaseObject.quoteName("zone_id") + " = " + zoneId + " LIMIT 1";
+        String query = "DELETE FROM " + dataBaseObject.quoteName("#__jeprolab_carrier_zone") + " WHERE " + dataBaseObject.quoteName("carrier_id") ;
+        query += " = " + this.carrier_id + " AND " + dataBaseObject.quoteName("zone_id") + " = " + zoneId + " LIMIT 1";
 
-        staticDataBaseObject.setQuery(query);
-        if (staticDataBaseObject.query(false)){
-            query = "DELETE FROM  " + staticDataBaseObject.quoteName("#__jeprolab_delivery") + " WHERE " + staticDataBaseObject.quoteName("carrier_id");
-            query += " = " + this.carrier_id + " AND " + staticDataBaseObject.quoteName("zone_id") + " = " + zoneId;
+        dataBaseObject.setQuery(query);
+        if (dataBaseObject.query(false)){
+            query = "DELETE FROM  " + dataBaseObject.quoteName("#__jeprolab_delivery") + " WHERE " + dataBaseObject.quoteName("carrier_id");
+            query += " = " + this.carrier_id + " AND " + dataBaseObject.quoteName("zone_id") + " = " + zoneId;
 
-            staticDataBaseObject.setQuery(query);
-            return staticDataBaseObject.query(false);
+            dataBaseObject.setQuery(query);
+            return dataBaseObject.query(false);
         }
         return false;
     }
@@ -1372,15 +1376,15 @@ public class JeproLabCarrierModel extends JeproLabModel{
      * @return array Group
      */
     public List<Integer> getGroups(){
-        if(staticDataBaseObject == null){
-            staticDataBaseObject = JeproLabFactory.getDataBaseConnector();
+        if(dataBaseObject == null){
+            dataBaseObject = JeproLabFactory.getDataBaseConnector();
         }
 
-        String query = "SELECT " + staticDataBaseObject.quoteName("group_id") + " FROM " + staticDataBaseObject.quoteName("#__jeprolab_carrier_group");
-        query += " WHERE " + staticDataBaseObject.quoteName("carrier_id") + " = " + this.carrier_id;
+        String query = "SELECT " + dataBaseObject.quoteName("group_id") + " FROM " + dataBaseObject.quoteName("#__jeprolab_carrier_group");
+        query += " WHERE " + dataBaseObject.quoteName("carrier_id") + " = " + this.carrier_id;
 
-        staticDataBaseObject.setQuery(query);
-        ResultSet resultSet = staticDataBaseObject.loadObjectList();
+        dataBaseObject.setQuery(query);
+        ResultSet resultSet = dataBaseObject.loadObjectList();
         List<Integer> groups = new ArrayList<>();
         if(resultSet != null){
             try{
@@ -1401,26 +1405,26 @@ public class JeproLabCarrierModel extends JeproLabModel{
      * @return bool Deletion result
      */
     public boolean deleteDeliveryPrice(String rangeTable) {
-        if(staticDataBaseObject == null){
-            staticDataBaseObject = JeproLabFactory.getDataBaseConnector();
+        if(dataBaseObject == null){
+            dataBaseObject = JeproLabFactory.getDataBaseConnector();
         }
-        String where = " WHERE " + staticDataBaseObject.quoteName("carrier_id") + " = " + this.carrier_id + " AND " ;
-        where += staticDataBaseObject.quoteName(staticDataBaseObject.quote(rangeTable + "_id")) + ") IS NOT NULL OR ";
-        where += staticDataBaseObject.quoteName(staticDataBaseObject.quote(rangeTable) + "_id") + " = 0) ";
+        String where = " WHERE " + dataBaseObject.quoteName("carrier_id") + " = " + this.carrier_id + " AND " ;
+        where += dataBaseObject.quoteName(dataBaseObject.quote(rangeTable + "_id")) + ") IS NOT NULL OR ";
+        where += dataBaseObject.quoteName(dataBaseObject.quote(rangeTable) + "_id") + " = 0) ";
 
         if(JeproLabLaboratoryModel.getLabContext() == JeproLabLaboratoryModel.ALL_CONTEXT){
-            where += " AND " + staticDataBaseObject.quoteName("lab_id") + " IS NULL AND " + staticDataBaseObject.quoteName("lab_group_id") + " IS NULL";
+            where += " AND " + dataBaseObject.quoteName("lab_id") + " IS NULL AND " + dataBaseObject.quoteName("lab_group_id") + " IS NULL";
         }else if(JeproLabLaboratoryModel.getLabContext () == JeproLabLaboratoryModel.GROUP_CONTEXT){
-            where += " AND " + staticDataBaseObject.quoteName("lab_id") + " IS NULL AND " + staticDataBaseObject.quoteName("lab_group_id");
+            where += " AND " + dataBaseObject.quoteName("lab_id") + " IS NULL AND " + dataBaseObject.quoteName("lab_group_id");
             where += " = " + JeproLabLaboratoryModel.getContextLabGroupId();
         }else{
-            where += " AND " + staticDataBaseObject.quoteName("lab_id") + " = " + JeproLabLaboratoryModel.getContextLabId();
+            where += " AND " + dataBaseObject.quoteName("lab_id") + " = " + JeproLabLaboratoryModel.getContextLabId();
         }
 
-        String query = "DELETE  " + staticDataBaseObject.quoteName("#__jeprolab_delivery") + where;
+        String query = "DELETE  " + dataBaseObject.quoteName("#__jeprolab_delivery") + where;
 
-        staticDataBaseObject.setQuery(query);
-        return staticDataBaseObject.query(false);
+        dataBaseObject.setQuery(query);
+        return dataBaseObject.query(false);
     }
 
     public boolean addDeliveryPrice(List priceList){ return addDeliveryPrice(priceList, false); }
@@ -1436,7 +1440,7 @@ public class JeproLabCarrierModel extends JeproLabModel{
         /*if (!$price_list) {
             return false;
         }
-        String query = "INSERT INTO " + staticDataBaseObject.quoteName("#__jeprolab_delivery");
+        String query = "INSERT INTO " + dataBaseObject.quoteName("#__jeprolab_delivery");
 
         $keys = array_keys($price_list[0]);
         if (!in_array('id_shop', $keys)) {
@@ -1459,11 +1463,11 @@ public class JeproLabCarrierModel extends JeproLabModel{
 
             if (delete) {
                 //Db::getInstance () -> execute(
-                query = "DELETE FROM  " + staticDataBaseObject.quoteName("#__jeprolab_delivery") + " WHERE ";
+                query = "DELETE FROM  " + dataBaseObject.quoteName("#__jeprolab_delivery") + " WHERE ";
                 query += (is_null($values[' id_shop ']) ? ' ISNULL(")id_shop")) ' : ' id_shop = '.(int)$values['id_shop ']);
                 query += " AND " + (is_null($values[' id_shop_group ']) ? ' ISNULL(")id_shop")) ' : ' id_shop_group = '.(int)$values['
                 id_shop_group ']).'
-                query += " AND " + staticDataBaseObject.quoteName("carrier_id") + " = " + $values[' carier_id '].
+                query += " AND " + dataBaseObject.quoteName("carrier_id") + " = " + $values[' carier_id '].
                 ($values['id_range_price'] != = null ? ' AND id_range_price='. (int) $values['id_range_price']:
                 ' AND (ISNULL(")id_range_price")) OR ")id_range_price") = 0)' ).
                 ($values['id_range_weight'] != = null ? ' AND id_range_weight='. (int) $values['id_range_weight']:
@@ -1524,38 +1528,38 @@ public class JeproLabCarrierModel extends JeproLabModel{
 
         for(String rangeType : rangeTypes){
         //$res = Db::getInstance()->executeS('
-            query = "SELECT " + staticDataBaseObject.quoteName(rangeType + "_id") + " AS range_id, " + staticDataBaseObject.quoteName("delimiter_1");
-            query += ", " + staticDataBaseObject.quoteName("delimiter_2") + " FROM " + staticDataBaseObject.quoteName("#__jeprolab_" + rangeType);
-            query += " WHERE " + staticDataBaseObject.quoteName("carrier_id") + " = " + oldId;
+            query = "SELECT " + dataBaseObject.quoteName(rangeType + "_id") + " AS range_id, " + dataBaseObject.quoteName("delimiter_1");
+            query += ", " + dataBaseObject.quoteName("delimiter_2") + " FROM " + dataBaseObject.quoteName("#__jeprolab_" + rangeType);
+            query += " WHERE " + dataBaseObject.quoteName("carrier_id") + " = " + oldId;
 
-            staticDataBaseObject.setQuery(query);
-            resultSet = staticDataBaseObject.loadObjectList();
+            dataBaseObject.setQuery(query);
+            resultSet = dataBaseObject.loadObjectList();
             if(resultSet != null){
                 try {
                     while(resultSet.next()){
-                        query = "INSERT INTO " + staticDataBaseObject.quoteName("#__jeprolab_" + rangeType) + "(" + staticDataBaseObject.quoteName("carrier_id");
-                        query += ", " + staticDataBaseObject.quoteName("delimiter_1") + ", " + staticDataBaseObject.quoteName("delimiter_2") + ") VALUES (";
+                        query = "INSERT INTO " + dataBaseObject.quoteName("#__jeprolab_" + rangeType) + "(" + dataBaseObject.quoteName("carrier_id");
+                        query += ", " + dataBaseObject.quoteName("delimiter_1") + ", " + dataBaseObject.quoteName("delimiter_2") + ") VALUES (";
                         query += this.carrier_id + ", " + resultSet.getFloat("delimiter_1") + ", " + resultSet.getFloat("delimiter_2") + ")";
 
-                        staticDataBaseObject.setQuery(query);
-                        staticDataBaseObject.query(true);
-                        rangeId = staticDataBaseObject.getGeneratedKey();
+                        dataBaseObject.setQuery(query);
+                        dataBaseObject.query(true);
+                        rangeId = dataBaseObject.getGeneratedKey();
 
                         rangePriceId = (rangeType.equals("range_price")) ? String.valueOf(rangeId) : "NULL";
                         rangeWeightId = (rangeType.equals("range_weight")) ? String.valueOf(rangeId) : "NULL";
 
-                        query = "INSERT INTO " + staticDataBaseObject.quoteName("#__jeprolab_delivery") + "(" + staticDataBaseObject.quoteName("carrier_id");
-                        query += ", " + staticDataBaseObject.quoteName("lab_id") + ", " + staticDataBaseObject.quoteName("lab_group_id") + ", ";
-                        query += staticDataBaseObject.quoteName("range_price_id") + ", " + staticDataBaseObject.quoteName("range_weight_id") + ", ";
-                        query += staticDataBaseObject.quoteName("zone_id") + ", " + staticDataBaseObject.quoteName("price") + ") VALUES ( SELECT ";
-                        query += staticDataBaseObject.quoteName("carrier_id") + ", " + staticDataBaseObject.quoteName("lab_id") + ", ";
-                        query += staticDataBaseObject.quoteName("lab_group_id") + ", " + rangePriceId + ", " + rangeWeightId + ", ";
-                        query += staticDataBaseObject.quoteName("zone_id") + ", " + staticDataBaseObject.quoteName("price") + " FROM ";
-                        query += staticDataBaseObject.quoteName("#__jeprolab_delivery") + " WHERE " + staticDataBaseObject.quoteName("carrier_id");
-                        query += " = " + oldId + " AND " + staticDataBaseObject.quoteName(rangeType + "_id") + " = " + resultSet.getInt("range_id") + ") ";
+                        query = "INSERT INTO " + dataBaseObject.quoteName("#__jeprolab_delivery") + "(" + dataBaseObject.quoteName("carrier_id");
+                        query += ", " + dataBaseObject.quoteName("lab_id") + ", " + dataBaseObject.quoteName("lab_group_id") + ", ";
+                        query += dataBaseObject.quoteName("range_price_id") + ", " + dataBaseObject.quoteName("range_weight_id") + ", ";
+                        query += dataBaseObject.quoteName("zone_id") + ", " + dataBaseObject.quoteName("price") + ") VALUES ( SELECT ";
+                        query += dataBaseObject.quoteName("carrier_id") + ", " + dataBaseObject.quoteName("lab_id") + ", ";
+                        query += dataBaseObject.quoteName("lab_group_id") + ", " + rangePriceId + ", " + rangeWeightId + ", ";
+                        query += dataBaseObject.quoteName("zone_id") + ", " + dataBaseObject.quoteName("price") + " FROM ";
+                        query += dataBaseObject.quoteName("#__jeprolab_delivery") + " WHERE " + dataBaseObject.quoteName("carrier_id");
+                        query += " = " + oldId + " AND " + dataBaseObject.quoteName(rangeType + "_id") + " = " + resultSet.getInt("range_id") + ") ";
 
-                        staticDataBaseObject.setQuery(query);
-                        staticDataBaseObject.query(false);
+                        dataBaseObject.setQuery(query);
+                        dataBaseObject.query(false);
                     }
                 }catch(SQLException ignored){
                     ignored.printStackTrace();
@@ -1564,19 +1568,19 @@ public class JeproLabCarrierModel extends JeproLabModel{
         }
 
         // Copy existing zones
-        query = "SELECT * FROM " + staticDataBaseObject.quoteName("#__jeprolab_carrier_zone") + " WHERE " ;
-        query += staticDataBaseObject.quoteName("carrier_id") + " = " + oldId;
+        query = "SELECT * FROM " + dataBaseObject.quoteName("#__jeprolab_carrier_zone") + " WHERE " ;
+        query += dataBaseObject.quoteName("carrier_id") + " = " + oldId;
 
-        staticDataBaseObject.setQuery(query);
-        resultSet = staticDataBaseObject.loadObjectList();
+        dataBaseObject.setQuery(query);
+        resultSet = dataBaseObject.loadObjectList();
         if(resultSet != null){
             try{
                 while(resultSet.next()) {
-                    query = "INSERT INTO " + staticDataBaseObject.quoteName("#__jeprolab_carrier_zone") + "(" + staticDataBaseObject.quoteName("carrier_id");
-                    query += ", " + staticDataBaseObject.quoteName("zone_id") + ") VALUES (" + this.carrier_id + ", " + resultSet.getInt("'zone_id") + ")";
+                    query = "INSERT INTO " + dataBaseObject.quoteName("#__jeprolab_carrier_zone") + "(" + dataBaseObject.quoteName("carrier_id");
+                    query += ", " + dataBaseObject.quoteName("zone_id") + ") VALUES (" + this.carrier_id + ", " + resultSet.getInt("'zone_id") + ")";
 
-                    staticDataBaseObject.setQuery(query);
-                    staticDataBaseObject.query(false);
+                    dataBaseObject.setQuery(query);
+                    dataBaseObject.query(false);
                 }
             }catch(SQLException ignored){
                 ignored.printStackTrace();
@@ -1595,29 +1599,29 @@ public class JeproLabCarrierModel extends JeproLabModel{
         }
 
         // Copy reference
-        query = "SELECT " + staticDataBaseObject.quoteName("reference_id") + " FROM " + staticDataBaseObject.quoteName("#__jeprolab_carrier");
-        query += " WHERE " + staticDataBaseObject.quoteName("carrier_id") + " = " + oldId;
+        query = "SELECT " + dataBaseObject.quoteName("reference_id") + " FROM " + dataBaseObject.quoteName("#__jeprolab_carrier");
+        query += " WHERE " + dataBaseObject.quoteName("carrier_id") + " = " + oldId;
 
-        staticDataBaseObject.setQuery(query);
-        this.reference_id = (int)staticDataBaseObject.loadValue("reference_id");
+        dataBaseObject.setQuery(query);
+        this.reference_id = (int)dataBaseObject.loadValue("reference_id");
 
         //Db::getInstance()->execute('
-        query = "UPDATE " + staticDataBaseObject.quoteName("#__jeprolab_carrier") + " SET " + staticDataBaseObject.quoteName("reference_id");
-        query += " = " + this.reference_id + " WHERE " + staticDataBaseObject.quoteName("carrier_id") + " = " + this.carrier_id;
+        query = "UPDATE " + dataBaseObject.quoteName("#__jeprolab_carrier") + " SET " + dataBaseObject.quoteName("reference_id");
+        query += " = " + this.reference_id + " WHERE " + dataBaseObject.quoteName("carrier_id") + " = " + this.carrier_id;
 
-        staticDataBaseObject.setQuery(query);
-        staticDataBaseObject.query(false);
+        dataBaseObject.setQuery(query);
+        dataBaseObject.query(false);
 
 
         // Copy tax rules group
-        query = "INSERT INTO " + staticDataBaseObject.quoteName("#__jeprolab_carrier_tax_rules_group_shop") + "(" + staticDataBaseObject.quoteName("carrier_id");
-        query += ", " + staticDataBaseObject.quoteName("tax_rules_group_id") + ", " + staticDataBaseObject.quoteName("lab_id") + ") VALUES (";
-        query += "SELECT " + staticDataBaseObject.quoteName("carrier_id") + ", " + staticDataBaseObject.quoteName("tax_rules_group_id") +  ", ";
-        query += staticDataBaseObject.quoteName("lab_id") + " FROM  " + staticDataBaseObject.quoteName("#__jeprolab_carrier_tax_rules_group_lab");
-        query += " WHERE " + staticDataBaseObject.quoteName("carrier_id") + " = " + oldId + ")";
+        query = "INSERT INTO " + dataBaseObject.quoteName("#__jeprolab_carrier_tax_rules_group_shop") + "(" + dataBaseObject.quoteName("carrier_id");
+        query += ", " + dataBaseObject.quoteName("tax_rules_group_id") + ", " + dataBaseObject.quoteName("lab_id") + ") VALUES (";
+        query += "SELECT " + dataBaseObject.quoteName("carrier_id") + ", " + dataBaseObject.quoteName("tax_rules_group_id") +  ", ";
+        query += dataBaseObject.quoteName("lab_id") + " FROM  " + dataBaseObject.quoteName("#__jeprolab_carrier_tax_rules_group_lab");
+        query += " WHERE " + dataBaseObject.quoteName("carrier_id") + " = " + oldId + ")";
 
-        staticDataBaseObject.setQuery(query);
-        return staticDataBaseObject.query(false);
+        dataBaseObject.setQuery(query);
+        return dataBaseObject.query(false);
     }
 
     /**
@@ -1625,15 +1629,15 @@ public class JeproLabCarrierModel extends JeproLabModel{
      */
     public static JeproLabCarrierModel getCarrierByReference(int referenceId){
         // @todo class var $table must became static. here I have to use 'carrier' because this method is static
-        if(staticDataBaseObject == null){
-            staticDataBaseObject = JeproLabFactory.getDataBaseConnector();
+        if(dataBaseObject == null){
+            dataBaseObject = JeproLabFactory.getDataBaseConnector();
         }
-        String query = "SELECT " + staticDataBaseObject.quoteName("carrier_id") + " FROM  " + staticDataBaseObject.quoteName("#__jeprolab_carrier");
-        query += " WHERE " + staticDataBaseObject.quoteName("reference_id") + " = " + referenceId + " AND " + staticDataBaseObject.quoteName("deleted");
-        query += " = 0 ORDER BY " + staticDataBaseObject.quoteName("carrier_id") + " DESC";
+        String query = "SELECT " + dataBaseObject.quoteName("carrier_id") + " FROM  " + dataBaseObject.quoteName("#__jeprolab_carrier");
+        query += " WHERE " + dataBaseObject.quoteName("reference_id") + " = " + referenceId + " AND " + dataBaseObject.quoteName("deleted");
+        query += " = 0 ORDER BY " + dataBaseObject.quoteName("carrier_id") + " DESC";
 
-        staticDataBaseObject.setQuery(query);
-        int carrierId = (int)staticDataBaseObject.loadValue("carrier_id");
+        dataBaseObject.setQuery(query);
+        int carrierId = (int)dataBaseObject.loadValue("carrier_id");
         if (carrierId <= 0) {
             return new JeproLabCarrierModel();
         }
@@ -1646,14 +1650,14 @@ public class JeproLabCarrierModel extends JeproLabModel{
      * @return int Order count for this carrier
      */
     public int inUse(){
-        if(staticDataBaseObject == null){
-            staticDataBaseObject = JeproLabFactory.getDataBaseConnector();
+        if(dataBaseObject == null){
+            dataBaseObject = JeproLabFactory.getDataBaseConnector();
         }
-        String query = "SELECT COUNT(" + staticDataBaseObject.quoteName("carrier_id") + ") AS total FROM " + staticDataBaseObject.quoteName("#__jeprolab_request");
-        query += " WHERE " + staticDataBaseObject.quoteName("carrier_id") + " = " + this.carrier_id;
+        String query = "SELECT COUNT(" + dataBaseObject.quoteName("carrier_id") + ") AS total FROM " + dataBaseObject.quoteName("#__jeprolab_request");
+        query += " WHERE " + dataBaseObject.quoteName("carrier_id") + " = " + this.carrier_id;
 
-        staticDataBaseObject.setQuery(query);
-        return (int)staticDataBaseObject.loadValue("total");
+        dataBaseObject.setQuery(query);
+        return (int)dataBaseObject.loadValue("total");
     }
 
     public int getShippingMethod() {
@@ -1732,17 +1736,17 @@ public class JeproLabCarrierModel extends JeproLabModel{
             labIds = JeproLabLaboratoryModel.getContextListLaboratoryIds();
         }
 
-        String where = staticDataBaseObject.quoteName("carrier_id") +  " = " + this.carrier_id;
+        String where = dataBaseObject.quoteName("carrier_id") +  " = " + this.carrier_id;
         if (labIds.size() > 0) {
-            where += " AND " + staticDataBaseObject.quoteName("lab_id") + " IN(";
+            where += " AND " + dataBaseObject.quoteName("lab_id") + " IN(";
             for(int labId : labIds){
                 where += labId + ", ";
             }
             where = (where.endsWith(", ") ? where.substring(0, where.length() - 2) : where) + ") ";
         }
-        String query = "DELETE " + staticDataBaseObject.quoteName("#__jeprolab_carrier_tax_rules_group_lab");
-        staticDataBaseObject.setQuery(query + where);
-        return staticDataBaseObject.query(false);
+        String query = "DELETE " + dataBaseObject.quoteName("#__jeprolab_carrier_tax_rules_group_lab");
+        dataBaseObject.setQuery(query + where);
+        return dataBaseObject.query(false);
     }
 
     public boolean setTaxRulesGroupId(int taxRulesGroupId){
@@ -1759,15 +1763,15 @@ public class JeproLabCarrierModel extends JeproLabModel{
 
         this.deleteTaxRulesGroupId(labIds);
 
-        if(staticDataBaseObject == null){ staticDataBaseObject = JeproLabFactory.getDataBaseConnector(); }
+        if(dataBaseObject == null){ dataBaseObject = JeproLabFactory.getDataBaseConnector(); }
 
-        String query = "INSERT INTO " + staticDataBaseObject.quoteName("#__jeprolab_carrier_tax_rules_group_lab") + "(";
-        query += staticDataBaseObject.quoteName("carrier_id") + ", " + staticDataBaseObject.quoteName("tax_rules_group_id");
-        query += ", " + staticDataBaseObject.quoteName("lab_id") + ") VALUES (" ;
+        String query = "INSERT INTO " + dataBaseObject.quoteName("#__jeprolab_carrier_tax_rules_group_lab") + "(";
+        query += dataBaseObject.quoteName("carrier_id") + ", " + dataBaseObject.quoteName("tax_rules_group_id");
+        query += ", " + dataBaseObject.quoteName("lab_id") + ") VALUES (" ;
         boolean result = true;
         for(int labId : labIds) {
-            staticDataBaseObject.setQuery(query + this.carrier_id + ", " + taxRulesGroupId + ", " + labId + ") ");
-            result &= staticDataBaseObject.query(false);
+            dataBaseObject.setQuery(query + this.carrier_id + ", " + taxRulesGroupId + ", " + labId + ") ");
+            result &= dataBaseObject.query(false);
         }
         String cacheKey = "carrier_tax_rules_group_id_" + this.carrier_id + "_" + JeproLabContext.getContext().laboratory.laboratory_id;
         JeproLabCache.getInstance().remove(cacheKey);
@@ -1823,30 +1827,30 @@ public class JeproLabCarrierModel extends JeproLabModel{
      * @return string
      */
     public static String sqlDeliveryRangeLaboratory(String rangeTable, String alias){
-        if(staticDataBaseObject == null){ staticDataBaseObject = JeproLabFactory.getDataBaseConnector(); }
+        if(dataBaseObject == null){ dataBaseObject = JeproLabFactory.getDataBaseConnector(); }
         String where;
         if (JeproLabLaboratoryModel.getLabContext() == JeproLabLaboratoryModel.ALL_CONTEXT) {
-            where = " AND delivery_2." + staticDataBaseObject.quoteName("lab_id") + " IS NULL AND delivery_2.";
-            where += staticDataBaseObject.quoteName("lab_group_id") + " IS NULL";
+            where = " AND delivery_2." + dataBaseObject.quoteName("lab_id") + " IS NULL AND delivery_2.";
+            where += dataBaseObject.quoteName("lab_group_id") + " IS NULL";
         } else if (JeproLabLaboratoryModel.getLabContext() == JeproLabLaboratoryModel.GROUP_CONTEXT) {
-            where = " AND ((delivery_2." + staticDataBaseObject.quoteName("lab_group_d") + " IS NULL OR delivery_2.";
-            where += staticDataBaseObject.quoteName("lab_group_id") + " = " + JeproLabLaboratoryModel.getContextLabGroupId();
-            where += ") AND delivery_2." + staticDataBaseObject.quoteName("lab_id") + " IS NULL)";
+            where = " AND ((delivery_2." + dataBaseObject.quoteName("lab_group_d") + " IS NULL OR delivery_2.";
+            where += dataBaseObject.quoteName("lab_group_id") + " = " + JeproLabLaboratoryModel.getContextLabGroupId();
+            where += ") AND delivery_2." + dataBaseObject.quoteName("lab_id") + " IS NULL)";
         } else {
-            where = " AND (delivery_2." + staticDataBaseObject.quoteName("lab_id") + " = " + JeproLabLaboratoryModel.getContextLabGroupId();
-            where += " OR (delivery_2." + staticDataBaseObject.quoteName("lab_group_id") + " = " + JeproLabLaboratoryModel.getContextLabGroupId();
-            where += " AND delivery_2." + staticDataBaseObject.quoteName("lab_id") + " IS NULL) OR (delivery_2." + staticDataBaseObject.quoteName("lab_group_id");
-            where += " IS NULL AND delivery_2." + staticDataBaseObject.quoteName("lab_id") + " IS NULL)) ";
+            where = " AND (delivery_2." + dataBaseObject.quoteName("lab_id") + " = " + JeproLabLaboratoryModel.getContextLabGroupId();
+            where += " OR (delivery_2." + dataBaseObject.quoteName("lab_group_id") + " = " + JeproLabLaboratoryModel.getContextLabGroupId();
+            where += " AND delivery_2." + dataBaseObject.quoteName("lab_id") + " IS NULL) OR (delivery_2." + dataBaseObject.quoteName("lab_group_id");
+            where += " IS NULL AND delivery_2." + dataBaseObject.quoteName("lab_id") + " IS NULL)) ";
         }
 
-        String query = " AND " + alias + "." +staticDataBaseObject.quoteName("delivery_id") + " = (SELECT delivery_2.";
-        query += staticDataBaseObject.quoteName("delivery_id") + " FROM " + staticDataBaseObject.quoteName("#__jeprolab_delivery");
-        query += " AS delivery_2 WHERE delivery_2." + staticDataBaseObject.quoteName("carrier_id") + " = " + staticDataBaseObject.quote(alias);
-        query += "." + staticDataBaseObject.quoteName("carrier_id") + " AND delivery_2." + staticDataBaseObject.quoteName("zone_id");
-        query += " = " + staticDataBaseObject.quote(alias) + "." + staticDataBaseObject.quoteName("zone_id") + " AND delivery2." ;
-        query += staticDataBaseObject.quoteName(staticDataBaseObject.quote(rangeTable) + "_id") + " = " + staticDataBaseObject.quote(alias);
-        query += "." + staticDataBaseObject.quoteName(staticDataBaseObject.quote(rangeTable) + "_id") + where + " ORDER BY delivery_2.";
-        query += staticDataBaseObject.quoteName("lab_id") + " DESC, delivery_2." + staticDataBaseObject.quoteName("lab_group_id") + " DESC LIMIT 1";
+        String query = " AND " + alias + "." +dataBaseObject.quoteName("delivery_id") + " = (SELECT delivery_2.";
+        query += dataBaseObject.quoteName("delivery_id") + " FROM " + dataBaseObject.quoteName("#__jeprolab_delivery");
+        query += " AS delivery_2 WHERE delivery_2." + dataBaseObject.quoteName("carrier_id") + " = " + dataBaseObject.quote(alias);
+        query += "." + dataBaseObject.quoteName("carrier_id") + " AND delivery_2." + dataBaseObject.quoteName("zone_id");
+        query += " = " + dataBaseObject.quote(alias) + "." + dataBaseObject.quoteName("zone_id") + " AND delivery2." ;
+        query += dataBaseObject.quoteName(dataBaseObject.quote(rangeTable) + "_id") + " = " + dataBaseObject.quote(alias);
+        query += "." + dataBaseObject.quoteName(dataBaseObject.quote(rangeTable) + "_id") + where + " ORDER BY delivery_2.";
+        query += dataBaseObject.quoteName("lab_id") + " DESC, delivery_2." + dataBaseObject.quoteName("lab_group_id") + " DESC LIMIT 1";
 
         return query;
     }
@@ -1860,14 +1864,14 @@ public class JeproLabCarrierModel extends JeproLabModel{
      * @return bool Update result
      */
     public boolean updatePosition(boolean way, int position){
-        if(staticDataBaseObject == null){ staticDataBaseObject = JeproLabFactory.getDataBaseConnector(); }
+        if(dataBaseObject == null){ dataBaseObject = JeproLabFactory.getDataBaseConnector(); }
 
-        String query = "SELECT " + staticDataBaseObject.quoteName("carrier_id") + ", " + staticDataBaseObject.quoteName("position");
-        query += " FROM " + staticDataBaseObject.quoteName("#__jeprolab_carrier") + " WHERE " + staticDataBaseObject.quoteName("deleted");
-        query += " = 0 ORDER BY " + staticDataBaseObject.quoteName("position") + " ASC";
+        String query = "SELECT " + dataBaseObject.quoteName("carrier_id") + ", " + dataBaseObject.quoteName("position");
+        query += " FROM " + dataBaseObject.quoteName("#__jeprolab_carrier") + " WHERE " + dataBaseObject.quoteName("deleted");
+        query += " = 0 ORDER BY " + dataBaseObject.quoteName("position") + " ASC";
 
-        staticDataBaseObject.setQuery(query);
-        ResultSet resultSet = staticDataBaseObject.loadObjectList();
+        dataBaseObject.setQuery(query);
+        ResultSet resultSet = dataBaseObject.loadObjectList();
         if (resultSet != null) {
             return false;
         }
@@ -1884,20 +1888,20 @@ public class JeproLabCarrierModel extends JeproLabModel{
                 return false;
             }
 
-            query = "UPDATE  " + staticDataBaseObject.quoteName("#__jeprolab_carrier") + " SET " + staticDataBaseObject.quoteName("position");
-            query += " = " + position + (way ? " - 1 " : "+ 1") + " WHERE " + staticDataBaseObject.quoteName("position") ;
-            query += (way ? " > " + movedCarrier.position + " AND " + staticDataBaseObject.quoteName("position") + " <= " + position
-                    : " < " + movedCarrier.position + " AND " + staticDataBaseObject.quoteName("position") + " >= " + position + " AND "
-                    + staticDataBaseObject.quoteName("deleted") + " = 0" );
+            query = "UPDATE  " + dataBaseObject.quoteName("#__jeprolab_carrier") + " SET " + dataBaseObject.quoteName("position");
+            query += " = " + position + (way ? " - 1 " : "+ 1") + " WHERE " + dataBaseObject.quoteName("position") ;
+            query += (way ? " > " + movedCarrier.position + " AND " + dataBaseObject.quoteName("position") + " <= " + position
+                    : " < " + movedCarrier.position + " AND " + dataBaseObject.quoteName("position") + " >= " + position + " AND "
+                    + dataBaseObject.quoteName("deleted") + " = 0" );
 
-            staticDataBaseObject.setQuery(query);
-            boolean result = staticDataBaseObject.query(false);
+            dataBaseObject.setQuery(query);
+            boolean result = dataBaseObject.query(false);
 
-            query = "UPDATE  " + staticDataBaseObject.quoteName("#__jeprolab_carrier") + " SET " + staticDataBaseObject.quoteName("position");
-            query += " = " + position + " WHERE " + staticDataBaseObject.quoteName("carrier_id") + " = " + movedCarrier.carrier_id;
+            query = "UPDATE  " + dataBaseObject.quoteName("#__jeprolab_carrier") + " SET " + dataBaseObject.quoteName("position");
+            query += " = " + position + " WHERE " + dataBaseObject.quoteName("carrier_id") + " = " + movedCarrier.carrier_id;
 
-            staticDataBaseObject.setQuery(query);
-            return result && staticDataBaseObject.query(false);
+            dataBaseObject.setQuery(query);
+            return result && dataBaseObject.query(false);
         }catch (SQLException ignored){
             ignored.printStackTrace();
         }finally {
@@ -1919,23 +1923,23 @@ public class JeproLabCarrierModel extends JeproLabModel{
      */
     public static boolean cleanPositions(){
         boolean result = true;
-        if(staticDataBaseObject == null){ staticDataBaseObject = JeproLabFactory.getDataBaseConnector(); }
+        if(dataBaseObject == null){ dataBaseObject = JeproLabFactory.getDataBaseConnector(); }
 
-        String query = "SELECT  " + staticDataBaseObject.quoteName("carrier_id") + " FROM " + staticDataBaseObject.quoteName("#__jeprolab_carrier");
-        query += " WHERE " + staticDataBaseObject.quoteName("deleted") + " = 0  ORDER BY " + staticDataBaseObject.quoteName("position") + " ASC";
+        String query = "SELECT  " + dataBaseObject.quoteName("carrier_id") + " FROM " + dataBaseObject.quoteName("#__jeprolab_carrier");
+        query += " WHERE " + dataBaseObject.quoteName("deleted") + " = 0  ORDER BY " + dataBaseObject.quoteName("position") + " ASC";
 
-        staticDataBaseObject.setQuery(query);
-        ResultSet resultSet = staticDataBaseObject.loadObjectList();
+        dataBaseObject.setQuery(query);
+        ResultSet resultSet = dataBaseObject.loadObjectList();
 
         if(resultSet != null){
             int i = 0;
             try{
                 while(resultSet.next()){
-                    query = "UPDATE " + staticDataBaseObject.quoteName("#__jeprolab_carrier") + " SET " + staticDataBaseObject.quoteName("position");
-                    query += " = " + (i++) + " WHERE " + staticDataBaseObject.quoteName("carrier_id") + " = " + resultSet.getInt("carrier_id");
+                    query = "UPDATE " + dataBaseObject.quoteName("#__jeprolab_carrier") + " SET " + dataBaseObject.quoteName("position");
+                    query += " = " + (i++) + " WHERE " + dataBaseObject.quoteName("carrier_id") + " = " + resultSet.getInt("carrier_id");
 
-                    staticDataBaseObject.setQuery(query);
-                    result = staticDataBaseObject.query(false);
+                    dataBaseObject.setQuery(query);
+                    result = dataBaseObject.query(false);
                 }
             }catch (SQLException ignored) {
                 ignored.printStackTrace();
@@ -1960,12 +1964,12 @@ public class JeproLabCarrierModel extends JeproLabModel{
         }
         String cacheKey = "jeprolab_carrier_tax_rules_group_id_" + carrierId + "_" + context.laboratory.laboratory_id;
         if (!JeproLabCache.getInstance().isStored(cacheKey)) {
-            String query = "SELECT " + staticDataBaseObject.quoteName("tax_rules_group_id") + " FROM ";
-            query += staticDataBaseObject.quoteName("#__jeprolab_carrier_tax_rules_group_lab") + " WHERE ";
-            query += staticDataBaseObject.quoteName("carrier_id") + " = " + carrierId + " AND lab_id = " + JeproLabContext.getContext().laboratory.laboratory_id;
+            String query = "SELECT " + dataBaseObject.quoteName("tax_rules_group_id") + " FROM ";
+            query += dataBaseObject.quoteName("#__jeprolab_carrier_tax_rules_group_lab") + " WHERE ";
+            query += dataBaseObject.quoteName("carrier_id") + " = " + carrierId + " AND lab_id = " + JeproLabContext.getContext().laboratory.laboratory_id;
 
-            staticDataBaseObject.setQuery(query);
-            int result = (int)staticDataBaseObject.loadValue("tax_rules_group_d");
+            dataBaseObject.setQuery(query);
+            int result = (int)dataBaseObject.loadValue("tax_rules_group_d");
             JeproLabCache.getInstance().store(cacheKey, result);
             return result;
         }
@@ -1979,8 +1983,8 @@ public class JeproLabCarrierModel extends JeproLabModel{
 
     public static class JeproLabRangePrice extends JeproLabModel implements com.jeprolab.models.JeproLabCarrierModel.JeproLabRange{
         public static List getRanges(int carrierId){
-            if(staticDataBaseObject == null){
-                staticDataBaseObject = JeproLabFactory.getDataBaseConnector();
+            if(dataBaseObject == null){
+                dataBaseObject = JeproLabFactory.getDataBaseConnector();
             }
             String query = "";
             return new ArrayList<>();
@@ -1989,8 +1993,8 @@ public class JeproLabCarrierModel extends JeproLabModel{
 
     public static class JeproLabRangeWeight extends JeproLabModel implements com.jeprolab.models.JeproLabCarrierModel.JeproLabRange{
         public static List getRanges(int carrierId){
-            if(staticDataBaseObject == null){
-                staticDataBaseObject = JeproLabFactory.getDataBaseConnector();
+            if(dataBaseObject == null){
+                dataBaseObject = JeproLabFactory.getDataBaseConnector();
             }
             String query = "";
             return new ArrayList<>();

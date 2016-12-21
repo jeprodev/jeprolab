@@ -33,14 +33,14 @@ public class JeproLabThemeModel extends JeproLabModel {
     public static int access_rights = 0775;
 
     public static List<JeproLabThemeModel> getThemes(){
-        if(staticDataBaseObject == null){
-            staticDataBaseObject = JeproLabFactory.getDataBaseConnector();
+        if(dataBaseObject == null){
+            dataBaseObject = JeproLabFactory.getDataBaseConnector();
         }
 
-        String query = "SELECT * FROM " + staticDataBaseObject.quoteName("#__jeprolab_theme") + " ORDER BY " + staticDataBaseObject.quoteName("theme_name");
-        staticDataBaseObject.setQuery(query);
+        String query = "SELECT * FROM " + dataBaseObject.quoteName("#__jeprolab_theme") + " ORDER BY " + dataBaseObject.quoteName("theme_name");
+        dataBaseObject.setQuery(query);
 
-        ResultSet themesSet = staticDataBaseObject.loadObjectList();
+        ResultSet themesSet = dataBaseObject.loadObjectList();
         List<JeproLabThemeModel> themeList = new ArrayList<>();
         if(themesSet != null){
             try{

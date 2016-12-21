@@ -96,7 +96,7 @@ public class OcspClientBouncyCastle implements OcspClient {
     private final OCSPVerifier verifier;
 
     /**
-     * Create default implemention of {@code OcspClient}.
+     * Create default implementation of {@code OcspClient}.
      * Note, if you use this constructor, OCSP response will not be verified.
      */
     @Deprecated
@@ -121,9 +121,9 @@ public class OcspClientBouncyCastle implements OcspClient {
             if (ocspResponse == null) {
                 return null;
             }
-            if (ocspResponse.getStatus() != OCSPRespStatus.SUCCESSFUL) {
+            /*if (ocspResponse.getStatus() != OCSPRespStatus.SUCCESSFUL) {
                 return null;
-            }
+            }*/
             BasicOCSPResp basicResponse = (BasicOCSPResp) ocspResponse.getResponseObject();
             if (verifier != null) {
                 verifier.isValidResponse(basicResponse, rootCert);

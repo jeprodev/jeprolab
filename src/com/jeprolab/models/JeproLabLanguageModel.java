@@ -76,15 +76,15 @@ public class JeproLabLanguageModel extends JeproLabModel {
     }
 
     public static void loadLanguages() {
-        if(staticDataBaseObject == null){
-            staticDataBaseObject = JeproLabFactory.getDataBaseConnector();
+        if(dataBaseObject == null){
+            dataBaseObject = JeproLabFactory.getDataBaseConnector();
         }
         JeproLabLanguageModel.LANGUAGES = new HashMap<>();
 
-        String query = " SELECT * FROM " + staticDataBaseObject.quoteName("#__languages") ;
+        String query = " SELECT * FROM " + dataBaseObject.quoteName("#__languages") ;
 
-        staticDataBaseObject.setQuery(query);
-        ResultSet languages = staticDataBaseObject.loadObjectList();
+        dataBaseObject.setQuery(query);
+        ResultSet languages = dataBaseObject.loadObjectList();
 
         String default_language = JeproLabLanguageModel.getDefaultLanguage().language_code;
         if(languages != null) {
@@ -191,13 +191,13 @@ public class JeproLabLanguageModel extends JeproLabModel {
     public static List<Integer> getLanguageIds(){
         List<Integer> ids = new ArrayList<>();
 
-        if(staticDataBaseObject == null){
-            staticDataBaseObject = JeproLabFactory.getDataBaseConnector();
+        if(dataBaseObject == null){
+            dataBaseObject = JeproLabFactory.getDataBaseConnector();
         }
-        String query = " SELECT " + staticDataBaseObject.quoteName("lang_id") + " FROM " + staticDataBaseObject.quoteName("#__languages") ;
+        String query = " SELECT " + dataBaseObject.quoteName("lang_id") + " FROM " + dataBaseObject.quoteName("#__languages") ;
 
-        staticDataBaseObject.setQuery(query);
-        ResultSet languages = staticDataBaseObject.loadObjectList();
+        dataBaseObject.setQuery(query);
+        ResultSet languages = dataBaseObject.loadObjectList();
         if(languages != null) {
             try {
                 while (languages.next()) {

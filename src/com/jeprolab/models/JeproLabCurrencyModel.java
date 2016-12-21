@@ -226,17 +226,17 @@ public class JeproLabCurrencyModel extends  JeproLabModel{
      * @return array Currencies
      */
     public static List<JeproLabCurrencyModel> getCurrencies(boolean object, boolean published, boolean groupBy){
-        if(staticDataBaseObject == null){
-            staticDataBaseObject = JeproLabFactory.getDataBaseConnector();
+        if(dataBaseObject == null){
+            dataBaseObject = JeproLabFactory.getDataBaseConnector();
         }
-        String query = "SELECT * FROM " + staticDataBaseObject.quoteName("#__jeprolab_currency") + " AS currency ";
-        query += JeproLabLaboratoryModel.addSqlAssociation("currency") + " WHERE " + staticDataBaseObject.quoteName("deleted");
-        query += " = 0 " + (published ? " AND currency." + staticDataBaseObject.quoteName("published") + " = 1" : "");
-        query += (groupBy ? " GROUP BY currency." + staticDataBaseObject.quoteName("currency_id") : "") + " ORDER BY ";
-        query += staticDataBaseObject.quoteName("name") + " ASC ";
+        String query = "SELECT * FROM " + dataBaseObject.quoteName("#__jeprolab_currency") + " AS currency ";
+        query += JeproLabLaboratoryModel.addSqlAssociation("currency") + " WHERE " + dataBaseObject.quoteName("deleted");
+        query += " = 0 " + (published ? " AND currency." + dataBaseObject.quoteName("published") + " = 1" : "");
+        query += (groupBy ? " GROUP BY currency." + dataBaseObject.quoteName("currency_id") : "") + " ORDER BY ";
+        query += dataBaseObject.quoteName("name") + " ASC ";
 
-        staticDataBaseObject.setQuery(query);
-        ResultSet currencySet = staticDataBaseObject.loadObjectList();
+        dataBaseObject.setQuery(query);
+        ResultSet currencySet = dataBaseObject.loadObjectList();
         List<JeproLabCurrencyModel> currencies = new ArrayList<>();
         try{
             int currencyId;
@@ -278,17 +278,17 @@ public class JeproLabCurrencyModel extends  JeproLabModel{
     }
 
     public static List<JeproLabCurrencyModel> getCurrenciesByLaboratoryId(int labId){
-        if(staticDataBaseObject == null){
-            staticDataBaseObject = JeproLabFactory.getDataBaseConnector();
+        if(dataBaseObject == null){
+            dataBaseObject = JeproLabFactory.getDataBaseConnector();
         }
-        String query = "SELECT * FROM " + staticDataBaseObject.quoteName("#__jeprolab_currency") + " AS currency LEFT JOIN ";
-        query += staticDataBaseObject.quoteName("#__jeprolab_currency_lab") + " AS currency_lab ON (currency_lab.";
-        query += staticDataBaseObject.quoteName("currency_id") + " = currency." + staticDataBaseObject.quoteName("currency_id");
-        query += ") " + (labId > 0 ? " WHERE currency_lab." + staticDataBaseObject.quoteName("lab_id") + " = " + labId : "");
-        query += " ORDER BY " + staticDataBaseObject.quoteName("name") + " ASC";
+        String query = "SELECT * FROM " + dataBaseObject.quoteName("#__jeprolab_currency") + " AS currency LEFT JOIN ";
+        query += dataBaseObject.quoteName("#__jeprolab_currency_lab") + " AS currency_lab ON (currency_lab.";
+        query += dataBaseObject.quoteName("currency_id") + " = currency." + dataBaseObject.quoteName("currency_id");
+        query += ") " + (labId > 0 ? " WHERE currency_lab." + dataBaseObject.quoteName("lab_id") + " = " + labId : "");
+        query += " ORDER BY " + dataBaseObject.quoteName("name") + " ASC";
 
-        staticDataBaseObject.setQuery(query);
-        ResultSet currencySet = staticDataBaseObject.loadObjectList();
+        dataBaseObject.setQuery(query);
+        ResultSet currencySet = dataBaseObject.loadObjectList();
         JeproLabCurrencyModel currency;
         List<JeproLabCurrencyModel> currencies = new ArrayList<>();
         try{
@@ -344,16 +344,16 @@ public class JeproLabCurrencyModel extends  JeproLabModel{
         }
 
         if (!JeproLabCurrencyModel.activeCurrencies.containsKey(labId)){
-            if(staticDataBaseObject == null){
-                staticDataBaseObject = JeproLabFactory.getDataBaseConnector();
+            if(dataBaseObject == null){
+                dataBaseObject = JeproLabFactory.getDataBaseConnector();
             }
-            String query = "SELECT COUNT(DISTINCT currency.currency_id) AS ids FROM " + staticDataBaseObject.quoteName("#__jeprolab_currency");
-            query += " AS currency LEFT JOIN " + staticDataBaseObject.quoteName("#__jeprolab_currency_lab") + " AS currency_lab ON (";
+            String query = "SELECT COUNT(DISTINCT currency.currency_id) AS ids FROM " + dataBaseObject.quoteName("#__jeprolab_currency");
+            query += " AS currency LEFT JOIN " + dataBaseObject.quoteName("#__jeprolab_currency_lab") + " AS currency_lab ON (";
             query += "currency_lab.currency_id = currency.currency_id AND currency_lab.lab_id = " + labId + ") WHERE currency.";
-            query += staticDataBaseObject.quoteName("published") + " = 1";
+            query += dataBaseObject.quoteName("published") + " = 1";
 
-            staticDataBaseObject.setQuery(query);
-            int val = (int)staticDataBaseObject.loadValue("ids");
+            dataBaseObject.setQuery(query);
+            int val = (int)dataBaseObject.loadValue("ids");
             JeproLabCurrencyModel.activeCurrencies.put(labId, val);
         }
         return JeproLabCurrencyModel.activeCurrencies.get(labId);

@@ -132,4 +132,8 @@ public class JeproLabCountryStatesController extends JeproLabController {
             }
         }
     }
+
+    private class JeproLabActionCell extends TableCell<JeproLabStateRecord, HBox>{
+        
+    }
 }

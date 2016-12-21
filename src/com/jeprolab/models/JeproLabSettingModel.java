@@ -32,27 +32,27 @@ public class JeproLabSettingModel extends JeproLabModel {
     //protected static Array types = array();
 
     private static ResultSet getValue(String key){
-        if(staticDataBaseObject == null){
-            staticDataBaseObject = JeproLabFactory.getDataBaseConnector();
+        if(dataBaseObject == null){
+            dataBaseObject = JeproLabFactory.getDataBaseConnector();
         }
-        String query = "SELECT value FROM " + staticDataBaseObject.quoteName("#__jeprolab_setting") + " WHERE ";
-        query += staticDataBaseObject.quoteName("name") + " = " + staticDataBaseObject.quote(key);
+        String query = "SELECT value FROM " + dataBaseObject.quoteName("#__jeprolab_setting") + " WHERE ";
+        query += dataBaseObject.quoteName("name") + " = " + dataBaseObject.quote(key);
 
-        staticDataBaseObject.setQuery(query);
-        return staticDataBaseObject.loadObjectList();
+        dataBaseObject.setQuery(query);
+        return dataBaseObject.loadObjectList();
     }
 
     public static void loadSettings() {
         SETTINGS = new HashedMap<>();
-        if (staticDataBaseObject == null) {
-            staticDataBaseObject = JeproLabFactory.getDataBaseConnector();
+        if (dataBaseObject == null) {
+            dataBaseObject = JeproLabFactory.getDataBaseConnector();
         }
 
-        String query = "SELECT setting." + staticDataBaseObject.quoteName("name") + ", setting." + staticDataBaseObject.quoteName("value");
-        query += " FROM " + staticDataBaseObject.quoteName("#__jeprolab_setting") + " AS setting";
+        String query = "SELECT setting." + dataBaseObject.quoteName("name") + ", setting." + dataBaseObject.quoteName("value");
+        query += " FROM " + dataBaseObject.quoteName("#__jeprolab_setting") + " AS setting";
 
-        staticDataBaseObject.setQuery(query);
-        ResultSet settingsParams = staticDataBaseObject.loadObjectList();
+        dataBaseObject.setQuery(query);
+        ResultSet settingsParams = dataBaseObject.loadObjectList();
         try {
             while (settingsParams.next()) {
                 String key = settingsParams.getString("name");

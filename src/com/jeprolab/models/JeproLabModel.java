@@ -9,15 +9,16 @@ import com.jeprolab.models.core.JeproLabFactory;
  * Created by jeprodev on 18/06/2014.
  */
 public class JeproLabModel {
-    protected JeproLabDataBaseConnector dataBaseObject;
-    protected static JeproLabDataBaseConnector staticDataBaseObject;
+    protected static JeproLabDataBaseConnector dataBaseObject;
+    //protected static JeproLabDataBaseConnector dataBaseObject;
 
     protected String image_format = "jpg";
 
+    //public static JeproLabCache<String, >
+
     public JeproLabModel(){
-        if(dataBaseObject == null || staticDataBaseObject == null){
+        if(dataBaseObject == null){
             dataBaseObject = JeproLabFactory.getDataBaseConnector();
-            staticDataBaseObject = dataBaseObject;
         }
     }
 
@@ -34,16 +35,16 @@ public class JeproLabModel {
      * @return bool
      */
     public static boolean isCurrentlyUsed(String table, boolean hasPublishColumn){
-        if(staticDataBaseObject == null){
-            staticDataBaseObject = JeproLabFactory.getDataBaseConnector();
+        if(dataBaseObject == null){
+            dataBaseObject = JeproLabFactory.getDataBaseConnector();
         }
-        String query = "SELECT " + staticDataBaseObject.quoteName(table + "_id") + " FROM " + staticDataBaseObject.quoteName("__jeprolab_" + table);
+        String query = "SELECT " + dataBaseObject.quoteName(table + "_id") + " FROM " + dataBaseObject.quoteName("__jeprolab_" + table);
 
-        query += (hasPublishColumn ? " WHERE " + staticDataBaseObject.quoteName("published") + " = 1" : "");
-        staticDataBaseObject.setQuery(query);
+        query += (hasPublishColumn ? " WHERE " + dataBaseObject.quoteName("published") + " = 1" : "");
+        dataBaseObject.setQuery(query);
 
 
-        return ((int)staticDataBaseObject.loadValue(table + "_id") > 0 );
+        return ((int)dataBaseObject.loadValue(table + "_id") > 0 );
     }
 
     public boolean updateField(String table, String field, String value, String condition, String type){
