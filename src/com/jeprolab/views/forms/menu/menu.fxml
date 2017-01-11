@@ -1,121 +1,118 @@
+<?import javafx.scene.layout.VBox?>
 <?import javafx.scene.control.MenuBar?>
-
 <?import javafx.scene.control.Menu?>
 <?import javafx.scene.control.MenuItem?>
-<?import javafx.scene.layout.VBox?>
 <VBox xmlns:fx="http://javafx.com/fxml" fx:id="jeproLabMenuBarWrapper" fx:controller="com.jeprolab.controllers.JeproLabMenuController" >
     <MenuBar fx:id="jeproLabMenuBar">
-        <Menu fx:id="dashBoardMenu" onAction="#handleDashBoardMenuEvent" >
-            <MenuItem fx:id="dashBoardMenuItem" onAction="#handleDashBoardMenuEvent" />
+        <Menu fx:id="dashBoardMenu"  >
+            <MenuItem fx:id="dashBoardMenuItem"  />
         </Menu>
         <Menu fx:id="catalogMenu" >
             <Menu fx:id="categorySubMenu" >
-                <MenuItem fx:id="categorySubMenuItem" onAction="#handleCategoriesMenuEvent" />
-                <MenuItem fx:id="addCategoryMenuItem" onAction="#handleAddCategoryMenuEvent" />
+                <MenuItem fx:id="categorySubMenuItem" />
+                <MenuItem fx:id="addCategoryMenuItem"  />
             </Menu>
             <Menu fx:id="analyzeSubMenu" >
-                <MenuItem fx:id="analyzeSubMenuItem" onAction="#handleAnalyzesMenuEvent" />
-                <MenuItem fx:id="addAnalyseSubMenuItem" onAction="#handleAddAnalyseMenuEvent" />
-                <MenuItem fx:id="methodSubMenuItem" onAction="#handleAnalyzeMethodsMenuEvent" />
-                <MenuItem fx:id="addMethodSubMenuItem" onAction="#handleAnalyzeAddMethodsMenuEvent" />
+                <MenuItem fx:id="analyzeSubMenuItem" />
+                <MenuItem fx:id="addAnalyseSubMenuItem"  />
+                <MenuItem fx:id="methodSubMenuItem"  />
+                <MenuItem fx:id="addMethodSubMenuItem"  />
             </Menu>
             <Menu fx:id="attachmentsSubMenu" >
-                <MenuItem fx:id="attachmentSubMenuItem" onAction="#handleAttachmentsMenuEvent" />
-                <MenuItem fx:id="addAttachmentSubMenuItem" onAction="#handleAddAttachmentMenuEvent" />
+                <MenuItem fx:id="attachmentSubMenuItem"  />
+                <MenuItem fx:id="addAttachmentSubMenuItem"  />
             </Menu>
 
         </Menu>
         <Menu fx:id="customerMenu" >
             <Menu fx:id="customersSubMenu" >
-                <MenuItem fx:id="customersSubMenuItem"  onAction="#handleCustomersMenuEvent" />
-                <MenuItem fx:id="addCustomerMenuItem" onAction="#handleAddNewCustomerMenuEvent"/>
+                <MenuItem fx:id="customersSubMenuItem"   />
+                <MenuItem fx:id="addCustomerMenuItem" />
             </Menu>
             <Menu fx:id="addressesSubMenu" >
-                <MenuItem fx:id="addressesSubMenuItem" onAction="#handleAddressesMenuEvent" />
-                <MenuItem fx:id="addAddressMenuItem" onAction="#handleAddNewAddressMenuEvent" />
+                <MenuItem fx:id="addressesSubMenuItem"  />
+                <MenuItem fx:id="addAddressMenuItem"  />
             </Menu>
             <Menu fx:id="groupsSubMenu" >
-                <MenuItem fx:id="groupsSubMenuItem" onAction="#handleGroupsMenuEvent" />
-                <MenuItem fx:id="addGroupMenuItem" onAction="#handleAddGroupMenuEvent" />
+                <MenuItem fx:id="groupsSubMenuItem"  />
+                <MenuItem fx:id="addGroupMenuItem"  />
             </Menu>
             <Menu fx:id="threadsSubMenu" >
-                <MenuItem fx:id="customerThreadsSubMenuItem" onAction="#handleCustomerThreadsMenuEvent" />
+                <MenuItem fx:id="customerThreadsSubMenuItem"  />
             </Menu>
             <Menu fx:id="contactsSubMenu">
-                <MenuItem fx:id="contactsSubMenuItem" onAction="#handleContactsMenuEvents" />
+                <MenuItem fx:id="contactsSubMenuItem"  />
             </Menu>
         </Menu>
         <Menu fx:id="currentSubRequestMenu" >
 
             <Menu fx:id="requestMenu" >
-                <MenuItem fx:id="requestListMenuItem"  onAction="#handleRequestsMenuEvent" />
-                <MenuItem fx:id="requestAddNewMenuItem"  onAction="#handleRequestAddNewMenuEvent" />
+                <MenuItem fx:id="requestListMenuItem" />
+                <MenuItem fx:id="requestAddNewMenuItem"  />
             </Menu>
             <Menu fx:id="requestBillsMenu" >
-                <MenuItem fx:id="requestBillsMenuItem"  onAction="#handleRequestBillsMenuEvent" />
-                <MenuItem fx:id="requestAddBillMenuItem"  onAction="#handleRequestAddBillMenuEvent" />
+                <MenuItem fx:id="requestBillsMenuItem"   />
+                <MenuItem fx:id="requestAddBillMenuItem"   />
             </Menu>
             <Menu fx:id="requestComplaintMenu" >
-                <MenuItem fx:id="requestComplaintMenuItem"  onAction="#handleRequestComplaintsMenuEvent" />
-                <MenuItem fx:id="requestAddNewComplaintMenuItem"  onAction="#handleRequestAddNewComplaintMenuEvent" />
+                <MenuItem fx:id="requestComplaintMenuItem"   />
+                <MenuItem fx:id="requestAddNewComplaintMenuItem"   />
             </Menu>
             <Menu fx:id="requestRefundMenu" >
-                <MenuItem fx:id="requestRefundsMenuItem"  onAction="#handleRequestRefundsMenuEvent" />
-                <MenuItem fx:id="requestAddNewRefundsMenuItem"  onAction="#handleRequestAddRefundMenuEvent" />
+                <MenuItem fx:id="requestRefundsMenuItem"   />
+                <MenuItem fx:id="requestAddNewRefundsMenuItem"   />
             </Menu>
             <Menu fx:id="requestStatusMenu" >
-                <MenuItem fx:id="requestStatusMenuItem"  onAction="#handleRequestStatusMenuEvent" />
-                <MenuItem fx:id="requestAddStatusMenuItem"  onAction="#handleRequestAddStatusMenuEvent" />
+                <MenuItem fx:id="requestStatusMenuItem"   />
+                <MenuItem fx:id="requestAddStatusMenuItem"   />
             </Menu>
             <Menu fx:id="requestMessageMenu" >
-                <MenuItem fx:id="requestMessagesMenuItem"  onAction="#handleRequestMessagesMenuEvent" />
-                <MenuItem fx:id="requestAddMessageMenuItem"  onAction="#handleRequestAddMessageMenuEvent" />
+                <MenuItem fx:id="requestMessagesMenuItem"   />
+                <MenuItem fx:id="requestAddMessageMenuItem"   />
             </Menu>
         </Menu>
         <Menu fx:id="feedsMenu" >
             <Menu fx:id="feedsSubMenu"  >
-                <MenuItem fx:id="feedsSubMenuItem" onAction="#handleFeedsMenuEvent" />
-                <MenuItem fx:id="addFeedMenuItem"  onAction="#handleAddFeedMenuEvent" />
+                <MenuItem fx:id="feedsSubMenuItem" />
+                <MenuItem fx:id="addFeedMenuItem"   />
             </Menu>
-            <MenuItem fx:id="feedBackMenuItem" onAction="#handleFeedBackMenuEvent">
-                <!--items>
-                    <MenuItem fx:id="" />
-                </items -->
+            <MenuItem fx:id="feedBackMenuItem" >
+
             </MenuItem>
         </Menu>
         <Menu fx:id="settingMenu" >
             <Menu fx:id="laboratorySubMenu" >
-                <MenuItem  fx:id="laboratorySubMenuItem" onAction="#handleLaboratoriesMenuEvent" />
-                <MenuItem fx:id="addLaboratorySubMenuItem" onAction="#handleAddNewLaboratoryMenuEvent" />
+                <MenuItem  fx:id="laboratorySubMenuItem" />
+                <MenuItem fx:id="addLaboratorySubMenuItem" />
             </Menu>
             <Menu fx:id="laboratoryGroupSubMenu" >
-                <MenuItem fx:id="laboratoryGroupSubMenuItem"  onAction="#handleLaboratoryGroupsMenuEvent" />
-                <MenuItem fx:id="addLaboratoryGroupSubMenuItem" onAction="#handleAddNewLaboratoryGroupMenuEvent" />
+                <MenuItem fx:id="laboratoryGroupSubMenuItem"   />
+                <MenuItem fx:id="addLaboratoryGroupSubMenuItem"  />
             </Menu>
             <Menu fx:id="localisationSubMenu" >
                 <Menu fx:id="countriesSubMenu" >
-                    <MenuItem fx:id="countrySubMenuItem" onAction="#handleCountryMenuEvent" />
-                    <MenuItem fx:id="addCountrySubMenu" onAction="#handleAddNewCountryMenuEvent" />
-                    <MenuItem fx:id="statesSubMenuItem" onAction="#handleStateMenuEvent" />
-                    <MenuItem fx:id="addStateSubMenuItem" onAction="#handleAddNewStateMenuEvent" />
-                    <MenuItem fx:id="zoneListSubMenuItem" onAction="#handleZoneListMenuEvent" />
-                    <MenuItem fx:id="editZoneSubMenu" onAction="#handleAddNewZoneMenuEvent" />
+                    <MenuItem fx:id="countrySubMenuItem"  />
+                    <MenuItem fx:id="addCountrySubMenu"  />
+                    <MenuItem fx:id="statesSubMenuItem"  />
+                    <MenuItem fx:id="addStateSubMenuItem"  />
+                    <MenuItem fx:id="zoneListSubMenuItem"  />
+                    <MenuItem fx:id="editZoneSubMenu" />
                 </Menu>
                 <Menu fx:id="currenciesSubMenu" >
-                    <MenuItem fx:id="currenciesSubMenuItem" onAction="#handleCurrenciesMenuEvent" />
-                    <MenuItem fx:id="addCurrencySubMenuItem" onAction="#handleAddNewCurrencyMenuEvent" />
+                    <MenuItem fx:id="currenciesSubMenuItem"  />
+                    <MenuItem fx:id="addCurrencySubMenuItem"  />
                 </Menu>
                 <Menu fx:id="taxesSubMenu" >
-                    <MenuItem fx:id="taxesSubMenuItem" onAction="#handleTaxesMenuEvent" />
-                    <MenuItem fx:id="addTaxSubMenuItem" onAction="#handleAddNewTaxMenuEvent" />
-                    <MenuItem fx:id="taxesGroupSubMenuItem" onAction="#handleTaxesGroupMenuEvent" />
-                    <MenuItem fx:id="addTaxGroupSubMenuItem" onAction="#handleAddNewTaxGroupMenuEvent" />
+                    <MenuItem fx:id="taxesSubMenuItem"  />
+                    <MenuItem fx:id="addTaxSubMenuItem"  />
+                    <MenuItem fx:id="taxesGroupSubMenuItem"  />
+                    <MenuItem fx:id="addTaxGroupSubMenuItem"  />
                 </Menu>
             </Menu>
         </Menu>
         <Menu fx:id="helpMenu" >
-            <MenuItem fx:id="checkForJeproLabUpdate" onAction="#handleCheckForJeproLabUpdate" />
-            <MenuItem fx:id="aboutJeproLabMenuItem" onAction="#handleHelpMenuEvent"/>
+            <MenuItem fx:id="checkForJeproLabUpdate"  />
+            <MenuItem fx:id="aboutJeproLabMenuItem" />
         </Menu>
     </MenuBar>
 </VBox>

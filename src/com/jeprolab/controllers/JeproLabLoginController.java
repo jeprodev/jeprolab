@@ -9,7 +9,6 @@ import com.jeprolab.models.core.JeproLabApplication;
 import com.jeprolab.models.core.JeproLabAuthentication;
 import com.jeprolab.models.core.JeproLabFactory;
 import javafx.application.Platform;
-import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.geometry.HPos;
 import javafx.geometry.Insets;
@@ -24,18 +23,15 @@ import javafx.scene.layout.HBox;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextAlignment;
 
-import java.io.IOException;
+
 import java.net.URL;
 import java.util.ResourceBundle;
 
 /**
  *
- * Created by jeprodev on 18/06/2014.
+ * Created by jeprodev on 09/01/2016.
  */
-public class JeproLabLoginController extends JeproLabController {
-    private ResourceBundle bundle;
-    //private Label loginTitleLabel;
-
+public class JeproLabLoginController extends JeproLabController{
     @FXML
     public Label userNameLabel, userPasswordLabel;
     public TextField userName;
@@ -50,18 +46,17 @@ public class JeproLabLoginController extends JeproLabController {
 
     @Override
     public void initialize(URL location , ResourceBundle resource){
-        double labelColumnWidth = 150;
-        double inputColumnWidth = 200;
-        double formWidth = labelColumnWidth + inputColumnWidth;
-        bundle = resource;
-        formTitleLabel = new Label(bundle.getString("JEPROLAB_LOGIN_PANEL_TITLE"));
+        super.initialize(location, resource);
+
+        formWidth = labelColumnWidth + inputColumnWidth;
+        formTitleLabel.setText(bundle.getString("JEPROLAB_LOGIN_PANEL_TITLE"));
         formTitleLabel.setPrefWidth(formWidth);
         formTitleLabel.setPrefSize(formWidth, 40);
+
         jeprolabLoginFormTitleWrapper.setPrefSize(formWidth, 40);
-        //formTitleLabel.setLayoutY(8);
         jeprolabLoginFormTitleWrapper.getChildren().add(formTitleLabel);
         jeproLabLoginGridPane.getColumnConstraints().addAll(
-                new ColumnConstraints(labelColumnWidth -25), new ColumnConstraints(inputColumnWidth -25)
+            new ColumnConstraints(labelColumnWidth -25), new ColumnConstraints(inputColumnWidth -25)
         );
 
         jeprolabLoginFormWrapper.setPrefWidth(JeproLab.APP_WIDTH * 0.7);
@@ -73,7 +68,7 @@ public class JeproLabLoginController extends JeproLabController {
 
         formTitleLabel.getStyleClass().add("form-title");
         formTitleLabel.setAlignment(Pos.CENTER);
-        //todo :: remove it
+
         userName.setText("jeproQxT");
         password.setText("qxtbljwm");
 
@@ -86,6 +81,7 @@ public class JeproLabLoginController extends JeproLabController {
         userNameLabel.setText(bundle.getString("JEPROLAB_USERNAME_LABEL"));
         userNameLabel.getStyleClass().add("input-label");
         userPasswordLabel.setText(bundle.getString("JEPROLAB_PASSWORD_LABEL"));
+
         userPasswordLabel.getStyleClass().add("input-label");
 
         jeprolabLoginFormContainerWrapper.setPrefWidth(labelColumnWidth + inputColumnWidth);
@@ -100,28 +96,37 @@ public class JeproLabLoginController extends JeproLabController {
         jeproLabLoginErrorMessageWrapper.setLayoutY(280);
         jeproLabLoginErrorMessageWrapper.setWrappingWidth(0.7 * JeproLab.APP_WIDTH);
         jeproLabLoginErrorMessageWrapper.setTextAlignment(TextAlignment.CENTER);
+
+        setEventHandler();
     }
 
-    @FXML
-    protected void handleSubmitButton(ActionEvent evt) throws IOException {
-        JeproLabAuthentication.JeproLabAuthenticationOption loginOptions = new JeproLabAuthentication.JeproLabAuthenticationOption();
-        loginOptions.action = "core.login.admin";
-        boolean login = JeproLabApplication.login(userName.getText(), password.getText(), loginOptions);
-        if(login){
-            JeproLabContext context = JeproLabContext.getContext();
-            //context.connection = con;
-            context.employee = JeproLabFactory.getEmployee();
-            JeproLab.getInstance().resetMenuAndToolBar();
-            JeproLab.getInstance().goToForm(JeproLab.getInstance().getApplicationForms().dashBoardForm);
-        }else{
-            jeproLabLoginErrorMessageWrapper.setText("You re not allowed to log ");
-        }
+    private void setEventHandler(){
+        loginButton.setOnAction(evt -> {
+            if(!JeproLab.getInstance().is_initialized){
+                JeproLab.getInstance().initialize();
+            }
+            JeproLabAuthentication.JeproLabAuthenticationOption loginOption = new JeproLabAuthentication.JeproLabAuthenticationOption();
+            loginOption.action = "core.login.admin";
+            boolean login = JeproLabApplication.login(userName.getText(), password.getText(), loginOption);
+            if(login){
+                JeproLabContext context = JeproLabContext.getContext();
+                context.employee = JeproLabFactory.getEmployee();
+                JeproLab.getInstance().resetMenuAndToolBar();
+                if(context.last_form != null) {
+                    JeproLab.getInstance().goToForm(context.last_form);
+                }else{
+                    JeproLab.getInstance().goToForm(JeproLab.getInstance().getApplicationForms().dashBoardForm);
+                }
+            }else{
+                jeproLabLoginErrorMessageWrapper.setText(bundle.getString("JEPROLAB_YOU_ARE_NOT_ALLOW_TO_LOG_MESSAGE"));
+            }
+        });
+
+        cancelButton.setOnAction(evt -> {
+            Platform.exit();
+        });
     }
 
-    @FXML
-    protected void handleCancelButton(ActionEvent evt){
-        Platform.exit();
-    }
 
     //todo code me
     public static boolean onUserLogin(JeproLabAuthentication.JeproLabAuthenticationResponse response, JeproLabAuthentication.JeproLabAuthenticationOption loginOptions){

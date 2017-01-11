@@ -1,12 +1,12 @@
 package com.jeprolab.models;
 
-
 import com.jeprolab.JeproLab;
 import com.jeprolab.assets.tools.JeproLabCache;
 import com.jeprolab.assets.tools.JeproLabContext;
 import com.jeprolab.assets.tools.JeproLabTools;
 import com.jeprolab.assets.tools.db.JeproLabDataBaseConnector;
 import com.jeprolab.models.core.JeproLabFactory;
+import org.apache.log4j.Level;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -18,7 +18,7 @@ import java.util.stream.Collectors;
 
 /**
  *
- * Created by jeprodev on 02/02/2014.
+ * Created by jeprodev on 09/01/2016.
  */
 public class JeproLabLaboratoryModel extends JeproLabModel{
     public int laboratory_id = 0;
@@ -94,15 +94,15 @@ public class JeproLabLaboratoryModel extends JeproLabModel{
     }
 
     public JeproLabLaboratoryModel(int laboratoryId, int langId){
-        if( langId > 0){
+        /*if( langId > 0){
             this.lang_id = (JeproLabLanguageModel.checkLanguage(langId)) ? langId : JeproLabSettingModel.getIntValue("default_lang");
         }
 
-        if(laboratoryId > 0){
+        /*if(laboratoryId > 0){
             if(dataBaseObject == null){
                 dataBaseObject = JeproLabFactory.getDataBaseConnector();
             }
-            /** Loading laboratory from database if id is supplied **/
+            /** Loading laboratory from database if id is supplied ** /
             String cacheKey = "jeprolab_laboratory_model_" + laboratoryId + ((langId > 0) ? "_" + langId : "");
             if(!JeproLabCache.getInstance().isStored(cacheKey)){
                 String query = "SELECT laboratory.*, laboratory_url.physical_uri as physical_uri, laboratory_url.virtual_uri as virtual_uri, ";
@@ -132,12 +132,12 @@ public class JeproLabLaboratoryModel extends JeproLabModel{
                     }
                     JeproLabCache.getInstance().store(cacheKey, this);
                 }catch(SQLException ignored){
-                    ignored.printStackTrace();
+                    JeproLabTools.logExceptionMessage(Level.ERROR, ignored);
                 }finally {
                     try {
                         JeproLabDataBaseConnector.getInstance().closeConnexion();
-                    }catch (Exception e) {
-                        e.printStackTrace();
+                    }catch (Exception ignored) {
+                        JeproLabTools.logExceptionMessage(Level.WARN, ignored);
                     }
                 }
             }else{
@@ -156,15 +156,15 @@ public class JeproLabLaboratoryModel extends JeproLabModel{
                 this.domain = laboratory.domain;
                 this.ssl_domain = laboratory.ssl_domain;
             }
-        }
+        }*/
     }
 
     public static JeproLabLaboratoryModel initialize() {
         int labId = 0;
-        if(JeproLabContext.getContext().laboratory != null) {
+        /*if(JeproLabContext.getContext().laboratory != null) {
             labId = JeproLabContext.getContext().laboratory.laboratory_id;
         }
-        if(labId <= 0) {
+        /*if(labId <= 0) {
             if(dataBaseObject == null){
                 dataBaseObject = JeproLabFactory.getDataBaseConnector();
             }
@@ -187,25 +187,28 @@ public class JeproLabLaboratoryModel extends JeproLabModel{
             List resultLabs = new ArrayList<>();
             boolean isMainUri = false;
 
-            try {
-                while(results.next()) {
-                    //if (preg_match('#^'.preg_quote($result -> uri, '#'). '#i', $request_uri)){
-                    through = true;
-                    labId = results.getInt("lab_id");
-                    foundedUri = results.getString("uri");
-                    if (results.getInt("main") > 0) {
-                        isMainUri = true;
-                    }
-                    break;
-                    //}
-                }
-            }catch(SQLException ignored){
-                ignored.printStackTrace();
-            }finally {
+            if(results != null) {
                 try {
-                    JeproLabDataBaseConnector.getInstance().closeConnexion();
-                }catch (Exception e) {
-                    e.printStackTrace();
+                    while (results.next()) {
+                        //if (preg_match('#^'.preg_quote($result -> uri, '#'). '#i', $request_uri)){
+                        through = true;
+                        labId = results.getInt("lab_id");
+                        foundedUri = results.getString("uri");
+                        if (results.getInt("main") > 0) {
+                            isMainUri = true;
+                            break;
+                        }
+
+                        //}
+                    }
+                } catch (SQLException ignored) {
+                    JeproLabTools.logExceptionMessage(Level.ERROR, ignored);
+                } finally {
+                    try {
+                        JeproLabDataBaseConnector.getInstance().closeConnexion();
+                    } catch (Exception ignored) {
+                        JeproLabTools.logExceptionMessage(Level.WARN, ignored);
+                    }
                 }
             }
             /** If an URL was found and it's not the main URL, redirect to main url  **/
@@ -219,17 +222,17 @@ public class JeproLabLaboratoryModel extends JeproLabModel{
                         System.exit(0);
                     }
                 }
-            }*/
+            }* /
 
-        }
+        } */
 
         JeproLabLaboratoryModel laboratory;
 
-        if(labId <= 0){
+        if(labId > 0){
             laboratory = new JeproLabLaboratoryModel(labId);
         }else{
-            laboratory = new JeproLabLaboratoryModel(labId);
-            JeproLabLaboratoryModel defaultLab;
+            laboratory = new JeproLabLaboratoryModel();
+            /*JeproLabLaboratoryModel defaultLab;
             if(laboratory.laboratory_id < 0 || !laboratory.published){
                 defaultLab = new JeproLabLaboratoryModel(JeproLabSettingModel.getIntValue("default_lab"));
                 if(defaultLab.laboratory_id <= 0){
@@ -239,13 +242,20 @@ public class JeproLabLaboratoryModel extends JeproLabModel{
                 defaultLab = new JeproLabLaboratoryModel(JeproLabSettingModel.getIntValue("default_lab"));
                 laboratory.physical_uri = defaultLab.physical_uri;
                 laboratory.virtual_uri = defaultLab.virtual_uri;
-            }
+            }*/
         }
-
+/*
         JeproLabLaboratoryModel.context_laboratory_id = laboratory.laboratory_id;
         JeproLabLaboratoryModel.contextLabGroupId = laboratory.laboratory_group_id;
-        JeproLabLaboratoryModel.labContext = JeproLabLaboratoryModel.LAB_CONTEXT;
+        JeproLabLaboratoryModel.labContext = JeproLabLaboratoryModel.LAB_CONTEXT; */
         return laboratory;
+    }
+
+    public static boolean isTableAssociated(String table){
+        if(!JeproLabLaboratoryModel.isInitialized){
+            JeproLabLaboratoryModel.init();
+        }
+        return associatedTables.contains(table);
     }
 
     private static void init(){
@@ -272,10 +282,6 @@ public class JeproLabLaboratoryModel extends JeproLabModel{
         JeproLabLaboratoryModel.isInitialized = true;
     }
 
-    public static int getLabContext(){
-        return labContext;
-    }
-
     /**
      * Add table associated to laboratory
      *
@@ -284,11 +290,80 @@ public class JeproLabLaboratoryModel extends JeproLabModel{
         return false;
     }
 
-    public static boolean isTableAssociated(String table){
-        if(!JeproLabLaboratoryModel.isInitialized){
-            JeproLabLaboratoryModel.init();
+    /**
+     * get root category id of the laboratory
+     * @return category_id int root category id
+     */
+    public int getCategoryId(){
+        return (this.category_id > 0 ) ? this.category_id : 1;
+    }
+
+    public static boolean isFeaturePublished(){
+        try {
+            dataBaseObject = JeproLabDataBaseConnector.getInstance();
+        } catch (Exception ignored) {
+            JeproLabTools.logExceptionMessage(Level.WARN, ignored);
         }
-        return associatedTables.contains(table);
+        if(!feature_published){
+            String query = "SELECT COUNT(*) FROM " + dataBaseObject.quoteName("#__jeprolab_lab");
+            dataBaseObject.setQuery(query);
+
+            int nbObject = 0;
+            try {
+                ResultSet data = dataBaseObject.loadObjectList();
+                while (data.next()) {
+                    nbObject++;
+                }
+            }catch (SQLException ignored){
+                JeproLabTools.logExceptionMessage(Level.ERROR, ignored);
+            }finally {
+                try {
+                    JeproLabDataBaseConnector.getInstance().closeConnexion();
+                }catch (Exception ignored) {
+                    JeproLabTools.logExceptionMessage(Level.WARN, ignored);
+                }
+            }
+
+            feature_published = (JeproLabSettingModel.getIntValue("multi_lab_feature_active") > 0) && (nbObject > 1);
+        }
+
+        return feature_published;
+    }
+
+    public static int getLabContext(){
+        return labContext;
+    }
+
+    public static String addSqlRestriction(){
+        return addSqlRestriction("");
+    }
+
+    public static String addSqlRestriction(String share){
+        return addSqlRestriction(share, "");
+    }
+
+    public static String addSqlRestriction(String share, String alias){
+        if(alias != null && !alias.equals("")){
+            alias += ".";
+        }
+
+        JeproLabLaboratoryGroupModel labGroup = JeproLabLaboratoryModel.getLaboratoryGroupFromLaboratory(JeproLabLaboratoryModel.getContextLaboratoryId());
+        String restriction = "";
+        if (share.equals(JeproLabLaboratoryModel.SHARE_CUSTOMER) && JeproLabLaboratoryModel.getLabContext() == JeproLabLaboratoryModel.LAB_CONTEXT && labGroup.share_customers){
+            restriction += " AND " + alias + "lab_group_id = " +  JeproLabLaboratoryModel.getContextLabGroupId();
+        }else{
+            List<Integer> listRestriction = JeproLabLaboratoryModel.getContextListLaboratoryIds(share);
+            int listSize = listRestriction.size();
+            if(listSize > 0) {
+                String labIds = "";
+                for(int labId : listRestriction){
+                    labIds += labId + ", ";
+                }
+                labIds = labIds.substring(0, labIds.length() - 3);
+                restriction = " AND " + alias + "lab_id IN (" + labIds +") ";
+            }
+        }
+        return restriction;
     }
 
     /**
@@ -334,252 +409,21 @@ public class JeproLabLaboratoryModel extends JeproLabModel{
         return JeproLabLaboratoryModel.contextLabGroupId;
     }
 
-    public static boolean isFeaturePublished(){
-        try {
-            dataBaseObject = JeproLabDataBaseConnector.getInstance();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        if(!feature_published){
-            String query = "SELECT COUNT(*) FROM " + dataBaseObject.quoteName("#__jeprolab_lab");
-            dataBaseObject.setQuery(query);
-
-            int nbObject = 0;
-            try {
-                ResultSet data = dataBaseObject.loadObjectList();
-                while (data.next()) {
-                    nbObject++;
-                }
-            }catch (SQLException ignored){ignored.printStackTrace();}finally {
-                try {
-                    JeproLabDataBaseConnector.getInstance().closeConnexion();
-                }catch (Exception e) {
-                    e.printStackTrace();
-                }
-            }
-
-            feature_published = (JeproLabSettingModel.getIntValue("multi_lab_feature_active") > 0) && (nbObject > 1);
-        }
-
-        return feature_published;
+    public static int getLaboratoryGroupIdFromLaboratory(int labId){
+        return getLaboratoryGroupFromLaboratory(labId).laboratory_group_id;
     }
 
-    /**
-     * get root category id of the laboratory
-     * @return category_id int root category id
-     */
-    public int getCategoryId(){
-        return (this.category_id > 0 ) ? this.category_id : 1;
-    }
-
-    public static String addSqlRestriction(){
-        return addSqlRestriction("");
-    }
-
-    public static String addSqlRestriction(String share){
-        return addSqlRestriction(share, "");
-    }
-
-    public static String addSqlRestriction(String share, String alias){
-        if(alias != null && !alias.equals("")){
-            alias += ".";
-        }
-
-        JeproLabLaboratoryGroupModel labGroup = JeproLabLaboratoryModel.getLaboratoryGroupFromLaboratory(JeproLabLaboratoryModel.getContextLaboratoryId());
-        String restriction = "";
-        if (share.equals(JeproLabLaboratoryModel.SHARE_CUSTOMER) && JeproLabLaboratoryModel.getLabContext() == JeproLabLaboratoryModel.LAB_CONTEXT && labGroup.share_customers){
-            restriction += " AND " + alias + "lab_group_id = " +  JeproLabLaboratoryModel.getContextLabGroupId();
-        }else{
-            List<Integer> listRestriction = JeproLabLaboratoryModel.getContextListLaboratoryIds(share);
-            int listSize = listRestriction.size();
-            if(listSize > 0) {
-                String labIds = "";
-                for(int labId : listRestriction){
-                    labIds += labId + ", ";
-                }
-                labIds = labIds.substring(0, labIds.length() - 3);
-                restriction = " AND " + alias + "lab_id IN (" + labIds +") ";
-            }
-        }
-        return restriction;
-    }
-
-    public static String addSqlRestrictionOnLang(){
-        return addSqlRestrictionOnLang("", 0);
-    }
-
-    public static String addSqlRestrictionOnLang(String alias){
-        return addSqlRestrictionOnLang(alias, 0);
-    }
-
-    public static String addSqlRestrictionOnLang(String alias, int labId){
-        if((JeproLabContext.getContext().laboratory != null) && labId <= 0){
-            labId = JeproLabContext.getContext().laboratory.laboratory_id;
-        }
-
-        if(labId <= 0){
-            labId = JeproLabSettingModel.getIntValue("default_lab");
-        }
-        if(dataBaseObject == null){
-            dataBaseObject = JeproLabFactory.getDataBaseConnector();
-        }
-        return " AND " + (!alias.equals("") ? alias + "." : "") + dataBaseObject.quoteName("lab_id") + " = " + labId;
-    }
-    
-   /* public static String addSqlRestrictionOnLang(String alias, int labId){
-        if (JeproLabContext.getContext().laboratory != null && labId > 0)
-            labId = JeproLabContext.getContext().laboratory.laboratory_id;
-        if (labId <= 0)
-            labId = JeproLabSettingModel.getIntValue("default_lab");
-
-        return " AND " + (!(alias.equals("")) ? alias + "." : "") + dataBaseObject.quoteName("lab_id")  + " = " + labId;
-        return "";
-    }*/
-
-    public static String addSqlAssociation(String table){
-        return addSqlAssociation(table, true);
-    }
-
-    public static String addSqlAssociation(String table, boolean innerJoin){
-        return addSqlAssociation(table, innerJoin, null);
-    }
-
-    public static String addSqlAssociation(String table, boolean innerJoin, String onFilter){
-        return addSqlAssociation(table, innerJoin, onFilter, false);
-    }
-
-    public static String addSqlAssociation(String table, boolean innerJoin, String onFilter, boolean forceNotDefault){
-        JeproLabDataBaseConnector dbc = JeproLabFactory.getDataBaseConnector();
-        String tableAlias = table + "_lab";
-        String outputAlias;
-        if(table.contains(".")){
-            tableAlias = table.substring(0, table.indexOf("."));
-            table = table.substring(table.indexOf("."), table.length() - 1);
-        }
-
-        switch (table) {
-            case "group":
-                outputAlias = "group_item";
-                break;
-            case "analyze":
-                outputAlias = "analyze_item";
-                break;
-            default:
-                outputAlias = table;
-                break;
-        }
-
-        boolean isAssociatedToTable = JeproLabLaboratoryModel.getAssociatedTable(table);
-        if(!isAssociatedToTable){ return ""; }
-
-        String query = ((innerJoin) ? " INNER " : " LEFT ") + "JOIN " + dbc.quoteName("#__jeprolab_" + table + "_lab") + " AS ";
-        query += tableAlias + " ON( " + tableAlias + "." +  table + "_id = " + outputAlias + "."  + table + "_id";
-
-        if(JeproLabLaboratoryModel.context_laboratory_id > 0){
-            query += " AND " + tableAlias + ".lab_id = " + JeproLabLaboratoryModel.context_laboratory_id;
-        }else if(JeproLabLaboratoryModel.checkDefaultLabId(table) && !forceNotDefault){
-            query += " AND " + tableAlias + ".lab_id = " + outputAlias + ".default_lab_id";
-        }else{
-            //query += " AND " + tableAlias + ".lab_id IN (" . implode(', ', JeproLabLaboratoryModel.getContextListLabIds()) + ")" ;
-        }
-        query += ((onFilter != null && !onFilter.equals("")) ? " AND " + onFilter : "" ) + ")";
-        return query;
-    }
-
-    public static boolean getAssociatedTable(String table){
-        if(!JeproLabLaboratoryModel.isInitialized){
-            JeproLabLaboratoryModel.init();
-        }
-        return JeproLabLaboratoryModel.associatedTables.contains(table);
-    }
-
-    public static List<Integer> getContextListLaboratoryIds(){
-        return getContextListLaboratoryIds("");
-    }
-
-    public static List<Integer> getContextListLaboratoryIds(String share){
-        List<Integer> list = new ArrayList<>();
-        if(JeproLabLaboratoryModel.getLabContext() == JeproLabLaboratoryModel.LAB_CONTEXT){
-            if(share != null && !share.equals("")) {
-                list = JeproLabLaboratoryModel.getSharedLaboratories(JeproLabLaboratoryModel.getContextLabId(), share);
-            }else{
-                list.add(JeproLabLaboratoryModel.getContextLabId());
-            }
-        } else if(JeproLabLaboratoryModel.getLabContext() == JeproLabLaboratoryModel.GROUP_CONTEXT) {
-            list = JeproLabLaboratoryModel.getLaboratoryIds(true, JeproLabLaboratoryModel.getContextLabGroupId());
-        }else{
-            list = JeproLabLaboratoryModel.getLaboratoryIds(true, 0);
-        }
-        return list;
-    }
-
-    public static boolean checkDefaultLabId(String table){
-        if(!JeproLabLaboratoryModel.isInitialized){
-            JeproLabLaboratoryModel.init();
-        }
-        return JeproLabLaboratoryModel.defaultLabTablesId.contains(table);
-    }
-
-    public static List<Integer> getLaboratoryIds(){
-        return getLaboratoryIds(true);
-    }
-
-    public static List<Integer> getLaboratoryIds(boolean published){
-        return getLaboratoryIds(published, 0);
-    }
-
-    public static List<Integer> getLaboratoryIds(boolean published, int labGroupId){
+    public static JeproLabLaboratoryGroupModel getLaboratoryGroupFromLaboratory(int labId){
         JeproLabLaboratoryModel.cacheLaboratories();
 
-        List<Integer> results = new ArrayList<>();
-        for(JeproLabLaboratoryGroupModel labGroup : JeproLabLaboratoryGroupModel.getLaboratoryGroups()){
-            results.addAll(labGroup.laboratories.stream().filter(lab -> (!published || lab.published) && (labGroup.laboratory_group_id < 0 || labGroup.laboratory_group_id == labGroupId)).map(lab -> lab.laboratory_id).collect(Collectors.toList()));
-        }
-        return results;
-    }
-
-    public static List<JeproLabLaboratoryModel> getLaboratories(){
-        return getLaboratories(true);
-    }
-
-    public static List<JeproLabLaboratoryModel> getLaboratories(boolean published){
-        return getLaboratories(published, 0);
-    }
-
-    public static List<JeproLabLaboratoryModel> getLaboratories(boolean published, int labGroupId){
-        return getLaboratories(published, labGroupId, false);
-    }
-
-    public static List<JeproLabLaboratoryModel> getLaboratories(boolean published, int labGroupId, boolean getAsListIds){
-        JeproLabLaboratoryModel.cacheLaboratories();
-
-        List<JeproLabLaboratoryModel> results = new ArrayList<>();
-        /*todo foreach (JeproLabLaboratoryModel.labs as $group_id => $group_data){
-            foreach ($group_data['labs'] as $lab_id => $lab_data){
-                if((!$published || $lab_data->published) && (!$lab_group_id || $lab_group_id == $group_id)){
-                    if ($get_as_list_id){
-                        $results[$lab_id] = $lab_id;
-                    }else{
-                        $results[$lab_id] = $lab_data;
-                    }
-                }
+        for(Object labGroupObject : labGroups.entrySet()) {
+            Map.Entry labGroupEntry = (Map.Entry)labGroupObject;
+            JeproLabLaboratoryGroupModel labGroup = (JeproLabLaboratoryGroupModel)labGroupEntry.getValue();
+            if (labGroup.laboratories.contains(labId)) {
+                return labGroup;
             }
-        }*/
-        return results;
-    }
-
-    public static List<Integer> getSharedLaboratories(int labId, String labType){
-        if (!labType.equals(JeproLabLaboratoryModel.SHARE_CUSTOMER) || !labType.equals(JeproLabLaboratoryModel.SHARE_REQUEST) || !labType.equals(JeproLabLaboratoryModel.SHARE_RESULTS)){
-            //die('Wrong argument ($type) in Lab::getSharedLabs() method');
         }
-
-        JeproLabLaboratoryModel.cacheLaboratories();
-        /*for(JeproLabLaboratoryGroupModel laboratoryGroup : JeproLabLaboratoryModel.labGroups){
-            /* todo if (array_key_exists($lab_id, $group_data['labs']) && $group_data[$type]){
-                return array_keys($group_data['labs']);
-            }* /
-        }*/
-        return new ArrayList<>(labId);
+        return new JeproLabLaboratoryGroupModel();
     }
 
     public static void cacheLaboratories(){
@@ -668,32 +512,15 @@ public class JeproLabLaboratoryModel extends JeproLabModel{
                     }*/
                 }
             }catch (SQLException ignored){
-                ignored.printStackTrace();
+                JeproLabTools.logExceptionMessage(Level.ERROR, ignored);
             }finally {
                 try {
                     JeproLabDataBaseConnector.getInstance().closeConnexion();
-                }catch (Exception e) {
-                    e.printStackTrace();
+                }catch (Exception ignored) {
+                    JeproLabTools.logExceptionMessage(Level.ERROR, ignored);
                 }
             }
         }
-    }
-
-    public static int getLaboratoryGroupIdFromLaboratory(int labId){
-        return getLaboratoryGroupFromLaboratory(labId).laboratory_group_id;
-    }
-
-    public static JeproLabLaboratoryGroupModel getLaboratoryGroupFromLaboratory(int labId){
-        JeproLabLaboratoryModel.cacheLaboratories();
-
-        for(Object labGroupObject : labGroups.entrySet()) {
-            Map.Entry labGroupEntry = (Map.Entry)labGroupObject;
-            JeproLabLaboratoryGroupModel labGroup = (JeproLabLaboratoryGroupModel)labGroupEntry.getValue();
-            if (labGroup.laboratories.contains(labId)) {
-                return labGroup;
-            }
-        }
-        return new JeproLabLaboratoryGroupModel();
     }
 
     public static int getContextLaboratoryId(){
@@ -707,26 +534,143 @@ public class JeproLabLaboratoryModel extends JeproLabModel{
         return JeproLabLaboratoryModel.contextLabId;
     }
 
-    /**
-     * Get group of current shop
-     *
-     * @return JeproLabLaboratoryGroupModel
-     */
-    public JeproLabLaboratoryGroupModel getLaboratoryGroup(){
-        if (this.laboratory_group == null) {
-            this.laboratory_group = new JeproLabLaboratoryGroupModel(this.laboratory_group_id);
-        }
-        return this.laboratory_group;
+    public static List<Integer> getContextListLaboratoryIds(){
+        return getContextListLaboratoryIds("");
     }
 
-    public static JeproLabLaboratoryGroupModel getContextLaboratoryGroup(){
-        if (context_laboratory_group == null) {
-            context_laboratory_group = new JeproLabLaboratoryGroupModel(contextLabGroupId);
+    public static List<Integer> getContextListLaboratoryIds(String share){
+        List<Integer> list = new ArrayList<>();
+        if(JeproLabLaboratoryModel.getLabContext() == JeproLabLaboratoryModel.LAB_CONTEXT){
+            if(share != null && !share.equals("")) {
+                list = JeproLabLaboratoryModel.getSharedLaboratories(JeproLabLaboratoryModel.getContextLabId(), share);
+            }else{
+                list.add(JeproLabLaboratoryModel.getContextLabId());
+            }
+        } else if(JeproLabLaboratoryModel.getLabContext() == JeproLabLaboratoryModel.GROUP_CONTEXT) {
+            list = JeproLabLaboratoryModel.getLaboratoryIds(true, JeproLabLaboratoryModel.getContextLabGroupId());
+        }else{
+            list = JeproLabLaboratoryModel.getLaboratoryIds(true, 0);
         }
-        return context_laboratory_group;
+        return list;
     }
 
+    public static List<Integer> getLaboratoryIds(){
+        return getLaboratoryIds(true);
+    }
 
+    public static List<Integer> getLaboratoryIds(boolean published){
+        return getLaboratoryIds(published, 0);
+    }
+
+    public static List<Integer> getLaboratoryIds(boolean published, int labGroupId){
+        JeproLabLaboratoryModel.cacheLaboratories();
+
+        List<Integer> results = new ArrayList<>();
+        for(JeproLabLaboratoryGroupModel labGroup : JeproLabLaboratoryGroupModel.getLaboratoryGroups()){
+            results.addAll(labGroup.laboratories.stream().filter(lab -> (!published || lab.published) && (labGroup.laboratory_group_id < 0 || labGroup.laboratory_group_id == labGroupId)).map(lab -> lab.laboratory_id).collect(Collectors.toList()));
+        }
+        return results;
+    }
+
+    public static List<Integer> getSharedLaboratories(int labId, String labType){
+        if (!labType.equals(JeproLabLaboratoryModel.SHARE_CUSTOMER) || !labType.equals(JeproLabLaboratoryModel.SHARE_REQUEST) || !labType.equals(JeproLabLaboratoryModel.SHARE_RESULTS)){
+            //die('Wrong argument ($type) in Lab::getSharedLabs() method');
+        }
+
+        JeproLabLaboratoryModel.cacheLaboratories();
+        /*for(JeproLabLaboratoryGroupModel laboratoryGroup : JeproLabLaboratoryModel.labGroups){
+            /* todo if (array_key_exists($lab_id, $group_data['labs']) && $group_data[$type]){
+                return array_keys($group_data['labs']);
+            }* /
+        }*/
+        return new ArrayList<>(labId);
+    }
+
+    public static String addSqlRestrictionOnLang(){
+        return addSqlRestrictionOnLang("", 0);
+    }
+
+    public static String addSqlRestrictionOnLang(String alias){
+        return addSqlRestrictionOnLang(alias, 0);
+    }
+
+    public static String addSqlRestrictionOnLang(String alias, int labId){
+        if((JeproLabContext.getContext().laboratory != null) && labId <= 0){
+            labId = JeproLabContext.getContext().laboratory.laboratory_id;
+        }
+
+        if(labId <= 0){
+            labId = JeproLabSettingModel.getIntValue("default_lab");
+        }
+        if(dataBaseObject == null){
+            dataBaseObject = JeproLabFactory.getDataBaseConnector();
+        }
+        return " AND " + (!alias.equals("") ? alias + "." : "") + dataBaseObject.quoteName("lab_id") + " = " + labId;
+    }
+
+    public static String addSqlAssociation(String table){
+        return addSqlAssociation(table, true);
+    }
+
+    public static String addSqlAssociation(String table, boolean innerJoin){
+        return addSqlAssociation(table, innerJoin, null);
+    }
+
+    public static String addSqlAssociation(String table, boolean innerJoin, String onFilter){
+        return addSqlAssociation(table, innerJoin, onFilter, false);
+    }
+
+    public static String addSqlAssociation(String table, boolean innerJoin, String onFilter, boolean forceNotDefault){
+        JeproLabDataBaseConnector dbc = JeproLabFactory.getDataBaseConnector();
+        String tableAlias = table + "_lab";
+        String outputAlias;
+        if(table.contains(".")){
+            tableAlias = table.substring(0, table.indexOf("."));
+            table = table.substring(table.indexOf("."), table.length() - 1);
+        }
+
+        switch (table) {
+            case "group":
+                outputAlias = "group_item";
+                break;
+            case "analyze":
+                outputAlias = "analyze_item";
+                break;
+            default:
+                outputAlias = table;
+                break;
+        }
+
+        boolean isAssociatedToTable = JeproLabLaboratoryModel.getAssociatedTable(table);
+        if(!isAssociatedToTable){ return ""; }
+
+        String query = ((innerJoin) ? " INNER " : " LEFT ") + "JOIN " + dbc.quoteName("#__jeprolab_" + table + "_lab") + " AS ";
+        query += tableAlias + " ON( " + tableAlias + "." +  table + "_id = " + outputAlias + "."  + table + "_id";
+
+        if(JeproLabLaboratoryModel.context_laboratory_id > 0){
+            query += " AND " + tableAlias + ".lab_id = " + JeproLabLaboratoryModel.context_laboratory_id;
+        }else if(JeproLabLaboratoryModel.checkDefaultLabId(table) && !forceNotDefault){
+            query += " AND " + tableAlias + ".lab_id = " + outputAlias + ".default_lab_id";
+        }else{
+            //query += " AND " + tableAlias + ".lab_id IN (" . implode(', ', JeproLabLaboratoryModel.getContextListLabIds()) + ")" ;
+        }
+        query += ((onFilter != null && !onFilter.equals("")) ? " AND " + onFilter : "" ) + ")";
+        return query;
+    }
+
+    public static boolean getAssociatedTable(String table){
+        if(!JeproLabLaboratoryModel.isInitialized){
+            JeproLabLaboratoryModel.init();
+        }
+        return JeproLabLaboratoryModel.associatedTables.contains(table);
+    }
+
+    public static boolean checkDefaultLabId(String table){
+        if(!JeproLabLaboratoryModel.isInitialized){
+            JeproLabLaboratoryModel.init();
+        }
+        return JeproLabLaboratoryModel.defaultLabTablesId.contains(table);
+    }
 
 
 
@@ -741,14 +685,6 @@ public class JeproLabLaboratoryModel extends JeproLabModel{
         public boolean published = true, deleted = false;
 
         public List<JeproLabLaboratoryModel> laboratories;
-
-        public JeproLabLaboratoryGroupModel(){
-            this(0);
-        }
-
-        public JeproLabLaboratoryGroupModel(int labGroupId){
-
-        }
 
         public static List<JeproLabLaboratoryGroupModel> getLaboratoryGroups(){
             return getLaboratoryGroups(true);
@@ -781,20 +717,16 @@ public class JeproLabLaboratoryModel extends JeproLabModel{
                     laboratoryGroups.add(laboratoryGroup);
                 }
             } catch (SQLException ignored) {
-                ignored.printStackTrace();
+                JeproLabTools.logExceptionMessage(Level.ERROR, ignored);
             }finally {
                 try {
                     JeproLabDataBaseConnector.getInstance().closeConnexion();
-                }catch (Exception e) {
-                    e.printStackTrace();
+                }catch (Exception ignored) {
+                    JeproLabTools.logExceptionMessage(Level.ERROR, ignored);
                 }
             }
             return laboratoryGroups;
         }
-
-    }
-
-    public static class JeproLabLaboratoryUrlModel extends JeproLabModel{
 
     }
 }

@@ -12,9 +12,9 @@ import java.util.List;
 
 /**
  *
- * Created by jeprodev on 18/06/2014.
+ * Created by jeprodev on 09/01/2016.
  */
-public class JeproImageSlider  extends HBox {
+public class JeproImageSlider extends HBox {
     private Button previousBtn, nextBtn;
     private Pane imageWrapper;
 

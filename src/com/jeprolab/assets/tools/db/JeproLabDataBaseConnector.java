@@ -1,13 +1,14 @@
 package com.jeprolab.assets.tools.db;
 
 import com.jeprolab.assets.config.JeproLabConfig;
+import com.jeprolab.assets.tools.JeproLabTools;
+import org.apache.log4j.Level;
 
 import java.sql.*;
-import java.util.ArrayList;
 
 /**
  *
- * Created by jeprodev on 18/06/2014.
+ * Created by jeprodev on 09/01/2016.
  */
 public class JeproLabDataBaseConnector {
     private String dataBaseUserName;
@@ -62,22 +63,22 @@ public class JeproLabDataBaseConnector {
                 /** JDBC Registration **/
                 Class.forName(driverName);
 
-                connection = DriverManager.getConnection(dataBaseUrl, JeproLabConfig.dataBaseUserName, JeproLabConfig.dataBasePassword);
+                connection = DriverManager.getConnection(dataBaseUrl, JeproLabConfig.DATA_BASE_USER_NAME, JeproLabConfig.DATA_BASE_PASSWORD);
 
                 return connection;
-            } catch (SQLException e) {
-                e.printStackTrace();
+            } catch (SQLException ignored) {
+                JeproLabTools.logExceptionMessage(Level.ERROR, ignored);
                 return null;
-            } catch (Exception ex) {
-                ex.printStackTrace();
+            } catch (Exception ignored) {
+                JeproLabTools.logExceptionMessage(Level.ERROR, ignored);
                 return null;
             } finally {
                 try {
                     if (connection != null) {
                         connection.close();
                     }
-                } catch (SQLException sqlEx) {
-                    sqlEx.printStackTrace();
+                } catch (SQLException ignored) {
+                    JeproLabTools.logExceptionMessage(Level.WARN, ignored);
                 }
             }
         }else{
@@ -93,7 +94,7 @@ public class JeproLabDataBaseConnector {
         return (escape ? "\'" : "'") + msg + (escape ? "\'" : "'");
     }
 
-    public ArrayList<String> quote(ArrayList<String> fields){
+   /*public ArrayList<String> quote(ArrayList<String> fields){
         return quote(fields, true);
     }
 
@@ -104,7 +105,7 @@ public class JeproLabDataBaseConnector {
             quotedField.add((escape ? "\'" : "'") + field + (escape ? "\'" : "'"));
         }
         return quotedField;
-    }
+    }*/
 
     public String quoteName(String msg){
         return  "`" + msg + "`";
@@ -152,7 +153,7 @@ public class JeproLabDataBaseConnector {
 
     public void setQuery(String query, int offSet, int limit){
         this.queryRequest = query;
-        this.queryRequest = this.queryRequest.replace("#__", JeproLabConfig.dataBasePrefix);
+        this.queryRequest = this.queryRequest.replace("#__", JeproLabConfig.DATA_BASE_PREFIX);
         if(limit > 0 || offSet > 0){
             queryRequest += " LIMIT " + offSet + ", " + limit;
         }
@@ -164,16 +165,16 @@ public class JeproLabDataBaseConnector {
             /** JDBC Registration **/
             Class.forName(driverName);
 
-            connection = DriverManager.getConnection(dataBaseUrl, JeproLabConfig.dataBaseUserName , JeproLabConfig.dataBasePassword);
+            connection = DriverManager.getConnection(dataBaseUrl, JeproLabConfig.DATA_BASE_USER_NAME , JeproLabConfig.DATA_BASE_PASSWORD);
             results = connection.createStatement().executeQuery(queryRequest);
 
             queryRequest = null;
             return results;
-        } catch (SQLException e) {
-            e.printStackTrace();
+        } catch (SQLException ignored) {
+            JeproLabTools.logExceptionMessage(Level.ERROR, ignored);
             return null;
-        } catch (Exception ex) {
-            ex.printStackTrace();
+        } catch (Exception ignored) {
+            JeproLabTools.logExceptionMessage(Level.ERROR, ignored);
             return null;
         }
     }
@@ -186,11 +187,10 @@ public class JeproLabDataBaseConnector {
         try{
             /** JDBC Registration **/
             Class.forName(driverName);
-            boolean result = false;
-            connection = DriverManager.getConnection(dataBaseUrl, JeproLabConfig.dataBaseUserName , JeproLabConfig.dataBasePassword);
+            connection = DriverManager.getConnection(dataBaseUrl, JeproLabConfig.DATA_BASE_USER_NAME, JeproLabConfig.DATA_BASE_PASSWORD);
             if (isInsert) {
                 PreparedStatement statement = connection.prepareStatement(queryRequest, Statement.RETURN_GENERATED_KEYS);
-                result = statement.execute();
+                boolean result = statement.execute();
                 ResultSet generatedKeys = statement.getGeneratedKeys();
                 generatedKeys.next();
                 generatedKey = generatedKeys.getInt(1);
@@ -202,11 +202,11 @@ public class JeproLabDataBaseConnector {
             }else{
                 return connection.createStatement().execute(queryRequest);
             }
-        }catch(SQLException ex){
-            ex.printStackTrace();
+        }catch(SQLException ignored){
+            JeproLabTools.logExceptionMessage(Level.ERROR, ignored);
             return false;
-        }catch (Exception exc){
-            exc.printStackTrace();
+        }catch (Exception ignored){
+            JeproLabTools.logExceptionMessage(Level.ERROR, ignored);
             return false;
         }
     }
@@ -246,14 +246,12 @@ public class JeproLabDataBaseConnector {
             if (connection != null) {
                 connection.close();
             }
-        } catch (SQLException sqlEx) {
-            sqlEx.printStackTrace();
+        } catch (SQLException ignored) {
+            JeproLabTools.logExceptionMessage(Level.ERROR, ignored);
         }
     }
 
     public int getGeneratedKey(){
         return generatedKey;
     }
-
-
 }

@@ -6,20 +6,18 @@ import com.jeprolab.models.JeproLabEmployeeModel;
 
 /**
  *
- * Created by jeprodev on 18/06/2014.
+ * Created by jeprodev on 09/01/2016.
  */
-public abstract class JeproLabFactory {
+public class JeproLabFactory {
     private static JeproLabDataBaseConnector dataBaseConnector;
 
     private static JeproLabSession appSession;
 
-    public static JeproLabApplication application = null;
-
     public static JeproLabConfig appConfig;
 
-    public static JeproLabDataBaseConnector getDataBaseConnector(){
-        if(dataBaseConnector == null){
-            dataBaseConnector = new JeproLabDataBaseConnector(JeproLabConfig.dataBaseHost, JeproLabConfig.dataBaseManager, JeproLabConfig.dataBaseName);
+    public static JeproLabDataBaseConnector getDataBaseConnector() {
+        if (dataBaseConnector == null) {
+            dataBaseConnector = new JeproLabDataBaseConnector(JeproLabConfig.DATA_BASE_HOST, JeproLabConfig.DATA_BASE_DRIVER, JeproLabConfig.DATA_BASE_NAME);
         }
         return dataBaseConnector;
     }
@@ -30,7 +28,7 @@ public abstract class JeproLabFactory {
      *
      * @return an employee object with no id
      */
-    public static JeproLabEmployeeModel getEmployee(){
+    public static JeproLabEmployeeModel getEmployee() {
         return getEmployee(0);
     }
 
@@ -41,14 +39,14 @@ public abstract class JeproLabFactory {
      * @param employeeId integer employee id of the employee to be loaded
      * @return JeproLabEmployeeModel object
      */
-    public static JeproLabEmployeeModel getEmployee(int employeeId){
+    public static JeproLabEmployeeModel getEmployee(int employeeId) {
         JeproLabEmployeeModel employee = JeproLabFactory.getSession(null).getEmployee();
 
-        if(employeeId == 0){
-            if(employee == null) {
+        if (employeeId == 0) {
+            if (employee == null) {
                 employee = new JeproLabEmployeeModel();
             }
-        }else if((employee == null) || employeeId > 0 || (employee.employee_id != employeeId)){
+        } else if ((employee == null) || employeeId > 0 || (employee.employee_id != employeeId)) {
             employee = new JeproLabEmployeeModel(employeeId);
         }
         return employee;
@@ -56,12 +54,13 @@ public abstract class JeproLabFactory {
 
     /**
      * Get current session object
-     *
+     * <p>
      * Returns the global {@link JeproLabSession} object, only creating it if doesn't already exist
+     *
      * @return JeproLabSession object
      */
-    public static JeproLabSession getSession(JeproLabSessionOption sessionOptions){
-        if(appSession == null){
+    public static JeproLabSession getSession(JeproLabSession.JeproLabSessionOption sessionOptions) {
+        if (appSession == null) {
             appSession = JeproLabFactory.createSession(sessionOptions);
         }
         return appSession;
@@ -70,24 +69,23 @@ public abstract class JeproLabFactory {
     /**
      * create a session object
      *
-     * @param  sessionOptions
-     *
+     * @param sessionOptions
      * @return JeproLabSession object
      */
-    protected static JeproLabSession createSession(JeproLabSessionOption sessionOptions){
+    protected static JeproLabSession createSession(JeproLabSession.JeproLabSessionOption sessionOptions) {
         JeproLabConfig config = JeproLabFactory.getConfig();
         String sessionHandler = config.getSessionHandler();
 
-        if(sessionOptions == null){
-            sessionOptions = new JeproLabSessionOption();
+        if (sessionOptions == null) {
+            sessionOptions = new JeproLabSession.JeproLabSessionOption();
         }
 
         //configuration time in minute
-        sessionOptions.expire =  config.getLifeTime() > 0 ? config.getLifeTime() * 60 : 900;
+        sessionOptions.expire = config.getLifeTime() > 0 ? config.getLifeTime() * 60 : 900;
 
         appSession = JeproLabSession.getInstance(sessionHandler, sessionOptions);
 
-        if(appSession.getState().equals("expired")){
+        if (appSession.getState().equals("expired")) {
             appSession.restart();
         }
         return appSession;
@@ -95,15 +93,16 @@ public abstract class JeproLabFactory {
 
     /**
      * return application configuration object
+     *
      * @return
      */
-    public static JeproLabConfig getConfig(){
+    public static JeproLabConfig getConfig() {
         return getConfig("");
     }
 
-    public static JeproLabConfig getConfig(String filePath){
-        if(appConfig == null){
-            if(filePath == null || filePath.equals("")){
+    public static JeproLabConfig getConfig(String filePath) {
+        if (appConfig == null) {
+            if (filePath == null || filePath.equals("")) {
                 filePath = "config.properties";
             }
             JeproLabConfig.setConfig(filePath);
@@ -111,4 +110,7 @@ public abstract class JeproLabFactory {
         }
         return appConfig;
     }
+
+
+
 }

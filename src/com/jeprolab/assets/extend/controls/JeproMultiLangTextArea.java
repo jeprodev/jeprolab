@@ -13,9 +13,9 @@ import java.util.Map;
 
 /**
  *
- * Created by jeprodev on 03/08/2016.
+ * Created by jeprodev on 09/01/2016.
  */
-public class JeproMultiLangTextArea  extends Pane {
+public class JeproMultiLangTextArea extends Pane {
     private Map<Integer, JeproLabLanguageModel> languages;
     private TextArea[] fields;
     private StackPane fieldsPane;

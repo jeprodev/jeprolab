@@ -7,10 +7,9 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
 import javafx.stage.Stage;
-
 /**
  *
- * Created by jeprodev on 02/02/2014.
+ * Created by jeprodev on 09/01/2016.
  */
 public class JeproWindowsButtons extends HBox {
     private final Stage stage;

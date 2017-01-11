@@ -1,0 +1,17 @@
+<component name="ArtifactManager">
+  <artifact type="jar" build-on-make="true" name="jeprolab">
+    <output-path>$PROJECT_DIR$/out/artifacts/jeprolab</output-path>
+    <root id="archive" name="jeprolab.jar">
+      <element id="module-output" name="jeprolab" />
+      <element id="library" level="project" name="bcmail-jdk15on-153 (2)" />
+      <element id="library" level="project" name="bcpg-jdk15on-153" />
+      <element id="library" level="project" name="bcpkix-jdk15on-153 (2)" />
+      <element id="library" level="project" name="bcprov-1.45 (2)" />
+      <element id="library" level="project" name="commons-collections4-4.1 (3)" />
+      <element id="library" level="project" name="mysql-connector-java-5.1.38-bin (2)" />
+      <element id="library" level="project" name="xmlsec-2.0.6 (2)" />
+      <element id="library" level="project" name="bcprov-ext-jdk15on-153 (2)" />
+      <element id="library" level="project" name="log4j-1.2.17" />
+    </root>
+  </artifact>
+</component>

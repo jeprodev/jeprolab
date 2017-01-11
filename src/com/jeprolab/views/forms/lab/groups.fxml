@@ -3,7 +3,7 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.control.TableView?>
 <?import javafx.scene.control.TableColumn?>
-<JeproFormPanel xmlns:fx="http://javafx.com/fxml" fx:id="jeproLabLaboratoryGroupPanel" fx:controller="com.jeprolab.controllers.JeproLabLaboratoryGroupController">
+<JeproFormPanel xmlns:fx="http://javafx.com/fxml" fx:id="jeproLabLaboratoryGroupPanel" fx:controller="com.jeprolab.controllers.JeproLabLaboratoryGroupController" >
     <TableView fx:id="jeproLabLaboratoryGroupTableView" >
         <columns>
             <TableColumn fx:id="jeproLabLaboratoryGroupIndexColumn" resizable="false" editable="false" />

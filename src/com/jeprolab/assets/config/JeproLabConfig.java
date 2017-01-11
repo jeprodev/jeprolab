@@ -1,6 +1,8 @@
 package com.jeprolab.assets.config;
 
 import com.jeprolab.JeproLab;
+import com.jeprolab.assets.tools.JeproLabTools;
+import org.apache.log4j.Level;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -10,72 +12,74 @@ import java.util.Properties;
 
 /**
  *
- * Created by jeprodev on 02/02/2014.
+ * Created by jeprodev on 09/01/2016.
  */
 public class JeproLabConfig {
     private static JeproLabConfig instance = null;
-    public static String dataBaseHost;
-    public static String dataBaseName;
-    public static String dataBaseManager;
-    public static String dataBasePrefix;
-    public static String dataBasePortNumber;
-    public static String dataBaseUserName;
-    public static String dataBasePassword;
-    public static String appInstallDirectory;
-    public static String appUpdateUrl;
-    public static String installedAppVersion;
-    public static String installedAppPackage;
-    public static String certificate_logo;
-    public static String managedWebsite;
+    public static String DATA_BASE_HOST;
+    public static String DATA_BASE_NAME;
+    public static String DATA_BASE_DRIVER;
+    public static String DATA_BASE_PREFIX;
+    public static String DATA_BASE_PORT_NUMBER;
+    public static String DATA_BASE_USER_NAME;
+    public static String DATA_BASE_PASSWORD;
+    public static String APP_INSTALLED_DIRECTORY;
+    public static String APP_UPDATE_URL;
+    public static String INSTALLED_APP_VERSION;
+    public static String INSTALLED_APP_PACKAGE;
+    public static String CERTIFICATE_LOGO;
+    public static String APPLICATION_WEBSITE;
 
     public static void initialize(){
+        retrieveConfig();
+    }
+
+    private static void retrieveConfig(){
         Properties configProp = new Properties();
         FileInputStream inputStream = null;
 
         try{
-            inputStream = new FileInputStream(new File(JeproLab.class.getResource("../../config/config.properties").toURI()));
+            File configFile = new File(JeproLab.class.getProtectionDomain().getCodeSource().getLocation().getPath());
+            String configPath = configFile.getParentFile().getAbsolutePath() + File.separator + "config" + File.separator + "config.properties";
+
+            inputStream = new FileInputStream(configPath);
             configProp.load(inputStream);
-            dataBaseHost = configProp.getProperty("DATA_BASE_HOST");
-            dataBaseName = configProp.getProperty("DATA_BASE_NAME");
-            dataBaseManager = configProp.getProperty("DATA_BASE_MANAGER");
-            dataBasePrefix = configProp.getProperty("DATA_BASE_PREFIX");
-            dataBasePortNumber = configProp.getProperty("DATA_BASE_PORT_NUMBER");
-            dataBaseUserName = configProp.getProperty("DATA_BASE_USER_NAME");
-            dataBasePassword = configProp.getProperty("DATA_BASE_PASSWORD");
-            appInstallDirectory = configProp.getProperty("APPLICATION_INSTALL_DIRECTORY");
-            appUpdateUrl = configProp.getProperty("APPLICATION_UPDATE_URL");
-            installedAppVersion = configProp.getProperty("APPLICATION_INSTALLED_VERSION");
-            installedAppPackage = configProp.getProperty("APPLICATION_INSTALLED_PACKAGE");
-            certificate_logo = configProp.getProperty("APPLICATION_CERTIFICATE_LOGO_PATH");
-            managedWebsite = configProp.getProperty("APPLICATION_WEBSITE_URL");
-        }catch (IOException | URISyntaxException excpt){
-            excpt.printStackTrace();
+            DATA_BASE_HOST = configProp.getProperty("DATA_BASE_HOST");
+            DATA_BASE_NAME = configProp.getProperty("DATA_BASE_NAME");
+            DATA_BASE_DRIVER = configProp.getProperty("DATA_BASE_MANAGER");
+            DATA_BASE_PREFIX = configProp.getProperty("DATA_BASE_PREFIX");
+            DATA_BASE_PORT_NUMBER = configProp.getProperty("DATA_BASE_PORT_NUMBER");
+            DATA_BASE_USER_NAME = configProp.getProperty("DATA_BASE_USER_NAME");
+            DATA_BASE_PASSWORD = configProp.getProperty("DATA_BASE_PASSWORD");
+            APP_INSTALLED_DIRECTORY = configProp.getProperty("APPLICATION_INSTALL_DIRECTORY");
+            APP_UPDATE_URL = configProp.getProperty("APPLICATION_UPDATE_URL");
+            INSTALLED_APP_PACKAGE = configProp.getProperty("APPLICATION_INSTALLED_VERSION");
+            INSTALLED_APP_PACKAGE = configProp.getProperty("APPLICATION_INSTALLED_PACKAGE");
+            CERTIFICATE_LOGO = configProp.getProperty("APPLICATION_CERTIFICATE_LOGO_PATH");
+            APPLICATION_WEBSITE = configProp.getProperty("APPLICATION_WEBSITE_URL");
+        }catch (IOException  ignored){
+            JeproLabTools.logExceptionMessage(Level.ERROR, ignored);
         } finally {
             if(inputStream != null){
                 try{
                     inputStream.close();
-                }catch(IOException e){
-                    e.printStackTrace();
+                }catch(IOException ignored){
+                    JeproLabTools.logExceptionMessage(Level.ERROR, ignored);
                 }
             }
         }
     }
 
-    //todo edit us
-    public String getCookiePath(){
-        return "";
-    }
-
-    public String getCookieDomain(){
-        return "";
+    public int getLifeTime(){
+        return 0;
     }
 
     public String getSessionHandler(){
         return "";
     }
 
-    public static int getListLimit(){
-        return 20;
+    public static void setConfig(String configFilePath){
+
     }
 
     public static JeproLabConfig getConfiguration(){
@@ -83,34 +87,5 @@ public class JeproLabConfig {
             instance = new JeproLabConfig();
         }
         return instance;
-    }
-
-    public static void setConfig(String configFilePath){
-
-    }
-
-    public int getLifeTime(){
-        return 0;
-    }
-
-    public static void updateConfigProperty(String key, String value){
-        Properties configProp = new Properties();
-        FileInputStream inputStream = null;
-
-        try{
-            inputStream = new FileInputStream(new File(JeproLab.class.getResource("assets/config/config.properties").toURI()));
-            configProp.load(inputStream);
-            configProp.setProperty(key, value);
-        }catch (IOException | URISyntaxException excpt) {
-            excpt.printStackTrace();
-        } finally {
-            if (inputStream != null) {
-                try {
-                    inputStream.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-        }
     }
 }

@@ -1,16 +1,18 @@
 package com.jeprolab.assets.tools;
 
-//import java.sql.Connection;
-
 import com.jeprolab.controllers.JeproLabController;
 import com.jeprolab.models.*;
+import com.jeprolab.views.JeproLabApplicationForms;
+import org.apache.log4j.Level;
 
 /**
  *
- * Created by jeprodev on 02/02/2014.
+ * Created by jeprodev on 09/01/2016.
  */
 public class JeproLabContext implements Cloneable {
     private static JeproLabContext instance;
+
+    public JeproLabController controller;
 
     public JeproLabCountryModel country;
 
@@ -20,7 +22,7 @@ public class JeproLabContext implements Cloneable {
 
     public JeproLabCartModel cart;
 
-    public JeproLabCookie cookie;
+    public JeproLabCategoryModel category;
 
     public JeproLabLaboratoryModel laboratory;
 
@@ -28,42 +30,20 @@ public class JeproLabContext implements Cloneable {
 
     public JeproLabCurrencyModel currency;
 
-    public JeproLabController controller;
+    public JeproLabApplicationForms.JeproLabApplicationForm last_form = null;
 
-    //public Connection connection = null;
+    /*public int list_limit = 20;
 
-    public int list_limit = 20;
-
-    public int list_limit_start = 0;
+    public int list_limit_start = 0;* /
 
     public int category_id = 0;
 
-    public String task = "";
+    public String task = ""; */
 
     public static JeproLabContext getContext(){
         if(instance == null){
             instance = new JeproLabContext();
         }
         return instance;
-    }
-
-    /**
-     * Clone current context
-     * @return JeproLabContext
-     */
-    public JeproLabContext cloneContext() throws CloneNotSupportedException {
-        return clone();
-    }
-
-    @Override
-    public JeproLabContext clone(){
-        JeproLabContext clonedContext = null;
-        try{
-            clonedContext = (JeproLabContext)super.clone();
-        }catch (CloneNotSupportedException cnse){
-            cnse.printStackTrace(System.err);
-            //clonedContext = null;
-        }
-        return clonedContext;
     }
 }

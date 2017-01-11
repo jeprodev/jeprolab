@@ -1,13 +1,10 @@
 package com.jeprolab.models.core;
 
-import com.jeprolab.assets.config.JeproLabConfig;
-import com.jeprolab.assets.tools.JeproLabContext;
-import com.jeprolab.assets.tools.JeproLabCookie;
 import com.jeprolab.models.JeproLabEmployeeModel;
 
 /**
  *
- * Created by jeprodev on 18/06/2014.
+ * Created by jeprodev on 09/01/2016.
  */
 public class JeproLabSession {
     /**
@@ -110,7 +107,7 @@ public class JeproLabSession {
      *
      */
     public void setCookieParams(){
-        JeproLabCookie cookie = JeproLabContext.getContext().cookie;
+        /*JeproLabCookie cookie = JeproLabContext.getContext().cookie;
         if(this.forceSsl){
             cookie.secure = true;
         }
@@ -122,7 +119,7 @@ public class JeproLabSession {
         if(!config.getCookiePath().equals("")){
             cookie.path = config.getCookiePath();
         }
-        JeproLabContext.getContext().cookie = cookie;
+        JeproLabContext.getContext().cookie = cookie;*/
     }
 
     /**
@@ -133,10 +130,10 @@ public class JeproLabSession {
             this.sessionRegenerateId(true);
         }else{
             String sessionName = this.getSessionName();
-            JeproLabCookie cookie = JeproLabContext.getContext().cookie;
+            /*JeproLabCookie cookie = JeproLabContext.getContext().cookie;
             if(cookie.get(sessionName) == null){
 
-            }
+            }*/
         }
     }
 
@@ -178,5 +175,26 @@ public class JeproLabSession {
 
     public JeproLabEmployeeModel getEmployee(){
         return new JeproLabEmployeeModel();
+    }
+
+
+
+    public static class JeproLabSessionOption {
+        public int expire = 0;
+    }
+
+    public static class JeproLabSessionStorage {
+        /**
+         *
+         */
+        protected static JeproLabSessionStorage instance;
+
+        public void register(){
+
+        }
+
+        public static JeproLabSessionStorage getInstance(String storeN, JeproLabSessionOption options){
+            return instance;
+        }
     }
 }

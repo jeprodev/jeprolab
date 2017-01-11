@@ -1,16 +1,14 @@
 package com.jeprolab.assets.extend.controls;
 
-import com.jeprolab.JeproLab;
-import com.jeprolab.assets.tools.JeproLabContext;
 import javafx.scene.control.Button;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.HBox;
 
 /**
  *
- * Created by jeprodev on 18/06/2014.
+ * Created by jeprodev on 09/01/2016.
  */
-public class JeproPriceBox  extends HBox {
+public class JeproPriceBox extends HBox {
     private TextField priceBox;
     private Button currencyButton;
 
@@ -20,5 +18,9 @@ public class JeproPriceBox  extends HBox {
         currencyButton = new Button("€");
         setSpacing(0);
         this.getChildren().addAll(priceBox, currencyButton);
+    }
+
+    public float getPrice(){
+        return Float.parseFloat(priceBox.getText());
     }
 }

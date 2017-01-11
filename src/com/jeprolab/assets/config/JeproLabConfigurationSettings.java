@@ -1,7 +1,8 @@
 package com.jeprolab.assets.config;
+
 /**
  *
- * Created by jeprodev on 18/06/2014.
+ * Created by jeprodev on 18/06/2016.
  */
 public class JeproLabConfigurationSettings {
     public static final int JEPROLAB_ROUND_UP_PRICE = 1;

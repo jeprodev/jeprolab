@@ -1,7 +1,8 @@
 package com.jeprolab.controllers;
 
 /**
- * Created by jeproQxT on 25/04/2016.
+ *
+ * Created by jeprodev on 09/01/2016.
  */
 public class JeproLabCustomerViewController extends JeproLabController {
 }

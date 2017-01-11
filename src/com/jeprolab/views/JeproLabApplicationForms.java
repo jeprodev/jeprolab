@@ -1,8 +1,21 @@
 package com.jeprolab.views;
 
+import com.jeprolab.JeproLab;
+import com.jeprolab.assets.tools.JeproLabContext;
+import com.jeprolab.controllers.JeproLabController;
+import javafx.fxml.FXMLLoader;
+import javafx.fxml.JavaFXBuilderFactory;
+import javafx.scene.Node;
+import javafx.scene.layout.Pane;
+
+import java.io.File;
+import java.io.IOException;
+import java.net.URL;
+
+
 /**
  *
- * Created by jeprodev on 02/02/2014.
+ * Created by jeprodev on 09/01/2016.
  */
 public class JeproLabApplicationForms {
     public JeproLabApplicationForm loginForm, dashBoardForm, categoryForm;
@@ -76,5 +89,45 @@ public class JeproLabApplicationForms {
         addCountryForm = new JeproLabApplicationForm("country/add.fxml");
         addZoneForm = new JeproLabApplicationForm("country/add_zone.fxml");
         zonesForm = new JeproLabApplicationForm("country/zones.fxml");
+    }
+
+
+    public static class JeproLabApplicationForm implements Runnable{
+        private boolean isCreated = false;
+        private Pane formWrapper = null;
+        private String formLayoutPath;
+        public JeproLabController controller;
+
+        public JeproLabApplicationForm(String layoutPath){
+            String layoutBasePath = "views/forms/";
+            formLayoutPath = layoutBasePath + layoutPath;
+        }
+
+        @Override
+        public void run() {
+
+        }
+
+        public Node createView() throws IOException {
+            if(!isCreated || formWrapper == null) {
+                formWrapper = new Pane();
+                URL location = JeproLab.class.getResource(formLayoutPath);
+
+                FXMLLoader formLoader = new FXMLLoader();
+                formLoader.setLocation(location);
+                formLoader.setBuilderFactory(new JavaFXBuilderFactory());
+                formLoader.setResources(JeproLab.getBundle());
+                formWrapper = formLoader.load(location.openStream());
+                controller = formLoader.getController();
+
+                isCreated = true;
+            }
+            JeproLabContext.getContext().controller = controller;
+            return formWrapper;
+        }
+
+        public void setFormVisible(boolean visible){
+            formWrapper.setVisible(visible);
+        }
     }
 }

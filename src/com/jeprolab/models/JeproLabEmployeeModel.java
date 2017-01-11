@@ -1,20 +1,24 @@
 package com.jeprolab.models;
 
 import com.jeprolab.assets.tools.JeproLabCache;
+import com.jeprolab.assets.tools.JeproLabTools;
 import com.jeprolab.assets.tools.db.JeproLabDataBaseConnector;
 import com.jeprolab.assets.tools.helpers.JeproLabEmployeeHelper;
 import com.jeprolab.models.core.JeproLabAccess;
 import com.jeprolab.models.core.JeproLabFactory;
+import org.apache.log4j.Level;
 
+import java.sql.Date;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  *
- * Created by jeprodev on 02/02/2014.
+ * Created by jeprodev on 09/01/2016.
  */
-public class JeproLabEmployeeModel extends JeproLabModel {
+public class JeproLabEmployeeModel extends JeproLabModel{
     public int employee_id ;
 
     public int profile_id;
@@ -33,17 +37,13 @@ public class JeproLabEmployeeModel extends JeproLabModel {
 
     public String username;
 
-    public boolean isLogged = false;
+    public boolean is_logged = false;
 
     protected boolean is_root = false;
 
     public boolean is_blocked = false;
 
     public boolean send_email = false;
-
-    public boolean getLabFromContext = false;
-
-    protected JeproLabEmployeeHelper.JeproLabEmployeeWrapperHelper employee_helper;
 
     public String activation;
 
@@ -55,7 +55,7 @@ public class JeproLabEmployeeModel extends JeproLabModel {
 
     public Date date_add, date_up, last_visit;
 
-    public static boolean multiLangLab = true;
+    protected JeproLabEmployeeHelper.JeproLabEmployeeWrapperHelper employee_helper;
 
     public JeproLabEmployeeModel(){
         this(0, 0, 0, null);
@@ -85,7 +85,7 @@ public class JeproLabEmployeeModel extends JeproLabModel {
 
         if(labId > 0){
             this.laboratory_id = labId;
-            this.getLabFromContext = false;
+            this.get_lab_from_context = false;
         }
 
         if(employeeId > 0){
@@ -110,7 +110,7 @@ public class JeproLabEmployeeModel extends JeproLabModel {
             if(this.language_id > 0){
                 query += " LEFT JOIN " + dataBaseObject.quoteName("#__jeprolab_employee_lang") + " AS employee_lang ON (employee.id = ";
                 query += " employee_lang.employee_id AND employee_lang.lang_id = " + this.language_id + ") ";
-                if(this.laboratory_id > 0 && !JeproLabEmployeeModel.multiLangLab){
+                if(this.laboratory_id > 0){
                     where += " AND employee_lang.lab_id = " + this.laboratory_id;
                 }
             }
@@ -133,12 +133,12 @@ public class JeproLabEmployeeModel extends JeproLabModel {
                     JeproLabCache.getInstance().store(cacheKey, this);
                 }
             }catch (SQLException ignored){
-                ignored.printStackTrace();
+                JeproLabTools.logExceptionMessage(Level.ERROR, ignored);
             }finally {
                 try {
                     JeproLabDataBaseConnector.getInstance().closeConnexion();
                 }catch (Exception ignored) {
-                    ignored.printStackTrace();
+                    JeproLabTools.logExceptionMessage(Level.WARN, ignored);
                 }
             }
         }else{
@@ -152,60 +152,6 @@ public class JeproLabEmployeeModel extends JeproLabModel {
         }
 
         this.guest = this.employee_id == 0;
-    }
-
-
-    public List<Integer> getAssociatedLaboratories(){
-        if (!JeproLabLaboratoryModel.isTableAssociated("employee")) {
-            return new ArrayList<>();
-        }
-
-        List<Integer> labs = new ArrayList<>();
-        if(dataBaseObject == null){
-            dataBaseObject = JeproLabFactory.getDataBaseConnector();
-        }
-        String query = "SELECT lab_id FROM " + dataBaseObject.quoteName("#__jeproLab_employee_lab") + " WHERE employee_id = " + this.employee_id;
-        dataBaseObject.setQuery(query);
-        ResultSet labSet = dataBaseObject.loadObjectList();
-        if(labSet != null){
-            try{
-                while(labSet.next()){
-                    labs.add(labSet.getInt("lab_id"));
-                }
-            }catch(SQLException ignored){
-
-            }
-        }
-        return labs;
-    }
-
-    public void save(){
-
-    }
-
-    //todo code me
-    public void setCookieLogin(boolean setCookie){
-
-    }
-
-    public boolean canEdit(String table, int objectId){
-        return true;
-    }
-
-    public boolean isSuperAdmin(){ return true;}
-
-    public static int getEmployeeIdByUsername(String userName){
-        if(dataBaseObject == null){
-            dataBaseObject = JeproLabFactory.getDataBaseConnector();
-        }
-
-        String query = "SELECT " + dataBaseObject.quoteName("id") + " FROM " + dataBaseObject.quoteName("#__users");
-        query += " WHERE " + dataBaseObject.quoteName("username") + " = " + dataBaseObject.quote(userName);
-
-        dataBaseObject.setQuery(query, 0, 1);
-
-        int id = (int)dataBaseObject.loadValue("id");
-        return (id > 0) ? id : 0;
     }
 
     public static Map<String, String> getEmployeeIdAndPasswordByUsername(String userName){
@@ -227,16 +173,30 @@ public class JeproLabEmployeeModel extends JeproLabModel {
                     credential.put("password", credentialSet.getString("password"));
                 }
             }catch(SQLException ignored){
-                ignored.printStackTrace();
+                JeproLabTools.logExceptionMessage(Level.ERROR, ignored);
             }finally {
                 try{
                     JeproLabDataBaseConnector.getInstance().closeConnexion();
                 }catch(Exception ignored){
-                    ignored.printStackTrace();
+                    JeproLabTools.logExceptionMessage(Level.WARN, ignored);
                 }
             }
         }
         return credential;
+    }
+
+    public static int getEmployeeIdByUsername(String userName){
+        if(dataBaseObject == null){
+            dataBaseObject = JeproLabFactory.getDataBaseConnector();
+        }
+
+        String query = "SELECT " + dataBaseObject.quoteName("id") + " FROM " + dataBaseObject.quoteName("#__users");
+        query += " WHERE " + dataBaseObject.quoteName("username") + " = " + dataBaseObject.quote(userName);
+
+        dataBaseObject.setQuery(query, 0, 1);
+
+        int id = (int)dataBaseObject.loadValue("id");
+        return (id > 0) ? id : 0;
     }
 
     public boolean authorize(String action){
@@ -260,4 +220,17 @@ public class JeproLabEmployeeModel extends JeproLabModel {
         }
         return this.is_root || JeproLabAccess.check(this.employee_id, action, assetName);
     }
+
+    public boolean canEdit(String table, int objectId){
+        return true;
+    }
+
+    public boolean isSuperAdmin(){ return true;}
+
+    //todo code me
+    public void setCookieLogin(boolean setCookie){
+
+    }
+
+
 }

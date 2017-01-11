@@ -2,10 +2,9 @@ package com.jeprolab.models.core;
 
 import com.jeprolab.JeproLab;
 import com.jeprolab.assets.config.JeproLabConfig;
-import com.jeprolab.assets.tools.JeproLabUpdater;
+import com.jeprolab.assets.tools.JeproLabTools;
 import com.jeprolab.models.JeproLabEmployeeModel;
-import com.jeprolab.models.core.cipher.JeproLabJCrypt;
-import com.jeprolab.models.core.cipher.JeproLabPassWordHash;
+import org.apache.log4j.Level;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -17,7 +16,7 @@ import java.util.Map;
 
 /**
  *
- * Created by jeprodev on 18/06/2014.
+ * Created by jeprodev on 09/01/2016.
  */
 public class JeproLabAuthentication {
     public static final int SUCCESS_STATUS = 1;
@@ -178,7 +177,7 @@ public class JeproLabAuthentication {
 
     private boolean verifyPassWord(String userName, String passWord, int employeeId, String hashPass){
         try{
-            URL authenticationUrl = new URL(JeproLabConfig.managedWebsite + "index.php?option=com_jeprolab&task=verify&username=" + userName + "&pass=" + passWord + "&id=" + employeeId);
+            URL authenticationUrl = new URL(JeproLabConfig.APPLICATION_WEBSITE + "index.php?option=com_jeprolab&task=verify&username=" + userName + "&pass=" + passWord + "&id=" + employeeId);
             URLConnection connection = authenticationUrl.openConnection();
             InputStream html = connection.getInputStream();
 
@@ -196,7 +195,7 @@ public class JeproLabAuthentication {
 
             return loginResponse.equals(hashPass);
         }catch (IOException ignored){
-            ignored.printStackTrace();
+            JeproLabTools.logExceptionMessage(Level.ERROR, ignored);
             return false;
         }
     }
@@ -357,10 +356,6 @@ public class JeproLabAuthentication {
         return makePass;
     }
 
-    /**
-     *
-     * Created by jeprodev on 06/06/2014.
-     */
     public static class JeproLabAuthenticationResponse {
         public int status = JeproLabAuthentication.FAILURE_STATUS;
 
@@ -395,11 +390,6 @@ public class JeproLabAuthentication {
         public boolean secure = false;
     }
 
-
-    /**
-     *
-     * Created by jeprodev on 09/06/2014.
-     */
     public static class JeproLabAuthenticationOption {
         public JeproLabEmployeeModel employee = null;
 

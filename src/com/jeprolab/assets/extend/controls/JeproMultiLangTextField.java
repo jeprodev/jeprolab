@@ -1,22 +1,18 @@
 package com.jeprolab.assets.extend.controls;
 
-import com.jeprolab.JeproLab;
 import com.jeprolab.models.JeproLabLanguageModel;
-import javafx.geometry.HPos;
-import javafx.geometry.VPos;
-import javafx.scene.control.*;
+import javafx.scene.control.ComboBox;
+import javafx.scene.control.TextField;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
 
-import java.lang.reflect.Array;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
 
 /**
  *
- * Created by jeprodev on 18/06/2014.
+ * Created by jeprodev on 09/01/2016.
  */
 public class JeproMultiLangTextField extends Pane {
     private Map<Integer, JeproLabLanguageModel> languages;
@@ -125,5 +121,4 @@ public class JeproMultiLangTextField extends Pane {
     public TextField[] getFields(){
         return fields;
     }
-
 }

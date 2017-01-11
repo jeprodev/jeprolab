@@ -2,18 +2,17 @@ package com.jeprolab.models;
 
 import com.jeprolab.assets.tools.JeproLabCache;
 import com.jeprolab.assets.tools.JeproLabContext;
-import com.jeprolab.assets.tools.db.JeproLabDataBaseConnector;
 import com.jeprolab.models.core.JeproLabFactory;
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.*;
+import java.sql.Date;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  *
- * Created by jeprodev on 18/06/2014.
+ * Created by jeprodev on 09/01/2016.
  */
-public class JeproLabGroupModel extends JeproLabModel {
+public class JeproLabGroupModel extends JeproLabModel{
     public int group_id;
 
     public int language_id;
@@ -45,7 +44,7 @@ public class JeproLabGroupModel extends JeproLabModel {
     protected static int customer_group = 0;
 
     protected static Map<String, Float> cache_reduction = new HashMap<>();
-    protected static Map<Integer, Integer>group_price_display_method = new HashMap<>();
+    protected static Map<Integer, Integer> group_price_display_method = new HashMap<>();
 
     public JeproLabGroupModel(){ this(0, 0, 0); }
 
@@ -155,256 +154,4 @@ public class JeproLabGroupModel extends JeproLabModel {
 
         return (boolean)JeproLabCache.getInstance().retrieve(cacheKey);
     }
-
-    public static int getPriceDisplayMethod(int groupId){
-        if (!JeproLabGroupModel.group_price_display_method.containsKey(groupId)){
-            if(dataBaseObject == null){
-                dataBaseObject = JeproLabFactory.getDataBaseConnector();
-            }
-
-            String query = "SELECT " + dataBaseObject.quoteName("price_display_method") + " FROM " + dataBaseObject.quoteName("#__jeprolab_group");
-            query += " WHERE " + dataBaseObject.quoteName("group_id") + " = " + groupId;
-
-            dataBaseObject.setQuery(query);
-
-            JeproLabGroupModel.group_price_display_method.put(groupId, (int)dataBaseObject.loadValue("price_display_method"));
-        }
-        return JeproLabGroupModel.group_price_display_method.get(groupId);
-    }
-
-    public static float getReductionByGroupId(int groupId){
-        String cacheKey = "jeprolab_group_get_reduction_group_" + groupId;
-        if (!JeproLabGroupModel.cache_reduction.containsKey(cacheKey)) {
-            if(dataBaseObject == null){
-                dataBaseObject = JeproLabFactory.getDataBaseConnector();
-            }
-            String query = "SELECT " + dataBaseObject.quoteName("reduction") + " FROM " + dataBaseObject.quoteName("#__jeprolab_group");
-            query += " WHERE " + dataBaseObject.quoteName("group_id") + " = " + groupId;
-
-            dataBaseObject.setQuery(query);
-            float reduction = (float)dataBaseObject.loadValue("reduction");
-            JeproLabGroupModel.cache_reduction.put(cacheKey, reduction);
-        }
-        return (float)JeproLabGroupModel.cache_reduction.get(cacheKey);
-    }
-
-    public static List<JeproLabGroupModel> getGroups(int langId){
-        return getGroups(langId, 0);
-    }
-
-    public static List<JeproLabGroupModel> getGroups(int langId, int labId){
-        String labCriteria = "";
-        if (labId > 0) {
-            labCriteria = JeproLabLaboratoryModel.addSqlAssociation("group");
-        }
-
-        if(dataBaseObject == null){
-            dataBaseObject = JeproLabFactory.getDataBaseConnector();
-        }
-
-        String query = "SELECT DISTINCT grp." + dataBaseObject.quoteName("group_id") + ", grp." + dataBaseObject.quoteName("reduction");
-        query += ", grp." + dataBaseObject.quoteName("price_display_method") + ", grp_lang." + dataBaseObject.quoteName("name") + " FROM ";
-        query += dataBaseObject.quoteName("#__jeprolab_group") + " AS grp LEFT JOIN " + dataBaseObject.quoteName("#__jeprolab_group_lang");
-        query += " AS grp_lang ON (grp." + dataBaseObject.quoteName("group_id") + " = grp_lang." + dataBaseObject.quoteName("group_id");
-        query += " AND grp_lang." + dataBaseObject.quoteName("lang_id") + " = " +  langId + ") " + labCriteria + " ORDER BY grp.";
-        query += dataBaseObject.quoteName("group_id") + " ASC";
-
-        dataBaseObject.setQuery(query);
-        ResultSet groupSet = dataBaseObject.loadObjectList();
-        List<JeproLabGroupModel> groupList = new ArrayList<>();
-
-        try{
-            JeproLabGroupModel group;
-            while(groupSet.next()){
-                group = new JeproLabGroupModel();
-                group.group_id = groupSet.getInt("group_id");
-                group.reduction = groupSet.getFloat("reduction");
-                group.price_display_method = groupSet.getInt("price_display_method");
-                if(langId > 0){
-                    group.name.put("lang_" + langId, groupSet.getString("name"));
-                }
-                //group = groupSet.get("");
-                groupList.add(group);
-            }
-        }catch(SQLException ignored){
-            ignored.printStackTrace();
-        }finally {
-            try {
-                JeproLabDataBaseConnector.getInstance().closeConnexion();
-            }catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
-        return groupList;
-    }
-
-
-
-
-    public static class JeproLabGroupReductionModel extends JeproLabModel{
-        public int group_id;
-        public int category_id;
-        public float reduction;
-
-        protected static Map<String, Float> reduction_cache = new HashMap<>();
-
-        public JeproLabGroupReductionModel(int groupReductionId){
-
-        }
-
-        public static float getValueForAnalyze(int analyzeId, int groupId){
-            if(!JeproLabGroupModel.isFeaturePublished()){
-                return 0;
-            }
-            String cacheKey =  "jeprolab_get_value_for_analyze_" + analyzeId + "_" + groupId;
-
-            if (!JeproLabGroupReductionModel.reduction_cache.containsKey(cacheKey)) {
-                if(dataBaseObject == null){
-                    dataBaseObject = JeproLabFactory.getDataBaseConnector();
-                }
-
-                String query = "SELECT "  + dataBaseObject.quoteName("reduction") + " FROM " + dataBaseObject.quoteName("#__jeprolab_analyze_group_reduction_cache");
-                query += " WHERE " + dataBaseObject.quoteName("analyze_id") + " = " + analyzeId + " AND " + dataBaseObject.quoteName("group_id") + " = " +  groupId;
-
-                dataBaseObject.quoteName(query);
-                float reduction = (float)dataBaseObject.loadValue("reduction");
-                JeproLabGroupReductionModel.reduction_cache.put(cacheKey, reduction);
-            }
-            // Should return string (decimal in database) and not a float
-            return JeproLabGroupReductionModel.reduction_cache.get(cacheKey);
-        }
-
-        public static boolean setAnalyzeReduction(int analyzeId){
-            return setAnalyzeReduction(analyzeId, 0, 0, 0);
-        }
-
-        public static boolean setAnalyzeReduction(int analyzeId, int groupId){
-            return setAnalyzeReduction(analyzeId, groupId, 0, 0);
-        }
-
-        public static boolean setAnalyzeReduction(int analyzeId, int groupId, int categoryId){
-            return setAnalyzeReduction(analyzeId, groupId, categoryId, 0);
-        }
-
-        public static boolean setAnalyzeReduction(int analyzeId, int groupId, int categoryId, float reduction){
-            boolean result = true;
-            JeproLabGroupReductionModel.deleteAnalyzeReduction(analyzeId);
-
-            List<Integer> categories = JeproLabAnalyzeModel.getAnalyzeCategories(analyzeId);
-
-            if (categories.size() > 0) {
-                for(int id : categories){
-                    ResultSet reductions = JeproLabGroupReductionModel.getGroupsByCategoryId(id);
-                    if (reductions != null){
-                        try {
-                            JeproLabGroupReductionModel currentGroupReduction;
-                            while (reductions.next()) {
-                                currentGroupReduction = new JeproLabGroupReductionModel(reductions.getInt("group_reduction_id"));
-                                result &= currentGroupReduction.setCache();
-                            }
-                        }catch (SQLException ignored){
-                            ignored.printStackTrace();
-                        }finally {
-                            try {
-                                JeproLabDataBaseConnector.getInstance().closeConnexion();
-                            }catch (Exception e) {
-                                e.printStackTrace();
-                            }
-                        }
-                    }
-                }
-            }
-            return result;
-        }
-
-        public static boolean deleteAnalyzeReduction(int analyzeId){
-            if(dataBaseObject == null){
-                dataBaseObject = JeproLabFactory.getDataBaseConnector();
-            }
-            String query = "DELETE FROM " + dataBaseObject.quoteName("#__jeprolab_analyze_group_reduction_cache") + " WHERE ";
-            query += dataBaseObject.quoteName("analyze_id") + " = "+ analyzeId;
-
-            dataBaseObject.setQuery(query);
-            return dataBaseObject.query(false);
-        }
-
-        public static ResultSet getGroupsReductionByCategoryId(int categoryId){
-            if(dataBaseObject == null){
-                dataBaseObject = JeproLabFactory.getDataBaseConnector();
-            }
-            String query = "SELECT gr." + dataBaseObject.quoteName("group_reduction_id") + " as group_reduction_id, group_id FROM ";
-            query += dataBaseObject.quoteName("#__jeprolab_group_reduction") + " AS gr WHERE " + dataBaseObject.quoteName("category_id");
-            query += " = " + categoryId;
-
-            dataBaseObject.setQuery(query);
-
-            return dataBaseObject.loadObjectList();
-        }
-
-        public static ResultSet getGroupsByCategoryId(int categoryId){
-            if(dataBaseObject == null){
-                dataBaseObject = JeproLabFactory.getDataBaseConnector();
-            }
-
-            String query = "SELECT gr." + dataBaseObject.quoteName("group_id") + " AS group_id , gr." + dataBaseObject.quoteName("reduction");
-            query += "AS group_reduction_id FROM " + dataBaseObject.quoteName("#__jeprolab_group_reduction") + " AS gr WHERE " + dataBaseObject.quoteName("category_id");
-            query += " = "  + categoryId;
-
-            dataBaseObject.setQuery(query);
-            return dataBaseObject.loadObjectList();
-        }
-
-        protected boolean setCache(){
-            if(dataBaseObject == null){
-                dataBaseObject = JeproLabFactory.getDataBaseConnector();
-            }
-
-            String query = "SELECT category_analyze." + dataBaseObject.quoteName("analyze_id") + " FROM " + dataBaseObject.quoteName("#__jeprolab_analyzecategory");
-            query += " category_analyze WHERE category_analyze." + dataBaseObject.quoteName("category_id")+ " = "+ this.category_id;
-
-            dataBaseObject.setQuery(query);
-            ResultSet analyzeSet = dataBaseObject.loadObjectList();
-            boolean result = true;
-            if(analyzeSet != null){
-                try{
-                    while (analyzeSet.next()){
-                        query = "INSERT INTO " + dataBaseObject.quoteName("#__jeprolab_analyze_group_reduction_cache") + "(" + dataBaseObject.quoteName("analyze_id");
-                        query += ", " + dataBaseObject.quoteName("group_id") + ", " + dataBaseObject.quoteName("reduction") + ") VALUES (" + analyzeSet.getInt("analyze_id");
-                        query += ", " + this.group_id + ", " + this.reduction + ") ON DUPLICATE KEY UPDATE " + dataBaseObject.quoteName("reduction") + " = IF ( VALUES(";
-                        query += dataBaseObject.quoteName("reduction") + ") > " + dataBaseObject.quoteName("reduction") + ", VALUES(" + dataBaseObject.quoteName("reduction");
-                        query += "), " + dataBaseObject.quoteName("reduction") + ")";
-
-                        dataBaseObject.setQuery(query);
-                        result &= dataBaseObject.query(false);
-                    }
-                    return result;
-                }catch(SQLException ignored){
-                    ignored.printStackTrace();
-                }finally {
-                    try {
-                        JeproLabDataBaseConnector.getInstance().closeConnexion();
-                    }catch (Exception e) {
-                        e.printStackTrace();
-                    }
-                }
-            }
-            return true;
-        }
-
-        public static boolean deleteCategory(int categoryId){
-            if(dataBaseObject == null){
-                dataBaseObject = JeproLabFactory.getDataBaseConnector();
-            }
-
-            String query = "DELETE FROM " + dataBaseObject.quoteName("#__jeprolab_group_reduction") + " WHERE ";
-            query += dataBaseObject.quoteName("category_id") + " = " + categoryId;
-            dataBaseObject.setQuery(query);
-
-            return dataBaseObject.query(false);
-        }
-
-
-
-    }
-
 }
