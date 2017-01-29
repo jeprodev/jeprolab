@@ -2,6 +2,7 @@ package com.jeprolab.assets.tools.db;
 
 import com.jeprolab.assets.config.JeproLabConfig;
 import com.jeprolab.assets.tools.JeproLabTools;
+import com.jeprolab.assets.tools.exception.JeproLabUncaughtExceptionHandler;
 import org.apache.log4j.Level;
 
 import java.sql.*;
@@ -67,10 +68,10 @@ public class JeproLabDataBaseConnector {
 
                 return connection;
             } catch (SQLException ignored) {
-                JeproLabTools.logExceptionMessage(Level.ERROR, ignored);
+                JeproLabUncaughtExceptionHandler.logExceptionMessage(Level.ERROR, ignored);
                 return null;
             } catch (Exception ignored) {
-                JeproLabTools.logExceptionMessage(Level.ERROR, ignored);
+                JeproLabUncaughtExceptionHandler.logExceptionMessage(Level.ERROR, ignored);
                 return null;
             } finally {
                 try {
@@ -78,7 +79,7 @@ public class JeproLabDataBaseConnector {
                         connection.close();
                     }
                 } catch (SQLException ignored) {
-                    JeproLabTools.logExceptionMessage(Level.WARN, ignored);
+                    JeproLabUncaughtExceptionHandler.logExceptionMessage(Level.WARN, ignored);
                 }
             }
         }else{
@@ -171,10 +172,10 @@ public class JeproLabDataBaseConnector {
             queryRequest = null;
             return results;
         } catch (SQLException ignored) {
-            JeproLabTools.logExceptionMessage(Level.ERROR, ignored);
+            JeproLabUncaughtExceptionHandler.logExceptionMessage(Level.ERROR, ignored);
             return null;
         } catch (Exception ignored) {
-            JeproLabTools.logExceptionMessage(Level.ERROR, ignored);
+            JeproLabUncaughtExceptionHandler.logExceptionMessage(Level.ERROR, ignored);
             return null;
         }
     }
@@ -203,10 +204,10 @@ public class JeproLabDataBaseConnector {
                 return connection.createStatement().execute(queryRequest);
             }
         }catch(SQLException ignored){
-            JeproLabTools.logExceptionMessage(Level.ERROR, ignored);
+            JeproLabUncaughtExceptionHandler.logExceptionMessage(Level.ERROR, ignored);
             return false;
         }catch (Exception ignored){
-            JeproLabTools.logExceptionMessage(Level.ERROR, ignored);
+            JeproLabUncaughtExceptionHandler.logExceptionMessage(Level.ERROR, ignored);
             return false;
         }
     }
@@ -247,7 +248,7 @@ public class JeproLabDataBaseConnector {
                 connection.close();
             }
         } catch (SQLException ignored) {
-            JeproLabTools.logExceptionMessage(Level.ERROR, ignored);
+            JeproLabUncaughtExceptionHandler.logExceptionMessage(Level.ERROR, ignored);
         }
     }
 

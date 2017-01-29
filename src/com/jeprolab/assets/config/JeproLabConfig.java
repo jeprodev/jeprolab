@@ -2,6 +2,7 @@ package com.jeprolab.assets.config;
 
 import com.jeprolab.JeproLab;
 import com.jeprolab.assets.tools.JeproLabTools;
+import com.jeprolab.assets.tools.exception.JeproLabUncaughtExceptionHandler;
 import org.apache.log4j.Level;
 
 import java.io.File;
@@ -9,6 +10,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.Properties;
+import java.util.ResourceBundle;
 
 /**
  *
@@ -35,14 +37,15 @@ public class JeproLabConfig {
     }
 
     private static void retrieveConfig(){
-        Properties configProp = new Properties();
+        //Properties configProp = new Properties();
         FileInputStream inputStream = null;
 
-        try{
+        //try{
             File configFile = new File(JeproLab.class.getProtectionDomain().getCodeSource().getLocation().getPath());
-            String configPath = configFile.getParentFile().getAbsolutePath() + File.separator + "config" + File.separator + "config.properties";
+            //String configPath = configFile.getParentFile().getAbsolutePath() + File.separator + "config" + File.separator + "config.properties";
+            ResourceBundle configProp = ResourceBundle.getBundle("com.jeprolab.resources.config.config");
 
-            inputStream = new FileInputStream(configPath);
+            /*inputStream = new FileInputStream(configPath);
             configProp.load(inputStream);
             DATA_BASE_HOST = configProp.getProperty("DATA_BASE_HOST");
             DATA_BASE_NAME = configProp.getProperty("DATA_BASE_NAME");
@@ -56,18 +59,32 @@ public class JeproLabConfig {
             INSTALLED_APP_PACKAGE = configProp.getProperty("APPLICATION_INSTALLED_VERSION");
             INSTALLED_APP_PACKAGE = configProp.getProperty("APPLICATION_INSTALLED_PACKAGE");
             CERTIFICATE_LOGO = configProp.getProperty("APPLICATION_CERTIFICATE_LOGO_PATH");
-            APPLICATION_WEBSITE = configProp.getProperty("APPLICATION_WEBSITE_URL");
-        }catch (IOException  ignored){
-            JeproLabTools.logExceptionMessage(Level.ERROR, ignored);
+            APPLICATION_WEBSITE = configProp.getProperty("APPLICATION_WEBSITE_URL"); */
+
+            DATA_BASE_HOST = configProp.getString("DATA_BASE_HOST");
+            DATA_BASE_NAME = configProp.getString("DATA_BASE_NAME");
+            DATA_BASE_DRIVER = configProp.getString("DATA_BASE_MANAGER");
+            DATA_BASE_PREFIX = configProp.getString("DATA_BASE_PREFIX");
+            DATA_BASE_PORT_NUMBER = configProp.getString("DATA_BASE_PORT_NUMBER");
+            DATA_BASE_USER_NAME = configProp.getString("DATA_BASE_USER_NAME");
+            DATA_BASE_PASSWORD = configProp.getString("DATA_BASE_PASSWORD");
+            APP_INSTALLED_DIRECTORY = configProp.getString("APPLICATION_INSTALL_DIRECTORY");
+            APP_UPDATE_URL = configProp.getString("APPLICATION_UPDATE_URL");
+            INSTALLED_APP_PACKAGE = configProp.getString("APPLICATION_INSTALLED_VERSION");
+            INSTALLED_APP_PACKAGE = configProp.getString("APPLICATION_INSTALLED_PACKAGE");
+            CERTIFICATE_LOGO = configProp.getString("APPLICATION_CERTIFICATE_LOGO_PATH");
+            APPLICATION_WEBSITE = configProp.getString("APPLICATION_WEBSITE_URL");
+        /*}catch (IOException  ignored){
+            JeproLabUncaughtExceptionHandler.logExceptionMessage(Level.ERROR, ignored);
         } finally {
             if(inputStream != null){
                 try{
                     inputStream.close();
                 }catch(IOException ignored){
-                    JeproLabTools.logExceptionMessage(Level.ERROR, ignored);
+                    JeproLabUncaughtExceptionHandler.logExceptionMessage(Level.ERROR, ignored);
                 }
             }
-        }
+        } */
     }
 
     public int getLifeTime(){

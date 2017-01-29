@@ -15,7 +15,7 @@ public class JeproSwitchButton extends CheckBox {
 
     public JeproSwitchButton(final String label){
         super(label);
-        getStylesheets().add(JeproLab.class.getResource("assets/css/switchbutton.css").toExternalForm());
+        getStylesheets().add(JeproLab.class.getResource("resources/css/switchbutton.css").toExternalForm());
         setSkin(new JeproSwitchButtonSkin(this));
     }
 }

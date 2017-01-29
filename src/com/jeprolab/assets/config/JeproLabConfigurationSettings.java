@@ -19,4 +19,6 @@ public class JeproLabConfigurationSettings {
     public static String JEPROLAB_TMP_IMAGE_DIRECTORY = "";
     public static String JEPROLAB_MAILING_DIRECTORY = "";
     public static String JEPROLAB_CURRENCY_FEED_URL = "";
+
+    public static int LIST_LIMIT = 24;
 }

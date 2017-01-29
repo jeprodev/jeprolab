@@ -1,0 +1,2 @@
+<?import javafx.scene.layout.Pane?>
+<Pane xmlns:fx="http://javafx.com/fxml"  fx:id="jeprolab" fx:controller="com.jeprolab.controllers.JeproLabAboutProductController" ></Pane>

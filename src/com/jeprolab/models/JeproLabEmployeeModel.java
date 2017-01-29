@@ -3,6 +3,7 @@ package com.jeprolab.models;
 import com.jeprolab.assets.tools.JeproLabCache;
 import com.jeprolab.assets.tools.JeproLabTools;
 import com.jeprolab.assets.tools.db.JeproLabDataBaseConnector;
+import com.jeprolab.assets.tools.exception.JeproLabUncaughtExceptionHandler;
 import com.jeprolab.assets.tools.helpers.JeproLabEmployeeHelper;
 import com.jeprolab.models.core.JeproLabAccess;
 import com.jeprolab.models.core.JeproLabFactory;
@@ -133,12 +134,12 @@ public class JeproLabEmployeeModel extends JeproLabModel{
                     JeproLabCache.getInstance().store(cacheKey, this);
                 }
             }catch (SQLException ignored){
-                JeproLabTools.logExceptionMessage(Level.ERROR, ignored);
+                JeproLabUncaughtExceptionHandler.logExceptionMessage(Level.ERROR, ignored);
             }finally {
                 try {
                     JeproLabDataBaseConnector.getInstance().closeConnexion();
                 }catch (Exception ignored) {
-                    JeproLabTools.logExceptionMessage(Level.WARN, ignored);
+                    JeproLabUncaughtExceptionHandler.logExceptionMessage(Level.WARN, ignored);
                 }
             }
         }else{
@@ -173,12 +174,12 @@ public class JeproLabEmployeeModel extends JeproLabModel{
                     credential.put("password", credentialSet.getString("password"));
                 }
             }catch(SQLException ignored){
-                JeproLabTools.logExceptionMessage(Level.ERROR, ignored);
+                JeproLabUncaughtExceptionHandler.logExceptionMessage(Level.ERROR, ignored);
             }finally {
                 try{
                     JeproLabDataBaseConnector.getInstance().closeConnexion();
                 }catch(Exception ignored){
-                    JeproLabTools.logExceptionMessage(Level.WARN, ignored);
+                    JeproLabUncaughtExceptionHandler.logExceptionMessage(Level.WARN, ignored);
                 }
             }
         }

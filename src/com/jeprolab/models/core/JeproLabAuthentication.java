@@ -3,6 +3,7 @@ package com.jeprolab.models.core;
 import com.jeprolab.JeproLab;
 import com.jeprolab.assets.config.JeproLabConfig;
 import com.jeprolab.assets.tools.JeproLabTools;
+import com.jeprolab.assets.tools.exception.JeproLabUncaughtExceptionHandler;
 import com.jeprolab.models.JeproLabEmployeeModel;
 import org.apache.log4j.Level;
 
@@ -195,7 +196,7 @@ public class JeproLabAuthentication {
 
             return loginResponse.equals(hashPass);
         }catch (IOException ignored){
-            JeproLabTools.logExceptionMessage(Level.ERROR, ignored);
+            JeproLabUncaughtExceptionHandler.logExceptionMessage(Level.ERROR, ignored);
             return false;
         }
     }

@@ -30,8 +30,8 @@ public class JeproWindowsButtons extends HBox {
         minimizeButton.setId("window-minimize");
         minimizeButton.setOnMouseClicked(event -> stage.setIconified(true));
 
-        closeButton.getStyleClass().add("window-command-btn");
-        minimizeButton.getStyleClass().add("window-command-btn");
-        this.getChildren().addAll(closeButton, minimizeButton);
+        closeButton.getStyleClass().addAll("window-command-btn", "icon-btn");
+        minimizeButton.getStyleClass().addAll("window-command-btn", "icon-btn");
+        this.getChildren().addAll(minimizeButton, closeButton);
     }
 }

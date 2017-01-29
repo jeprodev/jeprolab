@@ -2,10 +2,18 @@ package com.jeprolab.models;
 
 import com.jeprolab.assets.tools.JeproLabCache;
 import com.jeprolab.assets.tools.JeproLabContext;
+import com.jeprolab.assets.tools.db.JeproLabDataBaseConnector;
+import com.jeprolab.assets.tools.exception.JeproLabUncaughtExceptionHandler;
+import com.jeprolab.data.cache.JeproLabDataCache;
 import com.jeprolab.models.core.JeproLabFactory;
+import org.apache.log4j.Level;
 
 import java.sql.Date;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -84,6 +92,72 @@ public class JeproLabGroupModel extends JeproLabModel{
         return group_feature_active;
     }
 
+    public static List<JeproLabGroupModel> getGroups(int langId){
+        return getGroups(langId, 0);
+    }
+
+    public static List<JeproLabGroupModel> getGroups(int langId, int labId){
+        String labCriteria = "";
+        if (labId > 0) {
+            labCriteria = JeproLabLaboratoryModel.addSqlAssociation("group");
+        }
+
+        if(dataBaseObject == null){
+            dataBaseObject = JeproLabFactory.getDataBaseConnector();
+        }
+
+        String query = "SELECT DISTINCT grp." + dataBaseObject.quoteName("group_id") + ", grp." + dataBaseObject.quoteName("reduction");
+        query += ", grp." + dataBaseObject.quoteName("price_display_method") + ", grp_lang." + dataBaseObject.quoteName("name") + " FROM ";
+        query += dataBaseObject.quoteName("#__jeprolab_group") + " AS grp LEFT JOIN " + dataBaseObject.quoteName("#__jeprolab_group_lang");
+        query += " AS grp_lang ON (grp." + dataBaseObject.quoteName("group_id") + " = grp_lang." + dataBaseObject.quoteName("group_id");
+        query += " AND grp_lang." + dataBaseObject.quoteName("lang_id") + " = " +  langId + ") " + labCriteria + " ORDER BY grp.";
+        query += dataBaseObject.quoteName("group_id") + " ASC";
+
+        dataBaseObject.setQuery(query);
+        ResultSet groupSet = dataBaseObject.loadObjectList();
+        List<JeproLabGroupModel> groupList = new ArrayList<>();
+
+        try{
+            JeproLabGroupModel group;
+            while(groupSet.next()){
+                group = new JeproLabGroupModel();
+                group.group_id = groupSet.getInt("group_id");
+                group.reduction = groupSet.getFloat("reduction");
+                group.price_display_method = groupSet.getInt("price_display_method");
+                if(langId > 0){
+                    group.name.put("lang_" + langId, groupSet.getString("name"));
+                }
+                //group = groupSet.get("");
+                groupList.add(group);
+            }
+        }catch(SQLException ignored){
+            JeproLabUncaughtExceptionHandler.logExceptionMessage(Level.ERROR, ignored);
+        }finally {
+            try {
+                JeproLabDataBaseConnector.getInstance().closeConnexion();
+            }catch (Exception ignored) {
+                JeproLabUncaughtExceptionHandler.logExceptionMessage(Level.WARN, ignored);
+            }
+        }
+        return groupList;
+    }
+
+    public static float getReductionByGroupId(int groupId){
+        String cacheKey = "jeprolab_group_get_reduction_group_" + groupId;
+        if (!JeproLabGroupModel.cache_reduction.containsKey(cacheKey)) {
+            if(dataBaseObject == null){
+                dataBaseObject = JeproLabFactory.getDataBaseConnector();
+            }
+            String query = "SELECT " + dataBaseObject.quoteName("reduction") + " FROM " + dataBaseObject.quoteName("#__jeprolab_group");
+            query += " WHERE " + dataBaseObject.quoteName("group_id") + " = " + groupId;
+
+            dataBaseObject.setQuery(query);
+            float reduction = (float)dataBaseObject.loadValue("reduction");
+            JeproLabGroupModel.cache_reduction.put(cacheKey, reduction);
+        }
+        return (float)JeproLabGroupModel.cache_reduction.get(cacheKey);
+    }
+
     /**
      * Return current group object
      * Use context
@@ -121,6 +195,22 @@ public class JeproLabGroupModel extends JeproLabModel{
         return groups.get(groupId);
     }
 
+    public static int getPriceDisplayMethod(int groupId){
+        if (!JeproLabGroupModel.group_price_display_method.containsKey(groupId)){
+            if(dataBaseObject == null){
+                dataBaseObject = JeproLabFactory.getDataBaseConnector();
+            }
+
+            String query = "SELECT " + dataBaseObject.quoteName("price_display_method") + " FROM " + dataBaseObject.quoteName("#__jeprolab_group");
+            query += " WHERE " + dataBaseObject.quoteName("group_id") + " = " + groupId;
+
+            dataBaseObject.setQuery(query);
+
+            JeproLabGroupModel.group_price_display_method.put(groupId, (int)dataBaseObject.loadValue("price_display_method"));
+        }
+        return JeproLabGroupModel.group_price_display_method.get(groupId);
+    }
+
     public boolean isAssociatedToLaboratory(){
         return isAssociatedToLaboratory(0);
     }
@@ -153,5 +243,117 @@ public class JeproLabGroupModel extends JeproLabModel{
         }
 
         return (boolean)JeproLabCache.getInstance().retrieve(cacheKey);
+    }
+
+    public static class JeproLabGroupReductionModel extends JeproLabModel {
+        public int group_reduction_id;
+
+        public int group_id;
+
+        public int category_id;
+        public float reduction;
+
+        protected static Map<String, Float> reduction_cache = new HashMap<>();
+
+        public JeproLabGroupReductionModel(){
+            this(0);
+        }
+
+        public JeproLabGroupReductionModel(int groupReductionId){
+
+        }
+
+        public static ResultSet getGroupsByCategoryId(int categoryId){
+            if(dataBaseObject == null){
+                dataBaseObject = JeproLabFactory.getDataBaseConnector();
+            }
+
+            String query = "SELECT gr." + dataBaseObject.quoteName("group_id") + " AS group_id , gr." + dataBaseObject.quoteName("reduction");
+            query += "AS group_reduction_id FROM " + dataBaseObject.quoteName("#__jeprolab_group_reduction") + " AS gr WHERE " + dataBaseObject.quoteName("category_id");
+            query += " = "  + categoryId;
+
+            dataBaseObject.setQuery(query);
+            return dataBaseObject.loadObjectList();
+        }
+
+        public static List<JeproLabGroupReductionModel> getGroupsReductionByCategoryId(int categoryId){
+            if(dataBaseObject == null){
+                dataBaseObject = JeproLabFactory.getDataBaseConnector();
+            }
+            String query = "SELECT gr." + dataBaseObject.quoteName("group_reduction_id") + " as group_reduction_id, group_id FROM ";
+            query += dataBaseObject.quoteName("#__jeprolab_group_reduction") + " AS gr WHERE " + dataBaseObject.quoteName("category_id");
+            query += " = " + categoryId;
+
+            dataBaseObject.setQuery(query);
+
+            ResultSet resultSet = dataBaseObject.loadObjectList();
+            List<JeproLabGroupReductionModel> reductions = new ArrayList<>();
+
+            if(resultSet != null){
+                try {
+                    JeproLabGroupReductionModel reduction;
+                    while (resultSet.next()){
+                        reduction = new JeproLabGroupReductionModel();
+                        reduction.group_id = resultSet.getInt("group_id");
+                        reduction.group_reduction_id = resultSet.getInt("group_id");
+                        reductions.add(reduction);
+                    }
+                }catch (SQLException ignored){
+                    JeproLabUncaughtExceptionHandler.logExceptionMessage(Level.ERROR, ignored);
+                }finally {
+                    try {
+                        JeproLabDataBaseConnector.getInstance().closeConnexion();
+                    }catch (Exception ignored){
+                        JeproLabUncaughtExceptionHandler.logExceptionMessage(Level.WARN, ignored);
+                    }
+                }
+            }
+            return reductions;
+        }
+
+        public static boolean deleteCategory(int categoryId){
+            if(dataBaseObject == null){
+                dataBaseObject = JeproLabFactory.getDataBaseConnector();
+            }
+
+            String query = "DELETE FROM " + dataBaseObject.quoteName("#__jeprolab_group_reduction") + " WHERE ";
+            query += dataBaseObject.quoteName("category_id") + " = " + categoryId;
+            dataBaseObject.setQuery(query);
+
+            return dataBaseObject.query(false);
+        }
+
+        public static float getValueForAnalyze(int analyzeId, int groupId){
+            if(!JeproLabGroupModel.isFeaturePublished()){
+                return 0;
+            }
+            String cacheKey =  "jeprolab_get_value_for_analyze_" + analyzeId + "_" + groupId;
+
+            if (!JeproLabGroupReductionModel.reduction_cache.containsKey(cacheKey)) {
+                if(dataBaseObject == null){
+                    dataBaseObject = JeproLabFactory.getDataBaseConnector();
+                }
+
+                String query = "SELECT "  + dataBaseObject.quoteName("reduction") + " FROM " + dataBaseObject.quoteName("#__jeprolab_analyze_group_reduction_cache");
+                query += " WHERE " + dataBaseObject.quoteName("analyze_id") + " = " + analyzeId + " AND " + dataBaseObject.quoteName("group_id") + " = " +  groupId;
+
+                dataBaseObject.quoteName(query);
+                float reduction = (float)dataBaseObject.loadValue("reduction");
+                JeproLabGroupReductionModel.reduction_cache.put(cacheKey, reduction);
+            }
+            // Should return string (decimal in database) and not a float
+            return JeproLabGroupReductionModel.reduction_cache.get(cacheKey);
+        }
+
+        public static boolean deleteAnalyzeReduction(int analyzeId){
+            if(dataBaseObject == null){
+                dataBaseObject = JeproLabFactory.getDataBaseConnector();
+            }
+            String query = "DELETE FROM " + dataBaseObject.quoteName("#__jeprolab_analyze_group_reduction_cache") + " WHERE ";
+            query += dataBaseObject.quoteName("analyze_id") + " = "+ analyzeId;
+
+            dataBaseObject.setQuery(query);
+            return dataBaseObject.query(false);
+        }
     }
 }

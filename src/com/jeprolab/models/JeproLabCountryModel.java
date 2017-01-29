@@ -4,6 +4,8 @@ import com.jeprolab.assets.tools.JeproLabCache;
 import com.jeprolab.assets.tools.JeproLabContext;
 import com.jeprolab.assets.tools.JeproLabTools;
 import com.jeprolab.assets.tools.db.JeproLabDataBaseConnector;
+import com.jeprolab.assets.tools.exception.JeproLabUncaughtExceptionHandler;
+import com.jeprolab.models.core.JeproLabFactory;
 import org.apache.log4j.Level;
 
 import java.sql.ResultSet;
@@ -132,12 +134,12 @@ public class JeproLabCountryModel extends JeproLabModel{
                         JeproLabCache.getInstance().store(cacheKey, this);
                     }
                 }catch (SQLException ignored){
-                    JeproLabTools.logExceptionMessage(Level.ERROR, ignored);
+                    JeproLabUncaughtExceptionHandler.logExceptionMessage(Level.ERROR, ignored);
                 }finally {
                     try {
                         JeproLabDataBaseConnector.getInstance().closeConnexion();
                     }catch (Exception ignored) {
-                        JeproLabTools.logExceptionMessage(Level.WARN, ignored);
+                        JeproLabUncaughtExceptionHandler.logExceptionMessage(Level.WARN, ignored);
                     }
                 }
             }else{
@@ -156,6 +158,33 @@ public class JeproLabCountryModel extends JeproLabModel{
                 this.name = country.name;
             }
         }
+    }
+
+    /**
+     * Get a country name with its ID
+     *
+     * @param langId Language ID
+     * @param countryId Country ID
+     * @return string Country name
+     */
+    public static String getCountryNameByCountryId(int langId, int countryId){
+        String cacheKey = "jeprolab_country_get_name_by_country_id_" + countryId + "_" + langId;
+        if (!JeproLabCache.getInstance().isStored(cacheKey)) {
+            if(dataBaseObject == null){
+                dataBaseObject = JeproLabFactory.getDataBaseConnector();
+            }
+
+            String query = "SELECT " + dataBaseObject.quoteName("name") + " FROM " + dataBaseObject.quoteName("#__jeprolab_country_lang");
+            query += " WHERE " + dataBaseObject.quoteName("lang_id") + " = " + langId + " AND " + dataBaseObject.quoteName("country_id");
+            query += " = " + countryId;
+
+            dataBaseObject.setQuery(query);
+            String result = dataBaseObject.loadStringValue("name");
+            JeproLabCache.getInstance().store(cacheKey, result);
+
+            return result;
+        }
+        return (String)JeproLabCache.getInstance().retrieve(cacheKey);
     }
 
 }

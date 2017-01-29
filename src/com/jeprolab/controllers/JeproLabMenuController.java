@@ -2,6 +2,7 @@ package com.jeprolab.controllers;
 
 import com.jeprolab.JeproLab;
 import com.jeprolab.assets.tools.JeproLabContext;
+import com.jeprolab.models.JeproLabCategoryModel;
 import com.jeprolab.models.JeproLabSettingModel;
 import javafx.fxml.FXML;
 import javafx.scene.control.Menu;
@@ -163,12 +164,7 @@ public class JeproLabMenuController extends JeproLabController{
         addStateSubMenuItem.setText(bundle.getString("JEPROLAB_ADD_NEW_LABEL") + " " + bundle.getString("JEPROLAB_STATE_LABEL"));
         currenciesSubMenuItem.setText(bundle.getString("JEPROLAB_LIST_OF_LABEL") + " " + bundle.getString("JEPROLAB_CURRENCY_LABEL"));
         addCurrencySubMenuItem.setText(bundle.getString("JEPROLAB_ADD_NEW_LABEL") + " " + bundle.getString("JEPROLAB_CURRENCY_LABEL"));
-    }
 
-    /**
-     *
-     */
-    public void initializeContent(){
         addDashboardListeners();
         addCatalogListeners();
         addCustomerListeners();
@@ -179,26 +175,35 @@ public class JeproLabMenuController extends JeproLabController{
     }
 
     /**
+     *
+     */
+    public void initializeContent(){
+
+    }
+
+    /**
      * Managing dashboard menu and sub-menus
      */
     private void addDashboardListeners(){
         dashBoardMenuItem.setOnAction(evt -> {
             JeproLab.getInstance().goToForm(JeproLab.getInstance().getApplicationForms().dashBoardForm);
-            JeproLabContext.getContext().controller.initializeContent();
+            JeproLab.getInstance().getApplicationForms().dashBoardForm.controller.initializeContent();
         });
     }
 
     private void addCatalogListeners(){
         categorySubMenuItem.setOnAction(evt -> {
-            JeproLabContext.getContext().category.category_id = JeproLabSettingModel.getIntValue("root_category");
+            if(JeproLabContext.getContext().category == null || JeproLabContext.getContext().category.category_id <= 0) {
+                JeproLabContext.getContext().category = new JeproLabCategoryModel(JeproLabSettingModel.getIntValue("root_category"));
+            }
             JeproLab.getInstance().goToForm(JeproLab.getInstance().getApplicationForms().categoryForm);
-            JeproLabContext.getContext().controller.initializeContent();
+            JeproLab.getInstance().getApplicationForms().categoryForm.controller.initializeContent();
         });
 
         addCategoryMenuItem.setOnAction(evt -> {
-            //JeproLab.request.getRequest().clear();
+            JeproLab.request.getRequest().clear();
             JeproLab.getInstance().goToForm(JeproLab.getInstance().getApplicationForms().addCategoryForm);
-            JeproLabContext.getContext().controller.initializeContent();
+            JeproLab.getInstance().getApplicationForms().addCategoryForm.controller.initializeContent();
         });
     }
 

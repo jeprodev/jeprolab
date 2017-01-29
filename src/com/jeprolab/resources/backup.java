@@ -7,20 +7,16 @@ public class backup {
     public void test(){
         /*
 
-        Region toolBarSpacer = new Region();
-        HBox.setHgrow(toolBarSpacer, Priority.ALWAYS);
 
-        applicationToolBarCommandWrapper.getStyleClass().setAll("segmented-command-wrapper");
 
-        applicationToolBar.getStyleClass().add("jeprolab-toolbar");
-        userInfoWrapper = new HBox();
-        userInfoWrapper.getStyleClass().setAll("segmented-command-wrapper");
-        userInfoBtn = new Button();
-        userInfoBtn.getStyleClass().addAll("first");
-        userLogOutBtn = new Button("", new ImageView(new Image(JeproLab.class.getResourceAsStream("resources/images/logout.png"))));
+
+
+
+
+        userLogOutBtn = new Button("", );
         userLogOutBtn.getStyleClass().addAll("last", "capsule", "logout");
-        userInfoWrapper.getChildren().addAll(userInfoBtn, userLogOutBtn);
-        applicationToolBar.getItems().addAll(applicationToolBarCommandWrapper, toolBarSpacer, userInfoWrapper);
+        , userLogOutBtn);
+
 
 
         primaryStage.initStyle(StageStyle.UNDECORATED);
@@ -43,12 +39,9 @@ public class backup {
         formsContainer.getChildren().addAll(windowsBar, menuBar.createView(), applicationToolBar, formWrapper);
 
 
-        if (context.employee == null || !context.employee.is_logged) {
 
-        } else {
             //redirect user to the dashboard
-            menuBar.setFormVisible(true);
-            applicationToolBar.setVisible(true);
+
         } */
 
     }

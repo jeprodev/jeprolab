@@ -3,6 +3,7 @@ package com.jeprolab.models;
 import com.jeprolab.assets.tools.JeproLabCache;
 import com.jeprolab.assets.tools.JeproLabTools;
 import com.jeprolab.assets.tools.db.JeproLabDataBaseConnector;
+import com.jeprolab.assets.tools.exception.JeproLabUncaughtExceptionHandler;
 import com.jeprolab.models.core.JeproLabFactory;
 import org.apache.log4j.Level;
 
@@ -60,7 +61,7 @@ public class JeproLabLanguageModel extends JeproLabModel{
 
                     JeproLabCache.getInstance().store(cacheKey, this);
                 }catch (SQLException ignored){
-                    JeproLabTools.logExceptionMessage(Level.ERROR, ignored);
+                    JeproLabUncaughtExceptionHandler.logExceptionMessage(Level.ERROR, ignored);
                 }
             }else{
                 JeproLabLanguageModel language = (JeproLabLanguageModel)JeproLabCache.getInstance().retrieve(cacheKey);
@@ -118,12 +119,12 @@ public class JeproLabLanguageModel extends JeproLabModel{
                     JeproLabLanguageModel.LANGUAGES.put(lang.language_id, lang);
                 }
             } catch (SQLException ignored) {
-                JeproLabTools.logExceptionMessage(Level.ERROR, ignored);
+                JeproLabUncaughtExceptionHandler.logExceptionMessage(Level.ERROR, ignored);
             }finally {
                 try {
                     JeproLabDataBaseConnector.getInstance().closeConnexion();
                 }catch (Exception ignored) {
-                    JeproLabTools.logExceptionMessage(Level.WARN, ignored);
+                    JeproLabUncaughtExceptionHandler.logExceptionMessage(Level.WARN, ignored);
                 }
             }
         }
@@ -134,7 +135,7 @@ public class JeproLabLanguageModel extends JeproLabModel{
     }
 
     public static Map<Integer, JeproLabLanguageModel> getLanguages() {
-        if (!LANGUAGES.isEmpty()) {
+        if (LANGUAGES == null ||!LANGUAGES.isEmpty()) {
             JeproLabLanguageModel.loadLanguages();
         }
         return LANGUAGES;

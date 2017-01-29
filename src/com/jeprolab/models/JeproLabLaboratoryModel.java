@@ -5,6 +5,7 @@ import com.jeprolab.assets.tools.JeproLabCache;
 import com.jeprolab.assets.tools.JeproLabContext;
 import com.jeprolab.assets.tools.JeproLabTools;
 import com.jeprolab.assets.tools.db.JeproLabDataBaseConnector;
+import com.jeprolab.assets.tools.exception.JeproLabUncaughtExceptionHandler;
 import com.jeprolab.models.core.JeproLabFactory;
 import org.apache.log4j.Level;
 
@@ -25,7 +26,7 @@ public class JeproLabLaboratoryModel extends JeproLabModel{
 
     public int laboratory_group_id = 0;
 
-    public int lang_id = 0;
+    public int language_id = 0;
 
     public int category_id = 0;
 
@@ -46,8 +47,6 @@ public class JeproLabLaboratoryModel extends JeproLabModel{
     public String domain;
 
     public String ssl_domain;
-
-    private boolean multiLang = true;
 
     public boolean published;
 
@@ -94,15 +93,15 @@ public class JeproLabLaboratoryModel extends JeproLabModel{
     }
 
     public JeproLabLaboratoryModel(int laboratoryId, int langId){
-        /*if( langId > 0){
-            this.lang_id = (JeproLabLanguageModel.checkLanguage(langId)) ? langId : JeproLabSettingModel.getIntValue("default_lang");
+        if( langId > 0){
+            this.language_id = (JeproLabLanguageModel.checkLanguage(langId)) ? langId : JeproLabSettingModel.getIntValue("default_lang");
         }
 
-        /*if(laboratoryId > 0){
+        if(laboratoryId > 0){
             if(dataBaseObject == null){
                 dataBaseObject = JeproLabFactory.getDataBaseConnector();
             }
-            /** Loading laboratory from database if id is supplied ** /
+            /** Loading laboratory from database if id is supplied **/
             String cacheKey = "jeprolab_laboratory_model_" + laboratoryId + ((langId > 0) ? "_" + langId : "");
             if(!JeproLabCache.getInstance().isStored(cacheKey)){
                 String query = "SELECT laboratory.*, laboratory_url.physical_uri as physical_uri, laboratory_url.virtual_uri as virtual_uri, ";
@@ -116,13 +115,13 @@ public class JeproLabLaboratoryModel extends JeproLabModel{
                 ResultSet laboratoryData = dataBaseObject.loadObjectList();
                 try {
                     while(laboratoryData.next()) {
-                        this.laboratory_id = laboratoryData.getInt("laboratory_id");
-                        this.laboratory_group_id = laboratoryData.getInt("laboratory_group_id");
+                        this.laboratory_id = laboratoryData.getInt("lab_id");
+                        this.laboratory_group_id = laboratoryData.getInt("lab_group_id");
                         this.category_id = laboratoryData.getInt("category_id");
                         this.theme_id = laboratoryData.getInt("theme_id");
                         this.theme_name = laboratoryData.getString("theme_name");
                         this.theme_directory = laboratoryData.getString("theme_directory");
-                        this.name = laboratoryData.getString("name");
+                        this.name = laboratoryData.getString("lab_name");
                         this.published = laboratoryData.getInt("published") > 1;
                         this.deleted = laboratoryData.getInt("deleted") > 1;
                         this.physical_uri = laboratoryData.getString("physical_uri");
@@ -132,12 +131,12 @@ public class JeproLabLaboratoryModel extends JeproLabModel{
                     }
                     JeproLabCache.getInstance().store(cacheKey, this);
                 }catch(SQLException ignored){
-                    JeproLabTools.logExceptionMessage(Level.ERROR, ignored);
+                    JeproLabUncaughtExceptionHandler.logExceptionMessage(Level.ERROR, ignored);
                 }finally {
                     try {
                         JeproLabDataBaseConnector.getInstance().closeConnexion();
                     }catch (Exception ignored) {
-                        JeproLabTools.logExceptionMessage(Level.WARN, ignored);
+                        JeproLabUncaughtExceptionHandler.logExceptionMessage(Level.WARN, ignored);
                     }
                 }
             }else{
@@ -156,15 +155,15 @@ public class JeproLabLaboratoryModel extends JeproLabModel{
                 this.domain = laboratory.domain;
                 this.ssl_domain = laboratory.ssl_domain;
             }
-        }*/
+        }
     }
 
     public static JeproLabLaboratoryModel initialize() {
         int labId = 0;
-        /*if(JeproLabContext.getContext().laboratory != null) {
+        if(JeproLabContext.getContext().laboratory != null) {
             labId = JeproLabContext.getContext().laboratory.laboratory_id;
         }
-        /*if(labId <= 0) {
+        if(labId <= 0) {
             if(dataBaseObject == null){
                 dataBaseObject = JeproLabFactory.getDataBaseConnector();
             }
@@ -202,17 +201,17 @@ public class JeproLabLaboratoryModel extends JeproLabModel{
                         //}
                     }
                 } catch (SQLException ignored) {
-                    JeproLabTools.logExceptionMessage(Level.ERROR, ignored);
+                    JeproLabUncaughtExceptionHandler.logExceptionMessage(Level.ERROR, ignored);
                 } finally {
                     try {
                         JeproLabDataBaseConnector.getInstance().closeConnexion();
                     } catch (Exception ignored) {
-                        JeproLabTools.logExceptionMessage(Level.WARN, ignored);
+                        JeproLabUncaughtExceptionHandler.logExceptionMessage(Level.WARN, ignored);
                     }
                 }
             }
             /** If an URL was found and it's not the main URL, redirect to main url  **/
-            /* if (through && labId > 0 && !isMainUri) {
+            /*if (through && labId > 0 && !isMainUri) {
                 foreach($results as $result) {
                     if (results.getInt("lab_id") == labId && $result -> main) {
                         $request_uri = substr($request_uri, strlen($found_uri));
@@ -222,9 +221,9 @@ public class JeproLabLaboratoryModel extends JeproLabModel{
                         System.exit(0);
                     }
                 }
-            }* /
+            }*/
 
-        } */
+        }
 
         JeproLabLaboratoryModel laboratory;
 
@@ -232,7 +231,7 @@ public class JeproLabLaboratoryModel extends JeproLabModel{
             laboratory = new JeproLabLaboratoryModel(labId);
         }else{
             laboratory = new JeproLabLaboratoryModel();
-            /*JeproLabLaboratoryModel defaultLab;
+            JeproLabLaboratoryModel defaultLab;
             if(laboratory.laboratory_id < 0 || !laboratory.published){
                 defaultLab = new JeproLabLaboratoryModel(JeproLabSettingModel.getIntValue("default_lab"));
                 if(defaultLab.laboratory_id <= 0){
@@ -242,12 +241,12 @@ public class JeproLabLaboratoryModel extends JeproLabModel{
                 defaultLab = new JeproLabLaboratoryModel(JeproLabSettingModel.getIntValue("default_lab"));
                 laboratory.physical_uri = defaultLab.physical_uri;
                 laboratory.virtual_uri = defaultLab.virtual_uri;
-            }*/
+            }
         }
-/*
+
         JeproLabLaboratoryModel.context_laboratory_id = laboratory.laboratory_id;
         JeproLabLaboratoryModel.contextLabGroupId = laboratory.laboratory_group_id;
-        JeproLabLaboratoryModel.labContext = JeproLabLaboratoryModel.LAB_CONTEXT; */
+        JeproLabLaboratoryModel.labContext = JeproLabLaboratoryModel.LAB_CONTEXT;
         return laboratory;
     }
 
@@ -302,7 +301,7 @@ public class JeproLabLaboratoryModel extends JeproLabModel{
         try {
             dataBaseObject = JeproLabDataBaseConnector.getInstance();
         } catch (Exception ignored) {
-            JeproLabTools.logExceptionMessage(Level.WARN, ignored);
+            JeproLabUncaughtExceptionHandler.logExceptionMessage(Level.WARN, ignored);
         }
         if(!feature_published){
             String query = "SELECT COUNT(*) FROM " + dataBaseObject.quoteName("#__jeprolab_lab");
@@ -315,12 +314,12 @@ public class JeproLabLaboratoryModel extends JeproLabModel{
                     nbObject++;
                 }
             }catch (SQLException ignored){
-                JeproLabTools.logExceptionMessage(Level.ERROR, ignored);
+                JeproLabUncaughtExceptionHandler.logExceptionMessage(Level.ERROR, ignored);
             }finally {
                 try {
                     JeproLabDataBaseConnector.getInstance().closeConnexion();
                 }catch (Exception ignored) {
-                    JeproLabTools.logExceptionMessage(Level.WARN, ignored);
+                    JeproLabUncaughtExceptionHandler.logExceptionMessage(Level.WARN, ignored);
                 }
             }
 
@@ -512,12 +511,12 @@ public class JeproLabLaboratoryModel extends JeproLabModel{
                     }*/
                 }
             }catch (SQLException ignored){
-                JeproLabTools.logExceptionMessage(Level.ERROR, ignored);
+                JeproLabUncaughtExceptionHandler.logExceptionMessage(Level.ERROR, ignored);
             }finally {
                 try {
                     JeproLabDataBaseConnector.getInstance().closeConnexion();
                 }catch (Exception ignored) {
-                    JeproLabTools.logExceptionMessage(Level.ERROR, ignored);
+                    JeproLabUncaughtExceptionHandler.logExceptionMessage(Level.ERROR, ignored);
                 }
             }
         }
@@ -672,7 +671,54 @@ public class JeproLabLaboratoryModel extends JeproLabModel{
         return JeproLabLaboratoryModel.defaultLabTablesId.contains(table);
     }
 
+    public static List<JeproLabLaboratoryModel> getLaboratories(){
+        return getLaboratories(true);
+    }
 
+    public static List<JeproLabLaboratoryModel> getLaboratories(boolean published){
+        return getLaboratories(published, 0);
+    }
+
+    public static List<JeproLabLaboratoryModel> getLaboratories(boolean published, int labGroupId){
+        return getLaboratories(published, labGroupId, false);
+    }
+
+    public static List<JeproLabLaboratoryModel> getLaboratories(boolean published, int labGroupId, boolean getAsListIds){
+        JeproLabLaboratoryModel.cacheLaboratories();
+
+        List<JeproLabLaboratoryModel> results = new ArrayList<>();
+        /*todo foreach (JeproLabLaboratoryModel.labs as $group_id => $group_data){
+            foreach ($group_data['labs'] as $lab_id => $lab_data){
+                if((!$published || $lab_data->published) && (!$lab_group_id || $lab_group_id == $group_id)){
+                    if ($get_as_list_id){
+                        $results[$lab_id] = $lab_id;
+                    }else{
+                        $results[$lab_id] = $lab_data;
+                    }
+                }
+            }
+        }*/
+        return results;
+    }
+
+    /**
+     * Get group of current shop
+     *
+     * @return JeproLabLaboratoryGroupModel
+     */
+    public JeproLabLaboratoryGroupModel getLaboratoryGroup(){
+        if (this.laboratory_group == null) {
+            this.laboratory_group = new JeproLabLaboratoryGroupModel(this.laboratory_group_id);
+        }
+        return this.laboratory_group;
+    }
+
+    public static JeproLabLaboratoryGroupModel getContextLaboratoryGroup(){
+        if (context_laboratory_group == null) {
+            context_laboratory_group = new JeproLabLaboratoryGroupModel(contextLabGroupId);
+        }
+        return context_laboratory_group;
+    }
 
 
     public static class JeproLabLaboratoryGroupModel extends JeproLabModel{
@@ -685,6 +731,14 @@ public class JeproLabLaboratoryModel extends JeproLabModel{
         public boolean published = true, deleted = false;
 
         public List<JeproLabLaboratoryModel> laboratories;
+
+        public JeproLabLaboratoryGroupModel(){
+            this(0);
+        }
+
+        public JeproLabLaboratoryGroupModel(int labGroupId){
+
+        }
 
         public static List<JeproLabLaboratoryGroupModel> getLaboratoryGroups(){
             return getLaboratoryGroups(true);
@@ -714,15 +768,17 @@ public class JeproLabLaboratoryModel extends JeproLabModel{
                     laboratoryGroup.share_stocks = results.getInt("share_stocks") > 0;
                     laboratoryGroup.published = results.getInt("published") > 0;
                     laboratoryGroup.deleted = results.getInt("deleted") > 0;
+
+                    laboratoryGroup.laboratories = new ArrayList<>();
                     laboratoryGroups.add(laboratoryGroup);
                 }
             } catch (SQLException ignored) {
-                JeproLabTools.logExceptionMessage(Level.ERROR, ignored);
+                JeproLabUncaughtExceptionHandler.logExceptionMessage(Level.ERROR, ignored);
             }finally {
                 try {
                     JeproLabDataBaseConnector.getInstance().closeConnexion();
                 }catch (Exception ignored) {
-                    JeproLabTools.logExceptionMessage(Level.ERROR, ignored);
+                    JeproLabUncaughtExceptionHandler.logExceptionMessage(Level.ERROR, ignored);
                 }
             }
             return laboratoryGroups;

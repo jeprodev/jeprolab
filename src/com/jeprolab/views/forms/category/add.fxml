@@ -44,7 +44,7 @@
                         <Label GridPane.columnIndex="2" GridPane.rowIndex="6" fx:id="jeproLabCategoryLinkRewriteLabel" />
                         <JeproMultiLangTextField GridPane.columnIndex="3" GridPane.rowIndex="6" fx:id="jeproLabCategoryLinkRewrite" />
 
-                        <Label GridPane.columnIndex="0" GridPane.rowIndex="12" fx:id="jeproLabCategoryLabel" />
+                        <Label GridPane.columnIndex="0" GridPane.rowIndex="12" fx:id="jeproLabCategoryLabel" visible="false" />
                     </GridPane>
                 </VBox>
             </Tab>

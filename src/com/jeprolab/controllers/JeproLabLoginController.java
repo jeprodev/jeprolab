@@ -5,23 +5,29 @@ import com.jeprolab.assets.extend.controls.JeproFormPanel;
 import com.jeprolab.assets.extend.controls.JeproFormPanelContainer;
 import com.jeprolab.assets.extend.controls.JeproFormPanelTitle;
 import com.jeprolab.assets.tools.JeproLabContext;
+import com.jeprolab.assets.tools.exception.JeproLabUncaughtExceptionHandler;
 import com.jeprolab.models.core.JeproLabApplication;
 import com.jeprolab.models.core.JeproLabAuthentication;
 import com.jeprolab.models.core.JeproLabFactory;
+//import com.mysql.jdbc.log.NullLogger;
 import javafx.application.Platform;
+import javafx.beans.property.SimpleBooleanProperty;
+import javafx.concurrent.Task;
+import javafx.concurrent.Worker;
 import javafx.fxml.FXML;
 import javafx.geometry.HPos;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
-import javafx.scene.control.PasswordField;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextAlignment;
+import org.apache.log4j.Level;
+import org.apache.log4j.Logger;
 
 
 import java.net.URL;
@@ -32,6 +38,8 @@ import java.util.ResourceBundle;
  * Created by jeprodev on 09/01/2016.
  */
 public class JeproLabLoginController extends JeproLabController{
+    private Worker<Boolean> worker;
+
     @FXML
     public Label userNameLabel, userPasswordLabel;
     public TextField userName;
@@ -103,27 +111,35 @@ public class JeproLabLoginController extends JeproLabController{
     private void setEventHandler(){
         loginButton.setOnAction(evt -> {
             if(!JeproLab.getInstance().is_initialized){
-                JeproLab.getInstance().initialize();
+                JeproLabUncaughtExceptionHandler.logExceptionMessage(Level.ERROR, new Throwable("You should instantiate the application in order to log in and use it "));
             }
             JeproLabAuthentication.JeproLabAuthenticationOption loginOption = new JeproLabAuthentication.JeproLabAuthenticationOption();
             loginOption.action = "core.login.admin";
-            boolean login = JeproLabApplication.login(userName.getText(), password.getText(), loginOption);
-            if(login){
+            boolean login =  JeproLabApplication.login(userName.getText(), password.getText(), loginOption);
+
+            if(login) {
                 JeproLabContext context = JeproLabContext.getContext();
                 context.employee = JeproLabFactory.getEmployee();
-                JeproLab.getInstance().resetMenuAndToolBar();
-                if(context.last_form != null) {
+                JeproLab.getInstance().resetMenuAndToolBar(true);
+                if (context.last_form != null) {
                     JeproLab.getInstance().goToForm(context.last_form);
-                }else{
+                } else {
                     JeproLab.getInstance().goToForm(JeproLab.getInstance().getApplicationForms().dashBoardForm);
                 }
-            }else{
+            } else {
                 jeproLabLoginErrorMessageWrapper.setText(bundle.getString("JEPROLAB_YOU_ARE_NOT_ALLOW_TO_LOG_MESSAGE"));
             }
         });
 
+        /* /((Task)worker).setOnFailed( evt -> {
+            JeproLabUncaughtExceptionHandler.logExceptionMessage(Level.ERROR, worker.getException());
+        });*/
+
         cancelButton.setOnAction(evt -> {
-            Platform.exit();
+            userName.setText("");
+            password.setText("");
+            JeproLab.getInstance().resetMenuAndToolBar(false);
+            JeproLab.getInstance().goToForm(JeproLab.getInstance().getApplicationForms().loginForm);
         });
     }
 
@@ -141,6 +157,8 @@ public class JeproLabLoginController extends JeproLabController{
         JeproLabContext context = JeproLabContext.getContext();
         context.employee = loginOptions.employee;
         JeproLab.getInstance().getUserInfoBtn().setText(context.employee.username + " ");
+        JeproLab.getInstance().getUserInfoBtn().setGraphic(new ImageView(new Image(JeproLab.class.getResourceAsStream("resources/images/logout.png"))));
+        JeproLab.getInstance().getUserInfoBtn().setContentDisplay(ContentDisplay.RIGHT);
     }
 
     public static void onUserLoginFailure(JeproLabAuthentication.JeproLabAuthenticationResponse response){

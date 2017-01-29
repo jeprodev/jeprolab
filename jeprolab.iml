@@ -8,14 +8,7 @@
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
-    <orderEntry type="library" exported="" name="mysql-connector-java-5.1.38-bin (2)" level="project" />
-    <orderEntry type="library" exported="" name="commons-collections4-4.1 (3)" level="project" />
-    <orderEntry type="library" exported="" name="bcprov-ext-jdk15on-153 (2)" level="project" />
-    <orderEntry type="library" exported="" name="bcmail-jdk15on-153 (2)" level="project" />
-    <orderEntry type="library" exported="" name="bcpg-jdk15on-153" level="project" />
-    <orderEntry type="library" exported="" name="bcpkix-jdk15on-153 (2)" level="project" />
-    <orderEntry type="library" exported="" name="bcprov-1.45 (2)" level="project" />
-    <orderEntry type="library" exported="" name="xmlsec-2.0.6 (2)" level="project" />
-    <orderEntry type="library" exported="" name="log4j-1.2.17" level="project" />
+    <orderEntry type="library" name="bcmail-jdk15on-153" level="project" />
+    <orderEntry type="library" name="bcpg-jdk15on-153" level="project" />
   </component>
 </module>

@@ -4,6 +4,7 @@ import com.jeprolab.assets.tools.JeproLabCache;
 import com.jeprolab.assets.tools.JeproLabContext;
 import com.jeprolab.assets.tools.JeproLabTools;
 import com.jeprolab.assets.tools.db.JeproLabDataBaseConnector;
+import com.jeprolab.assets.tools.exception.JeproLabUncaughtExceptionHandler;
 import com.jeprolab.models.core.JeproLabFactory;
 import org.apache.log4j.Level;
 
@@ -139,12 +140,12 @@ public class JeproLabCustomerModel extends JeproLabModel{
                             this.date_upd = customerSet.getDate("date_upd");
                         }
                     }catch (SQLException ignored){
-                        JeproLabTools.logExceptionMessage(Level.ERROR, ignored);
+                        JeproLabUncaughtExceptionHandler.logExceptionMessage(Level.ERROR, ignored);
                     }finally {
                         try {
                             JeproLabDataBaseConnector.getInstance().closeConnexion();
                         }catch (Exception ignored) {
-                            JeproLabTools.logExceptionMessage(Level.WARN, ignored);
+                            JeproLabUncaughtExceptionHandler.logExceptionMessage(Level.WARN, ignored);
                         }
                     }
                     JeproLabCache.getInstance().store(cacheKey, this);
@@ -211,16 +212,38 @@ public class JeproLabCustomerModel extends JeproLabModel{
                         JeproLabCustomerModel.current_customer_groups.add(customerGroupSet.getInt("group_id"));
                     }
                 }catch(SQLException ignored){
-                    JeproLabTools.logExceptionMessage(Level.ERROR, ignored);
+                    JeproLabUncaughtExceptionHandler.logExceptionMessage(Level.ERROR, ignored);
                 }finally {
                     try {
                         JeproLabDataBaseConnector.getInstance().closeConnexion();
                     }catch(Exception ignored){
-                        JeproLabTools.logExceptionMessage(Level.WARN, ignored);
+                        JeproLabUncaughtExceptionHandler.logExceptionMessage(Level.WARN, ignored);
                     }
                 }
             }
         }
         return JeproLabCustomerModel.current_customer_groups;
+    }
+
+    public static int getDefaultGroupId(int customerId) {
+        if (!JeproLabGroupModel.isFeaturePublished()) {
+            if (customer_group == 0) {
+                customer_group = JeproLabSettingModel.getIntValue("customer_group");
+            }
+            return customer_group;
+        }
+
+        if (!JeproLabCustomerModel._defaultGroupId.containsKey(customerId)){
+            if(dataBaseObject == null){
+                dataBaseObject = JeproLabFactory.getDataBaseConnector();
+            }
+
+            String query = "SELECT " + dataBaseObject.quoteName("default_group_id") + " FROM " + dataBaseObject.quoteName("#__jeprolab_customer");
+            query += " WHERE " + dataBaseObject.quoteName("customer_id") +  " = " + customerId;
+
+            dataBaseObject.setQuery(query);
+            JeproLabCustomerModel._defaultGroupId.put(customerId, (int)dataBaseObject.loadValue("default_group_id"));
+        }
+        return JeproLabCustomerModel._defaultGroupId.get(customerId);
     }
 }

@@ -1,5 +1,6 @@
 package com.jeprolab.assets.tools;
 
+import com.jeprolab.assets.tools.exception.JeproLabUncaughtExceptionHandler;
 import com.jeprolab.controllers.JeproLabController;
 import com.jeprolab.models.*;
 import com.jeprolab.views.JeproLabApplicationForms;
@@ -45,5 +46,25 @@ public class JeproLabContext implements Cloneable {
             instance = new JeproLabContext();
         }
         return instance;
+    }
+
+    /**
+     * Clone current context
+     * @return JeproLabContext
+     */
+    public JeproLabContext cloneContext() throws CloneNotSupportedException {
+        return clone();
+    }
+
+    @Override
+    public JeproLabContext clone(){
+        JeproLabContext clonedContext = null;
+        try{
+            clonedContext = (JeproLabContext)super.clone();
+        }catch (CloneNotSupportedException ignored){
+            JeproLabUncaughtExceptionHandler.logExceptionMessage(Level.ERROR, ignored);
+            //clonedContext = null;
+        }
+        return clonedContext;
     }
 }

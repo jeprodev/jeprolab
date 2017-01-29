@@ -1,7 +1,7 @@
 <component name="libraryTable">
-  <library name="xmlsec-2.0.6 (2)">
+  <library name="bcmail-jdk15on-153">
     <CLASSES>
-      <root url="jar://$PROJECT_DIR$/librairies/xmlsec-2.0.6.jar!/" />
+      <root url="jar://$PROJECT_DIR$/libs/bcmail-jdk15on-153.jar!/" />
     </CLASSES>
     <JAVADOC />
     <SOURCES />

@@ -2,6 +2,7 @@ package com.jeprolab.models;
 
 import com.jeprolab.assets.tools.JeproLabTools;
 import com.jeprolab.assets.tools.db.JeproLabDataBaseConnector;
+import com.jeprolab.assets.tools.exception.JeproLabUncaughtExceptionHandler;
 import com.jeprolab.models.core.JeproLabFactory;
 import org.apache.commons.collections4.map.HashedMap;
 import org.apache.log4j.Level;
@@ -60,22 +61,22 @@ public class JeproLabSettingModel extends JeproLabModel {
                     SETTINGS.put(key, value);
                 }
             } catch (SQLException ignored) {
-                JeproLabTools.logExceptionMessage(Level.ERROR, ignored);
+                JeproLabUncaughtExceptionHandler.logExceptionMessage(Level.ERROR, ignored);
             } finally {
                 try {
                     JeproLabDataBaseConnector.getInstance().closeConnexion();
                 } catch (Exception ignored) {
-                    JeproLabTools.logExceptionMessage(Level.WARN, ignored);
+                    JeproLabUncaughtExceptionHandler.logExceptionMessage(Level.WARN, ignored);
                 }
             }
         }
     }
 
     public static int getIntValue(String key){
-        /*if(SETTINGS == null || SETTINGS.isEmpty()){
+       if(SETTINGS == null || SETTINGS.isEmpty()){
             JeproLabSettingModel.loadSettings();
         }
-
+/*
         if(SETTINGS.containsKey(key)){
             System.out.println(key);
             return Integer.parseInt(SETTINGS.get(key).toString());
@@ -115,5 +116,33 @@ public class JeproLabSettingModel extends JeproLabModel {
             return "";
         }
     }
+
+    public static float getFloatValue(String key){
+        if(SETTINGS == null || SETTINGS.isEmpty()){
+            JeproLabSettingModel.loadSettings();
+        }
+
+        if(SETTINGS.containsKey(key)){
+            return Float.parseFloat(SETTINGS.get(key).toString());
+        }else{
+            float value = 0;
+            try{
+                ResultSet valueSet = getValue(key);
+                while(valueSet.next()){
+                    value = valueSet.getFloat("value");
+                    SETTINGS.put(key, value);
+                }
+                return value;
+            }catch (SQLException ignored){
+                return 0;
+            }
+
+        }
+    }
+
+    public static boolean updateValue(String key, Object values){
+        return true;
+    }
+
 
 }
