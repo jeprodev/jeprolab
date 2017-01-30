@@ -12,7 +12,9 @@ import org.apache.log4j.Level;
 import java.sql.Date;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -198,6 +200,30 @@ public class JeproLabEmployeeModel extends JeproLabModel{
 
         int id = (int)dataBaseObject.loadValue("id");
         return (id > 0) ? id : 0;
+    }
+
+    public List<Integer> getAssociatedLaboratories(){
+        if (!JeproLabLaboratoryModel.isTableAssociated("employee")) {
+            return new ArrayList<>();
+        }
+
+        List<Integer> labs = new ArrayList<>();
+        if(dataBaseObject == null){
+            dataBaseObject = JeproLabFactory.getDataBaseConnector();
+        }
+        String query = "SELECT lab_id FROM " + dataBaseObject.quoteName("#__jeproLab_employee_lab") + " WHERE employee_id = " + this.employee_id;
+        dataBaseObject.setQuery(query);
+        ResultSet labSet = dataBaseObject.loadObjectList();
+        if(labSet != null){
+            try{
+                while(labSet.next()){
+                    labs.add(labSet.getInt("lab_id"));
+                }
+            }catch(SQLException ignored){
+
+            }
+        }
+        return labs;
     }
 
     public boolean authorize(String action){

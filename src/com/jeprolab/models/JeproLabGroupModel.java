@@ -355,5 +355,85 @@ public class JeproLabGroupModel extends JeproLabModel{
             dataBaseObject.setQuery(query);
             return dataBaseObject.query(false);
         }
+
+        public static boolean setAnalyzeReduction(int analyzeId){
+            return setAnalyzeReduction(analyzeId, 0, 0, 0);
+        }
+
+        public static boolean setAnalyzeReduction(int analyzeId, int groupId){
+            return setAnalyzeReduction(analyzeId, groupId, 0, 0);
+        }
+
+        public static boolean setAnalyzeReduction(int analyzeId, int groupId, int categoryId){
+            return setAnalyzeReduction(analyzeId, groupId, categoryId, 0);
+        }
+
+        public static boolean setAnalyzeReduction(int analyzeId, int groupId, int categoryId, float reduction){
+            boolean result = true;
+            JeproLabGroupReductionModel.deleteAnalyzeReduction(analyzeId);
+
+            List<Integer> categories = JeproLabAnalyzeModel.getAnalyzeCategories(analyzeId);
+
+            if (categories.size() > 0) {
+                for(int id : categories){
+                    ResultSet reductions = JeproLabGroupReductionModel.getGroupsByCategoryId(id);
+                    if (reductions != null){
+                        try {
+                            JeproLabGroupReductionModel currentGroupReduction;
+                            while (reductions.next()) {
+                                currentGroupReduction = new JeproLabGroupReductionModel(reductions.getInt("group_reduction_id"));
+                                result &= currentGroupReduction.setCache();
+                            }
+                        }catch (SQLException ignored){
+                            JeproLabUncaughtExceptionHandler.logExceptionMessage(Level.ERROR, ignored);
+                        }finally {
+                            try {
+                                JeproLabDataBaseConnector.getInstance().closeConnexion();
+                            }catch (Exception ignored) {
+                                JeproLabUncaughtExceptionHandler.logExceptionMessage(Level.WARN, ignored);
+                            }
+                        }
+                    }
+                }
+            }
+            return result;
+        }
+
+        protected boolean setCache(){
+            if(dataBaseObject == null){
+                dataBaseObject = JeproLabFactory.getDataBaseConnector();
+            }
+
+            String query = "SELECT category_analyze." + dataBaseObject.quoteName("analyze_id") + " FROM " + dataBaseObject.quoteName("#__jeprolab_analyzecategory");
+            query += " category_analyze WHERE category_analyze." + dataBaseObject.quoteName("category_id")+ " = "+ this.category_id;
+
+            dataBaseObject.setQuery(query);
+            ResultSet analyzeSet = dataBaseObject.loadObjectList();
+            boolean result = true;
+            if(analyzeSet != null){
+                try{
+                    while (analyzeSet.next()){
+                        query = "INSERT INTO " + dataBaseObject.quoteName("#__jeprolab_analyze_group_reduction_cache") + "(" + dataBaseObject.quoteName("analyze_id");
+                        query += ", " + dataBaseObject.quoteName("group_id") + ", " + dataBaseObject.quoteName("reduction") + ") VALUES (" + analyzeSet.getInt("analyze_id");
+                        query += ", " + this.group_id + ", " + this.reduction + ") ON DUPLICATE KEY UPDATE " + dataBaseObject.quoteName("reduction") + " = IF ( VALUES(";
+                        query += dataBaseObject.quoteName("reduction") + ") > " + dataBaseObject.quoteName("reduction") + ", VALUES(" + dataBaseObject.quoteName("reduction");
+                        query += "), " + dataBaseObject.quoteName("reduction") + ")";
+
+                        dataBaseObject.setQuery(query);
+                        result &= dataBaseObject.query(false);
+                    }
+                    return result;
+                }catch(SQLException ignored){
+                    JeproLabUncaughtExceptionHandler.logExceptionMessage(Level.ERROR, ignored);
+                }finally {
+                    try {
+                        JeproLabDataBaseConnector.getInstance().closeConnexion();
+                    }catch (Exception ignored) {
+                        JeproLabUncaughtExceptionHandler.logExceptionMessage(Level.WARN, ignored);
+                    }
+                }
+            }
+            return true;
+        }
     }
 }

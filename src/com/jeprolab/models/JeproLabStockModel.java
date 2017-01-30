@@ -482,6 +482,64 @@ public class JeproLabStockModel extends JeproLabModel {
             return true;//$res;
         }
 
+        public static void setAnalyzeOutOfStock(int analyzeId) {
+            setAnalyzeOutOfStock(analyzeId, 0, 0, 0);
+        }
+
+        public static void setAnalyzeOutOfStock(int analyzeId, int outOfStock) {
+            setAnalyzeOutOfStock(analyzeId, outOfStock, 0, 0);
+        }
+
+        public static void setAnalyzeOutOfStock(int analyzeId, int outOfStock, int labId) {
+            setAnalyzeOutOfStock(analyzeId, outOfStock, labId, 0);
+        }
+
+        /**
+         * For a given id_product, sets if product is available out of stocks
+         *
+         * @param analyzeId  analyze id
+         * @param outOfStock Optional false by default
+         * @param labId      Optional gets context by default
+         */
+        public static void setAnalyzeOutOfStock(int analyzeId, int outOfStock, int labId, int analyzeAttributeId) {
+            if (analyzeId > 0) {
+                int existingId = JeproLabStockAvailableModel.getStockAvailableIdByAnalyzeId(analyzeId, analyzeAttributeId, labId);
+
+                String query;
+                if (existingId > 0) {
+                    query = "UPDATE " + dataBaseObject.quoteName("#__jeprolab_stock_available") + " SET " + dataBaseObject.quoteName("stock_available");
+                    query += " = " + outOfStock + ", " + dataBaseObject.quoteName("analyze_id") + " = " + analyzeId;
+                    query += (analyzeAttributeId > 0 ? " AND " + dataBaseObject.quoteName("analyze_attribute_id") + " = " + analyzeAttributeId : "");
+                    query += JeproLabStockAvailableModel.addSqlLaboratoryRestriction(new JeproLabLaboratoryModel(labId));
+
+                    dataBaseObject.setQuery(query);
+                    dataBaseObject.query(false);
+                } else {
+                    query = "INSERT " + dataBaseObject.quoteName("#__jeprolab_stock_available") + "(";
+                    Map<String, Integer> queryParams = new HashMap<>();
+                    queryParams.put("out_of_stock", outOfStock);
+                    queryParams.put("analyze_id", analyzeId);
+                    queryParams.put("analyze_attribute_id", analyzeAttributeId);
+
+                    queryParams = JeproLabStockAvailableModel.addSqlLaboratoryParams(queryParams, labId);
+                    Iterator queryIterator = queryParams.entrySet().iterator();
+                    String keyFields = "";
+                    String valueFields = "";
+                    while (queryIterator.hasNext()) {
+                        Map.Entry field = (Map.Entry) queryIterator.next();
+                        keyFields += dataBaseObject.quote(field.getKey().toString()) + ", ";
+                        valueFields += field.getValue().toString() + ", ";
+                    }
+                    keyFields = keyFields.endsWith(", ") ? keyFields.substring(0, keyFields.length() - 3) : keyFields;
+                    valueFields = valueFields.endsWith(", ") ? valueFields.substring(0, valueFields.length() - 3) : valueFields;
+                    query += keyFields + ") VALUES( " + valueFields + ")"; // ON DUPLICATE KEY UPDATE ";
+
+                    dataBaseObject.setQuery(query);
+                    dataBaseObject.query(false);
+                }
+            }
+        }
+
 
 
 

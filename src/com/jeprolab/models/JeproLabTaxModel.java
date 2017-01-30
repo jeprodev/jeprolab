@@ -110,6 +110,54 @@ public class JeproLabTaxModel extends JeproLabModel {
         return (JeproLabSettingModel.getIntValue("use_tax") > 0);
     }
 
+    public static float getAnalyzeEcoTaxRate(){
+        return getAnalyzeEcoTaxRate(0);
+    }
+
+    /**
+     * Returns the ecotax tax rate
+     *
+     * @param addressId address id
+     * @return float $tax_rate
+     */
+    public static float getAnalyzeEcoTaxRate(int addressId){
+        JeproLabAddressModel address = JeproLabAddressModel.initialize(addressId);
+
+        JeproLabTaxRulesManager taxManager = JeproLabTaxManagerFactory.getManager(address, JeproLabSettingModel.getIntValue("ecotax_tax_rules_group_id"));
+        JeproLabTaxCalculator taxCalculator = taxManager.getTaxCalculator();
+
+        return taxCalculator.getTotalRate();
+    }
+
+    public static float getAnalyzeTaxRate(int analyzeId ){
+        return getAnalyzeTaxRate(analyzeId, 0, null);
+    }
+
+    public static float getAnalyzeTaxRate(int analyzeId, int addressId){
+        return getAnalyzeTaxRate(analyzeId, addressId, null);
+    }
+
+    /**
+     * Returns the product tax
+     *
+     * @param analyzeId analyze id
+     * @param addressId address to get the tax from
+     * @return Tax value
+     */
+    public static float getAnalyzeTaxRate(int analyzeId, int addressId, JeproLabContext context){
+        if (context == null) {
+            context = JeproLabContext.getContext();
+        }
+
+        JeproLabAddressModel address = JeproLabAddressModel.initialize(addressId);
+        int taxRulesId = JeproLabAnalyzeModel.getTaxRulesGroupIdByAnalyzeId(analyzeId, context);
+
+        JeproLabTaxRulesManager taxManager = JeproLabTaxManagerFactory.getManager(address, taxRulesId);
+        JeproLabTaxCalculator taxCalculator = taxManager.getTaxCalculator();
+
+        return taxCalculator.getTotalRate();
+    }
+
 
     public static class JeproLabTaxCalculator {
         /**
@@ -205,6 +253,8 @@ public class JeproLabTaxModel extends JeproLabModel {
 
             return name;
         }
+
+
     }
 
 

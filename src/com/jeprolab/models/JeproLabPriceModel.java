@@ -409,7 +409,62 @@ public class JeproLabPriceModel extends JeproLabModel{
             return false;
         }
 
+        public static List<JeproLabSpecificPriceModel> getSpecificPricesByAnalyzeId(int analyzeId){
+            return getSpecificPricesByAnalyzeId(analyzeId, 0, 0);
+        }
 
+        public static List<JeproLabSpecificPriceModel> getSpecificPricesByAnalyzeId(int analyzeId, int analyzeAttributeId){
+            return getSpecificPricesByAnalyzeId(analyzeId, analyzeAttributeId, 0);
+        }
+
+        public static List<JeproLabSpecificPriceModel> getSpecificPricesByAnalyzeId(int analyzeId, int analyzeAttributeId, int cartId){
+            if(dataBaseObject == null){
+                dataBaseObject = JeproLabFactory.getDataBaseConnector();
+            }
+
+            String query = "SELECT * FROM " + dataBaseObject.quoteName("#__jeprolab_specific_price") + " WHERE " + dataBaseObject.quoteName("analyze_id");
+            query += " = " + analyzeId + (analyzeAttributeId > 0 ? " AND analyze_attribute_id = " + analyzeAttributeId : "" );
+            query += (cartId > 0 ? " AND cart_id = " + cartId : "" );
+
+            dataBaseObject.setQuery(query);
+            ResultSet specificSet = dataBaseObject.loadObjectList();
+            List<JeproLabSpecificPriceModel> specificList = new ArrayList<>();
+            if(specificSet != null){
+                try{
+                    JeproLabSpecificPriceModel specificPrice;
+                    while(specificSet.next()){
+                        specificPrice = new JeproLabSpecificPriceModel();
+                        specificPrice.specific_price_id = specificSet.getInt("specific_price_id");
+                        specificPrice.specific_price_rule_id = specificSet.getInt("specific_price_rule_id");
+                        specificPrice.cart_id = specificSet.getInt("cart_id");
+                        specificPrice.analyze_id = specificSet.getInt("analyze_id");
+                        specificPrice.analyze_attribute_id = specificSet.getInt("analyze_attribute_id");
+                        specificPrice.laboratory_id = specificSet.getInt("laboratory_id");
+                        specificPrice.laboratory_group_id = specificSet.getInt("laboratory_group_id");
+                        specificPrice.currency_id = specificSet.getInt("currency_id");
+                        specificPrice.country_id = specificSet.getInt("country_id");
+                        specificPrice.customer_id = specificSet.getInt("customer_id");
+                        specificPrice.group_id = specificSet.getInt("group_id");
+                        specificPrice.price = specificSet.getFloat("price");
+                        specificPrice.from_quantity = specificSet.getInt("from_quantity");
+                        specificPrice.reduction = specificSet.getFloat("reduction");
+                        specificPrice.reduction_type = specificSet.getString("reduction_type");
+                        specificPrice.from = specificSet.getDate("from");
+                        specificPrice.to = specificSet.getDate("to");
+                        specificList.add(specificPrice);
+                    }
+                }catch (SQLException ignored){
+                    JeproLabUncaughtExceptionHandler.logExceptionMessage(Level.ERROR, ignored);
+                }finally {
+                    try {
+                        JeproLabDataBaseConnector.getInstance().closeConnexion();
+                    }catch (Exception ignored) {
+                        JeproLabUncaughtExceptionHandler.logExceptionMessage(Level.WARN, ignored);
+                    }
+                }
+            }
+            return specificList;
+        }
 
     }
 

@@ -1,16 +1,20 @@
 package com.jeprolab.models;
 
+import com.jeprolab.assets.config.JeproLabConfigurationSettings;
 import com.jeprolab.assets.tools.JeproLabCache;
 import com.jeprolab.assets.tools.JeproLabContext;
 import com.jeprolab.assets.tools.JeproLabTools;
 import com.jeprolab.assets.tools.db.JeproLabDataBaseConnector;
 import com.jeprolab.assets.tools.exception.JeproLabUncaughtExceptionHandler;
 import com.jeprolab.models.core.JeproLabFactory;
+import javafx.scene.control.Pagination;
 import org.apache.log4j.Level;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -45,6 +49,9 @@ public class JeproLabCountryModel extends JeproLabModel{
     public String zip_code_format;
 
     public boolean display_tax_label = false;
+
+    protected static Map<Integer, Integer> zonesId = new HashMap<>();
+    private static Map<Integer, String> cache_iso_by_id = new HashMap<>();
 
     public JeproLabCountryModel(){
         this(0, 0, 0);
@@ -187,4 +194,456 @@ public class JeproLabCountryModel extends JeproLabModel{
         return (String)JeproLabCache.getInstance().retrieve(cacheKey);
     }
 
+    public static List<JeproLabCountryModel> getCountries(){
+        int langId = JeproLabContext.getContext().language.language_id;
+        return getCountries(langId, 0, false, false, true);
+    }
+
+    public static List<JeproLabCountryModel> getCountries(int langId){
+        return getCountries(langId, 0, false, false, true);
+    }
+
+    public static List<JeproLabCountryModel> getCountries(int langId, int limitStart){
+        return getCountries(langId, limitStart, false, false, true);
+    }
+
+    public static List<JeproLabCountryModel> getCountries(int langId, int limitStart, boolean published){
+        return getCountries(langId, limitStart, published, false, true);
+    }
+
+    public static List<JeproLabCountryModel> getCountries(int langId, int limitStart, boolean published, boolean containsStates){
+        return getCountries(langId, limitStart, published, containsStates, true);
+    }
+
+    /**
+     * Return available countries
+     *
+     * @param langId Language ID
+     * @param published return only active countries
+     * @param containStates return only country with states
+     * @param listStates Include the states list with the returned list
+     *
+     * @return Array Countries and corresponding zones
+     */
+    public static List<JeproLabCountryModel> getCountries(int langId, int limitStart, boolean published, boolean containStates, boolean listStates) {
+        List<JeproLabCountryModel> countries = new ArrayList<>();
+        if(dataBaseObject == null){
+            dataBaseObject = JeproLabFactory.getDataBaseConnector();
+        }
+        /*$app = JFactory::getApplication();
+        $option = $app->input->get('option');
+        $view = $app->input->get('view');*/
+
+        JeproLabContext context = JeproLabContext.getContext();
+
+        int limit = JeproLabConfigurationSettings.LIST_LIMIT;
+        //int limit_start = context.list_limit_start;
+        langId = langId <= 0 ? context.language.language_id : langId;
+        /*int lab_id = context.laboratory.laboratory_id;
+        int lab_group_id = context.laboratory.laboratory_group_id;
+        /* $category_id = $app->getUserStateFromRequest($option. $view. '.cat_id', 'cat_id', 0, 'int');
+        $order_by = $app->getUserStateFromRequest($option. $view. '.order_by', 'order_by', 'date_add', 'string');
+        $order_way = $app->getUserStateFromRequest($option. $view. '.order_way', 'order_way', 'ASC', 'string');
+        $published = $app->getUserStateFromRequest($option. $view. '.published', 'published', 0, 'string');
+        $product_attribute_id = $app->getUserStateFromRequest($option. $view. '.product_attribute_id', 'product_attribute_id', 0, 'int');
+*/
+        boolean use_limit = true;
+        if (limit <= 0)
+            use_limit = false;
+        String query;
+        int total;
+        do{
+            query = "SELECT SQL_CALC_FOUND_ROWS country." + dataBaseObject.quoteName("country_id") + ", country_lang." + dataBaseObject.quoteName("name");
+            query += " AS name, country." + dataBaseObject.quoteName("iso_code") + ", country." + dataBaseObject.quoteName("call_prefix") + ", country.";
+            query += dataBaseObject.quoteName("published") + ",zone." + dataBaseObject.quoteName("zone_id") + " AS zone_id, zone." + dataBaseObject.quoteName("name");
+            query += " AS zone_name FROM " + dataBaseObject.quoteName("#__jeprolab_country") + " AS country LEFT JOIN ";
+            query += dataBaseObject.quoteName("#__jeprolab_country_lang") + " AS country_lang ON (country_lang." + dataBaseObject.quoteName("country_id");
+            query += " = country." + dataBaseObject.quoteName("country_id") + " AND country_lang." + dataBaseObject.quoteName("lang_id") + " =  " + langId;
+            query += ") LEFT JOIN " + dataBaseObject.quoteName("#__jeprolab_zone") + " AS zone ON (zone." + dataBaseObject.quoteName("zone_id") + " = country.";
+            query += dataBaseObject.quoteName("zone_id") + ") WHERE 1 ORDER BY country." + dataBaseObject.quoteName("country_id");
+
+            dataBaseObject.setQuery(query);
+            total = 0;
+            ResultSet result = dataBaseObject.loadObjectList();
+            try{
+                while(result.next()){ total += 1; }
+                query += (use_limit ? " LIMIT " + limitStart + ", " + limit : "");
+
+                dataBaseObject.setQuery(query);
+                ResultSet countriesResultSet = dataBaseObject.loadObjectList();
+                JeproLabCountryModel country;
+                while (countriesResultSet.next()){
+                    country = new JeproLabCountryModel();
+                    country.country_id = countriesResultSet.getInt("country_id");
+                    country.zone_id = countriesResultSet.getInt("zone_id");
+                    country.name.put("lang_" + langId, countriesResultSet.getString("name"));
+                    country.iso_code = countriesResultSet.getString("iso_code");
+                    country.call_prefix = countriesResultSet.getString("call_prefix");
+                    country.published = countriesResultSet.getInt("published") > 0;
+                    //country.contains_states = countriesResultSet.getInt("contains_states") > 0;
+                    //country.need_identification_number = countriesResultSet.getInt("need_identification_number") > 0;
+                    //country.need_zip_code = countriesResultSet.getInt("need_zip_code") > 0;
+                    //country.display_tax_label = countriesResultSet.getInt("display_tax_label") > 0;
+                    //country.name = countriesResultSet.getString("name");
+                    /*country = countriesResultSet.;
+                    country = countriesResultSet.;*/
+
+                    /**
+                     * Language management
+                     *  /
+                     Map<Integer, JeproLabLanguageModel> languages = JeproLabLanguageModel.getLanguages();
+                     Iterator langIt = languages.entrySet().iterator();
+                     while(langIt.hasNext()) {
+                     Map.Entry lang = (Map.Entry) langIt.next();
+                     JeproLabLanguageModel language = (JeproLabLanguageModel) lang.getValue();
+
+                     } */
+                    countries.add(country);
+                }
+
+            }catch (SQLException ignored){
+                JeproLabUncaughtExceptionHandler.logExceptionMessage(Level.ERROR, ignored);
+            }finally {
+                try {
+                    JeproLabDataBaseConnector.getInstance().closeConnexion();
+                }catch (Exception ignored) {
+                    JeproLabUncaughtExceptionHandler.logExceptionMessage(Level.WARN, ignored);
+                }
+            }
+
+
+            if(use_limit){
+                limitStart = limitStart -limit;
+                if(limitStart < 0){ break; }
+            }else{ break; }
+        }while(countries.isEmpty());
+
+        pagination = new Pagination(); //$total, $limit_start, $limit);
+        return countries;
+/*
+        $query = "SELECT country_lang.*, country.*, country_lang." . dataBaseObject.quoteName('name') . " AS country_name, zone." . dataBaseObject.quoteName('name');
+        $query .= " AS zone_name FROM " . dataBaseObject.quoteName('#__jeprolab_country') . " AS country " . JeprolabLabModelLab::addSqlAssociation('country');
+        $query .= "	LEFT JOIN " . dataBaseObject.quoteName('#__jeprolab_country_lang') . " AS country_lang ON (country." . dataBaseObject.quoteName('country_id') ;
+        $query .= " = country_lang." . dataBaseObject.quoteName('country_id') . " AND country_lang." . dataBaseObject.quoteName('lang_id') . " = " .(int)$lang_id;
+        $query .= ") LEFT JOIN " . dataBaseObject.quoteName('#__jeprolab_zone') . " AS zone ON (zone." . dataBaseObject.quoteName('zone_id') . " = country.";
+        $query .= dataBaseObject.quoteName('zone_id') . ") WHERE 1 " .($published ? " AND country.published = 1" : "") ;
+        $query .= ($contain_states ? " AND country." . dataBaseObject.quoteName('contains_states') . " = " .(int)$contain_states : "")." ORDER BY country_lang.name ASC";
+
+        dataBaseObject.setQuery($query);
+        $result = dataBaseObject.loadObjectList();
+        foreach ($result as $row){ $countries[$row->country_id] = $row; }
+
+        if ($list_states){
+            $query = "SELECT * FROM " . dataBaseObject.quoteName('#__jeprolab_state') . " ORDER BY " . dataBaseObject.quoteName('name') . " ASC";
+
+            dataBaseObject.setQuery($query);
+            $result = dataBaseObject.loadObjectList();
+            foreach ($result as $row)
+            if (isset($countries[$row->country_id]) && $row->published == 1) /* Does not keep the state if its country has been disabled and not selected * /
+                $countries[$row->country_id]->states[] = $row;
+        } **/
+    }
+
+    /**
+     * Get a country iso with its ID
+     *
+     * @param countryId Country ID
+     * @return string Country iso
+     */
+    public static String getIsoCodeByCountryId(int countryId){
+        if (!JeproLabCountryModel.cache_iso_by_id.containsKey(countryId)) {
+            String query = "SELECT " + dataBaseObject.quoteName("iso_code") + " FROM " + dataBaseObject.quoteName("#__jeprolab_country");
+            query += " WHERE " + dataBaseObject.quoteName("country_id") + " = " + countryId ;
+
+            dataBaseObject.setQuery(query);
+            JeproLabCountryModel.cache_iso_by_id.put(countryId, dataBaseObject.loadStringValue("iso_code"));
+        }
+        if (JeproLabCountryModel.cache_iso_by_id.containsKey(countryId)){
+            return JeproLabCountryModel.cache_iso_by_id.get(countryId);
+        }
+        return null;
+    }
+
+    public static int getCountryIdByCountryName(String countryName){
+        return getCountryIdByCountryName(countryName, JeproLabContext.getContext().language.language_id);
+    }
+
+    /**
+     * Get a country id with its name
+     *
+     * @param countryName Country Name
+     * @param langId Language ID
+     *
+     * @return int Country ID
+     */
+    public static int getCountryIdByCountryName(String countryName, int langId){
+        if(dataBaseObject == null){
+            dataBaseObject = JeproLabFactory.getDataBaseConnector();
+        }
+        String query = "SELECT " + dataBaseObject.quoteName("country_id") + " FROM " + dataBaseObject.quoteName("#__jeprolab_country_lang");
+        query += " WHERE " + dataBaseObject.quoteName("name") + " = " + dataBaseObject.quote(countryName);
+        if (langId > 0) {
+            query += " AND " + dataBaseObject.quoteName("lang_id") + " = " + langId;
+        }
+
+        dataBaseObject.setQuery(query);
+        ResultSet resultSet = dataBaseObject.loadObjectList();
+
+        if(resultSet != null) {
+            try {
+                if (resultSet.next()) {
+                    return resultSet.getInt("country_id");
+                }
+            }catch (SQLException ignored){
+                JeproLabUncaughtExceptionHandler.logExceptionMessage(Level.ERROR, ignored);
+            }finally {
+                try {
+                    JeproLabDataBaseConnector.getInstance().closeConnexion();
+                }catch (Exception ignored) {
+                    JeproLabUncaughtExceptionHandler.logExceptionMessage(Level.WARN, ignored);
+                }
+            }
+        }
+        return 0;
+    }
+
+    public static boolean needZipCode(int countryId){
+        if (countryId <= 0) {
+            return false;
+        }
+
+        if(dataBaseObject == null){
+            dataBaseObject = JeproLabFactory.getDataBaseConnector();
+        }
+        String query = "SELECT " + dataBaseObject.quoteName("need_zip_code") + " FROM " + dataBaseObject.quoteName("#__jeprolab_country");
+        query += " WHERE " + dataBaseObject.quoteName("country_id") + " = " + countryId;
+
+        dataBaseObject.setQuery(query);
+
+        return dataBaseObject.loadValue("need_zip_code") > 0;
+    }
+
+    public static String getZipCodeFormat(int countryId){
+        if (countryId <= 0) {
+            return null;
+        }
+        if(dataBaseObject == null){
+            dataBaseObject = JeproLabFactory.getDataBaseConnector();
+        }
+        String query = "SELECT " + dataBaseObject.quoteName("zip_code_format") + " FROM " + dataBaseObject.quoteName("#__jeprolab_country");
+        query += " WHERE " + dataBaseObject.quoteName("country_id") + " = " + countryId;
+
+        dataBaseObject.setQuery(query);
+
+        return dataBaseObject.loadStringValue("zip_code_format");
+    }
+
+    public static List<JeproLabCountryModel> getCountriesByZoneId(int zoneId, int langId){
+        if (zoneId <= 0  || langId <= 0){
+            JeproLabTools.displayError(500, "");
+        }
+
+        String query = "SELECT DISTINCT country.*, country_lang.* FROM " + dataBaseObject.quoteName("#__jeprolab_country") + " AS country";
+        query += JeproLabLaboratoryModel.addSqlAssociation("country", false) + " LEFT JOIN " + dataBaseObject.quoteName("#__jeprolab_state");
+        query += " AS state ON (state." + dataBaseObject.quoteName("country_id") + " = country." + dataBaseObject.quoteName("country_id");
+        query += ") LEFT JOIN " + dataBaseObject.quoteName("#__jeprolab_country_lang") + " AS country_lang ON (country." + dataBaseObject.quoteName("country_id");
+        query += " = country_lang." + dataBaseObject.quoteName("country_id") + ") WHERE (country." + dataBaseObject.quoteName("zone_id");
+        query += " = " + zoneId + " OR state." + dataBaseObject.quoteName("zone_id") + " = " + zoneId + ") AND " + dataBaseObject.quoteName("lang_id");
+        query += " = " + langId;
+
+        dataBaseObject.setQuery(query);
+        ResultSet resultSet = dataBaseObject.loadObjectList();
+        List<JeproLabCountryModel> countries = new ArrayList<>();
+        if(resultSet != null){
+            try{
+                JeproLabCountryModel country;
+                while(resultSet.next()){
+                    country = new JeproLabCountryModel();
+                    country.country_id = resultSet.getInt("country_id");
+                    country.name.put("lang_" + langId, resultSet.getString("name"));
+                    countries.add(country);
+                }
+            }catch (SQLException ignored){
+                JeproLabUncaughtExceptionHandler.logExceptionMessage(Level.ERROR, ignored);
+            }finally {
+                try {
+                    JeproLabDataBaseConnector.getInstance().closeConnexion();
+                }catch (Exception ignored) {
+                    JeproLabUncaughtExceptionHandler.logExceptionMessage(Level.WARN, ignored);
+                }
+            }
+        }
+        return countries;
+    }
+
+    public boolean needDni(){
+        return JeproLabCountryModel.needDniByCountryId(this.country_id);
+    }
+
+    public static boolean needDniByCountryId(int countryId){
+        if(dataBaseObject == null){
+            dataBaseObject = JeproLabFactory.getDataBaseConnector();
+        }
+
+        String query = "SELECT " + dataBaseObject.quoteName("need_identification_number") + " FROM " + dataBaseObject.quoteName("#__jeprolab_country");
+        query += " WHERE " + dataBaseObject.quoteName("country_id") + " = " + countryId;
+
+        dataBaseObject.setQuery(query);
+        return dataBaseObject.loadValue("need_identification_number") > 0;
+    }
+
+
+
+    public static boolean containsStates(int countryId){
+        if(dataBaseObject == null){
+            dataBaseObject = JeproLabFactory.getDataBaseConnector();
+        }
+
+        String query = "SELECT " + dataBaseObject.quoteName("contains_states") + " FROM " + dataBaseObject.quoteName("#__jeprolab_country");
+        query += " WHERE " + dataBaseObject.quoteName("country_id") + " = " + countryId;
+
+        dataBaseObject.setQuery(query);
+        return dataBaseObject.loadValue("contains_states") > 0;
+    }
+
+    /**
+     * @param countriesId list county id
+     * @param zoneId zone id
+     */
+    public void affectZoneToSelection(List<Integer> countriesId, int zoneId){
+        // cast every array values to int (security)
+        if(countriesId.size() > 0) {
+            String countriesIds = "";
+            for (Integer id : countriesId){
+                countriesIds += id + ", ";
+            }
+            countriesIds = countriesIds.endsWith(", ") ? countriesIds.substring(0, countriesIds.length() - 2) : countriesIds;
+
+            String query = "UPDATE " + dataBaseObject.quoteName("#__jeprolab_country") + " SET " + dataBaseObject.quoteName("zone_id");
+            query += " = " + zoneId + " WHERE " + dataBaseObject.quoteName("country_id") + " IN (" + countriesIds + ")";
+
+            dataBaseObject.setQuery(query);
+
+            dataBaseObject.query(false);
+        }
+    }
+
+
+    public static class JeproLabZoneModel extends JeproLabModel{
+        public int zone_id = 0;
+
+        public String name;
+
+        public boolean allow_delivery;
+
+        private Pagination pagination = null;
+
+        public JeproLabZoneModel(){
+            this(0);
+        }
+
+        public JeproLabZoneModel(int zoneId){
+            if(zoneId > 0){
+                String cacheKey =  "jeprolab_zone_model_" + zoneId;
+                if(!JeproLabCache.getInstance().isStored(cacheKey)){
+                    if(dataBaseObject == null) {
+                        dataBaseObject = JeproLabFactory.getDataBaseConnector();
+                    }
+                    String query = "SELECT zone.* FROM " + dataBaseObject.quoteName("#__jeprolab_zone") + " AS zone WHERE ";
+                    query += dataBaseObject.quoteName("zone_id") + " = " + zoneId;
+                    dataBaseObject.setQuery(query);
+                    ResultSet zoneData = dataBaseObject.loadObjectList();
+                    if(zoneData != null){
+                        try{
+                            if(zoneData.next()){
+                                this.zone_id = zoneData.getInt("zone_id");
+                                this.name = zoneData.getString("name");
+                                this.allow_delivery = zoneData.getInt("allow_delivery") > 0;
+                            }
+                        }catch (SQLException ignored){
+                            JeproLabUncaughtExceptionHandler.logExceptionMessage(Level.ERROR, ignored);
+                        }finally {
+                            try {
+                                JeproLabDataBaseConnector.getInstance().closeConnexion();
+                            }catch (Exception ignored) {
+                                JeproLabUncaughtExceptionHandler.logExceptionMessage(Level.WARN, ignored);
+                            }
+                        }
+                    }
+                    JeproLabCache.getInstance().store(cacheKey, this);
+                }else{
+                    JeproLabZoneModel zone = (JeproLabZoneModel)JeproLabCache.getInstance().retrieve(cacheKey);
+                    this.zone_id = zone.zone_id;
+                    this.name = zone.name;
+                    this.allow_delivery = zone.allow_delivery;
+                }
+            }
+        }
+
+
+        public static List<JeproLabZoneModel> getZones(){
+            return getZones(false);
+        }
+
+        /**
+         * Get all available geographical zones
+         *
+         * @param allow_delivery boolean
+         * @return type
+         */
+        public static List<JeproLabZoneModel> getZones(boolean allow_delivery){
+            String cacheKey = "jeprolab_zone_model_get_zones_" +  (allow_delivery ? 1 : 0);
+            List<JeproLabZoneModel> zones = new ArrayList<>();
+            if(!JeproLabCache.getInstance().isStored(cacheKey)) {
+                if(dataBaseObject == null){
+                    dataBaseObject = JeproLabFactory.getDataBaseConnector();
+                }
+                String query = "SELECT * FROM " + dataBaseObject.quoteName("#__jeprolab_zone") + (allow_delivery ? " WHERE allow_delivery = 1 " : "");
+                query += " ORDER BY " + dataBaseObject.quoteName("zone_id") + " ASC ";
+
+                dataBaseObject.setQuery(query);
+                ResultSet result = dataBaseObject.loadObjectList();
+
+                try{
+                    JeproLabZoneModel zone;
+                    while(result.next()){
+                        zone = new JeproLabZoneModel();
+                        zone.zone_id = result.getInt("zone_id");
+                        zone.name = result.getString("name");
+                        zone.allow_delivery = result.getInt("allow_delivery") > 0;
+                        zones.add(zone);
+                    }
+                }catch (SQLException ignored){
+                    JeproLabUncaughtExceptionHandler.logExceptionMessage(Level.ERROR, ignored);
+                }finally {
+                    try {
+                        JeproLabDataBaseConnector.getInstance().closeConnexion();
+                    }catch (Exception ignored) {
+                        JeproLabUncaughtExceptionHandler.logExceptionMessage(Level.WARN, ignored);
+                    }
+                }
+                JeproLabCache.getInstance().store(cacheKey, zones);
+            }
+            return (List<JeproLabZoneModel>)JeproLabCache.getInstance().retrieve(cacheKey);
+        }
+
+        /**
+         * Get a zone ID from its default language name
+         *
+         * @param name zone name
+         * @return zone_id
+         */
+        public static int getZoneIdByName(String name){
+            if(dataBaseObject == null){
+                dataBaseObject = JeproLabFactory.getDataBaseConnector();
+            }
+
+            String query = "SELECT " + dataBaseObject.quoteName("zone_id") + " FROM " + dataBaseObject.quoteName("#__jeprolab_zone");
+            query += " WHERE " + dataBaseObject.quoteName("name") + " = " + dataBaseObject.quote(name);
+
+            dataBaseObject.setQuery(query);
+            return (int)dataBaseObject.loadValue("zone_id");
+        }
+
+    }
 }

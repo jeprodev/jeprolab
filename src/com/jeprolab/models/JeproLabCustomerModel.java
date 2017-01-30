@@ -246,4 +246,11 @@ public class JeproLabCustomerModel extends JeproLabModel{
         }
         return JeproLabCustomerModel._defaultGroupId.get(customerId);
     }
+
+    public static void resetAddressCache(int customerId, int addressId){
+        String cacheKey = customerId + "_" + addressId;
+        if (JeproLabCustomerModel._customerHasAddress.containsKey(cacheKey)) {
+            JeproLabCustomerModel._customerHasAddress.remove(cacheKey);
+        }
+    }
 }
