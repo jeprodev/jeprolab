@@ -708,4 +708,6 @@ public class JeproLabAddressModel extends JeproLabModel{
         return addresses;
     }
 
+    public class JeproLabStreetTypeModel {
+    }
 }

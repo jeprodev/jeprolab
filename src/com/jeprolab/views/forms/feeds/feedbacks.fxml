@@ -3,7 +3,7 @@
 <?import javafx.scene.control.TableColumn?>
 
 <?import javafx.scene.layout.HBox?>
-<VBox xmlns:fx="http://javafx.com/fxml" fx:controller="com.jeprolab.controllers.JeproLabFeedBackController" >
+<VBox xmlns:fx="http://javafx.com/fxml" fx:controller="com.jeprolab.controllers.JeproLabFeedBacksController" >
     <HBox />
     <TableView fx:id="jeproLabFeedBackTableView" >
             <columns>

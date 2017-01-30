@@ -1,7 +1,7 @@
 <?import com.jeprolab.assets.extend.controls.JeproFormPanel?>
 <?import com.jeprolab.assets.extend.controls.JeproFormPanelTitle?>
 <?import com.jeprolab.assets.extend.controls.JeproFormPanelContainer?>
-<JeproFormPanel xmlns:fx="http://javafx.com/fxml" fx:controller="com.jeprolab.controllers.JeproLabTaxController"  >
+<JeproFormPanel xmlns:fx="http://javafx.com/fxml" fx:controller="com.jeprolab.controllers.JeproLabTaxAddRuleController"  >
     <JeproFormPanelTitle />
     <JeproFormPanelContainer fx:id="jeproLabAddTaxRuleContainerWrapper" >
 

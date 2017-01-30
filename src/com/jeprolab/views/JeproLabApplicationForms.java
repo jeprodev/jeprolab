@@ -165,10 +165,10 @@ public class JeproLabApplicationForms implements JeproLabEventProducer{
         laboratoriesGroupsForm = new JeproLabApplicationForm("lab/groups.fxml");
         if(!forms.contains(laboratoriesGroupsForm)){ forms.add(laboratoriesGroupsForm); }
 
-        addLaboratoriesGroupForm = new JeproLabApplicationForm("lab/add_group.fxml");
+        addLaboratoriesGroupForm = new JeproLabApplicationForm("lab/group.fxml");
         if(!forms.contains(addLaboratoriesGroupForm)){ forms.add(addLaboratoriesGroupForm); }
 
-        addTaxGroupForm = new JeproLabApplicationForm("taxes/add_group.fxml");
+        addTaxGroupForm = new JeproLabApplicationForm("taxes/group.fxml");
         if(!forms.contains(addTaxGroupForm)){ forms.add(addTaxGroupForm); }
 
         addTaxForm = new JeproLabApplicationForm("taxes/add.fxml");
@@ -183,9 +183,9 @@ public class JeproLabApplicationForms implements JeproLabEventProducer{
         taxRulesForm = new JeproLabApplicationForm("taxes/rules.fxml");
         if(!forms.contains(taxRulesForm)){ forms.add(taxRulesForm); }
 
-        addTaxRuleForm = new JeproLabApplicationForm("taxes/add_rule.fxml");
+        addTaxRuleForm = new JeproLabApplicationForm("taxes/rule.fxml");
         if(!forms.contains(addTaxRuleForm)){ forms.add(addTaxRuleForm); }
-        //addTaxGroupForm = new JeproLabApplicationForm("taxes/add_group.fxml");
+        //addTaxGroupForm = new JeproLabApplicationForm("taxes/group.fxml");
 
         currencyForm = new JeproLabApplicationForm("currency/list.fxml");
         if(!forms.contains(currencyForm)){ forms.add(currencyForm); }
@@ -270,8 +270,6 @@ public class JeproLabApplicationForms implements JeproLabEventProducer{
 
                     isCreated = true;
                 }
-
-                //JeproLabContext.getContext().controller = controller;
                 return formWrapper;
             }catch(IOException ignored){
                 JeproLabUncaughtExceptionHandler.logExceptionMessage(Level.ERROR, ignored);

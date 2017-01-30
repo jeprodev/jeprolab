@@ -5,7 +5,7 @@
 <?import javafx.scene.control.TableColumn?>
 <JeproFormPanel xmlns:fx="http://javafx.com/fxml" fx:controller="com.jeprolab.controllers.JeproLabFeedBackController" fx:id="jeproLabFeedBackListForm" >
     <VBox>
-        <AnchorPane>
+        <!--AnchorPane>
             <TableView>
                 <columns>
                     <TableColumn resizable="false" editable="false" fx:id="jeproLabFeedBackColumn" />
@@ -26,6 +26,6 @@
                     <TableColumn resizable="false" editable="false" fx:id="jeproLabFeedBackColumn" />
                 </columns>
             </TableView>
-        </AnchorPane>
+        </AnchorPane -->
     </VBox>
 </JeproFormPanel>

@@ -7,6 +7,7 @@ import com.jeprolab.assets.tools.exception.JeproLabUncaughtExceptionHandler;
 import com.jeprolab.models.core.JeproLabFactory;
 import org.apache.log4j.Level;
 
+import java.sql.Date;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -157,6 +158,89 @@ public class JeproLabTaxModel extends JeproLabModel {
 
         return taxCalculator.getTotalRate();
     }
+
+    public static List<JeproLabTaxModel> getTaxList(){
+        return getTaxList(JeproLabContext.getContext().language.language_id, false);
+    }
+
+    public static List<JeproLabTaxModel> getTaxList(int langId){
+        return getTaxList(langId, false);
+    }
+
+    public static List<JeproLabTaxModel> getTaxList(int langId, boolean activeOnly){
+        if(dataBaseObject == null){
+            dataBaseObject = JeproLabFactory.getDataBaseConnector();
+        }
+        String selectQuery = "SELECT tax.*";
+        String fromQuery = " FROM " + dataBaseObject.quoteName("#__jeprolab_tax") + " AS tax ";
+        String whereQuery = " WHERE tax." + dataBaseObject.quoteName("deleted") + " != 1";
+        String leftJoin = "", orderBy = " ORDER BY ";
+
+        if (langId > 0) {
+            selectQuery += ", tax_lang.name, tax_lang.lang_id ";
+            leftJoin += " LEFT JOIN " + dataBaseObject.quoteName("#__jeprolab_tax_lang") + " AS tax_lang ON (tax_lang.";
+            leftJoin += dataBaseObject.quoteName("tax_id") + " = tax." + dataBaseObject.quoteName("tax_id") ;
+            leftJoin += " AND tax_lang." + dataBaseObject.quoteName("lang_id") +  " = " + langId + ") ";
+            orderBy += dataBaseObject.quoteName("name") + " ASC";
+        }
+
+        if (activeOnly) {
+            whereQuery += " AND tax." + dataBaseObject.quoteName("published") + " = 1";
+        }
+
+        dataBaseObject.setQuery(selectQuery + fromQuery + leftJoin + whereQuery + orderBy);
+
+        ResultSet taxSet =  dataBaseObject.loadObjectList();
+        List<JeproLabTaxModel> taxList = new ArrayList<>();
+
+        if(taxSet != null){
+            try{
+                JeproLabTaxModel tax;
+                while(taxSet.next()){
+                    tax = new JeproLabTaxModel();
+                    tax.tax_id = taxSet.getInt("tax_id");
+                    tax.rate = taxSet.getFloat("rate");
+                    tax.published = taxSet.getInt("published") > 0;
+                    tax.name = new HashMap<>();
+                    tax.name.put("lang_" + langId, taxSet.getString("name"));
+                    taxList.add(tax);
+                }
+            }catch(SQLException ignored){
+                JeproLabUncaughtExceptionHandler.logExceptionMessage(Level.ERROR, ignored);
+            }finally {
+                try{
+                    JeproLabDataBaseConnector.getInstance().closeConnexion();
+                }catch (Exception ignored){
+                    JeproLabUncaughtExceptionHandler.logExceptionMessage(Level.WARN, ignored);
+                }
+            }
+        }
+        return taxList;
+    }
+
+    public static int getTaxIdByName(String taxName){
+        return getTaxIdByName(taxName, true);
+    }
+
+    /**
+     * Return the tax id associated to the specified name
+     *
+     * @param taxName tax name of a tax to be retrieved
+     * @param active (true by default)
+     */
+    public static int getTaxIdByName(String taxName, boolean active){
+        if(dataBaseObject == null){
+            dataBaseObject = JeproLabFactory.getDataBaseConnector();
+        }
+        String query = "SELECT tax." + dataBaseObject.quoteName("tax_id") + " FROM " + dataBaseObject.quoteName("#__jeprolab_tax");
+        query += " AS tax LEFT JOIN " + dataBaseObject.quoteName("#__jeprolab_tax_lang") + " As tax_lang ON (tax_lang.tax_id = tax.tax_id)";
+        query += " WHERE tax_lang." + dataBaseObject.quoteName("name") + " = " + dataBaseObject.quote(taxName);
+        query += (active ? " AND tax." + dataBaseObject.quoteName("published") + " = 1 " : "");
+
+        dataBaseObject.setQuery(query);
+        return (int)dataBaseObject.loadValue("tax_id");
+    }
+
 
 
     public static class JeproLabTaxCalculator {
@@ -422,6 +506,167 @@ public class JeproLabTaxModel extends JeproLabModel {
          */
         protected static String getCacheKey(JeproLabAddressModel address){
             return address.country_id + "_" + address.state_id + "_" + address.postcode + "_" + address.vat_number + "_" + address.dni;
+        }
+    }
+
+    public static class JeproLabTaxRulesGroupModel extends JeproLabModel{
+        public int tax_rules_group_id;
+
+        public String name;
+
+        /** @var bool active state */
+        public boolean published;
+
+        public boolean deleted = false;
+
+        /** @var string Object creation date */
+        public Date date_add;
+
+        /** @var string Object last modification date */
+        public Date date_upd;
+
+        public JeproLabTaxRulesGroupModel(){
+            this(0);
+        }
+
+        public JeproLabTaxRulesGroupModel(int taxRulesGroupId){
+            if(taxRulesGroupId > 0){
+                String cacheKey = "jeprolab_tax_rules_group_model_" + taxRulesGroupId;
+                if(!JeproLabCache.getInstance().isStored(cacheKey)){
+                    if(dataBaseObject == null){
+                        dataBaseObject = JeproLabFactory.getDataBaseConnector();
+                    }
+
+                    String query = "SELECT * FROM " + dataBaseObject.quoteName("#__jeprolab_tax_rules_group") + " WHERE " + dataBaseObject.quoteName("tax_rules_group_id") + " = " + taxRulesGroupId;
+
+                    dataBaseObject.setQuery(query);
+                    ResultSet taxRulesGroupSet = dataBaseObject.loadObjectList();
+
+                    if(taxRulesGroupSet != null){
+                        try{
+                            if(taxRulesGroupSet.next()){
+                                this.tax_rules_group_id = taxRulesGroupSet.getInt("tax_rules_group_id");
+                                this.name = taxRulesGroupSet.getString("name");
+                                this.published = taxRulesGroupSet.getInt("published") > 0;
+                                JeproLabCache.getInstance().store(cacheKey, this);
+                            }
+                        }catch(SQLException ignored){
+                            JeproLabUncaughtExceptionHandler.logExceptionMessage(Level.ERROR, ignored);
+                        }finally {
+                            try{
+                                JeproLabDataBaseConnector.getInstance().closeConnexion();
+                            }catch (Exception ignored){
+                                JeproLabUncaughtExceptionHandler.logExceptionMessage(Level.WARN, ignored);
+                            }
+                        }
+                    }
+                }else{
+                    JeproLabTaxRulesGroupModel taxRulesGroup = (JeproLabTaxRulesGroupModel)JeproLabCache.getInstance().retrieve(cacheKey);
+                    this.tax_rules_group_id = taxRulesGroup.tax_rules_group_id;
+                    this.name = taxRulesGroup.name;
+                    this.published = taxRulesGroup.published;
+                }
+            }
+        }
+
+        public static List<JeproLabTaxRulesGroupModel> getTaxRulesGroups(){
+            return getTaxRulesGroups(true);
+        }
+
+        public static List<JeproLabTaxRulesGroupModel> getTaxRulesGroups(boolean onlyPublished){
+            if(dataBaseObject == null){
+                dataBaseObject = JeproLabFactory.getDataBaseConnector();
+            }
+            String query = "SELECT DISTINCT tax_rules_group." + dataBaseObject.quoteName("tax_rules_group_id") + ", tax_rules_group.name, ";
+            query += "tax_rules_group.published FROM " + dataBaseObject.quoteName("#__jeprolab_tax_rules_group") + " AS tax_rules_group ";
+            query += JeproLabLaboratoryModel.addSqlAssociation("tax_rules_group") ;//+ " WHERE deleted = 0 " ;
+            query += (onlyPublished ? " WHERE tax_rules_group." + dataBaseObject.quoteName("published") + " = 1 " : "") + " ORDER BY name ASC ";
+
+            dataBaseObject.setQuery(query);
+            ResultSet taxRulesGroups = dataBaseObject.loadObjectList();
+            List<JeproLabTaxRulesGroupModel> taxRulesList = new ArrayList<>();
+            try{
+                JeproLabTaxRulesGroupModel taxRulesGroupModel;
+                while(taxRulesGroups.next()){
+                    taxRulesGroupModel = new JeproLabTaxRulesGroupModel();
+                    taxRulesGroupModel.tax_rules_group_id = taxRulesGroups.getInt("tax_rules_group_id");
+                    taxRulesGroupModel.published = taxRulesGroups.getInt("published") > 0;
+                    taxRulesGroupModel.name = taxRulesGroups.getString("name");
+                    taxRulesList.add(taxRulesGroupModel);
+                }
+            }catch (SQLException ignored){
+                JeproLabUncaughtExceptionHandler.logExceptionMessage(Level.ERROR, ignored);
+            }finally {
+                try {
+                    JeproLabDataBaseConnector.getInstance().closeConnexion();
+                }catch (Exception ignored) {
+                    JeproLabUncaughtExceptionHandler.logExceptionMessage(Level.WARN, ignored);
+                }
+            }
+            return taxRulesList;
+        }
+
+        /**
+         * @return array
+         */
+        public static Map<Integer, Float> getAssociatedTaxRatesByCountryId(int countryId){
+            if(dataBaseObject == null){
+                dataBaseObject = JeproLabFactory.getDataBaseConnector();
+            }
+            String query = "SELECT tax_rules_group." + dataBaseObject.quoteName("tax_rules_group_id") + ", tax." + dataBaseObject.quoteName("rate") + " FROM ";
+            query += dataBaseObject.quoteName("#__jeprolab_tax_rules_group") + " AS tax_rules_group LEFT JOIN " + dataBaseObject.quoteName("#__jeprolab_tax_rule");
+            query += " tax_rule ON (tax_rule." + dataBaseObject.quoteName("tax_rules_group_id") + " = tax_rules_group." + dataBaseObject.quoteName("tax_rules_group_id");
+            query += ") LEFT JOIN " + dataBaseObject.quoteName("#__jeprolab_tax") + " AS tax ON (tax." + dataBaseObject.quoteName("tax_id") + " = tax_rule.";
+            query += dataBaseObject.quoteName("tax_id") + ") WHERE tax_rule." + dataBaseObject.quoteName("country_id") + " = " + countryId + " AND tax_rule.";
+            query += dataBaseObject.quoteName("state_id") + " = 0 AND 0 between " + dataBaseObject.quoteName("zipcode_from") + " AND " ;
+            query += dataBaseObject.quoteName("zipcode_to");
+
+            dataBaseObject.setQuery(query);
+            ResultSet rows = dataBaseObject.loadObjectList();
+            Map<Integer, Float> taxRates = new HashMap<>();
+
+            try{
+                while(rows.next()){
+                    taxRates.put(rows.getInt("tax_rules_group_id"), rows.getFloat("rate"));
+                }
+            }catch(SQLException ignored){
+                JeproLabUncaughtExceptionHandler.logExceptionMessage(Level.ERROR, ignored);
+            }finally {
+                try {
+                    JeproLabDataBaseConnector.getInstance().closeConnexion();
+                }catch (Exception ignored) {
+                    JeproLabUncaughtExceptionHandler.logExceptionMessage(Level.INFO, ignored);
+                }
+            }
+            return taxRates;
+        }
+
+        public boolean save(){
+            if(dataBaseObject == null){
+                dataBaseObject = JeproLabFactory.getDataBaseConnector();
+            }
+
+            String query = "INSERT INTO " + dataBaseObject.quoteName("#__jeprolab_tax_rules_group") + " (" + dataBaseObject.quoteName("name");
+            query += ", " + dataBaseObject.quoteName("published") + ") VALUES (" + dataBaseObject.quote(this.name) + ", ";
+            query += (this.published ? 1 : 0) + ") ";
+
+            dataBaseObject.setQuery(query);
+            boolean result = dataBaseObject.query(true);
+            this.tax_rules_group_id = dataBaseObject.getGeneratedKey();
+            return result;
+        }
+
+        public boolean update(){
+            if(dataBaseObject == null){
+                dataBaseObject = JeproLabFactory.getDataBaseConnector();
+            }
+
+            String query = "UPDATE " + dataBaseObject.quoteName("#__jeprolab_tax_rules_group") + " SET " + dataBaseObject.quoteName("name");
+            query += " = " + dataBaseObject.quote(this.name) + ", " + dataBaseObject.quoteName("published") + " = " + (this.published ? 1 : 0);
+            query += " WHERE " + dataBaseObject.quoteName("tax_rules_group_id") + " = " + this.tax_rules_group_id;
+
+            dataBaseObject.setQuery(query);
+            return dataBaseObject.query(false);
         }
     }
 }

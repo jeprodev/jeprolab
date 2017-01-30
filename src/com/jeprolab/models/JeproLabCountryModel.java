@@ -1,5 +1,6 @@
 package com.jeprolab.models;
 
+import com.jeprolab.JeproLab;
 import com.jeprolab.assets.config.JeproLabConfigurationSettings;
 import com.jeprolab.assets.tools.JeproLabCache;
 import com.jeprolab.assets.tools.JeproLabContext;
@@ -52,6 +53,8 @@ public class JeproLabCountryModel extends JeproLabModel{
 
     protected static Map<Integer, Integer> zonesId = new HashMap<>();
     private static Map<Integer, String> cache_iso_by_id = new HashMap<>();
+
+    public List<JeproLabStateModel> states;
 
     public JeproLabCountryModel(){
         this(0, 0, 0);
@@ -528,6 +531,167 @@ public class JeproLabCountryModel extends JeproLabModel{
         }
     }
 
+    public boolean save(){
+        if(dataBaseObject == null){
+            dataBaseObject = JeproLabFactory.getDataBaseConnector();
+        }
+
+        String query = "INSERT INTO " + dataBaseObject.quoteName("#__jeprolab_country") + " (" + dataBaseObject.quoteName("zone_id") ;
+        query += ", " +dataBaseObject.quoteName("currency_id") + ", " + dataBaseObject.quoteName("iso_code") + ", " ;
+        query += dataBaseObject.quoteName("call_prefix") + ", " + dataBaseObject.quoteName("published") + ", ";
+        query += dataBaseObject.quoteName("contains_states") + ", " + dataBaseObject.quoteName("need_identification_number") + ", ";
+        query += dataBaseObject.quoteName("need_zip_code") + ", " + dataBaseObject.quoteName("zip_code_format") + ", ";
+        query += dataBaseObject.quoteName("display_tax_label") + ") VALUES (" + this.zone_id + ", " + this.currency_id + ", ";
+        query +=  ", " + dataBaseObject.quote(this.iso_code) + ", " + dataBaseObject.quote(this.call_prefix) + ", ";
+        query += (this.published ? 1 : 0) + ", " +  " = " + (this.contains_states ? 1 : 0) + ", " + (this.need_identification_number ? 1 : 0);
+        query += ", " + (this.need_zip_code ? 1 : 0) + ", " + dataBaseObject.quote(this.zip_code_format) + ", " + (this.display_tax_label ? 1 : 0) + ") ";
+
+        dataBaseObject.setQuery(query);
+        boolean result = dataBaseObject.query(true);
+        this.country_id = dataBaseObject.getGeneratedKey();
+
+        /** saving country name for different language **/
+        String countryName;
+        for(Object o : JeproLabLanguageModel.getLanguages().entrySet()){
+            JeproLabLanguageModel lang = (JeproLabLanguageModel)(((Map.Entry) o).getValue());
+            countryName = this.name.containsKey("lang_" + lang.language_id) ? this.name.get("lang_" + lang.language_id) : "";
+            query = "INSERT INTO " + dataBaseObject.quoteName("#__jeprolab_country_lang") + " (" + dataBaseObject.quoteName("country_id");
+            query += ", " + dataBaseObject.quoteName("lang_id") + dataBaseObject.quoteName("name") + ") VALUES (" + this.country_id;
+            query += ", " + lang.language_id + ", " + dataBaseObject.quote(countryName) + ")";
+
+            dataBaseObject.setQuery(query);
+            result &= dataBaseObject.query(false);
+        }
+        return result;
+    }
+
+    public boolean update(){
+        if(dataBaseObject == null){
+            dataBaseObject = JeproLabFactory.getDataBaseConnector();
+        }
+
+        String query = "UPDATE " + dataBaseObject.quoteName("#__jeprolab_country") + " SET " + dataBaseObject.quoteName("zone_id");
+        query += " = " + this.zone_id + ", " + dataBaseObject.quoteName("currency_id") + " = " + this.currency_id + ", ";
+        query += dataBaseObject.quoteName("iso_code") + " = " + dataBaseObject.quote(this.iso_code) + ", " + dataBaseObject.quoteName("call_prefix");
+        query += " = " + dataBaseObject.quote(this.call_prefix) + ", " + dataBaseObject.quoteName("published") + " = " + (this.published ? 1 : 0);
+        query += ", " + dataBaseObject.quoteName("contains_states") + " = " + (this.contains_states ? 1 : 0) + ", ";
+        query += dataBaseObject.quoteName("need_identification_number") + " = " + (this.need_identification_number ? 1 : 0) + ", ";
+        query += dataBaseObject.quoteName("need_zip_code") + " = " + (this.need_zip_code ? 1 : 0) + ", " + dataBaseObject.quoteName("zip_code_format");
+        query += " = " + dataBaseObject.quote(this.zip_code_format) + ", " + dataBaseObject.quoteName("display_tax_label") + " = ";
+        query += (this.display_tax_label ? 1 : 0) + " WHERE " + dataBaseObject.quoteName("country_id") + " = " + this.country_id;
+
+        dataBaseObject.setQuery(query);
+        boolean result = dataBaseObject.query(false);
+
+        /** saving country name for different language **/
+        String countryName;
+        for(Object o : JeproLabLanguageModel.getLanguages().entrySet()){
+            JeproLabLanguageModel lang = (JeproLabLanguageModel)(((Map.Entry) o).getValue());
+            countryName = this.name.containsKey("lang_" + lang.language_id) ? this.name.get("lang_" + lang.language_id) : "";
+            query = "UPDATE " + dataBaseObject.quoteName("#__jeprolab_country_lang") + " SET " + dataBaseObject.quoteName("name");
+            query += " = " + dataBaseObject.quote(countryName) + " WHERE " + dataBaseObject.quoteName("country_id") + " = ";
+            query += this.country_id + " AND " + dataBaseObject.quoteName("lang_id") + " = " + lang.language_id;
+
+            dataBaseObject.setQuery(query);
+            result &= dataBaseObject.query(false);
+        }
+        return result;
+    }
+
+    public static int getZoneId(int countryId){
+        if (countryId <= 0){
+            JeproLabTools.displayError(500, "");
+        }
+
+        if (JeproLabCountryModel.zonesId.containsKey(countryId)) {
+            return JeproLabCountryModel.zonesId.get(countryId);
+        }
+
+        if(dataBaseObject == null){
+            dataBaseObject = JeproLabFactory.getDataBaseConnector();
+        }
+
+        String query = "SELECT " + dataBaseObject.quoteName("zone_id") + " FROM " + dataBaseObject.quoteName("#__jeprolab_country");
+        query += " WHERE " + dataBaseObject.quoteName("country_id") + " = " + countryId;
+
+        dataBaseObject.setQuery(query);
+        int result = (int)dataBaseObject.loadValue("zone_id");
+        JeproLabCountryModel.zonesId.put(countryId, result);
+
+        return result;
+    }
+
+    public static List<JeproLabCountryModel> getCountriesByLaboratoryId(int labId, int langId){
+        if(dataBaseObject == null){
+            dataBaseObject = JeproLabFactory.getDataBaseConnector();
+        }
+        String query = "SELECT * FROM " + dataBaseObject.quoteName("#__jeprolab_country") + " AS country LEFT JOIN ";
+        query += dataBaseObject.quoteName("#__jeprolab_country_lab") + " AS country_lab ON (country_lab." + dataBaseObject.quoteName("country_id");
+        query += " = country." + dataBaseObject.quoteName("country_id") + ") LEFT JOIN " + dataBaseObject.quoteName("#__jeprolab_country_lang");
+        query += " AS country_lang ON (country." + dataBaseObject.quoteName("country_id") + " = country_lang.";
+        query += dataBaseObject.quoteName("country_id") + " AND country_lang." + dataBaseObject.quoteName("lang_id") + " = " + langId;
+        query += ") WHERE " + dataBaseObject.quoteName("lab_id") + " = " + labId;
+
+        dataBaseObject.setQuery(query);
+        ResultSet countrySet = dataBaseObject.loadObjectList();
+        List<JeproLabCountryModel> countries = new ArrayList<>();
+        if(countrySet != null){
+            try{
+                JeproLabCountryModel country;
+                while(countrySet.next()){
+                    country = new JeproLabCountryModel();
+                    //todo
+                    countries.add(country);
+                }
+            }catch (SQLException ignored){
+                JeproLabUncaughtExceptionHandler.logExceptionMessage(Level.ERROR, ignored);
+            }finally {
+                try {
+                    JeproLabDataBaseConnector.getInstance().closeConnexion();
+                }catch (Exception ignored){
+                    JeproLabUncaughtExceptionHandler.logExceptionMessage(Level.WARN, ignored);
+                }
+            }
+        }
+        return countries;
+    }
+
+    public static int getCountryIdByIso(String isoCode){
+        return getCountryIdByIso(isoCode, false);
+    }
+
+    /**
+     * Get a country ID with its iso code
+     *
+     * @param isoCode Country iso code
+     * @param active return only active countries
+     * @return int Country ID
+     */
+    public static int getCountryIdByIso(String isoCode, boolean active) {
+        if (!JeproLabTools.isLanguageIsoCode(isoCode)) {
+            JeproLabTools.displayError(500, JeproLab.getBundle().getString("JEPROLAB_WRONG_COUNTRY_CODE8MESSAGE")); //die(Tools::displayError());
+        }
+        if (dataBaseObject == null) {
+            dataBaseObject = JeproLabFactory.getDataBaseConnector();
+        }
+
+        String query = "SELECT " + dataBaseObject.quoteName("country_id") + " FROM ";
+        query += dataBaseObject.quoteName("#__jeprolab_country") + " WHERE " + dataBaseObject.quoteName("iso_code");
+        query += " = " + dataBaseObject.quote(isoCode.toUpperCase()) + (active ? " AND published = 1" : "");
+
+        dataBaseObject.setQuery(query);
+        return (int)dataBaseObject.loadValue("country_id");
+    }
+
+
+    public static class JeproLabStateModel extends JeproLabModel{
+        public int state_id;
+
+        public int country_id;
+
+        public boolean published;
+    }
+
 
     public static class JeproLabZoneModel extends JeproLabModel{
         public int zone_id = 0;
@@ -643,6 +807,92 @@ public class JeproLabCountryModel extends JeproLabModel{
 
             dataBaseObject.setQuery(query);
             return (int)dataBaseObject.loadValue("zone_id");
+        }
+
+        /**
+         * Get a zone ID from its default language name
+         *
+         * @param zoneId zone id
+         * @return zone_id
+         */
+        public static String getNameByZoneId(int zoneId){
+            if(zoneId <= 0){ return ""; }
+
+            if(dataBaseObject == null){
+                dataBaseObject = JeproLabFactory.getDataBaseConnector();
+            }
+
+            String query = "SELECT " + dataBaseObject.quoteName("name") + " FROM " + dataBaseObject.quoteName("#__jeprolab_zone");
+            query += " WHERE " + dataBaseObject.quoteName("zone_id") + " = " + zoneId;
+
+            dataBaseObject.setQuery(query);
+            return dataBaseObject.loadStringValue("name");
+        }
+
+        /**
+         * Delete a zone
+         *
+         * @return boolean Deletion result
+         */
+        public boolean delete() {
+            if(dataBaseObject == null){
+                dataBaseObject = JeproLabFactory.getDataBaseConnector();
+            }
+
+            String query = "DELETE FROM " + dataBaseObject.quoteName("#__jeprolab_zone") + " WHERE "  + dataBaseObject.quoteName("zone_id") + " = " + this.zone_id;
+            dataBaseObject.setQuery(query);
+            if (dataBaseObject.query(false)) {
+                // Delete regarding delivery preferences
+                query = "DELETE FROM " + dataBaseObject.quoteName("#__jeprolab_carrier_zone") + " WHERE "  + dataBaseObject.quoteName("zone_id") + " = " + this.zone_id;
+
+                dataBaseObject.setQuery(query);
+                boolean result = dataBaseObject.query(false);
+
+                query = "DELETE FROM " + dataBaseObject.quoteName("#__jeprolab_delivery") + " WHERE "  + dataBaseObject.quoteName("zone_id") + " = " + this.zone_id;
+                dataBaseObject.setQuery(query);
+                //todo result &= $db->query();
+
+                // Update Country & state zone with 0
+                query = "UPDATE "  + dataBaseObject.quoteName("#__jeprolab_country") + " SET "  + dataBaseObject.quoteName("zone_id") + " = 0 WHERE "  + dataBaseObject.quoteName("zone_id") + " = " + this.zone_id;
+                dataBaseObject.setQuery(query);
+                result &= dataBaseObject.query(false);
+
+                query = "UPDATE "  + dataBaseObject.quoteName("#__jeprolab_state") + " SET "  + dataBaseObject.quoteName("zone_id") + " = 0 WHERE "  + dataBaseObject.quoteName("zone_id") + " = " + this.zone_id;
+                dataBaseObject.setQuery(query);
+                result &= dataBaseObject.query(false);
+
+                return result;
+            }
+
+            return false;
+        }
+
+        public boolean save(){
+            if(dataBaseObject == null){
+                dataBaseObject = JeproLabFactory.getDataBaseConnector();
+            }
+
+            String query = "INSERT INTO " + dataBaseObject.quoteName("#__jeprolab_zone") + " (" + dataBaseObject.quoteName("name") + ", ";
+            query += dataBaseObject.quoteName("allow_delivery") + ") VALUES (" + dataBaseObject.quote(this.name) + ", " ;
+            query += (this.allow_delivery ? 1 : 0) + ")";
+
+            dataBaseObject.setQuery(query);
+            boolean result = dataBaseObject.query(true);
+            this.zone_id = dataBaseObject.getGeneratedKey();
+            return result;
+        }
+
+        public boolean update(){
+            if(dataBaseObject == null){
+                dataBaseObject = JeproLabFactory.getDataBaseConnector();
+            }
+
+            String query = "UPDATE " + dataBaseObject.quoteName("#__jeprolab_zone") + " SET " + dataBaseObject.quoteName("name");
+            query += " = " + dataBaseObject.quote(this.name) + ", " + dataBaseObject.quoteName("allow_delivery") + " = ";
+            query += (this.allow_delivery ? 1 : 0) + " WHERE " + dataBaseObject.quoteName("zone_id") + " = " + this.zone_id;
+
+            dataBaseObject.setQuery(query);
+            return dataBaseObject.query(false);
         }
 
     }
