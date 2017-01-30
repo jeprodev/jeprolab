@@ -205,72 +205,250 @@ public class JeproLabMenuController extends JeproLabController{
             JeproLab.getInstance().goToForm(JeproLab.getInstance().getApplicationForms().addCategoryForm);
             JeproLab.getInstance().getApplicationForms().addCategoryForm.controller.initializeContent();
         });
+
+        analyzeSubMenuItem.setOnAction(evt -> {
+            JeproLab.getInstance().goToForm(JeproLab.getInstance().getApplicationForms().analyzeForm);
+            JeproLab.getInstance().getApplicationForms().analyzeForm.controller.initializeContent();
+        });
+
+        addAnalyseSubMenuItem.setOnAction(evt -> {
+            JeproLab.getInstance().goToForm(JeproLab.getInstance().getApplicationForms().addAnalyzeForm);
+            JeproLab.getInstance().getApplicationForms().addAnalyzeForm.controller.initializeContent();
+        });
+
+        methodSubMenuItem.setOnAction(evt -> {
+            JeproLab.getInstance().goToForm(JeproLab.getInstance().getApplicationForms().analyzeMethodForm);
+            JeproLab.getInstance().getApplicationForms().analyzeMethodForm.controller.initializeContent();
+        });
+
+        addMethodSubMenuItem.setOnAction(evt -> {
+            JeproLab.getInstance().goToForm(JeproLab.getInstance().getApplicationForms().addAnalyzeMethodForm);
+            JeproLab.getInstance().getApplicationForms().addAnalyzeMethodForm.controller.initializeContent();
+        });
+
+        attachmentSubMenuItem.setOnAction(evt -> {
+            JeproLab.getInstance().goToForm(JeproLab.getInstance().getApplicationForms().attachmentForm);
+            JeproLab.getInstance().getApplicationForms().attachmentForm.controller.initializeContent();
+        });
+
+        addAttachmentSubMenuItem.setOnAction(evt -> {
+            JeproLab.getInstance().goToForm(JeproLab.getInstance().getApplicationForms().addAttachmentForm);
+            JeproLab.getInstance().getApplicationForms().addAttachmentForm.controller.initializeContent();
+        });
     }
 
-    private void addRequestsListeners(){}
+    private void addRequestsListeners(){
+        requestListMenuItem.setOnAction(evt -> {
+            JeproLab.getInstance().goToForm(JeproLab.getInstance().getApplicationForms().requestForm);
+            JeproLab.getInstance().getApplicationForms().requestForm.controller.initializeContent();
+        });
 
-    private void addFeedsListeners(){}
+        requestAddNewMenuItem.setOnAction(evt -> {
+            JeproLab.getInstance().goToForm(JeproLab.getInstance().getApplicationForms().addRequestForm);
+            JeproLab.getInstance().getApplicationForms().addRequestForm.controller.initializeContent();
+        });
 
-    private void addSettingsListeners(){}
+        requestBillsMenuItem.setOnAction(evt -> {
+            JeproLab.getInstance().goToForm(JeproLab.getInstance().getApplicationForms().requestBillsForm);
+            JeproLab.getInstance().getApplicationForms().requestBillsForm.controller.initializeContent();
+        });
 
-    private void addHelpListeners(){}
+        requestAddBillMenuItem.setOnAction(evt -> {
+            JeproLab.getInstance().goToForm(JeproLab.getInstance().getApplicationForms().requestAddBillForm);
+            JeproLab.getInstance().getApplicationForms().requestAddBillForm.controller.initializeContent();
+        });
 
-    private void addCustomerListeners(){}
-/*
-    private void addListeners(){
+        requestComplaintMenuItem.setOnAction(evt -> {
+            JeproLab.getInstance().goToForm(JeproLab.getInstance().getApplicationForms().requestComplainsForm);
+            JeproLab.getInstance().getApplicationForms().requestAddComplainForm.controller.initializeContent();
+        });
 
- onAction="#handleCategoriesMenuEvent"
- onAction="#handleAddCategoryMenuEvent"
-  onAction="#handleAnalyzesMenuEvent"
-  onAction="#handleAddAnalyseMenuEvent"
-  onAction="#handleAnalyzeMethodsMenuEvent"
-  onAction="#handleAnalyzeAddMethodsMenuEvent"
-  onAction="#handleAttachmentsMenuEvent"
-  onAction="#handleAddAttachmentMenuEvent"
-  onAction="#handleCustomersMenuEvent"
-  onAction="#handleAddNewCustomerMenuEvent"
-  onAction="#handleAddressesMenuEvent"
-  onAction="#handleAddNewAddressMenuEvent"
-  onAction="#handleGroupsMenuEvent"
-  onAction="#handleAddGroupMenuEvent"
-  onAction="#handleCustomerThreadsMenuEvent"
-  onAction="#handleContactsMenuEvents"
-  onAction="#handleRequestAddBillMenuEvent"
-  onAction="#handleRequestComplaintsMenuEvent"
-   onAction="#handleRequestAddNewMenuEvent"
-    onAction="#handleRequestsMenuEvent"
-     onAction="#handleFeedsMenuEvent"
-      onAction="#handleLaboratoriesMenuEvent"
-       onAction="#handleFeedBackMenuEvent"
-  onAction="#handleRequestAddNewComplaintMenuEvent"
-  onAction="#handleRequestRefundsMenuEvent"
-  onAction="#handleRequestAddRefundMenuEvent"
-  onAction="#handleRequestStatusMenuEvent"
-  onAction="#handleRequestAddStatusMenuEvent"
-  onAction="#handleRequestMessagesMenuEvent"
-  onAction="#handleRequestAddMessageMenuEvent"
-   onAction="#handleHelpMenuEvent"
-   onAction="#handleAddNewTaxGroupMenuEvent"
-   onAction="#handleTaxesGroupMenuEvent"
-   onAction="#handleAddNewTaxMenuEvent"
-   onAction="#handleTaxesMenuEvent"
-   onAction="#handleAddNewCurrencyMenuEvent"
-   onAction="#handleCurrenciesMenuEvent"
-   onAction="#handleCheckForJeproLabUpdate"
-    onAction="#handleAddNewZoneMenuEvent"
-    onAction="#handleZoneListMenuEvent"
-    onAction="#handleAddNewStateMenuEvent"
-    onAction="#handleStateMenuEvent"
-    onAction="#handleAddNewCountryMenuEvent"
-    onAction="#handleCountryMenuEvent"
-    onAction="#handleAddNewLaboratoryGroupMenuEvent"
-    onAction="#handleLaboratoryGroupsMenuEvent"
-     onAction="#handleAddNewLaboratoryMenuEvent"
-     onAction="#handleAddFeedMenuEvent"
+        requestAddNewComplaintMenuItem.setOnAction(evt -> {
+            JeproLab.getInstance().goToForm(JeproLab.getInstance().getApplicationForms().requestAddComplainForm);
+            JeproLab.getInstance().getApplicationForms().requestAddComplainForm.controller.initializeContent();
+        });
+
+        requestRefundsMenuItem.setOnAction(evt -> {
+            JeproLab.getInstance().goToForm(JeproLab.getInstance().getApplicationForms().requestRefundsForm);
+            JeproLab.getInstance().getApplicationForms().requestRefundsForm.controller.initializeContent();
+        });
+
+        requestAddNewRefundsMenuItem.setOnAction(evt -> {
+            JeproLab.getInstance().goToForm(JeproLab.getInstance().getApplicationForms().requestAddRefundForm);
+            JeproLab.getInstance().getApplicationForms().requestAddRefundForm.controller.initializeContent();
+        });
+
+        requestStatusMenuItem.setOnAction(evt -> {
+            JeproLab.getInstance().goToForm(JeproLab.getInstance().getApplicationForms().requestStatusForm);
+            JeproLab.getInstance().getApplicationForms().requestStatusForm.controller.initializeContent();
+        });
+
+        requestAddStatusMenuItem.setOnAction(evt -> {
+            JeproLab.getInstance().goToForm(JeproLab.getInstance().getApplicationForms().requestAddStatusForm);
+            JeproLab.getInstance().getApplicationForms().requestAddStatusForm.controller.initializeContent();
+        });
+
+        requestMessagesMenuItem.setOnAction(evt -> {
+            JeproLab.getInstance().goToForm(JeproLab.getInstance().getApplicationForms().requestMessagesForm);
+            JeproLab.getInstance().getApplicationForms().requestMessagesForm.controller.initializeContent();
+        });
+
+        requestAddMessageMenuItem.setOnAction(evt -> {
+            JeproLab.getInstance().goToForm(JeproLab.getInstance().getApplicationForms().requestAddMessagesForm);
+            JeproLab.getInstance().getApplicationForms().requestAddMessagesForm.controller.initializeContent();
+        });
     }
 
-    private void addListeners(){
+    private void addFeedsListeners(){
+        feedsSubMenuItem.setOnAction(evt -> {
+            JeproLab.getInstance().goToForm(JeproLab.getInstance().getApplicationForms().feedsForm);
+            JeproLab.getInstance().getApplicationForms().feedsForm.controller.initializeContent();
+        });
 
+        addFeedMenuItem.setOnAction(evt -> {
+            JeproLab.getInstance().goToForm(JeproLab.getInstance().getApplicationForms().addFeedForm);
+            JeproLab.getInstance().getApplicationForms().addFeedForm.controller.initializeContent();
+        });
+
+        feedBackMenuItem.setOnAction(evt -> {
+            JeproLab.getInstance().goToForm(JeproLab.getInstance().getApplicationForms().feedBackForm);
+            JeproLab.getInstance().getApplicationForms().feedBackForm.controller.initializeContent();
+        });
     }
-*/
+
+    private void addSettingsListeners(){
+        laboratorySubMenuItem.setOnAction(evt -> {
+            JeproLab.getInstance().goToForm(JeproLab.getInstance().getApplicationForms().laboratoriesForm);
+            JeproLab.getInstance().getApplicationForms().laboratoriesForm.controller.initializeContent();
+        });
+
+        addLaboratorySubMenuItem.setOnAction(evt -> {
+            JeproLab.getInstance().goToForm(JeproLab.getInstance().getApplicationForms().addLaboratoryForm);
+            JeproLab.getInstance().getApplicationForms().addLaboratoryForm.controller.initializeContent();
+        });
+
+        laboratoryGroupSubMenu.setOnAction(evt -> {
+            JeproLab.getInstance().goToForm(JeproLab.getInstance().getApplicationForms().laboratoriesGroupsForm);
+            JeproLab.getInstance().getApplicationForms().laboratoriesGroupsForm.controller.initializeContent();
+        });
+
+        addLaboratoryGroupSubMenuItem.setOnAction(evt -> {
+            JeproLab.getInstance().goToForm(JeproLab.getInstance().getApplicationForms().addLaboratoriesGroupForm);
+            JeproLab.getInstance().getApplicationForms().addLaboratoriesGroupForm.controller.initializeContent();
+        });
+
+        countrySubMenuItem.setOnAction(evt -> {
+            JeproLab.getInstance().goToForm(JeproLab.getInstance().getApplicationForms().countryForm);
+            JeproLab.getInstance().getApplicationForms().countryForm.controller.initializeContent();
+        });
+
+        addCountrySubMenu.setOnAction(evt -> {
+            JeproLab.getInstance().goToForm(JeproLab.getInstance().getApplicationForms().addCountryForm);
+            JeproLab.getInstance().getApplicationForms().addCountryForm.controller.initializeContent();
+        });
+
+        statesSubMenuItem.setOnAction(evt -> {
+            JeproLab.getInstance().goToForm(JeproLab.getInstance().getApplicationForms().stateForm);
+            JeproLab.getInstance().getApplicationForms().stateForm.controller.initializeContent();
+        });
+
+        addStateSubMenuItem.setOnAction(evt -> {
+            JeproLab.getInstance().goToForm(JeproLab.getInstance().getApplicationForms().addStateForm);
+            JeproLab.getInstance().getApplicationForms().addStateForm.controller.initializeContent();
+        });
+
+        zoneListSubMenuItem.setOnAction(evt -> {
+            JeproLab.getInstance().goToForm(JeproLab.getInstance().getApplicationForms().zonesForm);
+            JeproLab.getInstance().getApplicationForms().zonesForm.controller.initializeContent();
+        });
+
+        editZoneSubMenu.setOnAction(evt -> {
+            JeproLab.getInstance().goToForm(JeproLab.getInstance().getApplicationForms().addZoneForm);
+            JeproLab.getInstance().getApplicationForms().addZoneForm.controller.initializeContent();
+        });
+
+        currenciesSubMenuItem.setOnAction(evt -> {
+            JeproLab.getInstance().goToForm(JeproLab.getInstance().getApplicationForms().currencyForm);
+            JeproLab.getInstance().getApplicationForms().currencyForm.controller.initializeContent();
+        });
+
+        addCurrencySubMenuItem.setOnAction(evt -> {
+            JeproLab.getInstance().goToForm(JeproLab.getInstance().getApplicationForms().addCurrencyForm);
+            JeproLab.getInstance().getApplicationForms().addCurrencyForm.controller.initializeContent();
+        });
+
+        taxesSubMenuItem.setOnAction(evt -> {
+            JeproLab.getInstance().goToForm(JeproLab.getInstance().getApplicationForms().taxesForm);
+            JeproLab.getInstance().getApplicationForms().taxesForm.controller.initializeContent();
+        });
+
+        addTaxSubMenuItem.setOnAction(evt -> {
+            JeproLab.getInstance().goToForm(JeproLab.getInstance().getApplicationForms().addTaxForm);
+            JeproLab.getInstance().getApplicationForms().addTaxForm.controller.initializeContent();
+        });
+
+        taxesGroupSubMenuItem.setOnAction(evt -> {
+            JeproLab.getInstance().goToForm(JeproLab.getInstance().getApplicationForms().taxGroupForm);
+            JeproLab.getInstance().getApplicationForms().taxGroupForm.controller.initializeContent();
+        });
+
+        addTaxGroupSubMenuItem.setOnAction(evt -> {
+            JeproLab.getInstance().goToForm(JeproLab.getInstance().getApplicationForms().addTaxGroupForm);
+            JeproLab.getInstance().getApplicationForms().addTaxGroupForm.controller.initializeContent();
+        });
+    }
+
+    private void addHelpListeners(){
+        aboutJeproLabMenuItem.setOnAction(evt -> {
+            JeproLab.getInstance().goToForm(JeproLab.getInstance().getApplicationForms().aboutJeproLabForm);
+            JeproLab.getInstance().getApplicationForms().aboutJeproLabForm.controller.initializeContent();
+        });
+
+        checkForJeproLabUpdate.setOnAction(evt -> {
+            JeproLab.getInstance().goToForm(JeproLab.getInstance().getApplicationForms().updaterForm);
+            JeproLab.getInstance().getApplicationForms().updaterForm.controller.initializeContent();
+        });
+    }
+
+    private void addCustomerListeners(){
+        customersSubMenuItem.setOnAction(evt -> {
+            JeproLab.getInstance().goToForm(JeproLab.getInstance().getApplicationForms().customersForm);
+            JeproLab.getInstance().getApplicationForms().customersForm.controller.initializeContent();
+        });
+
+        addCustomerMenuItem.setOnAction(evt -> {
+            JeproLab.getInstance().goToForm(JeproLab.getInstance().getApplicationForms().addCustomerForm);
+            JeproLab.getInstance().getApplicationForms().addCustomerForm.controller.initializeContent();
+        });
+
+        addressesSubMenuItem.setOnAction(evt -> {
+            JeproLab.getInstance().goToForm(JeproLab.getInstance().getApplicationForms().addressesForm);
+            JeproLab.getInstance().getApplicationForms().addressesForm.controller.initializeContent();
+        });
+
+        addAddressMenuItem.setOnAction(evt -> {
+            JeproLab.getInstance().goToForm(JeproLab.getInstance().getApplicationForms().addAddressForm);
+            JeproLab.getInstance().getApplicationForms().addAddressForm.controller.initializeContent();
+        });
+
+        groupsSubMenuItem.setOnAction(evt -> {
+            JeproLab.getInstance().goToForm(JeproLab.getInstance().getApplicationForms().groupsForm);
+            JeproLab.getInstance().getApplicationForms().groupsForm.controller.initializeContent();
+        });
+
+        addGroupMenuItem.setOnAction(evt -> {
+            JeproLab.getInstance().goToForm(JeproLab.getInstance().getApplicationForms().addGroupForm);
+            JeproLab.getInstance().getApplicationForms().addGroupForm.controller.initializeContent();
+        });
+
+        customerThreadsSubMenuItem.setOnAction(evt -> {
+            JeproLab.getInstance().goToForm(JeproLab.getInstance().getApplicationForms().customerThreadsForm);
+            JeproLab.getInstance().getApplicationForms().customerThreadsForm.controller.initializeContent();
+        });
+
+        contactsSubMenuItem.setOnAction(evt -> {
+            JeproLab.getInstance().goToForm(JeproLab.getInstance().getApplicationForms().contactsForm);
+            JeproLab.getInstance().getApplicationForms().contactsForm.controller.initializeContent();
+        });
+    }
 }

@@ -45,8 +45,9 @@ public class JeproLabApplicationForms implements JeproLabEventProducer{
     public JeproLabApplicationForm addTaxGroupForm, addTaxForm, taxesForm, taxGroupForm;
     public JeproLabApplicationForm currencyForm, addCurrencyForm;
     public JeproLabApplicationForm stateForm, addStateForm, countryForm, addCountryForm, addZoneForm, zonesForm;
-    public JeproLabApplicationForm addRequestForm, sampleListForm, sampleForm, requestStatusForm;
+    public JeproLabApplicationForm addRequestForm, sampleListForm, sampleForm, requestStatusForm, requestRefundsForm;
     public JeproLabApplicationForm requestBillsForm, requestAddBillForm, requestComplainsForm, requestAddComplainForm;
+    public JeproLabApplicationForm requestAddStatusForm, requestMessagesForm, requestAddMessagesForm;
     public JeproLabApplicationForm requestAddRefundForm, addTaxRuleForm, taxRulesForm;
 
     public List<JeproLabApplicationForm> forms;
@@ -210,23 +211,17 @@ public class JeproLabApplicationForms implements JeproLabEventProducer{
         zonesForm = new JeproLabApplicationForm("country/zones.fxml");
         if(!forms.contains(zonesForm)){ forms.add(zonesForm); }
 
-    }
+        requestRefundsForm = new JeproLabApplicationForm("request/refunds.fxml");
+        if(!forms.contains(requestRefundsForm)){ forms.add(requestRefundsForm); }
 
-    public void renderForms(){
-        /*worker =  new Task<JeproLabApplicationForm>() {
-            @Override
-            protected JeproLabApplicationForm call() throws Exception {
-                int count = 0;
-                final int numberOfForms = forms.size();
-                updateProgress(count, numberOfForms); */
+        requestAddStatusForm = new JeproLabApplicationForm("request/refund.fxml");
+        if(!forms.contains(requestAddStatusForm)){ forms.add(requestAddStatusForm); }
 
-                //return null;
-            //}
-        //};
+        requestMessagesForm = new JeproLabApplicationForm("request/messages.fxml");
+        if(!forms.contains(requestMessagesForm)){ forms.add(requestMessagesForm); }
 
-        /*((Task)worker).setOnSucceeded(evt -> {
-            //JeproLab.getInstance().renderApplication();
-        }); */
+        requestAddMessagesForm = new JeproLabApplicationForm("request/message.fxml");
+        if(!forms.contains(requestAddMessagesForm)){ forms.add(requestAddMessagesForm); }
     }
 
 

@@ -28,8 +28,8 @@ public class JeproLabSplashForm extends StackPane{
 
 
     public void createView(){
-        JeproLab.getInstance().getApplicationForms().renderForms();
-        progressBar.progressProperty().bind(JeproLab.getInstance().getApplicationForms().worker.progressProperty());
-        new Thread((Runnable)JeproLab.getInstance().getApplicationForms().worker).start();
+        //JeproLab.getInstance().getApplicationForms().renderForms();
+        //progressBar.progressProperty().bind(JeproLab.getInstance().getApplicationForms().worker.progressProperty());
+        //new Thread((Runnable)JeproLab.getInstance().getApplicationForms().worker).start();
     }
 }
