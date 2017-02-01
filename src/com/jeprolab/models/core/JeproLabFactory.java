@@ -3,24 +3,77 @@ package com.jeprolab.models.core;
 import com.jeprolab.assets.config.JeproLabConfig;
 import com.jeprolab.assets.tools.db.JeproLabDataBaseConnector;
 import com.jeprolab.models.JeproLabEmployeeModel;
+import javafx.concurrent.Task;
+import javafx.concurrent.Worker;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  *
  * Created by jeprodev on 09/01/2016.
  */
 public class JeproLabFactory {
-    private static JeproLabDataBaseConnector dataBaseConnector;
+    private static List<JeproLabDataBaseConnector> dataBaseConnectorPool = new ArrayList<>();
+
+    private static final int NUMBER_OF_CONNECTION = 5;
 
     private static JeproLabSession appSession;
 
     public static JeproLabConfig appConfig;
 
     public static JeproLabDataBaseConnector getDataBaseConnector() {
-        if (dataBaseConnector == null) {
-            dataBaseConnector = new JeproLabDataBaseConnector(JeproLabConfig.DATA_BASE_HOST, JeproLabConfig.DATA_BASE_DRIVER, JeproLabConfig.DATA_BASE_NAME);
-        }
-        return dataBaseConnector;
+        JeproLabDataBaseConnector connector;
+        if (!checkIfConnectionIsFull()){
+            connector = new JeproLabDataBaseConnector(JeproLabConfig.DATA_BASE_HOST,
+                JeproLabConfig.DATA_BASE_DRIVER, JeproLabConfig.DATA_BASE_NAME);
+            if(addConnector(connector)){
+                return connector;
+            }
+        }/*else{
+            /*Worker<JeproLabDataBaseConnector> worker = new Task<JeproLabDataBaseConnector>() {
+                @Override
+                protected JeproLabDataBaseConnector call() throws Exception {
+                    JeproLabDataBaseConnector connect = new JeproLabDataBaseConnector(JeproLabConfig.DATA_BASE_HOST,
+                        JeproLabConfig.DATA_BASE_DRIVER, JeproLabConfig.DATA_BASE_NAME);
+                    while (true){
+                        if(!checkIfConnectionIsFull() && addConnector(connect)){
+                            return connect;
+                        }
+                        Thread.sleep(2000);
+                    }
+                    //return null;
+                }
+            };
+
+            new Thread((Task)worker).start();
+
+            ((Task)worker).setOnSucceeded(evt -> {
+                connector = worker.valueProperty()
+;            });* /
+        } */
+        return null;
     }
+
+    private synchronized static boolean checkIfConnectionIsFull(){
+        return dataBaseConnectorPool.size() >= NUMBER_OF_CONNECTION;
+    }
+
+    private synchronized static boolean addConnector(JeproLabDataBaseConnector connector){
+        if(dataBaseConnectorPool.size() < NUMBER_OF_CONNECTION && !dataBaseConnectorPool.contains(connector)){
+            dataBaseConnectorPool.add(connector);
+            return true;
+        }
+        return false;
+    }
+
+    public static synchronized void removeConnection(JeproLabDataBaseConnector connector){
+        if(dataBaseConnectorPool.contains(connector)){
+            connector.closeConnexion();
+            dataBaseConnectorPool.remove(connector);
+        }
+    }
+
 
     /**
      * Get Lab employee

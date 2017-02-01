@@ -96,10 +96,10 @@ public class JeproLabPriceModel extends JeproLabModel{
             if (!JeproLabSpecificPriceModel.isFeaturePublished()) {
                 return new JeproLabSpecificPriceModel();
             }
-        /*
-        ** The date is not taken into account for the cache, but this is for the better because it keeps the consistency for the whole script.
-        ** The price must not change between the top and the bottom of the page
-        */
+            /*
+            ** The date is not taken into account for the cache, but this is for the better because it keeps the consistency for the whole script.
+            ** The price must not change between the top and the bottom of the page
+            */
 
             String cacheKey = analyzeId + "_" + labId + "_" + currencyId + "_" + countryId + "_" + groupId + "_" + quantity + "_" + analyzeAttributeId + "_" + cartId + "_" + customerId + "_" + realQuantity;
             if (!JeproLabSpecificPriceModel._specificPriceCache.containsKey(cacheKey)){
@@ -127,7 +127,7 @@ public class JeproLabPriceModel extends JeproLabModel{
                     JeproLabUncaughtExceptionHandler.logExceptionMessage(Level.ERROR, ignored);
                 }finally {
                     try {
-                        JeproLabDataBaseConnector.getInstance().closeConnexion();
+                        JeproLabFactory.removeConnection(dataBaseObject);
                     }catch (Exception ignored) {
                         JeproLabUncaughtExceptionHandler.logExceptionMessage(Level.WARN, ignored);
                     }
@@ -359,7 +359,7 @@ public class JeproLabPriceModel extends JeproLabModel{
                         JeproLabUncaughtExceptionHandler.logExceptionMessage(Level.ERROR, ignored);
                     }finally {
                         try {
-                            JeproLabDataBaseConnector.getInstance().closeConnexion();
+                            JeproLabFactory.removeConnection(dataBaseObject);
                         }catch (Exception ignored) {
                             JeproLabUncaughtExceptionHandler.logExceptionMessage(Level.WARN, ignored);
                         }
@@ -457,7 +457,7 @@ public class JeproLabPriceModel extends JeproLabModel{
                     JeproLabUncaughtExceptionHandler.logExceptionMessage(Level.ERROR, ignored);
                 }finally {
                     try {
-                        JeproLabDataBaseConnector.getInstance().closeConnexion();
+                        JeproLabFactory.removeConnection(dataBaseObject);
                     }catch (Exception ignored) {
                         JeproLabUncaughtExceptionHandler.logExceptionMessage(Level.WARN, ignored);
                     }
@@ -519,7 +519,7 @@ public class JeproLabPriceModel extends JeproLabModel{
                         JeproLabUncaughtExceptionHandler.logExceptionMessage(Level.ERROR, ignored);
                     }finally {
                         try {
-                            JeproLabDataBaseConnector.getInstance().closeConnexion();
+                            JeproLabFactory.removeConnection(dataBaseObject);
                         }catch (Exception ignored) {
                             JeproLabUncaughtExceptionHandler.logExceptionMessage(Level.WARN, ignored);
                         }
@@ -707,7 +707,7 @@ public class JeproLabPriceModel extends JeproLabModel{
                     JeproLabUncaughtExceptionHandler.logExceptionMessage(Level.ERROR, ignored);
                 }finally {
                     try {
-                        JeproLabDataBaseConnector.getInstance().closeConnexion();
+                        JeproLabFactory.removeConnection(dataBaseObject);
                     }catch (Exception ignored) {
                         JeproLabUncaughtExceptionHandler.logExceptionMessage(Level.WARN, ignored);
                     }
@@ -789,7 +789,7 @@ public class JeproLabPriceModel extends JeproLabModel{
                     JeproLabUncaughtExceptionHandler.logExceptionMessage(Level.ERROR, ignored);
                 }finally {
                     try {
-                        JeproLabDataBaseConnector.getInstance().closeConnexion();
+                        JeproLabFactory.removeConnection(dataBaseObject);
                     }catch (Exception ignored) {
                         JeproLabUncaughtExceptionHandler.logExceptionMessage(Level.WARN, ignored);
                     }

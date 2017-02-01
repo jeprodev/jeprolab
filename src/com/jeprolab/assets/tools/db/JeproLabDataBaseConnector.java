@@ -1,5 +1,6 @@
 package com.jeprolab.assets.tools.db;
 
+import com.jeprolab.JeproLab;
 import com.jeprolab.assets.config.JeproLabConfig;
 import com.jeprolab.assets.tools.JeproLabTools;
 import com.jeprolab.assets.tools.exception.JeproLabUncaughtExceptionHandler;
@@ -17,7 +18,7 @@ public class JeproLabDataBaseConnector {
     private String dataBaseName;
     private String dataBaseUrl;
     private int dataBasePortNumber = 3306;
-    private static JeproLabDataBaseConnector instance;
+    //private static JeproLabDataBaseConnector instance;
     private int generatedKey = -2;
     private int affected_rows = - 2;
 
@@ -31,7 +32,7 @@ public class JeproLabDataBaseConnector {
         hostName = server;
         dataBaseName = dataBase;
         setDriverManager(driver, dataBase, dataBasePortNumber);
-        instance = this;
+        //instance = this;
     }
 
     public void setDriverManager(String driver, String dataBaseName, int portNumber){
@@ -141,12 +142,12 @@ public class JeproLabDataBaseConnector {
         return dataBaseName;
     }
 
-    public static JeproLabDataBaseConnector getInstance() throws Exception {
+    /*public static JeproLabDataBaseConnector getInstance() throws Exception {
         if(instance == null){
             throw new Exception("you can't continue without connection");
         }
         return  instance;
-    }
+    }*/
 
     public void setQuery(String query){
         setQuery(query, 0, 0);
@@ -175,6 +176,7 @@ public class JeproLabDataBaseConnector {
             JeproLabUncaughtExceptionHandler.logExceptionMessage(Level.ERROR, ignored);
             return null;
         } catch (Exception ignored) {
+            JeproLabTools.displayError(524, JeproLab.getBundle().getString("JEPROLAB_CONNECTION_FAILED_MESSAGE"));
             JeproLabUncaughtExceptionHandler.logExceptionMessage(Level.ERROR, ignored);
             return null;
         }

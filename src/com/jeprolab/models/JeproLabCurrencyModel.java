@@ -106,7 +106,7 @@ public class JeproLabCurrencyModel extends JeproLabModel {
                         JeproLabUncaughtExceptionHandler.logExceptionMessage(Level.ERROR, ignored);
                     }finally {
                         try {
-                            JeproLabDataBaseConnector.getInstance().closeConnexion();
+                            JeproLabFactory.removeConnection(dataBaseObject);
                         }catch (Exception ignored) {
                             JeproLabUncaughtExceptionHandler.logExceptionMessage(Level.WARN, ignored);
                         }
@@ -154,7 +154,7 @@ public class JeproLabCurrencyModel extends JeproLabModel {
                 currencyId = 0;
             }finally {
                 try {
-                    JeproLabDataBaseConnector.getInstance().closeConnexion();
+                    JeproLabFactory.removeConnection(dataBaseObject);
                 }catch (Exception ignored) {
                     JeproLabUncaughtExceptionHandler.logExceptionMessage(Level.WARN, ignored);
                 }
@@ -266,7 +266,7 @@ public class JeproLabCurrencyModel extends JeproLabModel {
             JeproLabUncaughtExceptionHandler.logExceptionMessage(Level.ERROR, ignored);
         }finally {
             try {
-                JeproLabDataBaseConnector.getInstance().closeConnexion();
+                JeproLabFactory.removeConnection(dataBaseObject);
             }catch (Exception ignored) {
                 JeproLabUncaughtExceptionHandler.logExceptionMessage(Level.WARN, ignored);
             }
@@ -312,7 +312,7 @@ public class JeproLabCurrencyModel extends JeproLabModel {
             JeproLabUncaughtExceptionHandler.logExceptionMessage(Level.ERROR, ignored);
         }finally {
             try {
-                JeproLabDataBaseConnector.getInstance().closeConnexion();
+                JeproLabFactory.removeConnection(dataBaseObject);
             }catch (Exception ignored) {
                 JeproLabUncaughtExceptionHandler.logExceptionMessage(Level.WARN, ignored);
             }

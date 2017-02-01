@@ -134,7 +134,7 @@ public class JeproLabGroupModel extends JeproLabModel{
             JeproLabUncaughtExceptionHandler.logExceptionMessage(Level.ERROR, ignored);
         }finally {
             try {
-                JeproLabDataBaseConnector.getInstance().closeConnexion();
+                JeproLabFactory.removeConnection(dataBaseObject);
             }catch (Exception ignored) {
                 JeproLabUncaughtExceptionHandler.logExceptionMessage(Level.WARN, ignored);
             }
@@ -155,7 +155,7 @@ public class JeproLabGroupModel extends JeproLabModel{
             float reduction = (float)dataBaseObject.loadValue("reduction");
             JeproLabGroupModel.cache_reduction.put(cacheKey, reduction);
         }
-        return (float)JeproLabGroupModel.cache_reduction.get(cacheKey);
+        return JeproLabGroupModel.cache_reduction.get(cacheKey);
     }
 
     /**
@@ -302,7 +302,7 @@ public class JeproLabGroupModel extends JeproLabModel{
                     JeproLabUncaughtExceptionHandler.logExceptionMessage(Level.ERROR, ignored);
                 }finally {
                     try {
-                        JeproLabDataBaseConnector.getInstance().closeConnexion();
+                        JeproLabFactory.removeConnection(dataBaseObject);
                     }catch (Exception ignored){
                         JeproLabUncaughtExceptionHandler.logExceptionMessage(Level.WARN, ignored);
                     }
@@ -388,7 +388,7 @@ public class JeproLabGroupModel extends JeproLabModel{
                             JeproLabUncaughtExceptionHandler.logExceptionMessage(Level.ERROR, ignored);
                         }finally {
                             try {
-                                JeproLabDataBaseConnector.getInstance().closeConnexion();
+                                JeproLabFactory.removeConnection(dataBaseObject);
                             }catch (Exception ignored) {
                                 JeproLabUncaughtExceptionHandler.logExceptionMessage(Level.WARN, ignored);
                             }
@@ -427,7 +427,7 @@ public class JeproLabGroupModel extends JeproLabModel{
                     JeproLabUncaughtExceptionHandler.logExceptionMessage(Level.ERROR, ignored);
                 }finally {
                     try {
-                        JeproLabDataBaseConnector.getInstance().closeConnexion();
+                        JeproLabFactory.removeConnection(dataBaseObject);
                     }catch (Exception ignored) {
                         JeproLabUncaughtExceptionHandler.logExceptionMessage(Level.WARN, ignored);
                     }

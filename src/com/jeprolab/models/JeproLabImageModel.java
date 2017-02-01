@@ -126,9 +126,9 @@ public class JeproLabImageModel extends JeproLabModel{
                     JeproLabUncaughtExceptionHandler.logExceptionMessage(Level.ERROR, ignored);
                 }finally {
                     try {
-                        JeproLabDataBaseConnector.getInstance().closeConnexion();
-                    }catch (Exception e) {
-                        e.printStackTrace();
+                        JeproLabFactory.removeConnection(dataBaseObject);
+                    }catch (Exception ignored) {
+                        JeproLabUncaughtExceptionHandler.logExceptionMessage(Level.WARN, ignored);
                     }
                 }
             }else {
@@ -310,12 +310,12 @@ public class JeproLabImageModel extends JeproLabModel{
                         list.add(imageType);
                     }
                 }catch (SQLException ignored){
-                    ignored.printStackTrace();
+                    JeproLabUncaughtExceptionHandler.logExceptionMessage(Level.ERROR, ignored);
                 }finally {
                     try {
-                        JeproLabDataBaseConnector.getInstance().closeConnexion();
-                    }catch (Exception e) {
-                        e.printStackTrace();
+                        JeproLabFactory.removeConnection(dataBaseObject);
+                    }catch (Exception ignored) {
+                        JeproLabUncaughtExceptionHandler.logExceptionMessage(Level.WARN, ignored);
                     }
                 }
 
@@ -384,7 +384,7 @@ public class JeproLabImageModel extends JeproLabModel{
                         JeproLabUncaughtExceptionHandler.logExceptionMessage(Level.ERROR, ignored);
                     }finally {
                         try {
-                            JeproLabDataBaseConnector.getInstance().closeConnexion();
+                            JeproLabFactory.removeConnection(dataBaseObject);
                         }catch (Exception ignored) {
                             JeproLabUncaughtExceptionHandler.logExceptionMessage(Level.WARN, ignored);
                         }

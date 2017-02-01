@@ -5,6 +5,7 @@ import com.jeprolab.assets.extend.controls.*;
 import com.jeprolab.assets.extend.controls.switchbutton.JeproSwitchButton;
 import com.jeprolab.assets.tools.JeproLabContext;
 import com.jeprolab.assets.tools.JeproLabTools;
+import com.jeprolab.assets.tools.exception.JeproLabUncaughtExceptionHandler;
 import com.jeprolab.models.*;
 import com.jeprolab.models.core.JeproLabRequest;
 import javafx.beans.property.SimpleBooleanProperty;
@@ -12,6 +13,8 @@ import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.concurrent.Task;
+import javafx.concurrent.Worker;
 import javafx.fxml.FXML;
 import javafx.geometry.HPos;
 import javafx.geometry.Insets;
@@ -24,6 +27,7 @@ import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.*;
 import javafx.util.Callback;
+import org.apache.log4j.Level;
 
 import java.net.URL;
 import java.util.ArrayList;
@@ -127,26 +131,67 @@ public class JeproLabAnalyzeAddController extends JeproLabController{
     }
 
     @Override
-    public void initializeContent() {
+    public void initializeContent(){
+        initializeContent(0);
+    }
+
+    @Override
+    public void initializeContent(int analyzeId){
         if (context == null) {
             context = JeproLabContext.getContext();
         }
         //request = JeproLab.request;
-        this.loadAnalyze(true);
-        if(analyze.analyze_id > 0){
-            formTitleLabel.setText(bundle.getString("JEPROLAB_EDIT_LABEL") + " " + bundle.getString("JEPROLAB_ANALYZE_LABEL"));
-        }
+        this.loadAnalyze(true, analyzeId);
+
         renderMethodTab();
         renderAssociationTab();
         renderImageTab();
         updateToolBar();
         addEventListener();
+
+    }
+
+    private void updateFormContent(JeproLabAnalyzeModel data){
+        analyze = data;
         if(analyze.analyze_id > 0){
-            updateContent();
+            formTitleLabel.setText(bundle.getString("JEPROLAB_EDIT_LABEL") + " " + bundle.getString("JEPROLAB_ANALYZE_LABEL"));
+        }
+
+        if (analyze.analyze_id > 0) {
+            saveAnalyzeBtn.setText(bundle.getString("JEPROLAB_UPDATE_LABEL"));
+        } else {
+            saveAnalyzeBtn.setText(bundle.getString("JEPROLAB_SAVE_LABEL"));
+        }
+
+        if(analyze.analyze_id > 0){
+            jeproLabAnalyzePriceTabForm.setDisable(false);
+            //jeproLabAnalyzeAttachedFileTabForm.setDisable(false);
+            //jeproLabAnalyzeSeoTabForm.setDisable(false);
+            jeproLabAnalyzeAssociationTabForm.setDisable(false);
+            jeproLabAnalyzeImageTabForm.setDisable(false);
+            //jeproLabAnalyzeShippingTabForm.setDisable(false);
+            //jeproLabAnalyzeTechnicianTabForm.setDisable(false);
+            jeproLabAnalyzeSpecificPriceTabForm.setDisable(false);
+            jeproLabAnalyzeMethodSelectorTab.setDisable(false);
+            updateInformationContent();
+            updateMethodContent();
+            updatePriceContent();
+            updateSpecificPriceContent();
+            updateImagesContent();
+        }else {
+            jeproLabAnalyzePriceTabForm.setDisable(true);
+            //jeproLabAnalyzeAttachedFileTabForm.setDisable(true);
+            //jeproLabAnalyzeSeoTabForm.setDisable(true);
+            jeproLabAnalyzeAssociationTabForm.setDisable(true);
+            jeproLabAnalyzeImageTabForm.setDisable(true);
+            //jeproLabAnalyzeShippingTabForm.setDisable(true);
+            //jeproLabAnalyzeTechnicianTabForm,
+            jeproLabAnalyzeSpecificPriceTabForm.setDisable(true);
+            jeproLabAnalyzeMethodSelectorTab.setDisable(true);
         }
     }
 
-    public void updateContent(){
+    private void updateInformationContent(){
         /** info data setting **/
         jeproLabAnalyzeReference.setText(analyze.reference);
         jeproLabAnalyzeUpc.setText(analyze.upc);
@@ -190,6 +235,44 @@ public class JeproLabAnalyzeAddController extends JeproLabController{
                 break;
         }
     }
+
+    private void updateMethodContent(){
+        CheckBox methodCheckBox;
+        List<JeproLabAnalyzeModel.JeproLabMethodModel>  methods = JeproLabAnalyzeModel.JeproLabMethodModel.getMethods();
+
+        int rowIndex = 0, index = 0;
+        for(JeproLabAnalyzeModel.JeproLabMethodModel method : methods){
+            methodCheckBox = new CheckBox(method.name + " " + method.code);
+            jeproLabAnalyzeMethodSelectorLayout.add(methodCheckBox, index % 4, rowIndex);
+
+            GridPane.setMargin(methodCheckBox, new Insets(10, 10, 10, 10));
+            index++;
+            if((index % 4) == 0){
+                rowIndex++;
+            }
+
+            if(analyze.analyze_id > 0 && analyze.analyzeMethods.contains(method.method_id)){
+                methodCheckBox.setSelected(true);
+
+            }
+
+            methodCheckBox.selectedProperty().addListener(((observable, oldValue, newValue) -> {
+                if(newValue){
+                    analyze.addMethod(method.method_id);
+                    //methodCheckBox.getStyleClass().add("analyze-method");
+                }else{
+                    analyze.removeMethod(method.method_id);
+                    //methodCheckBox.getStyleClass().remove("analyze-method");
+                }
+            }));
+        }
+    }
+
+    private void updatePriceContent(){}
+
+    private void updateSpecificPriceContent(){}
+
+    private void updateImagesContent(){}
 
     private void renderInformationTab(){
         jeproLabAnalyzeInformationLayout.setLayoutX(posX);
@@ -298,7 +381,6 @@ public class JeproLabAnalyzeAddController extends JeproLabController{
 
     private void renderMethodTab(){
         int columnWidth = (int)((0.93 * JeproLab.APP_WIDTH) / 4);
-        List<JeproLabAnalyzeModel.JeproLabMethodModel>  methods = JeproLabAnalyzeModel.JeproLabMethodModel.getMethods();
 
         jeproLabAnalyzeMethodScrollPane.setPrefSize(formWidth - 10, 550);
         jeproLabAnalyzeMethodSelectorLabel.setPrefSize(formWidth - 10, 30);
@@ -311,35 +393,6 @@ public class JeproLabAnalyzeAddController extends JeproLabController{
             new ColumnConstraints(columnWidth), new ColumnConstraints(columnWidth),
             new ColumnConstraints(columnWidth), new ColumnConstraints(columnWidth)
         );
-
-        CheckBox methodCheckBox;
-
-        int rowIndex = 0, index = 0;
-        for(JeproLabAnalyzeModel.JeproLabMethodModel method : methods){
-            methodCheckBox = new CheckBox(method.name + " " + method.code);
-            jeproLabAnalyzeMethodSelectorLayout.add(methodCheckBox, index % 4, rowIndex);
-
-            GridPane.setMargin(methodCheckBox, new Insets(10, 10, 10, 10));
-            index++;
-            if((index % 4) == 0){
-                rowIndex++;
-            }
-
-            if(analyze.analyze_id > 0 && analyze.analyzeMethods.contains(method.method_id)){
-                methodCheckBox.setSelected(true);
-
-            }
-
-            methodCheckBox.selectedProperty().addListener(((observable, oldValue, newValue) -> {
-                if(newValue){
-                    analyze.addMethod(method.method_id);
-                    //methodCheckBox.getStyleClass().add("analyze-method");
-                }else{
-                    analyze.removeMethod(method.method_id);
-                    //methodCheckBox.getStyleClass().remove("analyze-method");
-                }
-            }));
-        }
     }
 
     private void renderPriceTab(){
@@ -487,7 +540,6 @@ public class JeproLabAnalyzeAddController extends JeproLabController{
         jeproLabAnalyzeUpc.addEventFilter(KeyEvent.KEY_TYPED, JeproLabTools.codeValidation(12));
 
         saveAnalyzeBtn.setOnAction(evt -> {
-
             if (jeproLabAnalyzeVisibility.getValue().equals(bundle.getString("JEPROLAB_CATALOG_LABEL"))) {
                 analyze.visibility = "catalog";
             } else if (jeproLabAnalyzeVisibility.getValue().equals(bundle.getString("JEPROLAB_SEARCH_LABEL"))) {
@@ -497,7 +549,6 @@ public class JeproLabAnalyzeAddController extends JeproLabController{
             } else {
                 analyze.visibility = "both";
             }
-
 
             if (jeproLabAnalyzeRedirect.getValue().equals(bundle.getString("JEPROLAB_301_LABEL"))) {
                 analyze.redirect_type = "301";
@@ -533,6 +584,30 @@ public class JeproLabAnalyzeAddController extends JeproLabController{
             } else {
                 analyze.save();
             }
+        });
+
+        cancelBtn.setOnAction(evt -> {
+            analyze = null;
+            jeproLabAnalyzeVisibility.setValue(bundle.getString("JEPROLAB_CATALOG_LABEL"));
+            jeproLabAnalyzeRedirect.setValue(bundle.getString("JEPROLAB_301_LABEL"));
+            jeproLabAnalyzeReference.clear();
+            jeproLabAnalyzeEan13.clear();
+            jeproLabAnalyzeUpc.clear();
+            jeproLabAnalyzePublished.setSelected(false);
+            jeproLabAnalyzeAvailableForOrder.setSelected(false);
+            jeproLabAnalyzeShowPrice.setSelected(false);
+            jeproLabAnalyzeOnSale.setSelected(false);
+            jeproLabAnalyzeDelay.clear();
+            jeproLabAnalyzeDelayHours.clear();
+            jeproLabAnalyzeName.clearFields();
+            jeproLabAnalyzeDescription.clearFields();
+            jeproLabAnalyzeShortDescription.clearFields();
+            jeproLabAnalyzeTags.clearFields();
+
+            JeproLab.getInstance().goToForm(JeproLab.getInstance().getApplicationForms().analyzeForm);
+            JeproLab.getInstance().getApplicationForms().analyzeForm.controller.initializeContent();
+
+            //todo continue
         });
     }
 
@@ -641,48 +716,68 @@ public class JeproLabAnalyzeAddController extends JeproLabController{
         HBox commandWrapper = JeproLab.getInstance().getApplicationToolBarCommandWrapper();
         commandWrapper.getChildren().clear();
         commandWrapper.setSpacing(4);
-        saveAnalyzeBtn = new Button("", new ImageView(new Image(JeproLab.class.getResourceAsStream("resources/images/floppy-icon.png"))));
-        if (analyze.analyze_id > 0) {
-            saveAnalyzeBtn.setText(bundle.getString("JEPROLAB_UPDATE_LABEL"));
-        } else {
-            saveAnalyzeBtn.setText(bundle.getString("JEPROLAB_SAVE_LABEL"));
-        }
+        saveAnalyzeBtn = new Button(bundle.getString("JEPROLAB_UPDATE_LABEL"), new ImageView(new Image(JeproLab.class.getResourceAsStream("resources/images/floppy-icon.png"))));
+
         cancelBtn = new Button(bundle.getString("JEPROLAB_CANCEL_LABEL"), new ImageView(new Image(JeproLab.class.getResourceAsStream("resources/images/unpublished.png"))));
 
         commandWrapper.getChildren().addAll(saveAnalyzeBtn, cancelBtn);
     }
 
-    private void loadAnalyze(boolean option) {
-        int analyzeId = JeproLab.request.getRequest().containsKey("analyze_id") ? Integer.parseInt(JeproLab.request.getRequest().get("analyze_id")) : 0;
+    private void loadAnalyze(boolean option, int analyzeId) {
+        Worker<Boolean> worker = new Task<Boolean>(){
+            JeproLabAnalyzeModel data = null;
+            @Override
+            protected Boolean call() throws Exception{
+                boolean isLoaded = false;
+                if (analyzeId > 0) {
+                    if (data == null) {
+                        data = new JeproLabAnalyzeModel(analyzeId);
+                    }
 
-        boolean isLoaded = false;
-        if (analyzeId > 0) {
-            if (analyze == null) {
-                analyze = new JeproLabAnalyzeModel(analyzeId);
+                    if (data.analyze_id <= 0) {
+                        JeproLabTools.displayError(500, bundle.getString("JEPROLAB_ANALYZE_NOT_FOUND_MESSAGE"));
+                        isLoaded = false;
+                    } else {
+                        isLoaded = true;
+                    }
+                } else if (option) {
+                    if (data == null) {
+                        data = new JeproLabAnalyzeModel();
+                    }
+                } else {
+                    JeproLabTools.displayError(500, bundle.getString("JEPROSHOP_ANALYZE_DOES_NOT_EXIST_MESSAGE"));
+                    isLoaded = false;
+                }
+
+                //specified
+                if (isLoaded && data.analyze_id > 0) {
+                    if (JeproLabLaboratoryModel.getLabContext() == JeproLabLaboratoryModel.LAB_CONTEXT && JeproLabLaboratoryModel.isFeaturePublished() && !data.isAssociatedToLaboratory()) {
+                        data = new JeproLabAnalyzeModel(data.analyze_id, false, 0, data.default_laboratory_id);
+                    }
+                    data.loadStockData();
+                }
+                return isLoaded;
             }
 
-            if (analyze.analyze_id <= 0) {
-                JeproLabTools.displayError(500, bundle.getString("JEPROLAB_ANALYZE_NOT_FOUND_MESSAGE"));
-                isLoaded = false;
-            } else {
-                isLoaded = true;
+            @Override
+            protected void failed(){
+                super.failed();
+                JeproLabUncaughtExceptionHandler.logExceptionMessage(Level.WARN, exceptionProperty().getValue());
             }
-        } else if (option) {
-            if (analyze == null) {
-                analyze = new JeproLabAnalyzeModel();
-            }
-        } else {
-            JeproLabTools.displayError(500, bundle.getString("JEPROSHOP_ANALYZE_DOES_NOT_EXIST_MESSAGE"));
-            isLoaded = false;
-        }
 
-        //specified
-        if (isLoaded && analyze.analyze_id > 0) {
-            if (JeproLabLaboratoryModel.getLabContext() == JeproLabLaboratoryModel.LAB_CONTEXT && JeproLabLaboratoryModel.isFeaturePublished() && !analyze.isAssociatedToLaboratory()) {
-                analyze = new JeproLabAnalyzeModel(analyze.analyze_id, false, 0, analyze.default_laboratory_id);
+            @Override
+            protected void succeeded(){
+                super.failed();
+                updateFormContent(data);
             }
-            analyze.loadStockData();
-        }
+
+            @Override
+            protected void cancelled(){
+                super.failed();
+            }
+        };
+
+        new Thread((Task)worker).start();
     }
 
     private static class JeproLabSpecificPriceRecord {

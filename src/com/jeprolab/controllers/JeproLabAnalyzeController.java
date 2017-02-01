@@ -7,11 +7,14 @@ import com.jeprolab.assets.tools.exception.JeproLabUncaughtExceptionHandler;
 import com.jeprolab.models.JeproLabAnalyzeModel;
 import com.jeprolab.models.JeproLabSettingModel;
 import com.jeprolab.models.JeproLabStockModel;
+import javafx.application.Platform;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.concurrent.Task;
+import javafx.concurrent.Worker;
 import javafx.fxml.FXML;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -113,13 +116,46 @@ public class JeproLabAnalyzeController extends JeproLabController{
 
     @Override
     public void initializeContent(){
-        List<JeproLabAnalyzeModel> analyzes = JeproLabAnalyzeModel.getAnalyzeList();
-        ObservableList<JeproLabAnalyzeRecord> analyzeList = FXCollections.observableArrayList();
-        if(!analyzes.isEmpty()){
-            analyzeList.addAll(analyzes.stream().map(JeproLabAnalyzeRecord::new).collect(Collectors.toList()));
-            jeproLabAnalyzeTableView.setItems(analyzeList);
-        }
+        Worker<List<JeproLabAnalyzeModel>> worker = new Task<List<JeproLabAnalyzeModel>>(){
+            List<JeproLabAnalyzeModel> analyzes;
+            @Override
+            protected List<JeproLabAnalyzeModel> call() throws Exception {
+                if(isCancelled()){
+                    return null;
+                }
+                analyzes = JeproLabAnalyzeModel.getAnalyzeList();
+                return analyzes;
+            }
+
+            @Override
+            protected void succeeded(){
+                updateTableView(analyzes);
+            }
+
+            @Override
+            protected void cancelled(){
+                super.cancelled();
+            }
+
+            @Override
+            protected void failed(){
+                JeproLabUncaughtExceptionHandler.logExceptionMessage(Level.ERROR, exceptionProperty().getValue());
+            }
+        };
+        new Thread((Task)worker).start();
+
         updateToolBar();
+    }
+
+    private void updateTableView(List<JeproLabAnalyzeModel> analyzes){
+        Platform.runLater(() -> {
+            ObservableList<JeproLabAnalyzeRecord> analyzeList = FXCollections.observableArrayList();
+            if(!analyzes.isEmpty()) {
+                analyzeList.addAll(analyzes.stream().map(JeproLabAnalyzeRecord::new).collect(Collectors.toList()));
+                jeproLabAnalyzeTableView.getItems().clear();
+                jeproLabAnalyzeTableView.setItems(analyzeList);
+            }
+        });
     }
 
     @Override
@@ -128,13 +164,9 @@ public class JeproLabAnalyzeController extends JeproLabController{
         commandWrapper.getChildren().clear();
         addAnalyzeBtn = new Button(bundle.getString("JEPROLAB_ADD_NEW_LABEL"), new ImageView(new Image(JeproLab.class.getResourceAsStream("resources/images/add.png"))));
         addAnalyzeBtn.setOnAction(evt -> {
-            //try {
-                JeproLab.request.getRequest().clear();
-                JeproLab.getInstance().goToForm(JeproLab.getInstance().getApplicationForms().addAnalyzeForm);
-                JeproLabContext.getContext().controller.initializeContent();
-            /*}catch (IOException ignored){
-                ignored.printStackTrace();
-            }*/
+            JeproLab.request.getRequest().clear();
+            JeproLab.getInstance().goToForm(JeproLab.getInstance().getApplicationForms().addAnalyzeForm);
+            JeproLab.getInstance().getApplicationForms().addAnalyzeForm.controller.initializeContent();
         });
         commandWrapper.getChildren().addAll(addAnalyzeBtn);
     }
@@ -198,7 +230,7 @@ public class JeproLabAnalyzeController extends JeproLabController{
             return analyzeBasePrice.get();
         }
 
-        public void delete(){
+        /*public void delete(){
             JeproLabAnalyzeModel analyze = new JeproLabAnalyzeModel(getAnalyzeId(), true);
             if(analyze.analyze_id > 0){
                 if(JeproLabSettingModel.getIntValue("advanced_stock_management") > 0 && analyze.advanced_stock_management){
@@ -208,7 +240,7 @@ public class JeproLabAnalyzeController extends JeproLabController{
 
                     if(quantity > 0 || realQuantity > quantity){
                         JeproLabTools.displayError(500, JeproLab.getBundle().getString("JEPROLAB_YOU_CANNOT_DELETE_THIS_ANALYZE_BECAUSE_THERE_STILL_PRODUCT_TO_RUN_IT_MESSAGE"));
-                        JeproLabContext.getContext().controller.has_errors = true;
+                        JeproLab.getInstance().getApplicationForms().addAnalyzeForm.controller.has_errors = true;
                     }
                 }
 
@@ -225,7 +257,7 @@ public class JeproLabAnalyzeController extends JeproLabController{
             }else{
                 JeproLabTools.displayError(500, JeproLab.getBundle().getString("JEPROLAB_AN_ERROR_WHILE_DELETING_THE_ANALYZE_MESSAGE") + "\n" + JeproLab.getBundle().getString("JEPROLAB_UNABLE_TO_LOAD_ANALYZE_LABEL"));
             }
-        }
+        }*/
     }
 
     public static class JeproLabCheckBoxCell extends TableCell<JeproLabAnalyzeRecord, Boolean>{
@@ -310,7 +342,7 @@ public class JeproLabAnalyzeController extends JeproLabController{
         @Override
         public void commitEdit(HBox t){
             super.commitEdit(t);
-            final ObservableList<JeproLabAnalyzeRecord> items = getTableView().getItems();
+            //final ObservableList<JeproLabAnalyzeRecord> items = getTableView().getItems();
         }
 
         @Override
@@ -320,15 +352,41 @@ public class JeproLabAnalyzeController extends JeproLabController{
             if((items != null) && (getIndex() >= 0 && getIndex() < items.size())){
                 int itemId = items.get(getIndex()).getAnalyzeIndex();
                 editAnalyze.setOnAction(event -> {
-                    JeproLab.request.setRequest("analyze_id=" + itemId + "&" + JeproLabTools.getAnalyzeToken() + "=1");
-                    //try{
-                        JeproLab.getInstance().goToForm(JeproLab.getInstance().getApplicationForms().addAnalyzeForm);
-                        JeproLab.getInstance().getApplicationForms().addAnalyzeForm.controller.initializeContent();
-                    /*}catch (IOException ignored){
-                        JeproLabUncaughtExceptionHandler.logExceptionMessage(Level.DEBUG, ignored);
-                    } */
+                    JeproLab.getInstance().goToForm(JeproLab.getInstance().getApplicationForms().addAnalyzeForm);
+                    JeproLab.getInstance().getApplicationForms().addAnalyzeForm.controller.initializeContent(itemId);
                 });
                 deleteAnalyze.setOnAction(event -> {
+                    Worker<Boolean> worker = new Task<Boolean>() {
+                        @Override
+                        protected Boolean call() throws Exception {
+                            if(isCancelled()){
+                                return false;
+                            }
+                            JeproLabAnalyzeModel analyzeModel = new JeproLabAnalyzeModel(itemId, false);
+                            return analyzeModel.delete();
+                        }
+
+                        @Override
+                        protected void succeeded(){
+                            super.succeeded();
+                        }
+
+                        @Override
+                        protected void failed(){
+                            super.failed();
+                        }
+
+                        @Override
+                        protected void cancelled(){
+                            super.cancelled();
+                        }
+                    };
+                    new Thread((Task)worker).start();
+                    JeproLabAnalyzeRecord record = getTableView().getItems().get(getIndex());
+                    getTableView().getItems().remove(record);
+                    //todo ObservableList<JeproLabAnalyzeRecord> list = getTableView().getItems();
+                    //getTableView().getItems().clear();
+                    //getTableView().setItems(list);
 
                 });
                 setGraphic(commandContainer);

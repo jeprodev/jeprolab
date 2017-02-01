@@ -50,7 +50,6 @@ public class JeproLabCurrencyAddController extends JeproLabController{
         jeproLabFormWrapper.setLayoutY(40);
 
         jeproLabFormTitleWrapper.setPrefSize(formWidth, 40);
-        formTitleLabel.setText(bundle.getString("JEPROLAB_LABEL"));
         formTitleLabel.setPrefSize(formWidth, 40);
         jeproLabFormTitleWrapper.getChildren().add(formTitleLabel);
 

@@ -147,7 +147,7 @@ public class JeproLabCountryModel extends JeproLabModel{
                     JeproLabUncaughtExceptionHandler.logExceptionMessage(Level.ERROR, ignored);
                 }finally {
                     try {
-                        JeproLabDataBaseConnector.getInstance().closeConnexion();
+                        JeproLabFactory.removeConnection(dataBaseObject);
                     }catch (Exception ignored) {
                         JeproLabUncaughtExceptionHandler.logExceptionMessage(Level.WARN, ignored);
                     }
@@ -308,7 +308,7 @@ public class JeproLabCountryModel extends JeproLabModel{
                 JeproLabUncaughtExceptionHandler.logExceptionMessage(Level.ERROR, ignored);
             }finally {
                 try {
-                    JeproLabDataBaseConnector.getInstance().closeConnexion();
+                    JeproLabFactory.removeConnection(dataBaseObject);
                 }catch (Exception ignored) {
                     JeproLabUncaughtExceptionHandler.logExceptionMessage(Level.WARN, ignored);
                 }
@@ -401,7 +401,7 @@ public class JeproLabCountryModel extends JeproLabModel{
                 JeproLabUncaughtExceptionHandler.logExceptionMessage(Level.ERROR, ignored);
             }finally {
                 try {
-                    JeproLabDataBaseConnector.getInstance().closeConnexion();
+                    JeproLabFactory.removeConnection(dataBaseObject);
                 }catch (Exception ignored) {
                     JeproLabUncaughtExceptionHandler.logExceptionMessage(Level.WARN, ignored);
                 }
@@ -470,7 +470,7 @@ public class JeproLabCountryModel extends JeproLabModel{
                 JeproLabUncaughtExceptionHandler.logExceptionMessage(Level.ERROR, ignored);
             }finally {
                 try {
-                    JeproLabDataBaseConnector.getInstance().closeConnexion();
+                    JeproLabFactory.removeConnection(dataBaseObject);
                 }catch (Exception ignored) {
                     JeproLabUncaughtExceptionHandler.logExceptionMessage(Level.WARN, ignored);
                 }
@@ -647,7 +647,7 @@ public class JeproLabCountryModel extends JeproLabModel{
                 JeproLabUncaughtExceptionHandler.logExceptionMessage(Level.ERROR, ignored);
             }finally {
                 try {
-                    JeproLabDataBaseConnector.getInstance().closeConnexion();
+                    JeproLabFactory.removeConnection(dataBaseObject);
                 }catch (Exception ignored){
                     JeproLabUncaughtExceptionHandler.logExceptionMessage(Level.WARN, ignored);
                 }
@@ -728,7 +728,7 @@ public class JeproLabCountryModel extends JeproLabModel{
                             JeproLabUncaughtExceptionHandler.logExceptionMessage(Level.ERROR, ignored);
                         }finally {
                             try {
-                                JeproLabDataBaseConnector.getInstance().closeConnexion();
+                                JeproLabFactory.removeConnection(dataBaseObject);
                             }catch (Exception ignored) {
                                 JeproLabUncaughtExceptionHandler.logExceptionMessage(Level.WARN, ignored);
                             }
@@ -781,7 +781,7 @@ public class JeproLabCountryModel extends JeproLabModel{
                     JeproLabUncaughtExceptionHandler.logExceptionMessage(Level.ERROR, ignored);
                 }finally {
                     try {
-                        JeproLabDataBaseConnector.getInstance().closeConnexion();
+                        JeproLabFactory.removeConnection(dataBaseObject);
                     }catch (Exception ignored) {
                         JeproLabUncaughtExceptionHandler.logExceptionMessage(Level.WARN, ignored);
                     }

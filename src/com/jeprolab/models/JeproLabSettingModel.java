@@ -1,7 +1,5 @@
 package com.jeprolab.models;
 
-import com.jeprolab.assets.tools.JeproLabTools;
-import com.jeprolab.assets.tools.db.JeproLabDataBaseConnector;
 import com.jeprolab.assets.tools.exception.JeproLabUncaughtExceptionHandler;
 import com.jeprolab.models.core.JeproLabFactory;
 import org.apache.commons.collections4.map.HashedMap;
@@ -64,7 +62,7 @@ public class JeproLabSettingModel extends JeproLabModel {
                 JeproLabUncaughtExceptionHandler.logExceptionMessage(Level.ERROR, ignored);
             } finally {
                 try {
-                    JeproLabDataBaseConnector.getInstance().closeConnexion();
+                    JeproLabFactory.removeConnection(dataBaseObject);
                 } catch (Exception ignored) {
                     JeproLabUncaughtExceptionHandler.logExceptionMessage(Level.WARN, ignored);
                 }
