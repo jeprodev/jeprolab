@@ -45,8 +45,8 @@ public class JeproLabLanguageModel extends JeproLabModel{
                 String query = "SELECT * FROM " + dataBaseObject.quoteName("#__languages") + " lang WHERE lang.lang_id = ";
                 query += langId ;
 
-                dataBaseObject.setQuery(query);
-                ResultSet languageDataSet = dataBaseObject.loadObjectList();
+                //dataBaseObject.setQuery(query);
+                ResultSet languageDataSet = dataBaseObject.loadObjectList(query);
                 //String default_language = JeproLabLanguageModel.getDefaultLanguage().language_code;
                 int defaultLangId = JeproLabSettingModel.getIntValue("default_lang");
                 try{
@@ -100,8 +100,8 @@ public class JeproLabLanguageModel extends JeproLabModel{
 
         String query = " SELECT * FROM " + dataBaseObject.quoteName("#__languages") ;
 
-        dataBaseObject.setQuery(query);
-        ResultSet languages = dataBaseObject.loadObjectList();
+        //dataBaseObject.setQuery(query);
+        ResultSet languages = dataBaseObject.loadObjectList(query);
 
         String default_language = JeproLabLanguageModel.getDefaultLanguage().language_code;
         if(languages != null) {

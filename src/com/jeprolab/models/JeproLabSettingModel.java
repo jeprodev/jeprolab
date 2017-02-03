@@ -36,8 +36,7 @@ public class JeproLabSettingModel extends JeproLabModel {
         String query = "SELECT " + dataBaseObject.quoteName("value") + " FROM " + dataBaseObject.quoteName("#__jeprolab_setting");
         query += " WHERE " + dataBaseObject.quoteName("name") + " = " + dataBaseObject.quote(key);
 
-        dataBaseObject.setQuery(query);
-        return dataBaseObject.loadObjectList();
+        return dataBaseObject.loadObjectList(query);
     }
 
     public static void loadSettings() {
@@ -49,8 +48,7 @@ public class JeproLabSettingModel extends JeproLabModel {
         String query = "SELECT setting." + dataBaseObject.quoteName("name") + ", setting." + dataBaseObject.quoteName("value");
         query += " FROM " + dataBaseObject.quoteName("#__jeprolab_setting") + " AS setting";
 
-        dataBaseObject.setQuery(query);
-        ResultSet settingsParams = dataBaseObject.loadObjectList();
+        ResultSet settingsParams = dataBaseObject.loadObjectList(query);
         if (settingsParams != null) {
             try {
                 while (settingsParams.next()) {
@@ -71,26 +69,31 @@ public class JeproLabSettingModel extends JeproLabModel {
     }
 
     public static int getIntValue(String key){
-       if(SETTINGS == null || SETTINGS.isEmpty()){
+        if(SETTINGS == null || SETTINGS.isEmpty()){
             JeproLabSettingModel.loadSettings();
         }
-/*
+
         if(SETTINGS.containsKey(key)){
-            System.out.println(key);
             return Integer.parseInt(SETTINGS.get(key).toString());
-        }else{*/
-        int value = 0;
-        try{
+        }else {
+            int value = 0;
             ResultSet valueSet = getValue(key);
-            if(valueSet.next()){
-                value = valueSet.getInt("value");
-                SETTINGS.put(key, value);
+            if (valueSet != null) {
+                try {
+                    if (valueSet.next()) {
+                        String valueData = valueSet.getString("value");
+                        System.out.println(key + " value : " + valueData + " lenght : " + valueData.length());
+                        value = Integer.parseInt(valueData);
+                        SETTINGS.put(key, value);
+                    }
+                    return value;
+                } catch (SQLException ignored) {
+                    JeproLabUncaughtExceptionHandler.logExceptionMessage(Level.ERROR, ignored);
+                    return 0;
+                }
             }
-            return value;
-        }catch (SQLException ignored){
             return 0;
         }
-        //}
     }
 
     public static String getStringValue(String key){

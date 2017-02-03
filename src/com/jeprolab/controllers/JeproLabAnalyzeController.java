@@ -1,6 +1,8 @@
 package com.jeprolab.controllers;
 
 import com.jeprolab.JeproLab;
+import com.jeprolab.assets.config.JeproLabConfigurationSettings;
+import com.jeprolab.assets.extend.controls.JeproFormPanel;
 import com.jeprolab.assets.tools.JeproLabContext;
 import com.jeprolab.assets.tools.JeproLabTools;
 import com.jeprolab.assets.tools.exception.JeproLabUncaughtExceptionHandler;
@@ -18,16 +20,17 @@ import javafx.concurrent.Worker;
 import javafx.fxml.FXML;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 import javafx.util.Callback;
 import org.apache.log4j.Level;
 
-import java.io.IOException;
 import java.net.URL;
 import java.util.List;
 import java.util.ResourceBundle;
@@ -40,17 +43,17 @@ import java.util.stream.Collectors;
 public class JeproLabAnalyzeController extends JeproLabController{
     private CheckBox checkAll;
     private Button addAnalyzeBtn;
+    private ObservableList<JeproLabAnalyzeRecord> analyzeList;
+    private TableView<JeproLabAnalyzeRecord> jeproLabAnalyzeTableView;
+
+    private Pagination jeproLabAnalyzePagination;
+    private HBox jeproLabAnalyzeSearchWrapper;
+    private TextField jeproLabAnalyzeSearch;
+    private Button jeproLabAnalyzeSearchBtn;
+
     @FXML
-    public HBox jeproLabAnalyzeSearchWrapper;
-    public TextField jeproLabAnalyzeSearch;
-    public Button jeproLabAnalyzeSearchBtn;
-    public TableView<JeproLabAnalyzeRecord> jeproLabAnalyzeTableView;
-    public TableColumn<JeproLabAnalyzeRecord, Integer> jeproLabAnalyzeIndexColumn;
-    public TableColumn<JeproLabAnalyzeRecord, Boolean> jeproLabAnalyzeCheckBoxColumn;
-    public TableColumn<JeproLabAnalyzeRecord, String> jeproLabAnalyzeReferenceColumn, jeproLabAnalyzeNameColumn;
-    public TableColumn<JeproLabAnalyzeRecord, Boolean> jeproLabAnalyzeStatusColumn;
-    public TableColumn<JeproLabAnalyzeRecord, String> jeproLabAnalyzeBasePriceColumn, jeproLabAnalyzeFinalPriceColumn, jeproLabAnalyzeCategoryColumn;
-    public TableColumn<JeproLabAnalyzeRecord, HBox> jeproLabAnalyzeActionsColumn;
+    public JeproFormPanel jeproLabAnalyzeFormPanel;
+
 
     @Override
     public void initialize(URL location, ResourceBundle resource) {
@@ -58,60 +61,73 @@ public class JeproLabAnalyzeController extends JeproLabController{
         double remainingWidth = (0.98 * JeproLab.APP_WIDTH) - 180;
         checkAll = new CheckBox();
 
+        jeproLabAnalyzeTableView = new TableView<>();
         jeproLabAnalyzeTableView.setPrefSize(0.98 * JeproLab.APP_WIDTH, 600);
         jeproLabAnalyzeTableView.setLayoutX(0.01 * JeproLab.APP_WIDTH);
         jeproLabAnalyzeTableView.setLayoutY(10);
+
+        jeproLabAnalyzeSearch = new TextField();
+        jeproLabAnalyzeSearchBtn = new Button();
+        jeproLabAnalyzeSearchBtn.getStyleClass().addAll("icon-btn", "search-btn");
+
+        jeproLabAnalyzeSearchWrapper = new HBox(10);
+        jeproLabAnalyzeSearchWrapper.getChildren().addAll(jeproLabAnalyzeSearch, jeproLabAnalyzeSearchBtn);
 
         VBox.setMargin(jeproLabAnalyzeSearchWrapper, new Insets(5, 0, 0, 0.01 * JeproLab.APP_WIDTH));
         VBox.setMargin(jeproLabAnalyzeTableView, new Insets(0, 0, 0, 0.01 * JeproLab.APP_WIDTH));
         jeproLabAnalyzeSearch.setPromptText(bundle.getString("JEPROLAB_SEARCH_LABEL"));
 
-        jeproLabAnalyzeIndexColumn.setText("#");
+        TableColumn<JeproLabAnalyzeRecord, Integer> jeproLabAnalyzeIndexColumn = new TableColumn<>("#");
         jeproLabAnalyzeIndexColumn.setPrefWidth(30);
         tableCellAlign(jeproLabAnalyzeIndexColumn, Pos.CENTER_RIGHT);
         jeproLabAnalyzeIndexColumn.setCellValueFactory(new PropertyValueFactory<>("analyzeIndex"));
 
+        TableColumn<JeproLabAnalyzeRecord, Boolean> jeproLabAnalyzeCheckBoxColumn = new TableColumn<>();
         jeproLabAnalyzeCheckBoxColumn.setGraphic(checkAll);
         jeproLabAnalyzeCheckBoxColumn.setPrefWidth(25);
         Callback<TableColumn<JeproLabAnalyzeRecord, Boolean>, TableCell<JeproLabAnalyzeRecord, Boolean>> checkBoxCellFactory = param -> new JeproLabCheckBoxCell();
         jeproLabAnalyzeCheckBoxColumn.setCellFactory(checkBoxCellFactory);
 
-        jeproLabAnalyzeStatusColumn.setText(bundle.getString("JEPROLAB_STATUS_LABEL"));
+        TableColumn<JeproLabAnalyzeRecord, Boolean> jeproLabAnalyzeStatusColumn = new TableColumn<>(bundle.getString("JEPROLAB_STATUS_LABEL"));
         jeproLabAnalyzeStatusColumn.setPrefWidth(55);
         Callback<TableColumn<JeproLabAnalyzeRecord, Boolean>, TableCell<JeproLabAnalyzeRecord, Boolean>> statusCellFactory = param -> new JeproLabStatusCell();
         jeproLabAnalyzeStatusColumn.setCellFactory(statusCellFactory);
 
-        jeproLabAnalyzeNameColumn.setText(bundle.getString("JEPROLAB_NAME_LABEL"));
+        TableColumn<JeproLabAnalyzeRecord, String> jeproLabAnalyzeNameColumn = new TableColumn<>(bundle.getString("JEPROLAB_NAME_LABEL"));
         jeproLabAnalyzeNameColumn.setPrefWidth(0.32 * remainingWidth);
         tableCellAlign(jeproLabAnalyzeNameColumn, Pos.CENTER_LEFT);
         jeproLabAnalyzeNameColumn.setCellValueFactory(new PropertyValueFactory<>("analyzeName"));
 
-        jeproLabAnalyzeReferenceColumn.setText(bundle.getString("JEPROLAB_REFERENCE_LABEL"));
+        TableColumn<JeproLabAnalyzeRecord, String> jeproLabAnalyzeReferenceColumn = new TableColumn<>(bundle.getString("JEPROLAB_REFERENCE_LABEL"));
         jeproLabAnalyzeReferenceColumn.setPrefWidth(0.22 * remainingWidth);
         tableCellAlign(jeproLabAnalyzeReferenceColumn, Pos.CENTER);
         jeproLabAnalyzeReferenceColumn.setCellValueFactory(new PropertyValueFactory<>("analyzeReference"));
 
-        jeproLabAnalyzeBasePriceColumn.setText(bundle.getString("JEPROLAB_BASE_PRICE_LABEL"));
+        TableColumn<JeproLabAnalyzeRecord, String> jeproLabAnalyzeBasePriceColumn = new TableColumn<>(bundle.getString("JEPROLAB_BASE_PRICE_LABEL"));
         jeproLabAnalyzeBasePriceColumn.setPrefWidth(0.12 * remainingWidth);
         tableCellAlign(jeproLabAnalyzeBasePriceColumn, Pos.CENTER);
         jeproLabAnalyzeBasePriceColumn.setCellValueFactory(new PropertyValueFactory<>("analyzeBasePrice"));
 
-        jeproLabAnalyzeFinalPriceColumn.setText(bundle.getString("JEPROLAB_FINAL_PRICE_LABEL"));
+        TableColumn<JeproLabAnalyzeRecord, String> jeproLabAnalyzeFinalPriceColumn = new TableColumn<>(bundle.getString("JEPROLAB_FINAL_PRICE_LABEL"));
         jeproLabAnalyzeFinalPriceColumn.setPrefWidth(0.12 * remainingWidth);
         tableCellAlign(jeproLabAnalyzeFinalPriceColumn, Pos.CENTER);
         jeproLabAnalyzeFinalPriceColumn.setCellValueFactory(new PropertyValueFactory<>("analyzePrice"));
 
-        jeproLabAnalyzeCategoryColumn.setText(bundle.getString("JEPROLAB_CATEGORY_LABEL"));
+        TableColumn<JeproLabAnalyzeRecord, String> jeproLabAnalyzeCategoryColumn = new TableColumn<>(bundle.getString("JEPROLAB_CATEGORY_LABEL"));
         jeproLabAnalyzeCategoryColumn.setPrefWidth(0.217 * remainingWidth);
         tableCellAlign(jeproLabAnalyzeCategoryColumn, Pos.CENTER_LEFT);
         jeproLabAnalyzeCategoryColumn.setCellValueFactory(new PropertyValueFactory<>("analyzeCategory"));
 
-        jeproLabAnalyzeActionsColumn.setText(bundle.getString("JEPROLAB_ACTIONS_LABEL"));
+        TableColumn<JeproLabAnalyzeRecord, HBox> jeproLabAnalyzeActionsColumn = new TableColumn<>(bundle.getString("JEPROLAB_ACTIONS_LABEL"));
         jeproLabAnalyzeActionsColumn.setPrefWidth(70);
         Callback<TableColumn<JeproLabAnalyzeRecord, HBox>, TableCell<JeproLabAnalyzeRecord, HBox>> actionsCellFactory = param -> new JeproLabActionCell();
         jeproLabAnalyzeActionsColumn.setCellFactory(actionsCellFactory);
-        context.controller = this;
 
+        jeproLabAnalyzeTableView.getColumns().addAll(
+            jeproLabAnalyzeIndexColumn, jeproLabAnalyzeCheckBoxColumn, jeproLabAnalyzeStatusColumn, jeproLabAnalyzeNameColumn,
+            jeproLabAnalyzeReferenceColumn, jeproLabAnalyzeCategoryColumn, jeproLabAnalyzeBasePriceColumn, jeproLabAnalyzeFinalPriceColumn,
+            jeproLabAnalyzeActionsColumn
+        );
     }
 
     @Override
@@ -143,19 +159,32 @@ public class JeproLabAnalyzeController extends JeproLabController{
             }
         };
         new Thread((Task)worker).start();
-
         updateToolBar();
     }
 
+
     private void updateTableView(List<JeproLabAnalyzeModel> analyzes){
+        analyzeList = FXCollections.observableArrayList();
         Platform.runLater(() -> {
-            ObservableList<JeproLabAnalyzeRecord> analyzeList = FXCollections.observableArrayList();
             if(!analyzes.isEmpty()) {
                 analyzeList.addAll(analyzes.stream().map(JeproLabAnalyzeRecord::new).collect(Collectors.toList()));
-                jeproLabAnalyzeTableView.getItems().clear();
-                jeproLabAnalyzeTableView.setItems(analyzeList);
+                //jeproLabAnalyzeTableView.getItems().clear();
+                //jeproLabAnalyzeTableView.setItems(analyzeList);
+                jeproLabAnalyzePagination = new Pagination((analyzes.size()/ JeproLabConfigurationSettings.LIST_LIMIT + 1), 0);
+                jeproLabAnalyzePagination.setPageFactory(this::createPage);
+                VBox container = new VBox(5);
+                container.getChildren().addAll(jeproLabAnalyzeSearchWrapper, jeproLabAnalyzePagination);
+                jeproLabAnalyzeFormPanel.getChildren().add(container);
             }
         });
+    }
+
+    private Node createPage(int pageIndex){
+        int fromIndex = pageIndex * JeproLabConfigurationSettings.LIST_LIMIT;
+        int toIndex = Math.min(fromIndex + JeproLabConfigurationSettings.LIST_LIMIT, (analyzeList.size() - 1));
+        jeproLabAnalyzeTableView.setItems(FXCollections.observableArrayList(analyzeList.subList(fromIndex, toIndex)));
+
+        return new Pane(jeproLabAnalyzeTableView);
     }
 
     @Override

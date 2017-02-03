@@ -67,11 +67,12 @@ public class JeproLabFactory {
         return false;
     }
 
-    public static synchronized void removeConnection(JeproLabDataBaseConnector connector){
+    public static void removeConnection(JeproLabDataBaseConnector connector){
+
         if(dataBaseConnectorPool.contains(connector)){
-            connector.closeConnexion();
             dataBaseConnectorPool.remove(connector);
         }
+        connector.closeConnexion();
     }
 
 

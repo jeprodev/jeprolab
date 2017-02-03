@@ -62,8 +62,8 @@ public class JeproLabTaxModel extends JeproLabModel {
                 }
                 query += ") WHERE tax.tax_id = " + taxId;
 
-                dataBaseObject.setQuery(query);
-                ResultSet taxSet = dataBaseObject.loadObjectList();
+                //dataBaseObject.setQuery(query);
+                ResultSet taxSet = dataBaseObject.loadObjectList(query);
                 if(taxSet != null){
                     try{
                         if(taxSet.next()){
@@ -188,9 +188,9 @@ public class JeproLabTaxModel extends JeproLabModel {
             whereQuery += " AND tax." + dataBaseObject.quoteName("published") + " = 1";
         }
 
-        dataBaseObject.setQuery(selectQuery + fromQuery + leftJoin + whereQuery + orderBy);
+        //dataBaseObject.setQuery();
 
-        ResultSet taxSet =  dataBaseObject.loadObjectList();
+        ResultSet taxSet =  dataBaseObject.loadObjectList(selectQuery + fromQuery + leftJoin + whereQuery + orderBy);
         List<JeproLabTaxModel> taxList = new ArrayList<>();
 
         if(taxSet != null){
@@ -237,8 +237,8 @@ public class JeproLabTaxModel extends JeproLabModel {
         query += " WHERE tax_lang." + dataBaseObject.quoteName("name") + " = " + dataBaseObject.quote(taxName);
         query += (active ? " AND tax." + dataBaseObject.quoteName("published") + " = 1 " : "");
 
-        dataBaseObject.setQuery(query);
-        return (int)dataBaseObject.loadValue("tax_id");
+        //dataBaseObject.setQuery(query);
+        return (int)dataBaseObject.loadValue(query, "tax_id");
     }
 
 
@@ -408,8 +408,8 @@ public class JeproLabTaxModel extends JeproLabModel {
                 query += " DESC, tax_rule." + dataBaseConnector.quoteName("zipcode_to") + " DESC, tax_rule." + dataBaseConnector.quoteName("state_id");
                 query += " DESC, tax_rule." + dataBaseConnector.quoteName("country_id") + " DESC ";
 
-                dataBaseConnector.setQuery(query);
-                ResultSet taxesSet = dataBaseConnector.loadObjectList();
+                //dataBaseConnector.setQuery(query);
+                ResultSet taxesSet = dataBaseConnector.loadObjectList(query);
 
                 int behavior = 0;
                 boolean firstRow = true;
@@ -539,8 +539,8 @@ public class JeproLabTaxModel extends JeproLabModel {
 
                     String query = "SELECT * FROM " + dataBaseObject.quoteName("#__jeprolab_tax_rules_group") + " WHERE " + dataBaseObject.quoteName("tax_rules_group_id") + " = " + taxRulesGroupId;
 
-                    dataBaseObject.setQuery(query);
-                    ResultSet taxRulesGroupSet = dataBaseObject.loadObjectList();
+                    //dataBaseObject.setQuery(query);
+                    ResultSet taxRulesGroupSet = dataBaseObject.loadObjectList(query);
 
                     if(taxRulesGroupSet != null){
                         try{
@@ -582,8 +582,8 @@ public class JeproLabTaxModel extends JeproLabModel {
             query += JeproLabLaboratoryModel.addSqlAssociation("tax_rules_group") ;//+ " WHERE deleted = 0 " ;
             query += (onlyPublished ? " WHERE tax_rules_group." + dataBaseObject.quoteName("published") + " = 1 " : "") + " ORDER BY name ASC ";
 
-            dataBaseObject.setQuery(query);
-            ResultSet taxRulesGroups = dataBaseObject.loadObjectList();
+            //dataBaseObject.setQuery(query);
+            ResultSet taxRulesGroups = dataBaseObject.loadObjectList(query);
             List<JeproLabTaxRulesGroupModel> taxRulesList = new ArrayList<>();
             try{
                 JeproLabTaxRulesGroupModel taxRulesGroupModel;
@@ -621,8 +621,8 @@ public class JeproLabTaxModel extends JeproLabModel {
             query += dataBaseObject.quoteName("state_id") + " = 0 AND 0 between " + dataBaseObject.quoteName("zipcode_from") + " AND " ;
             query += dataBaseObject.quoteName("zipcode_to");
 
-            dataBaseObject.setQuery(query);
-            ResultSet rows = dataBaseObject.loadObjectList();
+            //dataBaseObject.setQuery(query);
+            ResultSet rows = dataBaseObject.loadObjectList(query);
             Map<Integer, Float> taxRates = new HashMap<>();
 
             try{
@@ -650,8 +650,8 @@ public class JeproLabTaxModel extends JeproLabModel {
             query += ", " + dataBaseObject.quoteName("published") + ") VALUES (" + dataBaseObject.quote(this.name) + ", ";
             query += (this.published ? 1 : 0) + ") ";
 
-            dataBaseObject.setQuery(query);
-            boolean result = dataBaseObject.query(true);
+            //dataBaseObject.setQuery(query);
+            boolean result = dataBaseObject.query(query, true);
             this.tax_rules_group_id = dataBaseObject.getGeneratedKey();
             return result;
         }
@@ -665,8 +665,8 @@ public class JeproLabTaxModel extends JeproLabModel {
             query += " = " + dataBaseObject.quote(this.name) + ", " + dataBaseObject.quoteName("published") + " = " + (this.published ? 1 : 0);
             query += " WHERE " + dataBaseObject.quoteName("tax_rules_group_id") + " = " + this.tax_rules_group_id;
 
-            dataBaseObject.setQuery(query);
-            return dataBaseObject.query(false);
+            //dataBaseObject.setQuery(query);
+            return dataBaseObject.query(query, false);
         }
     }
 }

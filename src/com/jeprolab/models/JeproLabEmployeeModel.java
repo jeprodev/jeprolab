@@ -124,8 +124,8 @@ public class JeproLabEmployeeModel extends JeproLabModel{
                 query += " AND lab.lab_id = " + this.laboratory_id + ") ";
             }
             query += " WHERE employee.id = " + employeeId + where;
-            dataBaseObject.setQuery(query);
-            ResultSet result = dataBaseObject.loadObjectList();
+            //dataBaseObject.setQuery(query);
+            ResultSet result = dataBaseObject.loadObjectList(query);
             try{
                 while(result.next()){
                     this.employee_id = result.getInt("id");
@@ -166,8 +166,8 @@ public class JeproLabEmployeeModel extends JeproLabModel{
         query += dataBaseObject.quoteName("#__users") + " WHERE " + dataBaseObject.quoteName("username") + " = ";
         query += dataBaseObject.quote(userName);
 
-        dataBaseObject.setQuery(query);
-        ResultSet credentialSet = dataBaseObject.loadObjectList();
+        //dataBaseObject.setQuery(query);
+        ResultSet credentialSet = dataBaseObject.loadObjectList(query);
         Map<String, String> credential = new HashMap<>();
         if(credentialSet != null){
             try{
@@ -194,11 +194,11 @@ public class JeproLabEmployeeModel extends JeproLabModel{
         }
 
         String query = "SELECT " + dataBaseObject.quoteName("id") + " FROM " + dataBaseObject.quoteName("#__users");
-        query += " WHERE " + dataBaseObject.quoteName("username") + " = " + dataBaseObject.quote(userName);
+        query += " WHERE " + dataBaseObject.quoteName("username") + " = " + dataBaseObject.quote(userName) + " LIMIT 0, 1";
 
-        dataBaseObject.setQuery(query, 0, 1);
+        //dataBaseObject.setQuery(query, 0, 1);
 
-        int id = (int)dataBaseObject.loadValue("id");
+        int id = (int)dataBaseObject.loadValue(query, "id");
         return (id > 0) ? id : 0;
     }
 
@@ -212,8 +212,8 @@ public class JeproLabEmployeeModel extends JeproLabModel{
             dataBaseObject = JeproLabFactory.getDataBaseConnector();
         }
         String query = "SELECT lab_id FROM " + dataBaseObject.quoteName("#__jeproLab_employee_lab") + " WHERE employee_id = " + this.employee_id;
-        dataBaseObject.setQuery(query);
-        ResultSet labSet = dataBaseObject.loadObjectList();
+        //dataBaseObject.setQuery(query);
+        ResultSet labSet = dataBaseObject.loadObjectList(query);
         if(labSet != null){
             try{
                 while(labSet.next()){

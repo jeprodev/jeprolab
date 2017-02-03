@@ -83,8 +83,8 @@ public class JeproLabCurrencyModel extends JeproLabModel {
                     query += "currency_id = currency_lab.currency_id AND currency_lab.lab_id = " + this.laboratory_id + ")";
                 }
                 query += " WHERE currency.currency_id = " + currencyId ;
-                dataBaseObject.setQuery(query);
-                ResultSet resultSet = dataBaseObject.loadObjectList();
+                //dataBaseObject.setQuery(query);
+                ResultSet resultSet = dataBaseObject.loadObjectList(query);
                 if(resultSet != null){
                     try{
                         if(resultSet.next()){
@@ -143,8 +143,8 @@ public class JeproLabCurrencyModel extends JeproLabModel {
             query += " WHERE " + dataBaseObject.quoteName("currency_id") + " != " + (this.currency_id) + " AND " + dataBaseObject.quoteName("deleted");
             query += " = 0";
 
-            dataBaseObject.setQuery(query);
-            ResultSet currencySet = dataBaseObject.loadObjectList();
+            //dataBaseObject.setQuery(query);
+            ResultSet currencySet = dataBaseObject.loadObjectList(query);
             int currencyId = 0;
             try{
                 while(currencySet.next()){
@@ -236,8 +236,8 @@ public class JeproLabCurrencyModel extends JeproLabModel {
         query += (groupBy ? " GROUP BY currency." + dataBaseObject.quoteName("currency_id") : "") + " ORDER BY ";
         query += dataBaseObject.quoteName("name") + " ASC ";
 
-        dataBaseObject.setQuery(query);
-        ResultSet currencySet = dataBaseObject.loadObjectList();
+        //dataBaseObject.setQuery(query);
+        ResultSet currencySet = dataBaseObject.loadObjectList(query);
         List<JeproLabCurrencyModel> currencies = new ArrayList<>();
         try{
             int currencyId;
@@ -288,8 +288,8 @@ public class JeproLabCurrencyModel extends JeproLabModel {
         query += ") " + (labId > 0 ? " WHERE currency_lab." + dataBaseObject.quoteName("lab_id") + " = " + labId : "");
         query += " ORDER BY " + dataBaseObject.quoteName("name") + " ASC";
 
-        dataBaseObject.setQuery(query);
-        ResultSet currencySet = dataBaseObject.loadObjectList();
+        //dataBaseObject.setQuery(query);
+        ResultSet currencySet = dataBaseObject.loadObjectList(query);
         JeproLabCurrencyModel currency;
         List<JeproLabCurrencyModel> currencies = new ArrayList<>();
         try{
@@ -353,8 +353,8 @@ public class JeproLabCurrencyModel extends JeproLabModel {
             query += "currency_lab.currency_id = currency.currency_id AND currency_lab.lab_id = " + labId + ") WHERE currency.";
             query += dataBaseObject.quoteName("published") + " = 1";
 
-            dataBaseObject.setQuery(query);
-            int val = (int)dataBaseObject.loadValue("ids");
+            //dataBaseObject.setQuery(query);
+            int val = (int)dataBaseObject.loadValue(query, "ids");
             JeproLabCurrencyModel.activeCurrencies.put(labId, val);
         }
         return JeproLabCurrencyModel.activeCurrencies.get(labId);
@@ -381,8 +381,8 @@ public class JeproLabCurrencyModel extends JeproLabModel {
         query += ", " + dataBaseObject.quote(this.sign) + ", " + (this.blank ? 1 : 0) + ", " + this.format + ", " + this.decimals + ", " ;
         query += this.conversion_rate + ", " + (this.deleted ? 1 : 0) + ", " + (this.published ? 1 : 0) + ")";
 
-        dataBaseObject.setQuery(query);
-        boolean result = dataBaseObject.query(true);
+        //dataBaseObject.setQuery(query);
+        boolean result = dataBaseObject.query(query, true);
         this.currency_id = dataBaseObject.getGeneratedKey();
         return  result;
     }
@@ -401,7 +401,7 @@ public class JeproLabCurrencyModel extends JeproLabModel {
         query += " = " + (this.deleted ? 1 : 0) + ", " + dataBaseObject.quoteName("published")+ " = " + (this.published ? 1 : 0);
         query += " WHERE " + dataBaseObject.quoteName("currency_id") + " = "  + this.currency_id;
 
-        dataBaseObject.setQuery(query);
-        return dataBaseObject.query(false);
+        //dataBaseObject.setQuery(query);
+        return dataBaseObject.query(query, false);
     }
 }

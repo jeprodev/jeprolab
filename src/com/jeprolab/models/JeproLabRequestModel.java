@@ -70,8 +70,8 @@ public class JeproLabRequestModel extends JeproLabModel{
             if(!JeproLabCache.getInstance().isStored(cacheKey)){
                 String query = "SELECT * FROM " + dataBaseObject.quoteName("#__jeprolab_request") + " AS request WHERE request." + dataBaseObject.quoteName("request_id") + " = " + requestId;
 
-                dataBaseObject.setQuery(query);
-                ResultSet requestSet = dataBaseObject.loadObjectList();
+                //dataBaseObject.setQuery(query);
+                ResultSet requestSet = dataBaseObject.loadObjectList(query);
 
                 if(requestSet != null){
                     try{
@@ -123,9 +123,9 @@ public class JeproLabRequestModel extends JeproLabModel{
 
         String query = "SELECT * FROM " + dataBaseObject.quoteName("#__jeprolab_request");
 
-        dataBaseObject.setQuery(query);
+        //dataBaseObject.setQuery(query);
 
-        ResultSet requestSet = dataBaseObject.loadObjectList();
+        ResultSet requestSet = dataBaseObject.loadObjectList(query);
         List<JeproLabRequestModel>  requestList = new ArrayList<>();
         if(requestSet != null){
             try{
@@ -167,8 +167,8 @@ public class JeproLabRequestModel extends JeproLabModel{
         query += this.customer_id + ", " + dataBaseObject.quote(this.reference) + ", " + this.first_contact_id + ", " + this.second_contact_id + ", " + this.third_contact_id;
         query += ", " + this.fourth_contact_id + ", " + this.status_id + ", " + this.delay + ", " + dataBaseObject.quote(addedDate) + ", " + dataBaseObject.quote(addedDate) + ")";
 
-        dataBaseObject.setQuery(query);
-        dataBaseObject.query(true);
+        //dataBaseObject.setQuery(query);
+        dataBaseObject.query(query, true);
         this.request_id = dataBaseObject.getGeneratedKey();
 
         /***
@@ -177,8 +177,8 @@ public class JeproLabRequestModel extends JeproLabModel{
         for(Integer sampleId : samples) {
             query = "INSERT INTO " + dataBaseObject.quoteName("#__jeproLab_request_sample") + "(" + dataBaseObject.quoteName("request_id") + ", ";
             query += dataBaseObject.quoteName("sample_id") + ") VALUES(" + this.request_id + ", " + sampleId + ")";
-            dataBaseObject.setQuery(query);
-            dataBaseObject.query(false);
+            //dataBaseObject.setQuery(query);
+            dataBaseObject.query(query, false);
         }
     }
 
@@ -193,8 +193,8 @@ public class JeproLabRequestModel extends JeproLabModel{
         query += dataBaseObject.quoteName("delay") + " = " + this.delay + ", " + dataBaseObject.quoteName("date_upd") + " = ";
         query += dataBaseObject.quote(JeproLabTools.date("yyyy-MM-dd hh:mm:ss")) + " WHERE " + dataBaseObject.quoteName("request_id") + " = " + this.request_id;
 
-        dataBaseObject.setQuery(query);
-        dataBaseObject.query(false);
+        //dataBaseObject.setQuery(query);
+        dataBaseObject.query(query, false);
 
         List<Integer> requestSampleIds = JeproLabSampleModel.getSampleIdsByRequestId(this.request_id);
         for(Integer sampleId : requestSampleIds){
@@ -202,8 +202,8 @@ public class JeproLabRequestModel extends JeproLabModel{
                 query = "DELETE FROM " + dataBaseObject.quoteName("#__jeprolab_request_sample") + " WHERE " + dataBaseObject.quoteName("request_id");
                 query += " = " + this.request_id + " AND " + dataBaseObject.quoteName("sample_id") + " = " + sampleId;
 
-                dataBaseObject.setQuery(query);
-                dataBaseObject.query(false);
+                //dataBaseObject.setQuery(query);
+                dataBaseObject.query(query, false);
             }
         }
 
@@ -211,8 +211,8 @@ public class JeproLabRequestModel extends JeproLabModel{
             if(!requestSampleIds.contains(sampleId)) {
                 query = "INSERT INTO " + dataBaseObject.quoteName("#__jeproLab_request_sample") + "(" + dataBaseObject.quoteName("request_id") + ", ";
                 query += dataBaseObject.quoteName("sample_id") + ") VALUES(" + this.request_id + ", " + sampleId + ")";
-                dataBaseObject.setQuery(query);
-                dataBaseObject.query(false);
+                //dataBaseObject.setQuery(query);
+                dataBaseObject.query(query, false);
             }
         }
     }
@@ -233,8 +233,8 @@ public class JeproLabRequestModel extends JeproLabModel{
         String query = "SELECT " + dataBaseObject.quoteName("reference") + " FROM " + dataBaseObject.quoteName("#__jeprolab_request");
         query += " WHERE " + dataBaseObject.quoteName("request_id") + " = " + requestId;
 
-        dataBaseObject.setQuery(query);
-        return dataBaseObject.loadStringValue("reference");
+        //dataBaseObject.setQuery(query);
+        return dataBaseObject.loadStringValue(query, "reference");
     }
 
     public static int getCustomerDiscounts(int customerId, int cartRuleId){
@@ -247,8 +247,8 @@ public class JeproLabRequestModel extends JeproLabModel{
             query += " WHERE request." + dataBaseObject.quoteName("customer_id") + " = " + customerId + " AND request_cart_rule.";
             query += dataBaseObject.quoteName("cart_rule_id") + " = " + cartRuleId ;
 
-            dataBaseObject.setQuery(query);
-            int discounts = (int)dataBaseObject.loadValue("nb");
+            //dataBaseObject.setQuery(query);
+            int discounts = (int)dataBaseObject.loadValue(query, "nb");
             JeproLabCache.getInstance().store(cacheKey, discounts);
         }
         return (int)JeproLabCache.getInstance().retrieve(cacheKey);
@@ -268,8 +268,8 @@ public class JeproLabRequestModel extends JeproLabModel{
             query += " FROM " + dataBaseObject.quoteName("#__jeprolab_request_status_lang") + " AS status_lang WHERE status_lang." + dataBaseObject.quoteName("lang_id");
             query += " = " + JeproLabContext.getContext().language.language_id;
 
-            dataBaseObject.setQuery(query);
-            ResultSet statusSet = dataBaseObject.loadObjectList();
+            //dataBaseObject.setQuery(query);
+            ResultSet statusSet = dataBaseObject.loadObjectList(query);
 
             if(statusSet != null){
                 try{
@@ -336,8 +336,8 @@ public class JeproLabRequestModel extends JeproLabModel{
                     query += dataBaseObject.quoteName("sample_id") + " = request_sample." + dataBaseObject.quoteName("sample_id");
                     query += ")WHERE sample." + dataBaseObject.quoteName("sample_id") + " = " + sampleId;
 
-                    dataBaseObject.setQuery(query);
-                    ResultSet sampleSet = dataBaseObject.loadObjectList();
+                    //dataBaseObject.setQuery(query);
+                    ResultSet sampleSet = dataBaseObject.loadObjectList(query);
                     if(sampleSet != null){
                         try{
                             if(sampleSet.next()){
@@ -387,8 +387,8 @@ public class JeproLabRequestModel extends JeproLabModel{
             query += " = " + requestId + ") WHERE sample." + dataBaseObject.quoteName("request_id") + " = " + requestId; */
             query += " LIMIT 0, 24";
 
-            dataBaseObject.setQuery(query);
-            ResultSet sampleSet = dataBaseObject.loadObjectList();
+            //dataBaseObject.setQuery(query);
+            ResultSet sampleSet = dataBaseObject.loadObjectList(query);
             List<JeproLabSampleModel> sampleList = new ArrayList<>();
             if(sampleSet != null){
                 try{
@@ -431,8 +431,8 @@ public class JeproLabRequestModel extends JeproLabModel{
             query += " = request_sample." + dataBaseObject.quoteName("sample_id") + " AND request_sample." + dataBaseObject.quoteName("request_id");
             query += " = " + requestId + ") WHERE request_sample." + dataBaseObject.quoteName("request_id") + " = " + requestId;
 
-            dataBaseObject.setQuery(query);
-            ResultSet sampleSet = dataBaseObject.loadObjectList();
+            //dataBaseObject.setQuery(query);
+            ResultSet sampleSet = dataBaseObject.loadObjectList(query);
             List<JeproLabSampleModel> sampleList = new ArrayList<>();
             if(sampleSet != null){
                 try{
@@ -471,8 +471,8 @@ public class JeproLabRequestModel extends JeproLabModel{
             String query = "SELECT " + dataBaseObject.quoteName("analyze_id") + " FROM " + dataBaseObject.quoteName("#__jeprolab_sample_analyze");
             query += " WHERE " + dataBaseObject.quoteName("sample_id") + " = " + sampleId;
 
-            dataBaseObject.setQuery(query);
-            ResultSet analyzeSet = dataBaseObject.loadObjectList();
+            //dataBaseObject.setQuery(query);
+            ResultSet analyzeSet = dataBaseObject.loadObjectList(query);
 
             if(analyzeSet != null){
                 try{
@@ -495,8 +495,8 @@ public class JeproLabRequestModel extends JeproLabModel{
             query += ") VALUES(" + this.matrix_id + ", " + dataBaseObject.quote(this.designation) + ", " + dataBaseObject.quote(this.reference) + ", ";
             query += dataBaseObject.quote(JeproLabTools.date("YYYY-MM-DD", this.removal_date)) + ")";
 
-            dataBaseObject.setQuery(query);
-            dataBaseObject.query(true);
+            //dataBaseObject.setQuery(query);
+            dataBaseObject.query(query, true);
             this.sample_id = dataBaseObject.getGeneratedKey();
 
             /***
@@ -505,8 +505,8 @@ public class JeproLabRequestModel extends JeproLabModel{
             for(Integer analyzeId : analyzes) {
                 query = "INSERT INTO " + dataBaseObject.quoteName("#__jeproLab_sample_analyze") + "(" + dataBaseObject.quoteName("sample_id") + ", ";
                 query += dataBaseObject.quoteName("analyze_id") + ") VALUES(" + this.sample_id + ", " + analyzeId + ")";
-                dataBaseObject.setQuery(query);
-                dataBaseObject.query(false);
+                //dataBaseObject.setQuery(query);
+                dataBaseObject.query(query, false);
             }
         }
 
@@ -520,8 +520,8 @@ public class JeproLabRequestModel extends JeproLabModel{
             query += ", " + dataBaseObject.quoteName("condition") + " = " + dataBaseObject.quote(this.condition);
             query += " WHERE " + dataBaseObject.quoteName("sample_id") + " = " + this.sample_id;
 
-            dataBaseObject.setQuery(query);
-            dataBaseObject.query(false);
+            //dataBaseObject.setQuery(query);
+            dataBaseObject.query(query, false);
 
             for(JeproLabRequestSampleAddController.JeproLabSampleAnalyzeForm item : resultForms){
                 query = "UPDATE " + dataBaseObject.quoteName("#__jeprolab_sample_analyze") + " SET " + dataBaseObject.quoteName("unit") +  " = ";
@@ -530,16 +530,16 @@ public class JeproLabRequestModel extends JeproLabModel{
                 query += " = " + dataBaseObject.quote(JeproLabTools.date("yyyy-MM-dd hh:mm:ss")) + " WHERE " + dataBaseObject.quoteName("sample_id") + " = ";
                 query += this.sample_id + " AND " + dataBaseObject.quoteName("analyze_id") + " = " + item.getAnalyzeId();
 
-                dataBaseObject.setQuery(query);
-                dataBaseObject.query(false);
+                //dataBaseObject.setQuery(query);
+                dataBaseObject.query(query, false);
             }
         }
 
         public void removeAnalyze(int analyzeId){
             synchronized(this) {
                 int index = 0;
-                for (Integer i : analyzes) {
-                    if (i == analyzeId) {
+                for (Integer in : analyzes) {
+                    if (in == analyzeId) {
                         analyzes.remove(index);
                         break;
                     }
@@ -581,8 +581,8 @@ public class JeproLabRequestModel extends JeproLabModel{
             String query = "SELECT " + dataBaseObject.quoteName("sample_id") + " FROM " + dataBaseObject.quoteName("#__jeprolab_request_sample");
             query += " WHERE " + dataBaseObject.quoteName("request_id") + " = " + requestId;
 
-            dataBaseObject.setQuery(query);
-            ResultSet sampleIdSet = dataBaseObject.loadObjectList();
+            //dataBaseObject.setQuery(query);
+            ResultSet sampleIdSet = dataBaseObject.loadObjectList(query);
             List<Integer> sampleIds = new ArrayList<>();
 
             if(sampleIdSet != null){
@@ -617,8 +617,8 @@ public class JeproLabRequestModel extends JeproLabModel{
             query += " AS analyze_method ON (analyze_method.method_id = sample.method_id)  WHERE " + dataBaseObject.quoteName("sample_id") + " = " ;
             query += sampleId + " AND sample." + dataBaseObject.quoteName("analyze_id") + " = " + analyzeId;
 
-            dataBaseObject.setQuery(query);
-            ResultSet resultSet = dataBaseObject.loadObjectList();
+            //dataBaseObject.setQuery(query);
+            ResultSet resultSet = dataBaseObject.loadObjectList(query);
 
             Map<String, String> result = new HashMap<>();
             if(resultSet != null){
@@ -678,8 +678,8 @@ public class JeproLabRequestModel extends JeproLabModel{
             query += " AND matrix_lang." + dataBaseObject.quoteName("lang_id") + " = " + langId + ") WHERE matrix.";
             query += dataBaseObject.quoteName("published") + " = 1";
 
-            dataBaseObject.setQuery(query);
-            ResultSet matricesSet = dataBaseObject.loadObjectList();
+            //dataBaseObject.setQuery(query);
+            ResultSet matricesSet = dataBaseObject.loadObjectList(query);
             if(matricesSet != null){
                 try{
                     while(matricesSet.next()){
@@ -706,8 +706,8 @@ public class JeproLabRequestModel extends JeproLabModel{
             query += " WHERE " + dataBaseObject.quoteName("matrix_id") + " = " + matrixId + " AND " + dataBaseObject.quoteName("lang_id");
             query += " = " + langId;
 
-            dataBaseObject.setQuery(query);
-            return dataBaseObject.loadStringValue("name");
+            //dataBaseObject.setQuery(query);
+            return dataBaseObject.loadStringValue(query, "name");
         }
 
     }

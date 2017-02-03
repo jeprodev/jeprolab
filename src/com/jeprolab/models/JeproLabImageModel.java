@@ -89,8 +89,8 @@ public class JeproLabImageModel extends JeproLabModel{
                 }
                 query += "WHERE image." + dataBaseObject.quoteName("image_id") + " = " + imageId;
 
-                dataBaseObject.setQuery(query);
-                ResultSet imageSet = dataBaseObject.loadObjectList();
+                //dataBaseObject.setQuery(query);
+                ResultSet imageSet = dataBaseObject.loadObjectList(query);
 
                 try {
                     if (imageSet.next()){
@@ -101,8 +101,8 @@ public class JeproLabImageModel extends JeproLabModel{
                         if (langId <= 0 ){
                             query = "SELECT * FROM " + dataBaseObject.quoteName("#__jeprolab_image_lang") + " WHERE image_id = " + imageId;
 
-                            dataBaseObject.setQuery(query);
-                            ResultSet imageLangSet = dataBaseObject.loadObjectList();
+                            //dataBaseObject.setQuery(query);
+                            ResultSet imageLangSet = dataBaseObject.loadObjectList(query);
                             String legend;
                             int languageId;
                             Map<Integer, JeproLabLanguageModel> languages = JeproLabLanguageModel.getLanguages();
@@ -192,8 +192,8 @@ public class JeproLabImageModel extends JeproLabModel{
             query += dataBaseObject.quoteName("lang_id") + " = " + langId + ") WHERE image." + dataBaseObject.quoteName("analyze_id") + " = ";
             query += analyzeId + " ORDER BY image." + dataBaseObject.quoteName("position") + " ASC ";
 
-            dataBaseObject.setQuery(query);
-            ResultSet rowDataSet = dataBaseObject.loadObjectList();
+            //dataBaseObject.setQuery(query);
+            ResultSet rowDataSet = dataBaseObject.loadObjectList(query);
 
             if(rowDataSet != null){
                 try{
@@ -289,8 +289,8 @@ public class JeproLabImageModel extends JeproLabModel{
                 }
                 query += dataBaseObject.quoteName("name") + " ASC ";
 
-                dataBaseObject.setQuery(query);
-                ResultSet imageTypeSet = dataBaseObject.loadObjectList();
+                //dataBaseObject.setQuery(query);
+                ResultSet imageTypeSet = dataBaseObject.loadObjectList(query);
                 List<JeproLabImageTypeModel> list = new ArrayList<>();
                 try{
                     JeproLabImageTypeModel imageType;
@@ -346,8 +346,8 @@ public class JeproLabImageModel extends JeproLabModel{
                     dataBaseObject = JeproLabFactory.getDataBaseConnector();
                 }
                 String query = "SELECT * FROM " + dataBaseObject.quoteName("#__jeprolab_image_type");
-                dataBaseObject.setQuery(query);
-                ResultSet resultSet = dataBaseObject.loadObjectList();
+                //dataBaseObject.setQuery(query);
+                ResultSet resultSet = dataBaseObject.loadObjectList(query);
 
                 List<String> types = new ArrayList<>();
                 types.add("analyzes");

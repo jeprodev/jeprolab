@@ -128,8 +128,8 @@ public class JeproLabAddressModel extends JeproLabModel{
                 String query = "SELECT * FROM " + dataBaseObject.quoteName("#__jeprolab_address") + " AS address ";
                 query += " WHERE address.address_id = " + addressId;
 
-                dataBaseObject.setQuery(query);
-                ResultSet addressSet = dataBaseObject.loadObjectList();
+                //dataBaseObject.setQuery(query);
+                ResultSet addressSet = dataBaseObject.loadObjectList(query);
                 try{
                     while(addressSet.next()){
                         this.address_id = addressSet.getInt("address_id");
@@ -213,8 +213,8 @@ public class JeproLabAddressModel extends JeproLabModel{
             query += ", " + dataBaseObject.quoteName("vat_number") + ", " + dataBaseObject.quoteName("postcode") + " FROM ";
             query += dataBaseObject.quoteName("#__jeproLab_address") + " WHERE " + dataBaseObject.quoteName("address_id") + " = " + addressId;
 
-            dataBaseObject.setQuery(query);
-            result = dataBaseObject.loadObjectList();
+            //dataBaseObject.setQuery(query);
+            result = dataBaseObject.loadObjectList(query);
             if(result != null){
                 try{
                     Map<String, String> resultItem;
@@ -309,8 +309,8 @@ public class JeproLabAddressModel extends JeproLabModel{
             String query = "SELECT " + dataBaseObject.quoteName("address_id") + " FROM " + dataBaseObject.quoteName("#__jeprolab_address");
             query += " AS address WHERE " + dataBaseObject.quoteName("address_id") + " = " + addressId;
 
-            dataBaseObject.setQuery(query);
-            boolean addressExists = (int)dataBaseObject.loadValue("address_id") > 0;
+            //dataBaseObject.setQuery(query);
+            boolean addressExists = (int)dataBaseObject.loadValue(query, "address_id") > 0;
             JeproLabCache.getInstance().store(cacheKey, addressExists);
 
             return addressExists;
@@ -332,9 +332,9 @@ public class JeproLabAddressModel extends JeproLabModel{
         query += " AS address WHERE address." + dataBaseObject.quoteName("address_id") + " = " + addressId + " AND address." + dataBaseObject.quoteName("deleted");
         query += " = 0 AND address." + dataBaseObject.quoteName("published") + " = 1 ";
 
-        dataBaseObject.setQuery(query);
+        //dataBaseObject.setQuery(query);
 
-        return ((int)dataBaseObject.loadValue("address_id")) > 0;
+        return ((int)dataBaseObject.loadValue(query, "address_id")) > 0;
     }
 
     /**
@@ -360,8 +360,8 @@ public class JeproLabAddressModel extends JeproLabModel{
         query += dataBaseObject.quote(this.postcode) + ", " + dataBaseObject.quote(this.city) + ", " + dataBaseObject.quote(this.other) + ", ";
         query += dataBaseObject.quote(this.phone) + ", " + dataBaseObject.quote(this.mobile_phone) + ", " + dataBaseObject.quote(this.vat_number) + "," + currentDate + ", " + currentDate + ")";
 
-        dataBaseObject.setQuery(query);
-        dataBaseObject.query(true);
+        //dataBaseObject.setQuery(query);
+        dataBaseObject.query(query, true);
         this.address_id = dataBaseObject.getGeneratedKey();
 
         if (this.customer_id > 0) {
@@ -384,8 +384,8 @@ public class JeproLabAddressModel extends JeproLabModel{
             String query = "DELETE FROM " + dataBaseObject.quoteName("#__jeprolab_address") + " WHERE ";
             query += dataBaseObject.quoteName("address_id") + " = " + this.address_id;
 
-            dataBaseObject.setQuery(query);
-            return dataBaseObject.query(false);
+            //dataBaseObject.setQuery(query);
+            return dataBaseObject.query(query, false);
         } else {
             this.deleted = true;
             this.update();
@@ -406,9 +406,9 @@ public class JeproLabAddressModel extends JeproLabModel{
         query += " WHERE "  + dataBaseObject.quoteName("delivery_address_id") + " = " + this.address_id + " OR " + dataBaseObject.quoteName("invoice_addres_id");
         query += " = " + this.address_id;
 
-        dataBaseObject.setQuery(query);
+        //dataBaseObject.setQuery(query);
 
-        return dataBaseObject.loadValue("used") > 0;
+        return dataBaseObject.loadValue(query, "used") > 0;
     }
 
     public void update(){
@@ -443,8 +443,8 @@ public class JeproLabAddressModel extends JeproLabModel{
         query += dataBaseObject.quote(this.mobile_phone) + ", " + dataBaseObject.quoteName("firstname") + " = " + dataBaseObject.quote(this.firstname) + ", ";
         query += dataBaseObject.quoteName("vat_number") + " = " + dataBaseObject.quote(this.vat_number) + ", " + dataBaseObject.quoteName("date_upd")+ "  = ";
         query += currentDate + " WHERE " + dataBaseObject.quoteName("address_id") + " = " + this.address_id;
-        dataBaseObject.setQuery(query);
-        dataBaseObject.query(false);
+        //dataBaseObject.setQuery(query);
+        dataBaseObject.query(query, false);
     }
 
     /**
@@ -468,8 +468,8 @@ public class JeproLabAddressModel extends JeproLabModel{
             query += dataBaseObject.quoteName("country_id") + " = address." + dataBaseObject.quoteName("country_id") + " WHERE address.";
             query += dataBaseObject.quoteName("address_id") + " = " + addressId;
 
-            dataBaseObject.setQuery(query);
-            boolean result = dataBaseObject.loadValue("published") > 0;
+            //dataBaseObject.setQuery(query);
+            boolean result = dataBaseObject.loadValue(query, "published") > 0;
             JeproLabCache.getInstance().store(cacheKey, result);
             return result;
         }
@@ -512,8 +512,8 @@ public class JeproLabAddressModel extends JeproLabModel{
         query += dataBaseObject.quoteName("state_id") + " = address." + dataBaseObject.quoteName("state_id");
         query += " WHERE address." + dataBaseObject.quoteName("address_id") + " = " + addressId;
 
-        dataBaseObject.setQuery(query);
-        ResultSet zoneSet = dataBaseObject.loadObjectList();
+        //dataBaseObject.setQuery(query);
+        ResultSet zoneSet = dataBaseObject.loadObjectList(query);
         if(zoneSet != null){
             try{
                 if(zoneSet.next()) {
@@ -549,8 +549,8 @@ public class JeproLabAddressModel extends JeproLabModel{
         query += " WHERE " + dataBaseObject.quoteName("customer_id") + " = " + customerId + " AND " + dataBaseObject.quoteName("deleted");
         query += " = 0 AND " + dataBaseObject.quoteName("published") + " = 0 AND " + dataBaseObject.quoteName("supplier_id") + " = 0 AND ";
         query += dataBaseObject.quoteName("manufacturer_id") + " = 0 AND " + dataBaseObject.quoteName("warehouse_id") + " = 0";
-        dataBaseObject.setQuery(query);
-        return (int)dataBaseObject.loadValue("address_id");
+        //dataBaseObject.setQuery(query);
+        return (int)dataBaseObject.loadValue(query, "address_id");
 
     }
 
@@ -568,8 +568,8 @@ public class JeproLabAddressModel extends JeproLabModel{
         query += " WHERE " + dataBaseObject.quoteName("supplier_id") + " = " + supplierId + " AND " + dataBaseObject.quoteName("deleted");
         query += " = 0 AND " + dataBaseObject.quoteName("published") + " = 1 AND " + dataBaseObject.quoteName("customer_id") + " = 0 AND ";
         query += dataBaseObject.quoteName("manufacturer_id") + " = 0 AND " + dataBaseObject.quoteName("warehouse_id") + " = 0";
-        dataBaseObject.setQuery(query);
-        return (int)dataBaseObject.loadValue("address_id");
+        //dataBaseObject.setQuery(query);
+        return (int)dataBaseObject.loadValue(query, "address_id");
     }
 
     public static boolean aliasExist(String alias, int addressId, int customerId){
@@ -581,8 +581,8 @@ public class JeproLabAddressModel extends JeproLabModel{
         query += dataBaseObject.quoteName("address_id") + " = " + addressId + " AND " + dataBaseObject.quoteName("customer_id");
         query += " = " + customerId + " AND " + dataBaseObject.quoteName("deleted") + " = 0";
 
-        dataBaseObject.setQuery(query);
-        return dataBaseObject.loadValue("address") > 0;
+        //dataBaseObject.setQuery(query);
+        return dataBaseObject.loadValue(query, "address") > 0;
     }
 
     public static int getCustomerFirstAddressId(int customerId){
@@ -603,8 +603,8 @@ public class JeproLabAddressModel extends JeproLabModel{
             query += " WHERE " + dataBaseObject.quoteName("customer_id") + " = " + customerId + " AND " + dataBaseObject.quoteName("deleted");
             query += " = 0 " + (active ? " AND " + dataBaseObject.quoteName("published") + " = 1" : "");
 
-            dataBaseObject.setQuery(query);
-            int result = (int)dataBaseObject.loadValue("address_id");
+            //dataBaseObject.setQuery(query);
+            int result = (int)dataBaseObject.loadValue(query, "address_id");
             JeproLabCache.getInstance().store(cacheKey, result);
             return result;
         }
@@ -657,8 +657,8 @@ public class JeproLabAddressModel extends JeproLabModel{
                 query += JeproLabLaboratoryModel.addSqlRestriction(JeproLabLaboratoryModel.SHARE_CUSTOMER, "customer");
                 query += " ORDER BY " + (orderByFilter.equals("address_id") ? "address." : "") + orderBy + " " + orderWay;
 
-                dataBaseObject.setQuery(query);
-                addressesSet = dataBaseObject.loadObjectList();
+                //dataBaseObject.setQuery(query);
+                addressesSet = dataBaseObject.loadObjectList(query);
 
                 total = 0;
                 if (addressesSet != null) {
@@ -669,8 +669,8 @@ public class JeproLabAddressModel extends JeproLabModel{
 
                 query += (useLimit ? " LIMIT " + limitStart + ", " + limit : " ");
 
-                dataBaseObject.setQuery(query);
-                addressesSet = dataBaseObject.loadObjectList();
+                //dataBaseObject.setQuery(query);
+                addressesSet = dataBaseObject.loadObjectList(query);
                 if (useLimit) {
                     limitStart = limitStart - limit;
                     if (limitStart < 0) {

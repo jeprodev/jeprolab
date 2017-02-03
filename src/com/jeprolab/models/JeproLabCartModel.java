@@ -131,9 +131,9 @@ public class JeproLabCartModel extends JeproLabModel{
                     dataBaseObject = JeproLabFactory.getDataBaseConnector();
                 }
                 String query = "SELECT * FROm " + dataBaseObject.quoteName("#__jeprolab_cart") + " AS cart WHERE cart_id = " + cartId;
-                dataBaseObject.setQuery(query);
+                //dataBaseObject.setQuery(query);
 
-                ResultSet cartSet = dataBaseObject.loadObjectList();
+                ResultSet cartSet = dataBaseObject.loadObjectList(query);
                 try{
                     if(cartSet.next()){
                         this.cart_id = cartSet.getInt("cart_id");
@@ -257,8 +257,8 @@ public class JeproLabCartModel extends JeproLabModel{
         query += dataBaseObject.quote(this.gift_message) + ", " + (this.mobile_theme ? 1 : 0) + ", " + (this.allow_separated_result ? 1 : 0);
         query += ", " + dataBaseObject.quote(JeproLabTools.date()) + ", " + dataBaseObject.quote(JeproLabTools.date()) + ") ";
 
-        dataBaseObject.setQuery(query);
-        dataBaseObject.query(true);
+        //dataBaseObject.setQuery(query);
+        dataBaseObject.query(query, true);
 
         this.cart_id = dataBaseObject.getGeneratedKey();
         return (this.cart_id > 0);

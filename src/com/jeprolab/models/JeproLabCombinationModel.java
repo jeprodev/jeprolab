@@ -76,8 +76,8 @@ public class JeproLabCombinationModel extends JeproLabModel{
         query += " ON (analyze_combination.attribute_id = attribute_lang.attribute_id AND attribute_lang.lang_id = " + langId;
         query += ") WHERE analyze_combination.analyze_attribute_id = " + this.analyze_attribute_id;
 
-        dataBaseObject.setQuery(query);
-        ResultSet attributeSet = dataBaseObject.loadObjectList();
+        //dataBaseObject.setQuery(query);
+        ResultSet attributeSet = dataBaseObject.loadObjectList(query);
         List<JeproLabAttributeModel> attributeList = new ArrayList<>();
         if(attributeSet != null){
             try{

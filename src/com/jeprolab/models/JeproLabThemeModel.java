@@ -40,9 +40,9 @@ public class JeproLabThemeModel extends JeproLabModel{
         }
 
         String query = "SELECT * FROM " + dataBaseObject.quoteName("#__jeprolab_theme") + " ORDER BY " + dataBaseObject.quoteName("theme_name");
-        dataBaseObject.setQuery(query);
+        //dataBaseObject.setQuery(query);
 
-        ResultSet themesSet = dataBaseObject.loadObjectList();
+        ResultSet themesSet = dataBaseObject.loadObjectList(query);
         List<JeproLabThemeModel> themeList = new ArrayList<>();
         if(themesSet != null){
             try{

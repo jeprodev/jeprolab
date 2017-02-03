@@ -9,19 +9,25 @@ import com.jeprolab.models.JeproLabCategoryModel;
 import com.jeprolab.models.JeproLabEmployeeModel;
 import com.jeprolab.models.JeproLabLaboratoryModel;
 import com.jeprolab.models.JeproLabSettingModel;
+import com.sun.org.apache.xpath.internal.operations.Bool;
+import javafx.application.Platform;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.concurrent.Task;
+import javafx.concurrent.Worker;
 import javafx.fxml.FXML;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 import javafx.util.Callback;
 import org.apache.log4j.Level;
@@ -40,134 +46,201 @@ import java.util.stream.Collectors;
 public class JeproLabCategoryController extends JeproLabController{
     CheckBox checkAll;
     Button addCategoryBtn, addRootCategoryButton;
-    JeproLabCategoryModel category;
-    List<JeproLabCategoryModel> categories;
+    private HBox jeproLabCategorySearchWrapper;
+    private Pagination jeproLabCategoryPagination;
+    private ObservableList<JeproLabCategoryRecord> categoryList; // = FXCollections.observableArrayList();
+    private TableView<JeproLabCategoryRecord> jeproLabCategoryTableView;
+
 
     @FXML
-    public TableView<JeproLabCategoryRecord> categoryTableView;
-    public TableColumn<JeproLabCategoryRecord, Boolean> categoryCheckBoxColumn;
-    public TableColumn<JeproLabCategoryRecord, Boolean> categoryStatusColumn;
-    public TableColumn<JeproLabCategoryRecord, String> categoryDescriptionColumn, categoryNameColumn;
-    public TableColumn<JeproLabCategoryRecord, Integer> categoryIndexColumn, categoryPositionColumn;
-    public TableColumn<JeproLabCategoryRecord, HBox> categoryActionColumn;
-    public Pagination pagination;
+    public VBox jeproLabCategoryFormPanel;
+
 
     @Override
     public void initialize(URL location, ResourceBundle resource) {
         super.initialize(location, resource);
         double remainingWidth = (0.98 * JeproLab.APP_WIDTH) - 108;
-        categoryTableView.setPrefWidth(0.98 * JeproLab.APP_WIDTH);
-        categoryTableView.setPrefHeight(rowHeight * JeproLabConfigurationSettings.LIST_LIMIT);
-        VBox.setMargin(categoryTableView, new Insets(0, 0, 0, (0.01 * JeproLab.APP_WIDTH)));
 
-        categoryTableView.setLayoutY(20);
-        categoryIndexColumn.setText("#");
-        categoryIndexColumn.setCellValueFactory(new PropertyValueFactory<>("categoryIndex"));
+        jeproLabCategoryTableView = new TableView<>();
+        jeproLabCategoryTableView.setPrefWidth(0.98 * JeproLab.APP_WIDTH);
+        jeproLabCategoryTableView.setPrefHeight(rowHeight * JeproLabConfigurationSettings.LIST_LIMIT);
+        VBox.setMargin(jeproLabCategoryTableView, new Insets(0, 0, 0, (0.01 * JeproLab.APP_WIDTH)));
+
+        jeproLabCategorySearchWrapper = new HBox();
+
+        jeproLabCategoryTableView.setLayoutY(20);
+        TableColumn<JeproLabCategoryRecord, Integer> jeproLabCategoryIndexColumn = new TableColumn<>("#");
+        jeproLabCategoryIndexColumn.setCellValueFactory(new PropertyValueFactory<>("categoryIndex"));
         checkAll = new CheckBox();
-        categoryIndexColumn.setPrefWidth(30);
-        categoryCheckBoxColumn.setGraphic(checkAll);
-        categoryCheckBoxColumn.setPrefWidth(25);
+        jeproLabCategoryIndexColumn.setPrefWidth(30);
 
+        TableColumn<JeproLabCategoryRecord, Boolean> jeproLabCategoryCheckBoxColumn = new TableColumn<>();
+        jeproLabCategoryCheckBoxColumn.setGraphic(checkAll);
+        jeproLabCategoryCheckBoxColumn.setPrefWidth(25);
         Callback<TableColumn<JeproLabCategoryRecord, Boolean>, TableCell<JeproLabCategoryRecord, Boolean>> checkBoxCellFactory = param -> new JeproLabCheckBoxCell();
-        categoryCheckBoxColumn.setCellFactory(checkBoxCellFactory);
-        categoryStatusColumn.setText(bundle.getString("JEPROLAB_STATUS_LABEL"));
-        categoryStatusColumn.setPrefWidth(50);
+        jeproLabCategoryCheckBoxColumn.setCellFactory(checkBoxCellFactory);
+
+        TableColumn<JeproLabCategoryRecord, Boolean> jeproLabCategoryStatusColumn = new TableColumn<>(bundle.getString("JEPROLAB_STATUS_LABEL"));
+        jeproLabCategoryStatusColumn.setPrefWidth(50);
         Callback<TableColumn<JeproLabCategoryRecord, Boolean>, TableCell<JeproLabCategoryRecord, Boolean>> statusCellFactory = param -> new JeproLabStatusCell();
-        categoryStatusColumn.setCellFactory(statusCellFactory);
-        categoryNameColumn.setText(bundle.getString("JEPROLAB_CATEGORY_NAME_LABEL"));
-        categoryNameColumn.setPrefWidth(0.25 * remainingWidth);
-        categoryNameColumn.setCellValueFactory(new PropertyValueFactory<>("categoryName"));
-        categoryDescriptionColumn.setText(bundle.getString("JEPROLAB_DESCRIPTION_LABEL"));
-        categoryDescriptionColumn.setPrefWidth(0.6 * remainingWidth);
+        jeproLabCategoryStatusColumn.setCellFactory(statusCellFactory);
 
-        categoryDescriptionColumn.setCellValueFactory(new PropertyValueFactory<>("categoryDescription"));
-        categoryPositionColumn.setText(bundle.getString("JEPROLAB_POSITION_LABEL"));
-        categoryPositionColumn.setPrefWidth(0.06 * remainingWidth);
-        tableCellAlign(categoryPositionColumn, Pos.CENTER);
-        categoryPositionColumn.setCellValueFactory(new PropertyValueFactory<>("categoryPosition"));
+        TableColumn<JeproLabCategoryRecord, String> jeproLabCategoryNameColumn = new TableColumn<>(bundle.getString("JEPROLAB_CATEGORY_NAME_LABEL"));
+        jeproLabCategoryNameColumn.setPrefWidth(0.25 * remainingWidth);
+        jeproLabCategoryNameColumn.setCellValueFactory(new PropertyValueFactory<>("categoryName"));
 
-        categoryActionColumn.setText(bundle.getString("JEPROLAB_ACTIONS_LABEL"));
-        categoryActionColumn.setPrefWidth(0.09 * remainingWidth);
+        TableColumn<JeproLabCategoryRecord, String> jeproLabCategoryDescriptionColumn = new TableColumn<>(bundle.getString("JEPROLAB_DESCRIPTION_LABEL"));
+        jeproLabCategoryDescriptionColumn.setPrefWidth(0.6 * remainingWidth);
+        jeproLabCategoryDescriptionColumn.setCellValueFactory(new PropertyValueFactory<>("categoryDescription"));
+
+        TableColumn<JeproLabCategoryRecord, Integer> jeproLabCategoryPositionColumn = new TableColumn<>(bundle.getString("JEPROLAB_POSITION_LABEL"));
+        jeproLabCategoryPositionColumn.setPrefWidth(0.06 * remainingWidth);
+        tableCellAlign(jeproLabCategoryPositionColumn, Pos.CENTER);
+        jeproLabCategoryPositionColumn.setCellValueFactory(new PropertyValueFactory<>("categoryPosition"));
+
+        TableColumn<JeproLabCategoryRecord, HBox> jeproLabCategoryActionColumn = new TableColumn<>(bundle.getString("JEPROLAB_ACTIONS_LABEL"));
+        jeproLabCategoryActionColumn.setPrefWidth(0.09 * remainingWidth);
         Callback<TableColumn<JeproLabCategoryRecord, HBox>, TableCell<JeproLabCategoryRecord, HBox>> actionFactory = param -> new JeproLabActionCell();
-        categoryActionColumn.setCellFactory(actionFactory);
+        jeproLabCategoryActionColumn.setCellFactory(actionFactory);
+
+        jeproLabCategoryTableView.getColumns().addAll(
+            jeproLabCategoryIndexColumn,
+            jeproLabCategoryCheckBoxColumn,
+            jeproLabCategoryStatusColumn,
+            jeproLabCategoryNameColumn,
+            jeproLabCategoryDescriptionColumn,
+            jeproLabCategoryPositionColumn,
+            jeproLabCategoryActionColumn
+        );
     }
 
     @Override
     public void initializeContent(){
-        int categoryId = JeproLab.request.getIntValue("category_id");
-        String task = JeproLab.request.getValue("task");
-        System.out.println("category_id " + categoryId);
-        if (context.category != null && !task.equals("delete")) {
+        initializeContent(0);
+    }
+
+    @Override
+    public void initializeContent(int categoryId){
+        Worker<Boolean> worker = new Task<Boolean>(){
+            JeproLabCategoryModel category;
+            List<JeproLabCategoryModel> categories;
+            @Override
+            public Boolean call() throws Exception{
+                String task = JeproLab.request.getValue("task");
+                if (context.category != null && !task.equals("delete")) {
+                    this.category = context.category;
+                } else {
+                    if (JeproLabLaboratoryModel.isFeaturePublished() && JeproLabLaboratoryModel.getLabContext() == JeproLabLaboratoryModel.LAB_CONTEXT) {
+                        this.category = new JeproLabCategoryModel(context.laboratory.category_id);
+                    } else if (JeproLabCategoryModel.getCategoriesWithoutParent().size() > 1 && JeproLabSettingModel.getIntValue("multi_lab_feature_active") > 1 && JeproLabLaboratoryModel.getLaboratories(true, 0, true).size() > 1) {
+                        this.category = JeproLabCategoryModel.getTopCategory();
+                    } else {
+                        this.category = new JeproLabCategoryModel(JeproLabSettingModel.getIntValue("root_category"));
+                    }
+                }
+
+                if(!isInitialized){
+                    isInitialized = true;
+                    if (category != null && category.category_id > 0 && !category.isAssociatedToLaboratory() && JeproLabLaboratoryModel.getLabContext() == JeproLabLaboratoryModel.LAB_CONTEXT) {
+                        context.category = category;
+                        redirectToCategoryForm(category.category_id);
+                        return cancel();
+                    }
+                }
+
+                if(categoryId > 0){
+                    this.category = new JeproLabCategoryModel(categoryId);
+                }else{
+                    if(JeproLabLaboratoryModel.isFeaturePublished() && JeproLabLaboratoryModel.getLabContext() == JeproLabLaboratoryModel.LAB_CONTEXT){
+                        this.category = new JeproLabCategoryModel(context.laboratory.category_id);
+                    }else if((JeproLabCategoryModel.getCategoriesWithoutParent().size() > 1) && (JeproLabSettingModel.getIntValue("multi_lab_feature_active") > 0) && JeproLabLaboratoryModel.getLaboratories(true, 0, true).size() != 1){
+                        this.category = JeproLabCategoryModel.getTopCategory();
+                    }else{
+                        this.category = new JeproLabCategoryModel(JeproLabSettingModel.getIntValue("root_category"));
+                    }
+                }
+
+                if(category.category_id > 0 && !category.isAssociatedToLaboratory() && JeproLabLaboratoryModel.getLabContext() == JeproLabLaboratoryModel.LAB_CONTEXT){
+                    redirectToCategoryForm(context.laboratory.getCategoryId());
+                    return cancel();
+                }
+
+                /** getting and showing items list **/
+                List<JeproLabCategoryModel> categoryTree ;
+                if(!JeproLabLaboratoryModel.isFeaturePublished() || JeproLabCategoryModel.getCategoriesWithoutParent().size() > 1 && context.category.category_id > 0){
+                    JeproLabCategoryModel categoryTr = JeproLabCategoryModel.getTopCategory();
+                    categoryTree = new ArrayList<>();
+                    categoryTree.add(categoryTr);
+                }else{
+                    categoryTree = this.category.getParentCategories();
+                    JeproLabCategoryModel categoryTr = categoryTree.get(categoryTree.size() - 1);
+                    if(!JeproLabLaboratoryModel.isFeaturePublished() && (categoryTr != null && categoryTr.parent_id != 0) ){
+
+                    }
+                }
+                categories = JeproLabCategoryModel.getCategories();
+                return true;
+            }
+
+            @Override
+            protected void succeeded(){
+                super.succeeded();
+                renderDetails(categories);
+            }
+
+            @Override
+            protected void cancelled(){
+                super.cancelled();
+            }
+
+            @Override
+            protected void failed(){
+                super.failed();
+                JeproLabUncaughtExceptionHandler.logExceptionMessage(Level.ERROR, exceptionProperty().getValue());
+            }
+        };
+        new Thread((Task)worker).start();
+
+        /*if (context.category != null && !task.equals("delete")) {
             this.category = context.category;
         } else {
-            if (JeproLabLaboratoryModel.isFeaturePublished() && JeproLabLaboratoryModel.getLabContext() == JeproLabLaboratoryModel.LAB_CONTEXT) {
-                this.category = new JeproLabCategoryModel(context.laboratory.category_id);
-            } else if (JeproLabCategoryModel.getCategoriesWithoutParent().size() > 1 && JeproLabSettingModel.getIntValue("multi_lab_feature_active") > 1 && JeproLabLaboratoryModel.getLaboratories(true, 0, true).size() > 1) {
-                this.category = JeproLabCategoryModel.getTopCategory();
-            } else {
-                this.category = new JeproLabCategoryModel(JeproLabSettingModel.getIntValue("root_category"));
-            }
-        }
 
-        if(!isInitialized){
-            isInitialized = true;
-            if (category != null && !category.isAssociatedToLaboratory() && JeproLabLaboratoryModel.getLabContext() == JeproLabLaboratoryModel.LAB_CONTEXT) {
-                task = "edit";
-                this.context.category = category;
-                /*try {
-                    //JeproLab.getInstance().goToForm(JeproLab.getInstance().getApplicationForms().addCategoryForm);
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }*/
-            }
-        }
+        }*/
 
-        if(categoryId > 0){
-            this.category = new JeproLabCategoryModel(categoryId);
-        }else{
-            if(JeproLabLaboratoryModel.isFeaturePublished() && JeproLabLaboratoryModel.getLabContext() == JeproLabLaboratoryModel.LAB_CONTEXT){
-                this.category = new JeproLabCategoryModel(context.laboratory.category_id);
-
-            }else if((JeproLabCategoryModel.getCategoriesWithoutParent().size() > 1) && (JeproLabSettingModel.getIntValue("multi_lab_feature_active") > 0) && JeproLabLaboratoryModel.getLaboratories(true, 0, true).size() != 1){
-                this.category = JeproLabCategoryModel.getTopCategory();
-            }else{
-                this.category = new JeproLabCategoryModel(JeproLabSettingModel.getIntValue("root_category"));
-            }
-        }
-
-        if(category.category_id > 0 && !category.isAssociatedToLaboratory() && JeproLabLaboratoryModel.getLabContext() == JeproLabLaboratoryModel.LAB_CONTEXT){
-            JeproLab.request.setRequest("view=category&task=edit&category_id=" + context.laboratory.getCategoryId() + "&" + JeproLabTools.getCategoryToken() + "=1");
-        }
-        /** getting and showing items list **/
-        List<JeproLabCategoryModel> categoryTree ;
-        if(!JeproLabLaboratoryModel.isFeaturePublished() || JeproLabCategoryModel.getCategoriesWithoutParent().size() > 1 && context.category.category_id > 0){
-            JeproLabCategoryModel categoryTr = JeproLabCategoryModel.getTopCategory();
-            categoryTree = new ArrayList<>();
-            categoryTree.add(categoryTr);
-        }else{
-            categoryTree = this.category.getParentCategories();
-            JeproLabCategoryModel categoryTr = categoryTree.get(categoryTree.size() - 1);
-            if(!JeproLabLaboratoryModel.isFeaturePublished() && (categoryTr != null && categoryTr.parent_id != 0) ){
-
-            }
-        }
-
-        categories = JeproLabCategoryModel.getCategories();
-        //categories = this.category.getSubCategories(context.language.language_id);
-        renderDetails();
-        pagination = JeproLabCategoryModel.getPagination();
         updateToolBar();
 
     }
 
+    private void redirectToCategoryForm(int categoryId){
+        Platform.runLater(() -> {
+            JeproLab.getInstance().goToForm(JeproLab.getInstance().getApplicationForms().addCategoryForm);
+            JeproLab.getInstance().getApplicationForms().addCategoryForm.controller.initializeContent(categoryId);
+        });
+    }
 
-    protected void renderDetails(){
-        if(!categories.isEmpty()){
-            ObservableList<JeproLabCategoryRecord> categoryList = FXCollections.observableArrayList();
-            categoryList.addAll(categories.stream().map(JeproLabCategoryRecord::new).collect(Collectors.toList()));
-            categoryTableView.getItems().clear();
-            categoryTableView.setItems(categoryList);
-        }
+
+    protected void renderDetails(List<JeproLabCategoryModel> categories){
+        Platform.runLater(() ->{
+            if(!categories.isEmpty()){
+                categoryList.addAll(categories.stream().map(JeproLabCategoryRecord::new).collect(Collectors.toList()));
+                jeproLabCategoryPagination = new Pagination((categoryList.size()/JeproLabConfigurationSettings.LIST_LIMIT) + 1, 0);
+                jeproLabCategoryPagination.setPageFactory(this::createPages);
+                jeproLabCategoryFormPanel.getChildren().clear();
+                jeproLabCategoryFormPanel.getChildren().addAll(jeproLabCategorySearchWrapper, jeproLabCategoryPagination);
+                //jeproLabCategoryFormPanel.getChildren().addAll(container);
+                //categoryTableView.getItems().clear();
+                //categoryTableView.setItems(categoryList);
+                //jeproLabcategoryTableView
+            }
+        });
+    }
+
+    private Node createPages(int pageIndex){
+        int fromIndex = pageIndex * JeproLabConfigurationSettings.LIST_LIMIT;
+        int toIndex = Math.min(fromIndex + JeproLabConfigurationSettings.LIST_LIMIT, (categoryList.size() - 1));
+        jeproLabCategoryTableView.setItems(FXCollections.observableArrayList(categoryList.subList(fromIndex, toIndex)));
+
+        return new Pane(jeproLabCategoryTableView);
     }
 
     @Override
@@ -184,24 +257,16 @@ public class JeproLabCategoryController extends JeproLabController{
 
     private void addCommandEventLister(){
         addCategoryBtn.setOnAction(evt ->{
-            //try {
-                JeproLab.request.getRequest().clear();
-                JeproLab.getInstance().goToForm(JeproLab.getInstance().getApplicationForms().addCategoryForm);
-                JeproLabContext.getContext().controller.initializeContent();
-            /*}catch (IOException ignored){
-                ignored.printStackTrace();
-            } */
+            JeproLab.request.getRequest().clear();
+            JeproLab.getInstance().goToForm(JeproLab.getInstance().getApplicationForms().addCategoryForm);
+            JeproLabContext.getContext().controller.initializeContent();
         });
 
         addRootCategoryButton.setOnAction(event -> {
-            //try {
-                JeproLab.request.getRequest().clear();
-                JeproLab.request.setRequest("is_root_category=1");
-                JeproLab.getInstance().goToForm(JeproLab.getInstance().getApplicationForms().addCategoryForm);
-                JeproLabContext.getContext().controller.initializeContent();
-            /*}catch (IOException ignored){
-                ignored.printStackTrace();
-            }*/
+            JeproLab.request.getRequest().clear();
+            JeproLab.request.setRequest("is_root_category=1");
+            JeproLab.getInstance().goToForm(JeproLab.getInstance().getApplicationForms().addCategoryForm);
+            JeproLabContext.getContext().controller.initializeContent();
         });
     }
 
@@ -223,6 +288,10 @@ public class JeproLabCategoryController extends JeproLabController{
             categoryName = new SimpleStringProperty(category.name.get("lang_" + langId));
             categoryDescription = new SimpleStringProperty(category.description.get("lang_" + langId));
             categoryPosition = new SimpleIntegerProperty(category.position);
+        }
+
+        public JeproLabCategoryRecord(JeproLabCategoryModel category, List<Integer> selectedCats){
+
         }
 
         /**

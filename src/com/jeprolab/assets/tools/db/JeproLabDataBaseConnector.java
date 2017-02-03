@@ -26,7 +26,7 @@ public class JeproLabDataBaseConnector {
     private String hostName;
     private String driverName;
 
-    private String queryRequest;
+    //private String queryRequest;
 
     public JeproLabDataBaseConnector(String server, String driver, String dataBase) {
         hostName = server;
@@ -113,14 +113,14 @@ public class JeproLabDataBaseConnector {
         return  "`" + msg + "`";
     }
 
-    public String quoteName(String msg, boolean setAs, String alias){
+    /*public String quoteName(String msg, boolean setAs, String alias){
         String quoted = "`" + msg + "`";
         String quotedAs = "";
         //if(setAs != null && !setAs.equals("")){
         quotedAs += " AS "; // + this.quoteNameStr();
         //}
         return quoted + quotedAs;
-    }
+    }*/
 
     public String quoteNameStr(String[] msgText){
 
@@ -147,7 +147,7 @@ public class JeproLabDataBaseConnector {
             throw new Exception("you can't continue without connection");
         }
         return  instance;
-    }*/
+    }* /
 
     public void setQuery(String query){
         setQuery(query, 0, 0);
@@ -159,9 +159,10 @@ public class JeproLabDataBaseConnector {
         if(limit > 0 || offSet > 0){
             queryRequest += " LIMIT " + offSet + ", " + limit;
         }
-    }
+    }*/
 
-    public ResultSet loadObjectList(){
+    public synchronized ResultSet loadObjectList(String query){
+        String queryRequest = query.replace("#__", JeproLabConfig.DATA_BASE_PREFIX);
         ResultSet results;
         try {
             /** JDBC Registration **/
@@ -170,7 +171,6 @@ public class JeproLabDataBaseConnector {
             connection = DriverManager.getConnection(dataBaseUrl, JeproLabConfig.DATA_BASE_USER_NAME , JeproLabConfig.DATA_BASE_PASSWORD);
             results = connection.createStatement().executeQuery(queryRequest);
 
-            queryRequest = null;
             return results;
         } catch (SQLException ignored) {
             JeproLabUncaughtExceptionHandler.logExceptionMessage(Level.ERROR, ignored);
@@ -182,14 +182,15 @@ public class JeproLabDataBaseConnector {
         }
     }
 
-    public boolean query(boolean isInsert){
-        return  query(isInsert, false);
+    public synchronized boolean query(String query, boolean isInsert){
+        return  query(query, isInsert, false);
     }
 
-    public boolean query(boolean isInsert, boolean getAffectedRows){
+    public synchronized boolean query(String query, boolean isInsert, boolean getAffectedRows){
         try{
             /** JDBC Registration **/
             Class.forName(driverName);
+            String queryRequest = query.replace("#__", JeproLabConfig.DATA_BASE_PREFIX);
             connection = DriverManager.getConnection(dataBaseUrl, JeproLabConfig.DATA_BASE_USER_NAME, JeproLabConfig.DATA_BASE_PASSWORD);
             if (isInsert) {
                 PreparedStatement statement = connection.prepareStatement(queryRequest, Statement.RETURN_GENERATED_KEYS);
@@ -218,8 +219,8 @@ public class JeproLabDataBaseConnector {
         return  this.affected_rows;
     }
 
-    public double loadValue(String key){
-        ResultSet result = loadObjectList();
+    public double loadValue(String query, String key){
+        ResultSet result = loadObjectList(query);
         try{
             if(result.next()){
                 return result.getDouble(key);
@@ -230,8 +231,8 @@ public class JeproLabDataBaseConnector {
         return 0;
     }
 
-    public String loadStringValue(String key){
-        ResultSet result = loadObjectList();
+    public String loadStringValue(String query, String key){
+        ResultSet result = loadObjectList(query);
         try{
             if(result.next()){
                 return result.getString(key);

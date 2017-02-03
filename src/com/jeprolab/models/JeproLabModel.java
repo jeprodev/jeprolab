@@ -3,7 +3,6 @@ package com.jeprolab.models;
 import com.jeprolab.assets.tools.JeproLabCache;
 import com.jeprolab.assets.tools.db.JeproLabDataBaseConnector;
 import com.jeprolab.models.core.JeproLabFactory;
-import javafx.scene.control.Pagination;
 
 /**
  *
@@ -12,18 +11,12 @@ import javafx.scene.control.Pagination;
 public class JeproLabModel {
     public boolean get_lab_from_context = false;
 
-    protected static Pagination pagination;
-
     protected static JeproLabDataBaseConnector dataBaseObject;
 
     public JeproLabModel(){
         if(dataBaseObject == null){
             dataBaseObject = JeproLabFactory.getDataBaseConnector();
         }
-    }
-
-    public static Pagination getPagination(){
-        return pagination;
     }
 
     public static boolean isCurrentlyUsed(String table){
@@ -45,10 +38,8 @@ public class JeproLabModel {
         String query = "SELECT " + dataBaseObject.quoteName(table + "_id") + " FROM " + dataBaseObject.quoteName("__jeprolab_" + table);
 
         query += (hasPublishColumn ? " WHERE " + dataBaseObject.quoteName("published") + " = 1" : "");
-        dataBaseObject.setQuery(query);
 
-
-        return ((int)dataBaseObject.loadValue(table + "_id") > 0 );
+        return ((int)dataBaseObject.loadValue(query, table + "_id") > 0 );
     }
 
     public boolean updateField(String table, String field, String value, String condition, String type){
@@ -62,8 +53,7 @@ public class JeproLabModel {
                 break;
         }
 
-        dataBaseObject.setQuery(query + condition);
-        return dataBaseObject.query(false);
+        return dataBaseObject.query((query + condition), false);
     }
 
     public void clearCache(String table, int id){

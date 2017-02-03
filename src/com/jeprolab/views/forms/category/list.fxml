@@ -1,21 +1,5 @@
 <?import javafx.scene.layout.VBox?>
-<?import javafx.scene.control.TableView?>
-<?import javafx.scene.control.TableColumn?>
 
-<?import javafx.scene.control.Pagination?>
-<?import javafx.scene.layout.HBox?>
-<VBox xmlns:fx="http://javafx.com/fxml" fx:controller="com.jeprolab.controllers.JeproLabCategoryController" spacing="5">
-    <HBox />
-    <TableView fx:id="categoryTableView">
-        <columns>
-            <TableColumn resizable="false" editable="false" fx:id="categoryIndexColumn"/>
-            <TableColumn resizable="false" editable="false" fx:id="categoryCheckBoxColumn"/>
-            <TableColumn resizable="false" editable="false" fx:id="categoryStatusColumn"/>
-            <TableColumn resizable="false" editable="false" fx:id="categoryNameColumn"/>
-            <TableColumn resizable="false" editable="false" fx:id="categoryDescriptionColumn"/>
-            <TableColumn resizable="false" editable="false" fx:id="categoryPositionColumn"/>
-            <TableColumn resizable="false" editable="false" fx:id="categoryActionColumn"/>
-        </columns>
-    </TableView>
-    <Pagination fx:id="pagination"/>
+<VBox xmlns:fx="http://javafx.com/fxml" fx:id="jeproLabCategoryFormPanel" fx:controller="com.jeprolab.controllers.JeproLabCategoryController" spacing="5">
+
 </VBox>

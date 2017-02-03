@@ -2,12 +2,18 @@ package com.jeprolab.controllers;
 
 import com.jeprolab.JeproLab;
 import com.jeprolab.assets.tools.JeproLabTools;
+import com.jeprolab.assets.tools.exception.JeproLabUncaughtExceptionHandler;
 import com.jeprolab.models.JeproLabCustomerModel;
+import com.sun.org.apache.xpath.internal.operations.Bool;
+import com.sun.xml.internal.bind.annotation.OverrideAnnotationOf;
+import javafx.application.Platform;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.concurrent.Task;
+import javafx.concurrent.Worker;
 import javafx.fxml.FXML;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -18,6 +24,7 @@ import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.util.Callback;
+import org.apache.log4j.Level;
 
 import java.net.URL;
 import java.util.List;
@@ -113,12 +120,38 @@ public class JeproLabCustomerController extends JeproLabController{
 
     @Override
     public void initializeContent(){
-        List<JeproLabCustomerModel> customers = JeproLabCustomerModel.getCustomers();
-        ObservableList<JeproLabCustomerRecord> analyzeList = FXCollections.observableArrayList();
-        if(!customers.isEmpty()){
-            analyzeList.addAll(customers.stream().map(JeproLabCustomerRecord::new).collect(Collectors.toList()));
-            customersTableView.setItems(analyzeList);
-        }
+        Worker<Boolean> worker = new Task<Boolean>(){
+            List<JeproLabCustomerModel> customers;
+
+            @Override
+            public Boolean call() throws Exception {
+                if(isCancelled()){
+                    return false;
+                }
+                customers = JeproLabCustomerModel.getCustomers();
+                return true;
+            }
+
+            @Override
+            protected void succeeded(){
+                super.succeeded();
+                updateContent(customers);
+            }
+
+            @Override
+            protected void cancelled(){
+                super.cancelled();
+            }
+
+            @Override
+            protected void failed(){
+                super.failed();
+                JeproLabUncaughtExceptionHandler.logExceptionMessage(Level.ERROR, exceptionProperty().getValue());
+            }
+        };
+
+        new Thread((Task)worker).start();
+
         updateToolBar();
     }
 
@@ -133,6 +166,16 @@ public class JeproLabCustomerController extends JeproLabController{
 
         });
         commandWrapper.getChildren().addAll(addCustomerBtn);
+    }
+
+    private void updateContent(List<JeproLabCustomerModel> customers){
+        Platform.runLater(() -> {
+            ObservableList<JeproLabCustomerRecord> customerList = FXCollections.observableArrayList();
+            if(!customers.isEmpty()){
+                customerList.addAll(customers.stream().map(JeproLabCustomerRecord::new).collect(Collectors.toList()));
+                customersTableView.setItems(customerList);
+            }
+        });
     }
 
     public static class JeproLabCustomerRecord{

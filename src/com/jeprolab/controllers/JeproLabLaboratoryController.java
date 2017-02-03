@@ -2,14 +2,15 @@ package com.jeprolab.controllers;
 
 import com.jeprolab.JeproLab;
 import com.jeprolab.models.JeproLabLaboratoryModel;
+import com.sun.org.apache.xpath.internal.operations.Bool;
 import javafx.fxml.FXML;
 import javafx.geometry.Insets;
-import javafx.scene.control.CheckBox;
-import javafx.scene.control.TableColumn;
-import javafx.scene.control.TableView;
+import javafx.scene.control.*;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 
 import java.net.URL;
+import java.util.List;
 import java.util.ResourceBundle;
 
 /**
@@ -54,5 +55,21 @@ public class JeproLabLaboratoryController extends JeproLabController {
         public JeproLabLaboratoryRecord(JeproLabLaboratoryModel laboratory){
 
         }
+
+        public JeproLabLaboratoryRecord(JeproLabLaboratoryModel laboratory, List<Integer> selecedLabs){
+
+        }
+    }
+
+    public static class JeproLabCheckBoxCellFactory extends TableCell<JeproLabLaboratoryRecord, Boolean>{
+
+    }
+
+    public static class JeproLabStatusCellFactory extends TableCell<JeproLabLaboratoryRecord, Button>{
+
+    }
+
+    public static class JeproLabActionCellFactory extends TableCell<JeproLabLaboratoryRecord, HBox>{
+
     }
 }

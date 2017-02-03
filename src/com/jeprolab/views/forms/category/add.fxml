@@ -49,36 +49,12 @@
                 </VBox>
             </Tab>
             <Tab closable="false" fx:id="jeproLabCategoryAssociatedLaboratoriesTab">
-                <VBox>
-                    <Label  fx:id="jeproLabCategoryAssociatedLabsLabel" />
-                    <GridPane fx:id="jeproLabCategoryAssociatedLaboratoriesLayout" >
 
-                    </GridPane>
-                </VBox>
             </Tab>
             <Tab closable="false" fx:id="jeproLabCategoryAssociatedGroupTab">
-                <VBox>
-                    <Label fx:id="jeproLabCategoryAllowedGroupLabel" />
-                    <GridPane fx:id="jeproLabCategoryAssociatedGroupLayout" >
 
-                    </GridPane>
-                </VBox>
             </Tab>
-            <Tab closable="false" fx:id="jeproLabCategorySubCategoriesTab" >
-                <VBox>
-                    <TableView fx:id="jeproLabSubCategoryTableView">
-                        <columns>
-                            <TableColumn resizable="false" editable="false" fx:id="jeproLabSubCategoryIndexColumn"/>
-                            <TableColumn resizable="false" editable="false" fx:id="jeproLabSubCategoryCheckBoxColumn"/>
-                            <TableColumn resizable="false" editable="false" fx:id="jeproLabSubCategoryStatusColumn"/>
-                            <TableColumn resizable="false" editable="false" fx:id="jeproLabSubCategoryNameColumn"/>
-                            <TableColumn resizable="false" editable="false" fx:id="jeproLabSubCategoryDescriptionColumn"/>
-                            <TableColumn resizable="false" editable="false" fx:id="jeproLabSubCategoryPositionColumn"/>
-                            <TableColumn resizable="false" editable="false" fx:id="jeproLabSubCategoryActionColumn"/>
-                        </columns>
-                    </TableView>
-                </VBox>
-            </Tab>
+            <Tab closable="false" fx:id="jeproLabCategorySubCategoriesTab" />
         </TabPane>
     </JeproFormPanelContainer>
 </JeproFormPanel>

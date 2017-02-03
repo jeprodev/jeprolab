@@ -108,8 +108,8 @@ public class JeproLabCustomerModel extends JeproLabModel{
                 }
                 String query = "SELECT * FROM " + dataBaseObject.quoteName("#__jeprolab_customer") + " AS customer ";
                 query += " WHERE customer." + dataBaseObject.quoteName("customer_id") + " = " + customerId;
-                dataBaseObject.setQuery(query);
-                ResultSet customerSet = dataBaseObject.loadObjectList();
+                //ataBaseObject.setQuery(query);
+                ResultSet customerSet = dataBaseObject.loadObjectList(query);
 
                 if(customerSet != null){
                     try {
@@ -203,8 +203,8 @@ public class JeproLabCustomerModel extends JeproLabModel{
             String query = "SELECT " + dataBaseObject.quoteName("group_id") + " FROM " + dataBaseObject.quoteName("#__jeprolab_customer_group");
             query += " WHERE " + dataBaseObject.quoteName("customer_id") + " = " + context.customer.customer_id;
 
-            dataBaseObject.setQuery(query);
-            ResultSet customerGroupSet = dataBaseObject.loadObjectList();
+            //dataBaseObject.setQuery(query);
+            ResultSet customerGroupSet = dataBaseObject.loadObjectList(query);
 
             if(customerGroupSet != null){
                 try{
@@ -241,8 +241,8 @@ public class JeproLabCustomerModel extends JeproLabModel{
             String query = "SELECT " + dataBaseObject.quoteName("default_group_id") + " FROM " + dataBaseObject.quoteName("#__jeprolab_customer");
             query += " WHERE " + dataBaseObject.quoteName("customer_id") +  " = " + customerId;
 
-            dataBaseObject.setQuery(query);
-            JeproLabCustomerModel._defaultGroupId.put(customerId, (int)dataBaseObject.loadValue("default_group_id"));
+            //dataBaseObject.setQuery(query);
+            JeproLabCustomerModel._defaultGroupId.put(customerId, (int)dataBaseObject.loadValue(query, "default_group_id"));
         }
         return JeproLabCustomerModel._defaultGroupId.get(customerId);
     }
@@ -281,8 +281,8 @@ public class JeproLabCustomerModel extends JeproLabModel{
         query += (onlyActive ? " AND " + dataBaseObject.quoteName("published") + " = 1" : "") + " ORDER BY ";
         query += dataBaseObject.quoteName("customer_id") + " ASC";
 
-        dataBaseObject.setQuery(query);
-        ResultSet customerSet = dataBaseObject.loadObjectList();
+        //dataBaseObject.setQuery(query);
+        ResultSet customerSet = dataBaseObject.loadObjectList(query);
 
         if(customerSet != null){
             try{
@@ -362,8 +362,8 @@ public class JeproLabCustomerModel extends JeproLabModel{
         query += ", " + (this.deleted ? 1 : 0) + ", " + dataBaseObject.quote(this.password) + ", ";
         query +=  dataBaseObject.quote(dateAdded) + ", " + dataBaseObject.quote(dateAdded) + ")";
 
-        dataBaseObject.setQuery(query);
-        dataBaseObject.query(true);
+        //dataBaseObject.setQuery(query);
+        dataBaseObject.query(query, true);
         this.customer_id = dataBaseObject.getGeneratedKey();
 
         this.updateGroup(this.group_box);
@@ -397,8 +397,8 @@ public class JeproLabCustomerModel extends JeproLabModel{
         String query = "DELETE FROM " + dataBaseObject.quoteName("#__jeprolab_customer_group") + " WHERE ";
         query += dataBaseObject.quoteName("customer_id") + " = " + this.customer_id;
 
-        dataBaseObject.setQuery(query);
-        dataBaseObject.query(false);
+        //dataBaseObject.setQuery(query);
+        dataBaseObject.query(query, false);
     }
 
     public void addGroups(List<Integer> groups){
@@ -410,8 +410,8 @@ public class JeproLabCustomerModel extends JeproLabModel{
 
             query = "INSERT INTO " + dataBaseObject.quoteName("#__jeprolab_customer_group") + "(" + dataBaseObject.quoteName("customer_id");
             query += ", " + dataBaseObject.quoteName("group_id") + ") VALUES (" + this.customer_id + ", " + groupId + ")";
-            dataBaseObject.setQuery(query);
-            dataBaseObject.query(false);
+            //dataBaseObject.setQuery(query);
+            dataBaseObject.query(query, false);
         }
     }
 
@@ -450,8 +450,8 @@ public class JeproLabCustomerModel extends JeproLabModel{
         query += dataBaseObject.quoteName("published") + " = " + (this.published ? 1 : 0) + ", " + dataBaseObject.quoteName("deleted") + " = " ;
         query += (this.deleted ? 1 : 0) + " WHERE " + dataBaseObject.quoteName("customer_id") + " = " + this.customer_id;
 
-        dataBaseObject.setQuery(query);
-        dataBaseObject.query(false);
+        //dataBaseObject.setQuery(query);
+        dataBaseObject.query(query, false);
 
         /*public int state_id;
         public String postcode;
@@ -477,37 +477,37 @@ public class JeproLabCustomerModel extends JeproLabModel{
 
         if(dataBaseObject == null){ dataBaseObject = JeproLabFactory.getDataBaseConnector(); }
         String query = "DELETE FROM " + dataBaseObject.quoteName("#__jeprolab_customer_group") + " WHERE " + dataBaseObject.quoteName("customer_id") + " = " + this.customer_id;
-        dataBaseObject.setQuery(query);
-        dataBaseObject.query(false);
+        //dataBaseObject.setQuery(query);
+        dataBaseObject.query(query, false);
 
         query = "DELETE FROM " + dataBaseObject.quoteName("#__jeprolab_message") + " WHERE " + dataBaseObject.quoteName("customer_id") + " = " + this.customer_id;
-        dataBaseObject.setQuery(query);
-        dataBaseObject.query(false);
+        //dataBaseObject.setQuery(query);
+        dataBaseObject.query(query, false);
 
         query = "DELETE FROM " + dataBaseObject.quoteName("#__jeprolab_specific_price") + " WHERE customer_id = " + this.customer_id;
-        dataBaseObject.setQuery(query);
-        dataBaseObject.query(false);
+        //dataBaseObject.setQuery(query);
+        dataBaseObject.query(query, false);
 
         query = "DELETE FROM " + dataBaseObject.quoteName("#__jeprolab_compare") + " WHERE " + dataBaseObject.quoteName("customer_id") + " = " + this.customer_id;
-        dataBaseObject.setQuery(query);
-        dataBaseObject.query(false);
+        //dataBaseObject.setQuery(query);
+        dataBaseObject.query(query, false);
 
         query = "SELECT cart_id FROM " + dataBaseObject.quoteName("#__jeprolab_cart") + " WHERE " + dataBaseObject.quoteName("customer_id") + " = " + this.customer_id;
-        dataBaseObject.setQuery(query);
+        //dataBaseObject.setQuery(query);
 
-        ResultSet cartSet = dataBaseObject.loadObjectList();
+        ResultSet cartSet = dataBaseObject.loadObjectList(query);
         if (cartSet != null) {
             try {
                 int cartId;
                 while (cartSet.next()) {
                     cartId = cartSet.getInt("cart_id");
                     query = "DELETE FROM " + dataBaseObject.quoteName("#__jeprolab_cart") + " WHERE " + dataBaseObject.quoteName("cart_id") + " = " + cartId;
-                    dataBaseObject.setQuery(query);
-                    dataBaseObject.query(false);
+                    //dataBaseObject.setQuery(query);
+                    dataBaseObject.query(query, false);
 
                     query = "DELETE FROM " + dataBaseObject.quoteName("#__jeprolab_cart_product") + " WHERE cart_id = " + cartId;
-                    dataBaseObject.setQuery(query);
-                    dataBaseObject.query(false);
+                    //dataBaseObject.setQuery(query);
+                    dataBaseObject.query(query, false);
                 }
             } catch (SQLException ignored) {
                 JeproLabUncaughtExceptionHandler.logExceptionMessage(Level.ERROR, ignored);
@@ -521,21 +521,21 @@ public class JeproLabCustomerModel extends JeproLabModel{
         }
 
         query = "SELECT customer_thread_id FROM " + dataBaseObject.quoteName("#__jeprolab_customer_thread") + " WHERE customer_id = " + this.customer_id;
-        dataBaseObject.setQuery(query);
+        //dataBaseObject.setQuery(query);
 
-        ResultSet threadIdsSet = dataBaseObject.loadObjectList();
+        ResultSet threadIdsSet = dataBaseObject.loadObjectList(query);
         if(threadIdsSet != null) {
             try {
                 int customerThreadId;
                 while (threadIdsSet.next()) {
                     customerThreadId = threadIdsSet.getInt("customer_thread_id");
                     query = "DELETE FROM " + dataBaseObject.quoteName("#__jeprolab_customer_thread") + " WHERE customer_thread_id = " + customerThreadId;
-                    dataBaseObject.setQuery(query);
-                    dataBaseObject.query(false);
+                    //dataBaseObject.setQuery(query);
+                    dataBaseObject.query(query, false);
 
                     query = "DELETE FROM " + dataBaseObject.quoteName("#__jeprolab_customer_message") + " WHERE customer_thread_id = " + customerThreadId;
-                    dataBaseObject.setQuery(query);
-                    dataBaseObject.query(false);
+                    //dataBaseObject.setQuery(query);
+                    dataBaseObject.query(query, false);
                 }
             } catch (SQLException ignored) {
                 JeproLabUncaughtExceptionHandler.logExceptionMessage(Level.ERROR, ignored);
@@ -551,8 +551,8 @@ public class JeproLabCustomerModel extends JeproLabModel{
         query = "DELETE FROM " + dataBaseObject.quoteName("#__jeprolab_customer");
         query += " WHERE " + dataBaseObject.quoteName("customer_id") + " = " + this.customer_id;
 
-        dataBaseObject.setQuery(query);
-        dataBaseObject.query(false);
+        //dataBaseObject.setQuery(query);
+        dataBaseObject.query(query, false);
     }
 
     /**
@@ -575,8 +575,8 @@ public class JeproLabCustomerModel extends JeproLabModel{
             query += " WHERE " + dataBaseObject.quoteName("lang_id") + " = " + langId + " AND " + dataBaseObject.quoteName("customer_id") + " = ";
             query += this.customer_id + " AND address." + dataBaseObject.quoteName("deleted") + " = 0";
 
-            dataBaseObject.setQuery(query);
-            ResultSet resultSet = dataBaseObject.loadObjectList();
+            //dataBaseObject.setQuery(query);
+            ResultSet resultSet = dataBaseObject.loadObjectList(query);
             List<JeproLabAddressModel> addressList = new ArrayList<>();
 
             if(resultSet != null){
@@ -612,8 +612,8 @@ public class JeproLabCustomerModel extends JeproLabModel{
         query += dataBaseObject.quoteName("#__jeprolab_customer") + " WHERE " + dataBaseObject.quoteName("customer_id") + " = ";
         query += customerId;
 
-        dataBaseObject.setQuery(query);
-        ResultSet customerSet = dataBaseObject.loadObjectList();
+        //dataBaseObject.setQuery(query);
+        ResultSet customerSet = dataBaseObject.loadObjectList(query);
         if(customerSet != null){
             try{
                 if(customerSet.next()){
@@ -647,8 +647,8 @@ public class JeproLabCustomerModel extends JeproLabModel{
         query += dataBaseObject.quoteName("company") + " = " + dataBaseObject.quote(company);
         query += JeproLabLaboratoryModel.addSqlRestriction(JeproLabLaboratoryModel.SHARE_CUSTOMER);
 
-        dataBaseObject.setQuery(query);
-        ResultSet customersSet = dataBaseObject.loadObjectList();
+        //dataBaseObject.setQuery(query);
+        ResultSet customersSet = dataBaseObject.loadObjectList(query);
 
         if(customersSet != null){
             try{
@@ -701,8 +701,8 @@ public class JeproLabCustomerModel extends JeproLabModel{
         query += dataBaseObject.quoteName("email") + " = " + dataBaseObject.quote(email);
         query += JeproLabLaboratoryModel.addSqlRestriction(JeproLabLaboratoryModel.SHARE_CUSTOMER);
 
-        dataBaseObject.setQuery(query);
-        return (int)dataBaseObject.loadValue("customer_id");
+        //dataBaseObject.setQuery(query);
+        return (int)dataBaseObject.loadValue(query, "customer_id");
     }
 
     /**
@@ -720,8 +720,8 @@ public class JeproLabCustomerModel extends JeproLabModel{
         query += dataBaseObject.quoteName("email") + " = " + dataBaseObject.quote(email);
         query += JeproLabLaboratoryModel.addSqlRestriction(JeproLabLaboratoryModel.SHARE_CUSTOMER);
 
-        dataBaseObject.setQuery(query);
-        ResultSet customersSet = dataBaseObject.loadObjectList();
+        //dataBaseObject.setQuery(query);
+        ResultSet customersSet = dataBaseObject.loadObjectList(query);
         JeproLabCustomerModel customer;
         if(customersSet != null){
             try{

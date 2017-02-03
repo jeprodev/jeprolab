@@ -131,8 +131,8 @@ public class JeproLabStockModel extends JeproLabModel {
                     query += dataBaseObject.quoteName("depends_on_stock") + " = " + (dependsOnStock ? 1 : 0);
                     query += " WHERE " + dataBaseObject.quoteName("stock_available_id") + " = " + existingId;
 
-                    dataBaseObject.setQuery(query);
-                    dataBaseObject.query(false);
+                    //dataBaseObject.setQuery(query);
+                    dataBaseObject.query(query, false);
                 } else {
                     Map<String, Integer> queryParams = new HashMap<>();
                     queryParams.put("depends_on_stock", (dependsOnStock ? 1 : 0));
@@ -152,8 +152,8 @@ public class JeproLabStockModel extends JeproLabModel {
                     keyFields = keyFields.endsWith(", ") ? keyFields.substring(0, keyFields.length() - 3) : keyFields;
                     valueFields = valueFields.endsWith(", ") ? valueFields.substring(0, valueFields.length() - 3) : valueFields;
                     query += keyFields + ") VALUES( " + valueFields + ")";
-                    dataBaseObject.setQuery(query);
-                    dataBaseObject.query(false);
+                    //dataBaseObject.setQuery(query);
+                    dataBaseObject.query(query, false);
                 }
 
                 // depends on stock.. hence synchronizes
@@ -180,8 +180,8 @@ public class JeproLabStockModel extends JeproLabModel {
 
 
                 query += JeproLabStockAvailableModel.addSqlLaboratoryRestriction(new JeproLabLaboratoryModel(labId));
-                dataBaseObject.setQuery(query);
-                return (int) dataBaseObject.loadValue("stock_available_id");
+                //dataBaseObject.setQuery(query);
+                return (int) dataBaseObject.loadValue(query, "stock_available_id");
             }
             return 0;
         }
@@ -512,8 +512,8 @@ public class JeproLabStockModel extends JeproLabModel {
                     query += (analyzeAttributeId > 0 ? " AND " + dataBaseObject.quoteName("analyze_attribute_id") + " = " + analyzeAttributeId : "");
                     query += JeproLabStockAvailableModel.addSqlLaboratoryRestriction(new JeproLabLaboratoryModel(labId));
 
-                    dataBaseObject.setQuery(query);
-                    dataBaseObject.query(false);
+                    //dataBaseObject.setQuery(query);
+                    dataBaseObject.query(query, false);
                 } else {
                     query = "INSERT " + dataBaseObject.quoteName("#__jeprolab_stock_available") + "(";
                     Map<String, Integer> queryParams = new HashMap<>();
@@ -534,8 +534,8 @@ public class JeproLabStockModel extends JeproLabModel {
                     valueFields = valueFields.endsWith(", ") ? valueFields.substring(0, valueFields.length() - 3) : valueFields;
                     query += keyFields + ") VALUES( " + valueFields + ")"; // ON DUPLICATE KEY UPDATE ";
 
-                    dataBaseObject.setQuery(query);
-                    dataBaseObject.query(false);
+                    //dataBaseObject.setQuery(query);
+                    dataBaseObject.query(query, false);
                 }
             }
         }
@@ -629,8 +629,8 @@ public class JeproLabStockModel extends JeproLabModel {
             query += dataBaseObject.quoteName("#__jeprolab_pack") + " WHERE " + dataBaseObject.quoteName("analyze_item_id") + " = ";
             query += analyzeId + " AND " + dataBaseObject.quoteName("analyze_attribute_item_id") + " = " + analyzeAttributeId;
 
-            dataBaseObject.setQuery(query);
-            ResultSet packItemsPckSet = dataBaseObject.loadObjectList();
+            //dataBaseObject.setQuery(query);
+            ResultSet packItemsPckSet = dataBaseObject.loadObjectList(query);
 
             // check if product is present in a pack
             if (!JeproLabAnalyzeModel.JeproLabAnalyzePackModel.isPack(analyzeId) && packItemsPckSet != null) {
@@ -661,8 +661,8 @@ public class JeproLabStockModel extends JeproLabModel {
                             }
                             query += " GROUP BY request_detail." + dataBaseObject.quoteName("request_detail_id");
 
-                            dataBaseObject.setQuery(query);
-                            ResultSet requestDetailSet = dataBaseObject.loadObjectList();
+                            //dataBaseObject.setQuery(query);
+                            ResultSet requestDetailSet = dataBaseObject.loadObjectList(query);
                             if (requestDetailSet != null) {
                                 while (requestDetailSet.next()) {
                                     clientRequestQuantity += ((requestDetailSet.getInt("analyze_quantity") - requestDetailSet.getInt("analyze_quantity_refunded")) * requestDetailSet.getInt("quantity"));
@@ -743,8 +743,8 @@ public class JeproLabStockModel extends JeproLabModel {
                 $query->where('so.id_warehouse IN('.implode(', ', $ids_warehouse).')');
             }*/
 
-            dataBaseObject.setQuery(query);
-            ResultSet supplyRequestQuantities = dataBaseObject.loadObjectList();
+            //dataBaseObject.setQuery(query);
+            ResultSet supplyRequestQuantities = dataBaseObject.loadObjectList(query);
 
             int supplyRequestQuantity = 0;
             if(supplyRequestQuantities != null) {

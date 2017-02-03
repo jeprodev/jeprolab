@@ -48,8 +48,8 @@ public class JeproLabTagModel extends JeproLabModel{
         query += " AS analyze_tag ON (analyze_tag.tag_id = tag.tag_id) WHERE analyze_tag." + dataBaseObject.quoteName("analyze_id") + "= ";
         query += analyzeId;
 
-        dataBaseObject.setQuery(query);
-        ResultSet tagSet = dataBaseObject.loadObjectList();
+        //dataBaseObject.setQuery(query);
+        ResultSet tagSet = dataBaseObject.loadObjectList(query);
         Map<String, String> result = new HashMap<>();
         if (tagSet != null){
             try {
@@ -82,18 +82,18 @@ public class JeproLabTagModel extends JeproLabModel{
             dataBaseObject = JeproLabFactory.getDataBaseConnector();
         }
         String query = "SELECT tag_id FROM " + dataBaseObject.quoteName("#__jeprolab_analyze_tag") + " WHERE analyze_id = " + analyzeId;
-        dataBaseObject.setQuery(query);
-        ResultSet tagsSet = dataBaseObject.loadObjectList();
+        //dataBaseObject.setQuery(query);
+        ResultSet tagsSet = dataBaseObject.loadObjectList(query);
 
         query = "DELETE " + dataBaseObject.quoteName("#__jeprolab_analyze_tag") + " WHERE analyzeId = " + analyzeId;
-        dataBaseObject.setQuery(query);
-        boolean result = dataBaseObject.query(false);
+        //dataBaseObject.setQuery(query);
+        boolean result = dataBaseObject.query(query, false);
 
         query = "DELETE " + dataBaseObject.quoteName("#__jeprolab_tag") + " NOT EXISTS (SELECT 1 FROM " + dataBaseObject.quoteName("#__jeprolab_analyze_tag");
         query += " WHERE " + dataBaseObject.quoteName("#__jeprolab_analyze_tag") + ".tag_id = " + dataBaseObject.quoteName("#__jeprolab_analyze_tag") + ".tag_id)";
 
-        dataBaseObject.setQuery(query);
-        dataBaseObject.query(false);
+        //dataBaseObject.setQuery(query);
+        dataBaseObject.query(query, false);
 
         List<Integer> tagList = new ArrayList<>();
         if(tagsSet != null){

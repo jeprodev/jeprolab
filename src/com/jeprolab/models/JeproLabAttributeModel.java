@@ -33,8 +33,8 @@ public class JeproLabAttributeModel extends JeproLabModel{
         query += " AS analyze_attribute_lab WHERE " + dataBaseObject.quoteName("lab_id") + " = " + JeproLabContext.getContext().laboratory.laboratory_id;
         query += " AND " + dataBaseObject.quoteName("analyze_attribute_id") + " = " + analyzeAttributeId;
 
-        dataBaseObject.setQuery(query);
-        int minimalQuantity = (int)dataBaseObject.loadValue("minimal_quantity");
+        //dataBaseObject.setQuery(query);
+        int minimalQuantity = (int)dataBaseObject.loadValue(query, "minimal_quantity");
 
         if (minimalQuantity > 1) {
             return minimalQuantity;
