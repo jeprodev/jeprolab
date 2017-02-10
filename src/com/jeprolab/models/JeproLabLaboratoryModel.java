@@ -250,6 +250,10 @@ public class JeproLabLaboratoryModel extends JeproLabModel{
         return laboratory;
     }
 
+    public boolean add(){ return  true; }
+    public boolean update(){ return  true; }
+    public boolean delete(){ return  true; }
+
     public static boolean isTableAssociated(String table){
         if(!JeproLabLaboratoryModel.isInitialized){
             JeproLabLaboratoryModel.init();
@@ -298,30 +302,31 @@ public class JeproLabLaboratoryModel extends JeproLabModel{
     }
 
     public static boolean isFeaturePublished(){
-        try {
+        if(dataBaseObject == null){
             dataBaseObject = JeproLabFactory.getDataBaseConnector();
-        } catch (Exception ignored) {
-            JeproLabUncaughtExceptionHandler.logExceptionMessage(Level.WARN, ignored);
         }
+
         if(!feature_published){
-            String query = "SELECT COUNT(*) FROM " + dataBaseObject.quoteName("#__jeprolab_lab");
+            String query = "SELECT COUNT(*) labs FROM " + dataBaseObject.quoteName("#__jeprolab_lab");
             //dataBaseObject.setQuery(query);
 
-            int nbObject = 0;
-            try {
-                ResultSet data = dataBaseObject.loadObjectList(query);
-                while (data.next()) {
-                    nbObject++;
-                }
-            }catch (SQLException ignored){
-                JeproLabUncaughtExceptionHandler.logExceptionMessage(Level.ERROR, ignored);
-            }finally {
+            int nbObject = (int)dataBaseObject.loadValue(query, "labs");
+            /*ResultSet data = dataBaseObject.loadObjectList(query);
+            if(data != null) {
                 try {
-                    JeproLabFactory.removeConnection(dataBaseObject);
-                }catch (Exception ignored) {
-                    JeproLabUncaughtExceptionHandler.logExceptionMessage(Level.WARN, ignored);
+                    while (data.next()) {
+                        nbObject++;
+                    }
+                } catch (SQLException ignored) {
+                    JeproLabUncaughtExceptionHandler.logExceptionMessage(Level.ERROR, ignored);
+                } finally {
+                    try {
+                        JeproLabFactory.removeConnection(dataBaseObject);
+                    } catch (Exception ignored) {
+                        JeproLabUncaughtExceptionHandler.logExceptionMessage(Level.WARN, ignored);
+                    }
                 }
-            }
+            } */
 
             feature_published = (JeproLabSettingModel.getIntValue("multi_lab_feature_active") > 0) && (nbObject > 1);
         }
@@ -465,7 +470,6 @@ public class JeproLabLaboratoryModel extends JeproLabModel{
                         if (!JeproLabLaboratoryModel.labGroups.containsKey(labGroupId)) {
                             labGroup = new JeproLabLaboratoryGroupModel();
                             labGroup.laboratory_group_id = results.getInt("lab_group_id");
-                            System.out.println(results.getInt("lab_group_id"));
                             labGroup.name = results.getString("group_name");
                             labGroup.share_customers = results.getInt("share_customers") > 0;
                             labGroup.share_results = results.getInt("share_results") > 0;
@@ -710,6 +714,10 @@ public class JeproLabLaboratoryModel extends JeproLabModel{
                 while(laboratorySet.next()){
                     laboratory = new JeproLabLaboratoryModel();
                     laboratory.laboratory_id = laboratorySet.getInt("lab_id");
+                    laboratory.laboratory_group_id = laboratorySet.getInt("lab_group_id");
+                    laboratory.name = laboratorySet.getString("lab_name");
+                    laboratory.laboratory_group = new JeproLabLaboratoryGroupModel();
+                    laboratory.laboratory_group.name = laboratorySet.getString("group_name");
                     laboratories.add(laboratory);
                 }
             }catch (SQLException ignored) {
@@ -722,17 +730,6 @@ public class JeproLabLaboratoryModel extends JeproLabModel{
                 }
             }
         }
-        /*todo foreach (JeproLabLaboratoryModel.labs as $group_id => $group_data){
-            foreach ($group_data['labs'] as $lab_id => $lab_data){
-                if((!$published || $lab_data->published) && (!$lab_group_id || $lab_group_id == $group_id)){
-                    if ($get_as_list_id){
-                        $results[$lab_id] = $lab_id;
-                    }else{
-                        $results[$lab_id] = $lab_data;
-                    }
-                }
-            }
-        }*/
         return laboratories;
     }
 

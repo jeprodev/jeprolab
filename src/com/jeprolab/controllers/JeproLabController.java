@@ -34,7 +34,9 @@ public class JeproLabController implements Initializable {
 
     protected static boolean isInitialized = false;
 
-    public final double btnSize = 22;
+    public static final double btnSize = 22;
+
+    public static final int NUMBER_OF_LINES = 20;
 
     private Logger logging = Logger.getLogger(JeproLab.class);
 
@@ -56,6 +58,8 @@ public class JeproLabController implements Initializable {
     public void initializeContent(int itemId){ }
 
     public void updateToolBar(){}
+
+    public void clearForm(){}
 
     /**
      * align text of the cell to right in the specified column

@@ -1,19 +1,4 @@
 <?import javafx.scene.layout.VBox?>
-<?import javafx.scene.control.TableView?>
-<?import javafx.scene.control.TableColumn?>
-<?import javafx.scene.layout.HBox?>
-<VBox xmlns:fx="http://javafx.com/fxml" fx:controller="com.jeprolab.controllers.JeproLabLaboratoryController" >
-    <HBox />
-    <TableView fx:id="jeproLabLaboratoryTableView">
-        <columns>
-            <TableColumn resizable="false" editable="false" fx:id="jeproLabLaboratoryIndexColumn" />
-            <TableColumn resizable="false" editable="false" fx:id="jeproLabLaboratoryCheckBoxColumn" />
-            <TableColumn resizable="false" editable="false" fx:id="jeproLabLaboratoryNameColumn" />
-            <TableColumn resizable="false" editable="false" fx:id="jeproLabLaboratoryGroupColumn" />
-            <TableColumn resizable="false" editable="false" fx:id="jeproLabLaboratoryCategoryColumn" />
-            <TableColumn resizable="false" editable="false" fx:id="jeproLabLaboratoryThemeColumn" />
-            <TableColumn resizable="false" editable="false" fx:id="jeproLabLaboratoryPublishedColumn" />
-            <TableColumn resizable="false" editable="false" fx:id="jeproLabLaboratoryActionsColumn" />
-        </columns>
-    </TableView>
+<VBox xmlns:fx="http://javafx.com/fxml" fx:id="jeproLabLaboratoryWrapper" fx:controller="com.jeprolab.controllers.JeproLabLaboratoryController" >
+
 </VBox>

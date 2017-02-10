@@ -165,12 +165,12 @@ public class JeproLabAnalyzeController extends JeproLabController{
 
     private void updateTableView(List<JeproLabAnalyzeModel> analyzes){
         analyzeList = FXCollections.observableArrayList();
+        analyzeList.addAll(analyzes.stream().map(JeproLabAnalyzeRecord::new).collect(Collectors.toList()));
         Platform.runLater(() -> {
-            if(!analyzes.isEmpty()) {
-                analyzeList.addAll(analyzes.stream().map(JeproLabAnalyzeRecord::new).collect(Collectors.toList()));
+            if(!analyzeList.isEmpty()) {
                 //jeproLabAnalyzeTableView.getItems().clear();
                 //jeproLabAnalyzeTableView.setItems(analyzeList);
-                jeproLabAnalyzePagination = new Pagination((analyzes.size()/ JeproLabConfigurationSettings.LIST_LIMIT + 1), 0);
+                jeproLabAnalyzePagination = new Pagination((analyzes.size()/ JeproLabConfigurationSettings.LIST_LIMIT) + 1, 0);
                 jeproLabAnalyzePagination.setPageFactory(this::createPage);
                 VBox container = new VBox(5);
                 container.getChildren().addAll(jeproLabAnalyzeSearchWrapper, jeproLabAnalyzePagination);
@@ -181,7 +181,7 @@ public class JeproLabAnalyzeController extends JeproLabController{
 
     private Node createPage(int pageIndex){
         int fromIndex = pageIndex * JeproLabConfigurationSettings.LIST_LIMIT;
-        int toIndex = Math.min(fromIndex + JeproLabConfigurationSettings.LIST_LIMIT, (analyzeList.size() - 1));
+        int toIndex = Math.min(fromIndex + JeproLabConfigurationSettings.LIST_LIMIT, (analyzeList.size()));
         jeproLabAnalyzeTableView.setItems(FXCollections.observableArrayList(analyzeList.subList(fromIndex, toIndex)));
 
         return new Pane(jeproLabAnalyzeTableView);

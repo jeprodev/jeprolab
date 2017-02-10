@@ -109,26 +109,44 @@ public class JeproLabLoginController extends JeproLabController{
     }
 
     private void setEventHandler(){
+        Worker<Boolean> worker = new Task<Boolean>() {
+            boolean login = false;
+            @Override
+            protected Boolean call() throws Exception {
+                if(!isCancelled()) {
+                    JeproLabAuthentication.JeproLabAuthenticationOption loginOption = new JeproLabAuthentication.JeproLabAuthenticationOption();
+                    loginOption.action = "core.login.admin";
+                    login = JeproLabApplication.login(userName.getText(), password.getText(), loginOption);
+
+                    return true;
+                }
+                return false;
+            }
+
+            @Override
+            protected void cancelled(){
+                super.cancelled();
+            }
+
+            @Override
+            protected void failed(){
+                super.failed();
+            }
+
+            @Override
+            protected void succeeded(){
+                super.succeeded();
+                updateGui(login);
+            }
+        };
+
+
         loginButton.setOnAction(evt -> {
+            loginButton.setDisable(true);
             if(!JeproLab.getInstance().is_initialized){
                 JeproLabUncaughtExceptionHandler.logExceptionMessage(Level.ERROR, new Throwable("You should instantiate the application in order to log in and use it "));
             }
-            JeproLabAuthentication.JeproLabAuthenticationOption loginOption = new JeproLabAuthentication.JeproLabAuthenticationOption();
-            loginOption.action = "core.login.admin";
-            boolean login =  JeproLabApplication.login(userName.getText(), password.getText(), loginOption);
-
-            if(login) {
-                JeproLabContext context = JeproLabContext.getContext();
-                context.employee = JeproLabFactory.getEmployee();
-                JeproLab.getInstance().resetMenuAndToolBar(true);
-                if (context.last_form != null) {
-                    JeproLab.getInstance().goToForm(context.last_form);
-                } else {
-                    JeproLab.getInstance().goToForm(JeproLab.getInstance().getApplicationForms().dashBoardForm);
-                }
-            } else {
-                jeproLabLoginErrorMessageWrapper.setText(bundle.getString("JEPROLAB_YOU_ARE_NOT_ALLOW_TO_LOG_MESSAGE"));
-            }
+            new Thread((Task)worker).start();
         });
 
         /* /((Task)worker).setOnFailed( evt -> {
@@ -143,6 +161,28 @@ public class JeproLabLoginController extends JeproLabController{
         });
     }
 
+    private void loginButtonClicked(){
+
+
+    }
+
+    private void updateGui(boolean login){
+        Platform.runLater(() -> {
+            if(login) {
+                JeproLabContext context = JeproLabContext.getContext();
+                context.employee = JeproLabFactory.getEmployee();
+                JeproLab.getInstance().resetMenuAndToolBar(true);
+                if (context.last_form != null) {
+                    JeproLab.getInstance().goToForm(context.last_form);
+                } else {
+                    JeproLab.getInstance().goToForm(JeproLab.getInstance().getApplicationForms().dashBoardForm);
+                }
+            } else {
+                jeproLabLoginErrorMessageWrapper.setText(bundle.getString("JEPROLAB_YOU_ARE_NOT_ALLOW_TO_LOG_MESSAGE"));
+            }
+        });
+    }
+
 
     //todo code me
     public static boolean onUserLogin(JeproLabAuthentication.JeproLabAuthenticationResponse response, JeproLabAuthentication.JeproLabAuthenticationOption loginOptions){
@@ -154,11 +194,13 @@ public class JeproLabLoginController extends JeproLabController{
     }
 
     public static void onUserLogged(JeproLabAuthentication.JeproLabAuthenticationOption loginOptions){
-        JeproLabContext context = JeproLabContext.getContext();
-        context.employee = loginOptions.employee;
-        JeproLab.getInstance().getUserInfoBtn().setText(context.employee.username + " ");
-        JeproLab.getInstance().getUserInfoBtn().setGraphic(new ImageView(new Image(JeproLab.class.getResourceAsStream("resources/images/logout.png"))));
-        JeproLab.getInstance().getUserInfoBtn().setContentDisplay(ContentDisplay.RIGHT);
+        Platform.runLater(() -> {
+            JeproLabContext context = JeproLabContext.getContext();
+            context.employee = loginOptions.employee;
+            JeproLab.getInstance().getUserInfoBtn().setText(context.employee.username + " ");
+            JeproLab.getInstance().getUserInfoBtn().setGraphic(new ImageView(new Image(JeproLab.class.getResourceAsStream("resources/images/logout.png"))));
+            JeproLab.getInstance().getUserInfoBtn().setContentDisplay(ContentDisplay.RIGHT);
+        });
     }
 
     public static void onUserLoginFailure(JeproLabAuthentication.JeproLabAuthenticationResponse response){

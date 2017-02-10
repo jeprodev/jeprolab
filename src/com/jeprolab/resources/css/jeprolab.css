@@ -54,6 +54,8 @@
     -fx-border-width: 0 2px 2px 2px;
 }
 
+.table-row-cell{ -fx-cell-size: 24px; }
+
 
 .jeprolab-toolbar{
     -fx-base: rgb(74, 75, 78);

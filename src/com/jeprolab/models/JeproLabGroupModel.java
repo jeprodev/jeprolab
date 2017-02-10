@@ -30,6 +30,8 @@ public class JeproLabGroupModel extends JeproLabModel{
     /** @var string Lastname */
     public Map<String, String> name = new HashMap<>();
 
+    public int members;
+
     /** @var string Reduction */
     public float reduction;
 

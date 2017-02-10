@@ -43,17 +43,11 @@
                         <JeproMultiLangTextField GridPane.columnIndex="1" GridPane.rowIndex="6" fx:id="jeproLabCategoryMetaKeyWord" />
                         <Label GridPane.columnIndex="2" GridPane.rowIndex="6" fx:id="jeproLabCategoryLinkRewriteLabel" />
                         <JeproMultiLangTextField GridPane.columnIndex="3" GridPane.rowIndex="6" fx:id="jeproLabCategoryLinkRewrite" />
-
-                        <Label GridPane.columnIndex="0" GridPane.rowIndex="12" fx:id="jeproLabCategoryLabel" visible="false" />
                     </GridPane>
                 </VBox>
             </Tab>
-            <Tab closable="false" fx:id="jeproLabCategoryAssociatedLaboratoriesTab">
-
-            </Tab>
-            <Tab closable="false" fx:id="jeproLabCategoryAssociatedGroupTab">
-
-            </Tab>
+            <Tab closable="false" fx:id="jeproLabCategoryAssociatedLaboratoriesTab" />
+            <Tab closable="false" fx:id="jeproLabCategoryAssociatedGroupTab" />
             <Tab closable="false" fx:id="jeproLabCategorySubCategoriesTab" />
         </TabPane>
     </JeproFormPanelContainer>

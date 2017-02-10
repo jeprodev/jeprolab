@@ -92,7 +92,7 @@ public class JeproLabLanguageModel extends JeproLabModel{
         return "";
     }
 
-    public static void loadLanguages() {
+    public synchronized static void loadLanguages() {
         if(dataBaseObject == null){
             dataBaseObject = JeproLabFactory.getDataBaseConnector();
         }
@@ -100,7 +100,6 @@ public class JeproLabLanguageModel extends JeproLabModel{
 
         String query = " SELECT * FROM " + dataBaseObject.quoteName("#__languages") ;
 
-        //dataBaseObject.setQuery(query);
         ResultSet languages = dataBaseObject.loadObjectList(query);
 
         String default_language = JeproLabLanguageModel.getDefaultLanguage().language_code;

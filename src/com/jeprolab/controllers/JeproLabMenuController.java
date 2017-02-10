@@ -201,7 +201,7 @@ public class JeproLabMenuController extends JeproLabController{
         });
 
         addCategoryMenuItem.setOnAction(evt -> {
-            JeproLab.request.getRequest().clear();
+            JeproLab.getInstance().getApplicationForms().addCategoryForm.controller.clearForm();
             JeproLab.getInstance().goToForm(JeproLab.getInstance().getApplicationForms().addCategoryForm);
             JeproLab.getInstance().getApplicationForms().addCategoryForm.controller.initializeContent();
         });

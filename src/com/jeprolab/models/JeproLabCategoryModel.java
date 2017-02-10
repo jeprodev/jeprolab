@@ -320,10 +320,10 @@ public class JeproLabCategoryModel extends JeproLabModel{
      * @return JeproLabCategoryModel
      */
     public static JeproLabCategoryModel getTopCategory(int langId){
-        if(langId < 0){
+        if(langId <= 0){
             langId = JeproLabContext.getContext().language.language_id;
         }
-        String cacheKey = "jeprolab_category.getTopCategory_" + langId;
+        String cacheKey = "jeprolab_category.get_top_category_" + langId;
         if (!JeproLabCache.getInstance().isStored(cacheKey)){
             if(dataBaseObject == null){
                 dataBaseObject = JeproLabFactory.getDataBaseConnector();
@@ -368,7 +368,8 @@ public class JeproLabCategoryModel extends JeproLabModel{
         if(dataBaseObject == null){
             dataBaseObject = JeproLabFactory.getDataBaseConnector();
         }
-        if (JeproLabGroupModel.isFeaturePublished()) {
+
+        /*if (JeproLabGroupModel.isFeaturePublished()) {
             String groupsList = "";
             List<Integer> groups = JeproLabCustomerModel.getCurrentCustomerGroups();
             for(Integer id : groups){
@@ -380,7 +381,7 @@ public class JeproLabCategoryModel extends JeproLabModel{
 
             sqlGroupsWhere = " AND category_group." + dataBaseObject.quoteName("group_id") ;
             sqlGroupsWhere += (groups.size() > 0 ? " IN (" + groupsList + ") "  : " = " + JeproLabGroupModel.getCurrent().group_id);
-        }
+        }*/
 
         String query = "SELECT category.*, category_lang." + dataBaseObject.quoteName("lang_id") + ", category_lang." + dataBaseObject.quoteName("name");
         query += ", category_lang." + dataBaseObject.quoteName("description") + ", category_lang." + dataBaseObject.quoteName("link_rewrite");
@@ -409,9 +410,15 @@ public class JeproLabCategoryModel extends JeproLabModel{
                 while(categorySet.next()){
                     category = new JeproLabCategoryModel();
                     category.category_id = categorySet.getInt("category_id");
-                    imagePath = JeproLabConfigurationSettings.JEPROLAB_CATEGORY_IMAGE_DIRECTORY + category.category_id + ".jpg";
-                    imageFile = new File(imagePath);
-                    category.image_path = imageFile.exists() ? String.valueOf(category.category_id) : JeproLabLanguageModel.getIsoCodeByLanguageId(langId) + "_default";
+                    category.published = categorySet.getInt("published") > 0;
+                    category.position = categorySet.getInt("position");
+                    category.name = new HashMap<>();
+                    category.name.put("lang_" + langId, categorySet.getString("name"));
+                    category.description = new HashMap<>();
+                    category.description.put("lang_" + langId, categorySet.getString("description"));
+                    //imagePath = JeproLabConfigurationSettings.JEPROLAB_CATEGORY_IMAGE_DIRECTORY + category.category_id + ".jpg";
+                    //imageFile = new File(imagePath);
+                    //category.image_path = imageFile.exists() ? String.valueOf(category.category_id) : JeproLabLanguageModel.getIsoCodeByLanguageId(langId) + "_default";
 
                     categories.add(category);
                 }
@@ -454,7 +461,7 @@ public class JeproLabCategoryModel extends JeproLabModel{
     }
 
     public boolean isAssociatedToLaboratory(){
-        return isAssociatedToLaboratory(0);
+        return isAssociatedToLaboratory(JeproLabContext.getContext().laboratory.laboratory_id);
     }
 
     /**
@@ -475,7 +482,7 @@ public class JeproLabCategoryModel extends JeproLabModel{
             boolean isAssociated = false;
             String query = "SELECT lab_id FROM " + dataBaseObject.quoteName("#__jeprolab_category_lab") + " WHERE ";
             query +=  dataBaseObject.quoteName("category_id") + " = " + this.category_id + " AND lab_id = " + labId;
-            //dataBaseObject.setQuery(query);
+
             ResultSet result = dataBaseObject.loadObjectList(query);
             try{
                 while(result.next()){
@@ -1764,6 +1771,18 @@ public class JeproLabCategoryModel extends JeproLabModel{
             JeproLabCategoryModel._links.put(cacheKey, dataBaseObject.loadStringValue(query, "link_rewrite"));
         }
         return JeproLabCategoryModel._links.get(cacheKey);
+    }
+
+    public static String getCategoryNameById(int categoryId, int langId){
+        if(dataBaseObject == null){
+            dataBaseObject = JeproLabFactory.getDataBaseConnector();
+        }
+
+        String query = "SELECT " + dataBaseObject.quoteName("name") + " FROM " + dataBaseObject.quoteName("#__jeprolab_category_lang");
+        query += " WHERE " + dataBaseObject.quoteName("category_id") + " = " + categoryId + " AND " + dataBaseObject.quoteName("lang_id");
+        query += " = " + langId;
+
+        return dataBaseObject.loadStringValue(query, "name");
     }
 
 

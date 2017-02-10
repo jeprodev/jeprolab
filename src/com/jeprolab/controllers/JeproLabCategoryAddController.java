@@ -8,7 +8,7 @@ import com.jeprolab.assets.extend.controls.tree.JeproCategoryTree;
 import com.jeprolab.assets.tools.JeproLabContext;
 import com.jeprolab.assets.tools.exception.JeproLabUncaughtExceptionHandler;
 import com.jeprolab.models.*;
-import com.sun.org.apache.xpath.internal.operations.Bool;
+import com.sun.corba.se.impl.orb.PropertyOnlyDataCollector;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -50,17 +50,18 @@ public class JeproLabCategoryAddController extends JeproLabController{
     private VBox jeproLabLaboratoryWrapper, jeproLabGroupWrapper, jeproLabSubCategoriesWrapper;
     private HBox jeproLabLaboratoriesSearchWrapper, jeproLabGroupSearchWrapper, jeproLabSubCategoriesSearchWrapper;
     //JeproLabCategoryModel category = null;
-    private CheckBox checkAll, laboratoryCheckAll;
+    private CheckBox checkAll, laboratoryCheckAll, groupCheckAll;
     private TableView<JeproLabCategoryController.JeproLabCategoryRecord> jeproLabSubCategoryTableView;
     private TableView<JeproLabLaboratoryController.JeproLabLaboratoryRecord> jeproLabAssociatedLaboratoriesTableView;
     private TableView<JeproLabGroupController.JeproLabGroupRecord> jeproLabAssociatedGroupTableView;
     //private TableView<JeproLabLaboratoryController.JeproLabLaboratoryRecord> jeproLabAssociatedLaboratoriesTableView;
 
+
     @FXML
     public Label jeproLabCategoryNameLabel, jeproLabPublishedCategoryLabel, jeproLabCategoryParentLabel, jeproLabCategoryDescriptionLabel;
     public Label jeproLabCategoryImageChooserLabel, jeproLabCategoryMetaTileLabel, jeproLabCategoryMetaDescriptionLabel;
     public Label jeproLabCategoryMetaKeyWordLabel, jeproLabCategoryLinkRewriteLabel, jeproLabCategoryIsRootLabel, jeproLabCategoryAssociatedLabsLabel;
-    public Label jeproLabCategoryAllowedGroupLabel, jeproLabCategoryLabel, jeproLabAddCategoryFormTitle;
+    public Label jeproLabCategoryAllowedGroupLabel, jeproLabAddCategoryFormTitle;
     public JeproMultiLangTextArea jeproLabCategoryDescription;
     public JeproCategoryTree jeproLabCategoryParent;
     public JeproFormPanel jeproLabCategoryFormWrapper;
@@ -143,9 +144,6 @@ public class JeproLabCategoryAddController extends JeproLabController{
         jeproLabCategoryAllowedGroupLabel.getStyleClass().addAll("form-panel-title-gray", "input-label");
         VBox.setMargin(jeproLabCategoryAllowedGroupLabel, new Insets(0, 10, 0, 10));*/
 
-        jeproLabCategoryLabel.setText(bundle.getString("JEPROLAB_CATEGORY_LABEL"));
-        jeproLabCategoryLabel.getStyleClass().add("input-label");
-
         jeproLabCategoryDescription.setTextPrefSize(760, 90);
 
         GridPane.setMargin(jeproLabCategoryNameLabel, new Insets(5, 0, 15, 10));
@@ -161,21 +159,18 @@ public class JeproLabCategoryAddController extends JeproLabController{
         GridPane.setMargin(jeproLabCategoryMetaKeyWordLabel, new Insets(5, 0, 10, 10));
         GridPane.setMargin(jeproLabCategoryLinkRewriteLabel, new Insets(5, 0, 10, 20));
         GridPane.setMargin(jeproLabCategoryIsRootLabel, new Insets(5, 0, 15, 20));
-        //GridPane.setMargin(jeproLabCategoryAssociatedLabsLabel, new Insets(5, 0, 15, 10));
-        //GridPane.setMargin(jeproLabCategoryAllowedGroupLabel, new Insets(5, 0, 15, 10));
-        GridPane.setMargin(jeproLabCategoryLabel, new Insets(5, 0, 15, 0));
         GridPane.setMargin(jeproLabCategoryDescription, new Insets(10, 0, 15, 0));
 
-        initializeSubCategories();
+        initializeSubCategoriesForm();
         initializeAssociatedLaboratoryForm();
         initializeAssociatedGroupsForm();
     }
 
-    private void initializeSubCategories(){
+    private void initializeSubCategoriesForm(){
         double remainingWidth = (0.98 * formWidth) - 108;
 
         jeproLabCategorySubCategoriesTab.setText(bundle.getString("JEPROLAB_SUB_CATEGORIES_LABEL"));
-        jeproLabSubCategoriesWrapper = new VBox(5);
+        jeproLabSubCategoriesWrapper = new VBox(0);
 
         jeproLabSubCategoriesSearchWrapper = new HBox(5);
         categorySearchField = new TextField();
@@ -192,25 +187,24 @@ public class JeproLabCategoryAddController extends JeproLabController{
 
         jeproLabSubCategoryTableView = new TableView<>();
         jeproLabSubCategoryTableView.setPrefWidth(0.98 * formWidth);
-        jeproLabSubCategoryTableView.setPrefHeight(520);
-        VBox.setMargin(jeproLabSubCategoryTableView, new Insets(0, (0.01 * formWidth), 0, (0.01 * formWidth)));
+        jeproLabSubCategoryTableView.setPrefHeight(rowHeight * (NUMBER_OF_LINES));
 
-        jeproLabSubCategoryTableView.setLayoutY(20);
         TableColumn<JeproLabCategoryController.JeproLabCategoryRecord, Integer>  jeproLabSubCategoryIndexColumn = new TableColumn<>("#");
         jeproLabSubCategoryIndexColumn.setCellValueFactory(new PropertyValueFactory<>("categoryIndex"));
         checkAll = new CheckBox();
         jeproLabSubCategoryIndexColumn.setPrefWidth(30);
+        tableCellAlign(jeproLabSubCategoryIndexColumn, Pos.CENTER_RIGHT);
 
         TableColumn<JeproLabCategoryController.JeproLabCategoryRecord, Boolean> jeproLabSubCategoryCheckBoxColumn = new TableColumn<>();
         jeproLabSubCategoryCheckBoxColumn.setGraphic(checkAll);
         jeproLabSubCategoryCheckBoxColumn.setPrefWidth(25);
 
-        Callback<TableColumn<JeproLabCategoryController.JeproLabCategoryRecord, Boolean>, TableCell<JeproLabCategoryController.JeproLabCategoryRecord, Boolean>> checkBoxCellFactory = param -> new JeproLabCategoryController.JeproLabCheckBoxCell();
+        Callback<TableColumn<JeproLabCategoryController.JeproLabCategoryRecord, Boolean>, TableCell<JeproLabCategoryController.JeproLabCategoryRecord, Boolean>> checkBoxCellFactory = param -> new JeproLabCategoryController.JeproLabCategoryCheckBoxCellFactory();
         jeproLabSubCategoryCheckBoxColumn.setCellFactory(checkBoxCellFactory);
 
         TableColumn<JeproLabCategoryController.JeproLabCategoryRecord, Boolean>jeproLabSubCategoryStatusColumn = new TableColumn<>(bundle.getString("JEPROLAB_STATUS_LABEL"));
         jeproLabSubCategoryStatusColumn.setPrefWidth(50);
-        Callback<TableColumn<JeproLabCategoryController.JeproLabCategoryRecord, Boolean>, TableCell<JeproLabCategoryController.JeproLabCategoryRecord, Boolean>> statusCellFactory = param -> new JeproLabCategoryController.JeproLabStatusCell();
+        Callback<TableColumn<JeproLabCategoryController.JeproLabCategoryRecord, Boolean>, TableCell<JeproLabCategoryController.JeproLabCategoryRecord, Boolean>> statusCellFactory = param -> new JeproLabCategoryController.JeproLabCategoryStatusCellFactory();
         jeproLabSubCategoryStatusColumn.setCellFactory(statusCellFactory);
 
         TableColumn<JeproLabCategoryController.JeproLabCategoryRecord, String> jeproLabSubCategoryNameColumn = new TableColumn<>(bundle.getString("JEPROLAB_CATEGORY_NAME_LABEL"));
@@ -227,8 +221,8 @@ public class JeproLabCategoryAddController extends JeproLabController{
         jeproLabSubCategoryPositionColumn.setCellValueFactory(new PropertyValueFactory<>("categoryPosition"));
 
         TableColumn<JeproLabCategoryController.JeproLabCategoryRecord, HBox> jeproLabSubCategoryActionColumn = new TableColumn<>(bundle.getString("JEPROLAB_ACTIONS_LABEL"));
-        jeproLabSubCategoryActionColumn.setPrefWidth(0.09 * remainingWidth);
-        Callback<TableColumn<JeproLabCategoryController.JeproLabCategoryRecord, HBox>, TableCell<JeproLabCategoryController.JeproLabCategoryRecord, HBox>> actionFactory = param -> new JeproLabCategoryController.JeproLabActionCell();
+        jeproLabSubCategoryActionColumn.setPrefWidth(70);
+        Callback<TableColumn<JeproLabCategoryController.JeproLabCategoryRecord, HBox>, TableCell<JeproLabCategoryController.JeproLabCategoryRecord, HBox>> actionFactory = param -> new JeproLabCategoryController.JeproLabCategoryActionCellFactory();
         jeproLabSubCategoryActionColumn.setCellFactory(actionFactory);
 
         jeproLabSubCategoryTableView.getColumns().addAll(
@@ -239,13 +233,13 @@ public class JeproLabCategoryAddController extends JeproLabController{
     }
 
     private void initializeAssociatedLaboratoryForm(){
-        jeproLabLaboratoryWrapper = new VBox(5);
+        jeproLabLaboratoryWrapper = new VBox(0);
         jeproLabLaboratoriesSearchWrapper = new HBox(5);
         jeproLabAssociatedLaboratoriesTableView = new TableView<>();
         jeproLabAssociatedLaboratoriesTableView.setPrefWidth(0.98 * formWidth);
-        jeproLabAssociatedLaboratoriesTableView.setPrefHeight(JeproLabConfigurationSettings.LIST_LIMIT * rowHeight);
+        jeproLabAssociatedLaboratoriesTableView.setPrefHeight((1 + NUMBER_OF_LINES) * rowHeight);
         laboratoryCheckAll = new CheckBox();
-        double remainingWidth = 0;
+        double remainingWidth = (0.98 * formWidth) - 180;
 
 
 
@@ -257,8 +251,6 @@ public class JeproLabCategoryAddController extends JeproLabController{
         laboratorySearchBtn = new Button();
         laboratorySearchBtn.getStyleClass().addAll("icon-btn", "search-btn");
         jeproLabLaboratoriesSearchWrapper.getChildren().addAll(laboratorySearchField,laboratorySearchFilter, laboratorySearchBtn);
-
-
 
 
         TableColumn<JeproLabLaboratoryController.JeproLabLaboratoryRecord, Integer> jeproLabLaboratoryIndexColumn = new TableColumn<>("#");
@@ -311,6 +303,9 @@ public class JeproLabCategoryAddController extends JeproLabController{
 
     private void initializeAssociatedGroupsForm(){
         jeproLabAssociatedGroupTableView = new TableView<>();
+        jeproLabAssociatedGroupTableView.setPrefSize(0.98 * formWidth, NUMBER_OF_LINES * rowHeight);
+
+        groupCheckAll = new CheckBox();
 
         groupsSearchBtn = new Button();
         groupsSearchBtn.getStyleClass().addAll("icon-btn", "search-btn");
@@ -323,8 +318,10 @@ public class JeproLabCategoryAddController extends JeproLabController{
         jeproLabGroupSearchWrapper = new HBox(5);
         jeproLabGroupSearchWrapper.getChildren().addAll(groupsSearchField, groupsSearchFilter, groupsSearchBtn);
 
-        jeproLabGroupWrapper = new VBox(5);
+        jeproLabGroupWrapper = new VBox(0);
         jeproLabCategoryAssociatedGroupTab.setContent(jeproLabGroupWrapper);
+
+        double remainingWidth = (0.98 * formWidth) - 179;
 
         TableColumn<JeproLabGroupController.JeproLabGroupRecord, Integer> jeproLabAssociatedGroupIndexTableColumn = new TableColumn<>("#");
         jeproLabAssociatedGroupIndexTableColumn.setPrefWidth(30);
@@ -334,26 +331,54 @@ public class JeproLabCategoryAddController extends JeproLabController{
         TableColumn<JeproLabGroupController.JeproLabGroupRecord, Boolean> jeproLabAssociatedGroupCheckBoxTableColumn = new TableColumn<>();
         jeproLabAssociatedGroupCheckBoxTableColumn.setPrefWidth(25);
         tableCellAlign(jeproLabAssociatedGroupCheckBoxTableColumn, Pos.CENTER);
-        Callback<TableColumn<JeproLabGroupController.JeproLabGroupRecord, Boolean>, TableCell<JeproLabGroupController.JeproLabGroupRecord, Boolean>> checkBoxCellFactory = params -> new JeproLabGroupController.JeproLabCheckBoxCellFactory();
+        jeproLabAssociatedGroupCheckBoxTableColumn.setGraphic(groupCheckAll);
+        Callback<TableColumn<JeproLabGroupController.JeproLabGroupRecord, Boolean>, TableCell<JeproLabGroupController.JeproLabGroupRecord, Boolean>> checkBoxCellFactory = params -> new JeproLabGroupController.JeproLabGroupCheckBoxCellFactory();
         jeproLabAssociatedGroupCheckBoxTableColumn.setCellFactory(checkBoxCellFactory);
 
-        TableColumn<JeproLabGroupController.JeproLabGroupRecord, Boolean> jeproLabAssociatedGroupStatusTableColumn = new TableColumn<>();
+        TableColumn<JeproLabGroupController.JeproLabGroupRecord, Boolean> jeproLabAssociatedGroupStatusTableColumn = new TableColumn<>(bundle.getString("JEPROLAB_STATUS_LABEL"));
         jeproLabAssociatedGroupStatusTableColumn.setPrefWidth(55);
         tableCellAlign(jeproLabAssociatedGroupStatusTableColumn, Pos.CENTER);
-        Callback<TableColumn<JeproLabGroupController.JeproLabGroupRecord, Boolean>, TableCell<JeproLabGroupController.JeproLabGroupRecord, Boolean>> statusCellFactory = params -> new JeproLabGroupController.JeproLabStatusCellFactory();
+        Callback<TableColumn<JeproLabGroupController.JeproLabGroupRecord, Boolean>, TableCell<JeproLabGroupController.JeproLabGroupRecord, Boolean>> statusCellFactory = params -> new JeproLabGroupController.JeproLabGroupStatusCellFactory();
         jeproLabAssociatedGroupStatusTableColumn.setCellFactory(statusCellFactory);
 
         TableColumn<JeproLabGroupController.JeproLabGroupRecord, String> jeproLabAssociatedGroupNameTableColumn = new TableColumn<>(bundle.getString("JEPROLAB_NAME_LABEL"));
+        jeproLabAssociatedGroupNameTableColumn.setPrefWidth(0.21 * remainingWidth);
+        tableCellAlign(jeproLabAssociatedGroupNameTableColumn, Pos.CENTER_LEFT);
+        jeproLabAssociatedGroupNameTableColumn.setCellValueFactory(new PropertyValueFactory<>("groupName"));
 
         TableColumn<JeproLabGroupController.JeproLabGroupRecord, String> jeproLabAssociatedGroupReductionTableColumn = new TableColumn<>(bundle.getString("JEPROLAB_REDUCTION_LABEL"));
+        jeproLabAssociatedGroupReductionTableColumn.setPrefWidth(0.2 * remainingWidth);
+        tableCellAlign(jeproLabAssociatedGroupReductionTableColumn, Pos.CENTER);
+        jeproLabAssociatedGroupReductionTableColumn.setCellValueFactory(new PropertyValueFactory<>("groupReduction"));
+
         TableColumn<JeproLabGroupController.JeproLabGroupRecord, Integer> jeproLabAssociatedGroupMembersTableColumn = new TableColumn<>(bundle.getString("JEPROLAB_MEMBERS_LABEL"));
+        jeproLabAssociatedGroupMembersTableColumn.setPrefWidth(0.20 * remainingWidth);
+        tableCellAlign(jeproLabAssociatedGroupMembersTableColumn, Pos.CENTER);
+        jeproLabAssociatedGroupMembersTableColumn.setCellValueFactory(new PropertyValueFactory<>("groupMembers"));
+
         TableColumn<JeproLabGroupController.JeproLabGroupRecord, Button> jeproLabAssociatedGroupDisplayPriceTableColumn = new TableColumn<>(bundle.getString("JEPROLAB_SHOW_PRICE_LABEL"));
+        jeproLabAssociatedGroupDisplayPriceTableColumn.setPrefWidth(0.20 * remainingWidth);
+        tableCellAlign(jeproLabAssociatedGroupDisplayPriceTableColumn, Pos.CENTER);
+        Callback<TableColumn<JeproLabGroupController.JeproLabGroupRecord, Button>, TableCell<JeproLabGroupController.JeproLabGroupRecord, Button>> displayPriceFactory = params -> new JeproLabGroupController.JeproLabGroupDisplayPriceCellFactory();
+        jeproLabAssociatedGroupDisplayPriceTableColumn.setCellFactory(displayPriceFactory);
+
         TableColumn<JeproLabGroupController.JeproLabGroupRecord, String> jeproLabAssociatedGroupCreatedDateTableColumn = new TableColumn<>(bundle.getString("JEPROLAB_CREATED_DATE_LABEL"));
+        jeproLabAssociatedGroupCreatedDateTableColumn.setPrefWidth(0.18 * remainingWidth);
+        tableCellAlign(jeproLabAssociatedGroupCreatedDateTableColumn, Pos.CENTER);
+        jeproLabAssociatedGroupCreatedDateTableColumn.setCellValueFactory(new PropertyValueFactory<>("groupCreationDate"));
 
         TableColumn<JeproLabGroupController.JeproLabGroupRecord, HBox> jeproLabAssociatedGroupActionTableColumn = new TableColumn<>(bundle.getString("JEPROLAB_ACTIONS_LABEL"));
         jeproLabAssociatedGroupActionTableColumn.setPrefWidth(70);
-        Callback<TableColumn<JeproLabGroupController.JeproLabGroupRecord, HBox>, TableCell<JeproLabGroupController.JeproLabGroupRecord, HBox>> actionCellFactory = params -> new JeproLabGroupController.JeproLabActionCellFactory();
+        Callback<TableColumn<JeproLabGroupController.JeproLabGroupRecord, HBox>, TableCell<JeproLabGroupController.JeproLabGroupRecord, HBox>> actionCellFactory = params -> new JeproLabGroupController.JeproLabGroupActionCellFactory();
         jeproLabAssociatedGroupActionTableColumn.setCellFactory(actionCellFactory);
+
+        jeproLabAssociatedGroupTableView.getColumns().addAll(
+            jeproLabAssociatedGroupIndexTableColumn, jeproLabAssociatedGroupCheckBoxTableColumn,
+            jeproLabAssociatedGroupStatusTableColumn, jeproLabAssociatedGroupNameTableColumn,
+            jeproLabAssociatedGroupReductionTableColumn, jeproLabAssociatedGroupMembersTableColumn,
+            jeproLabAssociatedGroupDisplayPriceTableColumn, jeproLabAssociatedGroupCreatedDateTableColumn,
+            jeproLabAssociatedGroupActionTableColumn
+        );
     }
 
     @Override
@@ -366,9 +391,9 @@ public class JeproLabCategoryAddController extends JeproLabController{
         if(context == null) {
             context = JeproLabContext.getContext();
         }
-        int labId = context.laboratory.laboratory_id;
-
-        this.loadCategory(categoryId, labId);
+        if(categoryId > 0){
+            this.loadCategory(categoryId, context.laboratory.laboratory_id);
+        }
         updateToolBar();
     }
 
@@ -381,6 +406,34 @@ public class JeproLabCategoryAddController extends JeproLabController{
         commandWrapper.setSpacing(4);
         commandWrapper.getChildren().addAll(saveCategoryBtn, cancelBtn);
         addCommandEventListener();
+    }
+
+    @Override
+    public void clearForm(){
+        saveCategoryBtn.setText(bundle.getString("JEPROLAB_SAVE_LABEL"));
+        jeproLabCategoryName.clearFields();
+        jeproLabCategoryDescription.clearFields();
+        jeproLabPublishedCategory.setSelected(false);
+        jeproLabCategoryIsRoot.setSelected(false);
+
+        if(JeproLabContext.getContext().employee.isSuperAdmin()){
+            jeproLabCategoryIsRoot.setDisable(false);
+            jeproLabCategoryIsRoot.setSelected(false);
+        }else {
+            jeproLabCategoryIsRoot.setDisable(true);
+        }
+
+        jeproLabCategoryMetaDescription.clearFields();
+        jeproLabCategoryMetaKeyWord.clearFields();
+        jeproLabCategoryMetaTile.clearFields();
+        jeproLabCategoryLinkRewrite.clearFields();
+        jeproLabCategoryAssociatedLaboratoriesTab.setDisable(true);
+        jeproLabCategoryAssociatedGroupTab.setDisable(true);
+        jeproLabCategorySubCategoriesTab.setDisable(true);
+    }
+
+    public void enableRootCategory(boolean enabled){
+        jeproLabCategoryIsRoot.setDisable(enabled);
     }
 
     private void addCommandEventListener(){
@@ -430,8 +483,8 @@ public class JeproLabCategoryAddController extends JeproLabController{
             protected void succeeded(){
                 super.succeeded();
                 loadAssociatedLaboratories(category);
-                //loadAssociatedGroups(category);
-                //loadAssociatedSubCategories(category);
+                loadAssociatedGroups(category);
+                loadAssociatedSubCategories(category);
                 updateInformationTab(category, selectedCategories);
             }
         };
@@ -445,6 +498,7 @@ public class JeproLabCategoryAddController extends JeproLabController{
             @Override
             protected Boolean call() throws Exception {
                 labs = JeproLabLaboratoryModel.getLaboratories(true);
+                selectedLabs = new ArrayList<>();
                 return null;
             }
 
@@ -464,7 +518,7 @@ public class JeproLabCategoryAddController extends JeproLabController{
         };
         new Thread((Task)worker).start();
     }
-/*
+
     private void loadAssociatedGroups(JeproLabCategoryModel category){
         Worker<Boolean> worker = new Task<Boolean>() {
             List<JeproLabGroupModel> groups;
@@ -517,12 +571,12 @@ public class JeproLabCategoryAddController extends JeproLabController{
 
             protected void succeeded(){
                 super.succeeded();
-
+                updateSubCategoriesTableView(subCategories);
             }
         };
         new Thread((Task)worker).start();
     }
-*/
+
     private void updateInformationTab(JeproLabCategoryModel category, List<Integer> selectedCategories){
         Platform.runLater(() -> {
             jeproLabCategoryParent.setTreeTemplate("associated_categories").setSelectedCategories(selectedCategories).setUseCheckBox(true);
@@ -535,21 +589,21 @@ public class JeproLabCategoryAddController extends JeproLabController{
                 jeproLabPublishedCategory.setSelected(category.published);
                 jeproLabCategoryIsRoot.setSelected(category.is_root_category);
 
+                if(JeproLabContext.getContext().employee.isSuperAdmin()){
+                    jeproLabCategoryIsRoot.setDisable(false);
+                }else {
+                    jeproLabCategoryIsRoot.setDisable(true);
+                }
+
                 jeproLabCategoryMetaDescription.setText(category.meta_description);
                 jeproLabCategoryMetaKeyWord.setText(category.meta_keywords);
                 jeproLabCategoryMetaTile.setText(category.meta_title);
                 jeproLabCategoryLinkRewrite.setText(category.link_rewrite);
+                jeproLabCategoryAssociatedLaboratoriesTab.setDisable(false);
+                jeproLabCategoryAssociatedGroupTab.setDisable(false);
+                jeproLabCategorySubCategoriesTab.setDisable(false);
             }else{
-                saveCategoryBtn.setText(bundle.getString("JEPROLAB_SAVE_LABEL"));
-                jeproLabCategoryName.clearFields();
-                jeproLabCategoryDescription.clearFields();
-                jeproLabPublishedCategory.setSelected(false);
-                jeproLabCategoryIsRoot.setSelected(false);
-
-                jeproLabCategoryMetaDescription.clearFields();
-                jeproLabCategoryMetaKeyWord.clearFields();
-                jeproLabCategoryMetaTile.clearFields();
-                jeproLabCategoryLinkRewrite.clearFields();
+                clearForm();
             }
 
             if(!category.is_root_category){
@@ -573,44 +627,48 @@ public class JeproLabCategoryAddController extends JeproLabController{
                 for(JeproLabLaboratoryModel lab : labs) {
                     laboratories.add(new JeproLabLaboratoryController.JeproLabLaboratoryRecord(lab, selectedLabs));
                 }
-                laboratoryPagination = new Pagination((labs.size()/JeproLabConfigurationSettings.LIST_LIMIT + 1), 0);
+                laboratoryPagination = new Pagination((labs.size()/NUMBER_OF_LINES), 0);
                 laboratoryPagination.setPageFactory(this::createLaboratoryPages);
                 jeproLabLaboratoryWrapper.getChildren().clear();
                 jeproLabLaboratoryWrapper.getChildren().addAll(jeproLabLaboratoriesSearchWrapper, laboratoryPagination);
-                //VBox.setMargin(jeproLabLaboratoriesSearchWrapper, new Insets(10, 0.01 * formWidth, 5, 0.01 * formWidth));
-                //VBox.setMargin(laboratoryPagination, new Insets(10, 0.01 * formWidth, 5, 0.01 * formWidth));
+                VBox.setMargin(jeproLabLaboratoriesSearchWrapper, new Insets(10, 0.01 * formWidth, 5, 0.01 * formWidth));
+                VBox.setMargin(laboratoryPagination, new Insets(5, 0.01 * formWidth, 5, 0.01 * formWidth));
+
                 jeproLabCategoryAssociatedLaboratoriesTab.setContent(jeproLabLaboratoryWrapper);
             });
         }
     }
 
     private Node createLaboratoryPages(int pageIndex){
-        int fromIndex = pageIndex * JeproLabConfigurationSettings.LIST_LIMIT;
-        int toIndex = Math.min(fromIndex + JeproLabConfigurationSettings.LIST_LIMIT, (laboratories.size() - 1));
+        int fromIndex = pageIndex *NUMBER_OF_LINES;
+        int toIndex = Math.min(fromIndex + NUMBER_OF_LINES, (laboratories.size() - 1));
         jeproLabAssociatedLaboratoriesTableView.setItems(FXCollections.observableArrayList(laboratories.subList(fromIndex, toIndex)));
+        //jeproLabAssociatedLaboratoriesTableView.setPrefHeight(rowHeight * NUMBER_OF_LINES);
         return new Pane(jeproLabAssociatedLaboratoriesTableView);
     }
-/*
-    private void updateSubCategoriesTableView(List<JeproLabCategoryModel> cats, List<Integer> selectedCats){
+
+    private void updateSubCategoriesTableView(List<JeproLabCategoryModel> cats){
         if(!cats.isEmpty()) {
             categoryList = FXCollections.observableArrayList();
+            for(JeproLabCategoryModel cat : cats) {
+                categoryList.add(new JeproLabCategoryController.JeproLabCategoryRecord(cat));
+            }
             Platform.runLater(() -> {
-                for(JeproLabCategoryModel cat : cats) {
-                    categoryList.add(new JeproLabCategoryController.JeproLabCategoryRecord(cat, selectedCats));
-                }
-                subCategoriesPagination = new Pagination((cats.size()/JeproLabConfigurationSettings.LIST_LIMIT + 1), 0);
+                subCategoriesPagination = new Pagination((cats.size()/NUMBER_OF_LINES ), 0);
                 subCategoriesPagination.setPageFactory(this::createSubCategoriesPages);
                 jeproLabSubCategoriesWrapper.getChildren().clear();
+                VBox.setMargin(jeproLabSubCategoriesSearchWrapper, new Insets(10, 0.01 * formWidth, 5, 0.01 * formWidth));
+                VBox.setMargin(subCategoriesPagination, new Insets(5, 0.01 * formWidth, 5, 0.01 * formWidth));
                 jeproLabSubCategoriesWrapper.getChildren().addAll(jeproLabSubCategoriesSearchWrapper, subCategoriesPagination);
             });
         }
     }
 
     private Node createSubCategoriesPages(int pageIndex){
-        int fromIndex = pageIndex * JeproLabConfigurationSettings.LIST_LIMIT;
-        int toIndex = Math.min(fromIndex + JeproLabConfigurationSettings.LIST_LIMIT, (laboratories.size() - 1));
-        jeproLabAssociatedLaboratoriesTableView.setItems(FXCollections.observableArrayList(laboratories.subList(fromIndex, toIndex)));
-        return new Pane(jeproLabAssociatedLaboratoriesTableView);
+        int fromIndex = pageIndex * NUMBER_OF_LINES;
+        int toIndex = Math.min(fromIndex + NUMBER_OF_LINES, (categoryList.size() - 1));
+        jeproLabSubCategoryTableView.setItems(FXCollections.observableArrayList(categoryList.subList(fromIndex, toIndex)));
+        return new Pane(jeproLabSubCategoryTableView);
     }
 
     private void updateGroupsTableView(List<JeproLabGroupModel> groups, List<Integer> selectedGroups){
@@ -620,18 +678,20 @@ public class JeproLabCategoryAddController extends JeproLabController{
                 for(JeproLabGroupModel group : groups) {
                     groupList.add(new JeproLabGroupController.JeproLabGroupRecord(group, selectedGroups));
                 }
-                groupPagination = new Pagination((groups.size()/JeproLabConfigurationSettings.LIST_LIMIT + 1), 0);
+                groupPagination = new Pagination((groups.size()/NUMBER_OF_LINES), 0);
                 groupPagination.setPageFactory(this::createGroupPages);
                 jeproLabGroupWrapper.getChildren().clear();
+                VBox.setMargin(jeproLabGroupSearchWrapper, new Insets(5, 0.01 * formWidth, 5, 0.01 * formWidth));
+                VBox.setMargin(groupPagination, new Insets(5, 0.01 * formWidth, 5, 0.01 * formWidth));
                 jeproLabGroupWrapper.getChildren().addAll(jeproLabGroupSearchWrapper, groupPagination);
             });
         }
     }
 
     private Node createGroupPages(int pageIndex){
-        int fromIndex = pageIndex * JeproLabConfigurationSettings.LIST_LIMIT;
-        int toIndex = Math.min(fromIndex + JeproLabConfigurationSettings.LIST_LIMIT, (laboratories.size() - 1));
+        int fromIndex = pageIndex * NUMBER_OF_LINES;
+        int toIndex = Math.min(fromIndex + NUMBER_OF_LINES, (groupList.size() - 1));
         jeproLabAssociatedGroupTableView.setItems(FXCollections.observableArrayList(groupList.subList(fromIndex, toIndex)));
         return new Pane(jeproLabAssociatedGroupTableView);
-    } */
+    }
 }

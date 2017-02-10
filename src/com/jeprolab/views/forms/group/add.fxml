@@ -12,7 +12,7 @@
     <JeproFormPanelTitle fx:id="jeproLabGroupFormTitleWrapper" />
     <JeproFormPanelContainer fx:id="jeproLabGroupFormContainerWrapper">
         <VBox spacing="5" >
-        <GridPane fx:id="groupInformationWrapper" alignment="CENTER">
+        <GridPane fx:id="jeproLabGroupInformationWrapper" alignment="CENTER">
             <Label GridPane.columnIndex="0" GridPane.rowIndex="0" fx:id="jeproLabGroupNameLabel"  />
             <JeproMultiLangTextField  GridPane.columnIndex="1" GridPane.rowIndex="0" fx:id="jeproLabGroupName" />
             <Label GridPane.columnIndex="2" GridPane.rowIndex="0"  fx:id="jeproLabGroupReductionLabel" />
@@ -23,7 +23,7 @@
             <JeproSwitchButton GridPane.columnIndex="3" GridPane.rowIndex="1" fx:id="jeproLabGroupShowPrices" />
             <Label GridPane.columnIndex="0" GridPane.rowIndex="5" />
         </GridPane>
-        <GridPane fx:id="groupModulesWrapper" alignment="CENTER">
+        <GridPane fx:id="jeproLabGroupModulesWrapper" alignment="CENTER">
             <Label  GridPane.columnIndex="0" GridPane.rowIndex="0" GridPane.columnSpan="4" />
 
             <Label GridPane.columnIndex="0" GridPane.rowIndex="1" fx:id="jeproLabGroupSocialNetworkSharingLabel" />
