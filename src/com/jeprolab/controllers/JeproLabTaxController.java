@@ -233,9 +233,8 @@ public class JeproLabTaxController extends JeproLabController{
             if((items != null) && (getIndex() >= 0 && getIndex() < items.size())){
                 int itemId = items.get(getIndex()).getTaxIndex();
                 editTax.setOnAction(event -> {
-                    JeproLab.request.setRequest("tax_id=" + itemId);
                     JeproLab.getInstance().goToForm(JeproLab.getInstance().getApplicationForms().addTaxForm);
-                    JeproLab.getInstance().getApplicationForms().addTaxForm.controller.initializeContent();
+                    JeproLab.getInstance().getApplicationForms().addTaxForm.controller.initializeContent(itemId);
                 });
                 setGraphic(commandWrapper);
                 setAlignment(Pos.CENTER);

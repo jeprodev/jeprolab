@@ -69,7 +69,7 @@ public class JeproLabCustomerController extends JeproLabController{
         CheckBox checkAll = new CheckBox();
         customerCheckBoxColumn.setGraphic(checkAll);
         customerCheckBoxColumn.setPrefWidth(20);
-        Callback<TableColumn<JeproLabCustomerRecord, Boolean>, TableCell<JeproLabCustomerRecord, Boolean>> checkBoxFactory = param -> new JeproLabCheckBoxCell();
+        Callback<TableColumn<JeproLabCustomerRecord, Boolean>, TableCell<JeproLabCustomerRecord, Boolean>> checkBoxFactory = param -> new JeproLabCustomerCheckBoxCellFactory();
         customerCheckBoxColumn.setCellFactory(checkBoxFactory);
 
         customerTitleColumn.setText(bundle.getString("JEPROLAB_TITLE_LABEL"));
@@ -92,11 +92,11 @@ public class JeproLabCustomerController extends JeproLabController{
         customerDateAddColumn.setCellValueFactory(new PropertyValueFactory<>("customerAddedDate"));
         tableCellAlign(customerDateAddColumn, Pos.CENTER);
         customerAllowAdsColumn.setText(bundle.getString("JEPROLAB_ALLOWS_ADS_LABEL"));
-        Callback<TableColumn<JeproLabCustomerRecord, Boolean>, TableCell<JeproLabCustomerRecord, Boolean>> allowAdsFactory = param -> new JeproLabAllowAdsCell();
+        Callback<TableColumn<JeproLabCustomerRecord, Boolean>, TableCell<JeproLabCustomerRecord, Boolean>> allowAdsFactory = param -> new JeproLabCustomerAllowAdsCellFactory();
         customerAllowAdsColumn.setCellFactory(allowAdsFactory);
         customerAllowAdsColumn.setPrefWidth(.13 * remainingWidth);
         customerActiveColumn.setText(bundle.getString("JEPROLAB_ACTIVE_LABEL"));
-        Callback<TableColumn<JeproLabCustomerRecord, Boolean>, TableCell<JeproLabCustomerRecord, Boolean>> activeFactory = param -> new JeproLabActiveCell();
+        Callback<TableColumn<JeproLabCustomerRecord, Boolean>, TableCell<JeproLabCustomerRecord, Boolean>> activeFactory = param -> new JeproLabCustomerActiveCellFactory();
         customerActiveColumn.setCellFactory(activeFactory);
         customerActiveColumn.setPrefWidth(55);
         customerCompanyColumn.setText(bundle.getString("JEPROLAB_COMPANY_LABEL"));
@@ -104,14 +104,14 @@ public class JeproLabCustomerController extends JeproLabController{
         customerCompanyColumn.setCellValueFactory(new PropertyValueFactory<>("customerCompany"));
         customerEmailAddressColumn.setText(bundle.getString("JEPROLAB_EMAIL_LABEL"));
         customerEmailAddressColumn.setPrefWidth(55);
-        Callback<TableColumn<JeproLabCustomerRecord, Button>, TableCell<JeproLabCustomerRecord, Button>> emailFactory = param -> new JeproLabEmailCell();
+        Callback<TableColumn<JeproLabCustomerRecord, Button>, TableCell<JeproLabCustomerRecord, Button>> emailFactory = param -> new JeproLabCustomerEmailCellFactory();
         customerEmailAddressColumn.setCellFactory(emailFactory);
         customerReportColumn.setText(bundle.getString("JEPROLAB_REPORT_LABEL"));
         customerReportColumn.setPrefWidth(0.1 * remainingWidth);
         customerReportColumn.setCellValueFactory(new PropertyValueFactory<>("customerReport"));
         customerActionsColumn.setText(bundle.getString("JEPROLAB_ACTIONS_LABEL"));
         customerActionsColumn.setPrefWidth(65);
-        Callback<TableColumn<JeproLabCustomerRecord, HBox>, TableCell<JeproLabCustomerRecord, HBox>> actionsFactory = param -> new JeproLabActionCell();
+        Callback<TableColumn<JeproLabCustomerRecord, HBox>, TableCell<JeproLabCustomerRecord, HBox>> actionsFactory = param -> new JeproLabCustomerActionCellFactory();
         customerActionsColumn.setCellFactory(actionsFactory);
 
         VBox.setMargin(jeproLabCustomerSearchToolBar, new Insets(5, 0, 5, (0.01 * JeproLab.APP_WIDTH)));
@@ -236,10 +236,10 @@ public class JeproLabCustomerController extends JeproLabController{
         }
     }
 
-    private static class JeproLabCheckBoxCell extends TableCell<JeproLabCustomerRecord, Boolean>{
+    private static class JeproLabCustomerCheckBoxCellFactory extends TableCell<JeproLabCustomerRecord, Boolean>{
         private CheckBox customerCheckBox;
 
-        public JeproLabCheckBoxCell(){
+        public JeproLabCustomerCheckBoxCellFactory(){
             customerCheckBox = new CheckBox();
         }
         @Override
@@ -259,14 +259,14 @@ public class JeproLabCustomerController extends JeproLabController{
         }
     }
 
-    private static class JeproLabAllowAdsCell extends TableCell<JeproLabCustomerRecord, Boolean>{
+    private static class JeproLabCustomerAllowAdsCellFactory extends TableCell<JeproLabCustomerRecord, Boolean>{
         private Button allowAdsBtn;
 
-        public JeproLabAllowAdsCell(){
+        public JeproLabCustomerAllowAdsCellFactory(){
             allowAdsBtn = new Button("");
-            allowAdsBtn.setMinSize(18, 18);
-            allowAdsBtn.setMaxSize(18, 18);
-            allowAdsBtn.setPrefSize(18, 18);
+            allowAdsBtn.setMinSize(btnSize, btnSize);
+            allowAdsBtn.setMaxSize(btnSize, btnSize);
+            allowAdsBtn.setPrefSize(btnSize, btnSize);
             allowAdsBtn.getStyleClass().add("icon-btn");
         }
 
@@ -291,14 +291,14 @@ public class JeproLabCustomerController extends JeproLabController{
         }
     }
 
-    private static class JeproLabActiveCell extends TableCell<JeproLabCustomerRecord, Boolean>{
+    private static class JeproLabCustomerActiveCellFactory extends TableCell<JeproLabCustomerRecord, Boolean>{
         private Button activeBtn;
 
-        public JeproLabActiveCell(){
+        public JeproLabCustomerActiveCellFactory(){
             activeBtn = new Button("");
-            activeBtn.setMinSize(18, 18);
-            activeBtn.setMaxSize(18, 18);
-            activeBtn.setPrefSize(18, 18);
+            activeBtn.setMinSize(btnSize, btnSize);
+            activeBtn.setMaxSize(btnSize, btnSize);
+            activeBtn.setPrefSize(btnSize, btnSize);
             activeBtn.getStyleClass().add("icon-btn");
         }
 
@@ -323,14 +323,14 @@ public class JeproLabCustomerController extends JeproLabController{
         }
     }
 
-    private static class JeproLabEmailCell extends TableCell<JeproLabCustomerRecord, Button>{
+    private static class JeproLabCustomerEmailCellFactory extends TableCell<JeproLabCustomerRecord, Button>{
         private  Button emailBtn;
 
-        public JeproLabEmailCell(){
+        public JeproLabCustomerEmailCellFactory(){
             emailBtn = new Button("", new ImageView(new Image(JeproLab.class.getResourceAsStream("resources/images/mail.png"))));
-            emailBtn.setMinSize(18, 18);
-            emailBtn.setMaxSize(18, 18);
-            emailBtn.setPrefSize(18, 18);
+            emailBtn.setMinSize(btnSize, btnSize);
+            emailBtn.setMaxSize(btnSize, btnSize);
+            emailBtn.setPrefSize(btnSize, btnSize);
             emailBtn.getStyleClass().add("icon-btn");
         }
 
@@ -351,12 +351,12 @@ public class JeproLabCustomerController extends JeproLabController{
         }
     }
 
-    private static class JeproLabActionCell extends TableCell<JeproLabCustomerRecord, HBox> {
+    private static class JeproLabCustomerActionCellFactory extends TableCell<JeproLabCustomerRecord, HBox> {
         protected HBox commandContainer;
         private Button editCustomer, deleteCustomer;
         private double btnSize = 18;
 
-        public JeproLabActionCell(){
+        public JeproLabCustomerActionCellFactory(){
             commandContainer = new HBox(10);
             editCustomer = new Button("", new ImageView(new Image(JeproLab.class.getResourceAsStream("resources/images/edit.png"))));
             editCustomer.setPrefSize(btnSize, btnSize);
@@ -392,10 +392,8 @@ public class JeproLabCustomerController extends JeproLabController{
             if((items != null) && (getIndex() >= 0 && getIndex() < items.size())) {
                 int itemId = items.get(getIndex()).getCustomerIndex();
                 editCustomer.setOnAction(event -> {
-                    JeproLab.request.setRequest("customer_id=" + itemId);
                     JeproLab.getInstance().goToForm(JeproLab.getInstance().getApplicationForms().addCustomerForm);
-                    JeproLab.getInstance().getApplicationForms().addCustomerForm.controller.initializeContent();
-
+                    JeproLab.getInstance().getApplicationForms().addCustomerForm.controller.initializeContent(itemId);
                 });
                 deleteCustomer.setOnAction(event -> {
 

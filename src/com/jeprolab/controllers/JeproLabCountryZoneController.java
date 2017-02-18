@@ -169,9 +169,8 @@ public class JeproLabCountryZoneController extends JeproLabController{
             if((items != null) && (getIndex() >= 0 && getIndex() < items.size())){
                 int itemId = items.get(getIndex()).getZoneId();
                 editZone.setOnAction( evt -> {
-                    JeproLab.request.setRequest("zone_id=" + itemId);
                     JeproLab.getInstance().goToForm(JeproLab.getInstance().getApplicationForms().addZoneForm);
-                    JeproLab.getInstance().getApplicationForms().addZoneForm.controller.initializeContent();
+                    JeproLab.getInstance().getApplicationForms().addZoneForm.controller.initializeContent(itemId);
                 });
                 commandContainer.getChildren().addAll(editZone, deleteZone);
                 this.getTableRow().setPrefHeight(JeproLabController.rowHeight);

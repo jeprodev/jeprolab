@@ -176,11 +176,13 @@ public class JeproLabRequestSampleController extends JeproLabController{
 
             if((items != null) && (getIndex() >= 0 && getIndex() < items.size())) {
                 int itemId = items.get(getIndex()).getSampleIndex();
+                deleteSample.setOnAction(event -> {
+
+                });
+
                 editSample.setOnAction(event -> {
                     JeproLab.getInstance().goToForm(JeproLab.getInstance().getApplicationForms().sampleForm);
-                    JeproLab.request.setRequest("sample_id=" + itemId);
-                    JeproLab.getInstance().getApplicationForms().sampleForm.controller.initializeContent();
-
+                    JeproLab.getInstance().getApplicationForms().sampleForm.controller.initializeContent(itemId);
                 });
 
                 setGraphic(commandContainer);

@@ -112,7 +112,6 @@ public class JeproLabAnalyzeMethodController extends JeproLabController {
         addMethodBtn = new Button(bundle.getString("JEPROLAB_ADD_NEW_LABEL")); //, new ImageView(new Image(JeproLab.class.getResourceAsStream("resources/images/add.png"))));
         addMethodBtn.getStyleClass().add("add-btn");
         addMethodBtn.setOnAction(event ->{
-            JeproLab.request.getRequest().clear();
             JeproLab.getInstance().goToForm(JeproLab.getInstance().getApplicationForms().addAnalyzeMethodForm);
             JeproLab.getInstance().getApplicationForms().addAnalyzeMethodForm.controller.initializeContent();
 
@@ -209,9 +208,8 @@ public class JeproLabAnalyzeMethodController extends JeproLabController {
             if((items != null) && (index >= 0 && index < items.size())){
                 int itemId = items.get(index).getMethodIndex();
                 editBtn.setOnAction(event -> {
-                    JeproLab.request.setRequest("method_id=" + itemId);
                     JeproLab.getInstance().goToForm(JeproLab.getInstance().getApplicationForms().addAnalyzeMethodForm);
-                    JeproLab.getInstance().getApplicationForms().addAnalyzeMethodForm.controller.initializeContent();
+                    JeproLab.getInstance().getApplicationForms().addAnalyzeMethodForm.controller.initializeContent(itemId);
                 });
                 setGraphic(commandWrapper);
                 setAlignment(Pos.CENTER);

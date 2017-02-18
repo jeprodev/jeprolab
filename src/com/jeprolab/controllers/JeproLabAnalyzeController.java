@@ -145,6 +145,7 @@ public class JeproLabAnalyzeController extends JeproLabController{
 
             @Override
             protected void succeeded(){
+                super.succeeded();
                 updateTableView(analyzes);
             }
 
@@ -193,7 +194,6 @@ public class JeproLabAnalyzeController extends JeproLabController{
         commandWrapper.getChildren().clear();
         addAnalyzeBtn = new Button(bundle.getString("JEPROLAB_ADD_NEW_LABEL"), new ImageView(new Image(JeproLab.class.getResourceAsStream("resources/images/add.png"))));
         addAnalyzeBtn.setOnAction(evt -> {
-            JeproLab.request.getRequest().clear();
             JeproLab.getInstance().goToForm(JeproLab.getInstance().getApplicationForms().addAnalyzeForm);
             JeproLab.getInstance().getApplicationForms().addAnalyzeForm.controller.initializeContent();
         });

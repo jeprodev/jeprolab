@@ -26,7 +26,7 @@ import java.util.ResourceBundle;
  */
 public class JeproLabTaxGroupsAddController extends JeproLabController{
     private JeproLabTaxModel.JeproLabTaxRulesGroupModel tax_rules_group;
-    private Button saveTaxRulesGroup;
+    private Button saveTaxRulesGroup, cancelTaxRulesGroup;
     @FXML
     public Label jeproLabTaxRulesGroupNameLabel, jeproLabTaxRulesGroupPublishedLabel;
     public TextField jeproLabTaxRulesGroupName;
@@ -66,7 +66,12 @@ public class JeproLabTaxGroupsAddController extends JeproLabController{
 
     @Override
     public void initializeContent(){
-        loadTaxGroup();
+        initializeContent(0);
+    }
+
+    @Override
+    public void initializeContent(int taxRulesGroupId){
+        loadTaxGroup(taxRulesGroupId);
         jeproLabTaxRulesGroupName.setText(tax_rules_group.name);
         jeproLabTaxRulesGroupPublished.setSelected(tax_rules_group.published);
         updateToolBar();
@@ -76,8 +81,10 @@ public class JeproLabTaxGroupsAddController extends JeproLabController{
     public void updateToolBar(){
         HBox commandWrapper = JeproLab.getInstance().getApplicationToolBarCommandWrapper();
         commandWrapper.getChildren().clear();
+        commandWrapper.setSpacing(10);
         saveTaxRulesGroup = new Button(bundle.getString("JEPROLAB_SAVE_LABEL"), new ImageView(new Image(JeproLab.class.getResourceAsStream("resources/images/floppy-icon.png"))));
-        commandWrapper.getChildren().addAll(saveTaxRulesGroup);
+        cancelTaxRulesGroup = new Button(bundle.getString("JEPROLAB_CANCEL_LABEL"), new ImageView(new Image(JeproLab.class.getResourceAsStream("resources/images/unpublished.png"))));
+        commandWrapper.getChildren().addAll(saveTaxRulesGroup, cancelTaxRulesGroup);
         addCommandListener();
     }
 
@@ -94,9 +101,7 @@ public class JeproLabTaxGroupsAddController extends JeproLabController{
         });
     }
 
-    private void loadTaxGroup(){
-        int taxRulesGroupId = JeproLab.request.getRequest().containsKey("tax_rules_group_id") ? Integer.parseInt(JeproLab.request.getRequest().get("tax_rules_group_id")) : 0;
-
+    private void loadTaxGroup(int taxRulesGroupId){
         if(taxRulesGroupId > 0){
             if(tax_rules_group == null){
                 tax_rules_group = new JeproLabTaxModel.JeproLabTaxRulesGroupModel(taxRulesGroupId);

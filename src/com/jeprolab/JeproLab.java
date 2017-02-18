@@ -70,7 +70,7 @@ public class JeproLab  extends Application {
     private Scene scene;
     private JeproLabDataCacheUpdateInvoker updateInvoker;
 
-    public static JeproLabRequest request;
+    //public static JeproLabRequest request;
 
     public Scene getScene(){ return scene; }
 
@@ -143,7 +143,7 @@ public class JeproLab  extends Application {
                 bundle = ResourceBundle.getBundle("com.jeprolab.resources.i18n.messages");
             }
 
-            request = JeproLabRequest.getInstance();
+            //request = JeproLabRequest.getInstance();
 
             if(language == null || language.language_id <= 0){
                 language = new JeproLabLanguageModel(JeproLabSettingModel.getIntValue("default_lang"));

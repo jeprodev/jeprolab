@@ -78,10 +78,15 @@ public class JeproLabAnalyzeAddMethodController extends JeproLabController{
 
     @Override
     public void initializeContent(){
+        initializeContent(0);
+    }
+
+    @Override
+    public void initializeContent(int methodId){
         if(context == null){
             context = JeproLabContext.getContext();
         }
-        this.loadMethod();
+        this.loadMethod(methodId);
 
         jeproLabAnalyzeMethodDesignation.setText(method.name);
         jeproLabAnalyzeMethodCode.setText(method.code);
@@ -130,9 +135,7 @@ public class JeproLabAnalyzeAddMethodController extends JeproLabController{
         });
     }
 
-    private void loadMethod(){
-        int methodId = JeproLab.request.getRequest().containsKey("method_id") ? Integer.parseInt(JeproLab.request.getRequest().get("method_id")) : 0;
-
+    private void loadMethod(int methodId){
         if(methodId > 0){
             if(method == null || method.method_id != methodId){
                 method = new JeproLabAnalyzeModel.JeproLabMethodModel(methodId);

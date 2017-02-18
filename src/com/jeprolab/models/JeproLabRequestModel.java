@@ -668,9 +668,12 @@ public class JeproLabRequestModel extends JeproLabModel{
             }
         }
 
-        public static Map<Integer,String> getMatrices() {
+        public static Map<Integer, String> getMatrices(){
+            return getMatrices(JeproLabContext.getContext().language.language_id);
+        }
+
+        public static Map<Integer,String> getMatrices(int langId){
             Map<Integer,String> matrices = new HashMap<>();
-            int langId = JeproLab.request.getRequest().containsKey("lang_id") ? Integer.parseInt(JeproLab.request.getRequest().get("lang_id")) : JeproLabContext.getContext().language.language_id;
 
             String query = "SELECT * FROM " + dataBaseObject.quoteName("#__jeprolab_matrix") + " AS matrix LEFT JOIN ";
             query += dataBaseObject.quoteName("#__jeprolab_matrix_lang") + " AS matrix_lang ON (matrix_lang.";

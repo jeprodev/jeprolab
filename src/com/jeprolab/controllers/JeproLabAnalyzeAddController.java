@@ -932,9 +932,8 @@ public class JeproLabAnalyzeAddController extends JeproLabController{
             if((items != null) && (getIndex() >= 0 && getIndex() < items.size())){
                 int itemId = items.get(getIndex()).getImageIndex();
                 deleteImage.setOnAction(event -> {
-                    JeproLab.request.setRequest("image_id=" + itemId);
                     JeproLab.getInstance().goToForm(JeproLab.getInstance().getApplicationForms().addAddressForm);
-                    JeproLab.getInstance().getApplicationForms().addAddressForm.controller.initializeContent();
+                    JeproLab.getInstance().getApplicationForms().addAddressForm.controller.initializeContent(itemId);
 
                 });
                 setGraphic(commandWrapper);

@@ -77,7 +77,7 @@ public class JeproLabAddressAddController extends JeproLabController{
         jeproLabAddressCountryZone.setMinWidth(150);
         jeproLabAddressCountry.setMinWidth(270);
 
-        /**
+        /*
          * GridPane styling
          */
         GridPane.setMargin(jeproLabAddressCustomerLabel, new Insets(15, 0, 15, 15));
@@ -138,13 +138,19 @@ public class JeproLabAddressAddController extends JeproLabController{
 
     @Override
     public void initializeContent(){
+        initializeContent(0);
+    }
+
+    @Override
+    public void initializeContent(int addressId){
         JeproLabContext context = JeproLabContext.getContext();
         address = null;
-        loadAddress(true);
+        loadAddress(addressId, true);
         List<JeproLabCountryModel> countries = JeproLabCountryModel.getCountries(context.language.language_id, 0, true);
         List<JeproLabCountryModel.JeproLabZoneModel> zones = JeproLabCountryModel.JeproLabZoneModel.getZones(true);
         jeproLabAddressCountry.setPromptText(JeproLab.getBundle().getString("JEPROLAB_SELECT_LABEL"));
         int zoneId = 0;
+
         for(JeproLabCountryModel country : countries){
             jeproLabAddressCountry.getItems().add(country.name.get("lang_" + context.language.language_id));
             if(address.country_id == country.country_id){
@@ -163,6 +169,7 @@ public class JeproLabAddressAddController extends JeproLabController{
         }
 
         if(address.address_id > 0){
+            formTitleLabel.setText(bundle.getString("JEPROLAB_EDIT_ADDRESS_LABEL"));
             jeproLabAddressCompany.setText(address.company);
             jeproLabAddressLastName.setText(address.lastname);
             jeproLabAddressFirstName.setText(address.firstname);
@@ -196,7 +203,7 @@ public class JeproLabAddressAddController extends JeproLabController{
     }
 
     private void addCommandListener(){
-        saveAddressBtn.setOnMouseClicked(evt -> {
+        saveAddressBtn.setOnAction(evt -> {
             int countryId = JeproLabCountryModel.getCountryIdByCountryName(jeproLabAddressCountry.getValue());
             address.company =  jeproLabAddressCompany.getText();
             address.lastname = jeproLabAddressLastName.getText();
@@ -212,16 +219,16 @@ public class JeproLabAddressAddController extends JeproLabController{
             }
         });
 
-        cancelBtn.setOnMouseClicked(evt -> {
-            /*label.setText("Selected: " +
-                listView.getSelectionModel().getSelectedItems()); */
+        cancelBtn.setOnAction(evt -> {
+            JeproLab.getInstance().goToForm(JeproLab.getInstance().getApplicationForms().addressesForm);
+            JeproLab.getInstance().getApplicationForms().addressesForm.controller.initializeContent();
         });
 
         jeproLabAddressCountryZone.valueProperty().addListener((observable, oldValue, newValue) -> {
-            int zoneId = JeproLabCountryModel.JeproLabZoneModel.getZoneIdByName(newValue);
             if(context == null){
                 context = JeproLabContext.getContext();
             }
+            int zoneId = JeproLabCountryModel.JeproLabZoneModel.getZoneIdByName(newValue);
             List<JeproLabCountryModel> countries = JeproLabCountryModel.getCountriesByZoneId(zoneId, context.language.language_id);
             jeproLabAddressCountry.getItems().clear();
             for(JeproLabCountryModel country : countries){
@@ -230,8 +237,7 @@ public class JeproLabAddressAddController extends JeproLabController{
         });
     }
 
-    private void loadAddress(boolean option){
-        int addressId = JeproLab.request.getRequest().containsKey("address_id") ? Integer.parseInt(JeproLab.request.getRequest().get("address_id")) : 0;
+    private void loadAddress(int addressId, boolean option){
         if(addressId > 0){
             if(this.address == null){
                 this.address = new JeproLabAddressModel(addressId);

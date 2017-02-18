@@ -2560,10 +2560,12 @@ public class JeproLabAnalyzeModel extends JeproLabModel{
     }
 
     protected void removeTaxFromEcoTax(){
-        Float ecoTax = JeproLab.request.getPost().containsKey("ecotax") ? Float.parseFloat(JeproLab.request.getPost().get("ecotax")) : 0;
+        removeTaxFromEcoTax(this.eco_tax);
+    }
+
+    protected void removeTaxFromEcoTax(float ecoTax){
         if (ecoTax > 0) {
-            ecoTax = JeproLabTools.roundPrice(ecoTax/(1 + JeproLabTaxModel.getAnalyzeEcoTaxRate()/100), 6);
-            JeproLab.request.getPost().put("ecotax", ecoTax.toString());
+            this.eco_tax = JeproLabTools.roundPrice(ecoTax/(1 + JeproLabTaxModel.getAnalyzeEcoTaxRate()/100), 6);
         }
     }
 

@@ -356,13 +356,8 @@ public class JeproLabCurrencyController extends JeproLabController{
             if(items != null && (getIndex() >= 0 && getIndex() < items.size())){
                 int itemId = items.get(getIndex()).getCurrencyIndex();
                 editCurrency.setOnAction(event -> {
-                    try{
-                        JeproLab.request.setRequest("currency_id=" + itemId);
-                        JeproLab.getInstance().goToForm(JeproLab.getInstance().getApplicationForms().addCurrencyForm);
-                        JeproLabContext.getContext().controller.initializeContent();
-                    }catch (Exception ignored){
-                        ignored.printStackTrace();
-                    }
+                    JeproLab.getInstance().goToForm(JeproLab.getInstance().getApplicationForms().addCurrencyForm);
+                    JeproLab.getInstance().getApplicationForms().addCurrencyForm.controller.initializeContent(itemId);
                 });
                 setGraphic(commandWrapper);
                 setAlignment(Pos.CENTER);

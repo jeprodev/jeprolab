@@ -74,9 +74,9 @@ public class JeproLabTaxAddController extends JeproLabController{
     }
 
     @Override
-    public void initializeContent(){
+    public void initializeContent(int taxId){
         tax = null;
-        loadTax();
+        loadTax(taxId);
 
         jeproLabTaxName.setText(tax.name);
         jeproLabTaxRate.setAlignment(Pos.CENTER_RIGHT);
@@ -103,9 +103,7 @@ public class JeproLabTaxAddController extends JeproLabController{
         commandWrapper.getChildren().addAll(saveTaxButton, cancelButton);
     }
 
-    private void loadTax(){
-        int taxId = JeproLab.request.getRequest().containsKey("tax_id") ? Integer.parseInt(JeproLab.request.getRequest().get("tax_id")) : 0;
-
+    private void loadTax(int taxId){
         if(taxId > 0){
             if(tax == null){
                 tax = new JeproLabTaxModel(taxId);

@@ -118,7 +118,12 @@ public class JeproLabCountryAddController extends JeproLabController{
 
     @Override
     public void initializeContent(){
-        loadCountry(false);
+        initializeContent(0);
+    }
+
+    @Override
+    public void initializeContent(int countryId){
+        loadCountry(countryId, false);
         List<JeproLabCountryModel.JeproLabZoneModel> zones = JeproLabCountryModel.JeproLabZoneModel.getZones(true);
         countryZone.setPrefWidth(120);
         countryZone.setPromptText(JeproLab.getBundle().getString("JEPROLAB_SELECT_LABEL"));
@@ -207,11 +212,11 @@ public class JeproLabCountryAddController extends JeproLabController{
      *
      * @param option Return an empty supplier if load fail     *
      */
-    public void loadCountry(boolean option){
+    private void loadCountry(int countryId, boolean option){
         if(context == null){
             context = JeproLabContext.getContext();
         }
-        int countryId = JeproLab.request.getRequest().containsKey("country_id") ? Integer.parseInt(JeproLab.request.getRequest().get("country_id")) : 0;
+
         if (countryId > 0){
             if (this.country == null) {
                 this.country = new JeproLabCountryModel(countryId);

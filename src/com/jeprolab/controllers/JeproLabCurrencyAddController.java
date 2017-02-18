@@ -93,7 +93,12 @@ public class JeproLabCurrencyAddController extends JeproLabController{
 
     @Override
     public void initializeContent(){
-        loadCurrency();
+        initializeContent(0);
+    }
+
+    @Override
+    public void initializeContent(int currencyId){
+        loadCurrency(currencyId);
 
         if(currency.currency_id > 0){
             formTitleLabel.setText(bundle.getString("JEPROLAB_EDIT_LABEL") + " " + bundle.getString("JEPROLAB_CURRENCY_LABEL"));
@@ -152,8 +157,7 @@ public class JeproLabCurrencyAddController extends JeproLabController{
     }
 
 
-    private void loadCurrency(){
-        int currencyId = JeproLab.request.getRequest().containsKey("currency_id") ? Integer.parseInt(JeproLab.request.getRequest().get("currency_id")) : 0;
+    private void loadCurrency(int currencyId){
         if(currencyId > 0){
             if(currency != null && currency.currency_id != currencyId){
                 currency = new JeproLabCurrencyModel(currencyId);

@@ -82,7 +82,12 @@ public class JeproLabCountryAddZoneController extends JeproLabController{
 
     @Override
     public void initializeContent(){
-        this.loadZone(false);
+        initializeContent(0);
+    }
+
+    @Override
+    public void initializeContent(int zoneId){
+        this.loadZone(zoneId, false);
         if(zone != null && zone.zone_id > 0){
             formTitleLabel.setText(bundle.getString("JEPROLAB_EDIT_LABEL") + " " + bundle.getString("JEPROLAB_ZONE_LABEL"));
             jeproLabZoneName.setText(zone.name);
@@ -141,8 +146,7 @@ public class JeproLabCountryAddZoneController extends JeproLabController{
         });
     }
 
-    public void loadZone(boolean opt){
-        int zoneId = JeproLab.request.getRequest().containsKey("zone_id") ? Integer.parseInt(JeproLab.request.getRequest().get("zone_id")) : 0;
+    private void loadZone(int zoneId, boolean opt){
         if (zoneId > 0) {
             if (zone == null || zone.zone_id <= 0) {
                 zone = new JeproLabCountryModel.JeproLabZoneModel(zoneId);

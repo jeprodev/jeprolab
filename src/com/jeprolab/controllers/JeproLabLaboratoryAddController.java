@@ -144,12 +144,17 @@ public class JeproLabLaboratoryAddController extends JeproLabController{
     }
 
     @Override
-    public void initializeContent() {
+    public void initializeContent(){
+        initializeContent(0);
+    }
+
+    @Override
+    public void initializeContent(int labId) {
         super.initializeContent();
         if(this.context == null){
             this.context = JeproLabContext.getContext();
         }
-        int labId = JeproLab.request.getRequest().containsKey("laboratory_id") ? Integer.parseInt(JeproLab.request.getRequest().get("laboratory_id")) : 0;
+
         //int rootCategoryId = JeproLabSettingModel.getIntValue("root_category");
         laboratory = new JeproLabLaboratoryModel(labId);
         List<JeproLabLaboratoryModel.JeproLabLaboratoryGroupModel> labGroups = JeproLabLaboratoryModel.JeproLabLaboratoryGroupModel.getLaboratoryGroups();

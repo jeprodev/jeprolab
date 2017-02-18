@@ -137,10 +137,11 @@ public class JeproLabRequestSampleAddController extends JeproLabController{
     }
 
 
-    public void initializeContent(){
+    @Override
+    public void initializeContent(int sampleId){
         sample = null;
         List<JeproLabAnalyzeModel> analyzesList = JeproLabAnalyzeModel.getAnalyzeList();
-        loadSample();
+        loadSample(sampleId);
         Map<Integer, String> matrices = JeproLabRequestModel.JeproLabMatrixModel.getMatrices();
         if(sample.sample_id > 0){
             jeproLabSampleRequestReference.setText(JeproLabRequestModel.getReferenceByRequestId(sample.request_id));
@@ -240,12 +241,8 @@ public class JeproLabRequestSampleAddController extends JeproLabController{
 
         saveAndBackToRequestFormBtn.setOnAction(evt -> {
             saveSample();
-            try {
-                JeproLab.request.setRequest("request_id=" + sample.request_id);
-                JeproLab.getInstance().goToForm(JeproLab.getInstance().getApplicationForms().addRequestForm);
-            }catch (Exception exp){
-                exp.printStackTrace();
-            }
+            JeproLab.getInstance().goToForm(JeproLab.getInstance().getApplicationForms().addRequestForm);
+            JeproLab.getInstance().getApplicationForms().addCategoryForm.controller.initializeContent(sample.request_id);
         });
 
         jeproLabSampleTemperatureUnit.valueProperty().addListener((observable, oldValue, newValue) -> {
@@ -253,10 +250,10 @@ public class JeproLabRequestSampleAddController extends JeproLabController{
             String from = "celsius", to = "kelvin";
             if(oldValue.equals(bundle.getString("JEPROLAB_CELSIUS_LABEL"))){
                 from = "celsius";
-            }else if(oldValue.equals(bundle.getString("JEPROLAB_FAHRENHEIT_LABEL"))){
-                from = "fahrenheit";
             }else if(oldValue.equals(bundle.getString("JEPROLAB_KELVIN_LABEL"))){
                 from = "kelvin";
+            }else if(oldValue.equals(bundle.getString("JEPROLAB_FAHRENHEIT_LABEL"))){
+                from = "fahrenheit";
             }
 
             if(newValue.equals(bundle.getString("JEPROLAB_CELSIUS_LABEL"))){
@@ -278,8 +275,7 @@ public class JeproLabRequestSampleAddController extends JeproLabController{
         });
     }
 
-    private void loadSample() {
-        int sampleId = JeproLab.request.getRequest().containsKey("sample_id") ? Integer.parseInt(JeproLab.request.getRequest().get("sample_id")) : 0;
+    private void loadSample(int sampleId) {
 
         boolean isLoaded = false;
         if (sampleId > 0) {

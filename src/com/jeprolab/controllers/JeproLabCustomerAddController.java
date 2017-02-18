@@ -269,12 +269,12 @@ public class JeproLabCustomerAddController extends JeproLabController{
 
         jeproLabAddressCheckBoxTableColumn.setPrefWidth(20);
         jeproLabAddressCheckBoxTableColumn.setGraphic(selectAll);
-        Callback<TableColumn<JeproLabAddressController.JeproLabAddressRecord, Boolean>, TableCell<JeproLabAddressController.JeproLabAddressRecord, Boolean>> checkBoxFactory = param -> new JeproLabAddressController.JeproLabCheckBoxCell();
+        Callback<TableColumn<JeproLabAddressController.JeproLabAddressRecord, Boolean>, TableCell<JeproLabAddressController.JeproLabAddressRecord, Boolean>> checkBoxFactory = param -> new JeproLabAddressController.JeproLabAddressCheckBoxCellFactory();
         jeproLabAddressCheckBoxTableColumn.setCellFactory(checkBoxFactory);
 
         jeproLabAddressActionTableColumn.setText(bundle.getString("JEPROLAB_ACTIONS_LABEL"));
         jeproLabAddressActionTableColumn.setPrefWidth(0.1 * layoutWidth);
-        Callback<TableColumn<JeproLabAddressController.JeproLabAddressRecord, HBox>, TableCell<JeproLabAddressController.JeproLabAddressRecord, HBox>> actionFactory = param -> new JeproLabAddressController.JeproLabActionCell();
+        Callback<TableColumn<JeproLabAddressController.JeproLabAddressRecord, HBox>, TableCell<JeproLabAddressController.JeproLabAddressRecord, HBox>> actionFactory = param -> new JeproLabAddressController.JeproLabAddressActionCellFactory();
         jeproLabAddressActionTableColumn.setCellFactory(actionFactory);
 
         jeproLabAddressCountryTableColumn.setText(bundle.getString("JEPROLAB_COUNTRY_LABEL"));
@@ -299,8 +299,8 @@ public class JeproLabCustomerAddController extends JeproLabController{
     }
 
     @Override
-    public void initializeContent() {
-        loadCustomer();
+    public void initializeContent(int customerId) {
+        loadCustomer(customerId);
         final int[] zoneId = {0};
         /*if(address.country_id == country.country_id){
                 zoneId = country.zone_id;
@@ -358,13 +358,11 @@ public class JeproLabCustomerAddController extends JeproLabController{
      *
      * @return object|boolean
      */
-    private void loadCustomer(){
-        int customerId = JeproLab.request.getRequest().containsKey("customer_id") ? Integer.parseInt(JeproLab.request.getRequest().get("customer_id")) : 0;
-
+    private void loadCustomer(int customerId){
         if (customerId > 0){
             if (customer == null)
                 customer = new JeproLabCustomerModel(customerId);
-            if ((customer.customer_id != customerId)){
+            if((customer.customer_id != customerId)){
                 //todo set notify the user does not exist
             }
             // throw exception

@@ -221,9 +221,8 @@ public class JeproLabTaxGroupsController extends JeproLabController{
             if((items != null) && (getIndex() >= 0 && getIndex() < items.size())){
                 int itemId = items.get(getIndex()).getTaxRulesGroupIndex();
                 editTaxRulesGroup.setOnAction(event -> {
-                    JeproLab.request.setRequest("tax_rules_group_id=" + itemId);
                     JeproLab.getInstance().goToForm(JeproLab.getInstance().getApplicationForms().addTaxGroupForm);
-                    JeproLab.getInstance().getApplicationForms().addTaxGroupForm.controller.initializeContent();
+                    JeproLab.getInstance().getApplicationForms().addTaxGroupForm.controller.initializeContent(itemId);
                 });
                 setGraphic(commandWrapper);
                 setAlignment(Pos.CENTER);

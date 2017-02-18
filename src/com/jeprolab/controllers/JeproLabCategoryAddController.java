@@ -441,6 +441,10 @@ public class JeproLabCategoryAddController extends JeproLabController{
     }
 
     private void loadCategory(int categoryId, int labId){
+        loadCategory(categoryId, labId, 0);
+    }
+
+    private void loadCategory(int categoryId, int labId, int parentId){
         Worker<Boolean> worker = new Task<Boolean>() {
             JeproLabCategoryModel category;
             List<Integer> selectedCategories;
@@ -465,8 +469,9 @@ public class JeproLabCategoryAddController extends JeproLabController{
                 if(category.parent_id > 0 && category.isParentCategoryAvailable(labId)){
                     selectedCategories.add(category.parent_id);
                 }else{
-                    int parentId = JeproLab.request.getRequest().containsKey("parent_id") ? Integer.parseInt(JeproLab.request.getRequest().get("parent_id")) : JeproLabCategoryModel.getRootCategory().category_id;
-                    selectedCategories.add(parentId);
+                    int parent = parentId > 0 ? parentId : JeproLabCategoryModel.getRootCategory().category_id;
+
+                    selectedCategories.add(parent);
                 }
                 return null;
             }

@@ -612,78 +612,44 @@ public class JeproLabAddressModel extends JeproLabModel{
     }
 
     public static List<JeproLabAddressModel> getAddresses(){
-        int limit = JeproLabConfigurationSettings.LIST_LIMIT;
-        return getAddresses(limit);
+        return getAddresses(JeproLabContext.getContext().language.language_id);
     }
 
-    public static List<JeproLabAddressModel> getAddresses(int limit){
-        return getAddresses(limit, 0);
+    public static List<JeproLabAddressModel> getAddresses(int langId){
+        return getAddresses(langId, "address_id");
     }
 
-    public static List<JeproLabAddressModel> getAddresses(int limit, int limitStart){
-        return getAddresses(limit, limitStart, 1);
+    public static List<JeproLabAddressModel> getAddresses(int langId, String orderBy){
+        return getAddresses(langId, orderBy, "ASC");
     }
 
-    public static List<JeproLabAddressModel> getAddresses(int limit, int limitStart, int langId){
-        return getAddresses(limit, limitStart, langId, "address_id");
-    }
-
-    public static List<JeproLabAddressModel> getAddresses(int limit, int limitStart, int langId, String orderBy){
-        return getAddresses(limit, limitStart, langId, orderBy, "ASC");
-    }
-
-    public static List<JeproLabAddressModel> getAddresses(int limit, int limitStart, int langId, String orderBy, String orderWay){
-        if(dataBaseObject == null){
+    public static List<JeproLabAddressModel> getAddresses(int langId, String orderBy, String orderWay) {
+        if (dataBaseObject == null) {
             dataBaseObject = JeproLabFactory.getDataBaseConnector();
         }
-        int total;
-        boolean useLimit = true;
-        if(limit <= 0){ useLimit = false; }
+
         String orderByFilter = orderBy.replace("`", "");
-        ResultSet addressesSet = null;
+
+        String query = "SELECT SQL_CALC_FOUND_ROWS address." + dataBaseObject.quoteName("address_id");
+        query += ", address." + dataBaseObject.quoteName("firstname") + ", address." + dataBaseObject.quoteName("lastname");
+        query += ", address." + dataBaseObject.quoteName("address1") + ", address." + dataBaseObject.quoteName("postcode");
+        query += ", address." + dataBaseObject.quoteName("city") + ", country_lang." + dataBaseObject.quoteName("name");
+        query += " AS country FROM " + dataBaseObject.quoteName("#__jeprolab_address") + " AS address LEFT JOIN ";
+        query += dataBaseObject.quoteName("#__jeprolab_country_lang") + " AS country_lang ON(country_lang.";
+        query += dataBaseObject.quoteName("country_id") + " = address." + dataBaseObject.quoteName("country_id");
+        query += " AND country_lang." + dataBaseObject.quoteName("lang_id") + " = " + langId + ") LEFT JOIN ";
+        query += dataBaseObject.quoteName("#__jeprolab_customer") + " AS customer ON address." + dataBaseObject.quoteName("customer_id");
+        query += " = customer." + dataBaseObject.quoteName("customer_id") + " WHERE address.customer_id != 0 ";
+        query += JeproLabLaboratoryModel.addSqlRestriction(JeproLabLaboratoryModel.SHARE_CUSTOMER, "customer");
+        query += " ORDER BY " + (orderByFilter.equals("address_id") ? "address." : "") + orderBy + " " + orderWay;
+
+        ResultSet addressesSet = dataBaseObject.loadObjectList(query);
         List<JeproLabAddressModel> addresses = new ArrayList<>();
-        try {
-            do {
-                String query = "SELECT SQL_CALC_FOUND_ROWS address." + dataBaseObject.quoteName("address_id");
-                query += ", address." + dataBaseObject.quoteName("firstname") + ", address." + dataBaseObject.quoteName("lastname");
-                query += ", address." + dataBaseObject.quoteName("address1") + ", address." + dataBaseObject.quoteName("postcode");
-                query += ", address." + dataBaseObject.quoteName("city") + ", country_lang." + dataBaseObject.quoteName("name");
-                query += " AS country FROM " + dataBaseObject.quoteName("#__jeprolab_address") + " AS address LEFT JOIN ";
-                query += dataBaseObject.quoteName("#__jeprolab_country_lang") + " AS country_lang ON(country_lang.";
-                query += dataBaseObject.quoteName("country_id") + " = address." + dataBaseObject.quoteName("country_id");
-                query += " AND country_lang." + dataBaseObject.quoteName("lang_id") + " = " + langId + ") LEFT JOIN ";
-                query += dataBaseObject.quoteName("#__jeprolab_customer") + " AS customer ON address." + dataBaseObject.quoteName("customer_id");
-                query += " = customer." + dataBaseObject.quoteName("customer_id") + " WHERE address.customer_id != 0 ";
-                query += JeproLabLaboratoryModel.addSqlRestriction(JeproLabLaboratoryModel.SHARE_CUSTOMER, "customer");
-                query += " ORDER BY " + (orderByFilter.equals("address_id") ? "address." : "") + orderBy + " " + orderWay;
 
-                //dataBaseObject.setQuery(query);
-                addressesSet = dataBaseObject.loadObjectList(query);
-
-                total = 0;
-                if (addressesSet != null) {
-                    while (addressesSet.next()) {
-                        total++;
-                    }
-                }
-
-                query += (useLimit ? " LIMIT " + limitStart + ", " + limit : " ");
-
-                //dataBaseObject.setQuery(query);
-                addressesSet = dataBaseObject.loadObjectList(query);
-                if (useLimit) {
-                    limitStart = limitStart - limit;
-                    if (limitStart < 0) {
-                        break;
-                    }
-                } else {
-                    break;
-                }
-            } while (addressesSet == null);
-
-            if(addressesSet != null){
+        if (addressesSet != null) {
+            try {
                 JeproLabAddressModel address;
-                while(addressesSet.next()){
+                while (addressesSet.next()) {
                     address = new JeproLabAddressModel();
                     address.address_id = addressesSet.getInt("address_id");
                     address.firstname = addressesSet.getString("firstname");
@@ -692,16 +658,18 @@ public class JeproLabAddressModel extends JeproLabModel{
                     address.postcode = addressesSet.getString("postcode");
                     address.city = addressesSet.getString("city");
                     address.country = addressesSet.getString("country");
+
                     addresses.add(address);
                 }
-            }
-        }catch (SQLException ignored){
-            JeproLabUncaughtExceptionHandler.logExceptionMessage(Level.ERROR, ignored);
-        }finally {
-            try{
-                JeproLabFactory.removeConnection(dataBaseObject);
-            }catch(Exception ignored){
-                JeproLabUncaughtExceptionHandler.logExceptionMessage(Level.WARN, ignored);
+            }catch(SQLException ignored) {
+                ignored.printStackTrace();
+                JeproLabUncaughtExceptionHandler.logExceptionMessage(Level.ERROR, ignored);
+            }finally {
+                try {
+                    JeproLabFactory.removeConnection(dataBaseObject);
+                } catch (Exception ignored) {
+                    JeproLabUncaughtExceptionHandler.logExceptionMessage(Level.WARN, ignored);
+                }
             }
         }
 

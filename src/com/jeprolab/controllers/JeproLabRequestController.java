@@ -133,7 +133,6 @@ public class JeproLabRequestController extends JeproLabController{
 
     private void addEventListeners(){
         addRequestBtn.setOnAction(event -> {
-            JeproLab.request.getRequest().clear();
             JeproLab.getInstance().goToForm(JeproLab.getInstance().getApplicationForms().addRequestForm);
             JeproLab.getInstance().getApplicationForms().addRequestForm.controller.initializeContent();
         });
@@ -231,10 +230,8 @@ public class JeproLabRequestController extends JeproLabController{
             if((items != null) && (getIndex() >= 0 && getIndex() < items.size())){
                 int itemId = items.get(getIndex()).getRequestIndex();
                 editRequest.setOnAction(event -> {
-                    JeproLab.request.setRequest("request_id=" + itemId);
                     JeproLab.getInstance().goToForm(JeproLab.getInstance().getApplicationForms().addRequestForm);
-                    JeproLab.getInstance().getApplicationForms().addRequestForm.controller.initializeContent();
-
+                    JeproLab.getInstance().getApplicationForms().addRequestForm.controller.initializeContent(itemId);
                 });
 
                 deleteRequest.setOnAction(event ->{

@@ -1,19 +1,5 @@
-<?import javafx.scene.control.TableView?>
-<?import javafx.scene.control.TableColumn?>
-
-<?import com.jeprolab.assets.extend.controls.JeproFormPanel?>
-<JeproFormPanel xmlns:fx="http://javafx.com/fxml" fx:controller="com.jeprolab.controllers.JeproLabAddressController" fx:id="jeproLabAddressContainer">
-    <TableView fx:id="jeproLabAddressesList">
-        <columns>
-            <TableColumn resizable="false" editable="false" fx:id="addressIndexColumn" />
-            <TableColumn resizable="false" editable="false" fx:id="addressCheckBoxColumn" />
-            <TableColumn resizable="false" editable="false" fx:id="addressLastNameColumn" />
-            <TableColumn resizable="false" editable="false" fx:id="addressFirstNameColumn" />
-            <TableColumn resizable="false" editable="false" fx:id="addressDetailColumn" />
-            <TableColumn resizable="false" editable="false" fx:id="addressZipCodeColumn" />
-            <TableColumn resizable="false" editable="false" fx:id="addressCityColumn" />
-            <TableColumn resizable="false" editable="false" fx:id="addressCountryColumn" />
-            <TableColumn resizable="false" editable="false" fx:id="addressActionColumn" />
-        </columns>
-    </TableView>
-</JeproFormPanel>
+<?import javafx.scene.layout.VBox?>
+<VBox xmlns:fx="http://javafx.com/fxml"
+      fx:controller="com.jeprolab.controllers.JeproLabAddressController"
+      fx:id="jeproLabAddressContainerWrapper" spacing="5">
+</VBox>

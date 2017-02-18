@@ -196,8 +196,8 @@ public class JeproLabCountryController extends JeproLabController{
             if((items != null) && (getIndex() >= 0 && getIndex() < items.size())){
                 int itemId =  items.get(getIndex()).getCountryId();
                 editBtn.setOnAction(event -> {
-                    JeproLab.request.setRequest("country_id=" + itemId);
                     JeproLab.getInstance().goToForm(JeproLab.getInstance().getApplicationForms().addCountryForm);
+                    JeproLab.getInstance().getApplicationForms().addCountryForm.controller.initializeContent(itemId);
                 });
                 this.getTableRow().setPrefHeight(JeproLabController.rowHeight);
                 setGraphic(commandContainer);
