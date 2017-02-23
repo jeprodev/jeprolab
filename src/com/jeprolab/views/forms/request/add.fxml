@@ -101,16 +101,16 @@
                         </Pane>
                         <Pane>
                             <Pane />
-                            <Pane>
-                                <TableView fx:id="jeproLabSampleRecordTableView" >
+                            <VBox fx:id="jeproLabRequestSamplesList">
+                                <!--TableView fx:id="jeproLabSampleRecordTableView" >
                                     <columns>
                                         <TableColumn resizable="false" editable="false" fx:id="jeproLabSampleCheckBoxColumn" />
                                         <TableColumn resizable="false" editable="false" fx:id="jeproLabSampleReferenceColumn" />
                                         <TableColumn resizable="false" editable="false" fx:id="jeproLabSampleDesignationColumn" />
                                         <TableColumn resizable="false" editable="false" fx:id="jeproLabSampleActionColumn" />
                                     </columns>
-                                </TableView>
-                            </Pane>
+                                </TableView-->
+                            </VBox>
                         </Pane>
                     </HBox>
                 </ScrollPane>

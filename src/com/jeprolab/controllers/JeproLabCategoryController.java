@@ -171,8 +171,8 @@ public class JeproLabCategoryController extends JeproLabController{
                 super.succeeded();
                 try {
                     renderDetails(categories);
-                } catch (Exception e) {
-                    e.printStackTrace();
+                } catch (Exception ignored) {
+                    JeproLabUncaughtExceptionHandler.logExceptionMessage(Level.ERROR, ignored);
                 }
             }
 
@@ -188,12 +188,6 @@ public class JeproLabCategoryController extends JeproLabController{
             }
         };
         new Thread((Task)worker).start();
-
-        /*if (context.category != null && !task.equals("delete")) {
-            this.category = context.category;
-        } else {
-
-        }*/
 
         updateToolBar();
 

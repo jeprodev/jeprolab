@@ -221,7 +221,7 @@ public class JeproLabCustomerAddController extends JeproLabController{
         CheckBox checkAll = new CheckBox();
         jeproLabRequestCheckBoxTableColumn.setPrefWidth(22);
         jeproLabRequestCheckBoxTableColumn.setGraphic(checkAll);
-        Callback<TableColumn<JeproLabRequestController.JeproLabRequestRecord, Boolean>, TableCell<JeproLabRequestController.JeproLabRequestRecord, Boolean>> checkBoxFactory = param -> new JeproLabRequestController.JeproLabCheckBoxCell();
+        Callback<TableColumn<JeproLabRequestController.JeproLabRequestRecord, Boolean>, TableCell<JeproLabRequestController.JeproLabRequestRecord, Boolean>> checkBoxFactory = param -> new JeproLabRequestController.JeproLabCheckBoxCellFactory();
         jeproLabRequestCheckBoxTableColumn.setCellFactory(checkBoxFactory);
 
         jeproLabRequestRequestIdTableColumn.setText(bundle.getString("JEPROLAB_REQUEST_REFERENCE_LABEL"));
@@ -248,7 +248,7 @@ public class JeproLabCustomerAddController extends JeproLabController{
 
         jeproLabRequestActionColumn.setText(bundle.getString("JEPROLAB_ACTIONS_LABEL"));
         jeproLabRequestActionColumn.setPrefWidth(65);
-        Callback<TableColumn<JeproLabRequestController.JeproLabRequestRecord, HBox>, TableCell<JeproLabRequestController.JeproLabRequestRecord, HBox>> actionCellFactory = param -> new JeproLabRequestController.JeproLabActionCell();
+        Callback<TableColumn<JeproLabRequestController.JeproLabRequestRecord, HBox>, TableCell<JeproLabRequestController.JeproLabRequestRecord, HBox>> actionCellFactory = param -> new JeproLabRequestController.JeproLabActionCellFactory();
         jeproLabRequestActionColumn.setCellFactory(actionCellFactory);
 
         HBox.setMargin(jeproLabRequestSearchField, new Insets(5, 5, 5, 0.01 * JeproLab.APP_WIDTH));

@@ -1,26 +1,5 @@
-<?import javafx.scene.control.TableView?>
-<?import javafx.scene.control.TableColumn?>
+
 <?import javafx.scene.layout.VBox?>
-<?import javafx.scene.layout.HBox?>
-<?import javafx.scene.control.TextField?>
-<?import javafx.scene.control.Button?>
 <VBox xmlns:fx="http://javafx.com/fxml" fx:controller="com.jeprolab.controllers.JeproLabRequestController" fx:id="jeproLabFormPanelWrapper">
-    <HBox spacing="5" >
-        <TextField fx:id="jeproLabRequestSearchField" />
-        <Button fx:id="jeproLabRequestSearchFieldButton" styleClass="icon-btn" />
-    </HBox>
-    <TableView fx:id="requestTableView">
-        <columns>
-            <TableColumn resizable="false" editable="false" fx:id="requestIndexTableColumn" />
-            <TableColumn resizable="false" editable="false" fx:id="requestCheckBoxTableColumn" />
-            <TableColumn resizable="false" editable="false" fx:id="requestOrderIdTableColumn" />
-            <TableColumn resizable="false" editable="false" fx:id="requestCustomerTableColumn" />
-            <TableColumn resizable="false" editable="false" fx:id="requestTotalTableColumn" />
-            <TableColumn resizable="false" editable="false" fx:id="requestCarrierColumn" />
-            <TableColumn resizable="false" editable="false" fx:id="requestCreationDateColumn" />
-            <TableColumn resizable="false" editable="false" fx:id="requestStatusColumn" />
-            <TableColumn resizable="false" editable="false" fx:id="requestOnlineColumn" />
-            <TableColumn resizable="false" editable="false" fx:id="requestActionColumn" />
-        </columns>
-    </TableView>
+
 </VBox>

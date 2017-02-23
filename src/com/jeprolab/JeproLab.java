@@ -21,6 +21,7 @@ import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.ToolBar;
+import javafx.scene.image.Image;
 import javafx.scene.layout.*;
 import javafx.stage.Stage;
 import org.apache.log4j.Level;
@@ -210,6 +211,8 @@ public class JeproLab  extends Application {
     public void start(Stage primaryStage) throws Exception{
         appStage = primaryStage;
         appStage.setResizable(false);
+        appStage.getIcons().add(new Image(JeproLab.class.getResourceAsStream("resources/images/microscope.png")));
+        appStage.setTitle(bundle.getString("JEPROLAB_SITE_MANAGER_TITLE"));
         primaryStage.setScene(scene);
         primaryStage.show();
     }
@@ -222,24 +225,22 @@ public class JeproLab  extends Application {
         if (form != null && (force || form != currentForm)) {
             changingForm = true;
             if (swapViews) {
-                //JeproLabContext.getContext().task = task;
+
                 Node view = form.createViewNode();
                 if (view == null) {
                     view = new Region();
                 }
-                //if(force || view != currentFormView)
+
                 currentForm = form;
                 formWrapper.getChildren().setAll(view);
                 currentFormView = view;
             }
-            //currentForm.controller.task = task;
-            // add page to history
+
             if (addHistory && currentForm != null) {
                 history.push(currentForm);
                 forwardHistory.clear();
             }
-            //update info
-            //currentForm.updateFormCommand();
+
             changingForm = false;
         } else {
             JeproLabContext.getContext().controller.initializeContent();
