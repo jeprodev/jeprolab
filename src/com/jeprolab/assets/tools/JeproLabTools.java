@@ -122,7 +122,8 @@ public class JeproLabTools {
     }
 
     public static LocalDate getLocaleDate(Date date){
-        return date.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+        return date.toLocalDate();
+        //return date.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
     }
 
     public static String safeOutput(String value){

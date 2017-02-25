@@ -217,8 +217,8 @@ public class JeproLabRequestModel extends JeproLabModel{
         }
     }
 
-    public static List<Integer> getRequestsByCustomerId(int customerId) {
-        List<Integer> requestIds = new ArrayList<>();
+    public static List<JeproLabRequestModel> getRequestsByCustomerId(int customerId) {
+        List<JeproLabRequestModel> requestIds = new ArrayList<>();
         if(dataBaseObject == null){
             dataBaseObject = JeproLabFactory.getDataBaseConnector();
         }

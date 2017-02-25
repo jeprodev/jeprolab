@@ -10,10 +10,7 @@
 <?import javafx.scene.layout.HBox?>
 <?import com.jeprolab.assets.extend.controls.JeproPhoneField?>
 
-<?import javafx.scene.control.TableView?>
-<?import javafx.scene.control.TableColumn?>
 <?import javafx.scene.control.DatePicker?>
-<?import javafx.scene.control.ScrollPane?>
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.TabPane?>
 <?import javafx.scene.control.Tab?>
@@ -77,10 +74,9 @@
                 <VBox>
                 <Pane fx:id="jeproLabSampleAddFormTitleWrapper"/>
 
-                <ScrollPane fx:id="jeproLabSampleFormWrapper">
+                <Pane fx:id="jeproLabSampleFormWrapper">
                     <HBox spacing="20" >
-                        <Pane>
-                            <GridPane fx:id="jeproLabSampleAddFormLayout" >
+                        <GridPane fx:id="jeproLabSampleAddFormLayout" >
                                 <Label GridPane.columnIndex="0" GridPane.rowIndex="0" fx:id="jeproLabSampleReferenceLabel" />
                                 <TextField GridPane.columnIndex="1" GridPane.rowIndex="0" fx:id="jeproLabSampleReference" />
                                 <Label GridPane.columnIndex="0" GridPane.rowIndex="1" fx:id="jeproLabSampleDesignationLabel" />
@@ -97,11 +93,8 @@
                                     <Button fx:id="jeproLabSaveSampleBtn" />
                                     <Button fx:id="jeproLabCancelSampleBtn" />
                                 </HBox>
-                            </GridPane>
-                        </Pane>
-                        <Pane>
-                            <Pane />
-                            <VBox fx:id="jeproLabRequestSamplesList">
+                        </GridPane>
+                        <VBox fx:id="jeproLabRequestSamplesList">
                                 <!--TableView fx:id="jeproLabSampleRecordTableView" >
                                     <columns>
                                         <TableColumn resizable="false" editable="false" fx:id="jeproLabSampleCheckBoxColumn" />
@@ -110,10 +103,10 @@
                                         <TableColumn resizable="false" editable="false" fx:id="jeproLabSampleActionColumn" />
                                     </columns>
                                 </TableView-->
-                            </VBox>
-                        </Pane>
+                        </VBox>
+
                     </HBox>
-                </ScrollPane>
+                </Pane>
                 </VBox>
             </Tab>
             <Tab fx:id="jeproLabRequestDocumentTab" closable="false" ></Tab>

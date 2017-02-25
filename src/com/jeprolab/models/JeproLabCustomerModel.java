@@ -47,7 +47,7 @@ public class JeproLabCustomerModel extends JeproLabModel{
 
     public String email;
 
-    public boolean allow_ads;
+    public boolean allow_ads = false;
 
     public boolean is_guest;
 
@@ -571,7 +571,7 @@ public class JeproLabCustomerModel extends JeproLabModel{
             query += " = country." + dataBaseObject.quoteName("country_id") + ") LEFT JOIN " + dataBaseObject.quoteName("#__jeprolab_country_lang");
             query += " AS country_lang ON (country." + dataBaseObject.quoteName("country_id") + " = country_lang." + dataBaseObject.quoteName("country_id");
             query += ") LEFT JOIN " + dataBaseObject.quoteName("#__jeprolab_state") + " AS state ON (state." + dataBaseObject.quoteName("state_id") ;
-            query += " = address." + dataBaseObject.quoteName("state_id") + (shareRequest ? "" : JeproLabLaboratoryModel.addSqlAssociation("country"));
+            query += " = address." + dataBaseObject.quoteName("state_id") + ") " + (shareRequest ? "" : JeproLabLaboratoryModel.addSqlAssociation("country"));
             query += " WHERE " + dataBaseObject.quoteName("lang_id") + " = " + langId + " AND " + dataBaseObject.quoteName("customer_id") + " = ";
             query += this.customer_id + " AND address." + dataBaseObject.quoteName("deleted") + " = 0";
 
@@ -585,6 +585,13 @@ public class JeproLabCustomerModel extends JeproLabModel{
                     while(resultSet.next()){
                         address = new JeproLabAddressModel();
                         address.address_id = resultSet.getInt("address_id");
+                        address.firstname = resultSet.getString("firstname");
+                        address.lastname = resultSet.getString("lastname");
+                        address.postcode = resultSet.getString("postcode");
+                        address.city = resultSet.getString("city");
+                        address.address1 = resultSet.getString("address1");
+                        address.address2 = resultSet.getString("address2");
+                        address.country = resultSet.getString("country");
                         addressList.add(address);
                     }
                 }catch (SQLException ignored){

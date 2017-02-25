@@ -1,24 +1,36 @@
 package com.jeprolab.controllers;
 
 import com.jeprolab.JeproLab;
+import com.jeprolab.assets.config.JeproLabConfigurationSettings;
 import com.jeprolab.assets.extend.controls.*;
 import com.jeprolab.assets.tools.JeproLabContext;
+import com.jeprolab.assets.tools.exception.JeproLabUncaughtExceptionHandler;
 import com.jeprolab.models.JeproLabAddressModel;
 import com.jeprolab.models.JeproLabCountryModel;
 import com.jeprolab.models.JeproLabCustomerModel;
+import com.jeprolab.models.JeproLabRequestModel;
+import javafx.application.Platform;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
+import javafx.concurrent.Task;
+import javafx.concurrent.Worker;
 import javafx.fxml.FXML;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
 import javafx.util.Callback;
+import jdk.nashorn.internal.codegen.CompilerConstants;
+import org.apache.log4j.Level;
 
 import java.net.URL;
 import java.util.List;
 import java.util.ResourceBundle;
+import java.util.stream.Collectors;
 
 /**
  *
@@ -31,7 +43,17 @@ public class JeproLabCustomerAddController extends JeproLabController{
     private List<JeproLabCountryModel> countries;
     private List<JeproLabCountryModel.JeproLabZoneModel> zones;
     private List<JeproLabAddressModel.JeproLabStreetTypeModel> streetTypes;
+    private TableView<JeproLabRequestController.JeproLabRequestRecord> jeproLabRequestTableView;
+    private TableView<JeproLabAddressController.JeproLabAddressRecord> jeproLabAddressesListTableView;
     private CheckBox selectAll;
+    private TextField jeproLabRequestSearchField, jeproLabAddressSearchField;
+    private Button jeproLabRequestSearchFieldButton, jeproLabAddressSearchFieldButton;
+    private ComboBox<String> jeproLabRequestSearchFieldFilter, jeproLabAddressSearchFieldFilter;
+    private HBox jeproLabRequestSearchWrapper, jeproLabAddressSearchFieldWrapper;
+    private VBox jeproLabCustomerRequestWrapper, jeproLabCustomerAddressWrapper;
+    private ObservableList<JeproLabRequestController.JeproLabRequestRecord> requestList;
+    private ObservableList<JeproLabAddressController.JeproLabAddressRecord> addressList;
+    private static final int displayedItems = JeproLabConfigurationSettings.LIST_LIMIT - 5;
 
     @FXML
     public Label customerTitleLabel, customerFirstNameLabel, customerLastNameLabel, customerBusinessInternetLabel;
@@ -51,31 +73,8 @@ public class JeproLabCustomerAddController extends JeproLabController{
     public JeproFormPanelTitle jeproLabAddCustomerFormTitleWrapper;
     public JeproFormPanelContainer jeproLabAddCustomerFormContainerWrapper;
     public TabPane jeproLabCustomerTabPane;
-    public Tab jeproLabCustomerInformationTab;
+    public Tab jeproLabCustomerInformationTab, jeproLabCustomerAddressesTab, jeproLabCustomerRequestTab;
 
-    public TextField jeproLabRequestSearchField, jeproLabAddressSearchField;
-    public Button jeproLabRequestSearchFieldButton, jeproLabAddressSearchFieldButton;
-
-    public Tab jeproLabCustomerAddressesTab, jeproLabCustomerRequestTab;
-    public TableView<JeproLabAddressController.JeproLabAddressRecord> jeproLabAddressesListTableView;
-    public TableColumn<JeproLabAddressController.JeproLabAddressRecord, String> jeproLabAddressIndexTableColumn;
-    public TableColumn<JeproLabAddressController.JeproLabAddressRecord, Boolean> jeproLabAddressCheckBoxTableColumn;
-    public TableColumn<JeproLabAddressController.JeproLabAddressRecord, String> jeproLabAddressDetailTableColumn;
-    public TableColumn<JeproLabAddressController.JeproLabAddressRecord, String> jeproLabAddressZipCodeTableColumn;
-    public TableColumn<JeproLabAddressController.JeproLabAddressRecord, String> jeproLabAddressCityTableColumn;
-    public TableColumn<JeproLabAddressController.JeproLabAddressRecord, String> jeproLabAddressCountryTableColumn;
-    public TableColumn<JeproLabAddressController.JeproLabAddressRecord, HBox> jeproLabAddressActionTableColumn;
-
-    public TableView<JeproLabRequestController.JeproLabRequestRecord> jeproLabRequestTableView;
-    public TableColumn<JeproLabRequestController.JeproLabRequestRecord, String> jeproLabRequestIndexTableColumn;
-    public TableColumn<JeproLabRequestController.JeproLabRequestRecord, Boolean> jeproLabRequestCheckBoxTableColumn;
-    public TableColumn<JeproLabRequestController.JeproLabRequestRecord, String> jeproLabRequestRequestIdTableColumn;
-    public TableColumn<JeproLabRequestController.JeproLabRequestRecord, String> jeproLabRequestTotalTableColumn;
-    public TableColumn<JeproLabRequestController.JeproLabRequestRecord, String> jeproLabRequestCarrierColumn;
-    public TableColumn<JeproLabRequestController.JeproLabRequestRecord, String> jeproLabRequestCreationDateColumn;
-    public TableColumn<JeproLabRequestController.JeproLabRequestRecord, String> jeproLabRequestStatusColumn;
-    public TableColumn<JeproLabRequestController.JeproLabRequestRecord, String> jeproLabRequestOnlineColumn;
-    public TableColumn<JeproLabRequestController.JeproLabRequestRecord, HBox> jeproLabRequestActionColumn;
 
     @Override
     public void initialize(URL location , ResourceBundle resource) {
@@ -83,7 +82,8 @@ public class JeproLabCustomerAddController extends JeproLabController{
 
         double labelColumnWidth = 160;
         double inputColumnWidth = 250;
-        formWidth = 2 * (labelColumnWidth + inputColumnWidth) + 30;
+        //formWidth = 2 * (labelColumnWidth + inputColumnWidth) + 30;
+        formWidth = 0.98 * JeproLab.APP_WIDTH;
         double centerGrid = (formWidth - (labelColumnWidth + inputColumnWidth)) / 2;
         double posX = (JeproLab.APP_WIDTH / 2) - (formWidth) / 2;
         double posY = 25;
@@ -99,7 +99,7 @@ public class JeproLabCustomerAddController extends JeproLabController{
         jeproLabAddCustomerFormTitleWrapper.getChildren().add(formTitleLabel);
         jeproLabAddCustomerFormTitleWrapper.setPrefSize(formWidth, 40);
 
-        jeproLabAddCustomerFormContainerWrapper.setPrefWidth(formWidth);
+        jeproLabAddCustomerFormContainerWrapper.setPrefSize(formWidth, 600);
         jeproLabAddCustomerFormContainerWrapper.setLayoutY(40);
 
         jeproLabCustomerTabPane.setPrefWidth(formWidth);
@@ -207,100 +207,192 @@ public class JeproLabCustomerAddController extends JeproLabController{
     }
 
     private void renderRequestList(){
-        double remainingWidth = formWidth;
+        double remainingWidth = (0.98 *formWidth) - 187;
         jeproLabCustomerRequestTab.setText(bundle.getString("JEPROLAB_REQUESTS_LABEL"));
 
-        jeproLabRequestTableView.setPrefSize(0.98 * formWidth, 480);
-        VBox.setMargin(jeproLabRequestTableView, new Insets(5, 0, 0, (0.01 * formWidth)));
-
+        TableColumn<JeproLabRequestController.JeproLabRequestRecord, String> jeproLabRequestIndexTableColumn = new TableColumn<>("#");
         jeproLabRequestIndexTableColumn.setPrefWidth(30);
-        jeproLabRequestIndexTableColumn.setText("#");
         jeproLabRequestIndexTableColumn.setCellValueFactory(new PropertyValueFactory<>("requestIndex"));
         tableCellAlign(jeproLabRequestIndexTableColumn, Pos.CENTER_RIGHT);
 
         CheckBox checkAll = new CheckBox();
+        TableColumn<JeproLabRequestController.JeproLabRequestRecord, Boolean> jeproLabRequestCheckBoxTableColumn = new TableColumn<>();
         jeproLabRequestCheckBoxTableColumn.setPrefWidth(22);
         jeproLabRequestCheckBoxTableColumn.setGraphic(checkAll);
         Callback<TableColumn<JeproLabRequestController.JeproLabRequestRecord, Boolean>, TableCell<JeproLabRequestController.JeproLabRequestRecord, Boolean>> checkBoxFactory = param -> new JeproLabRequestController.JeproLabCheckBoxCellFactory();
         jeproLabRequestCheckBoxTableColumn.setCellFactory(checkBoxFactory);
 
-        jeproLabRequestRequestIdTableColumn.setText(bundle.getString("JEPROLAB_REQUEST_REFERENCE_LABEL"));
-        jeproLabRequestRequestIdTableColumn.setPrefWidth(0.18 * remainingWidth);
+        TableColumn<JeproLabRequestController.JeproLabRequestRecord, String> jeproLabRequestRequestIdTableColumn  = new TableColumn<>(bundle.getString("JEPROLAB_REQUEST_REFERENCE_LABEL"));
+        jeproLabRequestRequestIdTableColumn.setPrefWidth(0.45 * remainingWidth);
         jeproLabRequestRequestIdTableColumn.setCellValueFactory(new PropertyValueFactory<>("requestReference"));
         tableCellAlign(jeproLabRequestRequestIdTableColumn, Pos.CENTER);
 
-        jeproLabRequestTotalTableColumn.setText(bundle.getString("JEPROLAB_TOTAL_LABEL"));
+        TableColumn<JeproLabRequestController.JeproLabRequestRecord, String> jeproLabRequestTotalTableColumn = new TableColumn<>(bundle.getString("JEPROLAB_TOTAL_LABEL"));
         jeproLabRequestTotalTableColumn.setPrefWidth(0.1 * remainingWidth);
-        jeproLabRequestCarrierColumn.setText(bundle.getString("JEPROLAB_CARRIER_LABEL"));
+        jeproLabRequestTotalTableColumn.setCellValueFactory(new PropertyValueFactory<>("requestTotalPrice"));
+        tableCellAlign(jeproLabRequestTotalTableColumn, Pos.CENTER);
+
+        TableColumn<JeproLabRequestController.JeproLabRequestRecord, HBox> jeproLabRequestCarrierColumn = new TableColumn<>(bundle.getString("JEPROLAB_CARRIER_LABEL"));
         jeproLabRequestCarrierColumn.setPrefWidth(0.15 * remainingWidth);
-        jeproLabRequestCreationDateColumn.setText(bundle.getString("JEPROLAB_CREATED_DATE_LABEL"));
+        Callback<TableColumn<JeproLabRequestController.JeproLabRequestRecord, HBox>, TableCell<JeproLabRequestController.JeproLabRequestRecord, HBox>> carrierCellFactory = params -> new JeproLabRequestController.JeproLabRequestCarrierCellFactory();
+        jeproLabRequestCarrierColumn.setCellFactory(carrierCellFactory);
+
+        TableColumn<JeproLabRequestController.JeproLabRequestRecord, String> jeproLabRequestCreationDateColumn = new TableColumn<>(bundle.getString("JEPROLAB_CREATED_DATE_LABEL"));
         jeproLabRequestCreationDateColumn.setCellValueFactory(new PropertyValueFactory<>("requestCreatedDate"));
         tableCellAlign(jeproLabRequestCreationDateColumn, Pos.CENTER);
         jeproLabRequestCreationDateColumn.setPrefWidth(0.15 * remainingWidth);
 
-        jeproLabRequestStatusColumn.setText(bundle.getString("JEPROLAB_STATUS_LABEL"));
-        jeproLabRequestStatusColumn.setPrefWidth(0.12 * remainingWidth);
+        TableColumn<JeproLabRequestController.JeproLabRequestRecord, String> jeproLabRequestStatusColumn = new TableColumn<>(bundle.getString("JEPROLAB_STATUS_LABEL"));
+        jeproLabRequestStatusColumn.setPrefWidth(0.15 * remainingWidth);
         jeproLabRequestStatusColumn.setCellValueFactory(new PropertyValueFactory<>("requestStatus"));
         tableCellAlign(jeproLabRequestStatusColumn, Pos.CENTER);
 
-        jeproLabRequestOnlineColumn.setText(bundle.getString("JEPROLAB_ONLINE_LABEL"));
+        TableColumn<JeproLabRequestController.JeproLabRequestRecord, Button> jeproLabRequestOnlineColumn = new TableColumn<>(bundle.getString("JEPROLAB_ONLINE_LABEL"));
         jeproLabRequestOnlineColumn.setPrefWidth(65);
+        Callback<TableColumn<JeproLabRequestController.JeproLabRequestRecord, Button>, TableCell<JeproLabRequestController.JeproLabRequestRecord, Button>> onlineCellFactory = params -> new JeproLabRequestController.JeproLabOnlineAvailabilityCellFactory();
+        jeproLabRequestOnlineColumn.setCellFactory(onlineCellFactory);
 
-        jeproLabRequestActionColumn.setText(bundle.getString("JEPROLAB_ACTIONS_LABEL"));
-        jeproLabRequestActionColumn.setPrefWidth(65);
+        TableColumn<JeproLabRequestController.JeproLabRequestRecord, HBox> jeproLabRequestActionColumn = new TableColumn<>(bundle.getString("JEPROLAB_ACTIONS_LABEL"));
+        jeproLabRequestActionColumn.setPrefWidth(70);
         Callback<TableColumn<JeproLabRequestController.JeproLabRequestRecord, HBox>, TableCell<JeproLabRequestController.JeproLabRequestRecord, HBox>> actionCellFactory = param -> new JeproLabRequestController.JeproLabActionCellFactory();
         jeproLabRequestActionColumn.setCellFactory(actionCellFactory);
 
-        HBox.setMargin(jeproLabRequestSearchField, new Insets(5, 5, 5, 0.01 * JeproLab.APP_WIDTH));
-        HBox.setMargin(jeproLabRequestSearchFieldButton, new Insets(5, 5, 5, 5));
+        jeproLabRequestTableView = new TableView<>();
+        jeproLabRequestTableView.setPrefSize(0.98 * formWidth, rowHeight * displayedItems);
+        jeproLabRequestTableView.getColumns().addAll(
+            jeproLabRequestIndexTableColumn, jeproLabRequestCheckBoxTableColumn, jeproLabRequestRequestIdTableColumn,
+            jeproLabRequestTotalTableColumn, jeproLabRequestCarrierColumn, jeproLabRequestCreationDateColumn,
+            jeproLabRequestStatusColumn, jeproLabRequestOnlineColumn, jeproLabRequestActionColumn
+        );
+
+        jeproLabRequestSearchField = new TextField();
         jeproLabRequestSearchField.setPromptText(bundle.getString("JEPROLAB_SEARCH_REQUEST_LABEL"));
-        jeproLabRequestSearchFieldButton.setGraphic(new ImageView(new Image(JeproLab.class.getResourceAsStream("resources/images/search-icon.png"))));
+
+        jeproLabRequestSearchFieldFilter = new ComboBox<>();
+
+        jeproLabRequestSearchFieldButton = new Button("");
+        jeproLabRequestSearchFieldButton.getStyleClass().addAll("icon-btn", "search-btn");
+
+        HBox.setMargin(jeproLabRequestSearchField, new Insets(5, 5, 5, 0.01 * JeproLab.APP_WIDTH));
+        HBox.setMargin(jeproLabRequestSearchFieldFilter, new Insets(5, 5, 5, 10));
+        HBox.setMargin(jeproLabRequestSearchFieldButton, new Insets(5, 5, 5, 10));
+
+        jeproLabRequestSearchWrapper = new HBox();
+        jeproLabRequestSearchWrapper.getChildren().addAll(
+            jeproLabRequestSearchField, jeproLabRequestSearchFieldFilter, jeproLabRequestSearchFieldButton
+        );
+
+        jeproLabCustomerRequestWrapper = new VBox();
+
+        jeproLabCustomerRequestTab.setContent(jeproLabCustomerRequestWrapper);
     }
 
     private void renderAddressList(){
-        double layoutWidth = formWidth - 55;
+        double layoutWidth = (0.98 * formWidth) - 57;
         selectAll = new CheckBox();
 
         jeproLabCustomerAddressesTab.setText(bundle.getString("JEPROLAB_ADDRESSES_LABEL"));
-        jeproLabAddressIndexTableColumn.setText("#");
+
+        TableColumn<JeproLabAddressController.JeproLabAddressRecord, String> jeproLabAddressIndexTableColumn = new TableColumn<>("#");
         jeproLabAddressIndexTableColumn.setPrefWidth(35);
         jeproLabAddressIndexTableColumn.setCellValueFactory(new PropertyValueFactory<>("addressIndex"));
         tableCellAlign(jeproLabAddressIndexTableColumn, Pos.CENTER_RIGHT);
 
+        TableColumn<JeproLabAddressController.JeproLabAddressRecord, Boolean> jeproLabAddressCheckBoxTableColumn = new TableColumn<>();
         jeproLabAddressCheckBoxTableColumn.setPrefWidth(20);
         jeproLabAddressCheckBoxTableColumn.setGraphic(selectAll);
         Callback<TableColumn<JeproLabAddressController.JeproLabAddressRecord, Boolean>, TableCell<JeproLabAddressController.JeproLabAddressRecord, Boolean>> checkBoxFactory = param -> new JeproLabAddressController.JeproLabAddressCheckBoxCellFactory();
         jeproLabAddressCheckBoxTableColumn.setCellFactory(checkBoxFactory);
 
-        jeproLabAddressActionTableColumn.setText(bundle.getString("JEPROLAB_ACTIONS_LABEL"));
+        TableColumn<JeproLabAddressController.JeproLabAddressRecord, HBox> jeproLabAddressActionTableColumn = new TableColumn<>(bundle.getString("JEPROLAB_ACTIONS_LABEL"));
         jeproLabAddressActionTableColumn.setPrefWidth(0.1 * layoutWidth);
         Callback<TableColumn<JeproLabAddressController.JeproLabAddressRecord, HBox>, TableCell<JeproLabAddressController.JeproLabAddressRecord, HBox>> actionFactory = param -> new JeproLabAddressController.JeproLabAddressActionCellFactory();
         jeproLabAddressActionTableColumn.setCellFactory(actionFactory);
 
-        jeproLabAddressCountryTableColumn.setText(bundle.getString("JEPROLAB_COUNTRY_LABEL"));
+        TableColumn<JeproLabAddressController.JeproLabAddressRecord, String> jeproLabAddressCountryTableColumn = new TableColumn<>(bundle.getString("JEPROLAB_COUNTRY_LABEL"));
         jeproLabAddressCountryTableColumn.setPrefWidth(0.15 * layoutWidth);
         jeproLabAddressCountryTableColumn.setCellValueFactory(new PropertyValueFactory<>("addressCountry"));
         tableCellAlign(jeproLabAddressCountryTableColumn, Pos.CENTER);
 
-        jeproLabAddressDetailTableColumn.setText(bundle.getString("JEPROLAB_ADDRESS_LABEL"));
+        TableColumn<JeproLabAddressController.JeproLabAddressRecord, String> jeproLabAddressDetailTableColumn = new TableColumn<>(bundle.getString("JEPROLAB_ADDRESS_LABEL"));
         jeproLabAddressDetailTableColumn.setPrefWidth(0.50 * layoutWidth);
         jeproLabAddressDetailTableColumn.setCellValueFactory(new PropertyValueFactory<>("addressDetail"));
         tableCellAlign(jeproLabAddressDetailTableColumn, Pos.CENTER_LEFT);
 
-        jeproLabAddressZipCodeTableColumn.setText(bundle.getString("JEPROLAB_ZIP_CODE_LABEL"));
+        TableColumn<JeproLabAddressController.JeproLabAddressRecord, String> jeproLabAddressZipCodeTableColumn = new TableColumn<>(bundle.getString("JEPROLAB_ZIP_CODE_LABEL"));
         jeproLabAddressZipCodeTableColumn.setPrefWidth(0.10 * layoutWidth);
         jeproLabAddressZipCodeTableColumn.setCellValueFactory(new PropertyValueFactory<>("addressZipCode"));
         tableCellAlign(jeproLabAddressZipCodeTableColumn, Pos.CENTER);
 
-        jeproLabAddressCityTableColumn.setText(bundle.getString("JEPROLAB_CITY_LABEL"));
+        TableColumn<JeproLabAddressController.JeproLabAddressRecord, String> jeproLabAddressCityTableColumn = new TableColumn<>(bundle.getString("JEPROLAB_CITY_LABEL"));
         jeproLabAddressCityTableColumn.setPrefWidth(0.15 * layoutWidth);
         jeproLabAddressCityTableColumn.setCellValueFactory(new PropertyValueFactory<>("addressCity"));
         tableCellAlign(jeproLabAddressCityTableColumn, Pos.CENTER);
+
+        jeproLabAddressesListTableView = new TableView<>();
+        jeproLabAddressesListTableView.setPrefSize(0.98 * formWidth, displayedItems * rowHeight);
+        jeproLabAddressesListTableView.getColumns().addAll(
+            jeproLabAddressIndexTableColumn, jeproLabAddressCheckBoxTableColumn, jeproLabAddressDetailTableColumn,
+            jeproLabAddressZipCodeTableColumn, jeproLabAddressCityTableColumn, jeproLabAddressCountryTableColumn,
+            jeproLabAddressActionTableColumn
+        );
+
+        jeproLabAddressSearchField = new TextField();
+        jeproLabAddressSearchField.setPromptText(bundle.getString("JEPROLAB_SEARCH_LABEL"));
+
+        jeproLabAddressSearchFieldFilter = new ComboBox<>();
+        jeproLabAddressSearchFieldFilter.setPromptText(bundle.getString("JEPROLAB_SEARCH_BY_LABEL"));
+
+        jeproLabAddressSearchFieldButton = new Button("");
+        jeproLabAddressSearchFieldButton.getStyleClass().addAll("icon-btn", "search-btn");
+
+        jeproLabAddressSearchFieldWrapper = new HBox();
+
+        HBox.setMargin(jeproLabAddressSearchField, new Insets(5, 10, 5, 0));
+        HBox.setMargin(jeproLabAddressSearchFieldFilter, new Insets(5, 10, 5, 0));
+        HBox.setMargin(jeproLabAddressSearchFieldButton, new Insets(5, 10, 5, 0));
+
+        jeproLabAddressSearchFieldWrapper.getChildren().addAll(
+            jeproLabAddressSearchField, jeproLabAddressSearchFieldFilter, jeproLabAddressSearchFieldButton
+        );
+
+        jeproLabCustomerAddressWrapper = new VBox();
+        jeproLabCustomerAddressesTab.setContent(jeproLabCustomerAddressWrapper);
     }
 
     @Override
     public void initializeContent(int customerId) {
-        loadCustomer(customerId);
+        Worker<Boolean> worker = new Task<Boolean>() {
+            List<JeproLabRequestModel> requests;
+            List<JeproLabAddressModel> addresses;
+            @Override
+            protected Boolean call() throws Exception {
+                if(isCancelled()){ return false; }
+                loadCustomer(customerId);
+                if(customer.customer_id > 0 && customer.customer_id == customerId) {
+                    requests = JeproLabRequestModel.getRequestsByCustomerId(customerId);
+                    addresses = customer.getAddresses(JeproLabContext.getContext().language.language_id);
+                }
+                return true;
+            }
+
+            @Override
+            protected void failed(){
+                super.failed();
+                JeproLabUncaughtExceptionHandler.logExceptionMessage(Level.ERROR, exceptionProperty().getValue());
+            }
+
+            @Override
+            protected void succeeded(){
+                super.succeeded();
+                updateCustomerForm();
+                updateCustomerRequests(requests);
+                updateCustomerAddresses(addresses);
+            }
+        };
+
+        new Thread((Task)worker).start();
+
         final int[] zoneId = {0};
         /*if(address.country_id == country.country_id){
                 zoneId = country.zone_id;
@@ -308,32 +400,86 @@ public class JeproLabCustomerAddController extends JeproLabController{
             }*//*if(zone.zone_id == zoneId){
                 jeproLabAddressCountryZone.setValue(zone.name);
             }*/
-        if (customer.customer_id > 0) {
-            formTitleLabel.setText(bundle.getString("JEPROLAB_EDIT_LABEL") + " " + bundle.getString("JEPROLAB_CUSTOMER_LABEL"));
-            customerTitle.setValue(bundle.getString("JEPROLAB_" + customer.title.toUpperCase() + "_LABEL"));
-            customerFirstName.setText(customer.firstname);
-            customerLastName.setText(customer.lastname);
-            customerNewsLetter.setSelected(customer.news_letter);
-            // todo customerAllowAds.setSelected(customer.all);
-            address = JeproLabAddressModel.getAddressByCustomerId(customer.customer_id, true);
-            countries.stream().filter(country -> country.country_id == address.country_id).forEach(country -> {
-                customerCountry.setValue(country.name.get("lang_" + context.language.language_id));
-                zones.stream().filter(zone -> zone.zone_id == country.zone_id).forEach(zone -> {
-                    customerZone.setValue(zone.name);
-                });
-            });
-            customerAddress.setText(address.address1);
-            customerAddressDetail.setText(address.address2);
-            customerPhone.setText(address.phone);
-            customerMobilePhone.setText(address.mobile_phone);
-            customerWebsite.setText(customer.website);
-            customerEmail.setText(customer.email);
+        /*if (customer.customer_id > 0) {
+
+            // todo
+
         } else {
             address = new JeproLabAddressModel();
             customerTitle.setValue(bundle.getString("JEPROLAB_MR_LABEL"));
-        }
+        }*/
         updateToolBar();
-        addEventListeners();
+    }
+
+    private void updateCustomerForm(){
+        if(customer != null && customer.customer_id > 0){
+            Platform.runLater(() -> {
+                formTitleLabel.setText(bundle.getString("JEPROLAB_EDIT_LABEL") + " " + bundle.getString("JEPROLAB_CUSTOMER_LABEL"));
+                customerTitle.setValue(bundle.getString("JEPROLAB_" + customer.title.toUpperCase() + "_LABEL"));
+                customerFirstName.setText(customer.firstname);
+                customerLastName.setText(customer.lastname);
+                customerNewsLetter.setSelected(customer.news_letter);
+                customerAllowAds.setSelected(customer.allow_ads);
+
+                address = JeproLabAddressModel.getAddressByCustomerId(customer.customer_id, true);
+                countries.stream().filter(country -> country.country_id == address.country_id).forEach(country -> {
+                    customerCountry.setValue(country.name.get("lang_" + context.language.language_id));
+                    zones.stream().filter(zone -> zone.zone_id == country.zone_id).forEach(zone -> {
+                        customerZone.setValue(zone.name);
+                    });
+                });
+                customerAddress.setText(address.address1);
+                customerAddressDetail.setText(address.address2);
+                customerPhone.setText(address.phone);
+                customerMobilePhone.setText(address.mobile_phone);
+                customerWebsite.setText(customer.website);
+                customerEmail.setText(customer.email);
+                saveButton.setText(bundle.getString("JEPROLAB_UPDATE_LABEL"));
+            });
+        }
+    }
+
+    private void updateCustomerRequests(List<JeproLabRequestModel> requests) {
+        requestList = FXCollections.observableArrayList();
+        requestList.addAll(requests.stream().map(JeproLabRequestController.JeproLabRequestRecord::new).collect(Collectors.toList()));
+
+        Platform.runLater(() -> {
+            Pagination jeproLabRequestsPagination = new Pagination((requestList.size()/displayedItems) + 1, 0);
+            jeproLabRequestsPagination.setPageFactory(this::createRequestPage);
+            jeproLabCustomerRequestWrapper.getChildren().clear();
+            VBox.setMargin(jeproLabRequestsPagination, new Insets(0.01 * formWidth));
+            jeproLabCustomerRequestWrapper.getChildren().addAll(jeproLabRequestSearchWrapper, jeproLabRequestsPagination);
+        });
+    }
+
+    private void updateCustomerAddresses(List<JeproLabAddressModel> addresses) {
+        addressList = FXCollections.observableArrayList();
+        addressList.addAll(addresses.stream().map(JeproLabAddressController.JeproLabAddressRecord::new).collect(Collectors.toList()));
+
+        Platform.runLater(() -> {
+            double padding = 0.01 * formWidth;
+            Pagination jeproLabAddressPagination = new Pagination((addressList.size()/displayedItems) + 1, 0);
+            jeproLabAddressPagination.setPageFactory(this::createAddressesPage);
+
+            VBox.setMargin(jeproLabAddressSearchFieldWrapper, new Insets(5, 10, 5, padding));
+            VBox.setMargin(jeproLabAddressPagination, new Insets(5, 10, 5, padding));
+            jeproLabCustomerAddressWrapper.getChildren().clear();
+            jeproLabCustomerAddressWrapper.getChildren().addAll(jeproLabAddressSearchFieldWrapper, jeproLabAddressPagination);
+        });
+    }
+
+    private Node createRequestPage(int pageIndex){
+        int fromIndex = pageIndex * JeproLabConfigurationSettings.LIST_LIMIT;
+        int toIndex = Math.min(fromIndex + JeproLabConfigurationSettings.LIST_LIMIT, (requestList.size()));
+        jeproLabRequestTableView.setItems(FXCollections.observableArrayList(requestList.subList(fromIndex, toIndex)));
+        return new Pane(jeproLabRequestTableView);
+    }
+
+    private Node createAddressesPage(int pageIndex){
+        int fromIndex = pageIndex * JeproLabConfigurationSettings.LIST_LIMIT;
+        int toIndex = Math.min(fromIndex + JeproLabConfigurationSettings.LIST_LIMIT, (addressList.size()));
+        jeproLabAddressesListTableView.setItems(FXCollections.observableArrayList(addressList.subList(fromIndex, toIndex)));
+        return new Pane(jeproLabAddressesListTableView);
     }
 
 
@@ -342,14 +488,11 @@ public class JeproLabCustomerAddController extends JeproLabController{
         HBox commandWrapper = JeproLab.getInstance().getApplicationToolBarCommandWrapper();
         commandWrapper.getChildren().clear();
         commandWrapper.setSpacing(4);
-        saveButton = new Button("", new ImageView(new Image(JeproLab.class.getResourceAsStream("resources/images/floppy-icon.png"))));
-        if (customer.customer_id > 0) {
-            saveButton.setText(bundle.getString("JEPROLAB_UPDATE_LABEL"));
-        } else {
-            saveButton.setText(bundle.getString("JEPROLAB_SAVE_LABEL"));
-        }
+        saveButton = new Button(bundle.getString("JEPROLAB_SAVE_LABEL"), new ImageView(new Image(JeproLab.class.getResourceAsStream("resources/images/floppy-icon.png"))));
+
         cancelButton = new Button(bundle.getString("JEPROLAB_CANCEL_LABEL"), new ImageView(new Image(JeproLab.class.getResourceAsStream("resources/images/unpublished.png"))));
         commandWrapper.getChildren().addAll(saveButton, cancelButton);
+        addEventListeners();
     }
 
     /**
@@ -360,18 +503,15 @@ public class JeproLabCustomerAddController extends JeproLabController{
      */
     private void loadCustomer(int customerId){
         if (customerId > 0){
-            if (customer == null)
+            if (customer == null) {
                 customer = new JeproLabCustomerModel(customerId);
+            }
+
             if((customer.customer_id != customerId)){
                 //todo set notify the user does not exist
             }
-            // throw exception
-            //$this->errors[] = Tools::displayError('The object cannot be loaded (or found)');
-            //return false;
         }else{
-            if (customer == null)
-                customer = new JeproLabCustomerModel();
-            //return $this->customer;
+            customer = new JeproLabCustomerModel();
         }
     }
 

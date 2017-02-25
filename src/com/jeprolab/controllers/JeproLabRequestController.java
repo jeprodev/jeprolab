@@ -206,7 +206,7 @@ public class JeproLabRequestController extends JeproLabController{
         });
     }
 
-    public class JeproLabRequestRecord {
+    public static class JeproLabRequestRecord {
         private SimpleStringProperty requestReference, requestCreatedDate, requestTotalPrice;
         private SimpleStringProperty requestCustomerName, requestStatus;
         private SimpleIntegerProperty requestIndex, requestId;

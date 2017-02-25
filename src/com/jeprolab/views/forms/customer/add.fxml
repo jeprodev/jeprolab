@@ -75,7 +75,7 @@
                 </VBox>
             </Tab>
             <Tab fx:id="jeproLabCustomerRequestTab" closable="false">
-                <VBox spacing="5" >
+                <!--VBox spacing="5" >
                     <HBox spacing="5" >
                         <TextField fx:id="jeproLabRequestSearchField" />
                         <Button fx:id="jeproLabRequestSearchFieldButton" styleClass="icon-btn" />
@@ -93,10 +93,10 @@
                             <TableColumn resizable="false" editable="false" fx:id="jeproLabRequestActionColumn" />
                         </columns>
                     </TableView>
-                </VBox>
+                </VBox -->
             </Tab>
             <Tab fx:id="jeproLabCustomerAddressesTab" closable="false">
-                <VBox>
+                <!--VBox>
                     <HBox spacing="5" >
                         <TextField fx:id="jeproLabAddressSearchField" />
                         <Button fx:id="jeproLabAddressSearchFieldButton" styleClass="icon-btn" />
@@ -112,7 +112,7 @@
                             <TableColumn resizable="false" editable="false" fx:id="jeproLabAddressActionTableColumn" />
                         </columns>
                     </TableView>
-                </VBox>
+                </-VBox -->
             </Tab>
         </TabPane>
     </JeproFormPanelContainer>

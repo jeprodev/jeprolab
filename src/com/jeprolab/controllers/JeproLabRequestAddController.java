@@ -1,6 +1,7 @@
 package com.jeprolab.controllers;
 
 import com.jeprolab.JeproLab;
+import com.jeprolab.assets.config.JeproLabConfigurationSettings;
 import com.jeprolab.assets.extend.controls.JeproFormPanel;
 import com.jeprolab.assets.extend.controls.JeproFormPanelContainer;
 import com.jeprolab.assets.extend.controls.JeproFormPanelTitle;
@@ -13,6 +14,7 @@ import com.jeprolab.models.JeproLabAnalyzeModel;
 import com.jeprolab.models.JeproLabCustomerModel;
 import com.jeprolab.models.JeproLabRequestModel;
 import com.sun.javafx.scene.control.skin.ComboBoxPopupControl;
+import javafx.application.Platform;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
@@ -32,10 +34,8 @@ import javafx.util.Callback;
 import org.apache.log4j.Level;
 
 import java.net.URL;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.ResourceBundle;
+import java.time.LocalDate;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -58,6 +58,7 @@ public class JeproLabRequestAddController extends JeproLabController{
     private ComboBox<String> jeproLabRequestSamplesSearchFilter;
     private Button jeproLabRequestSamplesSearchButton;
     private  ObservableList<JeproLabSampleRecord> sampleList;
+    private final int displayedItems = JeproLabConfigurationSettings.LIST_LIMIT - 6;
 
     @FXML
     public JeproFormPanel jeproLabRequestFormWrapper;
@@ -79,8 +80,7 @@ public class JeproLabRequestAddController extends JeproLabController{
     public GridPane jeproLabSampleAnalyzeSelector, jeproLabCustomerInformationLayout, jeproLabCustomerContactLayout, jeproLabSampleAddFormLayout;
     public HBox jeproLabCustomerCompanyPhoneWrapper, jeproLabRequestStatusWrapper;
     public Pane jeproLabCustomerInformationWrapper, jeproLabCustomerInformationTitleWrapper, jeproLabCustomerInformationContentWrapper;
-    public Pane jeproLabRequestMainContactInfo, jeproLabSampleAddFormTitleWrapper;
-    public ScrollPane jeproLabSampleFormWrapper;
+    public Pane jeproLabRequestMainContactInfo, jeproLabSampleAddFormTitleWrapper, jeproLabSampleFormWrapper;
     public VBox jeproLabRequestSamplesList;
 
 
@@ -94,14 +94,16 @@ public class JeproLabRequestAddController extends JeproLabController{
         super.initialize(location, resource);
         formWidth = 0.98 * JeproLab.APP_WIDTH;
 
-        jeproLabRequestFormWrapper.setPrefWidth(formWidth);
         jeproLabRequestFormWrapper.setLayoutX(0.01 * JeproLab.APP_WIDTH);
         jeproLabRequestFormWrapper.setLayoutY(10);
+        jeproLabRequestFormWrapper.setPrefSize(formWidth, (rowHeight * (JeproLabConfigurationSettings.LIST_LIMIT )) + 40);
         formTitleLabel.setText(bundle.getString("JEPROLAB_ADD_NEW_LABEL") + " " + bundle.getString("JEPROLAB_REQUEST_LABEL"));
         formTitleLabel.setPrefSize(formWidth, 40);
         jeproLabRequestFormTitleWrapper.setPrefSize(formWidth, 40);
         jeproLabRequestFormTitleWrapper.getChildren().add(formTitleLabel);
-        jeproLabRequestContentWrapper.setPrefWidth(formWidth);
+        jeproLabRequestContentWrapper.setPrefSize(formWidth, rowHeight * (JeproLabConfigurationSettings.LIST_LIMIT ));
+        jeproLabRequestContentWrapper.setMinSize(formWidth, rowHeight * (JeproLabConfigurationSettings.LIST_LIMIT ));
+        jeproLabRequestContentWrapper.setMaxSize(formWidth, rowHeight * (JeproLabConfigurationSettings.LIST_LIMIT ));
         jeproLabRequestContentWrapper.setLayoutY(40);
 
         VBox.setMargin(jeproLabCustomerInformationWrapper, new Insets(10, 0, 10, 0.01 * JeproLab.APP_WIDTH));
@@ -123,7 +125,7 @@ public class JeproLabRequestAddController extends JeproLabController{
         jeproLabRequestThirdContact.setPrefWidth(fourthColumnWidth);
         jeproLabRequestFourthContact.setPrefWidth(fourthColumnWidth);
 
-        jeproLabSampleFormWrapper.setPrefSize(subFormWidth, 520);
+        jeproLabSampleFormWrapper.setPrefSize(subFormWidth, (rowHeight * (JeproLabConfigurationSettings.LIST_LIMIT )));
         VBox.setMargin(jeproLabSampleFormWrapper, new Insets(0, 0, 10, 0.005 * JeproLab.APP_WIDTH));
         jeproLabRequestTabPane.setPrefWidth(formWidth);
         jeproLabRequestInformationTab.setText(bundle.getString("JEPROLAB_INFORMATION_LABEL"));
@@ -235,9 +237,10 @@ public class JeproLabRequestAddController extends JeproLabController{
         jeproLabSampleAddFormTitleWrapper.getChildren().addAll(sampleFormLabel);
 
         jeproLabSampleAddFormLayout.getColumnConstraints().addAll(new ColumnConstraints(140), new ColumnConstraints(240));
-        jeproLabSampleAddFormTitleWrapper.setPrefSize(subFormWidth, 30);
+        jeproLabSampleAddFormTitleWrapper.setPrefSize(formWidth, 30);
         jeproLabSampleAddFormTitleWrapper.getStyleClass().add("form-panel-title-gray");
-        VBox.setMargin(jeproLabSampleAddFormTitleWrapper, new Insets(0, 0, 0, 0.005 * JeproLab.APP_WIDTH));
+        VBox.setMargin(jeproLabSampleAddFormTitleWrapper, new Insets(5, 0, 0, 0));
+
         GridPane.setMargin(jeproLabSampleReferenceLabel, new Insets(5, 0, 5, 10));
         GridPane.setMargin(jeproLabSampleReference, new Insets(5, 0, 5, 0));
         GridPane.setMargin(jeproLabSampleDesignationLabel, new Insets(5, 0, 5, 10));
@@ -302,12 +305,13 @@ public class JeproLabRequestAddController extends JeproLabController{
     private void renderSampleListForm(){
         CheckBox checkAll = new CheckBox();
         jeproLabSampleRecordTableView = new TableView<>();
-        jeproLabSampleRecordTableView.setPrefWidth(formWidth - 420);
-        double remainingWidth = formWidth - 537;
+        jeproLabSampleRecordTableView.setPrefSize((formWidth - 420), rowHeight *(displayedItems));
+        double remainingWidth = formWidth - 522;
 
         jeproLabRequestSamplesSearchWrapper = new HBox();
 
         jeproLabRequestSamplesSearchField = new TextField();
+        jeproLabRequestSamplesSearchField.setPromptText(bundle.getString("JEPROLAB_SEARCH_LABEL"));
 
         jeproLabRequestSamplesSearchFilter = new ComboBox<>();
 
@@ -316,6 +320,8 @@ public class JeproLabRequestAddController extends JeproLabController{
         HBox.setMargin(jeproLabRequestSamplesSearchField, new Insets(5, 10, 5, 0));
         HBox.setMargin(jeproLabRequestSamplesSearchFilter, new Insets(5, 10, 5, 0));
         HBox.setMargin(jeproLabRequestSamplesSearchButton, new Insets(5, 10, 5, 0));
+
+        jeproLabRequestSamplesSearchWrapper.getChildren().addAll(jeproLabRequestSamplesSearchField, jeproLabRequestSamplesSearchFilter, jeproLabRequestSamplesSearchButton);
 
         jeproLabRequestSampleTab.setText(bundle.getString("JEPROLAB_SAMPLES_LABEL"));
 
@@ -335,7 +341,7 @@ public class JeproLabRequestAddController extends JeproLabController{
         jeproLabSampleDesignationColumn.setCellValueFactory(new PropertyValueFactory<>("sampleDesignation"));
 
         TableColumn<JeproLabSampleRecord, HBox> jeproLabSampleActionColumn = new TableColumn<>(bundle.getString("JEPROLAB_ACTIONS_LABEL"));
-        jeproLabSampleActionColumn.setPrefWidth(75);
+        jeproLabSampleActionColumn.setPrefWidth(70);
         Callback<TableColumn<JeproLabSampleRecord, HBox>, TableCell<JeproLabSampleRecord, HBox>> sampleActionFactory = param -> new JeproLabSampleActionCell();
         jeproLabSampleActionColumn.setCellFactory(sampleActionFactory);
 
@@ -394,72 +400,42 @@ public class JeproLabRequestAddController extends JeproLabController{
 
     @Override
     public void initializeContent(int requestId) {
-        Worker<Boolean> worker = new Task<Boolean>() {
-            List<JeproLabCustomerModel> customersContact;
-            JeproLabCustomerModel customer;
-            JeproLabAddressModel address;
-            List<JeproLabRequestModel.JeproLabSampleModel> samples;
+        if(requestId > 0) {
+            Worker<Boolean> worker = new Task<Boolean>() {
+                List<JeproLabCustomerModel> customersContact;
+                JeproLabCustomerModel customer;
+                JeproLabAddressModel address;
+                List<JeproLabRequestModel.JeproLabSampleModel> samples;
 
-            @Override
-            protected Boolean call() throws Exception {
-                loadRequest(requestId);
-                if(request.request_id > 0){
-                    customer  = new JeproLabCustomerModel(request.customer_id);
-                    address = JeproLabAddressModel.getAddressByCustomerId(request.customer_id, true);
-                    customersContact = JeproLabCustomerModel.getCustomersByCompany(customer.company);
-                    samples = JeproLabRequestModel.JeproLabSampleModel.getSamplesByRequestId(request.request_id);
+                @Override
+                protected Boolean call() throws Exception {
+                    loadRequest(requestId);
+                    if (request.request_id > 0 && request.request_id == requestId) {
+                        customer = new JeproLabCustomerModel(request.customer_id);
+                        address = JeproLabAddressModel.getAddressByCustomerId(request.customer_id, true);
+                        customersContact = JeproLabCustomerModel.getCustomersByCompany(customer.company);
+                        samples = JeproLabRequestModel.JeproLabSampleModel.getSamplesByRequestId(request.request_id);
+                        return true;
+                    }
+                    return false;
                 }
-                return true;
-            }
 
-            @Override
-            protected void failed(){
-                super.failed();
-                JeproLabUncaughtExceptionHandler.logExceptionMessage(Level.ERROR, exceptionProperty().getValue());
-            }
+                @Override
+                protected void failed() {
+                    super.failed();
+                    JeproLabUncaughtExceptionHandler.logExceptionMessage(Level.ERROR, exceptionProperty().getValue());
+                }
 
+                @Override
+                protected void succeeded() {
+                    super.succeeded();
+                    updateRequestData(customer, address, customersContact, samples);
+                }
 
-        };
-    }
-
-    private void updateRequestData(JeproLabCustomerModel customer,  JeproLabAddressModel address, List<JeproLabCustomerModel> customersContact, List<JeproLabRequestModel.JeproLabSampleModel> samples){
-
-
-        if(request.request_id > 0){
-
-            jeproLabCustomerCompanyName.setText(customer.company);
-
-            jeproLabCustomerCompanyAddress.setText(address.address1);
-            jeproLabCustomerCompanyAddressDetails.setText(address.address2);
-            jeproLabRequestReference.setText(request.reference);
-            jeproLabRequestMainContactInfoMail.setText(customer.email);
-            jeproLabRequestMainContactInfoName.setText(customer.firstname + " " + customer.lastname);
-
-
-
-            updateContacts(customersContact);
-            jeproLabRequestDocumentTab.setDisable(false);
-            jeproLabRequestSampleTab.setDisable(false);
-
-
-
-             //= FXCollections.observableArrayList();
-            if(!samples.isEmpty()){
-                sampleList.addAll(samples.stream().map(JeproLabSampleRecord::new).collect(Collectors.toList()));
-                jeproLabSampleRecordTableView.getItems().clear();
-                jeproLabSampleRecordTableView.getItems().addAll(sampleList);
-            }
+            };
+            new Thread((Task) worker).start();
         }else{
-            jeproLabRequestReference.setText(JeproLabTools.createRequestReference());
-            jeproLabRequestDocumentTab.setDisable(true);
-            jeproLabRequestSampleTab.setDisable(true);
-            jeproLabCustomerCompanyAddress.clear();
-            jeproLabCustomerCompanyName.clear();
-            jeproLabCustomerCompanyAddressDetails.clear();
-
-            jeproLabRequestMainContactInfoMail.clear();
-            jeproLabRequestMainContactInfoName.clear();
-            updateContacts(null);
+            clearRequestForm();
         }
         this.updateToolBar();
 
@@ -468,8 +444,77 @@ public class JeproLabRequestAddController extends JeproLabController{
         }
     }
 
-    private void loadRequest(int requestId){
+    private void updateRequestData(JeproLabCustomerModel customer,  JeproLabAddressModel address, List<JeproLabCustomerModel> customersContact, List<JeproLabRequestModel.JeproLabSampleModel> samples) {
+        sampleList = FXCollections.observableArrayList();
+        sampleList.addAll(samples.stream().map(JeproLabSampleRecord::new).collect(Collectors.toList()));
+        if (request.request_id > 0) {
+            Platform.runLater(() -> {
+                clearRequestForm();
+                jeproLabCustomerCompanyName.setText(customer.company);
 
+                jeproLabCustomerCompanyAddress.setText(address.address1);
+                jeproLabCustomerCompanyAddressDetails.setText(address.address2);
+                jeproLabRequestReference.setText(request.reference);
+                jeproLabRequestMainContactInfoMail.setText(customer.email);
+                jeproLabRequestMainContactInfoName.setText(customer.firstname + " " + customer.lastname);
+
+                updateContacts(customersContact);
+                jeproLabRequestDocumentTab.setDisable(false);
+                jeproLabRequestSampleTab.setDisable(false);
+
+                if (request.request_id > 0) {
+                    saveRequestBtn.setText(bundle.getString("JEPROLAB_UPDATE_LABEL"));
+                } else {
+                    saveRequestBtn.setText(bundle.getString("JEPROLAB_SAVE_LABEL"));
+                }
+
+                if (!samples.isEmpty()) {
+                    double padding = 0.01 * JeproLab.APP_WIDTH;
+                    Pagination requestSamplePagination = new Pagination((sampleList.size()/ displayedItems) + 1, 0);
+                    requestSamplePagination.setPageFactory(this::createSamplePages);
+
+                    VBox.setMargin(jeproLabRequestSamplesSearchWrapper, new Insets(5, padding, 5, padding));
+                    VBox.setMargin(requestSamplePagination, new Insets(5, padding, 5, padding));
+
+                    jeproLabRequestSamplesList.getChildren().clear();
+                    jeproLabRequestSamplesList.getChildren().addAll(jeproLabRequestSamplesSearchWrapper, requestSamplePagination);
+                }
+            });
+        }
+    }
+
+    private Node createSamplePages(int pageIndex){
+        int fromIndex = pageIndex * JeproLabConfigurationSettings.LIST_LIMIT;
+        int toIndex = Math.min(fromIndex + JeproLabConfigurationSettings.LIST_LIMIT, (sampleList.size()));
+        jeproLabSampleRecordTableView.setItems(FXCollections.observableArrayList(sampleList.subList(fromIndex, toIndex)));
+        return new Pane(jeproLabSampleRecordTableView);
+    }
+
+    private void clearRequestForm(){
+        jeproLabRequestReference.setText(JeproLabTools.createRequestReference());
+        jeproLabRequestDocumentTab.setDisable(true);
+        jeproLabRequestSampleTab.setDisable(true);
+        jeproLabCustomerCompanyAddress.clear();
+        jeproLabCustomerCompanyName.clear();
+        jeproLabCustomerCompanyAddressDetails.clear();
+
+        jeproLabRequestMainContactInfoMail.clear();
+        jeproLabRequestMainContactInfoName.clear();
+        updateContacts(null);
+        jeproLabSampleRecordTableView.getItems().clear();
+
+        jeproLabSampleReference.clear();
+        jeproLabSampleDesignation.clear();
+        jeproLabSampleMatrix.setValue(jeproLabSampleMatrix.getPromptText());
+        //jeproLabSampleTestDate.setValue(LocalDate.now(new C));
+
+        for(Node item : jeproLabSampleAnalyzeSelector.getChildren()){
+            ((CheckBox)item).setSelected(false);
+        }
+
+    }
+
+    private void loadRequest(int requestId){
         if(context == null) {
             context = JeproLabContext.getContext();
         }
@@ -671,15 +716,9 @@ public class JeproLabRequestAddController extends JeproLabController{
         HBox commandWrapper = JeproLab.getInstance().getApplicationToolBarCommandWrapper();
         commandWrapper.getChildren().clear();
         commandWrapper.setSpacing(4);
-        saveRequestBtn = new Button("", new ImageView(new Image(JeproLab.class.getResourceAsStream("resources/images/floppy-icon.png"))));
-        if (request.request_id > 0) {
-            saveRequestBtn.setText(bundle.getString("JEPROLAB_UPDATE_LABEL"));
-        } else {
-            saveRequestBtn.setText(bundle.getString("JEPROLAB_SAVE_LABEL"));
-        }
+        saveRequestBtn = new Button(bundle.getString("JEPROLAB_SAVE_LABEL"), new ImageView(new Image(JeproLab.class.getResourceAsStream("resources/images/floppy-icon.png"))));
         printCertificateBtn = new Button(bundle.getString("JEPROLAB_CERTIFICATE_LABEL"), new ImageView(new Image(JeproLab.class.getResourceAsStream("resources/images/printer.png"))));
         cancelBtn = new Button(bundle.getString("JEPROLAB_CANCEL_LABEL"), new ImageView(new Image(JeproLab.class.getResourceAsStream("resources/images/unpublished.png"))));
-
 
         commandWrapper.getChildren().addAll(saveRequestBtn, printCertificateBtn, cancelBtn);
 
