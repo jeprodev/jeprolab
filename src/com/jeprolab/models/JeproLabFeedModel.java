@@ -19,40 +19,42 @@ public class JeproLabFeedModel extends JeproLabModel {
     public static class JeproLabFeedBackModel extends JeproLabModel{
         public int feedback_id;
 
-        /*public $enjoy_working_with_us;
+        public int customer_id;
 
-        public  $staff_courtesy;
+        public String enjoy_working_with_us;
 
-        public $team_abilities;
+        public  String staff_courtesy;
 
-        public $team_availability;
+        public String team_abilities;
 
-        public $problem_support;
+        public String team_availability;
 
-        public $general_comment;
+        public String problem_support;
 
-        public $online_services;
+        public String general_comment;
 
-        public $global_quality;
+        public String online_services;
 
-        public $analyze_speed;
+        public String global_quality;
 
-        public $submission;
+        public String analyze_speed;
 
-        public $sample_delivery_speed;
+        public String submission;
 
-        public $service_speed;
+        public String sample_delivery_speed;
 
-        public $recommend_our_services;
+        public String service_speed;
 
-        public $reuse_our_services;
+        public boolean recommend_our_services;
 
-        public $help_us_improve_our_service;
+        public boolean reuse_our_services;
 
-        public $how_do_you_learn_about_us;
+        public String help_us_improve_our_service;
 
-        public $service_comment_or_suggestion;
-*/
+        public String how_do_you_learn_about_us;
+
+        public String service_comment_or_suggestion;
+
         public String customer_name;
 
         public String customer_phone;
@@ -61,7 +63,7 @@ public class JeproLabFeedModel extends JeproLabModel {
 
         public String customer_company;
 
-        //public $reports_quality; */
+        public String reports_quality;
 
         public static List<JeproLabFeedBackModel> getFeedBacks(){
             return getFeedBacks(null);
@@ -96,9 +98,20 @@ public class JeproLabFeedModel extends JeproLabModel {
                         feedBack = new JeproLabFeedBackModel();
                         feedBack.feedback_id = feedBackSet.getInt("feedback_id");
                         feedBack.customer_name = feedBackSet.getString("customer_name");
-                        /*feedBack = feedBackSet.get("");
-                        feedBack = feedBackSet.get("");
-                        feedBack = feedBackSet.get("");*/
+                        feedBack.enjoy_working_with_us = feedBackSet.getString("enjoy_working_with_us");
+                        feedBack.staff_courtesy = feedBackSet.getString("staff_courtesy");
+                        feedBack.team_abilities = feedBackSet.getString("team_abilities");
+                        feedBack.team_availability = feedBackSet.getString("team_availability");
+                        feedBack.problem_support = feedBackSet.getString("problem_support");
+                        feedBack.reuse_our_services = feedBackSet.getInt("reuse_our_services") > 0;
+                        feedBack.recommend_our_services = feedBackSet.getInt("recommend_our_services") > 0;
+                        feedBack.sample_delivery_speed = feedBackSet.getString("sample_delivery_speed");
+                        feedBack.submission = feedBackSet.getString("submission");
+                        feedBack.reports_quality = feedBackSet.getString("reports_quality");
+                        feedBack.analyze_speed = feedBackSet.getString("analyze_speed");
+                        feedBack.online_services = feedBackSet.getString("online_services");
+                        feedBack.customer_id = feedBackSet.getInt("customer_id");
+                        //feedBack = feedBackSet.get("");
                         feedBacks.add(feedBack);
                     }
                 }catch(SQLException ignored){

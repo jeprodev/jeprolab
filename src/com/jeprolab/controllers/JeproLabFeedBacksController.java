@@ -5,6 +5,7 @@ import com.jeprolab.assets.config.JeproLabConfigurationSettings;
 import com.jeprolab.assets.tools.exception.JeproLabUncaughtExceptionHandler;
 import com.jeprolab.models.JeproLabFeedModel;
 import javafx.application.Platform;
+import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleListProperty;
 import javafx.beans.property.SimpleStringProperty;
@@ -18,6 +19,8 @@ import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
@@ -290,10 +293,34 @@ public class JeproLabFeedBacksController extends JeproLabController{
     public static class JeproLabFeedBackRecord{
         private SimpleIntegerProperty feedBackIndex;
         private SimpleStringProperty feedBackCustomer;
+        private SimpleStringProperty feedBackEnjoyWorkingWithUs;
+        private SimpleStringProperty feedBackStaffCourtesy;
+        private SimpleStringProperty feedBackTeamAbilities;
+        private SimpleStringProperty feedBackTeamAvailability;
+        private SimpleStringProperty feedBackProblemSupport;
+        private SimpleBooleanProperty feedBackReuseOurServices;
+        private SimpleBooleanProperty feedBackRecommendOurServices;
+        private SimpleStringProperty feedBackSampleDeliverySpeed;
+        private SimpleStringProperty feedBackSubmission;
+        private SimpleStringProperty feedBackReportsQuality;
+        private SimpleStringProperty feedBackAnalyzeSpeed;
+        private SimpleStringProperty feedBackOnlineServices;
 
         public JeproLabFeedBackRecord(JeproLabFeedModel.JeproLabFeedBackModel feedback){
             feedBackIndex = new SimpleIntegerProperty(feedback.feedback_id);
             feedBackCustomer = new SimpleStringProperty(feedback.customer_name);
+            feedBackEnjoyWorkingWithUs = new SimpleStringProperty(feedback.enjoy_working_with_us);
+            feedBackStaffCourtesy = new SimpleStringProperty(feedback.staff_courtesy);
+            feedBackTeamAbilities = new SimpleStringProperty(feedback.team_abilities);
+            feedBackTeamAvailability = new SimpleStringProperty(feedback.team_availability);
+            feedBackProblemSupport = new SimpleStringProperty(feedback.problem_support);
+            feedBackReuseOurServices = new SimpleBooleanProperty(feedback.reuse_our_services);
+            feedBackRecommendOurServices = new SimpleBooleanProperty(feedback.recommend_our_services);
+            feedBackSampleDeliverySpeed = new SimpleStringProperty(feedback.sample_delivery_speed);
+            feedBackSubmission = new SimpleStringProperty(feedback.submission);
+            feedBackReportsQuality = new SimpleStringProperty(feedback.reports_quality );
+            feedBackAnalyzeSpeed = new SimpleStringProperty(feedback.analyze_speed);
+            feedBackOnlineServices = new SimpleStringProperty(feedback.online_services);
         }
 
         public int getFeedBackIndex(){
@@ -303,12 +330,39 @@ public class JeproLabFeedBacksController extends JeproLabController{
         public String getFeedBackCustomer() {
             return feedBackCustomer.get();
         }
+
+        public String getFeedBackEnjoyWorkingWithUs(){
+            return feedBackEnjoyWorkingWithUs.get();
+        }
+
+        public String getFeedBackStaffCourtesy(){ return feedBackStaffCourtesy.get(); }
+
+        public String getFeedBackTeamAbilities(){ return feedBackTeamAbilities.get(); }
+
+        public String getFeedBackTeamAvailability(){ return feedBackTeamAvailability.get(); }
+
+        public String getFeedBackProblemSupport(){ return feedBackProblemSupport.get(); }
+
+        public boolean getFeedBackReuseOurServices(){ return feedBackReuseOurServices.get(); }
+
+        public boolean getFeedBackRecommendOurServices(){ return feedBackRecommendOurServices.get(); }
+
+        public String getFeedBackSampleDeliverySpeed(){ return feedBackSampleDeliverySpeed.get(); }
+
+        public String getFeedBackSubmission(){ return feedBackSubmission.get(); }
+
+        public String getFeedBackReportsQuality(){ return feedBackReportsQuality.get(); }
+
+        public String getFeedBackAnalyzeSpeed(){ return feedBackAnalyzeSpeed.get(); }
+
+        public String getFeedBackOnlineServices(){ return feedBackOnlineServices.get(); }
     }
 
     public static class JeproLabFeedBackCheckBoxCellFactory extends TableCell<JeproLabFeedBackRecord, Boolean> {
+        private CheckBox checkFeedBack;
 
         public JeproLabFeedBackCheckBoxCellFactory(){
-
+            checkFeedBack = new CheckBox();
         }
 
         @Override
@@ -320,15 +374,21 @@ public class JeproLabFeedBacksController extends JeproLabController{
             ObservableList<JeproLabFeedBackRecord> items = getTableView().getItems();
 
             if(items != null && (getIndex() >= 0 && getIndex() < items.size())){
-
+                setGraphic(checkFeedBack);
+                setAlignment(Pos.CENTER);
             }
         }
     }
 
     public static class JeproLabFeedBackWorkingWithUsCellFactory extends TableCell<JeproLabFeedBackRecord, Button> {
+        private Button enjoyWorkingWithUsBtn;
 
         public JeproLabFeedBackWorkingWithUsCellFactory(){
-
+            enjoyWorkingWithUsBtn = new Button();
+            enjoyWorkingWithUsBtn.setMinSize(btnSize, btnSize);
+            enjoyWorkingWithUsBtn.setMaxSize(btnSize, btnSize);
+            enjoyWorkingWithUsBtn.setPrefSize(btnSize, btnSize);
+            enjoyWorkingWithUsBtn.getStyleClass().add("icon-btn");
         }
 
         @Override
@@ -340,7 +400,13 @@ public class JeproLabFeedBacksController extends JeproLabController{
             ObservableList<JeproLabFeedBackRecord> items = getTableView().getItems();
 
             if(items != null && (getIndex() >= 0 && getIndex() < items.size())){
-
+                if(items.get(getIndex()).getFeedBackEnjoyWorkingWithUs().equals("satisfy")) {
+                    enjoyWorkingWithUsBtn.setGraphic(new ImageView(new Image(JeproLab.class.getResourceAsStream("resources/images/published.png"))));
+                }else{
+                    enjoyWorkingWithUsBtn.setGraphic(new ImageView(new Image(JeproLab.class.getResourceAsStream("resources/images/published.png"))));
+                }
+                setGraphic(enjoyWorkingWithUsBtn);
+                setAlignment(Pos.CENTER);
             }
         }
     }
