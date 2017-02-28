@@ -214,7 +214,7 @@ public class JeproLabApplicationForms implements JeproLabEventProducer{
         requestRefundsForm = new JeproLabApplicationForm("request/refunds.fxml");
         if(!forms.contains(requestRefundsForm)){ forms.add(requestRefundsForm); }
 
-        requestAddStatusForm = new JeproLabApplicationForm("request/refund.fxml");
+        requestAddStatusForm = new JeproLabApplicationForm("request/status.fxml");
         if(!forms.contains(requestAddStatusForm)){ forms.add(requestAddStatusForm); }
 
         requestMessagesForm = new JeproLabApplicationForm("request/messages.fxml");

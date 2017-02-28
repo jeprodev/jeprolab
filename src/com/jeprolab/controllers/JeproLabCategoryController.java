@@ -75,7 +75,8 @@ public class JeproLabCategoryController extends JeproLabController{
         jeproLabCategorySearchField.setPromptText(bundle.getString("JEPROLAB_SEARCH_LABEL"));
 
         jeproLabCategorySearchBy = new ComboBox<>();
-        //jeproLabCategorySearchBy
+        jeproLabCategorySearchBy.setPromptText(bundle.getString("JEPROLAB_SEARCH_BY_LABEL"));
+
         jeproLabCategorySearchBtn = new Button();
         jeproLabCategorySearchBtn.getStyleClass().addAll("icon-btn", "search-btn");
 

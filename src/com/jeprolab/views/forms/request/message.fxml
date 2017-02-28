@@ -1,2 +1,2 @@
 <?import com.jeprolab.assets.extend.controls.JeproFormPanel?>
-<JeproFormPanel></JeproFormPanel>
+<JeproFormPanel xmlns:fx="http://javafx.com/fxml" fx:id="jeproLabRequestMessageFormPanel" fx:controller="com.jeprolab.controllers.JeproLabRequestAddMessageController"></JeproFormPanel>

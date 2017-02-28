@@ -31,12 +31,14 @@
     -fx-text-fill: black;
     -fx-font-size: 18px;
     -fx-font-weight: bold;
+    -fx-alignment: center;
 }
 
 .form-panel-title{
     -fx-background-color: rgb(34, 106, 179);
     -fx-border-radius: 15 15 0 0;
     -fx-background-radius: 10 10 0 0;
+    -fx-alignment: center;
 }
 
 .form-panel-title-gray{

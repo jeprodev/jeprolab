@@ -73,7 +73,7 @@ public class JeproLabLaboratoryController extends JeproLabController {
 
         jeproLabLaboratoryTableView = new TableView<>();
         jeproLabLaboratoryTableView.setPrefWidth(formWidth);
-        jeproLabLaboratoryTableView.setPrefHeight(rowHeight * NUMBER_OF_LINES);
+        jeproLabLaboratoryTableView.setPrefHeight(rowHeight * JeproLabConfigurationSettings.LIST_LIMIT);
         checkAll = new CheckBox();
 
         TableColumn<JeproLabLaboratoryRecord, Integer> jeproLabLaboratoryIndexColumn = new TableColumn<>("#");

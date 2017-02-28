@@ -1,2 +1,4 @@
-<?import com.jeprolab.assets.extend.controls.JeproFormPanel?>
-<JeproFormPanel></JeproFormPanel>
+<?import javafx.scene.layout.VBox?>
+<VBox  xmlns:fx="http://javafx.com/fxml" fx:id="jeproLabRequestRefundsWrapper" fx:controller="com.jeprolab.controllers.JeproLabRequestRefundsController">
+
+</VBox>

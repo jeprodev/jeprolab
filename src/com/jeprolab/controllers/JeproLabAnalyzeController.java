@@ -49,6 +49,7 @@ public class JeproLabAnalyzeController extends JeproLabController{
     private Pagination jeproLabAnalyzePagination;
     private HBox jeproLabAnalyzeSearchWrapper;
     private TextField jeproLabAnalyzeSearch;
+    private ComboBox<String> jeproLabAnalyzeSearchFilter;
     private Button jeproLabAnalyzeSearchBtn;
 
     @FXML
@@ -67,11 +68,16 @@ public class JeproLabAnalyzeController extends JeproLabController{
         jeproLabAnalyzeTableView.setLayoutY(10);
 
         jeproLabAnalyzeSearch = new TextField();
+        jeproLabAnalyzeSearch.setPromptText(bundle.getString("JEPROLAB_SEARCH_LABEL"));
+
+        jeproLabAnalyzeSearchFilter = new ComboBox<>();
+        jeproLabAnalyzeSearchFilter.setPromptText(bundle.getString("JEPROLAB_SEARCH_BY_LABEL"));
+
         jeproLabAnalyzeSearchBtn = new Button();
         jeproLabAnalyzeSearchBtn.getStyleClass().addAll("icon-btn", "search-btn");
 
         jeproLabAnalyzeSearchWrapper = new HBox(10);
-        jeproLabAnalyzeSearchWrapper.getChildren().addAll(jeproLabAnalyzeSearch, jeproLabAnalyzeSearchBtn);
+        jeproLabAnalyzeSearchWrapper.getChildren().addAll(jeproLabAnalyzeSearch, jeproLabAnalyzeSearchFilter, jeproLabAnalyzeSearchBtn);
 
         VBox.setMargin(jeproLabAnalyzeSearchWrapper, new Insets(5, 0, 0, 0.01 * JeproLab.APP_WIDTH));
         VBox.setMargin(jeproLabAnalyzeTableView, new Insets(0, 0, 0, 0.01 * JeproLab.APP_WIDTH));

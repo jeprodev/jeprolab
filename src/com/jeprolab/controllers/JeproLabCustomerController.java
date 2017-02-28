@@ -128,6 +128,7 @@ public class JeproLabCustomerController extends JeproLabController{
         jeproLabCustomerSearchBoxField.setPromptText(bundle.getString("JEPROLAB_SEARCH_LABEL"));
 
         jeproLabCustomerSearchFilter = new ComboBox<>();
+        jeproLabCustomerSearchFilter.setPromptText(bundle.getString("JEPROLAB_SEARCH_BY_LABEL"));
 
         jeproLabCustomerSearchButton = new Button();
         jeproLabCustomerSearchButton.getStyleClass().addAll("icon-btn", "search-btn");

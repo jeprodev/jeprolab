@@ -65,6 +65,7 @@ public class JeproLabGroupController extends JeproLabController{
         groupsSearchField.setPromptText(bundle.getString("JEPROLAB_SEARCH_LABEL"));
 
         groupsSearchFilter = new ComboBox<>();
+        groupsSearchFilter.setPromptText(bundle.getString("JEPROLAB_SEARCH_BY_LABEL"));
 
         jeproLabGroupSearchWrapper = new HBox(5);
         jeproLabGroupSearchWrapper.getChildren().addAll(groupsSearchField, groupsSearchFilter, groupsSearchBtn);

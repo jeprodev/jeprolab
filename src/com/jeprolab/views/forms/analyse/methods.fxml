@@ -1,26 +1,7 @@
 <?import com.jeprolab.assets.extend.controls.JeproFormPanel?>
 <?import javafx.scene.layout.VBox?>
-<?import javafx.scene.layout.HBox?>
-<?import javafx.scene.control.TableView?>
-<?import javafx.scene.control.TableColumn?>
-<?import javafx.scene.control.TextField?>
-<?import javafx.scene.control.Button?>
 <JeproFormPanel xmlns:fx="http://javafx.com/fxml" fx:id="jeproLabAnalyzeMethodFormWrapper" fx:controller="com.jeprolab.controllers.JeproLabAnalyzeMethodController" >
-    <VBox spacing="5" >
-        <HBox fx:id="jeproLabSearchMethodWrapper" spacing="5" >
-            <TextField fx:id="jeproLabSearchMethod" />
-            <Button fx:id="jeproLabSearchMethodBtn" styleClass="icon-btn, search-btn"/>
-        </HBox>
-        <TableView fx:id="jeproLabAnalyzeMethodTableView">
-            <columns>
-                <TableColumn resizable="false" editable="false" fx:id="jeproLabAnalyzeMethodIndexColumn" />
-                <TableColumn resizable="false" editable="false" fx:id="jeproLabAnalyzeMethodCheckBoxColumn" />
-                <TableColumn resizable="false" editable="false" fx:id="jeproLabAnalyzeMethodDesignationColumn" />
-                <TableColumn resizable="false" editable="false" fx:id="jeproLabAnalyzeMethodCodeColumn" />
-                <TableColumn resizable="false" editable="false" fx:id="jeproLabAnalyzeMethodThresholdColumn" />
-                <TableColumn resizable="false" editable="false" fx:id="jeproLabAnalyzeMethodThresholdUnitColumn" />
-                <TableColumn resizable="false" editable="false" fx:id="jeproLabAnalyzeMethodActionColumn" />
-            </columns>
-        </TableView>
+    <VBox spacing="5" fx:id="jeproLabAnalyzeMethodWrapper" >
+
     </VBox>
 </JeproFormPanel>

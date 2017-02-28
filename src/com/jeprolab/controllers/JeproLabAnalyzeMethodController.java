@@ -3,21 +3,28 @@ package com.jeprolab.controllers;
 import com.jeprolab.JeproLab;
 import com.jeprolab.assets.config.JeproLabConfigurationSettings;
 import com.jeprolab.assets.extend.controls.JeproFormPanel;
+import com.jeprolab.assets.tools.exception.JeproLabUncaughtExceptionHandler;
 import com.jeprolab.models.JeproLabAnalyzeModel;
+import javafx.application.Platform;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.concurrent.Task;
+import javafx.concurrent.Worker;
 import javafx.fxml.FXML;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 import javafx.util.Callback;
+import org.apache.log4j.Level;
 
 import java.net.URL;
 import java.util.List;
@@ -31,19 +38,17 @@ import java.util.stream.Collectors;
 public class JeproLabAnalyzeMethodController extends JeproLabController {
     private CheckBox checkAll;
     private Button addMethodBtn;
+    private HBox jeproLabSearchMethodWrapper;
+    private TextField jeproLabSearchMethodField;
+    private ComboBox<String> jeproLabSearchMethodFilter;
+    private Button jeproLabSearchMethodBtn;
+    private TableView<JeproLabMethodRecord> jeproLabAnalyzeMethodTableView;
+    private ObservableList<JeproLabMethodRecord> methodsList;
+
     @FXML
-    public HBox jeproLabSearchMethodWrapper;
-    public TextField jeproLabSearchMethod;
-    public Button jeproLabSearchMethodBtn;
     public JeproFormPanel jeproLabAnalyzeMethodFormWrapper;
-    public TableView<JeproLabMethodRecord> jeproLabAnalyzeMethodTableView;
-    public TableColumn<JeproLabMethodRecord, String> jeproLabAnalyzeMethodIndexColumn;
-    public TableColumn<JeproLabMethodRecord, Boolean> jeproLabAnalyzeMethodCheckBoxColumn;
-    public TableColumn<JeproLabMethodRecord, String> jeproLabAnalyzeMethodDesignationColumn;
-    public TableColumn<JeproLabMethodRecord, String> jeproLabAnalyzeMethodCodeColumn;
-    public TableColumn<JeproLabMethodRecord, String> jeproLabAnalyzeMethodThresholdColumn;
-    public TableColumn<JeproLabMethodRecord, String> jeproLabAnalyzeMethodThresholdUnitColumn;
-    public TableColumn<JeproLabMethodRecord, HBox> jeproLabAnalyzeMethodActionColumn;
+    public VBox jeproLabAnalyzeMethodWrapper;
+
 
     public void initialize(URL location, ResourceBundle resource){
         super.initialize(location, resource);
@@ -51,57 +56,99 @@ public class JeproLabAnalyzeMethodController extends JeproLabController {
         double remainingWidth = formWidth - 112;
         checkAll = new CheckBox();
 
+        jeproLabAnalyzeMethodTableView = new TableView<>();
         jeproLabAnalyzeMethodTableView.setPrefSize(formWidth, rowHeight * JeproLabConfigurationSettings.LIST_LIMIT);
-        VBox.setMargin(jeproLabSearchMethodWrapper, new Insets(5, 0, 0, 0.01 * JeproLab.APP_WIDTH));
-        VBox.setMargin(jeproLabAnalyzeMethodTableView, new Insets(5, 0, 0, 0.01 * JeproLab.APP_WIDTH));
 
-        jeproLabSearchMethod.setPromptText(JeproLab.getBundle().getString("JEPROLAB_SEARCH_LABEL"));
-
+        TableColumn<JeproLabMethodRecord, String> jeproLabAnalyzeMethodIndexColumn = new TableColumn<>("#");
         jeproLabAnalyzeMethodIndexColumn.setPrefWidth(30);
-        jeproLabAnalyzeMethodIndexColumn.setText("#");
         tableCellAlign(jeproLabAnalyzeMethodIndexColumn, Pos.CENTER_RIGHT);
         jeproLabAnalyzeMethodIndexColumn.setCellValueFactory(new PropertyValueFactory<>("methodIndex"));
 
+        TableColumn<JeproLabMethodRecord, Boolean> jeproLabAnalyzeMethodCheckBoxColumn = new TableColumn<>();
         jeproLabAnalyzeMethodCheckBoxColumn.setPrefWidth(20);
         jeproLabAnalyzeMethodCheckBoxColumn.setGraphic(checkAll);
         Callback<TableColumn<JeproLabMethodRecord, Boolean>, TableCell<JeproLabMethodRecord, Boolean>> checkBoxFactory = param -> new JeproLabCheckBoxCell();
         jeproLabAnalyzeMethodCheckBoxColumn.setCellFactory(checkBoxFactory);
 
-        jeproLabAnalyzeMethodDesignationColumn.setText(bundle.getString("JEPROLAB_DESIGNATION_LABEL"));
+        TableColumn<JeproLabMethodRecord, String> jeproLabAnalyzeMethodDesignationColumn = new TableColumn<>(bundle.getString("JEPROLAB_DESIGNATION_LABEL"));
         jeproLabAnalyzeMethodDesignationColumn.setPrefWidth(0.64 * remainingWidth);
         tableCellAlign(jeproLabAnalyzeMethodDesignationColumn, Pos.CENTER_LEFT);
         jeproLabAnalyzeMethodDesignationColumn.setCellValueFactory(new PropertyValueFactory<>("methodDesignation"));
 
+        TableColumn<JeproLabMethodRecord, String> jeproLabAnalyzeMethodCodeColumn = new TableColumn<>(bundle.getString("JEPROLAB_CODE_LABEL"));
         jeproLabAnalyzeMethodCodeColumn.setPrefWidth(0.12 * remainingWidth);
-        jeproLabAnalyzeMethodCodeColumn.setText(bundle.getString("JEPROLAB_CODE_LABEL"));
         tableCellAlign(jeproLabAnalyzeMethodCodeColumn, Pos.CENTER);
         jeproLabAnalyzeMethodCodeColumn.setCellValueFactory(new PropertyValueFactory<>("methodCode"));
 
+        TableColumn<JeproLabMethodRecord, String> jeproLabAnalyzeMethodThresholdColumn = new TableColumn<>(bundle.getString("JEPROLAB_THRESHOLD_LABEL"));
         jeproLabAnalyzeMethodThresholdColumn.setPrefWidth(0.12 * remainingWidth);
-        jeproLabAnalyzeMethodThresholdColumn.setText(bundle.getString("JEPROLAB_THRESHOLD_LABEL"));
         tableCellAlign(jeproLabAnalyzeMethodThresholdColumn, Pos.CENTER);
         jeproLabAnalyzeMethodThresholdColumn.setCellValueFactory(new PropertyValueFactory<>("methodThreshold"));
 
+        TableColumn<JeproLabMethodRecord, String> jeproLabAnalyzeMethodThresholdUnitColumn = new TableColumn<>(bundle.getString("JEPROLAB_UNIT_LABEL"));
         jeproLabAnalyzeMethodThresholdUnitColumn.setPrefWidth(0.12 * remainingWidth);
-        jeproLabAnalyzeMethodThresholdUnitColumn.setText(bundle.getString("JEPROLAB_UNIT_LABEL"));
         tableCellAlign(jeproLabAnalyzeMethodThresholdUnitColumn, Pos.CENTER);
         jeproLabAnalyzeMethodThresholdUnitColumn.setCellValueFactory(new PropertyValueFactory<>("methodThresholdUnit"));
 
+        TableColumn<JeproLabMethodRecord, HBox> jeproLabAnalyzeMethodActionColumn = new TableColumn<>(bundle.getString("JEPROLAB_ACTIONS_LABEL"));
         jeproLabAnalyzeMethodActionColumn.setPrefWidth(60);
-        jeproLabAnalyzeMethodActionColumn.setText(bundle.getString("JEPROLAB_ACTIONS_LABEL"));
-        //jeproLabAnalyzeMethodActionColumn;
         Callback<TableColumn<JeproLabMethodRecord, HBox>, TableCell<JeproLabMethodRecord, HBox>> actionFactory = param -> new JeproLabActionCell();
         jeproLabAnalyzeMethodActionColumn.setCellFactory(actionFactory);
+
+        jeproLabAnalyzeMethodTableView.getColumns().addAll(
+            jeproLabAnalyzeMethodIndexColumn, jeproLabAnalyzeMethodCheckBoxColumn, jeproLabAnalyzeMethodDesignationColumn,
+            jeproLabAnalyzeMethodCodeColumn, jeproLabAnalyzeMethodThresholdColumn,
+            jeproLabAnalyzeMethodThresholdUnitColumn,
+            jeproLabAnalyzeMethodActionColumn
+        );
+
+        jeproLabSearchMethodField = new TextField();
+        jeproLabSearchMethodField.setPromptText(bundle.getString("JEPROLAB_SEARCH_LABEL"));
+
+        jeproLabSearchMethodFilter = new ComboBox<>();
+        jeproLabSearchMethodFilter.setPromptText(bundle.getString("JEPROLAB_SEARCH_BY_LABEL"));
+
+        jeproLabSearchMethodBtn = new Button("");
+        jeproLabSearchMethodBtn.getStyleClass().addAll("icon-btn", "search-btn");
+
+        jeproLabSearchMethodWrapper = new HBox(5);
+        jeproLabSearchMethodWrapper.getChildren().addAll(jeproLabSearchMethodField, jeproLabSearchMethodFilter, jeproLabSearchMethodBtn);
     }
 
     @Override
     public void initializeContent(){
-        List<JeproLabAnalyzeModel.JeproLabMethodModel> analyzes = JeproLabAnalyzeModel.JeproLabMethodModel.getMethods();
-        ObservableList<JeproLabMethodRecord> analyzeList = FXCollections.observableArrayList();
+        Worker<Boolean> worker = new Task<Boolean>() {
+            List<JeproLabAnalyzeModel.JeproLabMethodModel> methods;
+
+            @Override
+            protected Boolean call() throws Exception {
+                if(isCancelled()){
+                    return false;
+                }
+                methods = JeproLabAnalyzeModel.JeproLabMethodModel.getMethods();
+                return true;
+            }
+
+            @Override
+            protected void failed(){
+                super.failed();
+                JeproLabUncaughtExceptionHandler.logExceptionMessage(Level.ERROR, exceptionProperty().getValue());
+            }
+
+            @Override
+            protected void succeeded(){
+                super.succeeded();
+                updateMethodsTableView(methods);
+            }
+        };
+
+        new Thread((Task)worker).start();
+
+        /*ObservableList<JeproLabMethodRecord> analyzeList = FXCollections.observableArrayList();
         if(!analyzes.isEmpty()){
             analyzeList.addAll(analyzes.stream().map(JeproLabMethodRecord::new).collect(Collectors.toList()));
             jeproLabAnalyzeMethodTableView.setItems(analyzeList);
-        }
+        }*/
         updateToolBar();
     }
 
@@ -117,6 +164,41 @@ public class JeproLabAnalyzeMethodController extends JeproLabController {
 
         });
         commandWrapper.getChildren().addAll(addMethodBtn);
+    }
+
+    private void updateMethodsTableView(List<JeproLabAnalyzeModel.JeproLabMethodModel> methods){
+        methodsList = FXCollections.observableArrayList();
+        methodsList.addAll(methods.stream().map(JeproLabMethodRecord::new).collect(Collectors.toList()));
+        double padding = 0.01 * JeproLab.APP_WIDTH;
+        if(!methodsList.isEmpty()){
+
+            Platform.runLater(() -> {
+                jeproLabAnalyzeMethodWrapper.getChildren().clear();
+                Pagination jeproLabPagination = new Pagination((methodsList.size()/JeproLabConfigurationSettings.LIST_LIMIT) + 1, 0);
+                jeproLabPagination.setPageFactory(this::createMethodsPage);
+
+                VBox.setMargin(jeproLabSearchMethodWrapper, new Insets(5, padding, 5, padding));
+                VBox.setMargin(jeproLabPagination, new Insets(5, padding, 5, padding));
+
+                jeproLabAnalyzeMethodWrapper.getChildren().addAll(jeproLabSearchMethodWrapper, jeproLabPagination);
+            });
+        }else {
+            Platform.runLater(() -> {
+                jeproLabAnalyzeMethodWrapper.getChildren().clear();
+                VBox.setMargin(jeproLabSearchMethodWrapper, new Insets(5, padding, 5, padding));
+                VBox.setMargin(jeproLabAnalyzeMethodTableView, new Insets(5, padding, 5, padding));
+
+                jeproLabAnalyzeMethodWrapper.getChildren().addAll(jeproLabSearchMethodWrapper, jeproLabAnalyzeMethodTableView);
+            });
+        }
+    }
+
+    private Node createMethodsPage(int pageIndex){
+        int fromIndex = pageIndex * JeproLabConfigurationSettings.LIST_LIMIT;
+        int toIndex = Math.min(fromIndex + JeproLabConfigurationSettings.LIST_LIMIT, (methodsList.size()));
+        jeproLabAnalyzeMethodTableView.setItems(FXCollections.observableArrayList(methodsList.subList(fromIndex, toIndex)));
+
+        return new Pane(jeproLabAnalyzeMethodTableView);
     }
 
     public static class JeproLabMethodRecord{

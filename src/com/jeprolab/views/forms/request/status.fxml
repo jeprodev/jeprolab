@@ -1,0 +1,20 @@
+<?import com.jeprolab.assets.extend.controls.JeproFormPanel?>
+<?import javafx.scene.layout.HBox?>
+<?import com.jeprolab.assets.extend.controls.JeproFormPanelTitle?>
+<?import com.jeprolab.assets.extend.controls.JeproFormPanelContainer?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.control.Label?>
+<?import com.jeprolab.assets.extend.controls.JeproMultiLangTextField?>
+<JeproFormPanel xmlns:fx="http://javafx.com/fxml" fx:id="jeproLabRequestStatusFormWrapper" fx:controller="com.jeprolab.controllers.JeproLabRequestAddStatusController" >
+    <HBox>
+        <JeproFormPanel fx:id="jeproLabRequestStatusAddFormWrapper" >
+            <JeproFormPanelTitle fx:id="jeproLabRequestStatusAddFormTitleWrapper" />
+            <JeproFormPanelContainer fx:id="jeproLabRequestStatusAddFormTitleContainer" >
+                <GridPane fx:id="jeproLabRequestStatusAddFormLayout" >
+                    <Label fx:id="jeproLabRequestStatusNameLabel" styleClass="input-label" />
+                    <JeproMultiLangTextField fx:id="jeproLabRequestStatusName" />
+                </GridPane>
+            </JeproFormPanelContainer>
+        </JeproFormPanel>
+    </HBox>
+</JeproFormPanel>

@@ -117,15 +117,19 @@ public class JeproLabRequestController extends JeproLabController{
         jeproLabRequestSearchWrapper = new HBox(5);
 
         jeproLabRequestSearchField = new TextField();
+        jeproLabRequestSearchField.setPromptText(bundle.getString("JEPROLAB_SEARCH_REQUEST_LABEL"));
+
         jeproLabRequestSearchFieldButton = new Button();
+        jeproLabRequestSearchFieldButton.getStyleClass().addAll("icon-btn");
+        jeproLabRequestSearchFieldButton.setGraphic(new ImageView(new Image(JeproLab.class.getResourceAsStream("resources/images/search-icon.png"))));
+
         jeproLabRequestSearchFilter = new ComboBox<>();
+        jeproLabRequestSearchFilter.setPromptText(bundle.getString("JEPROLAB_SEARCH_BY_LABEL"));
 
         HBox.setMargin(jeproLabRequestSearchField, new Insets(5, 5, 5, 0.01 * JeproLab.APP_WIDTH));
         HBox.setMargin(jeproLabRequestSearchFilter, new Insets(5, 5, 5, 5));
         HBox.setMargin(jeproLabRequestSearchFieldButton, new Insets(5, 5, 5, 5));
-        jeproLabRequestSearchField.setPromptText(bundle.getString("JEPROLAB_SEARCH_REQUEST_LABEL"));
-        jeproLabRequestSearchFieldButton.getStyleClass().addAll("icon-btn");
-        jeproLabRequestSearchFieldButton.setGraphic(new ImageView(new Image(JeproLab.class.getResourceAsStream("resources/images/search-icon.png"))));
+
 
 
         jeproLabRequestSearchWrapper.getChildren().addAll(jeproLabRequestSearchField, jeproLabRequestSearchFilter, jeproLabRequestSearchFieldButton);

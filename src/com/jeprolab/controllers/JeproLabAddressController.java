@@ -62,7 +62,11 @@ public class JeproLabAddressController extends JeproLabController{
         jeproLabAddressSearchWrapper = new HBox(10);
 
         jeproLabAddressSearchField = new TextField();
+        jeproLabAddressSearchField.setPromptText(bundle.getString("JEPROLAB_SEARCH_LABEL"));
+
         jeproLabAddressSearchFilter = new ComboBox<>();
+        jeproLabAddressSearchFilter.setPromptText(bundle.getString("JEPROLAB_SEARCH_BY_LABEL"));
+
         jeproLabAddressSearchBtn = new Button();
         jeproLabAddressSearchBtn.getStyleClass().addAll("icon-btn", "search-btn");
 
