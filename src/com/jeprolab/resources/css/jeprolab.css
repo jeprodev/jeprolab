@@ -11,6 +11,7 @@
 .cross-btn{ -fx-graphic: url("../../resources/images/unpublished.png"); }
 .edit-btn{ -fx-graphic: url("../../resources/images/edit.png"); }
 .delete-btn{ -fx-graphic: url("../../resources/images/trash-icon.png"); }
+.hyper-link-btn{ -fx-graphic: url("../../resources/images/hyperlink-icon.png"); }
 
 .default-btn{
     -fx-padding: 7 15 5 15;
@@ -25,6 +26,7 @@
 .red-btn{
     -fx-background-color: linear-gradient(#ff5400, #be1d00);
 }
+
 
 
 .form-title{

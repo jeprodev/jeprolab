@@ -64,6 +64,7 @@ public class JeproLabLaboratoryController extends JeproLabController {
         jeproLabLaboratorySearchField.setPromptText(bundle.getString("JEPROLAB_SEARCH_LABEL"));
         
         jeproLabLaboratorySearchBy = new ComboBox();
+        jeproLabLaboratorySearchBy.setPromptText(bundle.getString("JEPROLAB_SEARCH_BY_LABEL"));
         jeproLabLaboratorySearchBtn = new Button();
         jeproLabLaboratorySearchBtn.getStyleClass().addAll("icon-btn", "search-btn");
 

@@ -9,8 +9,13 @@ import com.jeprolab.models.JeproLabModel;
 import com.jeprolab.models.JeproLabSettingModel;
 import javafx.event.EventHandler;
 import javafx.scene.control.Alert;
+import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.input.KeyEvent;
+import javafx.scene.layout.VBox;
+import javafx.scene.paint.Color;
+import javafx.scene.shape.Circle;
+import javafx.stage.Popup;
 import org.apache.log4j.Appender;
 import org.apache.log4j.FileAppender;
 import org.apache.log4j.Level;
@@ -40,8 +45,16 @@ public class JeproLabTools {
 
     private static Alert dialogBox = null;
 
-    public static Date getDate(){
-        return  new Date(System.currentTimeMillis());
+    public static Date getDate() {
+        return new Date(System.currentTimeMillis());
+    }
+
+    public static Date getDate(LocalDate value){
+        if(value != null){
+            return Date.valueOf(value);
+        }else{
+            return new Date(System.currentTimeMillis());
+        }
     }
 
     public static void displayError(int errorCode, String errorMessage){
@@ -66,6 +79,7 @@ public class JeproLabTools {
     public static boolean displayBarMessage(int code, String message){
         return true;
     }
+
 
     public static void displayWarning(int errorCode, String errorMessage){
         if(dialogBox == null){
@@ -107,7 +121,6 @@ public class JeproLabTools {
         SimpleDateFormat formatter = new SimpleDateFormat(format);
         return formatter.format(date);
     }
-
 
 
     public static boolean isDate(Date date){

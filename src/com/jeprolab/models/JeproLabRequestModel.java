@@ -1,6 +1,7 @@
 package com.jeprolab.models;
 
 import com.jeprolab.JeproLab;
+import com.jeprolab.assets.config.JeproLabConfig;
 import com.jeprolab.assets.tools.JeproLabCache;
 import com.jeprolab.assets.tools.JeproLabContext;
 import com.jeprolab.assets.tools.JeproLabTools;
@@ -305,7 +306,7 @@ public class JeproLabRequestModel extends JeproLabModel{
 
         public String lot;
 
-        public String condition;
+        public int condition_id;
 
         public String designation;
 
@@ -346,7 +347,7 @@ public class JeproLabRequestModel extends JeproLabModel{
                                 this.request_id = sampleSet.getInt("request_id");
                                 this.designation = sampleSet.getString("designation");
                                 this.reference = sampleSet.getString("reference");
-                                this.condition = sampleSet.getString("condition");
+                                this.condition_id = sampleSet.getInt("condition_id");
                                 this.lot = sampleSet.getString("lot");
                                 this.removal_date = sampleSet.getDate("removal_date");
                                 this.received_date = sampleSet.getDate("received_date");
@@ -366,7 +367,7 @@ public class JeproLabRequestModel extends JeproLabModel{
                     this.reference = sample.reference;
                     this.temperature = sample.temperature;
                     this.temperature_unit = sample.temperature_unit;
-                    this.condition = sample.condition;
+                    this.condition_id = sample.condition_id;
                     this.lot = sample.lot;
                     this.received_date = sample.received_date;
                     this.test_date = sample.test_date;
@@ -401,7 +402,7 @@ public class JeproLabRequestModel extends JeproLabModel{
                         sample.reference = sampleSet.getString("reference");
                         sample.temperature = sampleSet.getString("temperature");
                         sample.temperature_unit = sampleSet.getString("temperature_unit");
-                        sample.condition = sampleSet.getString("condition");
+                        sample.condition_id = sampleSet.getInt("condition_id");
                         sample.removal_date = sampleSet.getDate("removal_date");
                         sample.received_date = sampleSet.getDate("received_date");
                         sample.test_date = sampleSet.getDate("test_date");
@@ -490,12 +491,15 @@ public class JeproLabRequestModel extends JeproLabModel{
             if(dataBaseObject == null){
                 dataBaseObject = JeproLabFactory.getDataBaseConnector();
             }
+            String date = dataBaseObject.quote(JeproLabTools.date("YYYY-MM-DD", this.received_date));
             String query = "INSERT INTO " + dataBaseObject.quoteName("#__jeprolab_sample") + " ( " + dataBaseObject.quoteName("matrix_id") + ", ";
-            query += dataBaseObject.quoteName("designation") + ", " + dataBaseObject.quoteName("reference") + ", " + dataBaseObject.quoteName("removal_date");
-            query += ") VALUES(" + this.matrix_id + ", " + dataBaseObject.quote(this.designation) + ", " + dataBaseObject.quote(this.reference) + ", ";
-            query += dataBaseObject.quote(JeproLabTools.date("YYYY-MM-DD", this.removal_date)) + ")";
-
-            //dataBaseObject.setQuery(query);
+            query += dataBaseObject.quoteName("designation") + ", " + dataBaseObject.quoteName("reference") + ", " + dataBaseObject.quoteName("lot");
+            query += ", " + dataBaseObject.quoteName("temperature") + ", " + dataBaseObject.quoteName("temperature_unit") + ", ";
+            query += dataBaseObject.quoteName("condition_id") + ", " + dataBaseObject.quoteName("removal_date") + ", " + dataBaseObject.quoteName("received_date");
+            query += ", " + dataBaseObject.quoteName("test_date") + ") VALUES(" + this.matrix_id + ", " + dataBaseObject.quote(this.designation) + ", ";
+            query += dataBaseObject.quote(this.reference) + ", " + dataBaseObject.quote(this.lot) + ", " + dataBaseObject.quote(this.temperature) + ", ";
+            query += dataBaseObject.quote(this.temperature_unit) + ", " + this.condition_id + ", " + date + ", " + date + ", " + date + ")";
+;
             dataBaseObject.query(query, true);
             this.sample_id = dataBaseObject.getGeneratedKey();
 
@@ -505,7 +509,7 @@ public class JeproLabRequestModel extends JeproLabModel{
             for(Integer analyzeId : analyzes) {
                 query = "INSERT INTO " + dataBaseObject.quoteName("#__jeproLab_sample_analyze") + "(" + dataBaseObject.quoteName("sample_id") + ", ";
                 query += dataBaseObject.quoteName("analyze_id") + ") VALUES(" + this.sample_id + ", " + analyzeId + ")";
-                //dataBaseObject.setQuery(query);
+
                 dataBaseObject.query(query, false);
             }
         }
@@ -517,7 +521,7 @@ public class JeproLabRequestModel extends JeproLabModel{
             String query = "UPDATE " + dataBaseObject.quoteName("#__jeprolab_sample") + " SET " + dataBaseObject.quoteName("matrix_id") + " = " + this.matrix_id;
             query += ", " + dataBaseObject.quoteName("designation") + " = " + dataBaseObject.quote(this.designation) + ", " + dataBaseObject.quoteName("temperature") +  " = " ;
             query += dataBaseObject.quote(this.temperature) + ", "  + dataBaseObject.quoteName("temperature_unit") + " = " + dataBaseObject.quote(this.temperature_unit);
-            query += ", " + dataBaseObject.quoteName("condition") + " = " + dataBaseObject.quote(this.condition);
+            query += ", " + dataBaseObject.quoteName("condition") + " = " + this.condition_id;
             query += " WHERE " + dataBaseObject.quoteName("sample_id") + " = " + this.sample_id;
 
             //dataBaseObject.setQuery(query);
@@ -535,18 +539,48 @@ public class JeproLabRequestModel extends JeproLabModel{
             }
         }
 
-        public void removeAnalyze(int analyzeId){
-            synchronized(this) {
-                int index = 0;
-                for (Integer in : analyzes) {
-                    if (in == analyzeId) {
-                        analyzes.remove(index);
-                        break;
-                    }
-                    index++;
+        public static void updateResult(JeproLabRequestSampleAddController.JeproLabSampleAnalyzeForm item){
+            if(dataBaseObject == null){
+                dataBaseObject = JeproLabFactory.getDataBaseConnector();
+            }
+
+            String query = "SELECT " + dataBaseObject.quoteName("result_id") + " FROM " + dataBaseObject.quoteName("#__jeprolab_sample_analyze_result");
+            query += " WHERE " + dataBaseObject.quoteName("analyze_id") + " = " + item.getAnalyzeId() + " AND " + dataBaseObject.quoteName("sample_id");
+
+            int resultId = (int)dataBaseObject.loadValue(query, "result_id");
+            if(resultId <= 0) {
+                query = "INSERT INTO " + dataBaseObject.quoteName("#__jeprolab_sample_analyze_result") + "(" + dataBaseObject.quoteName("analyze_id");
+                query += ", " + dataBaseObject.quoteName("sample_id") + ", " + dataBaseObject.quoteName("technician_id") + ", " + dataBaseObject.quoteName("unit");
+                query += ", " + dataBaseObject.quoteName("method") + ", " + dataBaseObject.quoteName("value") + ", " + dataBaseObject.quoteName("validator_id");
+                query += ", " + dataBaseObject.quoteName("date_add") + ", " + dataBaseObject.quoteName("date_upd") + ") VALUES (" + item.getAnalyzeId() + ", ";
+                query += item.getSampleId() + ", " + JeproLabContext.getContext().employee.employee_id + ", " + dataBaseObject.quote(item.getAnalyzeUnit());
+                query += ", " + dataBaseObject.quote(item.getAnalyzeMethod()) + ", " + dataBaseObject.quote(item.getAnalyzeResult()) + ", 0, ";
+                query += dataBaseObject.quote(JeproLabTools.date()) + ", " + dataBaseObject.quote(JeproLabTools.date()) + ")";
+            }else {
+                query = "UPDATE " + dataBaseObject.quoteName("#__jeprolab_sample_analyze_result") + " SET " + dataBaseObject.quoteName("technician_id");
+                query += " = " + JeproLabContext.getContext().employee.employee_id + ", " + dataBaseObject.quoteName("method") + " = " ;
+                query += dataBaseObject.quote(item.getAnalyzeMethod()) + ", " + dataBaseObject.quoteName("unit") + " = " + dataBaseObject.quote(item.getAnalyzeUnit());
+                query += ", " + dataBaseObject.quoteName("value") + " = " + dataBaseObject.quote(item.getAnalyzeResult()) + ", " + dataBaseObject.quoteName("date_upd");
+                query += " = " + dataBaseObject.quote(JeproLabTools.date()) + " WHERE " + dataBaseObject.quoteName("result_id") + " = " + resultId + " AND ";
+                query += dataBaseObject.quoteName("sample_id") + " = " + item.getSampleId() + " AND " + dataBaseObject.quoteName("analayze_id") ;
+                query += " = " + item.getAnalyzeId() ;
+            }
+            System.out.println(query);
+            dataBaseObject.query(query, false);
+
+        }
+
+        public synchronized void removeAnalyze(int analyzeId) {
+            int index = 0;
+            for (Integer in : analyzes) {
+                if (in == analyzeId) {
+                    analyzes.remove(index);
+                    break;
                 }
+                index++;
             }
         }
+
 
         public void addAnalyze(int analyzeId){
             synchronized(this) {
@@ -658,13 +692,79 @@ public class JeproLabRequestModel extends JeproLabModel{
             this(0);
         }
 
-        public JeproLabMatrixModel(int matrixId){
-            if(dataBaseObject == null){
-                dataBaseObject = JeproLabFactory.getDataBaseConnector();
+        public JeproLabMatrixModel(int matrixId){ this(matrixId, 0); }
+
+        public JeproLabMatrixModel(int matrixId, int langId){
+            if(langId > 0){
+                this.language_id = (JeproLabLanguageModel.checkLanguage(langId)) ? langId : JeproLabSettingModel.getIntValue("default_lang");
             }
 
-            if(matrixId > 0){
+            Map<Integer, JeproLabLanguageModel> languages = JeproLabLanguageModel.getLanguages();
 
+            if(matrixId > 0){
+                String cacheKey = "jeprolab_model_sample_matrix_" + matrixId + "_" + langId;
+
+                if(!JeproLabCache.getInstance().isStored(cacheKey)){
+                    if(dataBaseObject == null){
+                        dataBaseObject = JeproLabFactory.getDataBaseConnector();
+                    }
+                    String query = "SELECT * FROM " + dataBaseObject.quoteName("#__jeprolab_matrix") + " AS matrix ";
+
+                    if(langId > 0) {
+                        query += " LEFT JOIN " + dataBaseObject.quoteName("#__jeprolab_matrix_lang") + " AS matrix_lang ON (matrix.";
+                        query += dataBaseObject.quoteName("matrix_id") + " = matrix_lang." + dataBaseObject.quoteName("matrix_id");
+                        query += " AND " + dataBaseObject.quoteName("lang_id") + " = " + langId + ") ";
+                    }
+                    query += " WHERE matrix." + dataBaseObject.quoteName("matrix_id") + " = " + matrixId;
+
+                    ResultSet matrixSet = dataBaseObject.loadObjectList(query);
+                    if(matrixSet != null){
+                        try{
+                            while(matrixSet.next()){
+                                this.matrix_id = matrixSet.getInt("matrix_id");
+                                this.name = new HashMap<>();
+                                this.description = new HashMap<>();
+                                if(langId > 0) {
+                                    this.language_id = matrixSet.getInt("lang_id");
+                                    this.name.put("lang_" + langId, matrixSet.getString("name"));
+                                    this.description.put("lang_" + langId, matrixSet.getString("description"));
+                                }else{
+                                    query = "SELECT * FROM " + dataBaseObject.quoteName("#__jeprolab_matrix_lang") + " WHERE ";
+                                    query += dataBaseObject.quoteName("matrix_id") + " = " + matrixId;
+
+                                    ResultSet matrixLangData = dataBaseObject.loadObjectList(query);
+                                    while (matrixLangData.next()){
+                                        int languageId = matrixLangData.getInt("lang_id");
+                                        for(Object o : languages.entrySet()){
+                                            JeproLabLanguageModel lang = (JeproLabLanguageModel)(((Map.Entry) o).getValue());
+                                            if(lang.language_id == languageId){
+                                                this.name.put("lang_" + languageId, matrixSet.getString("name"));
+                                                this.description.put("lang_" + languageId, matrixSet.getString("description"));
+                                            }
+
+                                        }
+                                    }
+                                }
+                                this.published = matrixSet.getInt("published") > 0;
+                            }
+                        }catch (SQLException ignored){
+                            JeproLabUncaughtExceptionHandler.logExceptionMessage(Level.ERROR, ignored);
+                        }finally {
+                            try {
+                                JeproLabFactory.removeConnection(dataBaseObject);
+                            }catch(Exception ignored){
+                                JeproLabUncaughtExceptionHandler.logExceptionMessage(Level.WARN, ignored);
+                            }
+                        }
+                    }
+                }else {
+                    JeproLabMatrixModel matrix = (JeproLabMatrixModel)JeproLabCache.getInstance().retrieve(cacheKey);
+                    this.matrix_id = matrix.matrix_id;
+                    this.language_id = matrix.language_id;
+                    this.name = matrix.name;
+                    this.description = matrix.description;
+                    this.published = matrix.published;
+                }
             }
         }
 
@@ -673,6 +773,9 @@ public class JeproLabRequestModel extends JeproLabModel{
         }
 
         public static Map<Integer,String> getMatrices(int langId){
+            if(dataBaseObject == null){
+                dataBaseObject = JeproLabFactory.getDataBaseConnector();
+            }
             Map<Integer,String> matrices = new HashMap<>();
 
             String query = "SELECT * FROM " + dataBaseObject.quoteName("#__jeprolab_matrix") + " AS matrix LEFT JOIN ";
@@ -690,6 +793,12 @@ public class JeproLabRequestModel extends JeproLabModel{
                     }
                 }catch (SQLException ignored){
                     JeproLabUncaughtExceptionHandler.logExceptionMessage(Level.ERROR, ignored);
+                }finally {
+                    try{
+                        JeproLabFactory.removeConnection(dataBaseObject);
+                    }catch (Exception ignored){
+                        JeproLabUncaughtExceptionHandler.logExceptionMessage(Level.WARN, ignored);
+                    }
                 }
             }
 
@@ -713,5 +822,146 @@ public class JeproLabRequestModel extends JeproLabModel{
             return dataBaseObject.loadStringValue(query, "name");
         }
 
+    }
+
+    public static class JeproLabSampleReceptionConditionModel extends JeproLabModel{
+        public int condition_id;
+
+        public int language_id;
+
+        public boolean published;
+
+        public Map<String, String> name, description;
+
+        public JeproLabSampleReceptionConditionModel(){
+            this(0);
+        }
+
+        public JeproLabSampleReceptionConditionModel(int conditionId){
+            this(conditionId, 0);
+        }
+
+        public JeproLabSampleReceptionConditionModel(int conditionId, int langId){
+            if(langId > 0){
+                this.language_id = (JeproLabLanguageModel.checkLanguage(langId)) ? langId : JeproLabSettingModel.getIntValue("default_lang");
+            }
+
+            if(conditionId > 0){
+                String cacheKey = "jeprolab_model_sample_condition_" + conditionId + "_" + langId;
+
+                Map<Integer, JeproLabLanguageModel> languages = JeproLabLanguageModel.getLanguages();
+
+                if(!JeproLabCache.getInstance().isStored(cacheKey)){
+                    if(dataBaseObject == null){
+                        dataBaseObject = JeproLabFactory.getDataBaseConnector();
+                    }
+                    String query = "SELECT * FROM " + dataBaseObject.quoteName("#__jeprolab_sample_condition") + " AS condition ";
+
+                    if(langId > 0) {
+                        query += " LEFT JOIN " + dataBaseObject.quoteName("#__jeprolab_sample_condition_lang") + " AS condition_lang ON (matrix.";
+                        query += dataBaseObject.quoteName("sample_condition_id") + " = condition_lang." + dataBaseObject.quoteName("sample_condition_id");
+                        query += " AND " + dataBaseObject.quoteName("lang_id") + " = " + langId + ") ";
+                    }
+                    query += " WHERE condition." + dataBaseObject.quoteName("sample_condition_id") + " = " + conditionId;
+
+                    ResultSet conditionSet = dataBaseObject.loadObjectList(query);
+                    if(conditionSet != null){
+                        try{
+                            while(conditionSet.next()){
+                                this.condition_id = conditionSet.getInt("sample_condition_id");
+                                this.name = new HashMap<>();
+                                this.description = new HashMap<>();
+                                if(langId > 0) {
+                                    this.language_id = conditionSet.getInt("lang_id");
+                                    this.name.put("lang_" + langId, conditionSet.getString("name"));
+                                    this.description.put("lang_" + langId, conditionSet.getString("description"));
+                                }else{
+                                    query = "SELECT * FROM " + dataBaseObject.quoteName("#__jeprolab_sample_condition_lang") + " WHERE ";
+                                    query += dataBaseObject.quoteName("matrix_id") + " = " + conditionId;
+
+                                    ResultSet matrixLangData = dataBaseObject.loadObjectList(query);
+                                    while (matrixLangData.next()){
+                                        int languageId = matrixLangData.getInt("lang_id");
+                                        for(Object o : languages.entrySet()){
+                                            JeproLabLanguageModel lang = (JeproLabLanguageModel)(((Map.Entry) o).getValue());
+                                            if(lang.language_id == languageId){
+                                                this.name.put("lang_" + languageId, conditionSet.getString("name"));
+                                                this.description.put("lang_" + languageId, conditionSet.getString("description"));
+                                            }
+
+                                        }
+                                    }
+                                }
+                                this.published = conditionSet.getInt("published") > 0;
+                            }
+                        }catch (SQLException ignored){
+                            JeproLabUncaughtExceptionHandler.logExceptionMessage(Level.ERROR, ignored);
+                        }finally {
+                            try {
+                                JeproLabFactory.removeConnection(dataBaseObject);
+                            }catch(Exception ignored){
+                                JeproLabUncaughtExceptionHandler.logExceptionMessage(Level.WARN, ignored);
+                            }
+                        }
+                    }
+                }else {
+                    JeproLabSampleReceptionConditionModel condition = (JeproLabSampleReceptionConditionModel)JeproLabCache.getInstance().retrieve(cacheKey);
+                    this.condition_id = condition.condition_id;
+                    this.language_id = condition.language_id;
+                    this.name = condition.name;
+                    this.description = condition.description;
+                    this.published = condition.published;
+                }
+            }
+        }
+
+        public static Map<Integer, String> getConditions(int langId){
+            if(dataBaseObject == null){
+                dataBaseObject = JeproLabFactory.getDataBaseConnector();
+            }
+
+            String query = "SELECT * FROM " + dataBaseObject.quoteName("#__jeproLab_sample_condition") + " AS sample_condition LEFT JOIN ";
+            query += dataBaseObject.quoteName("#__jeprolab_sample_condition_lang") + " AS condition_lang ON (condition_lang.";
+            query += dataBaseObject.quoteName("sample_condition_id") + " = sample_condition." + dataBaseObject.quoteName("sample_condition_id");
+            query += " AND condition_lang." + dataBaseObject.quoteName("lang_id") + " = " + langId + ") WHERE sample_condition.";
+            query += dataBaseObject.quoteName("published") + " = 1";
+
+
+            Map<Integer, String> conditions = new HashMap<>();
+            ResultSet conditionSet = dataBaseObject.loadObjectList(query);
+            if(conditionSet != null){
+                try{
+                    while(conditionSet.next()){
+                        conditions.put(conditionSet.getInt("sample_condition_id"), conditionSet.getString("name"));
+                    }
+                }catch (SQLException ignored){
+                    JeproLabUncaughtExceptionHandler.logExceptionMessage(Level.ERROR, ignored);
+                }finally {
+                    try{
+                        JeproLabFactory.removeConnection(dataBaseObject);
+                    }catch (Exception ignored){
+                        JeproLabUncaughtExceptionHandler.logExceptionMessage(Level.WARN, ignored);
+                    }
+                }
+            }
+
+            return conditions;
+        }
+
+        public static String getConditionNameByConditionId(int conditionId){
+            return getConditionNameByConditionId(conditionId, JeproLabContext.getContext().language.language_id);
+        }
+
+        public static String getConditionNameByConditionId(int conditionId, int langId){
+            if(dataBaseObject == null){
+                dataBaseObject = JeproLabFactory.getDataBaseConnector();
+            }
+
+            String query = "SELECT " + dataBaseObject.quoteName("name") + " FROM " + dataBaseObject.quoteName("#__jeprolab_sample_condition");
+            query += " WHERE " + dataBaseObject.quoteName("sample_condition_id") + " = " + conditionId + " AND " + dataBaseObject.quoteName("lang_id");
+            query += " = " + langId;
+
+            return dataBaseObject.loadStringValue(query, "name");
+        }
     }
 }

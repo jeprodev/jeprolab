@@ -1,7 +1,5 @@
 <?import javafx.scene.layout.VBox?>
-<?import javafx.scene.layout.AnchorPane?>
-<?import javafx.scene.control.TableView?>
-<?import javafx.scene.control.TableColumn?>
-<VBox xmlns:fx="http://javafx.com/fxml" fx:controller="com.jeprolab.controllers.JeproLabFeedController" spacing="5">
+
+<VBox xmlns:fx="http://javafx.com/fxml" fx:id="jeproLabFeedListWrapper" fx:controller="com.jeprolab.controllers.JeproLabFeedController" spacing="5">
 
 </VBox>
