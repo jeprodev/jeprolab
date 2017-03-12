@@ -213,14 +213,14 @@ public class JeproLabRequestController extends JeproLabController{
     public static class JeproLabRequestRecord {
         private SimpleStringProperty requestReference, requestCreatedDate, requestTotalPrice;
         private SimpleStringProperty requestCustomerName, requestStatus;
-        private SimpleIntegerProperty requestIndex, requestId;
+        private SimpleIntegerProperty requestIndex;
 
         public JeproLabRequestRecord(JeproLabRequestModel request){
             requestIndex = new SimpleIntegerProperty(request.request_id);
             requestReference = new SimpleStringProperty(request.reference);
             requestCreatedDate = new SimpleStringProperty(JeproLabTools.date("dd-MM-yyyy", request.date_add));
             requestCustomerName = new SimpleStringProperty(JeproLabCustomerModel.getNameByCustomerId(request.customer_id));
-            requestStatus = new SimpleStringProperty();
+            requestStatus = new SimpleStringProperty(request.status_name);
         }
 
         public int getRequestIndex(){

@@ -49,6 +49,8 @@ public class JeproLabCustomerAddController extends JeproLabController{
     private TextField jeproLabRequestSearchField, jeproLabAddressSearchField;
     private Button jeproLabRequestSearchFieldButton, jeproLabAddressSearchFieldButton;
     private ComboBox<String> jeproLabRequestSearchFieldFilter, jeproLabAddressSearchFieldFilter;
+    private ImageView customerImageView;
+    private Image customerImage;
     private HBox jeproLabRequestSearchWrapper, jeproLabAddressSearchFieldWrapper;
     private VBox jeproLabCustomerRequestWrapper, jeproLabCustomerAddressWrapper;
     private ObservableList<JeproLabRequestController.JeproLabRequestRecord> requestList;
@@ -66,7 +68,6 @@ public class JeproLabCustomerAddController extends JeproLabController{
     public ComboBox<String> customerZone, customerCountry, customerStreetType;
     public CheckBox customerNewsLetter, customerAllowAds;
     public JeproEmailField customerEmail;
-    public ImageView customerImageView;
     public GridPane jeproLabAddCustomerFormLayout;
     public Pane customerImageViewWrapper, jeproLabCustomerInformationPane;
     public JeproFormPanel jeproLabAddCustomerFormWrapper;
@@ -82,7 +83,6 @@ public class JeproLabCustomerAddController extends JeproLabController{
 
         double labelColumnWidth = 160;
         double inputColumnWidth = 250;
-        //formWidth = 2 * (labelColumnWidth + inputColumnWidth) + 30;
         formWidth = 0.98 * JeproLab.APP_WIDTH;
         double centerGrid = (formWidth - (labelColumnWidth + inputColumnWidth)) / 2;
         double posX = (JeproLab.APP_WIDTH / 2) - (formWidth) / 2;
@@ -163,6 +163,8 @@ public class JeproLabCustomerAddController extends JeproLabController{
         for(JeproLabAddressModel.JeproLabStreetTypeModel streetType : streetTypes) {
             customerStreetType.getItems().addAll( streetType.name.get("lang_" + context.language.language_id));
         } */
+
+        customerImageView = new ImageView();
 
         countries = JeproLabCountryModel.getCountries(context.language.language_id, 0, true);
         zones = JeproLabCountryModel.JeproLabZoneModel.getZones(true);
@@ -269,6 +271,7 @@ public class JeproLabCustomerAddController extends JeproLabController{
         jeproLabRequestSearchField.setPromptText(bundle.getString("JEPROLAB_SEARCH_REQUEST_LABEL"));
 
         jeproLabRequestSearchFieldFilter = new ComboBox<>();
+        jeproLabRequestSearchFieldFilter.setPromptText(bundle.getString("JEPROLAB_SEARCH_BY_LABEL"));
 
         jeproLabRequestSearchFieldButton = new Button("");
         jeproLabRequestSearchFieldButton.getStyleClass().addAll("icon-btn", "search-btn");
@@ -413,6 +416,7 @@ public class JeproLabCustomerAddController extends JeproLabController{
 
     private void updateCustomerForm(){
         if(customer != null && customer.customer_id > 0){
+            customerImage = customer.getImage();
             Platform.runLater(() -> {
                 formTitleLabel.setText(bundle.getString("JEPROLAB_EDIT_LABEL") + " " + bundle.getString("JEPROLAB_CUSTOMER_LABEL"));
                 customerTitle.setValue(bundle.getString("JEPROLAB_" + customer.title.toUpperCase() + "_LABEL"));
@@ -435,37 +439,64 @@ public class JeproLabCustomerAddController extends JeproLabController{
                 customerWebsite.setText(customer.website);
                 customerEmail.setText(customer.email);
                 saveButton.setText(bundle.getString("JEPROLAB_UPDATE_LABEL"));
+
+                if(customerImage != null) {
+                    customerImageView.setImage(customer.getImage());
+                    customerImageViewWrapper.getChildren().add(customerImageView);
+                }
             });
         }
     }
 
     private void updateCustomerRequests(List<JeproLabRequestModel> requests) {
-        requestList = FXCollections.observableArrayList();
-        requestList.addAll(requests.stream().map(JeproLabRequestController.JeproLabRequestRecord::new).collect(Collectors.toList()));
+        double padding = 0.01 * formWidth;
+        if (requests != null && !requests.isEmpty()) {
+            requestList = FXCollections.observableArrayList();
+            requestList.addAll(requests.stream().map(JeproLabRequestController.JeproLabRequestRecord::new).collect(Collectors.toList()));
+            Platform.runLater(() -> {
+                Pagination jeproLabRequestsPagination = new Pagination((requestList.size() / displayedItems) + 1, 0);
+                jeproLabRequestsPagination.setPageFactory(this::createRequestPage);
+                jeproLabCustomerRequestWrapper.getChildren().clear();
+                VBox.setMargin(jeproLabRequestsPagination, new Insets(5, padding, 5, padding));
+                jeproLabCustomerRequestWrapper.getChildren().addAll(jeproLabRequestSearchWrapper, jeproLabRequestsPagination);
+                jeproLabCustomerRequestTab.setContent(jeproLabCustomerRequestWrapper);
+            });
+        }else{
+            Platform.runLater(() -> {
+                VBox.setMargin(jeproLabRequestSearchFieldFilter, new Insets(5, padding, 5, padding));
+                VBox.setMargin(jeproLabRequestTableView, new Insets(5, padding, 5, padding));
+                jeproLabCustomerRequestWrapper.getChildren().clear();
+                jeproLabCustomerRequestWrapper.getChildren().addAll(jeproLabRequestSearchWrapper, jeproLabRequestTableView);
+                jeproLabCustomerRequestTab.setContent(jeproLabCustomerRequestWrapper);
 
-        Platform.runLater(() -> {
-            Pagination jeproLabRequestsPagination = new Pagination((requestList.size()/displayedItems) + 1, 0);
-            jeproLabRequestsPagination.setPageFactory(this::createRequestPage);
-            jeproLabCustomerRequestWrapper.getChildren().clear();
-            VBox.setMargin(jeproLabRequestsPagination, new Insets(0.01 * formWidth));
-            jeproLabCustomerRequestWrapper.getChildren().addAll(jeproLabRequestSearchWrapper, jeproLabRequestsPagination);
-        });
+            });
+        }
     }
 
     private void updateCustomerAddresses(List<JeproLabAddressModel> addresses) {
-        addressList = FXCollections.observableArrayList();
-        addressList.addAll(addresses.stream().map(JeproLabAddressController.JeproLabAddressRecord::new).collect(Collectors.toList()));
+        double padding = 0.01 * formWidth;
 
-        Platform.runLater(() -> {
-            double padding = 0.01 * formWidth;
-            Pagination jeproLabAddressPagination = new Pagination((addressList.size()/displayedItems) + 1, 0);
-            jeproLabAddressPagination.setPageFactory(this::createAddressesPage);
+        if(addresses != null && !addresses.isEmpty()) {
+            addressList = FXCollections.observableArrayList();
+            addressList.addAll(addresses.stream().map(JeproLabAddressController.JeproLabAddressRecord::new).collect(Collectors.toList()));
 
-            VBox.setMargin(jeproLabAddressSearchFieldWrapper, new Insets(5, 10, 5, padding));
-            VBox.setMargin(jeproLabAddressPagination, new Insets(5, 10, 5, padding));
-            jeproLabCustomerAddressWrapper.getChildren().clear();
-            jeproLabCustomerAddressWrapper.getChildren().addAll(jeproLabAddressSearchFieldWrapper, jeproLabAddressPagination);
-        });
+            Platform.runLater(() -> {
+                Pagination jeproLabAddressPagination = new Pagination((addressList.size() / displayedItems) + 1, 0);
+                jeproLabAddressPagination.setPageFactory(this::createAddressesPage);
+
+                VBox.setMargin(jeproLabAddressSearchFieldWrapper, new Insets(5, padding, 5, padding));
+                VBox.setMargin(jeproLabAddressPagination, new Insets(5, padding, 5, padding));
+                jeproLabCustomerAddressWrapper.getChildren().clear();
+                jeproLabCustomerAddressWrapper.getChildren().addAll(jeproLabAddressSearchFieldWrapper, jeproLabAddressPagination);
+            });
+        }else{
+            Platform.runLater(() -> {
+                jeproLabCustomerAddressWrapper.getChildren().clear();
+                jeproLabCustomerAddressWrapper.getChildren().addAll(jeproLabAddressSearchFieldWrapper, jeproLabAddressesListTableView);
+                VBox.setMargin(jeproLabAddressSearchFieldWrapper, new Insets(5, padding, 5, padding));
+                VBox.setMargin(jeproLabAddressesListTableView, new Insets(5, padding, 5, padding));
+            });
+        }
     }
 
     private Node createRequestPage(int pageIndex){
@@ -503,13 +534,7 @@ public class JeproLabCustomerAddController extends JeproLabController{
      */
     private void loadCustomer(int customerId){
         if (customerId > 0){
-            if (customer == null) {
-                customer = new JeproLabCustomerModel(customerId);
-            }
-
-            if((customer.customer_id != customerId)){
-                //todo set notify the user does not exist
-            }
+            customer = new JeproLabCustomerModel(customerId);
         }else{
             customer = new JeproLabCustomerModel();
         }

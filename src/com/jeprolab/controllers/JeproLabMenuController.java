@@ -43,6 +43,7 @@ public class JeproLabMenuController extends JeproLabController{
     public MenuItem requestListMenuItem, requestAddNewMenuItem, requestBillsMenuItem, requestAddBillMenuItem;
     public MenuItem requestComplaintMenuItem, requestAddNewComplaintMenuItem, requestRefundsMenuItem, requestAddNewRefundsMenuItem;
     public MenuItem requestStatusMenuItem, requestAddStatusMenuItem, requestMessagesMenuItem, requestAddMessageMenuItem;
+    public MenuItem fileManagementMenuItem;
 
     @Override
     public void initialize(URL location, ResourceBundle resource) {
@@ -165,6 +166,8 @@ public class JeproLabMenuController extends JeproLabController{
         currenciesSubMenuItem.setText(bundle.getString("JEPROLAB_LIST_OF_LABEL") + " " + bundle.getString("JEPROLAB_CURRENCY_LABEL"));
         addCurrencySubMenuItem.setText(bundle.getString("JEPROLAB_ADD_NEW_LABEL") + " " + bundle.getString("JEPROLAB_CURRENCY_LABEL"));
 
+        fileManagementMenuItem.setText(bundle.getString("JEPROLAB_FILE_MANAGEMENT_LABEL"));
+
         addDashboardListeners();
         addCatalogListeners();
         addCustomerListeners();
@@ -201,7 +204,6 @@ public class JeproLabMenuController extends JeproLabController{
         });
 
         addCategoryMenuItem.setOnAction(evt -> {
-            JeproLab.getInstance().getApplicationForms().addCategoryForm.controller.clearForm();
             JeproLab.getInstance().goToForm(JeproLab.getInstance().getApplicationForms().addCategoryForm);
             JeproLab.getInstance().getApplicationForms().addCategoryForm.controller.initializeContent();
         });
@@ -399,6 +401,11 @@ public class JeproLabMenuController extends JeproLabController{
     }
 
     private void addHelpListeners(){
+        fileManagementMenuItem.setOnAction(evt -> {
+            JeproLab.getInstance().goToForm(JeproLab.getInstance().getApplicationForms().fileManagementForm);
+            JeproLab.getInstance().getApplicationForms().fileManagementForm.controller.initializeContent();
+        });
+
         aboutJeproLabMenuItem.setOnAction(evt -> {
             JeproLab.getInstance().goToForm(JeproLab.getInstance().getApplicationForms().aboutJeproLabForm);
             JeproLab.getInstance().getApplicationForms().aboutJeproLabForm.controller.initializeContent();

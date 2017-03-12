@@ -60,7 +60,6 @@ public class JeproLabCustomerController extends JeproLabController{
         jeproLabCustomersTableView = new TableView<>();
         jeproLabCustomersTableView.setPrefSize(formWidth, rowHeight * JeproLabConfigurationSettings.LIST_LIMIT);
 
-        //customersTableView.setLayoutY(50);
         TableColumn<JeproLabCustomerRecord, Integer> jeproLabCustomerIndexTableColumn = new TableColumn<>("#");
         jeproLabCustomerIndexTableColumn.setPrefWidth(30);
         jeproLabCustomerIndexTableColumn.setCellValueFactory(new PropertyValueFactory<>("customerIndex"));
@@ -202,9 +201,10 @@ public class JeproLabCustomerController extends JeproLabController{
     }
 
     private void updateContent(List<JeproLabCustomerModel> customers){
-        customerList = FXCollections.observableArrayList();
-        customerList.addAll(customers.stream().map(JeproLabCustomerRecord::new).collect(Collectors.toList()));
+
         if(!customers.isEmpty()) {
+            customerList = FXCollections.observableArrayList();
+            customerList.addAll(customers.stream().map(JeproLabCustomerRecord::new).collect(Collectors.toList()));
             Platform.runLater(() -> {
                 double padding =  0.01 * JeproLab.APP_WIDTH;
                 Pagination jeproLabCustomerPagination = new Pagination((customerList.size()/JeproLabConfigurationSettings.LIST_LIMIT) + 1, 0);

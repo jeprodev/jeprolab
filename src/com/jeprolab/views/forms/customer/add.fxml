@@ -16,10 +16,6 @@
 <?import javafx.scene.control.TabPane?>
 <?import javafx.scene.control.Tab?>
 <?import javafx.scene.layout.VBox?>
-<?import javafx.scene.control.TableView?>
-<?import javafx.scene.control.TableColumn?>
-<?import javafx.scene.layout.HBox?>
-<?import javafx.scene.control.Button?>
 <JeproFormPanel xmlns:fx="http://javafx.com/fxml" fx:id="jeproLabAddCustomerFormWrapper" fx:controller="com.jeprolab.controllers.JeproLabCustomerAddController"  >
     <JeproFormPanelTitle fx:id="jeproLabAddCustomerFormTitleWrapper" />
     <JeproFormPanelContainer fx:id="jeproLabAddCustomerFormContainerWrapper">
@@ -67,53 +63,11 @@
                         <JeproEmailField GridPane.ColumnIndex="1" GridPane.rowIndex="15" fx:id="customerEmail" />
                         <Label GridPane.columnIndex="2" GridPane.rowIndex="15" fx:id="customerWebsiteLabel"/>
                         <TextField GridPane.columnIndex="3" GridPane.rowIndex="15" fx:id="customerWebsite" />
-                        <!--HBox spacing="30" alignment="CENTER" GridPane.rowIndex="17" GridPane.columnIndex="0" GridPane.columnSpan="2" >
-                            <Button fx:id="saveButton" onAction="#handleSaveButton" />
-                            <Button fx:id="cancelButton" onAction="#handleCancelButton" />
-                        </HBox -->
                     </GridPane>
                 </VBox>
             </Tab>
-            <Tab fx:id="jeproLabCustomerRequestTab" closable="false">
-                <!--VBox spacing="5" >
-                    <HBox spacing="5" >
-                        <TextField fx:id="jeproLabRequestSearchField" />
-                        <Button fx:id="jeproLabRequestSearchFieldButton" styleClass="icon-btn" />
-                    </HBox>
-                    <TableView fx:id="jeproLabRequestTableView">
-                        <columns>
-                            <TableColumn resizable="false" editable="false" fx:id="jeproLabRequestIndexTableColumn" />
-                            <TableColumn resizable="false" editable="false" fx:id="jeproLabRequestCheckBoxTableColumn" />
-                            <TableColumn resizable="false" editable="false" fx:id="jeproLabRequestRequestIdTableColumn" />
-                            <TableColumn resizable="false" editable="false" fx:id="jeproLabRequestTotalTableColumn" />
-                            <TableColumn resizable="false" editable="false" fx:id="jeproLabRequestCarrierColumn" />
-                            <TableColumn resizable="false" editable="false" fx:id="jeproLabRequestCreationDateColumn" />
-                            <TableColumn resizable="false" editable="false" fx:id="jeproLabRequestStatusColumn" />
-                            <TableColumn resizable="false" editable="false" fx:id="jeproLabRequestOnlineColumn" />
-                            <TableColumn resizable="false" editable="false" fx:id="jeproLabRequestActionColumn" />
-                        </columns>
-                    </TableView>
-                </VBox -->
-            </Tab>
-            <Tab fx:id="jeproLabCustomerAddressesTab" closable="false">
-                <!--VBox>
-                    <HBox spacing="5" >
-                        <TextField fx:id="jeproLabAddressSearchField" />
-                        <Button fx:id="jeproLabAddressSearchFieldButton" styleClass="icon-btn" />
-                    </HBox>
-                    <TableView fx:id="jeproLabAddressesListTableView">
-                        <columns>
-                            <TableColumn resizable="false" editable="false" fx:id="jeproLabAddressIndexTableColumn" />
-                            <TableColumn resizable="false" editable="false" fx:id="jeproLabAddressCheckBoxTableColumn" />
-                            <TableColumn resizable="false" editable="false" fx:id="jeproLabAddressDetailTableColumn" />
-                            <TableColumn resizable="false" editable="false" fx:id="jeproLabAddressZipCodeTableColumn" />
-                            <TableColumn resizable="false" editable="false" fx:id="jeproLabAddressCityTableColumn" />
-                            <TableColumn resizable="false" editable="false" fx:id="jeproLabAddressCountryTableColumn" />
-                            <TableColumn resizable="false" editable="false" fx:id="jeproLabAddressActionTableColumn" />
-                        </columns>
-                    </TableView>
-                </-VBox -->
-            </Tab>
+            <Tab fx:id="jeproLabCustomerRequestTab" closable="false" />
+            <Tab fx:id="jeproLabCustomerAddressesTab" closable="false" />
         </TabPane>
     </JeproFormPanelContainer>
 </JeproFormPanel>

@@ -9,6 +9,7 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextAlignment;
+import javafx.stage.Modality;
 import javafx.stage.Popup;
 import org.apache.log4j.Level;
 
@@ -22,25 +23,29 @@ public class JeproLabPopupTools {
     private static Button noButton, yesButton, cancelButton;
     private static Alert warningAlert;
 
-    public static void getAlert(Alert.AlertType type, String title, String headerText, String message){
-        warningAlert =  new Alert(type);
+    private static void getAlert(Alert.AlertType type, String title, String headerText, String message){
+        warningAlert = new Alert(type);
+        /*if(type.equals(Alert.AlertType.CONFIRMATION)) {
+            warningAlert = new Alert(type);
+        }else if(type.equals(Alert.AlertType.INFORMATION)){
+            warningAlert
+        }else if(type.equals(Alert.AlertType.WARNING)){
+            warningAlert
+        }else if(type.equals(Alert.AlertType.ERROR)){
+            warningAlert
+        }else if(type.equals(Alert.AlertType.NONE)){
+            warningAlert
+        }*/
+        warningAlert.initOwner(JeproLab.getInstance().getApplicationStage());
+        warningAlert.initModality(Modality.APPLICATION_MODAL);
         warningAlert.setTitle(title);
         warningAlert.setHeaderText(headerText);
         warningAlert.setContentText(message);
         warningAlert.showAndWait();
     }
 
-    public static void displayMessage(Level level, String title, String message){
-        if (messagePopup == null) {
-            createPopupGui();
-        }
-
-        messageTitle.setText(title);
-
-        setInformationAndCommandContent(level, message);
-
-
-        messagePopup.show(JeproLab.getInstance().getApplicationStage());
+    public static void displayMessage(Alert.AlertType type, String title, String message){
+        getAlert(type, title, title, message);
     }
 
     private static void setInformationAndCommandContent(Level level, String message){

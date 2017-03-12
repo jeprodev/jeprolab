@@ -1,0 +1,30 @@
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.control.TabPane?>
+<?import javafx.scene.control.Tab?>
+<?import com.jeprolab.assets.extend.controls.JeproFormPanel?>
+<?import javafx.scene.control.ComboBox?>
+<JeproFormPanel xmlns:fx="http://javafx.com/fxml" fx:id="jeproLabFileManagementPaneWrapper" fx:controller="com.jeprolab.controllers.JeproLabFileManagementController" >
+    <TabPane fx:id="jeproLabFileManagementTabPane" >
+        <Tab  fx:id="jeproLabFileManagementImageRepositoriesTab" closable="false">
+            <GridPane fx:id="jeproLabFleManagementFormLayout" >
+                <Label GridPane.columnIndex="0" GridPane.rowIndex="0" fx:id="jeproLabFileManagementTemporallyImageRepositoryLabel" styleClass="input-label" />
+                <TextField GridPane.columnIndex="1" GridPane.rowIndex="0" fx:id="jeproLabFileManagementTemporallyImageRepository" />
+                <Label GridPane.columnIndex="0" GridPane.rowIndex="1" fx:id="jeproLabFileManagementCategoryImageRepositoryLabel" styleClass="input-label" />
+                <TextField GridPane.columnIndex="1" GridPane.rowIndex="1" fx:id="jeproLabFileManagementCategoryImageRepository" />
+                <Label GridPane.columnIndex="0" GridPane.rowIndex="2" fx:id="jeproLabFileManagementAnalyzeImageRepositoryLabel" styleClass="input-label" />
+                <TextField GridPane.columnIndex="1" GridPane.rowIndex="2" fx:id="jeproLabFileManagementAnalyzeImageRepository" />
+                <Label GridPane.columnIndex="0" GridPane.rowIndex="3" fx:id="jeproLabFileManagementCustomerImageRepositoryLabel"  styleClass="input-label" />
+                <TextField GridPane.columnIndex="1" GridPane.rowIndex="3" fx:id="jeproLabFileManagementCustomerImageRepository" />
+                <Label GridPane.columnIndex="0" GridPane.rowIndex="4" fx:id="jeproLabFileManagementMethodsImageRepositoryLabel"  styleClass="input-label" />
+                <TextField GridPane.columnIndex="1" GridPane.rowIndex="4" fx:id="jeproLabFileManagementMethodsImageRepository" />
+                <Label GridPane.columnIndex="0" GridPane.rowIndex="5" fx:id="jeproLabFileManagementCurrencyFeedUrlLabel" styleClass="input-label" />
+                <ComboBox GridPane.columnIndex="1" GridPane.rowIndex="5" fx:id="jeproLabFileManagementCurrencyFeedUrl" />
+                <Label GridPane.columnIndex="0" GridPane.rowIndex="6" fx:id="jeproLabFileManagementImageRepositoryLabel" styleClass="input-label" />
+                <TextField GridPane.columnIndex="1" GridPane.rowIndex="6" fx:id="jeproLabFileManagementImageRepository" />
+            </GridPane>
+        </Tab>
+    </TabPane>
+</JeproFormPanel>

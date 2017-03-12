@@ -11,6 +11,7 @@ import javafx.event.EventHandler;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
+import javafx.scene.image.Image;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
@@ -22,6 +23,11 @@ import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 
 import java.io.*;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.nio.channels.Channel;
+import java.nio.channels.Channels;
+import java.nio.channels.ReadableByteChannel;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
@@ -863,6 +869,27 @@ public class JeproLabTools {
 
         }* /
     } */
+
+    public static void retrieveXmlFile(String websiteUrl, String destinationFile){
+        try{
+            URL website = new URL(websiteUrl);
+            ReadableByteChannel rbc = Channels.newChannel(website.openStream());
+            FileOutputStream fileOutputStream = new FileOutputStream(destinationFile);
+            fileOutputStream.getChannel().transferFrom(rbc, 0, Long.MAX_VALUE);
+        } catch (IOException ignored) {
+            JeproLabUncaughtExceptionHandler.logExceptionMessage(Level.WARN, ignored);
+        }
+    }
+
+    public static Image getImage(String path){
+        try {
+            URL imageUrl = new URL(path);
+            return new Image(imageUrl.openStream());
+        }catch(IOException ignored){
+
+        }
+        return null;
+    }
 
 
 }

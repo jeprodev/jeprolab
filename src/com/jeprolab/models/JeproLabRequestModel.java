@@ -29,6 +29,12 @@ public class JeproLabRequestModel extends JeproLabModel{
 
     public int status_id;
 
+    public int carrier_id;
+
+    public float total_paid;
+
+    public String status_name;
+
     public int first_contact_id;
 
     public int second_contact_id;
@@ -219,11 +225,50 @@ public class JeproLabRequestModel extends JeproLabModel{
     }
 
     public static List<JeproLabRequestModel> getRequestsByCustomerId(int customerId) {
-        List<JeproLabRequestModel> requestIds = new ArrayList<>();
+        List<JeproLabRequestModel> requestList = new ArrayList<>();
         if(dataBaseObject == null){
             dataBaseObject = JeproLabFactory.getDataBaseConnector();
         }
-        return requestIds;
+        int langId = JeproLabContext.getContext().language.language_id;
+
+        String query = "SELECT request." + dataBaseObject.quoteName("request_id") + ", request." + dataBaseObject.quoteName("reference");
+        query += ", request." + dataBaseObject.quoteName("total_paid") + ", request." + dataBaseObject.quoteName("date_add") + ", request.";
+        query += dataBaseObject.quoteName("carrier_id") + ", request_status_lang." + dataBaseObject.quoteName("name") + " AS status_name FROM ";
+        query += dataBaseObject.quoteName("#__jeprolab_request") + " AS request LEFT JOIN " + dataBaseObject.quoteName("#__jeprolab_request_status");
+        query += " AS request_status ON(request." + dataBaseObject.quoteName("status_id") + " = request_status." + dataBaseObject.quoteName("request_status_id");
+        query += ") LEFT JOIN " + dataBaseObject.quoteName("#__jeprolab_request_status_lang") + " AS request_status_lang ON (request_status.";
+        query += dataBaseObject.quoteName("request_status_id") + " = request_status_lang." + dataBaseObject.quoteName("request_status_id") ;
+        query += " AND request_status_lang." + dataBaseObject.quoteName("lang_id") + " = " + langId + ") WHERE request." + dataBaseObject.quoteName("customer_id");
+        query += " = " + customerId;
+
+        ResultSet requestSet = dataBaseObject.loadObjectList(query);
+
+        if(requestSet != null){
+            try{
+                JeproLabRequestModel request;
+                while(requestSet.next()){
+                    request = new JeproLabRequestModel();
+                    request.request_id = requestSet.getInt("request_id");
+                    request.customer_id = customerId;
+                    request.reference = requestSet.getString("reference");
+                    request.total_paid = requestSet.getFloat("total_paid");
+                    request.carrier_id = requestSet.getInt("carrier_id");
+                    request.status_name = requestSet.getString("status_name");
+                    //request.reference = requestSet.getString("reference");
+                    request.date_add = requestSet.getDate("date_add");
+                    requestList.add(request);
+                }
+            }catch (SQLException ignored){
+                JeproLabUncaughtExceptionHandler.logExceptionMessage(Level.ERROR, ignored);
+            }finally {
+                try{
+                    JeproLabFactory.removeConnection(dataBaseObject);
+                }catch(Exception ignored){
+                    JeproLabUncaughtExceptionHandler.logExceptionMessage(Level.WARN, ignored);
+                }
+            }
+        }
+        return requestList;
     }
 
     public static String getReferenceByRequestId(int requestId) {

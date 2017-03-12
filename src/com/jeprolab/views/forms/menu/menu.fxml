@@ -2,6 +2,7 @@
 <?import javafx.scene.control.MenuBar?>
 <?import javafx.scene.control.Menu?>
 <?import javafx.scene.control.MenuItem?>
+<?import javafx.scene.control.SeparatorMenuItem?>
 <VBox xmlns:fx="http://javafx.com/fxml" fx:id="jeproLabMenuBarWrapper" fx:controller="com.jeprolab.controllers.JeproLabMenuController" >
     <MenuBar fx:id="jeproLabMenuBar">
         <Menu fx:id="dashBoardMenu"  >
@@ -111,6 +112,8 @@
             </Menu>
         </Menu>
         <Menu fx:id="helpMenu" >
+            <MenuItem fx:id="fileManagementMenuItem" />
+            <SeparatorMenuItem  />
             <MenuItem fx:id="checkForJeproLabUpdate"  />
             <MenuItem fx:id="aboutJeproLabMenuItem" />
         </Menu>

@@ -48,12 +48,12 @@ public class JeproLabApplicationForms implements JeproLabEventProducer{
     public JeproLabApplicationForm addRequestForm, sampleListForm, sampleForm, requestStatusForm, requestRefundsForm;
     public JeproLabApplicationForm requestBillsForm, requestAddBillForm, requestComplainsForm, requestAddComplainForm;
     public JeproLabApplicationForm requestAddStatusForm, requestMessagesForm, requestAddMessagesForm;
-    public JeproLabApplicationForm requestAddRefundForm, addTaxRuleForm, taxRulesForm;
+    public JeproLabApplicationForm requestAddRefundForm, addTaxRuleForm, taxRulesForm, fileManagementForm;
 
     public List<JeproLabApplicationForm> forms;
 
     public JeproLabApplicationForms(){
-        forms = new ArrayList();
+        forms = new ArrayList<>();
         loginForm = new JeproLabApplicationForm("login.fxml");
         if(!forms.contains(loginForm)){ forms.add(loginForm); }
 
@@ -68,6 +68,9 @@ public class JeproLabApplicationForms implements JeproLabEventProducer{
 
         aboutJeproLabForm = new JeproLabApplicationForm("help/about.fxml");
         if(!forms.contains(aboutJeproLabForm)){ forms.add(aboutJeproLabForm); }
+
+        fileManagementForm = new JeproLabApplicationForm("help/management.fxml");
+        if(!forms.contains(fileManagementForm)){ forms.add(fileManagementForm); }
 
         updaterForm = new JeproLabApplicationForm("help/updater.fxml");
         if(!forms.contains(updaterForm)){ forms.add(updaterForm); }

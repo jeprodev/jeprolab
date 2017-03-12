@@ -180,6 +180,7 @@ public class JeproLabCategoryAddController extends JeproLabController{
         categorySearchBtn.getStyleClass().addAll("icon-btn", "search-btn");
 
         categorySearchFilter = new ComboBox<>();
+        categorySearchFilter.setPromptText(bundle.getString("JEPROLAB_SEARCH_BY_LABEL"));
 
         jeproLabSubCategoriesSearchWrapper.getChildren().addAll(categorySearchField, categorySearchFilter, categorySearchBtn);
 
@@ -247,11 +248,11 @@ public class JeproLabCategoryAddController extends JeproLabController{
         laboratorySearchField.setPromptText(bundle.getString("JEPROLAB_SEARCH_LABEL"));
 
         laboratorySearchFilter = new ComboBox<>();
+        laboratorySearchFilter.setPromptText(bundle.getString("JEPROLAB_SEARCH_BY_LABEL"));
 
         laboratorySearchBtn = new Button();
         laboratorySearchBtn.getStyleClass().addAll("icon-btn", "search-btn");
         jeproLabLaboratoriesSearchWrapper.getChildren().addAll(laboratorySearchField,laboratorySearchFilter, laboratorySearchBtn);
-
 
         TableColumn<JeproLabLaboratoryController.JeproLabLaboratoryRecord, Integer> jeproLabLaboratoryIndexColumn = new TableColumn<>("#");
         jeproLabLaboratoryIndexColumn.setPrefWidth(30);
@@ -314,6 +315,7 @@ public class JeproLabCategoryAddController extends JeproLabController{
         groupsSearchField.setPromptText(bundle.getString("JEPROLAB_SEARCH_LABEL"));
 
         groupsSearchFilter = new ComboBox<>();
+        groupsSearchFilter.setPromptText(bundle.getString("JEPROLAB_SEARCH_BY_LABEL"));
 
         jeproLabGroupSearchWrapper = new HBox(5);
         jeproLabGroupSearchWrapper.getChildren().addAll(groupsSearchField, groupsSearchFilter, groupsSearchBtn);
@@ -383,7 +385,8 @@ public class JeproLabCategoryAddController extends JeproLabController{
 
     @Override
     public void initializeContent(){
-        initializeContent(JeproLabSettingModel.getIntValue("root_category"));
+        initializeContent(0);
+        clearForm();
     }
 
     @Override
@@ -632,7 +635,7 @@ public class JeproLabCategoryAddController extends JeproLabController{
                 for(JeproLabLaboratoryModel lab : labs) {
                     laboratories.add(new JeproLabLaboratoryController.JeproLabLaboratoryRecord(lab, selectedLabs));
                 }
-                laboratoryPagination = new Pagination((labs.size()/NUMBER_OF_LINES), 0);
+                laboratoryPagination = new Pagination((labs.size()/NUMBER_OF_LINES) + 1, 0);
                 laboratoryPagination.setPageFactory(this::createLaboratoryPages);
                 jeproLabLaboratoryWrapper.getChildren().clear();
                 jeproLabLaboratoryWrapper.getChildren().addAll(jeproLabLaboratoriesSearchWrapper, laboratoryPagination);
@@ -646,9 +649,8 @@ public class JeproLabCategoryAddController extends JeproLabController{
 
     private Node createLaboratoryPages(int pageIndex){
         int fromIndex = pageIndex *NUMBER_OF_LINES;
-        int toIndex = Math.min(fromIndex + NUMBER_OF_LINES, (laboratories.size() - 1));
+        int toIndex = Math.min(fromIndex + NUMBER_OF_LINES, (laboratories.size()));
         jeproLabAssociatedLaboratoriesTableView.setItems(FXCollections.observableArrayList(laboratories.subList(fromIndex, toIndex)));
-        //jeproLabAssociatedLaboratoriesTableView.setPrefHeight(rowHeight * NUMBER_OF_LINES);
         return new Pane(jeproLabAssociatedLaboratoriesTableView);
     }
 
@@ -659,7 +661,7 @@ public class JeproLabCategoryAddController extends JeproLabController{
                 categoryList.add(new JeproLabCategoryController.JeproLabCategoryRecord(cat));
             }
             Platform.runLater(() -> {
-                subCategoriesPagination = new Pagination((cats.size()/NUMBER_OF_LINES ), 0);
+                subCategoriesPagination = new Pagination((cats.size()/NUMBER_OF_LINES ) + 1, 0);
                 subCategoriesPagination.setPageFactory(this::createSubCategoriesPages);
                 jeproLabSubCategoriesWrapper.getChildren().clear();
                 VBox.setMargin(jeproLabSubCategoriesSearchWrapper, new Insets(10, 0.01 * formWidth, 5, 0.01 * formWidth));
@@ -671,7 +673,7 @@ public class JeproLabCategoryAddController extends JeproLabController{
 
     private Node createSubCategoriesPages(int pageIndex){
         int fromIndex = pageIndex * NUMBER_OF_LINES;
-        int toIndex = Math.min(fromIndex + NUMBER_OF_LINES, (categoryList.size() - 1));
+        int toIndex = Math.min(fromIndex + NUMBER_OF_LINES, (categoryList.size()));
         jeproLabSubCategoryTableView.setItems(FXCollections.observableArrayList(categoryList.subList(fromIndex, toIndex)));
         return new Pane(jeproLabSubCategoryTableView);
     }
@@ -683,7 +685,7 @@ public class JeproLabCategoryAddController extends JeproLabController{
                 for(JeproLabGroupModel group : groups) {
                     groupList.add(new JeproLabGroupController.JeproLabGroupRecord(group, selectedGroups));
                 }
-                groupPagination = new Pagination((groups.size()/NUMBER_OF_LINES), 0);
+                groupPagination = new Pagination((groups.size()/NUMBER_OF_LINES) + 1, 0);
                 groupPagination.setPageFactory(this::createGroupPages);
                 jeproLabGroupWrapper.getChildren().clear();
                 VBox.setMargin(jeproLabGroupSearchWrapper, new Insets(5, 0.01 * formWidth, 5, 0.01 * formWidth));
@@ -695,7 +697,7 @@ public class JeproLabCategoryAddController extends JeproLabController{
 
     private Node createGroupPages(int pageIndex){
         int fromIndex = pageIndex * NUMBER_OF_LINES;
-        int toIndex = Math.min(fromIndex + NUMBER_OF_LINES, (groupList.size() - 1));
+        int toIndex = Math.min(fromIndex + NUMBER_OF_LINES, (groupList.size()));
         jeproLabAssociatedGroupTableView.setItems(FXCollections.observableArrayList(groupList.subList(fromIndex, toIndex)));
         return new Pane(jeproLabAssociatedGroupTableView);
     }

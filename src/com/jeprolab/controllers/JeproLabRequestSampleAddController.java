@@ -125,6 +125,7 @@ public class JeproLabRequestSampleAddController extends JeproLabController{
         jeproLabSampleMatrixLabel.setText(bundle.getString("JEPROLAB_SAMPLE_MATRIX_LABEL"));
 
         matrices = JeproLabRequestModel.JeproLabMatrixModel.getMatrices();
+        jeproLabSampleMatrix.setMinWidth(200);
         jeproLabSampleMatrix.setPromptText(bundle.getString("JEPROLAB_SELECT_MATRIX_LABEL"));
         for(Map.Entry<Integer, String> matrix : matrices.entrySet()){
             jeproLabSampleMatrix.getItems().add(matrix.getValue());
@@ -132,6 +133,7 @@ public class JeproLabRequestSampleAddController extends JeproLabController{
 
         conditions = JeproLabRequestModel.JeproLabSampleReceptionConditionModel.getConditions(JeproLabContext.getContext().language.language_id);
         jeproLabSampleReceiveCondition.setPromptText(bundle.getString("JEPROLAB_SELECT_SAMPLE_CONDITION_LABEL"));
+        jeproLabSampleReceiveCondition.setMinWidth(200);
         for(Map.Entry<Integer, String> condition : conditions.entrySet()){
             jeproLabSampleReceiveCondition.getItems().add(condition.getValue());
         }

@@ -5,6 +5,7 @@ import com.jeprolab.assets.extend.controls.*;
 import com.jeprolab.assets.tools.JeproLabContext;
 import com.jeprolab.models.JeproLabAddressModel;
 import com.jeprolab.models.JeproLabCountryModel;
+import com.jeprolab.models.JeproLabCustomerModel;
 import javafx.fxml.FXML;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -52,6 +53,7 @@ public class JeproLabAddressAddController extends JeproLabController{
         if (context == null) {
             context = JeproLabContext.getContext();
         }
+
         double labelColumnWidth = 150;
         double inputColumnWidth = 300;
         formWidth = 2 *(labelColumnWidth + inputColumnWidth) + 30;
@@ -146,6 +148,7 @@ public class JeproLabAddressAddController extends JeproLabController{
         JeproLabContext context = JeproLabContext.getContext();
         address = null;
         loadAddress(addressId, true);
+        jeproLabAddressCustomer.setCustomer(new JeproLabCustomerModel(address.customer_id));
         List<JeproLabCountryModel> countries = JeproLabCountryModel.getCountries(context.language.language_id, 0, true);
         List<JeproLabCountryModel.JeproLabZoneModel> zones = JeproLabCountryModel.JeproLabZoneModel.getZones(true);
         jeproLabAddressCountry.setPromptText(JeproLab.getBundle().getString("JEPROLAB_SELECT_LABEL"));

@@ -626,7 +626,9 @@ public class JeproLabLaboratoryModel extends JeproLabModel{
     }
 
     public static String addSqlAssociation(String table, boolean innerJoin, String onFilter, boolean forceNotDefault){
-        JeproLabDataBaseConnector dbc = JeproLabFactory.getDataBaseConnector();
+        if(dataBaseObject == null) {
+            dataBaseObject = JeproLabFactory.getDataBaseConnector();
+        }
         String tableAlias = table + "_lab";
         String outputAlias;
         if(table.contains(".")){
@@ -649,7 +651,7 @@ public class JeproLabLaboratoryModel extends JeproLabModel{
         boolean isAssociatedToTable = JeproLabLaboratoryModel.getAssociatedTable(table);
         if(!isAssociatedToTable){ return ""; }
 
-        String query = ((innerJoin) ? " INNER " : " LEFT ") + "JOIN " + dbc.quoteName("#__jeprolab_" + table + "_lab") + " AS ";
+        String query = ((innerJoin) ? " INNER " : " LEFT ") + "JOIN " + dataBaseObject.quoteName("#__jeprolab_" + table + "_lab") + " AS ";
         query += tableAlias + " ON( " + tableAlias + "." +  table + "_id = " + outputAlias + "."  + table + "_id";
 
         if(JeproLabLaboratoryModel.context_laboratory_id > 0){

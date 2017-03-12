@@ -6,6 +6,7 @@ import com.jeprolab.assets.tools.JeproLabTools;
 import com.jeprolab.assets.tools.db.JeproLabDataBaseConnector;
 import com.jeprolab.assets.tools.exception.JeproLabUncaughtExceptionHandler;
 import com.jeprolab.models.core.JeproLabFactory;
+import javafx.scene.image.Image;
 import org.apache.log4j.Level;
 
 import java.sql.Date;
@@ -575,7 +576,6 @@ public class JeproLabCustomerModel extends JeproLabModel{
             query += " WHERE " + dataBaseObject.quoteName("lang_id") + " = " + langId + " AND " + dataBaseObject.quoteName("customer_id") + " = ";
             query += this.customer_id + " AND address." + dataBaseObject.quoteName("deleted") + " = 0";
 
-            //dataBaseObject.setQuery(query);
             ResultSet resultSet = dataBaseObject.loadObjectList(query);
             List<JeproLabAddressModel> addressList = new ArrayList<>();
 
@@ -712,6 +712,36 @@ public class JeproLabCustomerModel extends JeproLabModel{
         return (int)dataBaseObject.loadValue(query, "customer_id");
     }
 
+    public static JeproLabCustomerModel searchCustomerByEmail(String email){
+        if(dataBaseObject == null){
+            dataBaseObject = JeproLabFactory.getDataBaseConnector();
+        }
+
+        String query = "SELECT * FROM " + dataBaseObject.quoteName("#__jeprolab_customer") + " WHERE ";
+        query += dataBaseObject.quoteName("email") + " LIKE " + dataBaseObject.quote('%' + email + '%');
+
+        ResultSet customerSet = dataBaseObject.loadObjectList(query);
+        JeproLabCustomerModel customer = new JeproLabCustomerModel();
+        if(customerSet != null){
+            try{
+                if(customerSet.next()){
+                    customer.customer_id = customerSet.getInt("customer_id");
+                    customer.firstname = customerSet.getString("firstname");
+                    customer.lastname = customerSet.getString("lastname");
+                }
+            }catch(SQLException ignored){
+                JeproLabUncaughtExceptionHandler.logExceptionMessage(Level.ERROR, ignored);
+            }finally {
+                try {
+                    JeproLabFactory.removeConnection(dataBaseObject);
+                }catch(Exception ignored){
+                    JeproLabUncaughtExceptionHandler.logExceptionMessage(Level.WARN, ignored);
+                }
+            }
+        }
+        return customer;
+    }
+
     /**
      * Retrieve customers by email address
      *
@@ -773,5 +803,8 @@ public class JeproLabCustomerModel extends JeproLabModel{
         return null;
     }
 
-
+    public Image getImage(){
+        String filePath = "";
+        return JeproLabTools.getImage(filePath);
+    }
 }
