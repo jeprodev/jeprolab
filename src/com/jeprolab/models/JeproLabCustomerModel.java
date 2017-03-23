@@ -244,6 +244,7 @@ public class JeproLabCustomerModel extends JeproLabModel{
 
             //dataBaseObject.setQuery(query);
             JeproLabCustomerModel._defaultGroupId.put(customerId, (int)dataBaseObject.loadValue(query, "default_group_id"));
+            closeDataBaseConnection(dataBaseObject);
         }
         return JeproLabCustomerModel._defaultGroupId.get(customerId);
     }
@@ -372,6 +373,7 @@ public class JeproLabCustomerModel extends JeproLabModel{
         if (this.news_letter && !JeproLabTools.isDate(this.news_letter_date_add)) {
             this.news_letter_date_add = JeproLabTools.getDate();
         }
+        closeDataBaseConnection(dataBaseObject);
     }
 
     /**
@@ -400,6 +402,7 @@ public class JeproLabCustomerModel extends JeproLabModel{
 
         //dataBaseObject.setQuery(query);
         dataBaseObject.query(query, false);
+        closeDataBaseConnection(dataBaseObject);
     }
 
     public void addGroups(List<Integer> groups){
@@ -414,6 +417,7 @@ public class JeproLabCustomerModel extends JeproLabModel{
             //dataBaseObject.setQuery(query);
             dataBaseObject.query(query, false);
         }
+        closeDataBaseConnection(dataBaseObject);
     }
 
     public void update(){
@@ -709,7 +713,9 @@ public class JeproLabCustomerModel extends JeproLabModel{
         query += JeproLabLaboratoryModel.addSqlRestriction(JeproLabLaboratoryModel.SHARE_CUSTOMER);
 
         //dataBaseObject.setQuery(query);
-        return (int)dataBaseObject.loadValue(query, "customer_id");
+        int customerId = (int)dataBaseObject.loadValue(query, "customer_id");
+        closeDataBaseConnection(dataBaseObject);
+        return customerId;
     }
 
     public static JeproLabCustomerModel searchCustomerByEmail(String email){

@@ -8,7 +8,9 @@ import com.jeprolab.assets.tools.JeproLabContext;
 import com.jeprolab.assets.tools.JeproLabPopupTools;
 import com.jeprolab.assets.tools.JeproLabTools;
 import com.jeprolab.assets.tools.exception.JeproLabUncaughtExceptionHandler;
+import com.jeprolab.models.JeproLabCurrencyModel;
 import com.jeprolab.models.JeproLabLanguageModel;
+import com.jeprolab.models.JeproLabSettingModel;
 import javafx.application.Platform;
 import javafx.concurrent.Task;
 import javafx.concurrent.Worker;
@@ -20,6 +22,7 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import org.apache.log4j.Level;
 
+import java.io.File;
 import java.net.URL;
 import java.util.ResourceBundle;
 
@@ -151,7 +154,7 @@ public class JeproLabFileManagementController extends JeproLabController{
         jeproLabFileManagementCurrencyFeedUrl.valueProperty().addListener(((observable, oldValue, newValue) -> {
             if(!newValue.equals(oldValue)){
                 String prefix = newValue.substring(newValue.length() - 7, newValue.length() - 4);
-                if(!prefix.equals(JeproLabContext.getContext().language.iso_code)){
+                if(!prefix.equals(JeproLabCurrencyModel.getCurrencyIsoCodeByCurrencyId(JeproLabSettingModel.getIntValue("default_currency")))){
                     JeproLabPopupTools.displayMessage(Alert.AlertType.INFORMATION,
                         bundle.getString("JEPROLAB_CURRENCY_FEED_URL_CHANGE_LABEL"),
                         bundle.getString("JEPROLAB_CURRENCY_FEED_URL_CHANGE_WARNING_MESSAGE"));
@@ -180,6 +183,7 @@ public class JeproLabFileManagementController extends JeproLabController{
             }
 
             Worker<Boolean> worker = new Task<Boolean>() {
+                private String fileDestination;
                 @Override
                 protected Boolean call() throws Exception {
                     if(isCancelled()){
@@ -187,8 +191,9 @@ public class JeproLabFileManagementController extends JeproLabController{
                     }
                     String url = jeproLabFileManagementCurrencyFeedUrl.getValue();
                     url = url.substring(("(" + bundle.getString("JEPROLAB_" + prefix.toUpperCase() + "_LABEL") + ") - ").length(), url.length());
-                    JeproLabTools.retrieveXmlFile(url, "../" + prefix + ".xml");
-                    return true;
+                    File file = new File(JeproLab.class.getProtectionDomain().getCodeSource().getLocation().getPath());
+                    fileDestination = file.getAbsolutePath() + File.separator + "config" + File.separator + "currencies" + File.separator + prefix + ".xml";
+                    return JeproLabTools.retrieveXmlFile(url, fileDestination);
                 }
 
                 @Override
@@ -200,6 +205,7 @@ public class JeproLabFileManagementController extends JeproLabController{
                 @Override
                 protected void succeeded(){
                     super.succeeded();
+                    JeproLabCurrencyModel.updateCurrencyRates(fileDestination);
                 }
             };
 

@@ -70,7 +70,7 @@ public class JeproLabConfig {
             DATA_BASE_PASSWORD = configProp.getString("DATA_BASE_PASSWORD");
             APP_INSTALLED_DIRECTORY = configProp.getString("APPLICATION_INSTALL_DIRECTORY");
             APP_UPDATE_URL = configProp.getString("APPLICATION_UPDATE_URL");
-            INSTALLED_APP_PACKAGE = configProp.getString("APPLICATION_INSTALLED_VERSION");
+            INSTALLED_APP_VERSION = configProp.getString("APPLICATION_INSTALLED_VERSION");
             INSTALLED_APP_PACKAGE = configProp.getString("APPLICATION_INSTALLED_PACKAGE");
             CERTIFICATE_LOGO = configProp.getString("APPLICATION_CERTIFICATE_LOGO_PATH");
             APPLICATION_WEBSITE = configProp.getString("APPLICATION_WEBSITE_URL");

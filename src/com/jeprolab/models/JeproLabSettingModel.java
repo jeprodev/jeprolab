@@ -82,7 +82,6 @@ public class JeproLabSettingModel extends JeproLabModel {
                 try {
                     if (valueSet.next()) {
                         String valueData = valueSet.getString("value");
-                        System.out.println(key + " value : " + valueData + " lenght : " + valueData.length());
                         value = Integer.parseInt(valueData);
                         SETTINGS.put(key, value);
                     }
@@ -90,6 +89,8 @@ public class JeproLabSettingModel extends JeproLabModel {
                 } catch (SQLException ignored) {
                     JeproLabUncaughtExceptionHandler.logExceptionMessage(Level.ERROR, ignored);
                     return 0;
+                }finally {
+                    closeDataBaseConnection(dataBaseObject);
                 }
             }
             return 0;
@@ -112,7 +113,10 @@ public class JeproLabSettingModel extends JeproLabModel {
                     return value;
                 }
             }catch (SQLException ignored){
+                JeproLabUncaughtExceptionHandler.logExceptionMessage(Level.ERROR, ignored);
                 return "";
+            }finally {
+                closeDataBaseConnection(dataBaseObject);
             }
             return "";
         }

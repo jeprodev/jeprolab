@@ -1,29 +1,6 @@
 <?import javafx.scene.layout.VBox?>
-<?import javafx.scene.control.TableView?>
-<?import javafx.scene.control.TableColumn?>
 <?import com.jeprolab.assets.extend.controls.JeproFormPanel?>
-<?import javafx.scene.layout.HBox?>
-<?import javafx.scene.control.TextField?>
-<?import javafx.scene.control.Button?>
+
 <JeproFormPanel xmlns:fx="http://javafx.com/fxml" fx:controller="com.jeprolab.controllers.JeproLabCountryController" >
-    <VBox spacing="5">
-        <children>
-            <HBox fx:id="jeproLabCountrySearchWrapper" >
-                <TextField fx:id="jeproLabCountrySearch" />
-                <Button fx:id="jeproLabCountrySearchBtn" styleClass="icon-btn, search-btn" />
-            </HBox>
-            <TableView fx:id="jeproLabCountryTableView">
-                <columns>
-                    <TableColumn resizable="false" editable="false" fx:id="jeproLabCountryIndexColumn" />
-                    <TableColumn resizable="false" editable="false" fx:id="jeproLabCountryCheckBoxColumn" />
-                    <TableColumn resizable="false" editable="false" fx:id="jeproLabCountryStatusColumn" />
-                    <TableColumn resizable="false" editable="false" fx:id="jeproLabCountryNameColumn" />
-                    <TableColumn resizable="false" editable="false" fx:id="jeproLabCountryIsoCodeColumn" />
-                    <TableColumn resizable="false" editable="false" fx:id="jeproLabCountryCallPrefixColumn" />
-                    <TableColumn resizable="false" editable="false" fx:id="jeproLabCountryZoneColumn" />
-                    <TableColumn resizable="false" editable="false" fx:id="jeproLabCountryActionsColumn" />
-                </columns>
-            </TableView>
-        </children>
-    </VBox>
+    <VBox spacing="5" fx:id="jeproLabCountryTableViewWrapper" />
 </JeproFormPanel>

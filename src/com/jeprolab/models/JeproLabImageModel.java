@@ -204,6 +204,8 @@ public class JeproLabImageModel extends JeproLabModel{
                     }
                 }catch (SQLException ignored){
                     ignored.printStackTrace();
+                }finally {
+                    closeDataBaseConnection(dataBaseObject);
                 }
             }
         } else {

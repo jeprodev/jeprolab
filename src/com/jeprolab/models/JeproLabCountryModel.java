@@ -191,7 +191,7 @@ public class JeproLabCountryModel extends JeproLabModel{
             //dataBaseObject.setQuery(query);
             String result = dataBaseObject.loadStringValue(query, "name");
             JeproLabCache.getInstance().store(cacheKey, result);
-
+            closeDataBaseConnection(dataBaseObject);
             return result;
         }
         return (String)JeproLabCache.getInstance().retrieve(cacheKey);
@@ -423,7 +423,9 @@ public class JeproLabCountryModel extends JeproLabModel{
 
         //dataBaseObject.setQuery(query);
 
-        return dataBaseObject.loadValue(query, "need_zip_code") > 0;
+        boolean result = dataBaseObject.loadValue(query, "need_zip_code") > 0;
+        closeDataBaseConnection(dataBaseObject);
+        return result;
     }
 
     public static String getZipCodeFormat(int countryId){
@@ -438,7 +440,9 @@ public class JeproLabCountryModel extends JeproLabModel{
 
         //dataBaseObject.setQuery(query);
 
-        return dataBaseObject.loadStringValue(query, "zip_code_format");
+        String zipCodeFormat = dataBaseObject.loadStringValue(query, "zip_code_format");
+        closeDataBaseConnection(dataBaseObject);
+        return zipCodeFormat;
     }
 
     public static List<JeproLabCountryModel> getCountriesByZoneId(int zoneId, int langId){
@@ -492,7 +496,9 @@ public class JeproLabCountryModel extends JeproLabModel{
         query += " WHERE " + dataBaseObject.quoteName("country_id") + " = " + countryId;
 
         //dataBaseObject.setQuery(query);
-        return dataBaseObject.loadValue(query, "need_identification_number") > 0;
+        boolean result = dataBaseObject.loadValue(query, "need_identification_number") > 0;
+        closeDataBaseConnection(dataBaseObject);
+        return result;
     }
 
 
@@ -506,7 +512,9 @@ public class JeproLabCountryModel extends JeproLabModel{
         query += " WHERE " + dataBaseObject.quoteName("country_id") + " = " + countryId;
 
         //dataBaseObject.setQuery(query);
-        return dataBaseObject.loadValue(query, "contains_states") > 0;
+        boolean result = dataBaseObject.loadValue(query, "contains_states") > 0;
+        closeDataBaseConnection(dataBaseObject);
+        return result;
     }
 
     /**
@@ -528,6 +536,7 @@ public class JeproLabCountryModel extends JeproLabModel{
             //dataBaseObject.setQuery(query);
 
             dataBaseObject.query(query, false);
+            closeDataBaseConnection(dataBaseObject);
         }
     }
 
@@ -562,6 +571,7 @@ public class JeproLabCountryModel extends JeproLabModel{
             //dataBaseObject.setQuery(query);
             result &= dataBaseObject.query(query, false);
         }
+        closeDataBaseConnection(dataBaseObject);
         return result;
     }
 
@@ -595,6 +605,7 @@ public class JeproLabCountryModel extends JeproLabModel{
             //dataBaseObject.setQuery(query);
             result &= dataBaseObject.query(query, false);
         }
+        closeDataBaseConnection(dataBaseObject);
         return result;
     }
 
@@ -617,7 +628,7 @@ public class JeproLabCountryModel extends JeproLabModel{
         //dataBaseObject.setQuery(query);
         int result = (int)dataBaseObject.loadValue(query, "zone_id");
         JeproLabCountryModel.zonesId.put(countryId, result);
-
+        closeDataBaseConnection(dataBaseObject);
         return result;
     }
 
@@ -680,7 +691,13 @@ public class JeproLabCountryModel extends JeproLabModel{
         query += " = " + dataBaseObject.quote(isoCode.toUpperCase()) + (active ? " AND published = 1" : "");
 
         //dataBaseObject.setQuery(query);
-        return (int)dataBaseObject.loadValue(query, "country_id");
+        int result = (int)dataBaseObject.loadValue(query, "country_id");
+        closeDataBaseConnection(dataBaseObject);
+        return result;
+    }
+
+    public List<JeproLabStateModel> getCountryStates(){
+        return JeproLabStateModel.getStates(this.country_id);
     }
 
 
@@ -689,7 +706,52 @@ public class JeproLabCountryModel extends JeproLabModel{
 
         public int country_id;
 
+        public String iso_code;
+
+        public String name;
+
+        public boolean tax_behavior;
+
         public boolean published;
+
+        public static List<JeproLabStateModel> getStates() {
+            return getStates(0);
+        }
+
+        public static List<JeproLabStateModel> getStates(int countryId) {
+            if(dataBaseObject == null){
+                dataBaseObject = JeproLabFactory.getDataBaseConnector();
+            }
+
+            String query = "SELECT * FROM " + dataBaseObject.quoteName("#__jeprolab_state") ;
+            query += (countryId > 0 ? " WHERE " + dataBaseObject.quoteName("country_id") + " = " + countryId : "");
+            query += " ORDER BY " + dataBaseObject.quoteName("name") + " ASC";
+
+            ResultSet stateSet = dataBaseObject.loadObjectList(query);
+            List<JeproLabStateModel> states = new ArrayList<>();
+            if(stateSet != null){
+                try{
+                    JeproLabStateModel state;
+                    while (stateSet.next()){
+                        state = new JeproLabStateModel();
+                        state.state_id = stateSet.getInt("state_id");
+                        state.country_id = stateSet.getInt("country_id");
+                        state.name = stateSet.getString("name");
+                        state.iso_code = stateSet.getString("iso_code");
+                        state.tax_behavior = stateSet.getInt("tax_behavior") > 0;
+                        state.published = stateSet.getInt("published") > 0;
+
+                        states.add(state);
+                    }
+                }catch(SQLException ignored){
+                    JeproLabUncaughtExceptionHandler.logExceptionMessage(Level.ERROR, ignored);
+                }finally {
+                    closeDataBaseConnection(dataBaseObject);
+                }
+            }
+
+            return states;
+        }
     }
 
 
@@ -806,7 +868,9 @@ public class JeproLabCountryModel extends JeproLabModel{
             query += " WHERE " + dataBaseObject.quoteName("name") + " = " + dataBaseObject.quote(name);
 
             //dataBaseObject.setQuery(query);
-            return (int)dataBaseObject.loadValue(query, "zone_id");
+            int result = (int)dataBaseObject.loadValue(query, "zone_id");
+            closeDataBaseConnection(dataBaseObject);
+            return result;
         }
 
         /**
@@ -826,7 +890,9 @@ public class JeproLabCountryModel extends JeproLabModel{
             query += " WHERE " + dataBaseObject.quoteName("zone_id") + " = " + zoneId;
 
             //dataBaseObject.setQuery(query);
-            return dataBaseObject.loadStringValue(query, "name");
+            String result = dataBaseObject.loadStringValue(query, "name");
+            closeDataBaseConnection(dataBaseObject);
+            return  result;
         }
 
         /**
@@ -860,7 +926,7 @@ public class JeproLabCountryModel extends JeproLabModel{
                 query = "UPDATE "  + dataBaseObject.quoteName("#__jeprolab_state") + " SET "  + dataBaseObject.quoteName("zone_id") + " = 0 WHERE "  + dataBaseObject.quoteName("zone_id") + " = " + this.zone_id;
                 //dataBaseObject.setQuery(query);
                 result &= dataBaseObject.query(query, false);
-
+                closeDataBaseConnection(dataBaseObject);
                 return result;
             }
 
@@ -879,6 +945,7 @@ public class JeproLabCountryModel extends JeproLabModel{
             //dataBaseObject.setQuery(query);
             boolean result = dataBaseObject.query(query, true);
             this.zone_id = dataBaseObject.getGeneratedKey();
+            closeDataBaseConnection(dataBaseObject);
             return result;
         }
 
@@ -892,7 +959,9 @@ public class JeproLabCountryModel extends JeproLabModel{
             query += (this.allow_delivery ? 1 : 0) + " WHERE " + dataBaseObject.quoteName("zone_id") + " = " + this.zone_id;
 
             //dataBaseObject.setQuery(query);
-            return dataBaseObject.query(query, false);
+            boolean result = dataBaseObject.query(query, false);
+            closeDataBaseConnection(dataBaseObject);
+            return result;
         }
 
     }

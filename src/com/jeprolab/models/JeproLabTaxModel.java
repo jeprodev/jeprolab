@@ -665,8 +665,9 @@ public class JeproLabTaxModel extends JeproLabModel {
             query += " = " + dataBaseObject.quote(this.name) + ", " + dataBaseObject.quoteName("published") + " = " + (this.published ? 1 : 0);
             query += " WHERE " + dataBaseObject.quoteName("tax_rules_group_id") + " = " + this.tax_rules_group_id;
 
-            //dataBaseObject.setQuery(query);
-            return dataBaseObject.query(query, false);
+            boolean  result = dataBaseObject.query(query, false);
+            closeDataBaseConnection(dataBaseObject);
+            return result;
         }
     }
 }

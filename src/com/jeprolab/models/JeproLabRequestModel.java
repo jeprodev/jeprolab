@@ -187,6 +187,7 @@ public class JeproLabRequestModel extends JeproLabModel{
             //dataBaseObject.setQuery(query);
             dataBaseObject.query(query, false);
         }
+        closeDataBaseConnection(dataBaseObject);
     }
 
     public void update(){
@@ -222,6 +223,7 @@ public class JeproLabRequestModel extends JeproLabModel{
                 dataBaseObject.query(query, false);
             }
         }
+        closeDataBaseConnection(dataBaseObject);
     }
 
     public static List<JeproLabRequestModel> getRequestsByCustomerId(int customerId) {
@@ -280,7 +282,9 @@ public class JeproLabRequestModel extends JeproLabModel{
         query += " WHERE " + dataBaseObject.quoteName("request_id") + " = " + requestId;
 
         //dataBaseObject.setQuery(query);
-        return dataBaseObject.loadStringValue(query, "reference");
+        String reference = dataBaseObject.loadStringValue(query, "reference");
+        closeDataBaseConnection(dataBaseObject);
+        return reference;
     }
 
     public static int getCustomerDiscounts(int customerId, int cartRuleId){
@@ -295,6 +299,7 @@ public class JeproLabRequestModel extends JeproLabModel{
 
             //dataBaseObject.setQuery(query);
             int discounts = (int)dataBaseObject.loadValue(query, "nb");
+            closeDataBaseConnection(dataBaseObject);
             JeproLabCache.getInstance().store(cacheKey, discounts);
         }
         return (int)JeproLabCache.getInstance().retrieve(cacheKey);
@@ -404,6 +409,7 @@ public class JeproLabRequestModel extends JeproLabModel{
                             JeproLabUncaughtExceptionHandler.logExceptionMessage(Level.ERROR, ignored);
                         }
                     }
+                    closeDataBaseConnection(dataBaseObject);
                 }else{
                     JeproLabSampleModel sample = (JeproLabSampleModel)JeproLabCache.getInstance().retrieve(cacheKey);
                     this.sample_id = sample.sample_id;
@@ -529,6 +535,7 @@ public class JeproLabRequestModel extends JeproLabModel{
                     JeproLabUncaughtExceptionHandler.logExceptionMessage(Level.ERROR, ignored);
                 }
             }
+            closeDataBaseConnection(dataBaseObject);
             return analyzeList;
         }
 
@@ -557,6 +564,7 @@ public class JeproLabRequestModel extends JeproLabModel{
 
                 dataBaseObject.query(query, false);
             }
+            closeDataBaseConnection(dataBaseObject);
         }
 
         public void update(){
@@ -582,6 +590,7 @@ public class JeproLabRequestModel extends JeproLabModel{
                 //dataBaseObject.setQuery(query);
                 dataBaseObject.query(query, false);
             }
+            closeDataBaseConnection(dataBaseObject);
         }
 
         public static void updateResult(JeproLabRequestSampleAddController.JeproLabSampleAnalyzeForm item){
@@ -612,7 +621,7 @@ public class JeproLabRequestModel extends JeproLabModel{
             }
             System.out.println(query);
             dataBaseObject.query(query, false);
-
+            closeDataBaseConnection(dataBaseObject);
         }
 
         public synchronized void removeAnalyze(int analyzeId) {
@@ -864,7 +873,9 @@ public class JeproLabRequestModel extends JeproLabModel{
             query += " = " + langId;
 
             //dataBaseObject.setQuery(query);
-            return dataBaseObject.loadStringValue(query, "name");
+            String name =  dataBaseObject.loadStringValue(query, "name");
+            closeDataBaseConnection(dataBaseObject);
+            return name;
         }
 
     }
@@ -1006,7 +1017,9 @@ public class JeproLabRequestModel extends JeproLabModel{
             query += " WHERE " + dataBaseObject.quoteName("sample_condition_id") + " = " + conditionId + " AND " + dataBaseObject.quoteName("lang_id");
             query += " = " + langId;
 
-            return dataBaseObject.loadStringValue(query, "name");
+            String name = dataBaseObject.loadStringValue(query, "name");
+            closeDataBaseConnection(dataBaseObject);
+            return name;
         }
     }
 }

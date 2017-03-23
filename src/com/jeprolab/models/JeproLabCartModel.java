@@ -261,6 +261,7 @@ public class JeproLabCartModel extends JeproLabModel{
         dataBaseObject.query(query, true);
 
         this.cart_id = dataBaseObject.getGeneratedKey();
+        closeDataBaseConnection(dataBaseObject);
         return (this.cart_id > 0);
     }
 

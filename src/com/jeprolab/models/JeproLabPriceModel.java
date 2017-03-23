@@ -192,8 +192,9 @@ public class JeproLabPriceModel extends JeproLabModel{
                 }
                 index++;
             }
-            select = select.substring(0, select.length() - 2);
-            return select + ") AS " + dataBaseObject.quoteName("score");
+            select = select.substring(0, select.length() - 2)+ ") AS " + dataBaseObject.quoteName("score");
+            closeDataBaseConnection(dataBaseObject);
+            return select ;
         }
 
         public static String getPriority(int analyzeId){
@@ -213,6 +214,7 @@ public class JeproLabPriceModel extends JeproLabModel{
                 //dataBaseObject.setQuery(query);
 
                 JeproLabSpecificPriceModel._cache_priorities.put(analyzeId, dataBaseObject.loadStringValue(query, "priority"));
+                closeDataBaseConnection(dataBaseObject);
             }
 
             String priority = JeproLabSpecificPriceModel._cache_priorities.get(analyzeId);
@@ -309,6 +311,8 @@ public class JeproLabPriceModel extends JeproLabModel{
             extraQuery += dataBaseObject.quoteName("from") + ") AND (" + dataBaseObject.quoteName("to") + " = '0000-00-00 00:00:00' OR ' ";
             extraQuery += ending + "' <= " + dataBaseObject.quoteName("to") + ")";
 
+            closeDataBaseConnection(dataBaseObject);
+
             return extraQuery;
         }
 
@@ -376,6 +380,7 @@ public class JeproLabPriceModel extends JeproLabModel{
             if (specificList.isEmpty() || specificList.contains(fieldValue)) {
                 extraQuery = " AND " + dataBaseObject.quoteName(fieldName) + " " + JeproLabSpecificPriceModel.formatIntInQuery(0, fieldValue) +" ";
             }
+            closeDataBaseConnection(dataBaseObject);
 
             return extraQuery;
         }
@@ -395,7 +400,9 @@ public class JeproLabPriceModel extends JeproLabModel{
             query += ", " + this.reduction + ", " + this.from + ", " + this.to + ") ";
 
             //dataBaseObject.setQuery(query);
-            return dataBaseObject.query(query, false);
+            boolean result = dataBaseObject.query(query, false);
+            closeDataBaseConnection(dataBaseObject);
+            return result;
         }
 
         public static boolean deleteByAnalyzeId(int analyzeId){
@@ -408,6 +415,7 @@ public class JeproLabPriceModel extends JeproLabModel{
                 JeproLabSettingModel.updateValue("specific_price_active", JeproLabSpecificPriceModel.isCurrentlyUsed("specific_price"));
                 return true;
             }
+            closeDataBaseConnection(dataBaseObject);
             return false;
         }
 
@@ -561,7 +569,9 @@ public class JeproLabPriceModel extends JeproLabModel{
             query += "WHERE specific_price_rule_id = " + this.specific_price_rule_id + where;
 
             //dataBaseObject.quoteName(query);
-            return dataBaseObject.query(query, false);
+            boolean result = dataBaseObject.query(query, false);
+            closeDataBaseConnection(dataBaseObject);
+            return result;
         }
 
         /**

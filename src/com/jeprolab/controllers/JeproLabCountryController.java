@@ -1,23 +1,31 @@
 package com.jeprolab.controllers;
 
 import com.jeprolab.JeproLab;
+import com.jeprolab.assets.config.JeproLabConfigurationSettings;
 import com.jeprolab.assets.tools.JeproLabContext;
+import com.jeprolab.assets.tools.exception.JeproLabUncaughtExceptionHandler;
 import com.jeprolab.models.JeproLabCountryModel;
+import javafx.application.Platform;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.concurrent.Task;
+import javafx.concurrent.Worker;
 import javafx.fxml.FXML;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 import javafx.util.Callback;
+import org.apache.log4j.Level;
 
 import java.net.URL;
 import java.util.List;
@@ -31,83 +39,125 @@ import java.util.stream.Collectors;
 public class JeproLabCountryController extends JeproLabController{
     private Button addCountryBtn, addStateBtn;
     private CheckBox checkAll;
+    public TableView<JeproLabCountryRecord> jeproLabCountryTableView;
     private ObservableList<JeproLabCountryRecord> countryList;
+    public HBox jeproLabCountrySearchWrapper;
+    public TextField jeproLabCountrySearchField;
+    public ComboBox<String> jeproLabCountrySearchFilter;
+    public Button jeproLabCountrySearchBtn;
 
     @FXML
-    public TableView<JeproLabCountryRecord> jeproLabCountryTableView;
-    public TableColumn<JeproLabCountryRecord, String> jeproLabCountryIndexColumn;
-    public TableColumn<JeproLabCountryRecord, Boolean> jeproLabCountryStatusColumn;
-    public TableColumn<JeproLabCountryRecord, Boolean> jeproLabCountryCheckBoxColumn;
-    public TableColumn<JeproLabCountryRecord, String> jeproLabCountryNameColumn;
-    public TableColumn<JeproLabCountryRecord, String> jeproLabCountryIsoCodeColumn;
-    public TableColumn<JeproLabCountryRecord, String> jeproLabCountryCallPrefixColumn;
-    public TableColumn<JeproLabCountryRecord, String> jeproLabCountryZoneColumn;
-    public TableColumn<JeproLabCountryRecord, HBox> jeproLabCountryActionsColumn;
-    public HBox jeproLabCountrySearchWrapper;
-    public TextField jeproLabCountrySearch;
-    public Button jeproLabCountrySearchBtn;
+    public VBox jeproLabCountryTableViewWrapper;
+
 
 
     public  void initialize(URL location, ResourceBundle resource){
         super.initialize(location, resource);
         formWidth = 0.98 * JeproLab.APP_WIDTH;
-        double remainingWidth = formWidth - 294;
+        double remainingWidth = formWidth - 304;
 
-        jeproLabCountryTableView.setPrefSize(formWidth, 600);
-        VBox.setMargin(jeproLabCountrySearchWrapper, new Insets(10, 0, 0,(0.01 * JeproLab.APP_WIDTH)));
-        VBox.setMargin(jeproLabCountryTableView, new Insets(0, 0, 0,(0.01 * JeproLab.APP_WIDTH)));
+        jeproLabCountryTableView = new TableView<>();
+        jeproLabCountryTableView.setPrefSize(formWidth, rowHeight * JeproLabConfigurationSettings.LIST_LIMIT);
 
-        //jeproLabCountryTableView;
-        jeproLabCountryIndexColumn.setText("#");
+        TableColumn<JeproLabCountryRecord, String>  jeproLabCountryIndexColumn = new TableColumn<>("#");
         jeproLabCountryIndexColumn.setPrefWidth(30);
         jeproLabCountryIndexColumn.setCellValueFactory(new PropertyValueFactory<>("countryId"));
         tableCellAlign(jeproLabCountryIndexColumn, Pos.BASELINE_RIGHT);
         checkAll = new CheckBox();
+
+        TableColumn<JeproLabCountryRecord, Boolean> jeproLabCountryCheckBoxColumn = new TableColumn<>();
         jeproLabCountryCheckBoxColumn.setPrefWidth(22);
         jeproLabCountryCheckBoxColumn.setGraphic(checkAll);
         tableCellAlign(jeproLabCountryCheckBoxColumn, Pos.CENTER);
         jeproLabCountryCheckBoxColumn.setGraphic(checkAll);
         Callback<TableColumn<JeproLabCountryRecord, Boolean>, TableCell<JeproLabCountryRecord, Boolean>> checkBoxFactory = param -> new JeproLabCheckBoxCell();
         jeproLabCountryCheckBoxColumn.setCellFactory(checkBoxFactory);
+
+        TableColumn<JeproLabCountryRecord, Boolean> jeproLabCountryStatusColumn = new TableColumn<>();
         jeproLabCountryStatusColumn.setPrefWidth(60);
         jeproLabCountryStatusColumn.setText(bundle.getString("JEPROLAB_STATUS_LABEL"));
         tableCellAlign(jeproLabCountryStatusColumn, Pos.CENTER);
         Callback<TableColumn<JeproLabCountryRecord, Boolean>, TableCell<JeproLabCountryRecord, Boolean>> statusFactory = param -> new JeproLabStatusCell();
         jeproLabCountryStatusColumn.setCellFactory(statusFactory);
+
+        TableColumn<JeproLabCountryRecord, String> jeproLabCountryNameColumn = new TableColumn<>();
         jeproLabCountryNameColumn.setPrefWidth(0.7 * remainingWidth);
         jeproLabCountryNameColumn.setText(bundle.getString("JEPROLAB_NAME_LABEL"));
         tableCellAlign(jeproLabCountryNameColumn, Pos.CENTER_LEFT);
         jeproLabCountryNameColumn.setCellValueFactory(new PropertyValueFactory<>("countryName"));
+
+        TableColumn<JeproLabCountryRecord, String> jeproLabCountryIsoCodeColumn = new TableColumn<>();
         jeproLabCountryIsoCodeColumn.setPrefWidth(60);
         jeproLabCountryIsoCodeColumn.setText(bundle.getString("JEPROLAB_ISO_CODE_LABEL"));
         jeproLabCountryIsoCodeColumn.setCellValueFactory(new PropertyValueFactory<>("countryIsoCode"));
         tableCellAlign(jeproLabCountryIsoCodeColumn, Pos.CENTER);
+
+        TableColumn<JeproLabCountryRecord, String> jeproLabCountryCallPrefixColumn = new TableColumn<>();
         jeproLabCountryCallPrefixColumn.setPrefWidth(70);
         jeproLabCountryCallPrefixColumn.setText(bundle.getString("JEPROLAB_CALL_PREFIX_LABEL"));
         jeproLabCountryCallPrefixColumn.setCellValueFactory(new PropertyValueFactory<>("countryCallPrefix"));
         tableCellAlign(jeproLabCountryCallPrefixColumn, Pos.CENTER);
+
+        TableColumn<JeproLabCountryRecord, String> jeproLabCountryZoneColumn = new TableColumn<>();
         jeproLabCountryZoneColumn.setPrefWidth(0.3 * remainingWidth);
         jeproLabCountryZoneColumn.setText(bundle.getString("JEPROLAB_ZONE_LABEL"));
         jeproLabCountryZoneColumn.setCellValueFactory(new PropertyValueFactory<>("countryZone"));
         tableCellAlign(jeproLabCountryZoneColumn, Pos.CENTER);
-        jeproLabCountryActionsColumn.setPrefWidth(50);
+
+        TableColumn<JeproLabCountryRecord, HBox> jeproLabCountryActionsColumn = new TableColumn<>();
+        jeproLabCountryActionsColumn.setPrefWidth(60);
         jeproLabCountryActionsColumn.setText(bundle.getString("JEPROLAB_ACTIONS_LABEL"));
         Callback<TableColumn<JeproLabCountryRecord, HBox>, TableCell<JeproLabCountryRecord, HBox>> actionsFactory = param -> new JeproLabActionCell();
         jeproLabCountryActionsColumn.setCellFactory(actionsFactory);
+
+        jeproLabCountryTableView.getColumns().addAll(
+            jeproLabCountryIndexColumn, jeproLabCountryCheckBoxColumn, jeproLabCountryStatusColumn,
+            jeproLabCountryNameColumn, jeproLabCountryIsoCodeColumn, jeproLabCountryCallPrefixColumn,
+            jeproLabCountryZoneColumn, jeproLabCountryActionsColumn
+        );
+
+        jeproLabCountrySearchWrapper = new HBox(10);
+
+        jeproLabCountrySearchField = new TextField();
+        jeproLabCountrySearchField.setPromptText(bundle.getString("JEPROLAB_SEARCH_LABEL"));
+        jeproLabCountrySearchFilter = new ComboBox<>();
+        jeproLabCountrySearchFilter.setPromptText(bundle.getString("JEPROLAB_SEARCH_BY_LABEL"));
+        jeproLabCountrySearchBtn = new Button();
+        jeproLabCountrySearchBtn.getStyleClass().addAll("icon-btn", "search-btn");
+
+        jeproLabCountrySearchWrapper.getChildren().addAll(
+            jeproLabCountrySearchField, jeproLabCountrySearchFilter, jeproLabCountrySearchBtn
+        );
     }
 
     @Override
     public void initializeContent(){
-        if(countryList == null) {
-            countryList = FXCollections.observableArrayList();
-        }
+        Worker<Boolean> worker = new Task<Boolean>(){
+            List<JeproLabCountryModel> countries;
 
-        List<JeproLabCountryModel> countries = JeproLabCountryModel.getCountries(context.language.language_id);
-        if(countries != null){
-            countryList.clear();
-            countryList.addAll(countries.stream().map(JeproLabCountryRecord::new).collect(Collectors.toList()));
-        }
-        jeproLabCountryTableView.setItems(countryList);
+            @Override
+            protected Boolean call() throws Exception {
+                if(isCancelled()){
+                    return false;
+                }
+                countries = JeproLabCountryModel.getCountries(context.language.language_id);
+                return true;
+            }
+
+            @Override
+            protected void failed(){
+                super.failed();
+                JeproLabUncaughtExceptionHandler.logExceptionMessage(Level.ERROR, exceptionProperty().getValue());
+            }
+
+            @Override
+            protected void succeeded(){
+                super.succeeded();
+                updateTableView(countries);
+            }
+        };
+
+        new Thread((Task)worker).start();
         updateToolBar();
     }
 
@@ -119,6 +169,35 @@ public class JeproLabCountryController extends JeproLabController{
         addCountryBtn = new Button(bundle.getString("JEPROLAB_ADD_NEW_LABEL"), new ImageView(new Image(JeproLab.class.getResourceAsStream("resources/images/add.png"))));
         addStateBtn = new Button(bundle.getString("JEPROLAB_ADD_STATE_LABEL"), new ImageView(new Image(JeproLab.class.getResourceAsStream("resources/images/add.png"))));
         commandWrapper.getChildren().addAll(addCountryBtn, addStateBtn);
+    }
+
+    private void updateTableView(List<JeproLabCountryModel> countries){
+        double padding = 0.01 * JeproLab.APP_WIDTH;
+        if(countries.isEmpty()){
+            Platform.runLater(() -> {
+                setEmptyTableView(jeproLabCountryTableViewWrapper, jeproLabCountrySearchWrapper, jeproLabCountryTableView);
+            });
+        }else{
+            countryList = FXCollections.observableArrayList();
+            countryList.addAll(countries.stream().map(JeproLabCountryRecord::new).collect(Collectors.toList()));
+            Platform.runLater(() -> {
+                Pagination jeproLabCountriesPagination = new Pagination((countryList.size()/ JeproLabConfigurationSettings.LIST_LIMIT) + 1, 0);
+                jeproLabCountriesPagination.setPageFactory(this::createCountriesPage);
+
+                jeproLabCountryTableViewWrapper.getChildren().clear();
+                jeproLabCountryTableViewWrapper.getChildren().addAll(jeproLabCountrySearchWrapper, jeproLabCountriesPagination);
+                VBox.setMargin(jeproLabCountrySearchWrapper, new Insets(5, padding, 5, padding));
+                VBox.setMargin(jeproLabCountriesPagination, new Insets(5, padding, 5, padding));
+            });
+        }
+    }
+
+    private Node createCountriesPage(int pageIndex){
+        int fromIndex = pageIndex * JeproLabConfigurationSettings.LIST_LIMIT;
+        int toIndex = Math.min(fromIndex + JeproLabConfigurationSettings.LIST_LIMIT, (countryList.size()));
+        jeproLabCountryTableView.setItems(FXCollections.observableArrayList(countryList.subList(fromIndex, toIndex)));
+
+        return new Pane(jeproLabCountryTableView);
     }
 
 

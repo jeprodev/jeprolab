@@ -74,6 +74,8 @@ public class JeproLabGroupModel extends JeproLabModel{
                     dataBaseObject = JeproLabFactory.getDataBaseConnector();
                 }
                 String query = "SELECT * FROM " + dataBaseObject.quoteName("#__jeprolab_group") + " AS grp ";
+
+                closeDataBaseConnection(dataBaseObject);
             }
         }
         //parent::__construct($id, $id_lang, $id_shop);
@@ -156,6 +158,7 @@ public class JeproLabGroupModel extends JeproLabModel{
             //dataBaseObject.setQuery(query);
             float reduction = (float)dataBaseObject.loadValue(query, "reduction");
             JeproLabGroupModel.cache_reduction.put(cacheKey, reduction);
+            closeDataBaseConnection(dataBaseObject);
         }
         return JeproLabGroupModel.cache_reduction.get(cacheKey);
     }
@@ -209,6 +212,7 @@ public class JeproLabGroupModel extends JeproLabModel{
             //dataBaseObject.setQuery(query);
 
             JeproLabGroupModel.group_price_display_method.put(groupId, (int)dataBaseObject.loadValue(query, "price_display_method"));
+            closeDataBaseConnection(dataBaseObject);
         }
         return JeproLabGroupModel.group_price_display_method.get(groupId);
     }
@@ -239,6 +243,7 @@ public class JeproLabGroupModel extends JeproLabModel{
             //dataBaseObject.setQuery(query);
 
             boolean isAssociated = ((int)dataBaseObject.loadValue(query, "lab_id")) > 0;
+            closeDataBaseConnection(dataBaseObject);
 
             JeproLabCache.getInstance().store(cacheKey, isAssociated);
             return isAssociated;
@@ -265,7 +270,7 @@ public class JeproLabGroupModel extends JeproLabModel{
 
         }
 
-        public static ResultSet getGroupsByCategoryId(int categoryId){
+        public static List<JeproLabGroupReductionModel> getGroupsByCategoryId(int categoryId){
             if(dataBaseObject == null){
                 dataBaseObject = JeproLabFactory.getDataBaseConnector();
             }
@@ -275,7 +280,30 @@ public class JeproLabGroupModel extends JeproLabModel{
             query += " = "  + categoryId;
 
             //dataBaseObject.setQuery(query);
-            return dataBaseObject.loadObjectList(query);
+            List<JeproLabGroupReductionModel> groupList = new ArrayList<>();
+            ResultSet groupSet = dataBaseObject.loadObjectList(query);
+            if(groupSet != null){
+                try {
+                    JeproLabGroupReductionModel currentGroupReduction;
+                    while (groupSet.next()) {
+                        currentGroupReduction = new JeproLabGroupReductionModel();
+                        currentGroupReduction.group_reduction_id = groupSet.getInt("group_reduction_id");
+                        currentGroupReduction.group_id = groupSet.getInt("group_id");
+                        currentGroupReduction.reduction = groupSet.getFloat("reduction");
+                        groupList.add(currentGroupReduction);
+                    }
+                }catch (SQLException ignored){
+                    JeproLabUncaughtExceptionHandler.logExceptionMessage(Level.ERROR, ignored);
+                }finally {
+                    try {
+                        JeproLabFactory.removeConnection(dataBaseObject);
+                    }catch (Exception ignored) {
+                        JeproLabUncaughtExceptionHandler.logExceptionMessage(Level.WARN, ignored);
+                    }
+                }
+            }
+            closeDataBaseConnection(dataBaseObject);
+            return groupList;
         }
 
         public static List<JeproLabGroupReductionModel> getGroupsReductionByCategoryId(int categoryId){
@@ -375,26 +403,12 @@ public class JeproLabGroupModel extends JeproLabModel{
             JeproLabGroupReductionModel.deleteAnalyzeReduction(analyzeId);
 
             List<Integer> categories = JeproLabAnalyzeModel.getAnalyzeCategories(analyzeId);
-
+            List<JeproLabGroupReductionModel> reductions;
             if (categories.size() > 0) {
                 for(int id : categories){
-                    ResultSet reductions = JeproLabGroupReductionModel.getGroupsByCategoryId(id);
-                    if (reductions != null){
-                        try {
-                            JeproLabGroupReductionModel currentGroupReduction;
-                            while (reductions.next()) {
-                                currentGroupReduction = new JeproLabGroupReductionModel(reductions.getInt("group_reduction_id"));
-                                result &= currentGroupReduction.setCache();
-                            }
-                        }catch (SQLException ignored){
-                            JeproLabUncaughtExceptionHandler.logExceptionMessage(Level.ERROR, ignored);
-                        }finally {
-                            try {
-                                JeproLabFactory.removeConnection(dataBaseObject);
-                            }catch (Exception ignored) {
-                                JeproLabUncaughtExceptionHandler.logExceptionMessage(Level.WARN, ignored);
-                            }
-                        }
+                    reductions = JeproLabGroupReductionModel.getGroupsByCategoryId(id);
+                    for(JeproLabGroupReductionModel reductionModel :reductions){
+                        result &= reductionModel.setCache();
                     }
                 }
             }

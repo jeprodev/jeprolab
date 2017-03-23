@@ -4,11 +4,15 @@ import com.jeprolab.JeproLab;
 import com.jeprolab.assets.config.JeproLabConfigurationSettings;
 import com.jeprolab.assets.tools.JeproLabContext;
 import javafx.fxml.Initializable;
+import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.control.Label;
 import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
+import javafx.scene.control.TableView;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.VBox;
 import org.apache.log4j.Logger;
 
 import java.net.URL;
@@ -80,6 +84,14 @@ public class JeproLabController implements Initializable {
 
             return cell;
         });
+    }
+
+    protected void setEmptyTableView(VBox wrapper, HBox searchWrapper, TableView tableView){
+        double padding = 0.01 * JeproLab.APP_WIDTH;
+        wrapper.getChildren().clear();
+        VBox.setMargin(searchWrapper, new Insets(5, padding, 5, padding));
+        VBox.setMargin(tableView, new Insets(5, padding, 5, padding));
+        wrapper.getChildren().addAll(searchWrapper, tableView);
     }
 
     protected void addInformation(String message){

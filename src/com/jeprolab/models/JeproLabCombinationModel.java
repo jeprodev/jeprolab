@@ -89,6 +89,8 @@ public class JeproLabCombinationModel extends JeproLabModel{
                 }
             }catch (SQLException ignored){
                 JeproLabUncaughtExceptionHandler.logExceptionMessage(Level.ERROR, ignored);
+            }finally{
+                closeDataBaseConnection(dataBaseObject);
             }
         }
         return attributeList;

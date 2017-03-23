@@ -385,7 +385,9 @@ public class JeproLabAddressModel extends JeproLabModel{
             query += dataBaseObject.quoteName("address_id") + " = " + this.address_id;
 
             //dataBaseObject.setQuery(query);
-            return dataBaseObject.query(query, false);
+            boolean result = dataBaseObject.query(query, false);
+            closeDataBaseConnection(dataBaseObject);
+            return result;
         } else {
             this.deleted = true;
             this.update();
@@ -408,7 +410,9 @@ public class JeproLabAddressModel extends JeproLabModel{
 
         //dataBaseObject.setQuery(query);
 
-        return dataBaseObject.loadValue(query, "used") > 0;
+        boolean result = dataBaseObject.loadValue(query, "used") > 0;
+        closeDataBaseConnection(dataBaseObject);
+        return result;
     }
 
     public void update(){
@@ -582,7 +586,9 @@ public class JeproLabAddressModel extends JeproLabModel{
         query += " = " + customerId + " AND " + dataBaseObject.quoteName("deleted") + " = 0";
 
         //dataBaseObject.setQuery(query);
-        return dataBaseObject.loadValue(query, "address") > 0;
+        boolean result = dataBaseObject.loadValue(query, "address") > 0;
+        closeDataBaseConnection(dataBaseObject);
+        return result;
     }
 
     public static int getCustomerFirstAddressId(int customerId){

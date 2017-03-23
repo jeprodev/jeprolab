@@ -1,5 +1,6 @@
 package com.jeprolab.models;
 
+import com.jeprolab.JeproLab;
 import com.jeprolab.assets.tools.JeproLabCache;
 import com.jeprolab.assets.tools.JeproLabContext;
 import com.jeprolab.assets.tools.JeproLabTools;
@@ -7,7 +8,16 @@ import com.jeprolab.assets.tools.db.JeproLabDataBaseConnector;
 import com.jeprolab.assets.tools.exception.JeproLabUncaughtExceptionHandler;
 import com.jeprolab.models.core.JeproLabFactory;
 import org.apache.log4j.Level;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.NodeList;
+import org.xml.sax.SAXException;
 
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.xpath.*;
+import java.io.IOException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -402,6 +412,105 @@ public class JeproLabCurrencyModel extends JeproLabModel {
         query += " WHERE " + dataBaseObject.quoteName("currency_id") + " = "  + this.currency_id;
 
         //dataBaseObject.setQuery(query);
-        return dataBaseObject.query(query, false);
+        boolean result = dataBaseObject.query(query, false);
+        closeDataBaseConnection(dataBaseObject);
+        return result;
+    }
+
+    public static void updateCurrencyRates(String sourceFile){
+        try{
+            DocumentBuilderFactory domFactory = DocumentBuilderFactory.newInstance();
+            domFactory.setNamespaceAware(true);
+            DocumentBuilder builder = domFactory.newDocumentBuilder();
+            Document document = builder.parse(sourceFile);
+            Element root = document.getDocumentElement();
+            XPath xPath = XPathFactory.newInstance().newXPath();
+            XPathExpression expression = xPath.compile("//item");
+            Object result = expression.evaluate(document, XPathConstants.NODESET);
+            NodeList nodes = (NodeList)result;
+            String baseCurrency, targetCurrency;
+            float currencyRate;
+            int currencyId, baseCurrencyId;
+            String query, expressionFilter;
+
+            if(dataBaseObject == null){
+                dataBaseObject = JeproLabFactory.getDataBaseConnector();
+            }
+
+            baseCurrency = (xPath.evaluate( "/channel/baseCurrency", root));
+            baseCurrencyId = JeproLabCurrencyModel.getCurrencyIdByIsoCode(baseCurrency);
+
+
+            if(baseCurrencyId != JeproLabSettingModel.getIntValue("default_currency")){
+                JeproLabSettingModel.updateValue("default_currency", baseCurrencyId);
+                query = "UPDATE " + dataBaseObject.quoteName("#__jeprolab_currency") + " SET " + dataBaseObject.quoteName("conversion_rate");
+                query += " = 1 WHERE " + dataBaseObject.quoteName("iso_code") + " = " + dataBaseObject.quote(baseCurrency.toUpperCase());
+                query += " AND " + dataBaseObject.quoteName("currency_id") + " = " + baseCurrencyId;
+
+
+                dataBaseObject.query(query, false);
+
+                query = "UPDATE " + dataBaseObject.quoteName("#__jeprolab_currency_lab") + " SET " + dataBaseObject.quoteName("conversion_rate");
+                query += " = 1 WHERE " + dataBaseObject.quoteName("currency_id") + " = " + baseCurrencyId + " AND ";
+                query += dataBaseObject.quoteName("lab_id") + " = " + JeproLabContext.getContext().laboratory.laboratory_id;
+
+                dataBaseObject.query(query, false);
+            }
+
+            for(int index = 0; index < nodes.getLength(); index++){
+                expressionFilter = "/channel/item[" + index + "]";
+
+                targetCurrency = (xPath.evaluate(expressionFilter + "/targetCurrency", root));
+                currencyRate = ((Double)(xPath.evaluate(expressionFilter + "/exchangeRate", root, XPathConstants.NUMBER))).floatValue();
+
+                currencyId = JeproLabCurrencyModel.getCurrencyIdByIsoCode(targetCurrency);
+
+                if(currencyId > 0) {
+                    query = "UPDATE " + dataBaseObject.quoteName("#__jeprolab_currency") + " SET " + dataBaseObject.quoteName("conversion_rate");
+                    query += " = " + currencyRate + " WHERE " + dataBaseObject.quoteName("iso_code") + " = " + dataBaseObject.quote(targetCurrency.toUpperCase());
+                    query += " AND " + dataBaseObject.quoteName("currency_id") + " = " + currencyId;
+
+                    dataBaseObject.query(query, false);
+
+                    query = "UPDATE " + dataBaseObject.quoteName("#__jeprolab_currency_lab") + " SET " + dataBaseObject.quoteName("conversion_rate");
+                    query += " = " + currencyRate + " WHERE " + dataBaseObject.quoteName("currency_id") + " = " + currencyId + " AND ";
+                    query += dataBaseObject.quoteName("lab_id") + " = " + JeproLabContext.getContext().laboratory.laboratory_id;
+
+                    dataBaseObject.query(query, false);
+                }
+            }
+        }catch(ParserConfigurationException |SAXException | IOException | XPathExpressionException ignored){
+            JeproLabUncaughtExceptionHandler.logExceptionMessage(Level.WARN, ignored);
+        }finally{
+            closeDataBaseConnection(dataBaseObject);
+        }
+    }
+
+    public static int getCurrencyIdByIsoCode(String isoCode){
+        if(dataBaseObject == null){
+            dataBaseObject = JeproLabFactory.getDataBaseConnector();
+        }
+
+        String query = "SELECT " + dataBaseObject.quoteName("currency_id") + " FROM " + dataBaseObject.quoteName("#__jeprolab_currency");
+        query += " WHERE " + dataBaseObject.quoteName("iso_code") + " = " + dataBaseObject.quote(isoCode);
+
+        int currencyId = (int)dataBaseObject.loadValue(query, "currency_id");
+        closeDataBaseConnection(dataBaseObject);
+
+        return currencyId;
+    }
+
+    public static String getCurrencyIsoCodeByCurrencyId(int currencyId){
+        if(dataBaseObject == null){
+            dataBaseObject = JeproLabFactory.getDataBaseConnector();
+        }
+
+        String query = "SELECT " + dataBaseObject.quoteName("iso_code") + " FROM " + dataBaseObject.quoteName("#__jeprolab_currency");
+        query += " WHERE " + dataBaseObject.quoteName("currency_id") + " = " + currencyId;
+
+        String isoCode = dataBaseObject.loadStringValue(query, "iso_code");
+
+        closeDataBaseConnection(dataBaseObject);
+        return isoCode;
     }
 }

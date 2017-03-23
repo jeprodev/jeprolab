@@ -39,7 +39,7 @@ public class JeproLabAttributeModel extends JeproLabModel{
         if (minimalQuantity > 1) {
             return minimalQuantity;
         }
-
+        closeDataBaseConnection(dataBaseObject);
         return 0;
     }
 }

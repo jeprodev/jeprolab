@@ -870,15 +870,23 @@ public class JeproLabTools {
         }* /
     } */
 
-    public static void retrieveXmlFile(String websiteUrl, String destinationFile){
+    public static boolean retrieveXmlFile(String websiteUrl, String destinationFile){
         try{
             URL website = new URL(websiteUrl);
             ReadableByteChannel rbc = Channels.newChannel(website.openStream());
+            File storedFile = new File(destinationFile);
+            if(!storedFile.exists() && !storedFile.getParentFile().mkdirs() && !storedFile.createNewFile()){
+                JeproLabUncaughtExceptionHandler.logExceptionMessage(Level.ERROR,
+                    new Throwable(JeproLab.getBundle().getString("JEPROLAB_CURRENCY_RATES_FILES_NOT_CREATED_MESSAGE")));
+            }
             FileOutputStream fileOutputStream = new FileOutputStream(destinationFile);
             fileOutputStream.getChannel().transferFrom(rbc, 0, Long.MAX_VALUE);
         } catch (IOException ignored) {
+            ignored.printStackTrace();
             JeproLabUncaughtExceptionHandler.logExceptionMessage(Level.WARN, ignored);
+            return false;
         }
+        return true;
     }
 
     public static Image getImage(String path){

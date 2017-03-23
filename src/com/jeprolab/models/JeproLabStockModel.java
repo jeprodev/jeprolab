@@ -538,6 +538,7 @@ public class JeproLabStockModel extends JeproLabModel {
                     dataBaseObject.query(query, false);
                 }
             }
+            closeDataBaseConnection(dataBaseObject);
         }
 
 
@@ -759,6 +760,8 @@ public class JeproLabStockModel extends JeproLabModel {
                     }
                 }catch(SQLException ignored){
                     JeproLabUncaughtExceptionHandler.logExceptionMessage(Level.WARN, ignored);
+                }finally {
+                    closeDataBaseConnection(dataBaseObject);
                 }
             }
 

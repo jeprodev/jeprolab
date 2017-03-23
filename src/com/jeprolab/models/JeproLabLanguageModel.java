@@ -62,6 +62,8 @@ public class JeproLabLanguageModel extends JeproLabModel{
                     JeproLabCache.getInstance().store(cacheKey, this);
                 }catch (SQLException ignored){
                     JeproLabUncaughtExceptionHandler.logExceptionMessage(Level.ERROR, ignored);
+                }finally{
+                    closeDataBaseConnection(dataBaseObject);
                 }
             }else{
                 JeproLabLanguageModel language = (JeproLabLanguageModel)JeproLabCache.getInstance().retrieve(cacheKey);

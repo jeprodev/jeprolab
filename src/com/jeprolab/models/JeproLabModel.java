@@ -2,7 +2,9 @@ package com.jeprolab.models;
 
 import com.jeprolab.assets.tools.JeproLabCache;
 import com.jeprolab.assets.tools.db.JeproLabDataBaseConnector;
+import com.jeprolab.assets.tools.exception.JeproLabUncaughtExceptionHandler;
 import com.jeprolab.models.core.JeproLabFactory;
+import org.apache.log4j.Level;
 
 /**
  *
@@ -53,7 +55,9 @@ public class JeproLabModel {
                 break;
         }
 
-        return dataBaseObject.query((query + condition), false);
+        boolean result = dataBaseObject.query((query + condition), false);
+        closeDataBaseConnection(dataBaseObject);
+        return result;
     }
 
     public void clearCache(String table, int id){
@@ -70,6 +74,14 @@ public class JeproLabModel {
             JeproLabCache.getInstance().remove("jeprolab_" + table + "_model_*");
         } else if (id > 0) {
             JeproLabCache.getInstance().remove("jeprolab_" + table + "_model_" + id + "_*");
+        }
+    }
+
+    protected static void closeDataBaseConnection(JeproLabDataBaseConnector dbo){
+        try{
+            JeproLabFactory.removeConnection(dbo);
+        }catch (Exception ignored){
+            JeproLabUncaughtExceptionHandler.logExceptionMessage(Level.WARN, ignored);
         }
     }
 }

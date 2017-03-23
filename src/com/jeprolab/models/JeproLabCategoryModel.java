@@ -457,7 +457,9 @@ public class JeproLabCategoryModel extends JeproLabModel{
         query += " WHERE " + dataBaseObject.quoteName("category_id") + " = " + this.category_id + " AND " + dataBaseObject.quoteName("lab_id") + " = " + labId;
 
         //dataBaseObject.setQuery(query);
-        return dataBaseObject.loadValue(query, "category_id") > 0;
+        boolean result = dataBaseObject.loadValue(query, "category_id") > 0;
+        closeDataBaseConnection(dataBaseObject);
+        return result;
     }
 
     public boolean isAssociatedToLaboratory(){
@@ -847,7 +849,10 @@ public class JeproLabCategoryModel extends JeproLabModel{
             cat.published = this.published;
             JeproLabCache.getInstance().update(cacheKey, cat);
         }
-        return dataBaseObject.query(query, false);
+
+        boolean result = dataBaseObject.query(query, false);
+        closeDataBaseConnection(dataBaseObject);
+        return result;
     }
 
     /**
@@ -868,7 +873,9 @@ public class JeproLabCategoryModel extends JeproLabModel{
         query += " AND category." + dataBaseObject.quoteName("parent_id") + " = " + this.parent_id;
 
         //dataBaseObject.setQuery(query);
-        return dataBaseObject.loadValue(query, "category_id") > 0;
+        boolean result = dataBaseObject.loadValue(query, "category_id") > 0;
+        closeDataBaseConnection(dataBaseObject);
+        return result;
     }
 
     public List<Integer> getGroups(){
@@ -922,7 +929,9 @@ public class JeproLabCategoryModel extends JeproLabModel{
         query += dataBaseObject.quoteName("category_id") + " = " + this.category_id;
         //dataBaseObject.setQuery(query);
 
-        return dataBaseObject.loadValue(query, "entries") > 0;
+        boolean result = dataBaseObject.loadValue(query, "entries") > 0;
+        closeDataBaseConnection(dataBaseObject);
+        return result;
     }
 
     public void saveCategory(){
@@ -1051,6 +1060,7 @@ public class JeproLabCategoryModel extends JeproLabModel{
             JeproLab.getInstance().goToForm(JeproLab.getInstance().getApplicationForms().categoryForm);
             JeproLab.getInstance().getApplicationForms().categoryForm.controller.initializeContent(JeproLabCategoryModel.getTopCategory().category_id);
         }
+        closeDataBaseConnection(dataBaseObject);
     }
 
     public boolean update(){
@@ -1151,6 +1161,7 @@ public class JeproLabCategoryModel extends JeproLabModel{
             JeproLabCategoryModel.regenerateEntireNestedTree();
             this.recalculateDepthLevel(this.category_id);
         }
+        closeDataBaseConnection(dataBaseObject);
         return ret;
     }
 
@@ -1201,7 +1212,9 @@ public class JeproLabCategoryModel extends JeproLabModel{
         String query = "DELETE FROM " + dataBaseObject.quoteName("#__jeprolab_analyze_category") + " WHERE " + dataBaseObject.quoteName("category_id") + " = " + this.category_id;
 
         //dataBaseObject.setQuery(query);
-        return dataBaseObject.query(query, false);
+        boolean result = dataBaseObject.query(query, false);
+        closeDataBaseConnection(dataBaseObject);
+        return result;
     }
     /**
      * Updates depth_level for all children of the given id_category
@@ -1247,6 +1260,7 @@ public class JeproLabCategoryModel extends JeproLabModel{
                 JeproLabUncaughtExceptionHandler.logExceptionMessage(Level.ERROR, ignored);
             }
         }
+        closeDataBaseConnection(dataBaseObject);
     }
 
     /**
@@ -1327,7 +1341,9 @@ public class JeproLabCategoryModel extends JeproLabModel{
         query += dataBaseObject.quoteName("parent_id") + " = " + categoryParentId;
 
         //dataBaseObject.setQuery(query);
-        return (1 + (int)dataBaseObject.loadValue(query, "max_pos"));
+        int result = (1 + (int)dataBaseObject.loadValue(query, "max_pos"));
+        closeDataBaseConnection(dataBaseObject);
+        return result;
     }
 
     public boolean addPosition(int position){
@@ -1368,6 +1384,7 @@ public class JeproLabCategoryModel extends JeproLabModel{
             //dataBaseObject.setQuery(query);
             result = dataBaseObject.query(query, false);
         }
+        closeDataBaseConnection(dataBaseObject);
         return result;
     }
 
@@ -1386,6 +1403,9 @@ public class JeproLabCategoryModel extends JeproLabModel{
     public static boolean cleanPositions(int parentCategoryId){
         if (parentCategoryId <= 0) {
             return false;
+        }
+        if(dataBaseObject == null){
+            dataBaseObject = JeproLabFactory.getDataBaseConnector();
         }
 
         boolean result = true;
@@ -1504,6 +1524,7 @@ public class JeproLabCategoryModel extends JeproLabModel{
             //dataBaseObject.setQuery(query);
             result &= dataBaseObject.query(query, false);
         }
+        closeDataBaseConnection(dataBaseObject);
         return result;
     }
 
@@ -1514,6 +1535,7 @@ public class JeproLabCategoryModel extends JeproLabModel{
         String query = "DELETE FROM " + dataBaseObject.quoteName("#__jeprolab_category_group") + " WHERE " + dataBaseObject.quoteName("category_id") + " = " + this.category_id;
         //dataBaseObject.setQuery(query);
         dataBaseObject.query(query, false);
+        closeDataBaseConnection(dataBaseObject);
     }
 
     protected static void subTree(Map<Integer, Map<String, List<Integer>>> categories, int categoryId, int n) {
@@ -1533,6 +1555,7 @@ public class JeproLabCategoryModel extends JeproLabModel{
 
         //dataBaseObject.setQuery(query);
         dataBaseObject.query(query, false);
+        closeDataBaseConnection(dataBaseObject);
     }
 
     public static List<JeproLabCategoryModel> getHomeCategories(int langId){
@@ -1655,7 +1678,9 @@ public class JeproLabCategoryModel extends JeproLabModel{
         query += dataBaseObject.quoteName("category_id") + " != " + this.category_id;
 
         //dataBaseObject.setQuery(query);
-        return (int)dataBaseObject.loadValue(query, "category_id");
+        int result = (int)dataBaseObject.loadValue(query, "category_id");
+        closeDataBaseConnection(dataBaseObject);
+        return result;
     }
 
     public static ResultSet getChildren(int parentId, int langId){
@@ -1692,7 +1717,7 @@ public class JeproLabCategoryModel extends JeproLabModel{
 
             //dataBaseObject.setQuery(query);
             ResultSet result = dataBaseObject.loadObjectList(query);
-
+            closeDataBaseConnection(dataBaseObject);
             JeproLabCache.getInstance().store(cacheKey, result);
         }
         return (ResultSet)JeproLabCache.getInstance().retrieve(cacheKey);
@@ -1731,6 +1756,8 @@ public class JeproLabCategoryModel extends JeproLabModel{
                 }
             }catch (SQLException ignored){
                 JeproLabUncaughtExceptionHandler.logExceptionMessage(Level.ERROR, ignored);
+            }finally {
+                closeDataBaseConnection(dataBaseObject);
             }
         }
 
@@ -1754,6 +1781,7 @@ public class JeproLabCategoryModel extends JeproLabModel{
 
             //dataBaseObject.setQuery(query);
             JeproLabCategoryModel._links.put(cacheKey, dataBaseObject.loadStringValue(query, "link_rewrite"));
+            closeDataBaseConnection(dataBaseObject);
         }
         return JeproLabCategoryModel._links.get(cacheKey);
     }
@@ -1767,7 +1795,9 @@ public class JeproLabCategoryModel extends JeproLabModel{
         query += " WHERE " + dataBaseObject.quoteName("category_id") + " = " + categoryId + " AND " + dataBaseObject.quoteName("lang_id");
         query += " = " + langId;
 
-        return dataBaseObject.loadStringValue(query, "name");
+        String result = dataBaseObject.loadStringValue(query, "name");
+        closeDataBaseConnection(dataBaseObject);
+        return result;
     }
 
 

@@ -199,6 +199,7 @@ public class JeproLabEmployeeModel extends JeproLabModel{
         //dataBaseObject.setQuery(query, 0, 1);
 
         int id = (int)dataBaseObject.loadValue(query, "id");
+        closeDataBaseConnection(dataBaseObject);
         return (id > 0) ? id : 0;
     }
 
@@ -220,7 +221,9 @@ public class JeproLabEmployeeModel extends JeproLabModel{
                     labs.add(labSet.getInt("lab_id"));
                 }
             }catch(SQLException ignored){
-
+                JeproLabUncaughtExceptionHandler.logExceptionMessage(Level.ERROR, ignored);
+            }finally {
+                closeDataBaseConnection(dataBaseObject);
             }
         }
         return labs;
