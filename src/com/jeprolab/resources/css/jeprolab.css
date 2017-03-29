@@ -58,6 +58,14 @@
     -fx-border-width: 0 2px 2px 2px;
 }
 
+.module-panel-container{
+    -fx-background-color: rgb(246, 246, 246);
+    -fx-border-radius: 0 0 15 15;
+    -fx-background-radius: 0 0 15 15;
+    -fx-border-color: #bbbbbb;
+    -fx-border-style:solid;
+    -fx-border-width: 0 1px 1px 1px;
+}
 .table-row-cell{ -fx-cell-size: 24px; }
 
 
@@ -80,6 +88,14 @@
 
 .input-label{
     -fx-font-weight: bold;
+}
+.module-label {
+    -fx-font-weight: bold;
+    -fx-font-size: 12px;
+    -fx-text-fill: rgb(255, 255, 255);
+}
+.module-title-container{
+    -fx-background-color: rgb(87, 89, 92);
 }
 
 .text-left{

@@ -43,7 +43,7 @@ public class JeproLabMenuController extends JeproLabController{
     public MenuItem requestListMenuItem, requestAddNewMenuItem, requestBillsMenuItem, requestAddBillMenuItem;
     public MenuItem requestComplaintMenuItem, requestAddNewComplaintMenuItem, requestRefundsMenuItem, requestAddNewRefundsMenuItem;
     public MenuItem requestStatusMenuItem, requestAddStatusMenuItem, requestMessagesMenuItem, requestAddMessageMenuItem;
-    public MenuItem fileManagementMenuItem;
+    public MenuItem fileManagementMenuItem, socialNetworksMenuItem;
 
     @Override
     public void initialize(URL location, ResourceBundle resource) {
@@ -167,6 +167,7 @@ public class JeproLabMenuController extends JeproLabController{
         addCurrencySubMenuItem.setText(bundle.getString("JEPROLAB_ADD_NEW_LABEL") + " " + bundle.getString("JEPROLAB_CURRENCY_LABEL"));
 
         fileManagementMenuItem.setText(bundle.getString("JEPROLAB_FILE_MANAGEMENT_LABEL"));
+        socialNetworksMenuItem.setText(bundle.getString("JEPROLAB_SOCIAL_NETWORK_LABEL"));
 
         addDashboardListeners();
         addCatalogListeners();
@@ -414,6 +415,11 @@ public class JeproLabMenuController extends JeproLabController{
         checkForJeproLabUpdate.setOnAction(evt -> {
             JeproLab.getInstance().goToForm(JeproLab.getInstance().getApplicationForms().updaterForm);
             JeproLab.getInstance().getApplicationForms().updaterForm.controller.initializeContent();
+        });
+
+        socialNetworksMenuItem.setOnAction(evt -> {
+            JeproLab.getInstance().goToForm(JeproLab.getInstance().getApplicationForms().socialNetworkSettingForm);
+            JeproLab.getInstance().getApplicationForms().socialNetworkSettingForm.controller.initializeContent();
         });
     }
 

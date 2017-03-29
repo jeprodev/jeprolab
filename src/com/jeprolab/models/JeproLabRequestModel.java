@@ -162,6 +162,34 @@ public class JeproLabRequestModel extends JeproLabModel{
         return requestList;
     }
 
+    public static List<JeproLabRequestModel> getLastRequests(){
+        if(dataBaseObject == null){
+            dataBaseObject = JeproLabFactory.getDataBaseConnector();
+        }
+
+        String query = "SELECT " + dataBaseObject.quoteName("request_id") + ", " + dataBaseObject.quoteName("reference") + " FROM ";
+        query += dataBaseObject.quoteName("#__jeprolab_request") + " ORDER BY " + dataBaseObject.quoteName("date_add") + " DESC LIMIT 1, 5";
+
+        ResultSet requestSet = dataBaseObject.loadObjectList(query);
+        List<JeproLabRequestModel> requestList = new ArrayList<>();
+        if(requestSet != null){
+            try{
+                JeproLabRequestModel request;
+                while(requestSet.next()){
+                    request = new JeproLabRequestModel();
+                    request.request_id = requestSet.getInt("request_id");
+                    request.reference = requestSet.getString("reference");
+                    requestList.add(request);
+                }
+            }catch (SQLException ignored){
+                JeproLabUncaughtExceptionHandler.logExceptionMessage(Level.ERROR, ignored);
+            }finally {
+                closeDataBaseConnection(dataBaseObject);
+            }
+        }
+        return requestList;
+    }
+
     public void add(){
         if(dataBaseObject == null){
             dataBaseObject = JeproLabFactory.getDataBaseConnector();

@@ -706,6 +706,8 @@ public class JeproLabCountryModel extends JeproLabModel{
 
         public int country_id;
 
+        public int zone_id;
+
         public String iso_code;
 
         public String name;
@@ -713,6 +715,51 @@ public class JeproLabCountryModel extends JeproLabModel{
         public boolean tax_behavior;
 
         public boolean published;
+
+        public JeproLabStateModel(){
+            this(0);
+        }
+
+        public JeproLabStateModel(int stateId){
+            if(stateId > 0){
+                String cacheKey = "jeprolab_state_model_" + stateId;
+                if(!JeproLabCache.getInstance().isStored(cacheKey)){
+                    if(dataBaseObject == null){
+                        dataBaseObject = JeproLabFactory.getDataBaseConnector();
+                    }
+                    String query = "SELECT * FROM " + dataBaseObject.quoteName("#__jeprolab_state") + " WHERE ";
+                    query += dataBaseObject.quoteName("state_id") + " = " + stateId;
+
+                    ResultSet stateSet = dataBaseObject.loadObjectList(query);
+                    if(stateSet != null){
+                        try{
+                            if(stateSet.next()){
+                                this.state_id = stateSet.getInt("state_id");
+                                this.country_id = stateSet.getInt("country_id");
+                                this.zone_id = stateSet.getInt("zone_id");
+                                this.name = stateSet.getString("name");
+                                this.iso_code = stateSet.getString("iso_code");
+                                this.tax_behavior = stateSet.getInt("tax_behavior") > 0;
+                                this.published = stateSet.getInt("published") > 0;
+                            }
+                        }catch(SQLException ignored){
+                            JeproLabUncaughtExceptionHandler.logExceptionMessage(Level.ERROR, ignored);
+                        }finally {
+                            closeDataBaseConnection(dataBaseObject);
+                        }
+                    }
+                }else{
+                    JeproLabStateModel state = (JeproLabStateModel)JeproLabCache.getInstance().retrieve(cacheKey);
+                    this.state_id = state.state_id;
+                    this.country_id = state.country_id;
+                    this.zone_id = state.zone_id;
+                    this.name = state.name;
+                    this.iso_code = state.iso_code;
+                    this.tax_behavior = state.tax_behavior;
+                    this.published = state.published;
+                }
+            }
+        }
 
         public static List<JeproLabStateModel> getStates() {
             return getStates(0);
@@ -736,6 +783,7 @@ public class JeproLabCountryModel extends JeproLabModel{
                         state = new JeproLabStateModel();
                         state.state_id = stateSet.getInt("state_id");
                         state.country_id = stateSet.getInt("country_id");
+                        state.zone_id = stateSet.getInt("zone_id");
                         state.name = stateSet.getString("name");
                         state.iso_code = stateSet.getString("iso_code");
                         state.tax_behavior = stateSet.getInt("tax_behavior") > 0;

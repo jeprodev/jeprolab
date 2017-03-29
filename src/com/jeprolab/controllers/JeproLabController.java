@@ -7,10 +7,7 @@ import javafx.fxml.Initializable;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
-import javafx.scene.control.Label;
-import javafx.scene.control.TableCell;
-import javafx.scene.control.TableColumn;
-import javafx.scene.control.TableView;
+import javafx.scene.control.*;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import org.apache.log4j.Logger;
@@ -92,6 +89,14 @@ public class JeproLabController implements Initializable {
         VBox.setMargin(searchWrapper, new Insets(5, padding, 5, padding));
         VBox.setMargin(tableView, new Insets(5, padding, 5, padding));
         wrapper.getChildren().addAll(searchWrapper, tableView);
+    }
+
+    protected void setTableViewContent(VBox wrapper, HBox searchWrapper, Pagination pagination){
+        double padding = 0.01 * JeproLab.APP_WIDTH;
+        VBox.setMargin(searchWrapper, new Insets(5, padding, 5, padding));
+        VBox.setMargin(pagination, new Insets(5, padding, 5, padding));
+        wrapper.getChildren().clear();
+        wrapper.getChildren().addAll(searchWrapper, pagination);
     }
 
     protected void addInformation(String message){

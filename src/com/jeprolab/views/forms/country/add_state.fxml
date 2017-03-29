@@ -21,10 +21,6 @@
             <ComboBox GridPane.columnIndex="1" GridPane.rowIndex="4" fx:id="jeproLabStateCountry"/>
             <Label GridPane.columnIndex="0" GridPane.rowIndex="5" fx:id="jeproLabStatePublishedLabel" styleClass="input-label" />
             <JeproSwitchButton GridPane.columnIndex="1" GridPane.rowIndex="5" fx:id="jeproLabStatePublished"/>
-            <!--HBox GridPane.columnIndex="0" GridPane.rowIndex="6" GridPane.columnSpan="2" spacing="50" alignment="CENTER">
-                <Button fx:id="saveButton" />
-                <Button fx:id="cancelButton" />
-            </HBox -->
         </GridPane>
     </JeproFormPanelContainer>
 </JeproFormPanel>

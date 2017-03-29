@@ -32,6 +32,8 @@ import java.lang.management.RuntimeMXBean;
 import java.util.List;
 import java.util.ResourceBundle;
 import java.util.Stack;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 /**
  *
@@ -49,6 +51,8 @@ public class JeproLab  extends Application {
 
     public static final double SPLASH_WIDTH = 520;
     public static final double SPLASH_HEIGHT = 294;
+
+    private static final int NUMBER_OF_THREADS = 4;
 
     private static ResourceBundle bundle, appProps;
     private String lang = "";
@@ -71,7 +75,7 @@ public class JeproLab  extends Application {
     private Scene scene;
     private JeproLabDataCacheUpdateInvoker updateInvoker;
 
-    //public static JeproLabRequest request;
+    public ExecutorService executor;
 
     public Scene getScene(){ return scene; }
 
@@ -209,12 +213,25 @@ public class JeproLab  extends Application {
 
     @Override
     public void start(Stage primaryStage) throws Exception{
+        executor = Executors.newFixedThreadPool(NUMBER_OF_THREADS);
         appStage = primaryStage;
         appStage.setResizable(false);
         appStage.getIcons().add(new Image(JeproLab.class.getResourceAsStream("resources/images/microscope.png")));
         appStage.setTitle(bundle.getString("JEPROLAB_SITE_MANAGER_TITLE"));
         primaryStage.setScene(scene);
         primaryStage.show();
+    }
+
+    @Override
+    public void stop(){
+        try {
+            if(!executor.isShutdown() || !executor.isTerminated()){
+                executor.shutdown();
+            }
+            Platform.exit();
+        }catch (Exception ignored){
+            JeproLabUncaughtExceptionHandler.logExceptionMessage(Level.WARN, ignored);
+        }
     }
 
     public void goToForm(JeproLabApplicationForms.JeproLabApplicationForm form){

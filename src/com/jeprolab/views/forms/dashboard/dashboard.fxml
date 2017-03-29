@@ -1,4 +1,31 @@
 <?import com.jeprolab.assets.extend.controls.JeproFormPanel?>
-<JeproFormPanel xmlns:fx="http://javafx.com/fxml" fx:id="dashboardPageWrapper" fx:controller="com.jeprolab.controllers.JeproLabDashboardController">
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.control.DatePicker?>
+<?import javafx.scene.control.Label?>
+<?import com.jeprolab.views.modules.JeproLabDashboardAnalyzeModule?>
+<?import com.jeprolab.views.modules.JeproLabDashboardProjectionModule?>
+<?import com.jeprolab.views.modules.JeproLabDashboardRequestModule?>
+<?import com.jeprolab.views.modules.JeproLabDashboardBestSalesModule?>
+<?import com.jeprolab.views.modules.JeproLabDashboardLastConnectionModule?>
+<?import com.jeprolab.views.modules.JeproLabDashboardInformationBoxesModule?>
+<JeproFormPanel xmlns:fx="http://javafx.com/fxml" fx:id="jeproLabDashboardPageWrapper" fx:controller="com.jeprolab.controllers.JeproLabDashboardController" >
+    <GridPane fx:id="jeproLabDashboardFormWrapperLayout" vgap="10" >
+        <HBox fx:id="jeproLabDashboardDateWrapper" GridPane.columnIndex="0" GridPane.rowIndex="0" >
+            <HBox fx:id="jeproLabDashboard" />
 
+        </HBox>
+        <HBox fx:id="jeproLabDashboardPeriodSelectorWrapper" spacing="10" GridPane.rowIndex="0" GridPane.columnIndex="5" GridPane.columnSpan="4" alignment="CENTER_RIGHT">
+            <Label fx:id="jeproLabPeriodFromDateLabel" styleClass="input-label" />
+            <DatePicker fx:id="jeproLabPeriodFromDate" />
+            <Label fx:id="jeproLabPeriodDateToLabel" styleClass="input-label" />
+            <DatePicker fx:id="jeproLabPeriodToDate" />
+        </HBox>
+        <JeproLabDashboardAnalyzeModule fx:id="jeproLabDashboardAnalyzeModule" GridPane.rowIndex="1" GridPane.columnIndex="0" GridPane.columnSpan="3"  />
+        <JeproLabDashboardProjectionModule fx:id="jeproLabDashboardProjectionModule" GridPane.rowIndex="1" GridPane.columnIndex="3" GridPane.columnSpan="3" />
+        <JeproLabDashboardRequestModule fx:id="jeproLabDashboardRequestModule" GridPane.columnIndex="6" GridPane.rowIndex="1" GridPane.columnSpan="3" />
+        <JeproLabDashboardBestSalesModule fx:id="jeproLabDashboardBestSalesModuleModule" GridPane.columnIndex="0" GridPane.rowIndex="2" GridPane.columnSpan="7" />
+        <JeproLabDashboardLastConnectionModule fx:id="jeproLabDashboardLastConnectionModule" GridPane.columnIndex="7" GridPane.rowIndex="2" GridPane.columnSpan="2" />
+        <JeproLabDashboardInformationBoxesModule fx:id="jeproLabDashboardInformationBoxesModule" GridPane.columnIndex="0" GridPane.rowIndex="3" GridPane.columnSpan="9" />
+    </GridPane>
 </JeproFormPanel>

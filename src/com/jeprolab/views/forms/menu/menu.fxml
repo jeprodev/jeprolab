@@ -50,6 +50,7 @@
             <Menu fx:id="requestMenu" >
                 <MenuItem fx:id="requestListMenuItem" />
                 <MenuItem fx:id="requestAddNewMenuItem"  />
+                <MenuItem fx:id="requestStatusMenuItem"   />
             </Menu>
             <Menu fx:id="requestBillsMenu" >
                 <MenuItem fx:id="requestBillsMenuItem"   />
@@ -64,7 +65,7 @@
                 <MenuItem fx:id="requestAddNewRefundsMenuItem"   />
             </Menu>
             <Menu fx:id="requestStatusMenu" >
-                <MenuItem fx:id="requestStatusMenuItem"   />
+
                 <MenuItem fx:id="requestAddStatusMenuItem"   />
             </Menu>
             <Menu fx:id="requestMessageMenu" >
@@ -113,6 +114,8 @@
         </Menu>
         <Menu fx:id="helpMenu" >
             <MenuItem fx:id="fileManagementMenuItem" />
+            <SeparatorMenuItem  />
+            <MenuItem fx:id="socialNetworksMenuItem" />
             <SeparatorMenuItem  />
             <MenuItem fx:id="checkForJeproLabUpdate"  />
             <MenuItem fx:id="aboutJeproLabMenuItem" />

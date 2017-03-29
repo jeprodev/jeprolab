@@ -1,0 +1,33 @@
+<?import com.jeprolab.assets.extend.controls.JeproFormPanel?>
+<?import com.jeprolab.assets.extend.controls.JeproFormPanelTitle?>
+<?import com.jeprolab.assets.extend.controls.JeproFormPanelContainer?>
+<?import javafx.scene.control.TabPane?>
+<?import javafx.scene.control.Tab?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.control.TextArea?>
+<JeproFormPanel xmlns:fx="http://javafx.com/fxml" fx:id="jeproLabSocialNetworkSettingFormWrapper" fx:controller="com.jeprolab.controllers.JeproLabSocialNetworkSettingController" >
+    <JeproFormPanelTitle fx:id="jeproLabSocialNetworkSettingFormTitleWrapper" />
+    <JeproFormPanelContainer fx:id="jeproLabSocialNetworkSettingFormContentWrapper" >
+        <TabPane fx:id="jeproLabSocialNetworkSettingTabPane" >
+            <Tab fx:id="jeproLabFaceBookSettingTab" closable="false">
+                <GridPane fx:id="jeproLabFaceBookSettingLayout" >
+                    <Label GridPane.rowIndex="0" GridPane.columnIndex="0" fx:id="jeproLabFacebookSettingIdFieldLabel" styleClass="input-label" />
+                    <TextField GridPane.rowIndex="0" GridPane.columnIndex="1" fx:id="jeproLabFacebookSettingIdField" />
+                    <Label GridPane.rowIndex="1" GridPane.columnIndex="0" fx:id="jeproLabFacebookSettingAccessTokenUrlFieldLabel" styleClass="input-label"/>
+                    <TextArea GridPane.rowIndex="1" GridPane.columnIndex="1" fx:id="jeproLabFacebookSettingAccessTokenUrlField" />
+                    <Label GridPane.rowIndex="3" GridPane.columnIndex="0" fx:id="jeproLabFacebookApplicationPageFieldLabel" styleClass="input-label" />
+                    <TextField GridPane.rowIndex="3" GridPane.columnIndex="1" fx:id="jeproLabFacebookApplicationPageField" />
+                    <Label GridPane.rowIndex="4" GridPane.columnIndex="0" fx:id="jeproLabLabel" styleClass="input-label" />
+                    <TextField GridPane.rowIndex="4" GridPane.columnIndex="1" fx:id="jeproLab" />
+                </GridPane>
+            </Tab>
+            <Tab fx:id="jeproLabTwitterSettingTab" closable="false" >
+                <GridPane fx:id="jeproLabTwitterSettingLayout" >
+
+                </GridPane>
+            </Tab>
+        </TabPane>
+    </JeproFormPanelContainer>
+</JeproFormPanel>

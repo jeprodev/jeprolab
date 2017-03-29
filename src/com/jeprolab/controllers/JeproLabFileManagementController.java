@@ -111,7 +111,7 @@ public class JeproLabFileManagementController extends JeproLabController{
                 updateConfigurationForm();
             }
         };
-        new Thread((Task)worker).start();
+        JeproLab.getInstance().executor.submit((Task)worker);
         updateToolBar();
         addEventListeners();
     }

@@ -49,6 +49,7 @@ public class JeproLabApplicationForms implements JeproLabEventProducer{
     public JeproLabApplicationForm requestBillsForm, requestAddBillForm, requestComplainsForm, requestAddComplainForm;
     public JeproLabApplicationForm requestAddStatusForm, requestMessagesForm, requestAddMessagesForm;
     public JeproLabApplicationForm requestAddRefundForm, addTaxRuleForm, taxRulesForm, fileManagementForm;
+    public JeproLabApplicationForm socialNetworkSettingForm;
 
     public List<JeproLabApplicationForm> forms;
 
@@ -225,6 +226,9 @@ public class JeproLabApplicationForms implements JeproLabEventProducer{
 
         requestAddMessagesForm = new JeproLabApplicationForm("request/message.fxml");
         if(!forms.contains(requestAddMessagesForm)){ forms.add(requestAddMessagesForm); }
+
+        socialNetworkSettingForm = new JeproLabApplicationForm("help/social.fxml");
+        if(!forms.contains(socialNetworkSettingForm)){ forms.add(socialNetworkSettingForm); }
     }
 
 
