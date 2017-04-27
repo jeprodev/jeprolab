@@ -1,10 +1,8 @@
 package com.jeprolab.models;
 
-import com.jeprolab.JeproLab;
+
 import com.jeprolab.assets.tools.JeproLabCache;
 import com.jeprolab.assets.tools.JeproLabContext;
-import com.jeprolab.assets.tools.JeproLabTools;
-import com.jeprolab.assets.tools.db.JeproLabDataBaseConnector;
 import com.jeprolab.assets.tools.exception.JeproLabUncaughtExceptionHandler;
 import com.jeprolab.models.core.JeproLabFactory;
 import org.apache.log4j.Level;
@@ -87,6 +85,9 @@ public class JeproLabCurrencyModel extends JeproLabModel {
         if(currencyId > 0){
             String cacheKey = "jeprolab_currency_model_" + currencyId;
             if(!JeproLabCache.getInstance().isStored(cacheKey)){
+                if(dataBaseObject == null){
+                    dataBaseObject = JeproLabFactory.getDataBaseConnector();
+                }
                 String query = "SELECT * FROM " + dataBaseObject.quoteName("#__jeprolab_currency") + " AS currency ";
                 if(JeproLabLaboratoryModel.isTableAssociated("currency")){
                     query += " LEFT JOIN " + dataBaseObject.quoteName("#__jeprolab_currency_lab") + " AS currency_lab ON( currency.";

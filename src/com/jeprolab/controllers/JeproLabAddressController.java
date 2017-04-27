@@ -77,7 +77,7 @@ public class JeproLabAddressController extends JeproLabController{
 
         jeproLabAddressesTableView = new TableView<>();
         jeproLabAddressesTableView.setPrefWidth(JeproLab.APP_WIDTH * 0.98);
-        jeproLabAddressesTableView.setPrefHeight(rowHeight * JeproLabConfigurationSettings.LIST_LIMIT);
+        jeproLabAddressesTableView.setPrefHeight((rowHeight * JeproLabConfigurationSettings.LIST_LIMIT) + 6);
 
         //jeproLabAddressesList.setLayoutY(10);
         //jeproLabAddressesList.setLayoutX(padding);

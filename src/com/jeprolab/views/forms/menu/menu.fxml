@@ -46,11 +46,11 @@
             </Menu>
         </Menu>
         <Menu fx:id="currentSubRequestMenu" >
-
             <Menu fx:id="requestMenu" >
                 <MenuItem fx:id="requestListMenuItem" />
                 <MenuItem fx:id="requestAddNewMenuItem"  />
                 <MenuItem fx:id="requestStatusMenuItem"   />
+                <MenuItem fx:id="requestAddStatusMenuItem"   />
             </Menu>
             <Menu fx:id="requestBillsMenu" >
                 <MenuItem fx:id="requestBillsMenuItem"   />
@@ -64,10 +64,7 @@
                 <MenuItem fx:id="requestRefundsMenuItem"   />
                 <MenuItem fx:id="requestAddNewRefundsMenuItem"   />
             </Menu>
-            <Menu fx:id="requestStatusMenu" >
 
-                <MenuItem fx:id="requestAddStatusMenuItem"   />
-            </Menu>
             <Menu fx:id="requestMessageMenu" >
                 <MenuItem fx:id="requestMessagesMenuItem"   />
                 <MenuItem fx:id="requestAddMessageMenuItem"   />
@@ -90,6 +87,11 @@
             <Menu fx:id="laboratoryGroupSubMenu" >
                 <MenuItem fx:id="laboratoryGroupSubMenuItem"   />
                 <MenuItem fx:id="addLaboratoryGroupSubMenuItem"  />
+            </Menu>
+
+            <Menu fx:id="laboratoryCarrierSubMenu" >
+                <MenuItem fx:id="laboratoryCarrierSubMenuItem"   />
+                <MenuItem fx:id="addLaboratoryCarrierSubMenuItem"  />
             </Menu>
             <Menu fx:id="localisationSubMenu" >
                 <Menu fx:id="countriesSubMenu" >

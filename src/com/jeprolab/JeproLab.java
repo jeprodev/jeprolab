@@ -107,6 +107,7 @@ public class JeproLab  extends Application {
     @Override
     public void init() throws Exception {
         try{
+            executor = Executors.newFixedThreadPool(NUMBER_OF_THREADS);
             notifyPreloader(new Preloader.ProgressNotification(0));
             JeproLabConfig.initialize();
             instance = this;
@@ -125,7 +126,7 @@ public class JeproLab  extends Application {
             JeproLabLanguageModel.loadLanguages();
             notifyPreloader(new  Preloader.ProgressNotification(0.15));
 
-            /** setting default country **/
+            /* setting default country **/
             context.country = new JeproLabCountryModel(JeproLabSettingModel.getIntValue("default_country"), JeproLabSettingModel.getIntValue("default_lang"));
 
             notifyPreloader(new  Preloader.ProgressNotification(0.20));
@@ -213,7 +214,6 @@ public class JeproLab  extends Application {
 
     @Override
     public void start(Stage primaryStage) throws Exception{
-        executor = Executors.newFixedThreadPool(NUMBER_OF_THREADS);
         appStage = primaryStage;
         appStage.setResizable(false);
         appStage.getIcons().add(new Image(JeproLab.class.getResourceAsStream("resources/images/microscope.png")));

@@ -333,10 +333,88 @@ public class JeproLabRequestModel extends JeproLabModel{
         return (int)JeproLabCache.getInstance().retrieve(cacheKey);
     }
 
+
     public static  class JeproLabRequestStatusModel extends JeproLabModel{
         public int request_status_id;
 
+        public int language_id;
+
         public Map<String, String> name = new HashMap<>();
+
+        public boolean send_invoice;
+
+        public boolean send_email;
+
+        public boolean un_removable;
+
+        public boolean deleted;
+
+        public JeproLabRequestStatusModel(){ this(0); }
+
+        public JeproLabRequestStatusModel(int requestStatusId){
+            this(requestStatusId, 0);
+        }
+
+        public JeproLabRequestStatusModel(int requestStatusId, int langId){
+            if(langId > 0){
+                this.language_id = JeproLabLanguageModel.checkLanguage(langId) ? langId : JeproLabSettingModel.getIntValue("default_lang");
+            }
+
+            if(requestStatusId > 0){
+                String cacheKey = "jeprolab_request_status_model_" + requestStatusId + (langId > 0 ? "_lang_" + langId : 0);
+
+                if(!JeproLabCache.getInstance().isStored(cacheKey)){
+                    if(dataBaseObject == null){
+                        dataBaseObject = JeproLabFactory.getDataBaseConnector();
+                    }
+
+                    String query = "SELECT request_status.* FROM " + dataBaseObject.quoteName("#__jeprolab_request_status") + " AS request_status ";
+                    query += " WHERE request_status." + dataBaseObject.quoteName("request_status_id") + " = " + requestStatusId;
+
+                    ResultSet requestStatusSet = dataBaseObject.loadObjectList(query);
+
+                    if(requestStatusSet != null){
+                        try{
+                            int languageId;
+                            if(requestStatusSet.next()){
+                                this.request_status_id = requestStatusSet.getInt("request_status_id");
+                                this.send_invoice = requestStatusSet.getInt("invoice") > 0;
+                                this.send_email = requestStatusSet.getInt("send_mail") > 0;
+                                this.un_removable = requestStatusSet.getInt("unremovable") > 0;
+                                this.deleted = requestStatusSet.getInt("deleted") > 0;
+
+                                query = "SELECT request_status_lang.* FROM " + dataBaseObject.quoteName("#__jeprolab_request_status_lang");
+                                query += " AS request_status_lang WHERE request_status_lang." + dataBaseObject.quoteName("request_status_id");
+                                query += " = " + requestStatusId + (langId > 0 ? " AND request_status_lang." + dataBaseObject.quoteName("lang_id") + " = " + langId : " ");
+
+                                ResultSet requestStatusLangSet = dataBaseObject.loadObjectList(query);
+
+                                if(requestStatusLangSet != null){
+                                    this.name = new HashMap<>();
+                                    while(requestStatusLangSet.next()){
+                                        languageId = requestStatusLangSet.getInt("lang_id");
+                                        this.name.put("lang_" + languageId, requestStatusLangSet.getString("name"));
+                                    }
+                                }
+                            }
+                        }catch(SQLException ignored){
+                            JeproLabUncaughtExceptionHandler.logExceptionMessage(Level.ERROR, ignored);
+                        }finally {
+                            closeDataBaseConnection(dataBaseObject);
+                        }
+                    }
+                }else{
+                    JeproLabRequestStatusModel status = (JeproLabRequestStatusModel)JeproLabCache.getInstance().retrieve(cacheKey);
+                    this.request_status_id = status.request_status_id;
+                    this.send_invoice = status.send_invoice;
+                    this.send_email = status.send_email;
+                    this.deleted = status.deleted;
+                    this.un_removable = status.un_removable;
+                    this.name = status.name;
+                }
+            }
+
+        }
 
         public static Map<Integer, String> getRequestStatues(){
             if(dataBaseObject == null){
@@ -363,6 +441,46 @@ public class JeproLabRequestModel extends JeproLabModel{
                     }catch(Exception ignored){
                         JeproLabUncaughtExceptionHandler.logExceptionMessage(Level.WARN, ignored);
                     }
+                }
+            }
+            return statues;
+        }
+
+        public static List<JeproLabRequestStatusModel> getStatues(){
+            return getStatues(JeproLabContext.getContext().language.language_id);
+        }
+
+        public static List<JeproLabRequestStatusModel> getStatues(int langId){
+            if(dataBaseObject == null){
+                dataBaseObject = JeproLabFactory.getDataBaseConnector();
+            }
+            String query = "SELECT request_status.*, request_status_lang." + dataBaseObject.quoteName("name") + " FROM " + dataBaseObject.quoteName("#__jeprolab_request_status") ;
+            query += " AS request_status LEFT JOIN " + dataBaseObject.quoteName("#__jeprolab_request_status_lang") + " AS request_status_lang ON (request_status.";
+            query += dataBaseObject.quoteName("request_status_id") + " = request_status_lang." + dataBaseObject.quoteName("request_status_id") + " AND request_status_lang.";
+            query += dataBaseObject.quoteName("lang_id") + " = " + langId + ") ORDER BY request_status." + dataBaseObject.quoteName("request_status_id");
+
+            ResultSet statusSet = dataBaseObject.loadObjectList(query);
+            List<JeproLabRequestStatusModel> statues = new ArrayList<>();
+
+            if(statusSet != null){
+                try{
+                    JeproLabRequestStatusModel status;
+                    while(statusSet.next()){
+                        status = new JeproLabRequestStatusModel();
+                        status.request_status_id = statusSet.getInt("request_status_id");
+                        status.send_email = statusSet.getInt("send_mail") > 0;
+                        status.send_invoice = statusSet.getInt("invoice") > 0;
+                        status.un_removable = statusSet.getInt("unremovable") >  0;
+                        status.name = new HashMap<>();
+                        status.name.put("lang_" + langId, statusSet.getString("name"));
+                        status.deleted = statusSet.getInt("deleted") > 0;
+
+                        statues.add(status);
+                    }
+                }catch(SQLException ignored){
+                    JeproLabUncaughtExceptionHandler.logExceptionMessage(Level.ERROR, ignored);
+                }finally {
+                    closeDataBaseConnection(dataBaseObject);
                 }
             }
             return statues;

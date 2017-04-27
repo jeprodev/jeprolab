@@ -1,10 +1,29 @@
 <?import com.jeprolab.assets.extend.controls.JeproFormPanel?>
 <?import javafx.scene.layout.HBox?>
 
-<JeproFormPanel xmlns:fx="http://javafx.com/fxml" fx:id="jeproLabRequestStatusFormWrapper" fx:controller="com.jeprolab.controllers.JeproLabRequestAddStatusController" >
-    <HBox>
-        <JeproFormPanel fx:id="jeproLabRequestStatusAddFormWrapper" >
+<?import com.jeprolab.assets.extend.controls.JeproFormPanelTitle?>
+<?import com.jeprolab.assets.extend.controls.JeproFormPanelTitle?>
+<?import com.jeprolab.assets.extend.controls.JeproFormPanelContainer?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.control.Label?>
+<?import com.jeprolab.assets.extend.controls.JeproMultiLangTextField?>
+<?import com.jeprolab.assets.extend.controls.switchbutton.JeproSwitchButton?>
 
-        </JeproFormPanel>
-    </HBox>
+<JeproFormPanel xmlns:fx="http://javafx.com/fxml" fx:id="jeproLabRequestAddStatusFormWrapper" fx:controller="com.jeprolab.controllers.JeproLabRequestAddStatusController" >
+    <JeproFormPanelTitle fx:id="jeproLabRequestStatusAddFormTitleWrapper" />
+    <JeproFormPanelContainer fx:id="jeproLabRequestStatusAddFormTitleContainer" >
+        <GridPane fx:id="jeproLabRequestStatusAddFormLayout" >
+            <Label GridPane.rowIndex="0" GridPane.columnIndex="0" fx:id="jeproLabRequestStatusNameLabel" styleClass="input-label" />
+            <JeproMultiLangTextField GridPane.rowIndex="0" GridPane.columnIndex="1" fx:id="jeproLabRequestStatusName" />
+            <Label GridPane.rowIndex="1" GridPane.columnIndex="0" fx:id="jeproLabRequestStatusInvoiceLabel" styleClass="input-label" />
+            <JeproSwitchButton GridPane.rowIndex="1" GridPane.columnIndex="1" fx:id="jeproLabRequestStatusInvoice" />
+            <Label GridPane.rowIndex="2" GridPane.columnIndex="0" fx:id="jeproLabRequestStatusSendEmailLabel" styleClass="input-label" />
+            <JeproSwitchButton GridPane.rowIndex="2" GridPane.columnIndex="1" fx:id="jeproLabRequestStatusSendEmail" />
+            <Label GridPane.rowIndex="3" GridPane.columnIndex="0" fx:id="jeproLabRequestStatusUnRemovableLabel" styleClass="input-label" />
+            <JeproSwitchButton GridPane.rowIndex="3" GridPane.columnIndex="1" fx:id="jeproLabRequestStatusUnRemovable" />
+            <Label GridPane.rowIndex="4" GridPane.columnIndex="0" fx:id="jeproLabRequestStatusDeletedLabel"  styleClass="input-label" />
+            <JeproSwitchButton GridPane.rowIndex="4" GridPane.columnIndex="1" fx:id="jeproLabRequestStatusDeleted" />
+
+        </GridPane>
+    </JeproFormPanelContainer>
 </JeproFormPanel>

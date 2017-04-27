@@ -68,6 +68,47 @@
 }
 .table-row-cell{ -fx-cell-size: 24px; }
 
+.toggle-left{
+    -fx-padding: 4;
+    -fx-border-image-source: url("../images/left-btn.png");
+    -fx-border-image-slice: 3 3 3 3 fill;
+    -fx-border-image-width: 3 3 3 3;
+    -fx-border-image-insets: 0;
+    -fx-border-image-repeat:stretch;
+    -fx-background-color: null !important;
+}
+.toggle-left:selected{ -fx-border-image-source: url("../images/left-btn-selected.png"); }
+.toggle-left .label{
+    -fx-text-fill: #d3d3d3; -fx-effect: dropshadow(one-pass-box, rgba(0, 0, 0, 0.75), 0, 0.0, 0, -1);
+}
+.toggle-left:selected .label{
+    -fx-text-fill: white; -fx-effect: dropshadow(one-pass-box, white, 0, 0.0, 0, 1);
+}
+.toggle-right{
+    -fx-padding: 4;
+    -fx-border-image-source: url("../images/right-btn.png");
+    -fx-border-image-slice: 3 3 3 3 fill;
+    -fx-border-image-width: 3 3 3 3;
+    -fx-border-image-insets: 0;
+    -fx-border-image-repeat:stretch;
+    -fx-background-color: null !important;
+}
+.toggle-right:selected{ -fx-border-image-source: url("../images/right-btn-selected.png"); }
+.toggle-right .label{
+    -fx-text-fill: #d3d3d3; -fx-effect: dropshadow(one-pass-box, rgba(0, 0, 0, 0.75), 0, 0.0, 0, -1);
+}
+.toggle-right:selected .label{
+    -fx-text-fill: white; -fx-effect: dropshadow(one-pass-box, white, 0, 0.0, 0, 1);
+}
+
+.append-button-field{
+    -fx-border-radius: 4 0 0 4;
+    -fx-background-radius: 4 0 0 4;
+}
+.append-button-btn{
+    -fx-border-radius: 0 4 4 0;
+    -fx-background-radius: 0 4 4 0;
+}
 
 .jeprolab-toolbar{
     -fx-base: rgb(74, 75, 78);

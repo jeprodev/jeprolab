@@ -25,14 +25,14 @@ public class JeproLabMenuController extends JeproLabController{
     public Menu categorySubMenu, customersSubMenu, addressesSubMenu, groupsSubMenu, currentSubRequestMenu, threadsSubMenu, contactsSubMenu;
     public Menu analyzeSubMenu, attachmentsSubMenu, feedsSubMenu, feedBackSubMenu, laboratorySubMenu, laboratoryGroupSubMenu;
     public Menu localisationSubMenu, taxesSubMenu, countriesSubMenu, zonesSubMenu, statesSubMenu, currenciesSubMenu;
-    public Menu requestComplaintMenu, requestRefundMenu, requestStatusMenu, requestMessageMenu, requestSampleMenu;
+    public Menu requestComplaintMenu, requestRefundMenu, requestMessageMenu, requestSampleMenu, laboratoryCarrierSubMenu;
     public MenuItem addAnalyseSubMenuItem, dashBoardMenuItem, sampleListMenuItem, sampleAddNewMenuItem;
     public MenuItem addCustomerMenuItem, customersSubMenuItem;
     public MenuItem addAttachmentSubMenuItem, attachmentSubMenuItem;
     public MenuItem addCategoryMenuItem, categorySubMenuItem, addFeedMenuItem, feedBackMenuItem, customersMenuItem;
     public MenuItem aboutJeproLabMenuItem, checkForJeproLabUpdate;
     public MenuItem addLaboratorySubMenuItem, addLaboratoryGroupSubMenuItem, laboratorySubMenuItem;
-    public MenuItem analyzeSubMenuItem;
+    public MenuItem analyzeSubMenuItem, laboratoryCarrierSubMenuItem, addLaboratoryCarrierSubMenuItem;
     public MenuItem addressesSubMenuItem, addAddressMenuItem;
     public MenuItem groupsSubMenuItem, addGroupMenuItem, currentRequestMenuItem;
     public MenuItem customerThreadsSubMenuItem, contactsSubMenuItem;
@@ -123,7 +123,7 @@ public class JeproLabMenuController extends JeproLabController{
         requestBillsMenu.setText(bundle.getString("JEPROLAB_REQUEST_LABEL") + " " + bundle.getString("JEPROLAB_BILLS_LABEL"));
         requestComplaintMenu.setText(bundle.getString("JEPROLAB_REQUEST_LABEL") + " " + bundle.getString("JEPROLAB_COMPLAINTS_LABEL"));
         requestRefundMenu.setText(bundle.getString("JEPROLAB_REQUEST_LABEL") + " " + bundle.getString("JEPROLAB_REFUNDS_LABEL"));
-        requestStatusMenu.setText(bundle.getString("JEPROLAB_REQUEST_LABEL") + " " + bundle.getString("JEPROLAB_STATUS_LABEL"));
+        //requestStatusMenu.setText(bundle.getString("JEPROLAB_REQUEST_LABEL") + " " + bundle.getString("JEPROLAB_STATUS_LABEL"));
         requestMessageMenu.setText(bundle.getString("JEPROLAB_REQUEST_LABEL") + " " + bundle.getString("JEPROLAB_MESSAGES_LABEL"));
         requestListMenuItem.setText(bundle.getString("JEPROLAB_LIST_OF_LABEL") + " " + bundle.getString("JEPROLAB_REQUESTS_LABEL"));
         requestAddNewMenuItem.setText(bundle.getString("JEPROLAB_ADD_NEW_LABEL") + " " + bundle.getString("JEPROLAB_REQUEST_LABEL"));
@@ -168,6 +168,10 @@ public class JeproLabMenuController extends JeproLabController{
 
         fileManagementMenuItem.setText(bundle.getString("JEPROLAB_FILE_MANAGEMENT_LABEL"));
         socialNetworksMenuItem.setText(bundle.getString("JEPROLAB_SOCIAL_NETWORK_LABEL"));
+
+        laboratoryCarrierSubMenu.setText(bundle.getString("JEPROLAB_CARRIERS_LABEL"));
+        laboratoryCarrierSubMenuItem.setText(bundle.getString("JEPROLAB_LIST_OF_LABEL") + " " + bundle.getString("JEPROLAB_CARRIERS_LABEL"));
+        addLaboratoryCarrierSubMenuItem.setText(bundle.getString("JEPROLAB_ADD_NEW_LABEL") + " " + bundle.getString("JEPROLAB_CARRIER_LABEL"));
 
         addDashboardListeners();
         addCatalogListeners();
@@ -398,6 +402,16 @@ public class JeproLabMenuController extends JeproLabController{
         addTaxGroupSubMenuItem.setOnAction(evt -> {
             JeproLab.getInstance().goToForm(JeproLab.getInstance().getApplicationForms().addTaxGroupForm);
             JeproLab.getInstance().getApplicationForms().addTaxGroupForm.controller.initializeContent();
+        });
+
+        laboratoryCarrierSubMenuItem.setOnAction(evt -> {
+            JeproLab.getInstance().goToForm(JeproLab.getInstance().getApplicationForms().carriersForm);
+            JeproLab.getInstance().getApplicationForms().carriersForm.controller.initializeContent();
+        });
+
+        addLaboratoryCarrierSubMenuItem.setOnAction(evt -> {
+            JeproLab.getInstance().goToForm(JeproLab.getInstance().getApplicationForms().addCarrierForm);
+            JeproLab.getInstance().getApplicationForms().addCarrierForm.controller.initializeContent(0);
         });
     }
 
