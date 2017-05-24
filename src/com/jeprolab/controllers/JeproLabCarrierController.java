@@ -33,6 +33,8 @@ import java.util.stream.Collectors;
  * Created by jeprodev on 11/04/2017.
  */
 public class JeproLabCarrierController extends JeproLabController{
+    private Button addNewCarrierButton;
+
     private CheckBox checkAll;
     private TableView<JeproLabCarrierRecord> jeproLabCarrierRecordTableView;
     private HBox jeproLabCarrierSearchWrapper;
@@ -81,9 +83,14 @@ public class JeproLabCarrierController extends JeproLabController{
         jeproLabCarrierCheckBoxTableColumn.setCellFactory(carrierCheckBoxFactory);
 
         TableColumn<JeproLabCarrierRecord, String> jeproLabCarrierNameTableColumn = new TableColumn<>(bundle.getString("JEPROLAB_NAME_LABEL"));
-        jeproLabCarrierNameTableColumn.setPrefWidth(200);
+        jeproLabCarrierNameTableColumn.setPrefWidth(formWidth - 497);
         tableCellAlign(jeproLabCarrierNameTableColumn, Pos.CENTER_LEFT);
         jeproLabCarrierNameTableColumn.setCellValueFactory(new PropertyValueFactory<>("carrierName"));
+
+        TableColumn<JeproLabCarrierRecord, String> jeproLabCarrierReferenceTableColumn = new TableColumn<>(bundle.getString("JEPROLAB_REFERENCE_LABEL"));
+        jeproLabCarrierReferenceTableColumn.setPrefWidth(120);
+        tableCellAlign(jeproLabCarrierReferenceTableColumn, Pos.CENTER);
+        jeproLabCarrierReferenceTableColumn.setCellValueFactory(new PropertyValueFactory<>("carrierReference"));
 
         TableColumn<JeproLabCarrierRecord, Button> jeproLabCarrierIsFreeTableColumn = new TableColumn<>(bundle.getString("JEPROLAB_IS_FREE_LABEL"));
         jeproLabCarrierIsFreeTableColumn.setPrefWidth(60);
@@ -92,13 +99,13 @@ public class JeproLabCarrierController extends JeproLabController{
         jeproLabCarrierIsFreeTableColumn.setCellFactory(carrierIsFreeCellFactory);
 
         TableColumn<JeproLabCarrierRecord, Button> jeproLabCarrierNeedRangeTableColumn = new TableColumn<>(bundle.getString("JEPROLAB_NEED_RANGE_LABEL"));
-        jeproLabCarrierNeedRangeTableColumn.setPrefWidth(60);
+        jeproLabCarrierNeedRangeTableColumn.setPrefWidth(120);
         tableCellAlign(jeproLabCarrierNeedRangeTableColumn, Pos.CENTER);
         Callback<TableColumn<JeproLabCarrierRecord, Button>, TableCell<JeproLabCarrierRecord, Button>> carrierNeedRangeCellFactory = params -> new JeproLabCarrierNeedRangeCellFactory();
         jeproLabCarrierNeedRangeTableColumn.setCellFactory(carrierNeedRangeCellFactory);
 
         //TableColumn<JeproLabCarrierRecord, String> jeproLabCarrierTableColumn = new TableColumn<>(bundle.getString("JEPROLAB_LABEL"));
-        TableColumn<JeproLabCarrierRecord, HBox> jeproLabCarrierGradeTableColumn = new TableColumn<>(bundle.getString("JEPROLAB_LABEL"));
+        TableColumn<JeproLabCarrierRecord, HBox> jeproLabCarrierGradeTableColumn = new TableColumn<>(bundle.getString("JEPROLAB_GRADE_RATE_LABEL"));
         jeproLabCarrierGradeTableColumn.setPrefWidth(70);
         Callback<TableColumn<JeproLabCarrierRecord, HBox>, TableCell<JeproLabCarrierRecord, HBox>> gradeCellFactory = params -> new JeproLabCarrierGradeCellFactory();
         jeproLabCarrierGradeTableColumn.setCellFactory(gradeCellFactory);
@@ -110,7 +117,8 @@ public class JeproLabCarrierController extends JeproLabController{
 
         jeproLabCarrierRecordTableView.getColumns().addAll(
             jeproLabCarrierIndexTableColumn, jeproLabCarrierCheckBoxTableColumn, jeproLabCarrierNameTableColumn,
-            jeproLabCarrierIsFreeTableColumn, jeproLabCarrierActionsTableColumn
+            jeproLabCarrierReferenceTableColumn, jeproLabCarrierIsFreeTableColumn, jeproLabCarrierNeedRangeTableColumn,
+            jeproLabCarrierGradeTableColumn, jeproLabCarrierActionsTableColumn
         );
     }
 
@@ -125,6 +133,7 @@ public class JeproLabCarrierController extends JeproLabController{
                     return false;
                 }
                 carriers = JeproLabCarrierModel.getCarriers(JeproLabContext.getContext().language.language_id);
+                System.out.println("taille " + carriers.size());
                 return true;
             }
 
@@ -140,11 +149,25 @@ public class JeproLabCarrierController extends JeproLabController{
             }
         };
         JeproLab.getInstance().executor.submit((Task)worker);
+        updateToolBar();
     }
 
     @Override
     public void updateToolBar(){
         HBox commandWrapper = JeproLab.getInstance().getApplicationToolBarCommandWrapper();
+        addNewCarrierButton = new Button(bundle.getString("JEPROLAB_ADD_NEW_LABEL"));
+        addNewCarrierButton.getStyleClass().addAll("save-btn");
+
+        commandWrapper.getChildren().clear();
+        commandWrapper.getChildren().addAll(addNewCarrierButton);
+        setEventHandler();
+    }
+
+    private void setEventHandler(){
+        addNewCarrierButton.setOnAction(evt -> {
+            JeproLab.getInstance().goToForm(JeproLab.getInstance().getApplicationForms().addCarrierForm);
+            JeproLab.getInstance().getApplicationForms().addCarrierForm.controller.initializeContent();
+        });
     }
 
     private void updateTableView(List<JeproLabCarrierModel> carriers){
@@ -170,6 +193,7 @@ public class JeproLabCarrierController extends JeproLabController{
 
     public static class JeproLabCarrierRecord {
         private SimpleIntegerProperty carrierIndex, carrierGrade;
+        private SimpleStringProperty carrierName;
         private SimpleStringProperty carrierReference;
 
 
@@ -177,11 +201,14 @@ public class JeproLabCarrierController extends JeproLabController{
             carrierIndex = new SimpleIntegerProperty(carrier.carrier_id);
             carrierGrade = new SimpleIntegerProperty(carrier.grade);
             carrierReference = new SimpleStringProperty(carrier.reference);
+            carrierName = new SimpleStringProperty(carrier.name);
         }
 
         public int getCarrierIndex(){ return carrierIndex.get(); }
 
         public int getCarrierGrade(){ return carrierGrade.get(); }
+
+        public String getCarrierName(){ return carrierName.get(); }
 
         public String getCarrierReference(){ return carrierReference.get().toUpperCase(); }
     }

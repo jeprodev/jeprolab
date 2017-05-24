@@ -25,16 +25,27 @@
                     <GridPane fx:id="jeproLabCarrierInformationFormLayout" >
                         <Label GridPane.rowIndex="0" GridPane.columnIndex="0" fx:id="jeproLabCarrierNameLabel"  styleClass="input-label"/>
                         <TextField GridPane.rowIndex="0" GridPane.columnIndex="1" fx:id="jeproLabCarrierName" />
-                        <Label GridPane.rowIndex="1" GridPane.columnIndex="0" fx:id="jeproLabCarrierDeliveryDelayLabel" styleClass="input-label" />
-                        <JeproMultiLangTextField GridPane.rowIndex="1" GridPane.columnIndex="1" fx:id="jeproLabCarrierDeliveryDelay" />
-                        <Label GridPane.rowIndex="2" GridPane.columnIndex="0" fx:id="jeproLabCarrierSpeedGradeLabel" styleClass="input-label" />
-                        <TextField GridPane.rowIndex="2" GridPane.columnIndex="1" fx:id="jeproLabCarrierSpeedGrade" />
-                        <Label GridPane.rowIndex="3" GridPane.columnIndex="0" fx:id="jeproLabCarrierCarrierLogoLabel" styleClass="input-label" />
-                        <JeproImageChooser GridPane.rowIndex="3" GridPane.columnIndex="1" fx:id="jeproLabCarrierCarrierLogo" />
-                        <Label GridPane.rowIndex="4" GridPane.columnIndex="0" fx:id="jeproLabCarrierTrackingUrlLabel" styleClass="input-label" />
-                        <TextField GridPane.rowIndex="4" GridPane.columnIndex="1" fx:id="jeproLabCarrierTrackingUrl" />
-                        <Label GridPane.rowIndex="5" GridPane.columnIndex="0" fx:id="jeproLabCarrierPublishedLabel" styleClass="input-label" />
-                        <JeproSwitchButton GridPane.rowIndex="5" GridPane.columnIndex="1" fx:id="jeproLabCarrierPublished" />
+                        <Label GridPane.rowIndex="1" GridPane.columnIndex="0" fx:id="jeproLabCarrierReferenceLabel"  styleClass="input-label"/>
+                        <TextField GridPane.rowIndex="1" GridPane.columnIndex="1" fx:id="jeproLabCarrierReference" />
+                        <Label GridPane.rowIndex="2" GridPane.columnIndex="0" fx:id="jeproLabCarrierDeliveryDelayLabel" styleClass="input-label" />
+                        <HBox GridPane.rowIndex="2" GridPane.columnIndex="1" spacing="10" fx:id="jeproLabCarrierDeliveryDelayWrapper">
+                            <TextField fx:id="jeproLabCarrierDeliveryDelay" />
+                            <ComboBox fx:id="jeproLabCarrierDeliveryDelayPeriod" />
+                        </HBox>
+                        <Label GridPane.rowIndex="3" GridPane.columnIndex="0" fx:id="jeproLabCarrierSpeedGradeLabel" styleClass="input-label" />
+                        <TextField GridPane.rowIndex="3" GridPane.columnIndex="1" fx:id="jeproLabCarrierSpeedGrade" />
+                        <Label GridPane.rowIndex="4" GridPane.columnIndex="0" fx:id="jeproLabCarrierCarrierLogoLabel" styleClass="input-label" />
+                        <JeproImageChooser GridPane.rowIndex="4" GridPane.columnIndex="1" fx:id="jeproLabCarrierCarrierLogo" />
+                        <Label GridPane.rowIndex="5" GridPane.columnIndex="0" fx:id="jeproLabCarrierTrackingUrlLabel" styleClass="input-label" />
+                        <TextField GridPane.rowIndex="5" GridPane.columnIndex="1" fx:id="jeproLabCarrierTrackingUrl" />
+
+                        <Label GridPane.rowIndex="6" GridPane.columnIndex="0" fx:id="jeproLabCarrierPublishedLabel" styleClass="input-label" />
+                        <JeproSwitchButton GridPane.rowIndex="6" GridPane.columnIndex="1" fx:id="jeproLabCarrierPublished" />
+                        <Label GridPane.rowIndex="7" GridPane.columnIndex="0" fx:id="jeproLabCarrierDeletedLabel" styleClass="input-label" />
+                        <JeproSwitchButton GridPane.rowIndex="7" GridPane.columnIndex="1" fx:id="jeproLabCarrierDeleted" />
+                        <Label GridPane.rowIndex="8" GridPane.columnIndex="0"  fx:id="jeproLabCarrierIsModuleLabel" styleClass="input-label"/>
+                        <JeproSwitchButton GridPane.rowIndex="8" GridPane.columnIndex="1"  fx:id="jeproLabCarrierIsModule" />
+
                     </GridPane>
                 </Tab>
                 <Tab fx:id="jeproLabCarrierCostTab" closable="false" >
@@ -44,16 +55,23 @@
                         <Label GridPane.rowIndex="1" GridPane.columnIndex="0" fx:id="jeproLabCarrierFreeShippingLabel" styleClass="input-label" />
                         <JeproSwitchButton GridPane.rowIndex="1" GridPane.columnIndex="1" fx:id="jeproLabCarrierFreeShipping" />
                         <Label GridPane.rowIndex="2" GridPane.columnIndex="0" fx:id="jeproLabCarrierShippingMethodLabel" styleClass="input-label" />
-                        <HBox GridPane.rowIndex="2" GridPane.columnIndex="1" fx:id="jeproLabCarrierShippingMethodWrapper" >
+                        <ComboBox GridPane.rowIndex="2" GridPane.columnIndex="1" fx:id="jeproLabCarrierShippingMethod" />
+                        <!-- HBox GridPane.rowIndex="2" GridPane.columnIndex="1" fx:id="jeproLabCarrierShippingMethodWrapper" >
                             <ToggleButton fx:id="jeproLabCarrierShippingMethodAccordingToTotalPrice" styleClass="toggle-left" />
                             <ToggleButton fx:id="jeproLabCarrierShippingMethodAccordingToTotalWeight" styleClass="toggle-right" />
-                        </HBox>
-                        <Label GridPane.rowIndex="3" GridPane.columnIndex="0" fx:id="jeproLabCarrierOutOfRangeBehaviorLabel" styleClass="input-label" />
-                        <ComboBox GridPane.rowIndex="3" GridPane.columnIndex="1" fx:id="jeproLabCarrierOutOfRangeBehavior" />
-                        <Label GridPane.rowIndex="4" GridPane.columnIndex="0" fx:id="jeproLabCarrierTaxLabel" styleClass="input-label" />
-                        <ComboBox GridPane.rowIndex="4" GridPane.columnIndex="1" fx:id="jeproLabCarrierTax" />
-                        <Label GridPane.rowIndex="5" GridPane.columnIndex="0" fx:id="jeproLabCarrierSupportedZonesLabel" styleClass="input-label" />
-                        <Pane GridPane.rowIndex="5" GridPane.columnIndex="1" fx:id="jeproLabCarrierSupportedZonesWrapper" />
+                        </HBox -->
+                        <Label GridPane.rowIndex="3" GridPane.columnIndex="0"  fx:id="jeproLabCarrierNeedRangeLabel" styleClass="input-label" />
+                        <JeproSwitchButton GridPane.rowIndex="3" GridPane.columnIndex="1"  fx:id="jeproLabCarrierNeedRange" />
+                        <Label GridPane.rowIndex="4" GridPane.columnIndex="0" fx:id="jeproLabCarrierOutOfRangeBehaviorLabel" styleClass="input-label" />
+                        <ComboBox GridPane.rowIndex="4" GridPane.columnIndex="1" fx:id="jeproLabCarrierOutOfRangeBehavior" />
+                        <Label GridPane.rowIndex="5" GridPane.columnIndex="0" fx:id="jeproLabCarrierTaxLabel" styleClass="input-label" />
+                        <ComboBox GridPane.rowIndex="5" GridPane.columnIndex="1" fx:id="jeproLabCarrierTax" />
+                        <Label GridPane.rowIndex="6" GridPane.columnIndex="0" fx:id="jeproLabCarrierShippingExternalLabel" styleClass="input-label" />
+                        <JeproSwitchButton GridPane.rowIndex="6" GridPane.columnIndex="1" fx:id="jeproLabCarrierShippingExternal" />
+                        <Label GridPane.rowIndex="7" GridPane.columnIndex="0" fx:id="jeproLabCarrierExternalModuleNameLabel" styleClass="input-label" />
+                        <TextField GridPane.rowIndex="7" GridPane.columnIndex="1" fx:id="jeproLabCarrierExternalModuleName" />
+                        <Label GridPane.rowIndex="8" GridPane.columnIndex="0" fx:id="jeproLabCarrierSupportedZonesLabel" styleClass="input-label" />
+                        <Pane GridPane.rowIndex="8" GridPane.columnIndex="1" fx:id="jeproLabCarrierSupportedZonesWrapper" />
                     </GridPane>
                 </Tab>
                 <Tab fx:id="jeproLabCarrierSizeSettingTab" closable="false">

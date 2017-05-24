@@ -55,7 +55,7 @@ public class JeproLabCustomerController extends JeproLabController{
     public void initialize(URL location , ResourceBundle resource) {
         super.initialize(location, resource);
         formWidth = .98 * JeproLab.APP_WIDTH;
-        double remainingWidth = (formWidth - 272);
+        double remainingWidth = (formWidth - 273);
 
         jeproLabCustomersTableView = new TableView<>();
         jeproLabCustomersTableView.setPrefSize(formWidth, rowHeight * JeproLabConfigurationSettings.LIST_LIMIT);

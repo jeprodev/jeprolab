@@ -1,5 +1,6 @@
 package com.jeprolab.assets.extend.controls;
 
+import javafx.geometry.Insets;
 import javafx.scene.control.Button;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.HBox;
@@ -14,10 +15,17 @@ public class JeproPriceBox extends HBox {
 
     public JeproPriceBox(){
         priceBox = new TextField();
-        priceBox.setStyle("-fx-background-radius: 0, 0;");
+
         currencyButton = new Button("");
-        setSpacing(0);
+        setSpacing(-1);
+
+        HBox.setMargin(priceBox, new Insets(5, 0, 5, 0));
+        HBox.setMargin(currencyButton, new Insets(5, 0, 5, 0));
         this.getChildren().addAll(priceBox, currencyButton);
+
+        priceBox.getStyleClass().addAll("append-button-field");
+        priceBox.setPrefWidth(130);
+        currencyButton.getStyleClass().addAll("append-button-btn");
     }
 
     public float getPrice(){

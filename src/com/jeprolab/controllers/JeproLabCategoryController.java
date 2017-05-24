@@ -206,13 +206,13 @@ public class JeproLabCategoryController extends JeproLabController{
         if(!categories.isEmpty()) {
             categoryList = FXCollections.observableArrayList();
             categoryList.addAll(categories.stream().map(JeproLabCategoryRecord::new).collect(Collectors.toList()));
-
+            double padding = 0.01 * JeproLab.APP_WIDTH;
             Platform.runLater(() -> {
                 jeproLabCategoryPagination = new Pagination((categoryList.size() / JeproLabConfigurationSettings.LIST_LIMIT) + 1, 0);
                 jeproLabCategoryPagination.setPageFactory(this::createPages);
                 jeproLabCategoryFormPanel.getChildren().clear();
-                VBox.setMargin(jeproLabCategorySearchWrapper, new Insets(5, 0.01 * JeproLab.APP_WIDTH, 5, 0.01 * JeproLab.APP_WIDTH));
-                VBox.setMargin(jeproLabCategoryPagination, new Insets(0, 0.01 * JeproLab.APP_WIDTH, 5, 0.01 * JeproLab.APP_WIDTH));
+                VBox.setMargin(jeproLabCategorySearchWrapper, new Insets(5, padding, 5, padding));
+                VBox.setMargin(jeproLabCategoryPagination, new Insets(0, padding, 5, padding));
                 jeproLabCategoryFormPanel.getChildren().addAll(jeproLabCategorySearchWrapper, jeproLabCategoryPagination);
             });
         }

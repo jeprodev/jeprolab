@@ -35,4 +35,6 @@ public class JeproAppendButton extends HBox{
     public void setButtonLabel(String label){
         buttonLabel.setText(label);
     }
+
+    public String getValue(){ return dataField.getText(); }
 }

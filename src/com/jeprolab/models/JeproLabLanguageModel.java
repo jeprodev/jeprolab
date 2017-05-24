@@ -42,10 +42,10 @@ public class JeproLabLanguageModel extends JeproLabModel{
         if(langId > 0){
             String cacheKey = "jeprolab_language_model_" + langId;
             if(!JeproLabCache.getInstance().isStored(cacheKey)){
-                String query = "SELECT * FROM " + dataBaseObject.quoteName("#__languages") + " lang WHERE lang.lang_id = ";
+                String query = "SELECT * FROM " + JeproLabDataBaseConnector.quoteName("#__languages") + " lang WHERE lang.lang_id = ";
                 query += langId ;
 
-                //dataBaseObject.setQuery(query);
+                JeproLabDataBaseConnector dataBaseObject = JeproLabFactory.getDataBaseConnector();
                 ResultSet languageDataSet = dataBaseObject.loadObjectList(query);
                 //String default_language = JeproLabLanguageModel.getDefaultLanguage().language_code;
                 int defaultLangId = JeproLabSettingModel.getIntValue("default_lang");
@@ -95,12 +95,11 @@ public class JeproLabLanguageModel extends JeproLabModel{
     }
 
     public synchronized static void loadLanguages() {
-        if(dataBaseObject == null){
-            dataBaseObject = JeproLabFactory.getDataBaseConnector();
-        }
         JeproLabLanguageModel.LANGUAGES = new HashMap<>();
 
-        String query = " SELECT * FROM " + dataBaseObject.quoteName("#__languages") ;
+        String query = " SELECT * FROM " + JeproLabDataBaseConnector.quoteName("#__languages") ;
+
+        JeproLabDataBaseConnector dataBaseObject = JeproLabFactory.getDataBaseConnector();
 
         ResultSet languages = dataBaseObject.loadObjectList(query);
 

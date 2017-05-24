@@ -40,15 +40,12 @@ public class JeproLabTagModel extends JeproLabModel{
     }
 
     public static Map<String, String> getAnalyzeTags(int analyzeId) {
-        if (dataBaseObject == null) {
-            dataBaseObject = JeproLabFactory.getDataBaseConnector();
-        }
-        String query = "SELECT tag." + dataBaseObject.quoteName("lang_id") + ", tag." + dataBaseObject.quoteName("name") + " FROM ";
-        query += dataBaseObject.quoteName("#__jeprolab_tag") + " AS tag LEFT JOIN " + dataBaseObject.quoteName("#__jeprolab_analyze_tag");
-        query += " AS analyze_tag ON (analyze_tag.tag_id = tag.tag_id) WHERE analyze_tag." + dataBaseObject.quoteName("analyze_id") + "= ";
+        String query = "SELECT tag." + JeproLabDataBaseConnector.quoteName("lang_id") + ", tag." + JeproLabDataBaseConnector.quoteName("name") + " FROM ";
+        query += JeproLabDataBaseConnector.quoteName("#__jeprolab_tag") + " AS tag LEFT JOIN " + JeproLabDataBaseConnector.quoteName("#__jeprolab_analyze_tag");
+        query += " AS analyze_tag ON (analyze_tag.tag_id = tag.tag_id) WHERE analyze_tag." + JeproLabDataBaseConnector.quoteName("analyze_id") + "= ";
         query += analyzeId;
 
-        //dataBaseObject.setQuery(query);
+        JeproLabDataBaseConnector dataBaseObject = JeproLabFactory.getDataBaseConnector();
         ResultSet tagSet = dataBaseObject.loadObjectList(query);
         Map<String, String> result = new HashMap<>();
         if (tagSet != null){
@@ -78,19 +75,17 @@ public class JeproLabTagModel extends JeproLabModel{
     }
 
     public static boolean deleteTagsForAnalyze(int analyzeId){
-        if(dataBaseObject == null){
-            dataBaseObject = JeproLabFactory.getDataBaseConnector();
-        }
-        String query = "SELECT tag_id FROM " + dataBaseObject.quoteName("#__jeprolab_analyze_tag") + " WHERE analyze_id = " + analyzeId;
-        //dataBaseObject.setQuery(query);
+        String query = "SELECT tag_id FROM " + JeproLabDataBaseConnector.quoteName("#__jeprolab_analyze_tag") + " WHERE analyze_id = " + analyzeId;
+
+        JeproLabDataBaseConnector dataBaseObject = JeproLabFactory.getDataBaseConnector();
         ResultSet tagsSet = dataBaseObject.loadObjectList(query);
 
-        query = "DELETE " + dataBaseObject.quoteName("#__jeprolab_analyze_tag") + " WHERE analyzeId = " + analyzeId;
+        query = "DELETE " + JeproLabDataBaseConnector.quoteName("#__jeprolab_analyze_tag") + " WHERE analyzeId = " + analyzeId;
         //dataBaseObject.setQuery(query);
         boolean result = dataBaseObject.query(query, false);
 
-        query = "DELETE " + dataBaseObject.quoteName("#__jeprolab_tag") + " NOT EXISTS (SELECT 1 FROM " + dataBaseObject.quoteName("#__jeprolab_analyze_tag");
-        query += " WHERE " + dataBaseObject.quoteName("#__jeprolab_analyze_tag") + ".tag_id = " + dataBaseObject.quoteName("#__jeprolab_analyze_tag") + ".tag_id)";
+        query = "DELETE " + JeproLabDataBaseConnector.quoteName("#__jeprolab_tag") + " NOT EXISTS (SELECT 1 FROM " + JeproLabDataBaseConnector.quoteName("#__jeprolab_analyze_tag");
+        query += " WHERE " + JeproLabDataBaseConnector.quoteName("#__jeprolab_analyze_tag") + ".tag_id = " + JeproLabDataBaseConnector.quoteName("#__jeprolab_analyze_tag") + ".tag_id)";
 
         //dataBaseObject.setQuery(query);
         dataBaseObject.query(query, false);

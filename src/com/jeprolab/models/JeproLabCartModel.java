@@ -127,12 +127,9 @@ public class JeproLabCartModel extends JeproLabModel{
             String cacheKey = "jeprolab_cart_model_" + cartId + "_" + langId;
 
             if(!JeproLabCache.getInstance().isStored(cacheKey)){
-                if(dataBaseObject == null){
-                    dataBaseObject = JeproLabFactory.getDataBaseConnector();
-                }
-                String query = "SELECT * FROm " + dataBaseObject.quoteName("#__jeprolab_cart") + " AS cart WHERE cart_id = " + cartId;
-                //dataBaseObject.setQuery(query);
+                String query = "SELECT * FROm " + JeproLabDataBaseConnector.quoteName("#__jeprolab_cart") + " AS cart WHERE cart_id = " + cartId;
 
+                JeproLabDataBaseConnector dataBaseObject = JeproLabFactory.getDataBaseConnector();
                 ResultSet cartSet = dataBaseObject.loadObjectList(query);
                 try{
                     if(cartSet.next()){
@@ -237,27 +234,23 @@ public class JeproLabCartModel extends JeproLabModel{
             this.laboratory_id = JeproLabContext.getContext().laboratory.laboratory_id;
         }
 
-        if(dataBaseObject == null){
-            dataBaseObject = JeproLabFactory.getDataBaseConnector();
-        }
-
-        String query = "INSERT INTO " + dataBaseObject.quoteName("#__jeprolab_cart") + "(" + dataBaseObject.quoteName("lab_group_id");
-        query += ", " + dataBaseObject.quoteName("lab_id") +  ", " + dataBaseObject.quoteName("carrier_id") + ", ";
-        query += dataBaseObject.quoteName("delivery_option") + ", " + dataBaseObject.quoteName("lang_id") + ", ";
-        query += dataBaseObject.quoteName("delivery_address_id") +  ", " + dataBaseObject.quoteName("invoice_address_id");
-        query += ", " + dataBaseObject.quoteName("currency_id") +  ", " + dataBaseObject.quoteName("customer_id");
-        query += ", " + dataBaseObject.quoteName("guest_id") +  ", " + dataBaseObject.quoteName("secure_key");
-        query += ", " + dataBaseObject.quoteName("recyclable") +  ", " + dataBaseObject.quoteName("gift") + ", ";
-        query += dataBaseObject.quoteName("gift_message") +  ", " + dataBaseObject.quoteName("mobile_theme") + ", ";
-        query += dataBaseObject.quoteName("allow_separated_result")  +  ", " + dataBaseObject.quoteName("date_add");
-        query += ", " + dataBaseObject.quoteName("date_upd") + ") VALUES (" + this.laboratory_group_id + ", " + this.laboratory_id + ", " + this.carrier_id;
-        query += ", " + dataBaseObject.quote(this.delivery_option) + ", " + this.language_id + ", " + this.delivery_address_id + ", ";
+        String query = "INSERT INTO " + JeproLabDataBaseConnector.quoteName("#__jeprolab_cart") + "(" + JeproLabDataBaseConnector.quoteName("lab_group_id");
+        query += ", " + JeproLabDataBaseConnector.quoteName("lab_id") +  ", " + JeproLabDataBaseConnector.quoteName("carrier_id") + ", ";
+        query += JeproLabDataBaseConnector.quoteName("delivery_option") + ", " + JeproLabDataBaseConnector.quoteName("lang_id") + ", ";
+        query += JeproLabDataBaseConnector.quoteName("delivery_address_id") +  ", " + JeproLabDataBaseConnector.quoteName("invoice_address_id");
+        query += ", " + JeproLabDataBaseConnector.quoteName("currency_id") +  ", " + JeproLabDataBaseConnector.quoteName("customer_id");
+        query += ", " + JeproLabDataBaseConnector.quoteName("guest_id") +  ", " + JeproLabDataBaseConnector.quoteName("secure_key");
+        query += ", " + JeproLabDataBaseConnector.quoteName("recyclable") +  ", " + JeproLabDataBaseConnector.quoteName("gift") + ", ";
+        query += JeproLabDataBaseConnector.quoteName("gift_message") +  ", " + JeproLabDataBaseConnector.quoteName("mobile_theme") + ", ";
+        query += JeproLabDataBaseConnector.quoteName("allow_separated_result")  +  ", " + JeproLabDataBaseConnector.quoteName("date_add");
+        query += ", " + JeproLabDataBaseConnector.quoteName("date_upd") + ") VALUES (" + this.laboratory_group_id + ", " + this.laboratory_id + ", " + this.carrier_id;
+        query += ", " + JeproLabDataBaseConnector.quote(this.delivery_option) + ", " + this.language_id + ", " + this.delivery_address_id + ", ";
         query += this.invoice_address_id + ", " + this.currency_id + ", " + this.customer_id + ", " + this.guest_id + ", ";
-        query += dataBaseObject.quote(this.secure_key) + ", " + (this.recyclable ? 1 : 0) + ", " + (this.gift ? 1 : 0) + ", ";
-        query += dataBaseObject.quote(this.gift_message) + ", " + (this.mobile_theme ? 1 : 0) + ", " + (this.allow_separated_result ? 1 : 0);
-        query += ", " + dataBaseObject.quote(JeproLabTools.date()) + ", " + dataBaseObject.quote(JeproLabTools.date()) + ") ";
+        query += JeproLabDataBaseConnector.quote(this.secure_key) + ", " + (this.recyclable ? 1 : 0) + ", " + (this.gift ? 1 : 0) + ", ";
+        query += JeproLabDataBaseConnector.quote(this.gift_message) + ", " + (this.mobile_theme ? 1 : 0) + ", " + (this.allow_separated_result ? 1 : 0);
+        query += ", " + JeproLabDataBaseConnector.quote(JeproLabTools.date()) + ", " + JeproLabDataBaseConnector.quote(JeproLabTools.date()) + ") ";
 
-        //dataBaseObject.setQuery(query);
+        JeproLabDataBaseConnector dataBaseObject = JeproLabFactory.getDataBaseConnector();
         dataBaseObject.query(query, true);
 
         this.cart_id = dataBaseObject.getGeneratedKey();
@@ -297,12 +290,12 @@ public class JeproLabCartModel extends JeproLabModel{
             }
 /*
         // Delete associated restrictions on cart rules
-        String query = "DELETE cart_rule_analyze_rule_value FROM " + dataBaseObject.quoteName("#__jeprolab_cart_rule_analyze_rule");
-        query += " AS cart_rule_analyze_rule LEFT JOIN " + dataBaseObject.quoteName("#__jeprolab_cart_rule_analyze_rule_value");
-        query += " AS cart_rule_analyze_rule_value ON cart_rule_analyze_rule." + dataBaseObject.quoteName("analyze_rule_id") + " =";
-        query += "cart_rule_analyze_rule_value." + dataBaseObject.quoteName("analyze_rule_id") + " WHERE cart_rule_analyze_rule.";
-        query += dataBaseObject.quoteName("type") + " = " + dataBaseObject.quoteName(type) + " AND cart_rule_analyze_rule_value.";
-        query += dataBaseObject.quoteName("item_id") + " IN (" + itemList + ")";
+        String query = "DELETE cart_rule_analyze_rule_value FROM " + JeproLabDataBaseConnector.quoteName("#__jeprolab_cart_rule_analyze_rule");
+        query += " AS cart_rule_analyze_rule LEFT JOIN " + JeproLabDataBaseConnector.quoteName("#__jeprolab_cart_rule_analyze_rule_value");
+        query += " AS cart_rule_analyze_rule_value ON cart_rule_analyze_rule." + JeproLabDataBaseConnector.quoteName("analyze_rule_id") + " =";
+        query += "cart_rule_analyze_rule_value." + JeproLabDataBaseConnector.quoteName("analyze_rule_id") + " WHERE cart_rule_analyze_rule.";
+        query += JeproLabDataBaseConnector.quoteName("type") + " = " + JeproLabDataBaseConnector.quoteName(type) + " AND cart_rule_analyze_rule_value.";
+        query += JeproLabDataBaseConnector.quoteName("item_id") + " IN (" + itemList + ")";
 
         dataBaseObject.setQuery(query);
 
@@ -311,20 +304,20 @@ public class JeproLabCartModel extends JeproLabModel{
 
         // Delete the product rules that does not have any values
         if (dataBaseObject.executeQuery() > 0) {
-            query = "DELETE FROM " + dataBaseObject.quoteName("#__jeprolab_cart_rule_analyze_rule") + " NOT EXISTS (SELECT";
-            query += " 1 FROM " + dataBaseObject.quoteName("#__jeprolab_cart_rule_analyze_rule_value") + " WHERE ";
-            query += dataBaseObject.quoteName(".'cart_rule_product_rule`.`id_product_rule` = `'.dataBaseObject.quoteName(".'cart_rule_product_rule_value`.`id_product_rule`)');
+            query = "DELETE FROM " + JeproLabDataBaseConnector.quoteName("#__jeprolab_cart_rule_analyze_rule") + " NOT EXISTS (SELECT";
+            query += " 1 FROM " + JeproLabDataBaseConnector.quoteName("#__jeprolab_cart_rule_analyze_rule_value") + " WHERE ";
+            query += JeproLabDataBaseConnector.quoteName(".'cart_rule_product_rule`.`id_product_rule` = `'.JeproLabDataBaseConnector.quoteName(".'cart_rule_product_rule_value`.`id_product_rule`)');
         }
         // If the product rules were the only conditions of a product rule group, delete the product rule group
         if (Db::getInstance()->Affected_Rows() > 0) {
-        Db::getInstance()->delete('cart_rule_product_rule_group', 'NOT EXISTS (SELECT 1 FROM `'.dataBaseObject.quoteName(".'cart_rule_product_rule`
-        WHERE `'.dataBaseObject.quoteName(".'cart_rule_product_rule`.`id_product_rule_group` = `'.dataBaseObject.quoteName(".'cart_rule_product_rule_group`.`id_product_rule_group`)');
+        Db::getInstance()->delete('cart_rule_product_rule_group', 'NOT EXISTS (SELECT 1 FROM `'.JeproLabDataBaseConnector.quoteName(".'cart_rule_product_rule`
+        WHERE `'.JeproLabDataBaseConnector.quoteName(".'cart_rule_product_rule`.`id_product_rule_group` = `'.JeproLabDataBaseConnector.quoteName(".'cart_rule_product_rule_group`.`id_product_rule_group`)');
     }
 
         // If the product rule group were the only restrictions of a cart rule, update de cart rule restriction cache
         if (Db::getInstance()->Affected_Rows() > 0){
-            query = "UPDATE " + dataBaseObject.quoteName("#__jeprolab_cart_rule") + " AS cart_rule LEFT JOIN ";
-            query += dataBaseObject.quoteName("#__jeprolab_cart_rule_analyze_rule_group") + " AS cart_rule_analyze_rule_group ";
+            query = "UPDATE " + JeproLabDataBaseConnector.quoteName("#__jeprolab_cart_rule") + " AS cart_rule LEFT JOIN ";
+            query += JeproLabDataBaseConnector.quoteName("#__jeprolab_cart_rule_analyze_rule_group") + " AS cart_rule_analyze_rule_group ";
             query += " ON cart_rule.cart_rule_id = cart_rule_analyze_rule_group.cart_rule_id SET analyze_restriction = IF(";
             query += " cart_rule_analyze_rule_group.analyze_rule_group_id IS NULL, 0, 1)";
 

@@ -146,7 +146,7 @@ public class JeproLabLoginController extends JeproLabController{
             if(!JeproLab.getInstance().is_initialized){
                 JeproLabUncaughtExceptionHandler.logExceptionMessage(Level.ERROR, new Throwable("You should instantiate the application in order to log in and use it "));
             }
-            new Thread((Task)worker).start();
+            JeproLab.getInstance().executor.submit((Task)worker);
         });
 
         /* /((Task)worker).setOnFailed( evt -> {

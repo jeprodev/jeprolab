@@ -4,6 +4,7 @@ import com.jeprolab.JeproLab;
 import com.jeprolab.assets.config.JeproLabConfig;
 import com.jeprolab.assets.tools.JeproLabTools;
 import com.jeprolab.assets.tools.exception.JeproLabUncaughtExceptionHandler;
+import com.jeprolab.models.core.JeproLabFactory;
 import org.apache.log4j.Level;
 
 import java.sql.*;
@@ -88,11 +89,11 @@ public class JeproLabDataBaseConnector {
         }
     }
 
-    public String quote(String msg){
+    public static String quote(String msg){
         return quote(msg, true);
     }
 
-    public String quote(String msg, boolean escape){
+    public static String quote(String msg, boolean escape){
         return (escape ? "\'" : "'") + msg + (escape ? "\'" : "'");
     }
 
@@ -109,7 +110,7 @@ public class JeproLabDataBaseConnector {
         return quotedField;
     }*/
 
-    public String quoteName(String msg){
+    public static String quoteName(String msg){
         return  "`" + msg + "`";
     }
 
@@ -187,6 +188,9 @@ public class JeproLabDataBaseConnector {
     }
 
     public synchronized boolean query(String query, boolean isInsert, boolean getAffectedRows){
+        return query(query, isInsert, getAffectedRows, true);
+    }
+    public synchronized boolean query(String query, boolean isInsert, boolean getAffectedRows, boolean closeAfter){
         try{
             /** JDBC Registration **/
             Class.forName(driverName);
@@ -210,28 +214,48 @@ public class JeproLabDataBaseConnector {
             JeproLabUncaughtExceptionHandler.logExceptionMessage(Level.ERROR, ignored);
             return false;
         }catch (Exception ignored){
+            JeproLabFactory.removeConnection(this);
             JeproLabUncaughtExceptionHandler.logExceptionMessage(Level.ERROR, ignored);
             return false;
+        }finally {
+            if(!isInsert || closeAfter){
+                JeproLabFactory.removeConnection(this);
+            }
         }
     }
 
     public int getAffectedRows(){
+
         return  this.affected_rows;
     }
 
     public double loadValue(String query, String key){
+        return  loadValue(query, key, true);
+    }
+
+    public double loadValue(String query, String key, boolean closeAfter){
         ResultSet result = loadObjectList(query);
         try{
             if(result.next()){
                 return result.getDouble(key);
             }
         }catch(SQLException ignored) {
+            JeproLabFactory.removeConnection(this);
+            //closeConnexion();
             return 0;
+        }finally {
+            if(closeAfter){
+                JeproLabFactory.removeConnection(this);
+            }
         }
         return 0;
     }
 
     public String loadStringValue(String query, String key){
+        return loadStringValue(query, key, true);
+    }
+
+    public String loadStringValue(String query, String key, boolean closeAfter){
         ResultSet result = loadObjectList(query);
         try{
             if(result.next()){
@@ -240,7 +264,10 @@ public class JeproLabDataBaseConnector {
         }catch(SQLException ignored) {
             return "";
         }finally {
-            closeConnexion();
+            if(closeAfter) {
+                JeproLabFactory.removeConnection(this);
+                closeConnexion();
+            }
         }
         return "";
     }

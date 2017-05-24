@@ -78,18 +78,15 @@ public class JeproLabImageModel extends JeproLabModel{
             /** load category from data base if id provided **/
             String cacheKey = "jeprolab_model_image_" + imageId + "_" + langId;
             if(!JeproLabCache.getInstance().isStored(cacheKey)){
-                if(dataBaseObject == null){
-                    dataBaseObject = JeproLabFactory.getDataBaseConnector();
-                }
-                String query = "SELECT * FROM " + dataBaseObject.quoteName("#__jeprolab_image") + " AS image ";
+                String query = "SELECT * FROM " + JeproLabDataBaseConnector.quoteName("#__jeprolab_image") + " AS image ";
                 if(langId > 0){
-                    query += " LEFT JOIN " + dataBaseObject.quoteName("#__jeprolab_image_lang") + " AS image_lang ON ";
-                    query += "(image." + dataBaseObject.quoteName("image_id") + " = image_lang." + dataBaseObject.quoteName("image_id");
-                    query += " AND image." + dataBaseObject.quoteName("lang_id") + " = " + langId + ") ";
+                    query += " LEFT JOIN " + JeproLabDataBaseConnector.quoteName("#__jeprolab_image_lang") + " AS image_lang ON ";
+                    query += "(image." + JeproLabDataBaseConnector.quoteName("image_id") + " = image_lang." + JeproLabDataBaseConnector.quoteName("image_id");
+                    query += " AND image." + JeproLabDataBaseConnector.quoteName("lang_id") + " = " + langId + ") ";
                 }
-                query += "WHERE image." + dataBaseObject.quoteName("image_id") + " = " + imageId;
+                query += "WHERE image." + JeproLabDataBaseConnector.quoteName("image_id") + " = " + imageId;
 
-                //dataBaseObject.setQuery(query);
+                JeproLabDataBaseConnector dataBaseObject = JeproLabFactory.getDataBaseConnector();
                 ResultSet imageSet = dataBaseObject.loadObjectList(query);
 
                 try {
@@ -99,7 +96,7 @@ public class JeproLabImageModel extends JeproLabModel{
                         this.position = imageSet.getInt("position");
                         this.cover = imageSet.getInt("cover") > 0;
                         if (langId <= 0 ){
-                            query = "SELECT * FROM " + dataBaseObject.quoteName("#__jeprolab_image_lang") + " WHERE image_id = " + imageId;
+                            query = "SELECT * FROM " + JeproLabDataBaseConnector.quoteName("#__jeprolab_image_lang") + " WHERE image_id = " + imageId;
 
                             //dataBaseObject.setQuery(query);
                             ResultSet imageLangSet = dataBaseObject.loadObjectList(query);
@@ -177,22 +174,18 @@ public class JeproLabImageModel extends JeproLabModel{
         String cacheKey = "jeprolab_image_getBestImageAttribute_" + analyzeId + "_" + analyzeAttributeId + "_" + langId + "_" + langId;
         Map<String, String> rowData = new HashMap<>();
         if (!JeproLabCache.getInstance().isStored(cacheKey)){
-            if(dataBaseObject == null){
-                dataBaseObject = JeproLabFactory.getDataBaseConnector();
-            }
+            String query = "SELECT image_lab." + JeproLabDataBaseConnector.quoteName("image_id") + ", image_lang." + JeproLabDataBaseConnector.quoteName("legend");
+            query += " FROM " + JeproLabDataBaseConnector.quoteName("#__jeprolab_image") + " AS image INNER JOIN " + JeproLabDataBaseConnector.quoteName("#__jeprolab_image_lab");
+            query += " AS image_lab (image." + JeproLabDataBaseConnector.quoteName("image_id") + " = image_lab." + JeproLabDataBaseConnector.quoteName("image_id");
+            query += " AND image_lab." + JeproLabDataBaseConnector.quoteName("lab_id") + " = " + labId + ") INNER JOIN " + JeproLabDataBaseConnector.quoteName("#__jeprolab_analyze_attribute_image");
+            query += " AS analyze_attribute_image ON(analyze_attribute_image." + JeproLabDataBaseConnector.quoteName("image_id") + " = image.";
+            query += JeproLabDataBaseConnector.quoteName("image_id") + " AND analyze_attribute_id." + JeproLabDataBaseConnector.quoteName("analyze_attribute_id");
+            query += " = " + analyzeAttributeId + ") LEFT JOIN " + JeproLabDataBaseConnector.quoteName("#__jeprolab_image_lang") + " AS image_lang ON (image_lang.";
+            query += JeproLabDataBaseConnector.quoteName("image_id") + " = image_lab." + JeproLabDataBaseConnector.quoteName("image_id") + " AND image_lang.";
+            query += JeproLabDataBaseConnector.quoteName("lang_id") + " = " + langId + ") WHERE image." + JeproLabDataBaseConnector.quoteName("analyze_id") + " = ";
+            query += analyzeId + " ORDER BY image." + JeproLabDataBaseConnector.quoteName("position") + " ASC ";
 
-            String query = "SELECT image_lab." + dataBaseObject.quoteName("image_id") + ", image_lang." + dataBaseObject.quoteName("legend");
-            query += " FROM " + dataBaseObject.quoteName("#__jeprolab_image") + " AS image INNER JOIN " + dataBaseObject.quoteName("#__jeprolab_image_lab");
-            query += " AS image_lab (image." + dataBaseObject.quoteName("image_id") + " = image_lab." + dataBaseObject.quoteName("image_id");
-            query += " AND image_lab." + dataBaseObject.quoteName("lab_id") + " = " + labId + ") INNER JOIN " + dataBaseObject.quoteName("#__jeprolab_analyze_attribute_image");
-            query += " AS analyze_attribute_image ON(analyze_attribute_image." + dataBaseObject.quoteName("image_id") + " = image.";
-            query += dataBaseObject.quoteName("image_id") + " AND analyze_attribute_id." + dataBaseObject.quoteName("analyze_attribute_id");
-            query += " = " + analyzeAttributeId + ") LEFT JOIN " + dataBaseObject.quoteName("#__jeprolab_image_lang") + " AS image_lang ON (image_lang.";
-            query += dataBaseObject.quoteName("image_id") + " = image_lab." + dataBaseObject.quoteName("image_id") + " AND image_lang.";
-            query += dataBaseObject.quoteName("lang_id") + " = " + langId + ") WHERE image." + dataBaseObject.quoteName("analyze_id") + " = ";
-            query += analyzeId + " ORDER BY image." + dataBaseObject.quoteName("position") + " ASC ";
-
-            //dataBaseObject.setQuery(query);
+            JeproLabDataBaseConnector dataBaseObject = JeproLabFactory.getDataBaseConnector();
             ResultSet rowDataSet = dataBaseObject.loadObjectList(query);
 
             if(rowDataSet != null){
@@ -275,23 +268,19 @@ public class JeproLabImageModel extends JeproLabModel{
          * @return array Image type definitions
          */
         public static List<JeproLabImageTypeModel> getImagesTypes(String type, boolean orderBySize) {
-            if(dataBaseObject == null){
-                dataBaseObject = JeproLabFactory.getDataBaseConnector();
-            }
-
             if (!JeproLabImageTypeModel.images_types_cache.containsKey(type)) {
                 String where = " WHERE 1 ";
                 if (!type.equals("")){
-                    where += " AND " + dataBaseObject.quote(type) + " = 1 ";
+                    where += " AND " + JeproLabDataBaseConnector.quote(type) + " = 1 ";
                 }
-                String query = "SELECT * FROM " + dataBaseObject.quoteName("#__jeprolab_image_type") + where + "ORDER BY ";
+                String query = "SELECT * FROM " + JeproLabDataBaseConnector.quoteName("#__jeprolab_image_type") + where + "ORDER BY ";
 
                 if (orderBySize) {
-                    query += dataBaseObject.quoteName("width") + " DESC, " + dataBaseObject.quoteName("height") + " DESC, ";
+                    query += JeproLabDataBaseConnector.quoteName("width") + " DESC, " + JeproLabDataBaseConnector.quoteName("height") + " DESC, ";
                 }
-                query += dataBaseObject.quoteName("name") + " ASC ";
+                query += JeproLabDataBaseConnector.quoteName("name") + " ASC ";
 
-                //dataBaseObject.setQuery(query);
+                JeproLabDataBaseConnector dataBaseObject = JeproLabFactory.getDataBaseConnector();
                 ResultSet imageTypeSet = dataBaseObject.loadObjectList(query);
                 List<JeproLabImageTypeModel> list = new ArrayList<>();
                 try{
@@ -344,11 +333,9 @@ public class JeproLabImageModel extends JeproLabModel{
 
             String cacheKey = name + "_" + type + "_" + order;
             if (!JeproLabImageTypeModel.images_types_name_cache.containsKey(cacheKey) && !JeproLabImageTypeModel.is_passed){
-                if(dataBaseObject == null){
-                    dataBaseObject = JeproLabFactory.getDataBaseConnector();
-                }
-                String query = "SELECT * FROM " + dataBaseObject.quoteName("#__jeprolab_image_type");
-                //dataBaseObject.setQuery(query);
+                String query = "SELECT * FROM " + JeproLabDataBaseConnector.quoteName("#__jeprolab_image_type");
+
+                JeproLabDataBaseConnector dataBaseObject = JeproLabFactory.getDataBaseConnector();
                 ResultSet resultSet = dataBaseObject.loadObjectList(query);
 
                 List<String> types = new ArrayList<>();

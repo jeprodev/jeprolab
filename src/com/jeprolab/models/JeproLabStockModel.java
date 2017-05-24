@@ -2,6 +2,7 @@ package com.jeprolab.models;
 
 import com.jeprolab.assets.tools.JeproLabCache;
 import com.jeprolab.assets.tools.JeproLabContext;
+import com.jeprolab.assets.tools.db.JeproLabDataBaseConnector;
 import com.jeprolab.assets.tools.exception.JeproLabUncaughtExceptionHandler;
 import com.jeprolab.models.core.JeproLabFactory;
 import org.apache.log4j.Level;
@@ -126,12 +127,13 @@ public class JeproLabStockModel extends JeproLabModel {
         public static void setAnalyzeDependsOnStock(int analyzeId, boolean dependsOnStock, int labId, int analyzeAttributeId) {
             if (analyzeId > 0) {
                 int existingId = JeproLabStockAvailableModel.getStockAvailableIdByAnalyzeId(analyzeId, analyzeAttributeId, labId);
+                JeproLabDataBaseConnector dataBaseObject = JeproLabFactory.getDataBaseConnector();
                 if (existingId > 0) {
-                    String query = "UPDATE " + dataBaseObject.quoteName("#__jeprolab_stock_available") + " SET ";
-                    query += dataBaseObject.quoteName("depends_on_stock") + " = " + (dependsOnStock ? 1 : 0);
-                    query += " WHERE " + dataBaseObject.quoteName("stock_available_id") + " = " + existingId;
+                    String query = "UPDATE " + JeproLabDataBaseConnector.quoteName("#__jeprolab_stock_available") + " SET ";
+                    query += JeproLabDataBaseConnector.quoteName("depends_on_stock") + " = " + (dependsOnStock ? 1 : 0);
+                    query += " WHERE " + JeproLabDataBaseConnector.quoteName("stock_available_id") + " = " + existingId;
 
-                    //dataBaseObject.setQuery(query);
+                    //JeproLabDataBaseConnector dataBaseObject = JeproLabFactory.getDataBaseConnector();
                     dataBaseObject.query(query, false);
                 } else {
                     Map<String, Integer> queryParams = new HashMap<>();
@@ -140,13 +142,13 @@ public class JeproLabStockModel extends JeproLabModel {
                     queryParams.put("analyze_attribute_id", analyzeAttributeId);
 
                     queryParams = JeproLabStockAvailableModel.addSqlLaboratoryParams(queryParams, labId);
-                    String query = "INSERT INTO " + dataBaseObject.quoteName("#__jeprolab_stock_available") + "(";
+                    String query = "INSERT INTO " + JeproLabDataBaseConnector.quoteName("#__jeprolab_stock_available") + "(";
                     Iterator queryIterator = queryParams.entrySet().iterator();
                     String keyFields = "";
                     String valueFields = "";
                     while (queryIterator.hasNext()) {
                         Map.Entry field = (Map.Entry) queryIterator.next();
-                        keyFields += dataBaseObject.quote(field.getKey().toString()) + ", ";
+                        keyFields += JeproLabDataBaseConnector.quote(field.getKey().toString()) + ", ";
                         valueFields += field.getValue().toString() + ", ";
                     }
                     keyFields = keyFields.endsWith(", ") ? keyFields.substring(0, keyFields.length() - 3) : keyFields;
@@ -160,6 +162,7 @@ public class JeproLabStockModel extends JeproLabModel {
                 if (dependsOnStock) {
                     JeproLabStockAvailableModel.synchronize(analyzeId);
                 }
+                closeDataBaseConnection(dataBaseObject);
             }
         }
 
@@ -173,15 +176,17 @@ public class JeproLabStockModel extends JeproLabModel {
 
         public static int getStockAvailableIdByAnalyzeId(int analyzeId, int analyzeAttributeId, int labId) {
             if (analyzeId > 0) {
-                String query = "SELECT " + dataBaseObject.quoteName("#__jeprolab_stock_available") + " WHERE analyze_id = " + analyzeId;
+                String query = "SELECT " + JeproLabDataBaseConnector.quoteName("#__jeprolab_stock_available") + " WHERE analyze_id = " + analyzeId;
                 if (analyzeAttributeId > 0) {
                     query += " AND analyze_attribute_id = " + analyzeAttributeId;
                 }
 
 
                 query += JeproLabStockAvailableModel.addSqlLaboratoryRestriction(new JeproLabLaboratoryModel(labId));
-                //dataBaseObject.setQuery(query);
-                return (int) dataBaseObject.loadValue(query, "stock_available_id");
+                JeproLabDataBaseConnector dataBaseObject = JeproLabFactory.getDataBaseConnector();
+                int result = (int) dataBaseObject.loadValue(query, "stock_available_id");
+                closeDataBaseConnection(dataBaseObject);
+                return result;
             }
             return 0;
         }
@@ -292,8 +297,8 @@ public class JeproLabStockModel extends JeproLabModel {
 
                             int quantity = manager.getAnalyzeRealQuantities(analyzeId, analyzeAttributeIds, allowedWarehouseForCombinationClean, true);
 
-                            query = "SELECT COUNT(*) stock FROM "  + dataBaseObject.quoteName("#__jeprolab_stock_available") + " WHERE " + dataBaseObject.quoteName("analyze_id");
-                            query += " = " + analyzeId + " AND " + dataBaseObject.quoteName("analyze_attribute_id") + " = " + analyzeAttributeId;
+                            query = "SELECT COUNT(*) stock FROM "  + JeproLabDataBaseConnector.quoteName("#__jeprolab_stock_available") + " WHERE " + JeproLabDataBaseConnector.quoteName("analyze_id");
+                            query += " = " + analyzeId + " AND " + JeproLabDataBaseConnector.quoteName("analyze_attribute_id") + " = " + analyzeAttributeId;
                             query += JeproLabStockAvailableModel.addSqlLaboratoryRestriction(new JeproLabLaboratoryModel(labId));
 
                             dataBaseObject.setQuery(query);
@@ -357,8 +362,8 @@ public class JeproLabStockModel extends JeproLabModel {
             }
             // In case there are no warehouses, removes analyze from StockAvailable
             if (warehouseIds.size() == 0 && JeproLabStockAvailableModel.dependsOnStock (analyzeId)){
-                query = "UPDATE " + dataBaseObject.quoteName("#__jeprolab_stock_available") + " SET " + dataBaseObject.quoteName("quantity") ;
-                query += " => 0 WHERE " + dataBaseObject.quoteName("analyze_id") + " = " + analyzeId;
+                query = "UPDATE " + JeproLabDataBaseConnector.quoteName("#__jeprolab_stock_available") + " SET " + JeproLabDataBaseConnector.quoteName("quantity") ;
+                query += " => 0 WHERE " + JeproLabDataBaseConnector.quoteName("analyze_id") + " = " + analyzeId;
 
                 dataBaseObject.setQuery(query);
                 dataBaseObject.query(false);
@@ -502,20 +507,22 @@ public class JeproLabStockModel extends JeproLabModel {
          * @param labId      Optional gets context by default
          */
         public static void setAnalyzeOutOfStock(int analyzeId, int outOfStock, int labId, int analyzeAttributeId) {
+
             if (analyzeId > 0) {
                 int existingId = JeproLabStockAvailableModel.getStockAvailableIdByAnalyzeId(analyzeId, analyzeAttributeId, labId);
 
                 String query;
+                JeproLabDataBaseConnector dataBaseObject = JeproLabFactory.getDataBaseConnector();
                 if (existingId > 0) {
-                    query = "UPDATE " + dataBaseObject.quoteName("#__jeprolab_stock_available") + " SET " + dataBaseObject.quoteName("stock_available");
-                    query += " = " + outOfStock + ", " + dataBaseObject.quoteName("analyze_id") + " = " + analyzeId;
-                    query += (analyzeAttributeId > 0 ? " AND " + dataBaseObject.quoteName("analyze_attribute_id") + " = " + analyzeAttributeId : "");
+                    query = "UPDATE " + JeproLabDataBaseConnector.quoteName("#__jeprolab_stock_available") + " SET " + JeproLabDataBaseConnector.quoteName("stock_available");
+                    query += " = " + outOfStock + ", " + JeproLabDataBaseConnector.quoteName("analyze_id") + " = " + analyzeId;
+                    query += (analyzeAttributeId > 0 ? " AND " + JeproLabDataBaseConnector.quoteName("analyze_attribute_id") + " = " + analyzeAttributeId : "");
                     query += JeproLabStockAvailableModel.addSqlLaboratoryRestriction(new JeproLabLaboratoryModel(labId));
 
                     //dataBaseObject.setQuery(query);
                     dataBaseObject.query(query, false);
                 } else {
-                    query = "INSERT " + dataBaseObject.quoteName("#__jeprolab_stock_available") + "(";
+                    query = "INSERT " + JeproLabDataBaseConnector.quoteName("#__jeprolab_stock_available") + "(";
                     Map<String, Integer> queryParams = new HashMap<>();
                     queryParams.put("out_of_stock", outOfStock);
                     queryParams.put("analyze_id", analyzeId);
@@ -527,7 +534,7 @@ public class JeproLabStockModel extends JeproLabModel {
                     String valueFields = "";
                     while (queryIterator.hasNext()) {
                         Map.Entry field = (Map.Entry) queryIterator.next();
-                        keyFields += dataBaseObject.quote(field.getKey().toString()) + ", ";
+                        keyFields += JeproLabDataBaseConnector.quote(field.getKey().toString()) + ", ";
                         valueFields += field.getValue().toString() + ", ";
                     }
                     keyFields = keyFields.endsWith(", ") ? keyFields.substring(0, keyFields.length() - 3) : keyFields;
@@ -537,13 +544,9 @@ public class JeproLabStockModel extends JeproLabModel {
                     //dataBaseObject.setQuery(query);
                     dataBaseObject.query(query, false);
                 }
+                closeDataBaseConnection(dataBaseObject);
             }
-            closeDataBaseConnection(dataBaseObject);
         }
-
-
-
-
     }
 
     public static class JeproLabStockManagerFactory{
@@ -622,15 +625,11 @@ public class JeproLabStockModel extends JeproLabModel {
 
             int clientRequestQuantity = 0;
 
-            if (dataBaseObject == null) {
-                dataBaseObject = JeproLabFactory.getDataBaseConnector();
-            }
+            String query = "SELECT " + JeproLabDataBaseConnector.quoteName("analyze_pack_id") + ", " + JeproLabDataBaseConnector.quoteName("quantity") + " FROM ";
+            query += JeproLabDataBaseConnector.quoteName("#__jeprolab_pack") + " WHERE " + JeproLabDataBaseConnector.quoteName("analyze_item_id") + " = ";
+            query += analyzeId + " AND " + JeproLabDataBaseConnector.quoteName("analyze_attribute_item_id") + " = " + analyzeAttributeId;
 
-            String query = "SELECT " + dataBaseObject.quoteName("analyze_pack_id") + ", " + dataBaseObject.quoteName("quantity") + " FROM ";
-            query += dataBaseObject.quoteName("#__jeprolab_pack") + " WHERE " + dataBaseObject.quoteName("analyze_item_id") + " = ";
-            query += analyzeId + " AND " + dataBaseObject.quoteName("analyze_attribute_item_id") + " = " + analyzeAttributeId;
-
-            //dataBaseObject.setQuery(query);
+            JeproLabDataBaseConnector dataBaseObject = JeproLabFactory.getDataBaseConnector();
             ResultSet packItemsPckSet = dataBaseObject.loadObjectList(query);
 
             // check if product is present in a pack
@@ -640,27 +639,27 @@ public class JeproLabStockModel extends JeproLabModel {
                     while (packItemsPckSet.next()) {  //$in_pack as $value
                         analyze = new JeproLabAnalyzeModel(packItemsPckSet.getInt("analyze_pack_id"));
                         if ((analyze.analyze_id > 0) && (analyze.pack_stock_type == 1 || analyze.pack_stock_type == 2 || (analyze.pack_stock_type == 3 && JeproLabSettingModel.getIntValue("pack_stock_type") > 0))) {
-                            query = "SELECT request_detail." + dataBaseObject.quoteName("analyze_quantity") + ", request_detail." + dataBaseObject.quoteName("analyze_quantity_refunded") + ", pack.";
-                            query += dataBaseObject.quoteName("quantity") + " FROM " + dataBaseObject.quoteName("#__jeprolab_request_detail") + " AS request_detail LEFT JOIN ";
-                            query += dataBaseObject.quoteName("#__jeprolab_request") + " AS request ON(request." + dataBaseObject.quoteName("request_id") + " = request_detail.";
-                            query += dataBaseObject.quoteName("request_id") + ") LEFT JOIN " + dataBaseObject.quoteName("#__jeprolab_request_history") + " AS request_history ON (request_history.";
-                            query += dataBaseObject.quoteName("request_id") + " = request." + dataBaseObject.quoteName("request_id") + " AND request_history." + dataBaseObject.quoteName("request_state_id");
-                            query += " = request." + dataBaseObject.quoteName("current_state") + ") LEFT JOIN " + dataBaseObject.quoteName("#__jeprolab_request_state") + " AS request_state ON (request_state.";
-                            query += dataBaseObject.quoteName("request_state_id") + " = request_history." + dataBaseObject.quoteName("request_state_id") + ") LEFT JOIN " + dataBaseObject.quoteName("#__jeprolab_pack");
-                            query += " AS pack ON pack." + dataBaseObject.quoteName("analyze_item_id") + " = " + analyzeId + " AND pack." + dataBaseObject.quoteName("analyze_attribute_item_id") + " = ";
-                            query += analyzeAttributeId + ") WHERE order_detail." + dataBaseObject.quoteName("analyze_id") + analyze.analyze_id + " AND request_state." + dataBaseObject.quoteName("terminated");
-                            query += " != 1 AND request." + dataBaseObject.quoteName("valid") + " = 1 OR (request_state." + dataBaseObject.quoteName("request_state_id") + " != ";
-                            query += JeproLabSettingModel.getIntValue("request_error_state") + " AND request_state." + dataBaseObject.quoteName("request_state_id") + " != ";
+                            query = "SELECT request_detail." + JeproLabDataBaseConnector.quoteName("analyze_quantity") + ", request_detail." + JeproLabDataBaseConnector.quoteName("analyze_quantity_refunded") + ", pack.";
+                            query += JeproLabDataBaseConnector.quoteName("quantity") + " FROM " + JeproLabDataBaseConnector.quoteName("#__jeprolab_request_detail") + " AS request_detail LEFT JOIN ";
+                            query += JeproLabDataBaseConnector.quoteName("#__jeprolab_request") + " AS request ON(request." + JeproLabDataBaseConnector.quoteName("request_id") + " = request_detail.";
+                            query += JeproLabDataBaseConnector.quoteName("request_id") + ") LEFT JOIN " + JeproLabDataBaseConnector.quoteName("#__jeprolab_request_history") + " AS request_history ON (request_history.";
+                            query += JeproLabDataBaseConnector.quoteName("request_id") + " = request." + JeproLabDataBaseConnector.quoteName("request_id") + " AND request_history." + JeproLabDataBaseConnector.quoteName("request_state_id");
+                            query += " = request." + JeproLabDataBaseConnector.quoteName("current_state") + ") LEFT JOIN " + JeproLabDataBaseConnector.quoteName("#__jeprolab_request_state") + " AS request_state ON (request_state.";
+                            query += JeproLabDataBaseConnector.quoteName("request_state_id") + " = request_history." + JeproLabDataBaseConnector.quoteName("request_state_id") + ") LEFT JOIN " + JeproLabDataBaseConnector.quoteName("#__jeprolab_pack");
+                            query += " AS pack ON pack." + JeproLabDataBaseConnector.quoteName("analyze_item_id") + " = " + analyzeId + " AND pack." + JeproLabDataBaseConnector.quoteName("analyze_attribute_item_id") + " = ";
+                            query += analyzeAttributeId + ") WHERE order_detail." + JeproLabDataBaseConnector.quoteName("analyze_id") + analyze.analyze_id + " AND request_state." + JeproLabDataBaseConnector.quoteName("terminated");
+                            query += " != 1 AND request." + JeproLabDataBaseConnector.quoteName("valid") + " = 1 OR (request_state." + JeproLabDataBaseConnector.quoteName("request_state_id") + " != ";
+                            query += JeproLabSettingModel.getIntValue("request_error_state") + " AND request_state." + JeproLabDataBaseConnector.quoteName("request_state_id") + " != ";
                             query += JeproLabSettingModel.getIntValue("request_cancel_state") + ") ";
                             if (warehouseIds.size() > 0) {
-                                query += " AND request_detail." + dataBaseObject.quoteName("warehouse_id") + " IN (";
+                                query += " AND request_detail." + JeproLabDataBaseConnector.quoteName("warehouse_id") + " IN (";
                                 int index = 0;
                                 for (Integer i : warehouseIds) {
                                     query += i + ((++index < warehouseIds.size()) ? ", " : "");
                                 }
                                 query += ") ";
                             }
-                            query += " GROUP BY request_detail." + dataBaseObject.quoteName("request_detail_id");
+                            query += " GROUP BY request_detail." + JeproLabDataBaseConnector.quoteName("request_detail_id");
 
                             //dataBaseObject.setQuery(query);
                             ResultSet requestDetailSet = dataBaseObject.loadObjectList(query);
@@ -704,9 +703,9 @@ public class JeproLabStockModel extends JeproLabModel {
             if (!JeproLabAnalyzeModel.JeproLabAnalyzePackModel.isPack(analyzeId) || (JeproLabAnalyzeModel.JeproLabAnalyzePackModel.isPack(analyzeId) && (analyze.analyze_id > 0) && analyze.pack_stock_type == 0 || analyze.pack_stock_type == 2 ||
                 (analyze.pack_stock_type == 3 && (JeproLabSettingModel.getIntValue("pack_stock_type") == 0 || JeproLabSettingModel.getIntValue("pack_stock_type") == 2)))) {
                 // Gets client_orders_qty
-                query = "SELECT request_detail." + dataBaseObject.quoteName("analyze_quantity") + ", request_detail." + dataBaseObject.quoteName("analyze_quantity_refunded") + " FROM ";
-                query += dataBaseObject.quoteName("#__jeprolab_request_detail") + " AS request_detail LEFT JOIN " + dataBaseObject.quoteName("#__jeprolab_request") + " AS request ON (";
-                query += "request." + dataBaseObject.quoteName("request_id") +  " = request_detail." + dataBaseObject.quoteName("request_id") + ")";
+                query = "SELECT request_detail." + JeproLabDataBaseConnector.quoteName("analyze_quantity") + ", request_detail." + JeproLabDataBaseConnector.quoteName("analyze_quantity_refunded") + " FROM ";
+                query += JeproLabDataBaseConnector.quoteName("#__jeprolab_request_detail") + " AS request_detail LEFT JOIN " + JeproLabDataBaseConnector.quoteName("#__jeprolab_request") + " AS request ON (";
+                query += "request." + JeproLabDataBaseConnector.quoteName("request_id") +  " = request_detail." + JeproLabDataBaseConnector.quoteName("request_id") + ")";
                /* $query->select('od.product_quantity, od.product_quantity_refunded');
                 $query->from('order_detail', 'od');
                 $query->leftjoin('orders', 'o', 'o.id_order = od.id_order');

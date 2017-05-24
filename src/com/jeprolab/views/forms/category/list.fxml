@@ -1,5 +1,5 @@
 <?import javafx.scene.layout.VBox?>
 
-<VBox xmlns:fx="http://javafx.com/fxml" fx:id="jeproLabCategoryFormPanel" fx:controller="com.jeprolab.controllers.JeproLabCategoryController" spacing="5">
-
-</VBox>
+<VBox xmlns:fx="http://javafx.com/fxml"
+      fx:id="jeproLabCategoryFormPanel"
+      fx:controller="com.jeprolab.controllers.JeproLabCategoryController" />

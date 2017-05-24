@@ -103,15 +103,11 @@ public class JeproLabEmployeeModel extends JeproLabModel{
     public void loadEmployee(int employeeId){
         /** loading employee from database given it id **/
         String cacheKey = "jeprolab_employee_model_" + employeeId + "_" + this.language_id + "_" + this.laboratory_id;
-        if(dataBaseObject == null){
-            dataBaseObject = JeproLabFactory.getDataBaseConnector();
-        }
-
         if(!JeproLabCache.getInstance().isStored(cacheKey)){
-            String query = "SELECT employee.* FROM " + dataBaseObject.quoteName("#__users") + " AS employee ";
+            String query = "SELECT employee.* FROM " + JeproLabDataBaseConnector.quoteName("#__users") + " AS employee ";
             String where = "";
             if(this.language_id > 0){
-                query += " LEFT JOIN " + dataBaseObject.quoteName("#__jeprolab_employee_lang") + " AS employee_lang ON (employee.id = ";
+                query += " LEFT JOIN " + JeproLabDataBaseConnector.quoteName("#__jeprolab_employee_lang") + " AS employee_lang ON (employee.id = ";
                 query += " employee_lang.employee_id AND employee_lang.lang_id = " + this.language_id + ") ";
                 if(this.laboratory_id > 0){
                     where += " AND employee_lang.lab_id = " + this.laboratory_id;
@@ -120,29 +116,29 @@ public class JeproLabEmployeeModel extends JeproLabModel{
 
             /** laboratory association  **/
             if(JeproLabLaboratoryModel.isTableAssociated("employee")){
-                query += " LEFT JOIN " + dataBaseObject.quoteName("#__jeprolab_employee_lab") + " AS lab ON (employee.id = lab.employee_id";
+                query += " LEFT JOIN " + JeproLabDataBaseConnector.quoteName("#__jeprolab_employee_lab") + " AS lab ON (employee.id = lab.employee_id";
                 query += " AND lab.lab_id = " + this.laboratory_id + ") ";
             }
             query += " WHERE employee.id = " + employeeId + where;
-            //dataBaseObject.setQuery(query);
+            JeproLabDataBaseConnector dataBaseObject = JeproLabFactory.getDataBaseConnector();
             ResultSet result = dataBaseObject.loadObjectList(query);
-            try{
-                while(result.next()){
-                    this.employee_id = result.getInt("id");
-                    this.name = result.getString("name");
-                    this.username = result.getString("username");
-                    this.password = result.getString("password");
-                    this.email = result.getString("email");
-                    JeproLabCache.getInstance().store(cacheKey, this);
-                }
-            }catch (SQLException ignored){
-                JeproLabUncaughtExceptionHandler.logExceptionMessage(Level.ERROR, ignored);
-            }finally {
+            if(result != null) {
                 try {
-                    JeproLabFactory.removeConnection(dataBaseObject);
-                }catch (Exception ignored) {
-                    JeproLabUncaughtExceptionHandler.logExceptionMessage(Level.WARN, ignored);
+                    while (result.next()) {
+                        this.employee_id = result.getInt("id");
+                        this.name = result.getString("name");
+                        this.username = result.getString("username");
+                        this.password = result.getString("password");
+                        this.email = result.getString("email");
+                        JeproLabCache.getInstance().store(cacheKey, this);
+                    }
+                } catch (SQLException ignored) {
+                    JeproLabUncaughtExceptionHandler.logExceptionMessage(Level.ERROR, ignored);
+                } finally {
+                    closeDataBaseConnection(dataBaseObject);
                 }
+            }else{
+                closeDataBaseConnection(dataBaseObject);
             }
         }else{
             JeproLabEmployeeModel employee = (JeproLabEmployeeModel) JeproLabCache.getInstance().retrieve(cacheKey);
@@ -158,15 +154,11 @@ public class JeproLabEmployeeModel extends JeproLabModel{
     }
 
     public static Map<String, String> getEmployeeIdAndPasswordByUsername(String userName){
-        if(dataBaseObject == null){
-            dataBaseObject = JeproLabFactory.getDataBaseConnector();
-        }
+        String query = "SELECT " + JeproLabDataBaseConnector.quoteName("id") + ", " + JeproLabDataBaseConnector.quoteName("password") + " FROM ";
+        query += JeproLabDataBaseConnector.quoteName("#__users") + " WHERE " + JeproLabDataBaseConnector.quoteName("username") + " = ";
+        query += JeproLabDataBaseConnector.quote(userName);
 
-        String query = "SELECT " + dataBaseObject.quoteName("id") + ", " + dataBaseObject.quoteName("password") + " FROM ";
-        query += dataBaseObject.quoteName("#__users") + " WHERE " + dataBaseObject.quoteName("username") + " = ";
-        query += dataBaseObject.quote(userName);
-
-        //dataBaseObject.setQuery(query);
+        JeproLabDataBaseConnector dataBaseObject = JeproLabFactory.getDataBaseConnector();
         ResultSet credentialSet = dataBaseObject.loadObjectList(query);
         Map<String, String> credential = new HashMap<>();
         if(credentialSet != null){
@@ -178,25 +170,19 @@ public class JeproLabEmployeeModel extends JeproLabModel{
             }catch(SQLException ignored){
                 JeproLabUncaughtExceptionHandler.logExceptionMessage(Level.ERROR, ignored);
             }finally {
-                try{
-                    JeproLabFactory.removeConnection(dataBaseObject);
-                }catch(Exception ignored){
-                    JeproLabUncaughtExceptionHandler.logExceptionMessage(Level.WARN, ignored);
-                }
+                closeDataBaseConnection(dataBaseObject);
             }
+        }else{
+            closeDataBaseConnection(dataBaseObject);
         }
         return credential;
     }
 
     public static int getEmployeeIdByUsername(String userName){
-        if(dataBaseObject == null){
-            dataBaseObject = JeproLabFactory.getDataBaseConnector();
-        }
+        String query = "SELECT " + JeproLabDataBaseConnector.quoteName("id") + " FROM " + JeproLabDataBaseConnector.quoteName("#__users");
+        query += " WHERE " + JeproLabDataBaseConnector.quoteName("username") + " = " + JeproLabDataBaseConnector.quote(userName) + " LIMIT 0, 1";
 
-        String query = "SELECT " + dataBaseObject.quoteName("id") + " FROM " + dataBaseObject.quoteName("#__users");
-        query += " WHERE " + dataBaseObject.quoteName("username") + " = " + dataBaseObject.quote(userName) + " LIMIT 0, 1";
-
-        //dataBaseObject.setQuery(query, 0, 1);
+        JeproLabDataBaseConnector dataBaseObject = JeproLabFactory.getDataBaseConnector();
 
         int id = (int)dataBaseObject.loadValue(query, "id");
         closeDataBaseConnection(dataBaseObject);
@@ -209,11 +195,8 @@ public class JeproLabEmployeeModel extends JeproLabModel{
         }
 
         List<Integer> labs = new ArrayList<>();
-        if(dataBaseObject == null){
-            dataBaseObject = JeproLabFactory.getDataBaseConnector();
-        }
-        String query = "SELECT lab_id FROM " + dataBaseObject.quoteName("#__jeproLab_employee_lab") + " WHERE employee_id = " + this.employee_id;
-        //dataBaseObject.setQuery(query);
+        String query = "SELECT lab_id FROM " + JeproLabDataBaseConnector.quoteName("#__jeproLab_employee_lab") + " WHERE employee_id = " + this.employee_id;
+        JeproLabDataBaseConnector dataBaseObject = JeproLabFactory.getDataBaseConnector();
         ResultSet labSet = dataBaseObject.loadObjectList(query);
         if(labSet != null){
             try{
@@ -225,6 +208,8 @@ public class JeproLabEmployeeModel extends JeproLabModel{
             }finally {
                 closeDataBaseConnection(dataBaseObject);
             }
+        }else{
+            closeDataBaseConnection(dataBaseObject);
         }
         return labs;
     }

@@ -599,6 +599,8 @@ public class JeproLabTools {
         return result.substring(0, length);
     }
 
+    public static String checkUrlFormat(String url){ return url; }
+
     /***************** Numeric Validation Limit the  characters to maxLength AND to ONLY DigitS *********************/
     public static EventHandler<KeyEvent> numericValidation(final Integer maxLength) {
         return e -> {

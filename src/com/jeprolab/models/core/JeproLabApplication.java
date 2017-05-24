@@ -99,7 +99,7 @@ public class JeproLabApplication {
         if(response.status != JeproLabAuthentication.SUCCESS_STATUS){
             //set logging information
         }
-        return false;
+        return true;
     }
 
     public void checkSession(){

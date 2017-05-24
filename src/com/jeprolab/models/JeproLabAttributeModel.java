@@ -1,6 +1,7 @@
 package com.jeprolab.models;
 
 import com.jeprolab.assets.tools.JeproLabContext;
+import com.jeprolab.assets.tools.db.JeproLabDataBaseConnector;
 import com.jeprolab.models.core.JeproLabFactory;
 
 import java.util.Map;
@@ -28,12 +29,11 @@ public class JeproLabAttributeModel extends JeproLabModel{
      * @return mixed Minimal quantity or false if no result
      */
     public static int getAttributeMinimalQuantity(int analyzeAttributeId){
-        if(dataBaseObject == null){ dataBaseObject = JeproLabFactory.getDataBaseConnector(); }
-        String query = "SELECT " + dataBaseObject.quoteName("minimal_quantity") + " FROM " + dataBaseObject.quoteName("#__jeprolab_analyze_attribute_lab");
-        query += " AS analyze_attribute_lab WHERE " + dataBaseObject.quoteName("lab_id") + " = " + JeproLabContext.getContext().laboratory.laboratory_id;
-        query += " AND " + dataBaseObject.quoteName("analyze_attribute_id") + " = " + analyzeAttributeId;
+        String query = "SELECT " + JeproLabDataBaseConnector.quoteName("minimal_quantity") + " FROM " + JeproLabDataBaseConnector.quoteName("#__jeprolab_analyze_attribute_lab");
+        query += " AS analyze_attribute_lab WHERE " + JeproLabDataBaseConnector.quoteName("lab_id") + " = " + JeproLabContext.getContext().laboratory.laboratory_id;
+        query += " AND " + JeproLabDataBaseConnector.quoteName("analyze_attribute_id") + " = " + analyzeAttributeId;
 
-        //dataBaseObject.setQuery(query);
+        JeproLabDataBaseConnector dataBaseObject = JeproLabFactory.getDataBaseConnector();
         int minimalQuantity = (int)dataBaseObject.loadValue(query, "minimal_quantity");
 
         if (minimalQuantity > 1) {

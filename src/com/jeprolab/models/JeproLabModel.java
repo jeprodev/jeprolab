@@ -13,13 +13,13 @@ import org.apache.log4j.Level;
 public class JeproLabModel {
     public boolean get_lab_from_context = false;
 
-    protected static JeproLabDataBaseConnector dataBaseObject;
+    //protected static JeproLabDataBaseConnector dataBaseObject;
 
-    public JeproLabModel(){
+    /*public JeproLabModel(){
         if(dataBaseObject == null){
             dataBaseObject = JeproLabFactory.getDataBaseConnector();
         }
-    }
+    }*/
 
     public static boolean isCurrentlyUsed(String table){
         return isCurrentlyUsed(table, false);
@@ -34,27 +34,22 @@ public class JeproLabModel {
      * @return bool
      */
     public static boolean isCurrentlyUsed(String table, boolean hasPublishColumn){
-        if(dataBaseObject == null){
-            dataBaseObject = JeproLabFactory.getDataBaseConnector();
-        }
-        String query = "SELECT " + dataBaseObject.quoteName(table + "_id") + " FROM " + dataBaseObject.quoteName("__jeprolab_" + table);
+        String query = "SELECT " + JeproLabDataBaseConnector.quoteName(table + "_id") + " FROM " + JeproLabDataBaseConnector.quoteName("__jeprolab_" + table);
 
-        query += (hasPublishColumn ? " WHERE " + dataBaseObject.quoteName("published") + " = 1" : "");
+        query += (hasPublishColumn ? " WHERE " + JeproLabDataBaseConnector.quoteName("published") + " = 1" : "");
 
+        JeproLabDataBaseConnector dataBaseObject = JeproLabFactory.getDataBaseConnector();
         return ((int)dataBaseObject.loadValue(query, table + "_id") > 0 );
     }
 
     public boolean updateField(String table, String field, String value, String condition, String type){
-        if(dataBaseObject == null){
-            dataBaseObject = JeproLabFactory.getDataBaseConnector();
-        }
-        String query = "UPDATE " + dataBaseObject.quoteName("#__jeprolab_" + table) + " SET " + dataBaseObject.quoteName(field);
+        String query = "UPDATE " + JeproLabDataBaseConnector.quoteName("#__jeprolab_" + table) + " SET " + JeproLabDataBaseConnector.quoteName(field);
         switch(type){
             case "int" :
                 query +=  " = " + Integer.parseInt(value);
                 break;
         }
-
+        JeproLabDataBaseConnector dataBaseObject = JeproLabFactory.getDataBaseConnector();
         boolean result = dataBaseObject.query((query + condition), false);
         closeDataBaseConnection(dataBaseObject);
         return result;
@@ -78,10 +73,13 @@ public class JeproLabModel {
     }
 
     protected static void closeDataBaseConnection(JeproLabDataBaseConnector dbo){
-        try{
-            JeproLabFactory.removeConnection(dbo);
-        }catch (Exception ignored){
-            JeproLabUncaughtExceptionHandler.logExceptionMessage(Level.WARN, ignored);
+        if(dbo != null) {
+            try {
+                JeproLabFactory.removeConnection(dbo);
+            } catch (Exception ignored) {
+                JeproLabUncaughtExceptionHandler.logExceptionMessage(Level.WARN, ignored);
+                System.out.println("Unable to remove conection current connection ");
+            }
         }
     }
 }

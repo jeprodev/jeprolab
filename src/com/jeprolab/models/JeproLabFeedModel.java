@@ -2,6 +2,7 @@ package com.jeprolab.models;
 
 
 import com.jeprolab.assets.tools.JeproLabContext;
+import com.jeprolab.assets.tools.db.JeproLabDataBaseConnector;
 import com.jeprolab.assets.tools.exception.JeproLabUncaughtExceptionHandler;
 import com.jeprolab.models.core.JeproLabFactory;
 import org.apache.log4j.Level;
@@ -44,18 +45,16 @@ public class JeproLabFeedModel extends JeproLabModel {
 
 
     public static List<JeproLabFeedModel> getFeeds(int langId, String orderBy, String orderWay){
-        if(dataBaseObject == null){
-            dataBaseObject = JeproLabFactory.getDataBaseConnector();
-        }
-
+        
         //orderBy = orderBy.replace("`", "");
 
-        String query = "SELECT SQL_CALC_FOUND_ROWS * FROM " + dataBaseObject.quoteName("#__jeprolab_feeds") + " AS feed LEFT JOIN ";
-        query += dataBaseObject.quoteName("#__jeprolab_feeds_lang") + " AS feed_lang ON(feed." + dataBaseObject.quoteName("feed_id");
-        query += " = feed_lang." + dataBaseObject.quoteName("feed_id") + " AND feed_lang." + dataBaseObject.quoteName("lang_id");
-        query += " = "  + langId + ") WHERE feed_lang." + dataBaseObject.quoteName("lang_id") + " = " + langId + " ORDER BY ";
+        String query = "SELECT SQL_CALC_FOUND_ROWS * FROM " + JeproLabDataBaseConnector.quoteName("#__jeprolab_feeds") + " AS feed LEFT JOIN ";
+        query += JeproLabDataBaseConnector.quoteName("#__jeprolab_feeds_lang") + " AS feed_lang ON(feed." + JeproLabDataBaseConnector.quoteName("feed_id");
+        query += " = feed_lang." + JeproLabDataBaseConnector.quoteName("feed_id") + " AND feed_lang." + JeproLabDataBaseConnector.quoteName("lang_id");
+        query += " = "  + langId + ") WHERE feed_lang." + JeproLabDataBaseConnector.quoteName("lang_id") + " = " + langId + " ORDER BY ";
         query += (orderBy.replace("`", "").equals("feed_id") ? "feed." : "") + orderBy + " " + orderWay ;
-        //System.out.println(query);
+
+        JeproLabDataBaseConnector dataBaseObject = JeproLabFactory.getDataBaseConnector();
         ResultSet feedSet = dataBaseObject.loadObjectList(query);
 
         List<JeproLabFeedModel> feeds = new ArrayList<>();
@@ -142,23 +141,20 @@ public class JeproLabFeedModel extends JeproLabModel {
         }
 
         public static List<JeproLabFeedBackModel> getFeedBacks(JeproLabContext context){
-            if(dataBaseObject == null){
-                dataBaseObject = JeproLabFactory.getDataBaseConnector();
-            }
+            String query = "SELECT feedback." + JeproLabDataBaseConnector.quoteName("feedback_id") + ", feedback." + JeproLabDataBaseConnector.quoteName("request_service_id");
+            query += ", feedback." + JeproLabDataBaseConnector.quoteName("enjoy_working_with_us") + ", feedback." + JeproLabDataBaseConnector.quoteName("staff_courtesy");
+            query += ", feedback." + JeproLabDataBaseConnector.quoteName("team_abilities") +  ", feedback." + JeproLabDataBaseConnector.quoteName("problem_support");
+            query += ", feedback." + JeproLabDataBaseConnector.quoteName("team_availability") + ", feedback." + JeproLabDataBaseConnector.quoteName("reuse_our_services");
+            query += ", feedback." + JeproLabDataBaseConnector.quoteName("recommend_our_services") + ", feedback." + JeproLabDataBaseConnector.quoteName("services_speed");
+            query += ", feedback." + JeproLabDataBaseConnector.quoteName("sample_delivery_speed") + ", feedback." + JeproLabDataBaseConnector.quoteName("submission");
+            query += ", feedback." + JeproLabDataBaseConnector.quoteName("reports_quality") + ", feedback." + JeproLabDataBaseConnector.quoteName("analyze_speed") + ", feedback.";
+            query += JeproLabDataBaseConnector.quoteName("online_services") + ", feedback." + JeproLabDataBaseConnector.quoteName("customer_id") + ", feedback.";
+            query += JeproLabDataBaseConnector.quoteName("global_quality") + " , CONCAT(customer." + JeproLabDataBaseConnector.quoteName("firstname")  + ", ' ', customer.";
+            query += JeproLabDataBaseConnector.quoteName("lastname") + ") AS customer_name FROM " + JeproLabDataBaseConnector.quoteName("#__jeprolab_feedback") + " AS feedback ";
+            query += "LEFT JOIN " + JeproLabDataBaseConnector.quoteName("#__jeprolab_customer") + " AS customer ON (customer." + JeproLabDataBaseConnector.quoteName("customer_id");
+            query += " = feedback." + JeproLabDataBaseConnector.quoteName("customer_id") + ") ";
 
-            String query = "SELECT feedback." + dataBaseObject.quoteName("feedback_id") + ", feedback." + dataBaseObject.quoteName("request_service_id");
-            query += ", feedback." + dataBaseObject.quoteName("enjoy_working_with_us") + ", feedback." + dataBaseObject.quoteName("staff_courtesy");
-            query += ", feedback." + dataBaseObject.quoteName("team_abilities") +  ", feedback." + dataBaseObject.quoteName("problem_support");
-            query += ", feedback." + dataBaseObject.quoteName("team_availability") + ", feedback." + dataBaseObject.quoteName("reuse_our_services");
-            query += ", feedback." + dataBaseObject.quoteName("recommend_our_services") + ", feedback." + dataBaseObject.quoteName("services_speed");
-            query += ", feedback." + dataBaseObject.quoteName("sample_delivery_speed") + ", feedback." + dataBaseObject.quoteName("submission");
-            query += ", feedback." + dataBaseObject.quoteName("reports_quality") + ", feedback." + dataBaseObject.quoteName("analyze_speed") + ", feedback.";
-            query += dataBaseObject.quoteName("online_services") + ", feedback." + dataBaseObject.quoteName("customer_id") + ", feedback.";
-            query += dataBaseObject.quoteName("global_quality") + " , CONCAT(customer." + dataBaseObject.quoteName("firstname")  + ", ' ', customer.";
-            query += dataBaseObject.quoteName("lastname") + ") AS customer_name FROM " + dataBaseObject.quoteName("#__jeprolab_feedback") + " AS feedback ";
-            query += "LEFT JOIN " + dataBaseObject.quoteName("#__jeprolab_customer") + " AS customer ON (customer." + dataBaseObject.quoteName("customer_id");
-            query += " = feedback." + dataBaseObject.quoteName("customer_id") + ") ";
-
+            JeproLabDataBaseConnector dataBaseObject = JeproLabFactory.getDataBaseConnector();
             ResultSet feedBackSet = dataBaseObject.loadObjectList(query);
 
             List<JeproLabFeedBackModel> feedBacks = new ArrayList<>();

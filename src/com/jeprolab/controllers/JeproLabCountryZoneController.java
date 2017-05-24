@@ -114,18 +114,18 @@ public class JeproLabCountryZoneController extends JeproLabController{
     }
 
     public static class JeproLabZoneRecord{
-        private SimpleIntegerProperty zoneId;
+        private SimpleIntegerProperty zoneIndex;
         private SimpleStringProperty zoneName;
         private SimpleBooleanProperty allowDelivery;
 
         public JeproLabZoneRecord(JeproLabCountryModel.JeproLabZoneModel zone){
-            zoneId = new SimpleIntegerProperty(zone.zone_id);
+            zoneIndex = new SimpleIntegerProperty(zone.zone_id);
             zoneName = new SimpleStringProperty(zone.name);
             allowDelivery = new SimpleBooleanProperty(zone.allow_delivery);
         }
 
-        public int getZoneId(){
-            return zoneId.get();
+        public int getZoneIndex(){
+            return zoneIndex.get();
         }
 
         public String getZoneName(){
@@ -167,7 +167,7 @@ public class JeproLabCountryZoneController extends JeproLabController{
             super.updateItem(item, empty);
             ObservableList<JeproLabZoneRecord> items = getTableView().getItems();
             if((items != null) && (getIndex() >= 0 && getIndex() < items.size())){
-                int itemId = items.get(getIndex()).getZoneId();
+                int itemId = items.get(getIndex()).getZoneIndex();
                 editZone.setOnAction( evt -> {
                     JeproLab.getInstance().goToForm(JeproLab.getInstance().getApplicationForms().addZoneForm);
                     JeproLab.getInstance().getApplicationForms().addZoneForm.controller.initializeContent(itemId);
@@ -179,7 +179,7 @@ public class JeproLabCountryZoneController extends JeproLabController{
         }
     }
 
-    private class JeproLabCheckBoxCell extends TableCell<JeproLabZoneRecord, Boolean>{
+    public static class JeproLabCheckBoxCell extends TableCell<JeproLabZoneRecord, Boolean>{
         private CheckBox zoneCheckBox;
 
         public JeproLabCheckBoxCell(){
@@ -233,4 +233,5 @@ public class JeproLabCountryZoneController extends JeproLabController{
             }
         }
     }
+
 }

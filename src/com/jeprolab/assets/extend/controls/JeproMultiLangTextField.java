@@ -29,11 +29,13 @@ public class JeproMultiLangTextField extends Pane {
 
         languageSelector = new ComboBox<>();
         languageSelector.setPrefWidth(75);
+        languageSelector.getStyleClass().addAll("append-button-btn");
         for (Object o : languages.entrySet()) {
             Map.Entry lang = (Map.Entry) o;
             JeproLabLanguageModel language = (JeproLabLanguageModel) lang.getValue();
             TextField field = new TextField();
             field.setId("language_" + language.language_id);
+            field.getStyleClass().addAll("append-button-field");
             fieldsPane.getChildren().add(field);
             fields[index] = field;
             index++;

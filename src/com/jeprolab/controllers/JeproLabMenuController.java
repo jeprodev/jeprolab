@@ -4,6 +4,7 @@ import com.jeprolab.JeproLab;
 import com.jeprolab.assets.tools.JeproLabContext;
 import com.jeprolab.models.JeproLabCategoryModel;
 import com.jeprolab.models.JeproLabSettingModel;
+import com.jeprolab.views.JeproLabApplicationForms;
 import javafx.fxml.FXML;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuBar;

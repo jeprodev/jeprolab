@@ -1,4 +1,5 @@
 <?import javafx.scene.layout.VBox?>
-<VBox xmlns:fx="http://javafx.org/fxml" fx:id="jeproLabCarrierTableViewWrapper" fx:controller="com.jeprolab.controllers.JeproLabCarrierController" >
+<VBox xmlns:fx="http://javafx.org/fxml"
+      fx:id="jeproLabCarrierTableViewWrapper"
+      fx:controller="com.jeprolab.controllers.JeproLabCarrierController" />
 
-</VBox>

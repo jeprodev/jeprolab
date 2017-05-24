@@ -8,15 +8,16 @@ import javafx.concurrent.Worker;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
  *
  * Created by jeprodev on 09/01/2016.
  */
 public class JeproLabFactory {
-    private static List<JeproLabDataBaseConnector> dataBaseConnectorPool = new ArrayList<>();
+    private static CopyOnWriteArrayList<JeproLabDataBaseConnector> dataBaseConnectorPool = new CopyOnWriteArrayList<>();
 
-    private static final int NUMBER_OF_CONNECTION = 5;
+    private static final int NUMBER_OF_CONNECTION = 10;
 
     private static JeproLabSession appSession;
 
@@ -30,28 +31,36 @@ public class JeproLabFactory {
             if(addConnector(connector)){
                 return connector;
             }
-        }/*else{
-            /*Worker<JeproLabDataBaseConnector> worker = new Task<JeproLabDataBaseConnector>() {
+        }else{
+            Worker<Boolean> worker = new Task<Boolean>() {
+                JeproLabDataBaseConnector connect;
                 @Override
-                protected JeproLabDataBaseConnector call() throws Exception {
-                    JeproLabDataBaseConnector connect = new JeproLabDataBaseConnector(JeproLabConfig.DATA_BASE_HOST,
+                protected Boolean call() throws Exception {
+                     connect = new JeproLabDataBaseConnector(JeproLabConfig.DATA_BASE_HOST,
                         JeproLabConfig.DATA_BASE_DRIVER, JeproLabConfig.DATA_BASE_NAME);
                     while (true){
+                        if(isCancelled()){ return false; }
                         if(!checkIfConnectionIsFull() && addConnector(connect)){
-                            return connect;
+                            break;
                         }
                         Thread.sleep(2000);
                     }
-                    //return null;
+                    return true;
+                }
+
+                @Override
+                protected void failed(){
+
                 }
             };
 
             new Thread((Task)worker).start();
 
             ((Task)worker).setOnSucceeded(evt -> {
-                connector = worker.valueProperty()
-;            });* /
-        } */
+                //connector = worker.valueProperty()
+;            });
+        }
+
         return null;
     }
 
@@ -71,6 +80,7 @@ public class JeproLabFactory {
 
         if(dataBaseConnectorPool.contains(connector)){
             dataBaseConnectorPool.remove(connector);
+            System.out.println("Number of current connection on removing " + dataBaseConnectorPool.size());
         }
         connector.closeConnexion();
     }

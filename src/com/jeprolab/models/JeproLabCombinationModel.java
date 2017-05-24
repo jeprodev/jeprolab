@@ -1,5 +1,6 @@
 package com.jeprolab.models;
 
+import com.jeprolab.assets.tools.db.JeproLabDataBaseConnector;
 import com.jeprolab.assets.tools.exception.JeproLabUncaughtExceptionHandler;
 import com.jeprolab.models.core.JeproLabFactory;
 import org.apache.log4j.Level;
@@ -68,15 +69,12 @@ public class JeproLabCombinationModel extends JeproLabModel{
     }
 
     public List<JeproLabAttributeModel> getAttributesName(int langId){
-        if(dataBaseObject == null){
-            dataBaseObject = JeproLabFactory.getDataBaseConnector();
-        }
-        String query = "SELECT attribute_lang.* FROM " + dataBaseObject.quoteName("#__jeprolab_analyze_attribute_combination");
-        query += " AS analyze_combination JOIN " + dataBaseObject.quoteName("#__jeprolab_attribute_lang") + " AS attribute_lang";
+        String query = "SELECT attribute_lang.* FROM " + JeproLabDataBaseConnector.quoteName("#__jeprolab_analyze_attribute_combination");
+        query += " AS analyze_combination JOIN " + JeproLabDataBaseConnector.quoteName("#__jeprolab_attribute_lang") + " AS attribute_lang";
         query += " ON (analyze_combination.attribute_id = attribute_lang.attribute_id AND attribute_lang.lang_id = " + langId;
         query += ") WHERE analyze_combination.analyze_attribute_id = " + this.analyze_attribute_id;
 
-        //dataBaseObject.setQuery(query);
+        JeproLabDataBaseConnector dataBaseObject = JeproLabFactory.getDataBaseConnector();
         ResultSet attributeSet = dataBaseObject.loadObjectList(query);
         List<JeproLabAttributeModel> attributeList = new ArrayList<>();
         if(attributeSet != null){

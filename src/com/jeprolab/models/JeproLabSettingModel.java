@@ -1,5 +1,6 @@
 package com.jeprolab.models;
 
+import com.jeprolab.assets.tools.db.JeproLabDataBaseConnector;
 import com.jeprolab.assets.tools.exception.JeproLabUncaughtExceptionHandler;
 import com.jeprolab.models.core.JeproLabFactory;
 import org.apache.commons.collections4.map.HashedMap;
@@ -30,23 +31,19 @@ public class JeproLabSettingModel extends JeproLabModel {
     protected static Map<String, Object> SETTINGS;
 
     private static ResultSet getValue(String key){
-        if(dataBaseObject == null){
-            dataBaseObject = JeproLabFactory.getDataBaseConnector();
-        }
-        String query = "SELECT " + dataBaseObject.quoteName("value") + " FROM " + dataBaseObject.quoteName("#__jeprolab_setting");
-        query += " WHERE " + dataBaseObject.quoteName("name") + " = " + dataBaseObject.quote(key);
+        String query = "SELECT " + JeproLabDataBaseConnector.quoteName("value") + " FROM " + JeproLabDataBaseConnector.quoteName("#__jeprolab_setting");
+        query += " WHERE " + JeproLabDataBaseConnector.quoteName("name") + " = " + JeproLabDataBaseConnector.quote(key);
 
+        JeproLabDataBaseConnector dataBaseObject = JeproLabFactory.getDataBaseConnector();
         return dataBaseObject.loadObjectList(query);
     }
 
     public static void loadSettings() {
         SETTINGS = new HashedMap<>();
-        if (dataBaseObject == null) {
-            dataBaseObject = JeproLabFactory.getDataBaseConnector();
-        }
+        String query = "SELECT setting." + JeproLabDataBaseConnector.quoteName("name") + ", setting." + JeproLabDataBaseConnector.quoteName("value");
+        query += " FROM " + JeproLabDataBaseConnector.quoteName("#__jeprolab_setting") + " AS setting";
 
-        String query = "SELECT setting." + dataBaseObject.quoteName("name") + ", setting." + dataBaseObject.quoteName("value");
-        query += " FROM " + dataBaseObject.quoteName("#__jeprolab_setting") + " AS setting";
+        JeproLabDataBaseConnector dataBaseObject = JeproLabFactory.getDataBaseConnector();
 
         ResultSet settingsParams = dataBaseObject.loadObjectList(query);
         if (settingsParams != null) {
@@ -77,6 +74,7 @@ public class JeproLabSettingModel extends JeproLabModel {
             return Integer.parseInt(SETTINGS.get(key).toString());
         }else {
             int value = 0;
+            JeproLabDataBaseConnector dataBaseObject = JeproLabFactory.getDataBaseConnector();
             ResultSet valueSet = getValue(key);
             if (valueSet != null) {
                 try {
@@ -105,7 +103,9 @@ public class JeproLabSettingModel extends JeproLabModel {
         if(SETTINGS.containsKey(key)){
             return SETTINGS.get(key).toString();
         }else{
+            JeproLabDataBaseConnector dataBaseObject = JeproLabFactory.getDataBaseConnector();
             try{
+
                 ResultSet valueSet = getValue(key);
                 if(valueSet.next()){
                     String value = valueSet.getString("value");

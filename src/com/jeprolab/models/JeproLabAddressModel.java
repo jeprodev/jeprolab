@@ -1,7 +1,6 @@
 package com.jeprolab.models;
 
 import com.jeprolab.JeproLab;
-import com.jeprolab.assets.config.JeproLabConfigurationSettings;
 import com.jeprolab.assets.tools.JeproLabCache;
 import com.jeprolab.assets.tools.JeproLabContext;
 import com.jeprolab.assets.tools.JeproLabTools;
@@ -122,13 +121,10 @@ public class JeproLabAddressModel extends JeproLabModel{
         if(addressId > 0){
             String cacheKey = "jeprolab_";
             if(!JeproLabCache.getInstance().isStored(cacheKey)){
-                if(dataBaseObject == null){
-                    dataBaseObject = JeproLabFactory.getDataBaseConnector();
-                }
-                String query = "SELECT * FROM " + dataBaseObject.quoteName("#__jeprolab_address") + " AS address ";
+                String query = "SELECT * FROM " + JeproLabDataBaseConnector.quoteName("#__jeprolab_address") + " AS address ";
                 query += " WHERE address.address_id = " + addressId;
 
-                //dataBaseObject.setQuery(query);
+                JeproLabDataBaseConnector dataBaseObject = JeproLabFactory.getDataBaseConnector();
                 ResultSet addressSet = dataBaseObject.loadObjectList(query);
                 try{
                     while(addressSet.next()){
@@ -160,11 +156,7 @@ public class JeproLabAddressModel extends JeproLabModel{
                 }catch (SQLException ignored){
                     JeproLabUncaughtExceptionHandler.logExceptionMessage(Level.ERROR, ignored);
                 }finally {
-                    try {
-                        JeproLabFactory.removeConnection(dataBaseObject);
-                    }catch (Exception ignored) {
-                        JeproLabUncaughtExceptionHandler.logExceptionMessage(Level.WARN, ignored);
-                    }
+                    closeDataBaseConnection(dataBaseObject);
                 }
             }else{
                 JeproLabAddressModel addressModel = (JeproLabAddressModel) JeproLabCache.getInstance().retrieve(cacheKey);
@@ -206,14 +198,11 @@ public class JeproLabAddressModel extends JeproLabModel{
         }
         ResultSet  result;
         if (addressId > 0) {
-            if(dataBaseObject == null){
-                dataBaseObject = JeproLabFactory.getDataBaseConnector();
-            }
-            String query = "SELECT " + dataBaseObject.quoteName("country_id") + ", " + dataBaseObject.quoteName("state_id");
-            query += ", " + dataBaseObject.quoteName("vat_number") + ", " + dataBaseObject.quoteName("postcode") + " FROM ";
-            query += dataBaseObject.quoteName("#__jeproLab_address") + " WHERE " + dataBaseObject.quoteName("address_id") + " = " + addressId;
+            String query = "SELECT " + JeproLabDataBaseConnector.quoteName("country_id") + ", " + JeproLabDataBaseConnector.quoteName("state_id");
+            query += ", " + JeproLabDataBaseConnector.quoteName("vat_number") + ", " + JeproLabDataBaseConnector.quoteName("postcode") + " FROM ";
+            query += JeproLabDataBaseConnector.quoteName("#__jeproLab_address") + " WHERE " + JeproLabDataBaseConnector.quoteName("address_id") + " = " + addressId;
 
-            //dataBaseObject.setQuery(query);
+            JeproLabDataBaseConnector dataBaseObject = JeproLabFactory.getDataBaseConnector();
             result = dataBaseObject.loadObjectList(query);
             if(result != null){
                 try{
@@ -227,6 +216,8 @@ public class JeproLabAddressModel extends JeproLabModel{
                     }
                 }catch(SQLException ignored){
                     JeproLabUncaughtExceptionHandler.logExceptionMessage(Level.ERROR, ignored);
+                }finally {
+                    closeDataBaseConnection(dataBaseObject);
                 }
             }
             return JeproLabAddressModel.countries_ids.get(addressId);
@@ -303,13 +294,10 @@ public class JeproLabAddressModel extends JeproLabModel{
     public static boolean addressExists(int addressId){
         String cacheKey = "jeprolab_address_exists_" + addressId;
         if (!JeproLabCache.getInstance().isStored(cacheKey)) {
-            if(dataBaseObject == null){
-                dataBaseObject = JeproLabFactory.getDataBaseConnector();
-            }
-            String query = "SELECT " + dataBaseObject.quoteName("address_id") + " FROM " + dataBaseObject.quoteName("#__jeprolab_address");
-            query += " AS address WHERE " + dataBaseObject.quoteName("address_id") + " = " + addressId;
+            String query = "SELECT " + JeproLabDataBaseConnector.quoteName("address_id") + " FROM " + JeproLabDataBaseConnector.quoteName("#__jeprolab_address");
+            query += " AS address WHERE " + JeproLabDataBaseConnector.quoteName("address_id") + " = " + addressId;
 
-            //dataBaseObject.setQuery(query);
+            JeproLabDataBaseConnector dataBaseObject = JeproLabFactory.getDataBaseConnector();
             boolean addressExists = (int)dataBaseObject.loadValue(query, "address_id") > 0;
             JeproLabCache.getInstance().store(cacheKey, addressExists);
 
@@ -326,14 +314,11 @@ public class JeproLabAddressModel extends JeproLabModel{
      * @return bool The address is valid
      */
     public static boolean isValid(int addressId){
-        //$isValid = Db::getInstance()->getValue('
-        if(dataBaseObject == null){ dataBaseObject = JeproLabFactory.getDataBaseConnector(); }
-        String query = "SELECT address." + dataBaseObject.quoteName("address_id") + " FROM " + dataBaseObject.quoteName("#__jeprolab_address");
-        query += " AS address WHERE address." + dataBaseObject.quoteName("address_id") + " = " + addressId + " AND address." + dataBaseObject.quoteName("deleted");
-        query += " = 0 AND address." + dataBaseObject.quoteName("published") + " = 1 ";
+        String query = "SELECT address." + JeproLabDataBaseConnector.quoteName("address_id") + " FROM " + JeproLabDataBaseConnector.quoteName("#__jeprolab_address");
+        query += " AS address WHERE address." + JeproLabDataBaseConnector.quoteName("address_id") + " = " + addressId + " AND address." + JeproLabDataBaseConnector.quoteName("deleted");
+        query += " = 0 AND address." + JeproLabDataBaseConnector.quoteName("published") + " = 1 ";
 
-        //dataBaseObject.setQuery(query);
-
+        JeproLabDataBaseConnector dataBaseObject = JeproLabFactory.getDataBaseConnector();
         return ((int)dataBaseObject.loadValue(query, "address_id")) > 0;
     }
 
@@ -341,26 +326,22 @@ public class JeproLabAddressModel extends JeproLabModel{
      *
      */
     public void add(){
-        if(dataBaseObject == null){
-            dataBaseObject = JeproLabFactory.getDataBaseConnector();
-        }
+        String currentDate = JeproLabDataBaseConnector.quote(JeproLabTools.date("yyyy-MM-dd hh:mm:ss"));
 
-        String currentDate = dataBaseObject.quote(JeproLabTools.date("yyyy-MM-dd hh:mm:ss"));
+        String query = "INSERT INTO " + JeproLabDataBaseConnector.quoteName("#__jeprolab_address") + "(" + JeproLabDataBaseConnector.quoteName("country_id") + ", ";
+        query += JeproLabDataBaseConnector.quoteName("state_id") + ", " + JeproLabDataBaseConnector.quoteName("customer_id") + ", " + JeproLabDataBaseConnector.quoteName("manufacturer_id");
+        query += ", " + JeproLabDataBaseConnector.quoteName("supplier_id") +  ", " + JeproLabDataBaseConnector.quoteName("warehouse_id") + ", " ;
+        query += JeproLabDataBaseConnector.quoteName("alias") + ", " + JeproLabDataBaseConnector.quoteName("company") + ", " + JeproLabDataBaseConnector.quoteName("lastname") + ", " + JeproLabDataBaseConnector.quoteName("firstname");
+        query += ", " + JeproLabDataBaseConnector.quoteName("address1") + ", " + JeproLabDataBaseConnector.quoteName("address2") + ", " + JeproLabDataBaseConnector.quoteName("postcode");
+        query += ", " + JeproLabDataBaseConnector.quoteName("city") + ", " + JeproLabDataBaseConnector.quoteName("other") + ", " + JeproLabDataBaseConnector.quoteName("phone");
+        query += ", " + JeproLabDataBaseConnector.quoteName("phone_mobile") + ", " + JeproLabDataBaseConnector.quoteName("vat_number") + ", " + JeproLabDataBaseConnector.quoteName("date_add");
+        query += ", " + JeproLabDataBaseConnector.quoteName("date_upd") + ") VALUES (" + this.country_id + ", " + this.state_id + ", " + this.customer_id  + ", " + this.manufacturer_id + ", " + this.supplier_id + ", " + this.warehouse_id + ", ";
+        query += JeproLabDataBaseConnector.quote(this.alias) + ", " + JeproLabDataBaseConnector.quote(this.company) + ", " + JeproLabDataBaseConnector.quote(this.lastname) + ", ";
+        query += JeproLabDataBaseConnector.quote(this.firstname) + ", " + JeproLabDataBaseConnector.quote(this.address1) + ", " + JeproLabDataBaseConnector.quote(this.address2) + ", ";
+        query += JeproLabDataBaseConnector.quote(this.postcode) + ", " + JeproLabDataBaseConnector.quote(this.city) + ", " + JeproLabDataBaseConnector.quote(this.other) + ", ";
+        query += JeproLabDataBaseConnector.quote(this.phone) + ", " + JeproLabDataBaseConnector.quote(this.mobile_phone) + ", " + JeproLabDataBaseConnector.quote(this.vat_number) + "," + currentDate + ", " + currentDate + ")";
 
-        String query = "INSERT INTO " + dataBaseObject.quoteName("#__jeprolab_address") + "(" + dataBaseObject.quoteName("country_id") + ", ";
-        query += dataBaseObject.quoteName("state_id") + ", " + dataBaseObject.quoteName("customer_id") + ", " + dataBaseObject.quoteName("manufacturer_id");
-        query += ", " + dataBaseObject.quoteName("supplier_id") +  ", " + dataBaseObject.quoteName("warehouse_id") + ", " ;
-        query += dataBaseObject.quoteName("alias") + ", " + dataBaseObject.quoteName("company") + ", " + dataBaseObject.quoteName("lastname") + ", " + dataBaseObject.quoteName("firstname");
-        query += ", " + dataBaseObject.quoteName("address1") + ", " + dataBaseObject.quoteName("address2") + ", " + dataBaseObject.quoteName("postcode");
-        query += ", " + dataBaseObject.quoteName("city") + ", " + dataBaseObject.quoteName("other") + ", " + dataBaseObject.quoteName("phone");
-        query += ", " + dataBaseObject.quoteName("phone_mobile") + ", " + dataBaseObject.quoteName("vat_number") + ", " + dataBaseObject.quoteName("date_add");
-        query += ", " + dataBaseObject.quoteName("date_upd") + ") VALUES (" + this.country_id + ", " + this.state_id + ", " + this.customer_id  + ", " + this.manufacturer_id + ", " + this.supplier_id + ", " + this.warehouse_id + ", ";
-        query += dataBaseObject.quote(this.alias) + ", " + dataBaseObject.quote(this.company) + ", " + dataBaseObject.quote(this.lastname) + ", ";
-        query += dataBaseObject.quote(this.firstname) + ", " + dataBaseObject.quote(this.address1) + ", " + dataBaseObject.quote(this.address2) + ", ";
-        query += dataBaseObject.quote(this.postcode) + ", " + dataBaseObject.quote(this.city) + ", " + dataBaseObject.quote(this.other) + ", ";
-        query += dataBaseObject.quote(this.phone) + ", " + dataBaseObject.quote(this.mobile_phone) + ", " + dataBaseObject.quote(this.vat_number) + "," + currentDate + ", " + currentDate + ")";
-
-        //dataBaseObject.setQuery(query);
+        JeproLabDataBaseConnector dataBaseObject = JeproLabFactory.getDataBaseConnector();
         dataBaseObject.query(query, true);
         this.address_id = dataBaseObject.getGeneratedKey();
 
@@ -378,16 +359,11 @@ public class JeproLabAddressModel extends JeproLabModel{
         }
 
         if (!this.isUsed()) {
-            if(dataBaseObject == null){
-                dataBaseObject = JeproLabFactory.getDataBaseConnector();
-            }
-            String query = "DELETE FROM " + dataBaseObject.quoteName("#__jeprolab_address") + " WHERE ";
-            query += dataBaseObject.quoteName("address_id") + " = " + this.address_id;
+            String query = "DELETE FROM " + JeproLabDataBaseConnector.quoteName("#__jeprolab_address") + " WHERE ";
+            query += JeproLabDataBaseConnector.quoteName("address_id") + " = " + this.address_id;
 
-            //dataBaseObject.setQuery(query);
-            boolean result = dataBaseObject.query(query, false);
-            closeDataBaseConnection(dataBaseObject);
-            return result;
+            JeproLabDataBaseConnector dataBaseObject = JeproLabFactory.getDataBaseConnector();
+            return dataBaseObject.query(query, false);
         } else {
             this.deleted = true;
             this.update();
@@ -401,18 +377,12 @@ public class JeproLabAddressModel extends JeproLabModel{
      * @return int Order count for this address
      */
     public boolean isUsed(){
-        if(dataBaseObject == null){
-            dataBaseObject = JeproLabFactory.getDataBaseConnector();
-        }
-        String query = "ELECT COUNT(" + dataBaseObject.quoteName("request_id") + ") AS used FROM " + dataBaseObject.quoteName("#__jeprolab_request");
-        query += " WHERE "  + dataBaseObject.quoteName("delivery_address_id") + " = " + this.address_id + " OR " + dataBaseObject.quoteName("invoice_addres_id");
+        String query = "ELECT COUNT(" + JeproLabDataBaseConnector.quoteName("request_id") + ") AS used FROM " + JeproLabDataBaseConnector.quoteName("#__jeprolab_request");
+        query += " WHERE "  + JeproLabDataBaseConnector.quoteName("delivery_address_id") + " = " + this.address_id + " OR " + JeproLabDataBaseConnector.quoteName("invoice_addres_id");
         query += " = " + this.address_id;
 
-        //dataBaseObject.setQuery(query);
-
-        boolean result = dataBaseObject.loadValue(query, "used") > 0;
-        closeDataBaseConnection(dataBaseObject);
-        return result;
+        JeproLabDataBaseConnector dataBaseObject = JeproLabFactory.getDataBaseConnector();
+        return dataBaseObject.loadValue(query, "used") > 0;
     }
 
     public void update(){
@@ -428,26 +398,22 @@ public class JeproLabAddressModel extends JeproLabModel{
             JeproLabCustomerModel.resetAddressCache(this.customer_id, this.address_id);
         }
 
-        if(dataBaseObject == null){
-            dataBaseObject = JeproLabFactory.getDataBaseConnector();
-        }
+        String currentDate = JeproLabDataBaseConnector.quote(JeproLabTools.date("yyyy-MM-dd hh:mm:ss"));
 
-        String currentDate = dataBaseObject.quote(JeproLabTools.date("yyyy-MM-dd hh:mm:ss"));
-
-        String query = "UPDATE " + dataBaseObject.quoteName("#__jeprolab_address") + " SET " + dataBaseObject.quoteName("country_id") + " = ";
-        query += this.country_id + ", " + dataBaseObject.quoteName("state_id") + " = " + this.state_id + ", " + dataBaseObject.quoteName("customer_id") + " = ";
-        query += this.customer_id + ", " + dataBaseObject.quoteName("manufacturer_id") + " = " + this.manufacturer_id + ", " + dataBaseObject.quoteName("supplier_id");
-        query += " = " + this.supplier_id + ", " + dataBaseObject.quoteName("warehouse_id") + " = " + this.warehouse_id + ", " + dataBaseObject.quoteName("alias");
-        query += " = " + dataBaseObject.quote(this.alias) + ", " + dataBaseObject.quoteName("company") + " = " + dataBaseObject.quote(this.company) + ", ";
-        query += dataBaseObject.quoteName("lastname") + " = " + dataBaseObject.quote(this.lastname) + ", " + dataBaseObject.quoteName("address1") + " = ";
-        query += dataBaseObject.quote(this.address1) + ", " + dataBaseObject.quoteName("address2") + " = " + dataBaseObject.quote(this.address2) + ", ";
-        query += dataBaseObject.quoteName("postcode") + " = " + dataBaseObject.quote(this.postcode) + ", " + dataBaseObject.quoteName("city") + " = ";
-        query += dataBaseObject.quote(this.city) +  ", " + dataBaseObject.quoteName("other") + " = " + dataBaseObject.quote(this.other) + ", ";
-        query += dataBaseObject.quoteName("phone") + " = " + dataBaseObject.quote(this.phone) + ", " + dataBaseObject.quoteName("phone_mobile") + " = ";
-        query += dataBaseObject.quote(this.mobile_phone) + ", " + dataBaseObject.quoteName("firstname") + " = " + dataBaseObject.quote(this.firstname) + ", ";
-        query += dataBaseObject.quoteName("vat_number") + " = " + dataBaseObject.quote(this.vat_number) + ", " + dataBaseObject.quoteName("date_upd")+ "  = ";
-        query += currentDate + " WHERE " + dataBaseObject.quoteName("address_id") + " = " + this.address_id;
-        //dataBaseObject.setQuery(query);
+        String query = "UPDATE " + JeproLabDataBaseConnector.quoteName("#__jeprolab_address") + " SET " + JeproLabDataBaseConnector.quoteName("country_id") + " = ";
+        query += this.country_id + ", " + JeproLabDataBaseConnector.quoteName("state_id") + " = " + this.state_id + ", " + JeproLabDataBaseConnector.quoteName("customer_id") + " = ";
+        query += this.customer_id + ", " + JeproLabDataBaseConnector.quoteName("manufacturer_id") + " = " + this.manufacturer_id + ", " + JeproLabDataBaseConnector.quoteName("supplier_id");
+        query += " = " + this.supplier_id + ", " + JeproLabDataBaseConnector.quoteName("warehouse_id") + " = " + this.warehouse_id + ", " + JeproLabDataBaseConnector.quoteName("alias");
+        query += " = " + JeproLabDataBaseConnector.quote(this.alias) + ", " + JeproLabDataBaseConnector.quoteName("company") + " = " + JeproLabDataBaseConnector.quote(this.company) + ", ";
+        query += JeproLabDataBaseConnector.quoteName("lastname") + " = " + JeproLabDataBaseConnector.quote(this.lastname) + ", " + JeproLabDataBaseConnector.quoteName("address1") + " = ";
+        query += JeproLabDataBaseConnector.quote(this.address1) + ", " + JeproLabDataBaseConnector.quoteName("address2") + " = " + JeproLabDataBaseConnector.quote(this.address2) + ", ";
+        query += JeproLabDataBaseConnector.quoteName("postcode") + " = " + JeproLabDataBaseConnector.quote(this.postcode) + ", " + JeproLabDataBaseConnector.quoteName("city") + " = ";
+        query += JeproLabDataBaseConnector.quote(this.city) +  ", " + JeproLabDataBaseConnector.quoteName("other") + " = " + JeproLabDataBaseConnector.quote(this.other) + ", ";
+        query += JeproLabDataBaseConnector.quoteName("phone") + " = " + JeproLabDataBaseConnector.quote(this.phone) + ", " + JeproLabDataBaseConnector.quoteName("phone_mobile") + " = ";
+        query += JeproLabDataBaseConnector.quote(this.mobile_phone) + ", " + JeproLabDataBaseConnector.quoteName("firstname") + " = " + JeproLabDataBaseConnector.quote(this.firstname) + ", ";
+        query += JeproLabDataBaseConnector.quoteName("vat_number") + " = " + JeproLabDataBaseConnector.quote(this.vat_number) + ", " + JeproLabDataBaseConnector.quoteName("date_upd")+ "  = ";
+        query += currentDate + " WHERE " + JeproLabDataBaseConnector.quoteName("address_id") + " = " + this.address_id;
+        JeproLabDataBaseConnector dataBaseObject = JeproLabFactory.getDataBaseConnector();
         dataBaseObject.query(query, false);
     }
 
@@ -464,15 +430,12 @@ public class JeproLabAddressModel extends JeproLabModel{
 
         String cacheKey = "jeprolab_address_isCountryActiveById_" + addressId;
         if (!JeproLabCache.getInstance().isStored(cacheKey)) {
-            if(dataBaseObject == null){
-                dataBaseObject = JeproLabFactory.getDataBaseConnector();
-            }
-            String query = "SELECT country." + dataBaseObject.quoteName("published") + " FROM " + dataBaseObject.quoteName("#__jeprolab_address");
-            query += " AS address LEFT JOIN " + dataBaseObject.quoteName("#__jeprolab_country") + " AS country ON country.";
-            query += dataBaseObject.quoteName("country_id") + " = address." + dataBaseObject.quoteName("country_id") + " WHERE address.";
-            query += dataBaseObject.quoteName("address_id") + " = " + addressId;
+            String query = "SELECT country." + JeproLabDataBaseConnector.quoteName("published") + " FROM " + JeproLabDataBaseConnector.quoteName("#__jeprolab_address");
+            query += " AS address LEFT JOIN " + JeproLabDataBaseConnector.quoteName("#__jeprolab_country") + " AS country ON country.";
+            query += JeproLabDataBaseConnector.quoteName("country_id") + " = address." + JeproLabDataBaseConnector.quoteName("country_id") + " WHERE address.";
+            query += JeproLabDataBaseConnector.quoteName("address_id") + " = " + addressId;
 
-            //dataBaseObject.setQuery(query);
+            JeproLabDataBaseConnector dataBaseObject = JeproLabFactory.getDataBaseConnector();
             boolean result = dataBaseObject.loadValue(query, "published") > 0;
             JeproLabCache.getInstance().store(cacheKey, result);
             return result;
@@ -505,18 +468,15 @@ public class JeproLabAddressModel extends JeproLabModel{
             return Integer.parseInt(JeproLabAddressModel.zones_ids.get(addressId).get("zone_id"));
         }*/
 
-        if(dataBaseObject == null){
-            dataBaseObject = JeproLabFactory.getDataBaseConnector();
-        }
-        String query = "SELECT state." + dataBaseObject.quoteName("zone_id") + " AS state_zone_id, country.";
-        query += dataBaseObject.quoteName("zone_id") + " FROM " + dataBaseObject.quoteName("#__jeprolab_address");
-        query += " AS address LEFT JOIN " + dataBaseObject.quoteName("#__jeprolab_country") + " AS country ON country.";
-        query += dataBaseObject.quoteName("country_id") + " = address." + dataBaseObject.quoteName("country_id");
-        query += " LEFT JOIN " + dataBaseObject.quoteName("#__jeprolab_state") + " AS state ON state.";
-        query += dataBaseObject.quoteName("state_id") + " = address." + dataBaseObject.quoteName("state_id");
-        query += " WHERE address." + dataBaseObject.quoteName("address_id") + " = " + addressId;
+        String query = "SELECT state." + JeproLabDataBaseConnector.quoteName("zone_id") + " AS state_zone_id, country.";
+        query += JeproLabDataBaseConnector.quoteName("zone_id") + " FROM " + JeproLabDataBaseConnector.quoteName("#__jeprolab_address");
+        query += " AS address LEFT JOIN " + JeproLabDataBaseConnector.quoteName("#__jeprolab_country") + " AS country ON country.";
+        query += JeproLabDataBaseConnector.quoteName("country_id") + " = address." + JeproLabDataBaseConnector.quoteName("country_id");
+        query += " LEFT JOIN " + JeproLabDataBaseConnector.quoteName("#__jeprolab_state") + " AS state ON state.";
+        query += JeproLabDataBaseConnector.quoteName("state_id") + " = address." + JeproLabDataBaseConnector.quoteName("state_id");
+        query += " WHERE address." + JeproLabDataBaseConnector.quoteName("address_id") + " = " + addressId;
 
-        //dataBaseObject.setQuery(query);
+        JeproLabDataBaseConnector dataBaseObject = JeproLabFactory.getDataBaseConnector();
         ResultSet zoneSet = dataBaseObject.loadObjectList(query);
         if(zoneSet != null){
             try{
@@ -526,6 +486,8 @@ public class JeproLabAddressModel extends JeproLabModel{
                 }
             }catch(SQLException ignored){
                 JeproLabUncaughtExceptionHandler.logExceptionMessage(Level.ERROR, ignored);
+            }finally {
+                closeDataBaseConnection(dataBaseObject);
             }
         }
         return Integer.parseInt(JeproLabAddressModel.zones_ids.get(addressId).get("zone_id"));
@@ -546,16 +508,12 @@ public class JeproLabAddressModel extends JeproLabModel{
      * @return int address id
      */
     public static int getAddressIdBySCustomerId(int customerId){
-        if(dataBaseObject == null){
-            dataBaseObject = JeproLabFactory.getDataBaseConnector();
-        }
-        String query = "SELECT " + dataBaseObject.quoteName("address_id") + " FROM " + dataBaseObject.quoteName("#__jeprolab_address");
-        query += " WHERE " + dataBaseObject.quoteName("customer_id") + " = " + customerId + " AND " + dataBaseObject.quoteName("deleted");
-        query += " = 0 AND " + dataBaseObject.quoteName("published") + " = 0 AND " + dataBaseObject.quoteName("supplier_id") + " = 0 AND ";
-        query += dataBaseObject.quoteName("manufacturer_id") + " = 0 AND " + dataBaseObject.quoteName("warehouse_id") + " = 0";
-        //dataBaseObject.setQuery(query);
+        String query = "SELECT " + JeproLabDataBaseConnector.quoteName("address_id") + " FROM " + JeproLabDataBaseConnector.quoteName("#__jeprolab_address");
+        query += " WHERE " + JeproLabDataBaseConnector.quoteName("customer_id") + " = " + customerId + " AND " + JeproLabDataBaseConnector.quoteName("deleted");
+        query += " = 0 AND " + JeproLabDataBaseConnector.quoteName("published") + " = 0 AND " + JeproLabDataBaseConnector.quoteName("supplier_id") + " = 0 AND ";
+        query += JeproLabDataBaseConnector.quoteName("manufacturer_id") + " = 0 AND " + JeproLabDataBaseConnector.quoteName("warehouse_id") + " = 0";
+        JeproLabDataBaseConnector dataBaseObject = JeproLabFactory.getDataBaseConnector();
         return (int)dataBaseObject.loadValue(query, "address_id");
-
     }
 
     /**
@@ -565,30 +523,22 @@ public class JeproLabAddressModel extends JeproLabModel{
      * @return int address id
      */
     public static int getAddressIdBySupplierId(int supplierId){
-        if(dataBaseObject == null){
-            dataBaseObject = JeproLabFactory.getDataBaseConnector();
-        }
-        String query = "SELECT " + dataBaseObject.quoteName("address_id") + " FROM " + dataBaseObject.quoteName("#__jeprolab_address");
-        query += " WHERE " + dataBaseObject.quoteName("supplier_id") + " = " + supplierId + " AND " + dataBaseObject.quoteName("deleted");
-        query += " = 0 AND " + dataBaseObject.quoteName("published") + " = 1 AND " + dataBaseObject.quoteName("customer_id") + " = 0 AND ";
-        query += dataBaseObject.quoteName("manufacturer_id") + " = 0 AND " + dataBaseObject.quoteName("warehouse_id") + " = 0";
-        //dataBaseObject.setQuery(query);
+        String query = "SELECT " + JeproLabDataBaseConnector.quoteName("address_id") + " FROM " + JeproLabDataBaseConnector.quoteName("#__jeprolab_address");
+        query += " WHERE " + JeproLabDataBaseConnector.quoteName("supplier_id") + " = " + supplierId + " AND " + JeproLabDataBaseConnector.quoteName("deleted");
+        query += " = 0 AND " + JeproLabDataBaseConnector.quoteName("published") + " = 1 AND " + JeproLabDataBaseConnector.quoteName("customer_id") + " = 0 AND ";
+        query += JeproLabDataBaseConnector.quoteName("manufacturer_id") + " = 0 AND " + JeproLabDataBaseConnector.quoteName("warehouse_id") + " = 0";
+        JeproLabDataBaseConnector dataBaseObject = JeproLabFactory.getDataBaseConnector();
         return (int)dataBaseObject.loadValue(query, "address_id");
     }
 
     public static boolean aliasExist(String alias, int addressId, int customerId){
-        if(dataBaseObject == null){
-            dataBaseObject = JeproLabFactory.getDataBaseConnector();
-        }
-        String query = "SELECT COUNT(*) AS address FROM " + dataBaseObject.quoteName("#__jeprolab_address") + " WHERE ";
-        query += dataBaseObject.quoteName("alias") + " = " + dataBaseObject.quote(alias) + " AND " ;
-        query += dataBaseObject.quoteName("address_id") + " = " + addressId + " AND " + dataBaseObject.quoteName("customer_id");
-        query += " = " + customerId + " AND " + dataBaseObject.quoteName("deleted") + " = 0";
+        String query = "SELECT COUNT(*) AS address FROM " + JeproLabDataBaseConnector.quoteName("#__jeprolab_address") + " WHERE ";
+        query += JeproLabDataBaseConnector.quoteName("alias") + " = " + JeproLabDataBaseConnector.quote(alias) + " AND " ;
+        query += JeproLabDataBaseConnector.quoteName("address_id") + " = " + addressId + " AND " + JeproLabDataBaseConnector.quoteName("customer_id");
+        query += " = " + customerId + " AND " + JeproLabDataBaseConnector.quoteName("deleted") + " = 0";
 
-        //dataBaseObject.setQuery(query);
-        boolean result = dataBaseObject.loadValue(query, "address") > 0;
-        closeDataBaseConnection(dataBaseObject);
-        return result;
+        JeproLabDataBaseConnector dataBaseObject = JeproLabFactory.getDataBaseConnector();
+        return dataBaseObject.loadValue(query, "address") > 0;
     }
 
     public static int getCustomerFirstAddressId(int customerId){
@@ -601,15 +551,11 @@ public class JeproLabAddressModel extends JeproLabModel{
         }
         String cacheKey = "jeprolab_address_getFirstCustomerAddressId_" + customerId + "_" + (active ? 1 : 0);
         if (!JeproLabCache.getInstance().isStored(cacheKey)) {
-            if(dataBaseObject == null){
-                dataBaseObject = JeproLabFactory.getDataBaseConnector();
-            }
+            String query = "SELECT " + JeproLabDataBaseConnector.quoteName("address_id") + " FROM " + JeproLabDataBaseConnector.quoteName("#__jeprolab_address");
+            query += " WHERE " + JeproLabDataBaseConnector.quoteName("customer_id") + " = " + customerId + " AND " + JeproLabDataBaseConnector.quoteName("deleted");
+            query += " = 0 " + (active ? " AND " + JeproLabDataBaseConnector.quoteName("published") + " = 1" : "");
 
-            String query = "SELECT " + dataBaseObject.quoteName("address_id") + " FROM " + dataBaseObject.quoteName("#__jeprolab_address");
-            query += " WHERE " + dataBaseObject.quoteName("customer_id") + " = " + customerId + " AND " + dataBaseObject.quoteName("deleted");
-            query += " = 0 " + (active ? " AND " + dataBaseObject.quoteName("published") + " = 1" : "");
-
-            //dataBaseObject.setQuery(query);
+            JeproLabDataBaseConnector dataBaseObject = JeproLabFactory.getDataBaseConnector();
             int result = (int)dataBaseObject.loadValue(query, "address_id");
             JeproLabCache.getInstance().store(cacheKey, result);
             return result;
@@ -630,25 +576,22 @@ public class JeproLabAddressModel extends JeproLabModel{
     }
 
     public static List<JeproLabAddressModel> getAddresses(int langId, String orderBy, String orderWay) {
-        if (dataBaseObject == null) {
-            dataBaseObject = JeproLabFactory.getDataBaseConnector();
-        }
-
         String orderByFilter = orderBy.replace("`", "");
 
-        String query = "SELECT SQL_CALC_FOUND_ROWS address." + dataBaseObject.quoteName("address_id");
-        query += ", address." + dataBaseObject.quoteName("firstname") + ", address." + dataBaseObject.quoteName("lastname");
-        query += ", address." + dataBaseObject.quoteName("address1") + ", address." + dataBaseObject.quoteName("postcode");
-        query += ", address." + dataBaseObject.quoteName("city") + ", country_lang." + dataBaseObject.quoteName("name");
-        query += " AS country FROM " + dataBaseObject.quoteName("#__jeprolab_address") + " AS address LEFT JOIN ";
-        query += dataBaseObject.quoteName("#__jeprolab_country_lang") + " AS country_lang ON(country_lang.";
-        query += dataBaseObject.quoteName("country_id") + " = address." + dataBaseObject.quoteName("country_id");
-        query += " AND country_lang." + dataBaseObject.quoteName("lang_id") + " = " + langId + ") LEFT JOIN ";
-        query += dataBaseObject.quoteName("#__jeprolab_customer") + " AS customer ON address." + dataBaseObject.quoteName("customer_id");
-        query += " = customer." + dataBaseObject.quoteName("customer_id") + " WHERE address.customer_id != 0 ";
+        String query = "SELECT SQL_CALC_FOUND_ROWS address." + JeproLabDataBaseConnector.quoteName("address_id");
+        query += ", address." + JeproLabDataBaseConnector.quoteName("firstname") + ", address." + JeproLabDataBaseConnector.quoteName("lastname");
+        query += ", address." + JeproLabDataBaseConnector.quoteName("address1") + ", address." + JeproLabDataBaseConnector.quoteName("postcode");
+        query += ", address." + JeproLabDataBaseConnector.quoteName("city") + ", country_lang." + JeproLabDataBaseConnector.quoteName("name");
+        query += " AS country FROM " + JeproLabDataBaseConnector.quoteName("#__jeprolab_address") + " AS address LEFT JOIN ";
+        query += JeproLabDataBaseConnector.quoteName("#__jeprolab_country_lang") + " AS country_lang ON(country_lang.";
+        query += JeproLabDataBaseConnector.quoteName("country_id") + " = address." + JeproLabDataBaseConnector.quoteName("country_id");
+        query += " AND country_lang." + JeproLabDataBaseConnector.quoteName("lang_id") + " = " + langId + ") LEFT JOIN ";
+        query += JeproLabDataBaseConnector.quoteName("#__jeprolab_customer") + " AS customer ON address." + JeproLabDataBaseConnector.quoteName("customer_id");
+        query += " = customer." + JeproLabDataBaseConnector.quoteName("customer_id") + " WHERE address.customer_id != 0 ";
         query += JeproLabLaboratoryModel.addSqlRestriction(JeproLabLaboratoryModel.SHARE_CUSTOMER, "customer");
         query += " ORDER BY " + (orderByFilter.equals("address_id") ? "address." : "") + orderBy + " " + orderWay;
 
+        JeproLabDataBaseConnector dataBaseObject = JeproLabFactory.getDataBaseConnector();
         ResultSet addressesSet = dataBaseObject.loadObjectList(query);
         List<JeproLabAddressModel> addresses = new ArrayList<>();
 
@@ -671,11 +614,7 @@ public class JeproLabAddressModel extends JeproLabModel{
                 ignored.printStackTrace();
                 JeproLabUncaughtExceptionHandler.logExceptionMessage(Level.ERROR, ignored);
             }finally {
-                try {
-                    JeproLabFactory.removeConnection(dataBaseObject);
-                } catch (Exception ignored) {
-                    JeproLabUncaughtExceptionHandler.logExceptionMessage(Level.WARN, ignored);
-                }
+                closeDataBaseConnection(dataBaseObject);
             }
         }
 

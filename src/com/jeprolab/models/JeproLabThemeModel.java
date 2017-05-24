@@ -35,12 +35,9 @@ public class JeproLabThemeModel extends JeproLabModel{
     public static int access_rights = 0775;
 
     public static List<JeproLabThemeModel> getThemes(){
-        if(dataBaseObject == null){
-            dataBaseObject = JeproLabFactory.getDataBaseConnector();
-        }
+        String query = "SELECT * FROM " + JeproLabDataBaseConnector.quoteName("#__jeprolab_theme") + " ORDER BY " + JeproLabDataBaseConnector.quoteName("theme_name");
 
-        String query = "SELECT * FROM " + dataBaseObject.quoteName("#__jeprolab_theme") + " ORDER BY " + dataBaseObject.quoteName("theme_name");
-        //dataBaseObject.setQuery(query);
+        JeproLabDataBaseConnector dataBaseObject = JeproLabFactory.getDataBaseConnector();
 
         ResultSet themesSet = dataBaseObject.loadObjectList(query);
         List<JeproLabThemeModel> themeList = new ArrayList<>();

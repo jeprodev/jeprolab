@@ -17,8 +17,12 @@
             <JeproSwitchButton GridPane.columnIndex="1" GridPane.rowIndex="2" fx:id="jeproLabShareRequest"/>
             <Label GridPane.columnIndex="0" GridPane.rowIndex="3" fx:id="jeproLabShareResultsLabel" />
             <JeproSwitchButton GridPane.columnIndex="1" GridPane.rowIndex="3" fx:id="jeproLabShareResults"/>
-            <Label GridPane.columnIndex="0" GridPane.rowIndex="4" fx:id="jeproLabPublishedLabel" />
-            <JeproSwitchButton GridPane.columnIndex="1" GridPane.rowIndex="4" fx:id="jeproLabPublished"/>
+            <Label GridPane.columnIndex="0" GridPane.rowIndex="4" fx:id="jeproLabShareStocksLabel" />
+            <JeproSwitchButton GridPane.columnIndex="1" GridPane.rowIndex="4" fx:id="jeproLabShareStocks"/>
+            <Label GridPane.columnIndex="0" GridPane.rowIndex="5" fx:id="jeproLabPublishedLabel" />
+            <JeproSwitchButton GridPane.columnIndex="1" GridPane.rowIndex="5" fx:id="jeproLabPublished"/>
+            <Label GridPane.columnIndex="0" GridPane.rowIndex="6" fx:id="jeproLabDeletedLabel" />
+            <JeproSwitchButton GridPane.columnIndex="1" GridPane.rowIndex="6" fx:id="jeproLabDeleted"/>
         </GridPane>
     </JeproFormPanelContainer>
 </JeproFormPanel>
